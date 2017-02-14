@@ -1,11 +1,23 @@
-# ----------------------------------------------------------------
+"""
+# 
 # Description: Energy Demand Model - Run one year
 # Authors: Sven Eggimann, ...
-# ----------------------------------------------------------------
+#
+# Abbreviations:
+# -------------
+# bd = Base demand
+# by = Base year
+# p  = Percent
+# e  = electricitiy
+# g  = gas
+#    
+# 
+"""
+
 import sys, os
 
-print ("Start Energy Demand Model")
-print ("Python Version: " + str(sys.version))
+print("Start Energy Demand Model")
+print("Python Version: " + str(sys.version))
 
 path_python = os.getcwd()                           # Get python path
 sys.path.append(path_python)                        # Append path
@@ -13,9 +25,10 @@ sys.path.append(r'C:\Users\cenv0553\GIT\NISMODII')  # Append path to python file
 
 from main_functions import *                        # Functions main module
 import residential_model                            # Residential sub-module
-import pdb
+#import pdb
 #import transition_module                           # Module containing different technology diffusion methods
 # ...
+
 
 # Local paths
 path_main = r'C:\Users\cenv0553\GIT\NISMODII\data'
@@ -40,58 +53,76 @@ P3_sim_period = range(p2_year_end - P1_year_base)   # List with simulation years
 sim_param = [p0_year_curr, P1_year_base, p2_year_end, P3_sim_period]
 
 # Lookup tables
-reg_lookup = read_csv(path_pop_reg_lookup)               # Region lookup table
-dwelling_type_lu = read_csv(path_dwelling_type_lu) # Dwelling types lookup table
-appliance_type_lu = read_csv(path_lookup_appliances)  # Appliances types lookup table
-fuel_type_lookup = read_csv(path_fuel_type_lookup)         # Fuel type lookup
-day_type_lu = read_csv(path_day_type_lu)           # Day type lookup
-season_lookup = read_csv(path_seasons_lookup)            # Season lookup
-
-print (reg_lookup)
-print (dwelling_type_lu)
-print (appliance_type_lu)
-print (fuel_type_lookup)
+reg_lookup = read_csv(path_pop_reg_lookup)              # Region lookup table
+dwelling_type_lu = read_csv(path_dwelling_type_lu)      # Dwelling types lookup table
+appliance_type_lu = read_csv(path_lookup_appliances)    # Appliances types lookup table
+fuel_type_lookup = read_csv(path_fuel_type_lookup)      # Fuel type lookup
+day_type_lu = read_csv(path_day_type_lu)                # Day type lookup
+season_lookup = read_csv(path_seasons_lookup)           # Season lookup
+print(reg_lookup)
+print(dwelling_type_lu)
+print(appliance_type_lu)
+print(fuel_type_lookup)
 
 # Read in data
-pop_region = read_csv(path_pop_reg_base)                 # [float] Population data
+pop_region = read_csv(path_pop_reg_base, float)                # Population data
+base_fuel_data = read_csv(path_base_data_fuel, float)          # All disaggregated fuels for different regions
 
-print ("Population of regions")
-print (pop_region)
+print(pop_region)
+print(base_fuel_data)
+print("-----------------------Start calculations----------------------------")
 
-
-
+# ---------------
 # Shape initialisation
 # ---------------
-shape_appliances_elec = shape_base_resid_appliances(path_base_elec_load_profiles, day_type_lu, appliance_type_lu, sim_param[1]) # HES electricity shape (load profiles for base year given in %)
 
-# Load residential model hourly heating shape
+# Shape appliances electricity for base year derived from HES data [%]
+shape_appliances_elec = shape_base_resid_appliances(path_base_elec_load_profiles, day_type_lu, appliance_type_lu, sim_param[1])
+
+
+
+
+# Shape for heating demand for base year derived from XX [%]
 
 # Load more base demand
 
+# ---------------------------------------------------------------
+# Calculate base demand per region and fuel type per hour
+# ---------------------------------------------------------------
+bd_appliances_elec = calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_lookup, base_fuel_data)
 
-# Generate base demand per region and fuel type
-# ---------------------
-bd_appliances_elec = calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_lookup, )
+print("HEHEHEHEHEHEHE")
+print(base_fuel_data[:, 1])
+print("Base Fuel sum: " + str(base_fuel_data[:, 1].sum()))
+print("Total Demand applainces over whole year: " + str(bd_appliances_elec.sum()))
 
-
-
-
-# Generate simulation period
-# --------------------------
-# Now for 2015...could be written generically
+# ---------------------------------------------------------------
+# Generate simulation timesteps
+# ---------------------------------------------------------------
+# Now for 2015...tood: write generically
 date_list = (
-    [date(2015, 1, 12), date(2015, 12, 18)], # Week Spring (Jan) Week 03
+    [date(2015, 1, 12), date(2015, 1, 18)], # Week Spring (Jan) Week 03
     [date(2015, 4, 13), date(2015, 4, 19)], # Week Summer (April) Week 16
-    [date(2015, 7, 5), date(2015, 7, 21)], # Week Fall (July) Week 25
+    [date(2015, 7, 13), date(2015, 7, 19)], # Week Fall (July) Week 25
     [date(2015, 10, 12), date(2015, 10, 18)], # Week Winter (October) WEek 42
     )
 
-all_different_demands = []
-
-time_steps_base_demand = generate_sim_period(date_list, date_list, reg_lookup, fuel_type_lookup, appliance_type_lu, )
+time_steps = range(4 * 7 * 24) # four weeks hourly #Todo: write generically
 
 
-#pdb.set_trace()
+# Appliances time steps
+time_steps_bd_appliances = generate_sim_period_appliances(date_list, time_steps, bd_appliances_elec, reg_lookup, fuel_type_lookup, appliance_type_lu) # [GWh]
+
+
+# Test if sum is the same
+_testSum = time_steps_bd_appliances.sum()
+print("Base Deamndg Input: " + str(bd_appliances_elec.sum()))
+print("Sum of appliances of all regions: " + str(_testSum))
+print("S")
+#print("time_steps_bd_appliances")
+#print(time_steps_bd_appliances)
+
+pdb.set_trace()
 
 
 
@@ -99,7 +130,7 @@ time_steps_base_demand = generate_sim_period(date_list, date_list, reg_lookup, f
 #print ("Loaded electricity base profiles")
 #print(load_profiles[0][35])
 
-def energy_demand_model(sim_param, load_profiles_shape, pop_region, dwelling_type_lu):
+def energy_demand_model(sim_param, pop_region, dwelling_type_lu):
     """
     This function runs the energy demand module
 
@@ -124,7 +155,7 @@ def energy_demand_model(sim_param, load_profiles_shape, pop_region, dwelling_typ
     #sim_period = sim_param[3]
 
     # Run different sub-models (sector models)
-    ed_h_residential = residential_model.run(sim_param, shape_appliances_elec, pop_region, dwelling_type_lu)
+    ed_residential = residential_model.run(sim_param, shape_appliances_elec, pop_region, dwelling_type_lu)
 
     '''
     transportation_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
@@ -134,11 +165,17 @@ def energy_demand_model(sim_param, load_profiles_shape, pop_region, dwelling_typ
     Service_sector_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
 
     '''
+
+
     # Convert results to a format which can be transferred to energy supply model
-    #writeToEnergySupply()
+    path_out_energy_supply_gas = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_gas.csv'
+    path_out_energy_supply_elec = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_elec.csv'
+    #writeToEnergySupply(path_out_energy_supply_gas, inData)
+    #writeToEnergySupply(path_out_energy_supply_elec, inData)
+    #writeToEnergySupply(path_out_energy_supply_elec)
+
     return
 
 
 # Run 
-energy_demand_model(sim_param)
-
+energy_demand_model(sim_param, pop_region, dwelling_type_lu)

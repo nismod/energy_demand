@@ -39,13 +39,13 @@ def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu):
     load_profiles_sim_year = changeLoadProfilesDependingOnEfficiencies(load_profiles) # Dummy so far
 
     # Crate Building Stock
-    building_stock = create_building_stock(reg_pop, dwelling_type_lu)
+    #building_stock = create_building_stock(reg_pop, dwelling_type_lu)
 
     # Calculate total demand (multiply individual building load curves with number of buildings)
-    dict_elec_demand_all_buildings(load_profiles_sim_year, building_stock)
+    #dict_elec_demand_all_buildings(load_profiles_sim_year, building_stock)
 
     # Add eletricity load profiles into timeSteps
-    timeStepContainer = createLoadProfilesTimeStepContainer(load_profiles_sim_year, )
+    #timeStepContainer = createLoadProfilesTimeStepContainer(load_profiles_sim_year, )
 
     # Define how much of different technologies and efficiens are taken up on the market and calculate new usage
 
