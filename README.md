@@ -1,11 +1,11 @@
-# Energy Demand Model (EDM)
+# HIgh Resolution Energy (HIRE)
 
 Authors: Eggimann Sven, .....
 
 EDM was developed at the University of Oxford as part of ITRC/Mistral;
 
 The first version was developed by NAMES .
-EDM will be an extensive refactored version of EDM v1.0 by ..... (see Description)
+EDM will be an extensive refactored version of HIRE v1.0 by ..... (see Description)
 
 ## Description
 The two key conceptual innovations of the EDM will be the improvement with respect to temporal and spatial resolution. 
