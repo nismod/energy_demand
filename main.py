@@ -41,8 +41,9 @@ path_fuel_type_lu = path_main + r'\scenario_and_base_data\lookup_fuel_types.csv'
 path_day_type_lu = path_main + r'\residential_model\lookup_day_type.csv'
 path_seasons_lookup = path_main + r'\scenario_and_base_data\lookup_season.csv'
 
-path_base_elec_load_profiles = path_main + r'\residential_model\base_appliances_eletricity_load_profiles.csv'  # Path to base population
-path_base_data_fuel = path_main + r'\scenario_and_base_data\base_data_fuel.csv'  # Path to base population
+path_base_elec_load_profiles = path_main + r'\residential_model\base_appliances_eletricity_load_profiles.csv'   # Path to base population
+path_base_data_fuel = path_main + r'\scenario_and_base_data\base_data_fuel.csv'                                 # Path to base population
+path_csv_temp_2015 = path_main + r'\residential_model\CSV_YEAR_2015.csv'
 
 # Global variables
 p0_year_curr = 0                                    # [int] Current year in current simulatiod
@@ -69,22 +70,33 @@ print(fuel_type_lu)
 # ------------------
 pop_region = read_csv(path_pop_reg_base, float)         # Population data
 bd_fuel_data = read_csv(path_base_data_fuel, float)      # All disaggregated fuels for different regions
+csv_temp_2015 = read_csv(path_csv_temp_2015)      # All disaggregated fuels for different regions
 # Read in population, floor area, nr of households etc...for current year (depending on scenario) # TODO
 
-print(pop_region)
-print(bd_fuel_data)
+
+#print(pop_region)
+print("Fuel data: " + str(bd_fuel_data))
+#print(csv_temp_2015)
 print("-----------------------Start calculations----------------------------")
 
 # ---------------------------------------------------------------
 # Shape initialisation. Generate generic load profiles [in %]
 # ---------------------------------------------------------------
 
-# Shape appliances electricity for base year derived from HES data [%]
-shape_app_elec = shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_type_lu, sim_param[1])
+# Shape appliances electricity for base year derived from HES data [%] 
+shape_app_elec = shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_type_lu, sim_param[1]) # Sum must be one!
 
 # Shape heating demand for base year derived from XX [%]
+shape_hd_gas = shape_bd_hd(csv_temp_2015)  # Sum must be one!
 
 # Load more base demand
+# ...
+print(" Shapes ")
+print(" -------")
+print("Shape appliances (must be one):      " + str(shape_app_elec.sum()))
+print("Shape heating demand (must be one):  " + str(shape_hd_gas.sum()))
+print(" ")
+
 
 # ---------------------------------------------------------------
 # Base demands. Calculate base demand per region and fuel type
@@ -94,6 +106,10 @@ shape_app_elec = shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_typ
 bd_app_elec = bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data)
 
 # Base demand of heating
+bd_hd_gas = bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, bd_fuel_data)
+
+
+
 '''for reg in range(len(bd_app_elec[0])):
     cntd = 0
     ydaycnt = 0
@@ -107,30 +123,51 @@ bd_app_elec = bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data)
 prnt("..")
 '''
 
-print("--------")
-print("Base Fuel sum total per year (uk):             " + str(bd_fuel_data[:, 1].sum()))
-print("Base Fuel sum total per year (region, hourly): " + str(bd_app_elec.sum()))
-print("ll: " + str(len(bd_app_elec[0][0])))
+print("--------Stat--before---")
+print("Base Fuel elec appliances total per year (uk):             " + str(bd_fuel_data[:, 1].sum()))
+print("Base Fuel elec appliances total per year (region, hourly): " + str(bd_app_elec.sum()))
+print("  ")
+print("Base gas hd appliances total per year (uk):                " + str(bd_fuel_data[:, 2].sum()))
+print("Base gas hd appliancestotal per year (region, hourly):     " + str(bd_hd_gas.sum()))
 
 # ---------------------------------------------------------------
 # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
 # ---------------------------------------------------------------
 # Now for 2015...tood: write generically
 timesteps_selection = (
-    [date(2015, 1, 12), date(2015, 1, 18)], # Week Spring (Jan) Week 03
-    [date(2015, 4, 13), date(2015, 4, 19)], # Week Summer (April) Week 16
-    [date(2015, 7, 13), date(2015, 7, 19)], # Week Fall (July) Week 25
-    [date(2015, 10, 12), date(2015, 10, 18)], # Week Winter (October) WEek 42
+    [date(2015, 1, 12), date(2015, 1, 18)],     # Week Spring (Jan) Week 03
+    [date(2015, 4, 13), date(2015, 4, 19)],     # Week Summer (April) Week 16
+    [date(2015, 7, 13), date(2015, 7, 19)],     # Week Fall (July) Week 25
+    [date(2015, 10, 12), date(2015, 10, 18)],   # Week Winter (October) WEek 42
     )
 #timesteps_selection = ([date(2015, 1, 12), date(2015, 12, 31)]) # whole year#
 
 # Appliances timesteps base demand
 timesteps_app_bd = create_timesteps_app(timesteps_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu) # [GWh]
 
-print("Base fuel electrictiy appliances timsteps: " + str(timesteps_app_bd.sum()))
+# Heating timesteps base demand
+timesteps_hd = create_timesteps_hd(timesteps_selection, bd_hd_gas, reg_lu, fuel_type_lu) # [GWh]
+
+print("----------------------Statistics--------------------")
+print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
+print("Number of timestpes heating demand:      " + str(len(timesteps_hd[0][1])))
+print(" ")
+print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
+print("Sum heating emand simulation period:     " + str(timesteps_hd.sum()))
+print(" ")
+
+
+#for i in timesteps_hd[0][1]: # gas
+#    print("--")
+#    print(i)
+#    #break
+
 # Heating demand timesteps
 
 # Yearly estimate (# Todo if necessary)
+
+print("---run model---")
+
 
 def energy_demand_model(sim_param, pop_region, dwelling_type_lu, timesteps_app_bd):
     """

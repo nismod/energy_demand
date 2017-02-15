@@ -98,11 +98,76 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
             timstep_h += 1
 
             # Collect absolute data from
-            print("Add data to timstep container:    Timestep " + str(t_step) + str(" timstep_h: ") + str(timstep_h) + str("  ") + str(reg_nr) + str("  ") + str(year_day_python) + ("   ") + str(bd_app_elec[reg_nr][fuel_type][year_day_python][:,timstep_h].sum()))
+            #print("Add data to timstep container:    Timestep " + str(t_step) + str(" timstep_h: ") + str(timstep_h) + str("  ") + str(reg_nr) + str("  ") + str(year_day_python) + ("   ") + str(bd_app_elec[reg_nr][fuel_type][year_day_python][:,timstep_h].sum()))
             data_timesteps_elec[reg_nr][fuel_type][t_step][:, timstep_h] = bd_app_elec[reg_nr][fuel_type][year_day_python][:, timstep_h]  # ITerate hour of appliances (column) # Problem dass nur eine h und nicht 
         #break
 
     return data_timesteps_elec
+
+
+def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu): # TODO: HIER GIBTS NOCH ERROR
+    '''
+    This function creates the simulation time steps for which the heating energy is calculated.
+    Then it selects energy demand from the yearl list for the simulation period.
+
+    Input:
+    -date_list              List containing selection of dates the simulation should run
+    -bd_hd_gas              Base demand heating (gas)
+    -reg_lu                 Region look-up table
+    -fuel_type_lu           Fuel type look-up table
+
+    Output:
+    -data_timesteps_elec    Timesteps containing appliances electricity data
+        regions
+            fuel_type
+                timesteps
+                    applications
+                        hours
+    '''
+    # Region, Fuel
+    hours = range(24)
+    fuel_type = 1 #gas
+
+    # Create timestep dates
+    timestep_dates = []
+    for i in date_list:
+        start_date, end_date = i[0], i[1]
+        list_dates = list(datetime_range(start=start_date, end=end_date))
+
+        #Add to list
+        for j in list_dates:
+            #print("j: " + str(j))
+            #prnt("...")
+            #Append 24 time steps per day
+            for _ in hours:
+                timestep_dates.append(j)
+
+    # Timesteps
+    timesteps = range(len(timestep_dates))
+
+    # Initialise simulation array
+    data_timesteps_hd_gas = np.zeros((len(reg_lu), len(fuel_type_lu), len(timesteps), len(hours)), dtype=float)
+
+    # Iterate regions
+    for reg_nr in range(len(reg_lu)):
+        print("Rrgion_cccc NR: " + str(reg_nr))
+
+        timstep_h = 0
+        for t_step in timesteps:
+
+            # Get appliances demand of region for every date of timeperiod
+            _info = timestep_dates[t_step].timetuple() # Get date
+            year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
+
+            if timstep_h == 23:
+                timstep_h = 0
+            timstep_h += 1
+
+            # Collect absolute data from
+            data_timesteps_hd_gas[reg_nr][fuel_type][t_step][timstep_h] = bd_hd_gas[reg_nr][fuel_type][year_day_python][timstep_h]  # Copy hour
+
+    return data_timesteps_hd_gas
+
 
 def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_year):
     '''
@@ -234,28 +299,26 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
     '''
     fuelType_elec = 0 # Electrcitiy
 
-    print("bd_fuel_data")
-    print(bd_fuel_data)  # Electricity is bd_fuel_data[:,0]
+    #print("bd_fuel_data")
+    #print(bd_fuel_data)  # Electricity is bd_fuel_data[:,0]
 
     bd_fuel_data_electricity = bd_fuel_data[:, 1] # Base fuel per region
-    print("bd_fuel_data_electricity")
-    print(bd_fuel_data_electricity)
-    print("---")
-    print(len(fuel_type_lu))
-    print(reg_lu)
+    #print("bd_fuel_data_electricity")
+    #print(bd_fuel_data_electricity)
+    ##print("---")
+    #print(len(fuel_type_lu))
+    #print(reg_lu)
 
     dim_appliance = shape_app_elec.shape
-    print("dim_appliance: " + str(dim_appliance))
+    #print("dim_appliance: " + str(dim_appliance))
 
     # Initialise array
     fuel_type_per_region = np.zeros((len(reg_lu), len(fuel_type_lu)), dtype=float) # To store absolute demand values
     fuel_type_per_region_hourly = np.zeros((len(reg_lu), len(fuel_type_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
 
     # Add electricity base data
-
     for region_nr in range(len(reg_lu)):
         fuel_type_per_region[region_nr][fuelType_elec] = bd_fuel_data_electricity[region_nr]
-
 
     print("fuel_type_per_region")
     print(fuel_type_per_region)
@@ -296,7 +359,7 @@ def writeToEnergySupply(path_out_csv, ed_ts_residential):
             if timestep == (1 * 7 * 24) or timestep == (2 * 7 * 24) or timestep == (3 * 7 * 24) or timestep == (4 * 7 * 24):
                 supplyTimeStep = 0
 
-            print(" Region: " + str(region) + str("   Demand teimstep:  ") + str(timestep) + str("   supplyTimeStep: " + str(supplyTimeStep) + str("   Sum: " + str(ed_ts_residential[region][0][timestep].sum()))))
+            #print(" Region: " + str(region) + str("   Demand teimstep:  ") + str(timestep) + str("   supplyTimeStep: " + str(supplyTimeStep) + str("   Sum: " + str(ed_ts_residential[region][0][timestep].sum()))))
 
 
     # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
@@ -319,3 +382,133 @@ def writeToEnergySupply(path_out_csv, ed_ts_residential):
             writer.writerow(row)
     '''
     return
+
+def shape_bd_hd(csv_temp_2015):
+    """
+    This function creates the shape of the base year heating demand over the full year
+
+    Input:
+    -csv_temp_2015      SNCWV temperatures for every gas-year day
+
+    """
+
+    
+    # Initilaise array to store all values for a year
+    year_days = range(365)
+    month_nr = range(12)
+    hours = range(24)
+
+    # Get hourly distribution (Sansom Data)
+    # ------------------------------------
+    hourly_hd = np.zeros((1, len(hours)), dtype=float)
+
+    # dummy data for hourly profile
+    for i in hours:
+        hourly_hd[:, i] = 1/24
+    print("Dumm hourly load curve" + str(hourly_hd))
+
+    # Initialistion
+    year_raw_values = np.zeros((len(year_days), len(hours)), dtype=float)
+
+    # Initialise dictionary with every day and hour
+    hd_data = np.zeros((len(year_days), len(hours)), dtype=float)
+
+    # Read in SNCWV and calculate heatin demand for every yearday
+    for row in csv_temp_2015:
+        sncwv = float(row[1])
+
+        row_split = row[0].split("/")
+        _day = int(row_split[0])
+        _month = int(row_split[1])
+        _year = int(row_split[2])
+
+        date_gas_day = date(_year, _month, _day)
+        #print("date_gas_day: " + str(date_gas_day))
+        #print("sncwvL        " + str(sncwv))
+
+        # Calculate demand based on correlation
+        heating_demand_correlation = -158.15 * sncwv + 3622.5
+        #print("heating_demand_correlation: " + str(heating_demand_correlation))
+
+        # Distribute daily deamd into hourly demand
+        hourly_hd_data = hourly_hd * heating_demand_correlation
+
+        _info = date_gas_day.timetuple()
+        month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
+        year_day_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        weekday = _info[6]                # 0: Monday
+
+        if weekday == 5 or weekday == 6:
+            daytype = 1 # Holiday
+        else:
+            daytype = 0 # Working day
+
+        hd_data[year_day_python] = hourly_hd_data  # DATA ARRAY
+
+    # Convert yearly data into percentages (create shape)
+    # ------------------------------------------------------------
+
+    # Calculate yearly total demand over all day years and all appliances
+    total_y_hd = hd_data.sum()
+
+    print("Sum absolute raw data: " + str(total_y_hd))
+
+    # Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
+    shape_hd = np.zeros((len(year_days), len(hours)), dtype=float)
+    shape_hd = (1.0/total_y_hd) * hd_data
+
+    print("Sum appliances_shape: " + str(shape_hd.sum()))
+    return shape_hd
+
+
+
+def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, bd_fuel_data):
+    '''
+    This function calculates absolut heating demands with help of shape for all regions
+
+    out:
+    -fuel_type_per_region_hourly        Fueltype per region per appliance per hour
+        region
+            fueltype
+                year_days
+                    appliances
+                        hours
+    '''
+    fuelType_gas = 1 # gas
+
+    print("bd_fuel_data")
+    print(bd_fuel_data)  # gas is bd_fuel_data[:,21]
+
+    bd_fuel_data_gs = bd_fuel_data[:, 2] #Gas data heating deamnd
+    print("bd_fuel_data_electricity gas")
+    print(bd_fuel_data_gs)
+
+    dim_appliance = shape_hd_gas.shape
+    print("dim_appliance: " + str(dim_appliance))
+
+    # Initialise array
+    fuel_type_per_region = np.zeros((len(reg_lu), len(fuel_type_lu)), dtype=float) # To store absolute demand values
+    fuel_type_per_region_hourly = np.zeros((len(reg_lu), len(fuel_type_lu), dim_appliance[0], dim_appliance[1]), dtype=float) # To store absolute demand values of hourly appliances
+
+    # Add electricity base data
+    for region_nr in range(len(reg_lu)):
+        fuel_type_per_region[region_nr][fuelType_gas] = bd_fuel_data_gs[region_nr]
+
+    print("fuel_type_per_region")
+    print(fuel_type_per_region)
+    print(fuel_type_per_region.sum())
+    print("-------------")
+
+    # Appliances per region
+    for region_nr in range(len(reg_lu)):
+        print("----g----")
+        reg_demand = fuel_type_per_region[region_nr][fuelType_gas]
+        print("Local tot demand " + str(reg_demand))
+        reg_hd_gas = shape_hd_gas * reg_demand # Shape elec appliance * regional demand in [GWh]
+        print("SMM: " + str(reg_hd_gas.sum()))
+        print(reg_hd_gas.shape)
+        fuel_type_per_region_hourly[region_nr][fuelType_gas] = reg_hd_gas
+        print("SUM2: " + str(fuel_type_per_region_hourly[region_nr][fuelType_gas].sum()))
+    
+    print("FFINAL: " + str(fuel_type_per_region_hourly.sum()))
+    return fuel_type_per_region_hourly
