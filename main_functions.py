@@ -77,7 +77,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
             for _ in hours:
                 timestep_dates.append(j)
 
-    print("timestep_dates: " + str(len(timestep_dates)))
+    # Timesteps
     timesteps = range(len(timestep_dates))
 
     # Initialise simulation array
@@ -86,20 +86,22 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
     # Iterate regions
     for reg_nr in range(len(reg_lu)):
         print("Rrgion_NR: " + str(reg_nr))
-
+        timstep_h = 0
         for t_step in timesteps:
 
-            # Get appliances demand of region
-            for j in list_dates:
-                _info = j.timetuple()
-                year_day_python = _info[7] - 1  # -1 because in _info yearday 1: 1. Jan
+            # Get appliances demand of region for every date of timeperiod
+            _info = timestep_dates[t_step].timetuple() # Get date
+            year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
 
-                # Collect absolute data from
-                print("ADD: " + str(reg_nr) + str("  ") + str(year_day_python) + str(bd_app_elec[fuel_type][reg_nr][year_day_python].sum()))
-                data_timesteps_elec[reg_nr][fuel_type][t_step] = bd_app_elec[fuel_type][reg_nr][year_day_python]
+            if timstep_h == 23:
+                timstep_h = 0
+            timstep_h += 1
 
-            break #Scrap remove
-    
+            # Collect absolute data from
+            print("Add data to timstep container:    Timestep " + str(t_step) + str(" timstep_h: ") + str(timstep_h) + str("  ") + str(reg_nr) + str("  ") + str(year_day_python) + ("   ") + str(bd_app_elec[reg_nr][fuel_type][year_day_python][:,timstep_h].sum()))
+            data_timesteps_elec[reg_nr][fuel_type][t_step][:, timstep_h] = bd_app_elec[reg_nr][fuel_type][year_day_python][:, timstep_h]  # ITerate hour of appliances (column) # Problem dass nur eine h und nicht 
+        #break
+
     return data_timesteps_elec
 
 def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_year):
@@ -246,13 +248,13 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
     print("dim_appliance: " + str(dim_appliance))
 
     # Initialise array
-    fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
-    fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
+    fuel_type_per_region = np.zeros((len(reg_lu), len(fuel_type_lu)), dtype=float) # To store absolute demand values
+    fuel_type_per_region_hourly = np.zeros((len(reg_lu), len(fuel_type_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
 
     # Add electricity base data
 
     for region_nr in range(len(reg_lu)):
-        fuel_type_per_region[fuelType_elec][region_nr] = bd_fuel_data_electricity[region_nr]
+        fuel_type_per_region[region_nr][fuelType_elec] = bd_fuel_data_electricity[region_nr]
 
 
     print("fuel_type_per_region")
@@ -261,31 +263,46 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
 
     # Appliances per region
     for region_nr in range(len(reg_lu)):
-        reg_demand = fuel_type_per_region[fuelType_elec][region_nr]
+        reg_demand = fuel_type_per_region[region_nr][fuelType_elec]
         print("Local tot demand " + str(reg_demand))
         reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
 
         #print("shape insert: " + str(reg_elec_appliance.shape))
         #print("b ex: " + str(fuel_type_per_region_hourly[fuelType_elec][region_nr].shape))
-        fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+        fuel_type_per_region_hourly[region_nr][fuelType_elec] = reg_elec_appliance
 
     return fuel_type_per_region_hourly
 
 
-def writeToEnergySupply(path_out_csv):
+def writeToEnergySupply(path_out_csv, ed_ts_residential):
     '''
     REads out results (which still need to be preared) to list of energy supply model.
 
     Input:
     -path_out_csv   Path to energy supply resulting table
     -in_data        Data input
+
+    Output:
+    -               Print results
     '''
     # Prepare data that as follows:
 
-    # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
-    new_data = [[2015, 1, 1, 1, 1, 100], [2015, 1, 1, 1, 1, 21000], [2015, 1, 1, 1, 1, 2030000]]  # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
+    print("Data for energy supply model")
+    for region in range(len(ed_ts_residential)):
+        supplyTimeStep = -1
+        for timestep in range(len(ed_ts_residential[region][0])): #ITerate over timesteps
+            supplyTimeStep += 1
 
-    # Read existing CSV
+            if timestep == (1 * 7 * 24) or timestep == (2 * 7 * 24) or timestep == (3 * 7 * 24) or timestep == (4 * 7 * 24):
+                supplyTimeStep = 0
+
+            print(" Region: " + str(region) + str("   Demand teimstep:  ") + str(timestep) + str("   supplyTimeStep: " + str(supplyTimeStep) + str("   Sum: " + str(ed_ts_residential[region][0][timestep].sum()))))
+
+
+    # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
+    #new_data = [[2015, 1, 1, 1, 1, 100], [2015, 1, 1, 1, 1, 21000], [2015, 1, 1, 1, 1, 2030000]]  # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
+
+    '''# Read existing CSV
     existing_data = read_csv(path_out_csv)
     print(existing_data)
 
@@ -300,5 +317,5 @@ def writeToEnergySupply(path_out_csv):
 
         for row in existing_data:
             writer.writerow(row)
-
+    '''
     return

@@ -94,34 +94,24 @@ shape_app_elec = shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_typ
 bd_app_elec = bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data)
 
 # Base demand of heating
-
-ydaycnt = 0
-for reg in range(len(bd_app_elec[0])):
+'''for reg in range(len(bd_app_elec[0])):
+    cntd = 0
+    ydaycnt = 0
     for yday in bd_app_elec[reg][0]:
         print("REGA " + str(ydaycnt) + ("   ") + str(yday.sum()))
         ydaycnt += 1
-
-        break
+        cntd +=1
+        if cntd == 7:
+            cntd = 0
+            break
 prnt("..")
+'''
 
 print("--------")
 print("Base Fuel sum total per year (uk):             " + str(bd_fuel_data[:, 1].sum()))
 print("Base Fuel sum total per year (region, hourly): " + str(bd_app_elec.sum()))
 print("ll: " + str(len(bd_app_elec[0][0])))
 
-'''ydaycnt = 0
-for yday in bd_app_elec[0][0]:
-    print("REGA " + str(ydaycnt) + ("   ") + str(yday.sum()))
-    ydaycnt += 1
-    break
-
-ydaycnt = 0
-for yday in bd_app_elec[0][1]:
-    print("REGB " + str(ydaycnt) + ("   ") + str(yday.sum()))
-    ydaycnt += 1
-    break
-prnt("..")
-'''
 # ---------------------------------------------------------------
 # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
 # ---------------------------------------------------------------
@@ -141,11 +131,6 @@ print("Base fuel electrictiy appliances timsteps: " + str(timesteps_app_bd.sum()
 # Heating demand timesteps
 
 # Yearly estimate (# Todo if necessary)
-
-for timestep in timesteps_app_bd[0][0]:
-    print("Timstep_sum. " + str(timestep.sum()))
-prnt(",...")
-
 
 def energy_demand_model(sim_param, pop_region, dwelling_type_lu, timesteps_app_bd):
     """
@@ -183,39 +168,17 @@ def energy_demand_model(sim_param, pop_region, dwelling_type_lu, timesteps_app_b
 
     '''
 
-
     # Convert results to a format which can be transferred to energy supply model
     print("Write model results to energy supply")
     print("ed_residential: " + str(ed_ts_residential.sum()))
 
-    '''
-        regions
-            fuel_type
-                timesteps
-                    applications
-                        hours
-
-    '''
-    for region in range(len(ed_ts_residential)):
-        supplyTimeStep = -1
-        #print("Region: " + str(region))
-        for timestep in range(len(ed_ts_residential[region][0])): #ITerate over timesteps
-            supplyTimeStep += 1
-
-            if timestep == (1 * 7 * 24) or timestep == (2 * 7 * 24) or timestep == (3 * 7 * 24) or timestep == (4 * 7 * 24):
-                supplyTimeStep = 0
-
-            print(" Region: " + str(region) + str("   Demand teimstep:  ") + str(timestep) + str("   supplyTimeStep: " + str(supplyTimeStep) + str("   Sum: " + str(ed_ts_residential[region][0][timestep].sum()))))
-
-
-
     path_out_energy_supply_gas = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_gas.csv'
     path_out_energy_supply_elec = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_elec.csv'
+
+    writeToEnergySupply(path_out_energy_supply_elec, ed_ts_residential)
     #writeToEnergySupply(path_out_energy_supply_gas)
-    #writeToEnergySupply(path_out_energy_supply_elec)
 
     return
-
 
 # Run
 energy_demand_model(sim_param, pop_region, dwelling_type_lu, timesteps_app_bd)

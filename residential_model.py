@@ -1,14 +1,16 @@
 """
-# ----------------------------------------------------------------
-# Description: This is the residential model
-# Authors:
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # Description: This is the residential model
+    # Authors:
+    # ----------------------------------------------------------------
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # Imports
 import math as m
 import numpy as np
+
+
 
 from residential_model_functions import *
 
