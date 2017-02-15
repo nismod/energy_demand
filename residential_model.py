@@ -1,14 +1,18 @@
+"""
 # ----------------------------------------------------------------
 # Description: This is the residential model
-# Authors: 
+# Authors:
 # ----------------------------------------------------------------
+"""
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # Imports
-import numpy as np
 import math as m
+import numpy as np
+
 from residential_model_functions import *
 
-def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu):
+def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu, timesteps_app_bd):
     """
     Main function of residential model.
 
@@ -26,17 +30,14 @@ def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu):
     """
     year_current = sim_Param[0]     # Current year of simulation
     year_base = sim_Param[1]        # Base year
-    year_current_Number = year_base + year_current
+    year_current_number = year_base + year_current
 
     # --------------------------------------
     # Appliances
     # --------------------------------------
-    # getAppliances()
-
-
 
     # Assumptions about efficiences, technologies (Change  eletricity load curves for the appliances)
-    load_profiles_sim_year = changeLoadProfilesDependingOnEfficiencies(load_profiles) # Dummy so far
+    timesteps_app_sim_year = changeLoadProfilesDependingOnEfficiencies(timesteps_app_bd) # Dummy so far
 
     # Crate Building Stock
     #building_stock = create_building_stock(reg_pop, dwelling_type_lu)
@@ -44,11 +45,7 @@ def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu):
     # Calculate total demand (multiply individual building load curves with number of buildings)
     #dict_elec_demand_all_buildings(load_profiles_sim_year, building_stock)
 
-    # Add eletricity load profiles into timeSteps
-    #timeStepContainer = createLoadProfilesTimeStepContainer(load_profiles_sim_year, )
-
     # Define how much of different technologies and efficiens are taken up on the market and calculate new usage
-
 
     # Read in population, floor area, nr of households etc...for current year (depending on scenario)
 
@@ -64,4 +61,4 @@ def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu):
     # Sum Appliances & heating
     # ------------------
 
-    return load_profiles
+    return timesteps_app_sim_year

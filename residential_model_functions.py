@@ -1,7 +1,11 @@
+"""
 # ----------------------------------------------------------------
 # Description: This is the residential model
-# Authors: 
+# Authors:
 # ----------------------------------------------------------------
+"""
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
+
 
 # Imports
 import numpy as np
@@ -58,8 +62,5 @@ def create_building_stock(reg_pop, dwelling_type_lu):
     -
     """
 
-    building = np.zeros(len(reg_pop),len(dwelling_type_lu))
+    building = np.zeros(len(reg_pop), len(dwelling_type_lu))
     return building
-
-
-

@@ -1,12 +1,14 @@
-# This file stores all functions of main.py
+"""
+This file stores all functions of main.py
+
+"""
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 print ("Loading main functions")
 
 import csv
 import sys
 #import pandas as pd
-import datetime
 from datetime import date, timedelta as td
-
 import numpy as np
 
 
@@ -16,7 +18,7 @@ def read_csv(path_to_csv, _dt=()):
 
     Input:
     -path_to_csv              Path to CSV file
-    -_dt              Array type: default: float, otherweise 
+    -_dt              Array type: default: float, otherweise
 
     Output:
     -elements_array         Array containing whole CSV file entries
@@ -29,7 +31,7 @@ def read_csv(path_to_csv, _dt=()):
         # Rows
         for row in read_lines:
             list_elements.append(row)
-    
+
     if _dt == float:
         elements_array = np.array(list_elements, dtype=_dt)    # Convert list into array
     else:
@@ -37,63 +39,70 @@ def read_csv(path_to_csv, _dt=()):
     return elements_array
 
 
-def generate_sim_period_appliances(date_list, time_steps, bd_appliances_elec, reg_lookup, fuel_type_lookup, appliance_type_lu):
+def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu):
     '''
-    This function creates the simulation time steps for which the energy demand is calculated.
+    This function creates the simulation time steps for which the energy demand of the
+    appliances is calculated.
     Then it selects energy demand from the yearls list for the simulation period
 
+    Input:
+    -date_list              List containing selection of dates the simulation should run
+    -bd_app_elec            Base demand applications (electricity)
+    -reg_lu                 Region look-up table
+    -fuel_type_lu           Fuel type look-up table
+    -app_type_lu            Appliance look-up table
 
+    Output:
+    -data_timesteps_elec    Timesteps containing appliances electricity data
+        regions
+            fuel_type
+                timesteps
+                    applications
+                        hours
     '''
     # Region, Fuel
     hours = range(24)
     fuel_type = 0 #elec
 
     # Create timestep dates
-    time_step_dates = []
+    timestep_dates = []
     for i in date_list:
-        print("i: " + str(i))
         start_date, end_date = i[0], i[1]
         list_dates = list(datetime_range(start=start_date, end=end_date))
 
         #Add to list
         for j in list_dates:
-            
+
             #Append 24 time steps per day
-            for k in hours:
-                time_step_dates.append(j)
-    
-    print("time_step_dates: " + str(len(time_step_dates)))
+            for _ in hours:
+                timestep_dates.append(j)
 
-
+    print("timestep_dates: " + str(len(timestep_dates)))
+    timesteps = range(len(timestep_dates))
 
     # Initialise simulation array
-    data_time_steps = np.zeros((len(reg_lookup), len(fuel_type_lookup), len(time_steps), len(appliance_type_lu), len(hours)), dtype=float)
+    data_timesteps_elec = np.zeros((len(reg_lu), len(fuel_type_lu), len(timesteps), len(app_type_lu), len(hours)), dtype=float)
 
     # Iterate regions
-    for reg_nr in range(len(reg_lookup)):
-        print("REgion_NR: " + str(reg_nr))
+    for reg_nr in range(len(reg_lu)):
+        print("Rrgion_NR: " + str(reg_nr))
 
-        for ts in time_steps:
-
+        for t_step in timesteps:
 
             # Get appliances demand of region
             for j in list_dates:
                 _info = j.timetuple()
-                month = _info[1]            # Month 1: Jan
-                month_python = month - 1
-                year_day = _info[7]         # Day nr of the year 1.Jan = 1
-                year_day_python = year_day - 1
-                weekday = _info[6]          # 0: Monday
+                year_day_python = _info[7] - 1  # -1 because in _info yearday 1: 1. Jan
 
                 # Collect absolute data from
-                _data_yearday = bd_appliances_elec[fuel_type][reg_nr][year_day_python]
+                print("ADD: " + str(reg_nr) + str("  ") + str(year_day_python) + str(bd_app_elec[fuel_type][reg_nr][year_day_python].sum()))
+                data_timesteps_elec[reg_nr][fuel_type][t_step] = bd_app_elec[fuel_type][reg_nr][year_day_python]
 
-                data_time_steps[reg_nr][fuel_type][ts] = _data_yearday
+            break #Scrap remove
+    
+    return data_timesteps_elec
 
-
-    return data_time_steps
-
-def shape_base_resid_appliances(path_base_elec_load_profiles, daytypee_lu, appliance_type_lu, base_year):
+def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_year):
     '''
     This function reads in the HES eletricity load profiles
     of the base year and stores them in form of an array.
@@ -108,7 +117,7 @@ def shape_base_resid_appliances(path_base_elec_load_profiles, daytypee_lu, appli
     -path_base_elec_load_profiles   Path to .csv file with HSE data
     -season_lookup                  Lookup dictionary with seasons
     -daytypee_lu                    Lookup dictionary with type of days
-    -appliance_type_lu              Looup dictionary containing all appliances
+    -app_type_lu              Looup dictionary containing all appliances
     -base_year                      Base year
 
     Output:
@@ -124,10 +133,10 @@ def shape_base_resid_appliances(path_base_elec_load_profiles, daytypee_lu, appli
     year_days = range(365)
     month_nr = range(12)
     hours = range(24)
-    year_raw_values = np.zeros((len(year_days), len(appliance_type_lu), len(hours)), dtype=float)
+    year_raw_values = np.zeros((len(year_days), len(app_type_lu), len(hours)), dtype=float)
 
     # Initialise HES dictionary with every month and day-type
-    hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(appliance_type_lu), len(hours)), dtype=float)
+    hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(app_type_lu), len(hours)), dtype=float)
 
     # Read in energy profiles of base_year
     raw_elec_data = read_csv(path_base_elec_load_profiles)
@@ -154,7 +163,7 @@ def shape_base_resid_appliances(path_base_elec_load_profiles, daytypee_lu, appli
     if len(list_dates) != 365:
         print ("ERROR: year has 366 day and not 365.... ")
         sys.exit()
-    
+
     # Assign every date to the place in the array of the year
     for date_in_year in list_dates:
         _info = date_in_year.timetuple()
@@ -178,12 +187,12 @@ def shape_base_resid_appliances(path_base_elec_load_profiles, daytypee_lu, appli
     print("Sum absolute raw data: " + str(total_y_demand))
 
     # Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
-    appliances_shape = np.zeros((len(year_days), len(appliance_type_lu), len(hours)), dtype=float)
+    appliances_shape = np.zeros((len(year_days), len(app_type_lu), len(hours)), dtype=float)
     appliances_shape = (1.0/total_y_demand) * year_raw_values
 
     print("Sum appliances_shape: " + str(appliances_shape.sum()))
 
-    # Test for errors 
+    # Test for errors
     # ---------------
     _control = float(appliances_shape.sum())
     _control = round(_control, 4) # round for 4 digits
@@ -206,9 +215,7 @@ def datetime_range(start=None, end=None):
     for i in range(span.days + 1):
         yield start + td(days=i)
 
-
-
-def calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_lookup, base_fuel_data):
+def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
     '''
     This function uses the generic shapes of the load profiles to hourly disaggregate energy demand
     for all regions and fuel types
@@ -217,35 +224,35 @@ def calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_loo
 
     out:
     -fuel_type_per_region_hourly        Fueltype per region per appliance per hour
-        Fuel_type
-            region
+        region
+            fueltype
                 year_days
                     appliances
                         hours
     '''
-    fuel_elec = 0
+    fuelType_elec = 0 # Electrcitiy
 
-    print("base_fuel_data")
-    print(base_fuel_data)  # Electricity is base_fuel_data[:,0]
+    print("bd_fuel_data")
+    print(bd_fuel_data)  # Electricity is bd_fuel_data[:,0]
 
-    base_fuel_data_electricity = base_fuel_data[:, 1] # Base fuel per region
-    print("base_fuel_data_electricity")
-    print(base_fuel_data_electricity)
+    bd_fuel_data_electricity = bd_fuel_data[:, 1] # Base fuel per region
+    print("bd_fuel_data_electricity")
+    print(bd_fuel_data_electricity)
     print("---")
-    print(len(fuel_type_lookup))
-    print(reg_lookup)
+    print(len(fuel_type_lu))
+    print(reg_lu)
 
-    dim_appliance = shape_appliances_elec.shape
+    dim_appliance = shape_app_elec.shape
     print("dim_appliance: " + str(dim_appliance))
 
     # Initialise array
-    fuel_type_per_region = np.zeros((len(fuel_type_lookup), len(reg_lookup)), dtype=float) # To store absolute demand values
-    fuel_type_per_region_hourly = np.zeros((len(fuel_type_lookup), len(reg_lookup), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
+    fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
+    fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
 
     # Add electricity base data
-    fuelType_elec = 0 # Electrcitiy
-    for region_nr in range(len(reg_lookup)):
-        fuel_type_per_region[fuelType_elec][region_nr] = base_fuel_data_electricity[region_nr]
+
+    for region_nr in range(len(reg_lu)):
+        fuel_type_per_region[fuelType_elec][region_nr] = bd_fuel_data_electricity[region_nr]
 
 
     print("fuel_type_per_region")
@@ -253,10 +260,10 @@ def calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_loo
     print("-------------")
 
     # Appliances per region
-    for region_nr in range(len(reg_lookup)):
+    for region_nr in range(len(reg_lu)):
         reg_demand = fuel_type_per_region[fuelType_elec][region_nr]
         print("Local tot demand " + str(reg_demand))
-        reg_elec_appliance = shape_appliances_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
+        reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
 
         #print("shape insert: " + str(reg_elec_appliance.shape))
         #print("b ex: " + str(fuel_type_per_region_hourly[fuelType_elec][region_nr].shape))
@@ -265,7 +272,7 @@ def calc_base_demand_appliances(shape_appliances_elec, reg_lookup, fuel_type_loo
     return fuel_type_per_region_hourly
 
 
-def writeToEnergySupply(path_out_csv, in_data):
+def writeToEnergySupply(path_out_csv):
     '''
     REads out results (which still need to be preared) to list of energy supply model.
 
@@ -276,15 +283,15 @@ def writeToEnergySupply(path_out_csv, in_data):
     # Prepare data that as follows:
 
     # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
-    new_data = [[2015,1,1,1,1,100], [2015,1,1,1,1,21000], [2015,1,1,1,1,2030000]]  # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
+    new_data = [[2015, 1, 1, 1, 1, 100], [2015, 1, 1, 1, 1, 21000], [2015, 1, 1, 1, 1, 2030000]]  # YEAR	SEASON	DAY	PERIOD	BusNumber	ElecLoad
 
-    # Read existing CSV 
+    # Read existing CSV
     existing_data = read_csv(path_out_csv)
     print(existing_data)
 
     for i, j in zip(existing_data, new_data):
         i[5] = j[5]
-    
+
     print("---")
     print(existing_data)
 
