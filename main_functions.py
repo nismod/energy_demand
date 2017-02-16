@@ -7,6 +7,7 @@ print ("Loading main functions")
 
 import csv
 import sys
+import traceback
 #import pandas as pd
 from datetime import date, timedelta as td
 import numpy as np
@@ -197,9 +198,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
                 hour
     '''
     # Initilaise array to store all values for a year
-    year_days = range(365)
-    month_nr = range(12)
-    hours = range(24)
+    year_days, month_nr, hours = range(365), range(12), range(24)
     year_raw_values = np.zeros((len(year_days), len(app_type_lu), len(hours)), dtype=float)
 
     # Initialise HES dictionary with every month and day-type
@@ -210,10 +209,8 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
-        month = int(row[0])
-        daytype = int(row[1])
-        appliance_typ = int(row[2])
-        k_header = 3    # Check if in excel data starts here
+        month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
+        k_header = 3    # TODO: Check if in excel data starts here
 
         # iterate over hour
         for hour in hours:
@@ -221,16 +218,15 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
             hes_data[daytype][month][appliance_typ][hour] = _value
             k_header += 1
 
-    # Create list with all dates of a year
+    # Create list with all dates of a whole year
     start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
     list_dates = list(datetime_range(start=start_date, end=end_date))
 
-    #print("Nr of dates: " + str(len(list_dates)))
-
+    # Error because of leap year
     if len(list_dates) != 365:
-        print ("ERROR: year has 366 day and not 365.... ")
-        sys.exit()
-
+        a = "Error: Leap year has 366 day and not 365.... "
+        raise Exception(a)
+    
     # Assign every date to the place in the array of the year
     for date_in_year in list_dates:
         _info = date_in_year.timetuple()
@@ -261,14 +257,17 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
 
     # Test for errors
     # ---------------
-    _control = float(appliances_shape.sum())
-    _control = round(_control, 4) # round for 4 digits
-
-    if _control == 1.0:
-        print("Shape is 100 % - good")
-    else:
-        print("Error: The Shape is not 100 %")
-        print(_control)
+    try:
+        _control = float(appliances_shape.sum())
+        _control = round(_control, 4) # round for 4 digits
+        if _control == 1.0:
+            print("Sum of shape is 100 % - good")
+        else:
+            a = "Error: The shape calculation is not 100%. Something went wrong... "
+            raise Exception(a)
+    except Exception:
+        _val = sys.exc_info()
+        print (_val)
         sys.exit()
 
     return appliances_shape
@@ -282,7 +281,7 @@ def datetime_range(start=None, end=None):
     for i in range(span.days + 1):
         yield start + td(days=i)
 
-def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
+def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     '''
     This function uses the generic shapes of the load profiles to hourly disaggregate energy demand
     for all regions and fuel types
@@ -299,12 +298,12 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
     '''
     fuelType_elec = 0 # Electrcitiy
 
-    #print("bd_fuel_data")
-    #print(bd_fuel_data)  # Electricity is bd_fuel_data[:,0]
+    #print("fuel_bd_data")
+    #print(fuel_bd_data)  # Electricity is fuel_bd_data[:,0]
 
-    bd_fuel_data_electricity = bd_fuel_data[:, 1] # Base fuel per region
-    #print("bd_fuel_data_electricity")
-    #print(bd_fuel_data_electricity)
+    fuel_bd_data_electricity = fuel_bd_data[:, 1] # Base fuel per region
+    #print("fuel_bd_data_electricity")
+    #print(fuel_bd_data_electricity)
     ##print("---")
     #print(len(fuel_type_lu))
     #print(reg_lu)
@@ -318,20 +317,34 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, bd_fuel_data):
 
     # Add electricity base data
     for region_nr in range(len(reg_lu)):
-        fuel_type_per_region[fuelType_elec][region_nr] = bd_fuel_data_electricity[region_nr]
-
-    print("fuel_type_per_region")
-    print(fuel_type_per_region)
+        fuel_type_per_region[fuelType_elec][region_nr] = fuel_bd_data_electricity[region_nr]
 
     # Appliances per region
     for region_nr in range(len(reg_lu)):
         reg_demand = fuel_type_per_region[fuelType_elec][region_nr]
-        print("Local tot demand " + str(reg_demand))
         reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
-
-        #print("shape insert: " + str(reg_elec_appliance.shape))
-        #print("b ex: " + str(fuel_type_per_region_hourly[fuelType_elec][region_nr].shape))
         fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+
+    # Test for errors
+    # ---------------
+    try:
+        _control = round(float(fuel_type_per_region_hourly.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        _control2 = round(float(fuel_bd_data_electricity.sum()), 4)   # Sum of output energy data, rounded to 4 digits
+
+        if _control == _control2:
+            print("Input total energy demand has been correctly disaggregated.")
+        else:
+            a = "Error: Something with the disaggregation went wrong.. "
+            raise Exception(a)
+
+    except Exception:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function db_appliances:")
+        traceback.print_tb(_tb)         # Print errors
+        print (_value)
+        sys.exit()
+
 
     return fuel_type_per_region_hourly
 
@@ -385,7 +398,7 @@ def shape_bd_hd(csv_temp_2015):
     """
     This function creates the shape of the base year heating demand over the full year
 
-    #Todo: Different shapes depending on workingday/holiday 
+    #Todo: Different shapes depending on workingday/holiday
 
     Input:
     -csv_temp_2015      SNCWV temperatures for every gas-year day
@@ -455,12 +468,30 @@ def shape_bd_hd(csv_temp_2015):
     shape_hd = np.zeros((len(year_days), len(hours)), dtype=float)
     shape_hd = (1.0/total_y_hd) * hd_data
 
+    # Error Testing #TODO: write seperately
+    # -----------
+    try:
+        _control = round(float(shape_hd.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        if _control == 1:
+            print("Sum of shape is 100 % - good")
+        else:
+            a = "Error: Something with the shape curve creation went wrong "
+            raise Exception(a)
+
+    except Exception:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function shape curve gas:")
+        traceback.print_tb(_tb)         # Print errors
+        print (_value)
+        sys.exit()
+
     print("Sum appliances_shape: " + str(shape_hd.sum()))
     return shape_hd
 
 
 
-def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, bd_fuel_data):
+def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
     '''
     This function calculates absolut heating demands with help of shape for all regions
 
@@ -474,15 +505,9 @@ def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, bd_fuel_data):
     '''
     fuelType_gas = 1 # gas
 
-    print("bd_fuel_data")
-    print(bd_fuel_data)  # gas is bd_fuel_data[:,21]
-
-    bd_fuel_data_gs = bd_fuel_data[:, 2] #Gas data heating deamnd
-    print("bd_fuel_data_electricity gas")
-    print(bd_fuel_data_gs)
+    fuel_bd_data_gs = fuel_bd_data[:, 2] # Gas data heating deamnd
 
     dim_appliance = shape_hd_gas.shape
-    print("dim_appliance: " + str(dim_appliance))
 
     # Initialise array
     fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
@@ -490,23 +515,32 @@ def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, bd_fuel_data):
 
     # Add electricity base data
     for region_nr in range(len(reg_lu)):
-        fuel_type_per_region[fuelType_gas][region_nr] = bd_fuel_data_gs[region_nr]
-
-    print("fuel_type_per_region")
-    print(fuel_type_per_region)
-    print(fuel_type_per_region.sum())
-    print("-------------")
+        fuel_type_per_region[fuelType_gas][region_nr] = fuel_bd_data_gs[region_nr]
 
     # Appliances per region
     for region_nr in range(len(reg_lu)):
-        print("----g----")
         reg_demand = fuel_type_per_region[fuelType_gas][region_nr]
-        print("Local tot demand " + str(reg_demand))
         reg_hd_gas = shape_hd_gas * reg_demand # Shape elec appliance * regional demand in [GWh]
-        print("SMM: " + str(reg_hd_gas.sum()))
-        print(reg_hd_gas.shape)
         fuel_type_per_region_hourly[fuelType_gas][region_nr] = reg_hd_gas
-        print("SUM2: " + str(fuel_type_per_region_hourly[fuelType_gas][region_nr].sum()))
 
-    print("FFINAL: " + str(fuel_type_per_region_hourly.sum()))
+    # Test for errors
+    # ---------------
+    try:
+        _control = round(float(fuel_bd_data_gs.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        _control2 = round(float(fuel_type_per_region_hourly.sum()), 4)   # Sum of output energy data, rounded to 4 digits
+
+        if _control == _control2:
+            print("Input total energy demand has been correctly disaggregated.")
+        else:
+            a = "Error: Something with the disaggregation went wrong.. "
+            raise Exception(a)
+
+    except Exception:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function bd_hd_gas:")
+        traceback.print_tb(_tb)         # Print errors
+        print (_value)
+        sys.exit()
+
     return fuel_type_per_region_hourly

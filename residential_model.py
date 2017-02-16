@@ -7,7 +7,7 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-from residential_model_functions import *
+import residential_model_functions as rf
 
 def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu, timesteps_app_bd):
     """
@@ -34,7 +34,7 @@ def run(sim_Param, load_profiles, reg_pop, dwelling_type_lu, timesteps_app_bd):
     # --------------------------------------
 
     # Assumptions about efficiences, technologies (Change  eletricity load curves for the appliances)
-    timesteps_app_sim_year = changeLoadProfilesDependingOnEfficiencies(timesteps_app_bd) # Dummy so far
+    timesteps_app_sim_year = rf.changeLoadProfilesDependingOnEfficiencies(timesteps_app_bd) # Dummy so far
 
     # Crate Building Stock
     #building_stock = create_building_stock(reg_pop, dwelling_type_lu)
