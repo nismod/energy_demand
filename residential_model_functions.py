@@ -6,7 +6,6 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-
 # Imports
 import numpy as np
 
@@ -30,25 +29,7 @@ def changeLoadProfilesDependingOnEfficiencies(load_profiles):
 
     print("Change Load Profiles depending on effiiencies over time")
 
-
     return load_profiles
-
-
-
-def createLoadProfilesTimeStepContainder(load_profiles):
-    """
-    This function takes correct load profiles depending in week day, season etc. and puts it in the list
-
-    Input:
-    -load_profiles  Base load profiles
-
-    Output:
-    -load_profiles  Load profiles for simulation year
-    """
-
-
-    return load_profiles
-
 
 def create_building_stock(reg_pop, dwelling_type_lu):
     """
