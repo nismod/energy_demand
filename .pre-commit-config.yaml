@@ -1,0 +1,19 @@
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: e626cd57090d8df0be21e4df0f4e55cc3511d6ab
+    hooks:
+    -   id: trailing-whitespace
+    -   id: check-added-large-files
+    -   id: check-json
+    -   id: check-yaml
+    -   id: check-xml
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+    -   id: flake8
+        args:
+        - --exclude=docs/conf.py --ignore F401,F811 tests
+-   repo: git://github.com/FalconSocial/pre-commit-python-sorter
+    sha: 5991d2aea26858d3c3538e0b4e09255b6b99413e
+    hooks:
+    -   id: python-import-sorter
+        args:
+        - --silent-overwrite
