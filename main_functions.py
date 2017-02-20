@@ -354,6 +354,11 @@ def writeToEnergySupply(path_out_csv, fueltype, in_data):
     # Prepare data that as follows:
     outData = []
 
+    # NEW: Create ID 
+
+    # WRITE TO YAMAL FILE 
+    
+
     print("Data for energy supply model")
 
     for region_nr in range(len(in_data[fueltype])):
@@ -536,3 +541,49 @@ def conversion_ktoe_gwh(data_ktoe):
     data_gwh = data_ktoe * 11.6300000
 
     return data_gwh
+
+
+# ------------------------- New Code
+
+def timesteps_full_year(date_list): 
+    ''' Create final timsteps for full year (no gap year) and disaggregates c
+
+    Input:
+    -date_list              List containing selection of dates the simulation should run
+
+    Output:
+    -data_timesteps_elec    Timesteps containing appliances electricity data
+    '''
+    # Region, Fuel
+    hours = range(24)
+
+    timesteps_selection = ([date(2015, 1, 12), date(2015, 12, 31)], []) # Base Year
+
+    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
+    timestep_dates = get_dates_datelist(timesteps_selection)
+
+    # Number of timesteps
+    timesteps = range(len(timestep_dates))
+
+    # Initialise simulation array
+    print("Number of timetsp: " + str(len(data_timesteps_hd_gas)))
+
+    # Iterate regions
+
+    cnt_h = 0
+    for t_step in timesteps:
+
+        # Get appliances demand of region for every date of timeperiod
+        _info = timestep_dates[t_step].timetuple() # Get date
+        year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
+
+        #print("DAY SN: " + str(year_day_python) + str("  ") + str(sum(bd_hd_gas[fuel_type][reg_nr][year_day_python])))
+
+        # Get data and copy hour
+        data_timesteps_hd_gas[fuel_type][reg_nr][t_step][cnt_h] = bd_hd_gas[fuel_type][reg_nr][year_day_python][cnt_h]
+
+        cnt_h += 1
+        if cnt_h == 23:
+            cnt_h = 0
+
+    return data_timesteps_hd_gas

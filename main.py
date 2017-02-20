@@ -19,6 +19,9 @@
 #TODO data Different appliances for cold/hot extremes
 #TODO data Heating fro min_max climate 
 
+
+# Todo: Put out full year
+
 import sys
 import os
 from datetime import date

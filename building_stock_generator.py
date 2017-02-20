@@ -71,7 +71,7 @@ class House(object):
 
     """
 
-    def __init__(self, coordinates, house_id, age, hlc, pop):
+    def __init__(self, coordinates, house_id, age, hlc, pop, floor_area, temp):
         """Return a new Truck object.
 
         Arguments
@@ -80,7 +80,8 @@ class House(object):
         -age            [date]  Age af dwelling
         -hlc            [float] Heat loss coefficient
         -pop            [float] Household size for dwelling
-        -
+        -floor_area     [float] Floor area of dwelling
+        -temp           Climate variable
 
 
         """
@@ -89,25 +90,51 @@ class House(object):
         self.age = age
         self.hlc = hlc
         self.pop = pop
+        self.floor_area = floor_area
+        self.temp = temp
 
-    def scenario_driver(self):
-        """calc scenario driver with population and """
 
-        return self.pop * self.hlc
+    def scenario_driver_water_heating(self):
+        """calc scenario driver with population and heat loss coefficient """
+
+        return self.pop
+
+    def scenario_driver_lighting(self):
+        """calc scenario driver with population and floor area"""
+
+        return self.floor_area * self.pop
+
+    def scenario_driver_space_heating(self):
+        """calc scenario driver with population and floor area"""
+
+        return self.floor_area * self.pop * self.temp * self.hlc
 
 class Town_region(object):
     """Region with dwellings in it
 
     """
 
-    def __init__(self, NAME):
-        self.Name = NAME
+    def __init__(self, town_name, nr_houses):
+        self.town_name = town_name      # Town Name
+        self.nr_houses = nr_houses      # Number of houses
+        self.INPUTARGUMENTSBUILDINGS = INPUTARGUMENTSBUILDINGS
+        # Create town
+        building_list = []
+        for i in range(self.nr_houses):
+            _house = INPUTARGUMENTSBUILDINGS[i]House([23,23], 2323, 1983, 0.7, 10,)
+            building_list.append(_house)
+        self.building_list = building_list
 
-    n = 100
+    def S_D(self):
+        SUM_DRIVERS = 0
+        for _house in self.building_list:
+            SUM_DRIVERS += _house.scenario_driver()
+        print("SS: " + str(SUM_DRIVERS))
+        return SUM_DRIVERS
 
-    l = []
-    for i in range(n):
-        l.append(House(i, 99, 1, 0.8, i))
+from pprint import pprint
 
 
-Town()
+a = Town_region("Testname", 10).S_D
+
+
