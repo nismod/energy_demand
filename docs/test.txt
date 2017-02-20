@@ -1,0 +1,28 @@
+Necessary inputs
+=================
+- Economic data for regions
+- 
+-
+
+
+Scenario Drivers
+=================
+- population (regional demography)
+- gross added value
+- energy prices
+- 
+
+
+
+
+
+Llighting
+=========
+- floor area
+- 
+
+
+All other appliances
+=========
+- population
+- gross added value?

@@ -16,11 +16,13 @@ def read_csv(path_to_csv, _dt=()):
     """
     This function reads in CSV files and skip header row.
 
-    Input:
-    -path_to_csv              Path to CSV file
-    -_dt              Array type: default: float, otherweise
+    Arguments
+    =========
+    -path_to_csv            Path to CSV file
+    -_dt                    Array type: default: float, otherweise
 
-    Output:
+    Returns
+    =========
     -elements_array         Array containing whole CSV file entries
     """
     with open(path_to_csv, 'r') as csvfile:              # Read CSV file
@@ -39,15 +41,16 @@ def read_csv(path_to_csv, _dt=()):
     return elements_array
 
 def get_dates_datelist(date_list):
-    """
-    This function generates a single list from a list with start and end dates
+    """This function generates a single list from a list with start and end dates
     and adds the same date into the list according to the number of hours in a day.
 
-    Input
-    -date_list      List containing start and end dates
-
-    Output
-    -timestep-date  List containing all dates according to number of hours
+    Arguments
+    =========
+    -date_list      [dates] List containing start and end dates
+    
+    Returns
+    =========
+    -timestep-date  [dates] List containing all dates according to number of hours
     """
     # Create timestep dates
     hours = range(24)
@@ -66,19 +69,19 @@ def get_dates_datelist(date_list):
     return timestep_dates
 
 def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu):
-    '''
-    This function creates the simulation time steps for which the energy demand of the
-    appliances is calculated.
-    Then it selects energy demand from the yearls list for the simulation period
+    '''Creates the timesteps for which the energy demand of the appliances is calculated.
+    Then base energy demand is added for each timestep read in from yearly demand aray.
 
-    Input:
-    -date_list              List containing selection of dates the simulation should run
+    Arguments
+    =========
+    -date_list              [dates] List containing selection of dates the simulation should run
     -bd_app_elec            Base demand applications (electricity)
     -reg_lu                 Region look-up table
     -fuel_type_lu           Fuel type look-up table
     -app_type_lu            Appliance look-up table
 
-    Output:
+    Returns
+    =========
     -data_timesteps_elec    Timesteps containing appliances electricity data
         regions
             fuel_type
@@ -382,7 +385,7 @@ def writeToEnergySupply(path_out_csv, fueltype, in_data):
             writer.writerow(row)
     return
 
-def shape_bd_hd(csv_temp_2015):
+def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
     """
     This function creates the shape of the base year heating demand over the full year
 
@@ -390,6 +393,7 @@ def shape_bd_hd(csv_temp_2015):
 
     Input:
     -csv_temp_2015      SNCWV temperatures for every gas-year day
+    -hourly_gas_shape   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
 
     """
 
@@ -400,13 +404,10 @@ def shape_bd_hd(csv_temp_2015):
     # ------------------------------------
     hourly_hd = np.zeros((1, len(hours)), dtype=float)
 
-    # dummy data for hourly heat demand profile #TODO: Get real data
-    rough_sansom_profile = [0.012484395, 0.009987516, 0.011235955, 0.012484395, 0.024968789, 0.049937578, 0.062421973, 0.074906367, 0.062421973, 0.037453184, 0.037453184, 0.037453184, 0.037453184, 0.037453184, 0.049937578, 0.062421973, 0.074906367, 0.079900125, 0.074906367, 0.062421973, 0.037453184, 0.024968789, 0.012484395, 0.012484395]
-
-    for i in hours:
-        hourly_hd[:, i] = rough_sansom_profile[i]
-
-    print("Dumm hourly load curve" + str(hourly_hd))
+    # Hourly gas shape
+    hourly_gas_shape_day = hourly_gas_shape[0]
+    hourly_gas_shape_wkday = hourly_gas_shape[1]
+    hourly_gas_shape_wkend = hourly_gas_shape[2]
 
     # Initialistion
     year_raw_values = np.zeros((len(year_days), len(hours)), dtype=float)
@@ -428,21 +429,18 @@ def shape_bd_hd(csv_temp_2015):
         # Calculate demand based on correlation
         heating_demand_correlation = -158.15 * sncwv + 3622.5
 
-        # Distribute daily deamd into hourly demand
-        hourly_hd_data = hourly_hd * heating_demand_correlation
-
         _info = date_gas_day.timetuple()
         #month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
         year_day_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
         weekday = _info[6]                # 0: Monday
 
+        # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
-            daytype = 1 # Holiday
+            _data = hourly_gas_shape_wkend * heating_demand_correlation
+            hd_data[year_day_python] = _data  # DATA ARRAY
         else:
-            daytype = 0 # Working day
-
-        hd_data[year_day_python] = hourly_hd_data  # DATA ARRAY
-
+            _data = hourly_gas_shape_wkday * heating_demand_correlation
+            hd_data[year_day_python] = _data  # DATA ARRAY
 
     # Convert yearly data into percentages (create shape). Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
     total_y_hd = hd_data.sum()  # Calculate yearly total demand over all day years and all appliances
@@ -470,8 +468,7 @@ def shape_bd_hd(csv_temp_2015):
     return shape_hd
 
 def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
-    '''
-    This function calculates absolut heating demands with help of shape for all regions
+    '''This function calculates absolut heating demands with help of shape for all regions
 
     out:
     -fuel_type_per_region_hourly        Fueltype per region per appliance per hour
@@ -522,3 +519,20 @@ def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
         sys.exit()
 
     return fuel_type_per_region_hourly
+
+def conversion_ktoe_gwh(data_ktoe):
+    """ Conversion of ktoe to gwh according to 
+    https://www.iea.org/statistics/resources/unitconverter/
+
+    Arguments
+    =========
+    -data_ktoe  [float] Energy demand in ktoe
+
+    Returns
+    =========
+    -data_gwh   [float] Energy demand in GWh
+    """
+
+    data_gwh = data_ktoe * 11.6300000
+
+    return data_gwh

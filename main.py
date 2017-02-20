@@ -15,6 +15,10 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+#TODO Switch appliances and hours
+#TODO data Different appliances for cold/hot extremes
+#TODO data Heating fro min_max climate 
+
 import sys
 import os
 from datetime import date
@@ -43,7 +47,8 @@ path_seasons_lookup = path_main + r'\scenario_and_base_data\lookup_season.csv'
 
 path_base_elec_load_profiles = path_main + r'\residential_model\base_appliances_eletricity_load_profiles.csv'   # Path to base population
 path_base_data_fuel = path_main + r'\scenario_and_base_data\base_data_fuel.csv'                                 # Path to base fuel data
-path_csv_temp_2015 = path_main + r'\residential_model\CSV_YEAR_2015.csv'
+path_temp_2015 = path_main + r'\residential_model\CSV_YEAR_2015.csv'                                            # Path to temperature data
+path_hourly_gas_shape = path_main +  r'\residential_model\residential_gas_hourly_shape.csv'                     # Path to hourly gas shape
 
 path_out_energy_supply_elec = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_elec.csv'      # Out path to energy supply model
 path_out_energy_supply_gas = r'C:\Users\cenv0553\GIT\NISMODII\model_output\to_energy_supply_gas.csv'        # Out path to energy supply model
@@ -72,13 +77,15 @@ print(fuel_type_lu)
 
 # Read in data
 # ------------------
-reg_pop = mf.read_csv(path_pop_reg_base, float)            # Population data
-fuel_bd_data = mf.read_csv(path_base_data_fuel, float)     # All disaggregated fuels for different regions
-csv_temp_2015 = mf.read_csv(path_csv_temp_2015)            # csv_temp_2015
+reg_pop = mf.read_csv(path_pop_reg_base, float)                  # Population data
+fuel_bd_data = mf.read_csv(path_base_data_fuel, float)          # All disaggregated fuels for different regions
+csv_temp_2015 = mf.read_csv(path_temp_2015)                     # csv_temp_2015
+hourly_gas_shape = mf.read_csv(path_hourly_gas_shape, float)   # Load hourly shape for gas from Robert Sansom
 # Read in more date such as floor area, nr of households etc. for base year # TODO
 
 #print("reg_pop:         " + str(reg_pop))
 #print("Fuel data:       " + str(fuel_bd_data))
+#print(hourly_gas_shape)  # Day, weekday, weekend
 
 print("-----------------------Start calculations----------------------------")
 
@@ -90,7 +97,7 @@ print("-----------------------Start calculations----------------------------")
 shape_app_elec = mf.shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
 
 # Shape of base year for a full year for heating demand derived from XX [%]
-shape_hd_gas = mf.shape_bd_hd(csv_temp_2015)
+shape_hd_gas = mf.shape_bd_hd(csv_temp_2015, hourly_gas_shape)
 
 # Load more base demand
 # ...
@@ -123,7 +130,7 @@ timesteps_selection = (
     )
 
 # Whole year
-#timesteps_selection = ([date(2015, 1, 12), date(2015, 12, 31)], []) # whole year
+#timesteps_selection = ([date(P1_YEAR_BASE, 1, 12), date(P1_YEAR_BASE, 12, 31)], []) # whole year
 
 # Populate timesteps base year data (appliances, electricity)
 timesteps_app_bd = mf.create_timesteps_app(timesteps_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu) # [GWh]
@@ -164,8 +171,6 @@ def energy_demand_model(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, 
     # Run different sub-models (sector models)
     e_app_bd, g_hd_bd = residential_model.run(SIM_PARAM, shape_app_elec, reg_pop, timesteps_app_bd, timesteps_hd_bd)
 
-    print("TESTGAS: " + str(g_hd_bd[1].sum()))
-    print("test_ELEC:: " + str(e_app_bd.shape))
     '''
     transportation_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
 
