@@ -11,8 +11,7 @@
 # e  = electricitiy
 # g  = gas5
 # lu = look up
-#
-"""
+#"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #TODO Switch applian5ces and hours
@@ -22,7 +21,6 @@ import sys
 import os
 from datetime import date
 import numpy as np
-
 import main_functions as mf                         # Functions main module
 import residential_model                            # Residential sub-module
 print("Start Energy Demand Model")
@@ -35,7 +33,6 @@ def load_data():
     path_python = os.getcwd()                           # Get python path
     sys.path.append(path_python)                        # Append path
     sys.path.append(r'C:\Users\cenv0553\GIT\NISMODII')  # Append path to python files
-
 
     #import transition_module                           # Module containing different technology diffusion methods
     # ... more imports
@@ -78,16 +75,16 @@ def load_data():
 
     # Read in data
     # ------------------
-    reg_pop = mf.read_csv(path_pop_reg_base, float)                  # Population data
-    fuel_bd_data = mf.read_csv(path_base_data_fuel, float)          # All disaggregated fuels for different regions
-    csv_temp_2015 = mf.read_csv(path_temp_2015)                     # csv_temp_2015
+    reg_pop = mf.read_csv(path_pop_reg_base, float)                # Population data
+    fuel_bd_data = mf.read_csv(path_base_data_fuel, float)         # All disaggregated fuels for different regions
+    csv_temp_2015 = mf.read_csv(path_temp_2015)                    # csv_temp_2015
     hourly_gas_shape = mf.read_csv(path_hourly_gas_shape, float)   # Load hourly shape for gas from Robert Sansom
     # Read in more date such as floor area, nr of households etc. for base year # TODO
 
     #print("reg_pop:         " + str(reg_pop))
     #print("Fuel data:       " + str(fuel_bd_data))
     #print(hourly_gas_shape)  # Day, weekday, weekend
-    
+
     print("-----------------------Start calculations----------------------------")
     # ---------------------------------------------------------------
     # Generate generic load profiles (shapes) [in %]
@@ -122,10 +119,10 @@ def load_data():
     # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
     # ---------------------------------------------------------------
     timesteps_selection = (
-        [date(P1_YEAR_BASE, 1, 12), date(P1_YEAR_BASE, 1, 18)],     # Week Spring (Jan) Week 03
-        [date(P1_YEAR_BASE, 4, 13), date(P1_YEAR_BASE, 4, 19)],     # Week Summer (April) Week 16
-        [date(P1_YEAR_BASE, 7, 13), date(P1_YEAR_BASE, 7, 19)],     # Week Fall (July) Week 25
-        [date(P1_YEAR_BASE, 10, 12), date(P1_YEAR_BASE, 10, 18)],   # Week Winter (October) Week 42
+        [date(P1_YEAR_BASE, 1, 12), date(P1_YEAR_BASE, 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(P1_YEAR_BASE, 4, 13), date(P1_YEAR_BASE, 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(P1_YEAR_BASE, 7, 13), date(P1_YEAR_BASE, 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(P1_YEAR_BASE, 10, 12), date(P1_YEAR_BASE, 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
 
     # Whole year
@@ -144,12 +141,14 @@ def load_data():
     print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
     print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
     print(" ")
-    return SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd
-
+    base_data = [SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd]
+    print("ff")
+    return base_data
 # ---------------------------------------------------------------
 # Run Model
 # ---------------------------------------------------------------
-def energy_demand_model(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu):
+#def (SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu):
+def energy_demand_model(base_data, pop_data_external):
     """
     This function runs the energy demand module
 
@@ -163,11 +162,30 @@ def energy_demand_model(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, 
     Output:
 
     """
-    print ("Energy Demand Model - Main funtion simulation parameter: " + str(SIM_PARAM))
+    import datetime
+    #print ("Energy Demand Model - Main funtion simulation parameter: " + str(SIM_PARAM))
+    SIM_PARAM = base_data[0]
+    fuel_type_lu = base_data[1]
+    dwelling_type_lu = base_data[2]
+    reg_pop = base_data[3]
+    fuel_bd_data = base_data[4]
+    csv_temp_2015 = base_data[5]
+    hourly_gas_shape = base_data[6]
+    shape_app_elec = base_data[7]
+    shape_hd_gas = base_data[8]
+    bd_app_elec = base_data[9]
+    bd_hd_gas = base_data[10]
+    timesteps_app_bd = base_data[11]
+    timesteps_hd_bd = base_data[12]
+
+    print("Length of initial selection: " + str(len(timesteps_app_bd[0][0])))
 
     # Run different sub-models (sector models)
     e_app_bd, g_hd_bd = residential_model.run(SIM_PARAM, shape_app_elec, reg_pop, timesteps_app_bd, timesteps_hd_bd)
-
+    
+    #print("oko")
+    #print("Length of initial selection 2: " + str(len(e_app_bd[0][0])))
+    #prnt("...")
     '''
     transportation_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
 
@@ -206,69 +224,78 @@ def energy_demand_model(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, 
         result_dict[i] = {}
         for j in range(len(reg_pop)):
             result_dict[i][j] = {}
-            for k in range(len(timesteps)):
+            #for k in range(len(timesteps)):
+            for k in timesteps:
                 result_dict[i][j][k] = {}
 
-    #d['dict1'] = {}
-    #d['dict1']['innerkey'] = 'value'
-
     # Fill timesteps with electrictiy data
-    fuel_elec = 0
-
+    fuel_type = 0
     for region_nr in range(len(reg_pop)):
-        print("REGION: " + str(region_nr))
         year_hour = 0
-        for timestep in timesteps: #Iterate over timesteps
+        for timestep in timesteps: #Iterate over timesteps of full year
             year_hour += 1
             timestep_id = str(timestep)
-            #print(timestep_id)
             _yearday = int(timestep.split("_")[0])   # Yearday
             _h = int(timestep.split("_")[1])         # Hour
+            start_period = timesteps[timestep]['start']
+            end_period = timesteps[timestep]['end']
 
-            start_period = timesteps[timestep][0]
-            end_period = timesteps[timestep][1]
-            #print("---------------------------")
-            #print("timestep; " + str(timestep))
-            '''print(timestep.split("_")[0])
-            print(timestep.split("_")[1])
-            print("..")
-            print ("start_period:   " + str(start_period))
-            print ("end_period:     " + str(end_period))
-            print("reg_yeardayion_nr:       " + str(_yearday))
-            print("_h:              "                + str(_h))'''
-            #print("timestep_id:     " + str(timestep_id))
+            # ---------------------------------
+            # Assign correct data from selection
+            # ---------------------------------
+            # Get season
+            _season = mf.get_season(_yearday)
 
-            #result_array[fuel_elec][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
-            result_dict[fuel_elec][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum()
+            # Get weekday
+            _yeardayReal = _yearday + 1
+            _m = '2015 ' + str(_yeardayReal) #Plus one from python
+            date_from_yearday = datetime.datetime.strptime(_m, '%Y %j')
+            _info = date_from_yearday.timetuple()
+            weekday = _info[6]                # 0: Monday
+            if weekday == 5 or weekday == 6:
+                daytype = 1 # Holiday
+            else:
+                daytype = 0 # Working day
+
+            #get_wrapper_position(_season, daytype) # Get wrapper timeID position of own timesteps
+            day_own_container = mf.assign_wrapper_data(daytype, _season)
+            #print("day_own_container: " + str(day_own_container))
+            
+            #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
+            #result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_yearday][_h].sum()
+
+            # DUMMY DATA
+            dummy_Data = 1000
+            #print("...---...")
+            #print(fuel_type)
+            #print(region_nr)
+            #print(day_own_container)
+            #print(_h) # Is missing!
+            result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_type][region_nr][day_own_container].sum()  # Problem: Timesteps in are in fuel, region, TIMESTEP, appliances, hours
             #print(" Region: " + str(region_nr) + str("  year_hour; " + str(year_hour)) + str("   Demand teimstep:  ") + str(timestep) + str("   Sum: " + str(e_app_bd[fuel_elec][region_nr][_h].sum())))
-
 
     # Write YAML file
     # ---------------
-    '''
-    - start: P0H
-  end: P1H
-  id: Whatever
-- start: P1H
-  end: P2H
-  id: Whatever
 
-
-    '''
     import yaml
-
-    #for i in timesteps:
-        
     path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'
     with open(path_YAML, 'w') as outfile:
-        
         yaml.dump(timesteps, outfile, default_flow_style=False)
 
     print("Finished energy demand model")
+    #print("result_dict: " + str(result_dict[0][1]))
+    print("-------------------------")
+    print("Total Length: " + str(len(result_dict[0][1])))
+    print("Total Length: " + str(result_dict[0][1]))
     return result_dict
 
 # Run
 if __name__ == "__main__":
     # New function to load data
-    SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd = load_data()
-    energy_demand_model(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu)
+    #SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd = load_data()
+    #(SIM_PARAM, reg_pop, dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu)
+    data = {'population': {0: 1000, 1: 2000, 2: 3000}}
+    base_data = load_data()
+    energy_demand_model(base_data, data["population"])
+    print("Finished everything")
+

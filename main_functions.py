@@ -585,7 +585,8 @@ def get_dates_datelist_inl_period(full_year_date):
             end_period = str("P" + str(h_year_id + 1) + str("H"))
 
             # Add to dict
-            timestep_full_year_dict[yearday_h_id] = [start_period, end_period]
+            #timestep_full_year_dict[yearday_h_id] = [start_period, end_period]
+            timestep_full_year_dict[yearday_h_id] = {'start': start_period, 'end': end_period}
 
             h_id += 1
             h_year_id += 1
@@ -634,3 +635,50 @@ def timesteps_full_year():
     '''
     #return data_timesteps_hd_gas
 
+def get_season(yearday):
+    """
+    Gets the season from yearday.
+
+    """
+    winter1, winter2 = range(334, 365), range(0, 60)
+    spring = range(59, 152)
+    summer = range(151, 243)
+    autumn = range(243, 334)
+
+    if yearday in winter1 or yearday in winter2:
+        season = 0 # Winter
+    if yearday in spring:
+        season = 1
+    if yearday in summer:
+        season = 2
+    if yearday in autumn:
+        season = 3
+    return season
+
+def assign_wrapper_data(daytype, _season):
+    """ Get position in own container of yearly wrapper container"""
+    if _season == 0:
+        if daytype == 0:
+            yearday_position_data_array = 0 #1. Jan monday
+        else:
+            yearday_position_data_array = 1
+
+    if _season == 1:
+        if daytype == 0:
+            yearday_position_data_array = 2 #1. Jan monday
+        else:
+            yearday_position_data_array = 3
+
+    if _season == 2:
+        if daytype == 0:
+            yearday_position_data_array = 4 #1. Jan monday
+        else:
+            yearday_position_data_array = 5
+
+    if _season == 3:
+        if daytype == 0:
+            yearday_position_data_array = 6 #1. Jan monday
+        else:
+            yearday_position_data_array = 7
+
+    return yearday_position_data_array

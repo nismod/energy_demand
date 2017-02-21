@@ -13,13 +13,14 @@ class EDWrapper(SectorModel):
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
         # Load Data
-        SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd = load_data()
-        
+        #SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd = load_data()
+        base_data = load_data()
         # Data Manipulation
         # ...
 
         # Run Model
-        results = energy_demand_model(SIM_PARAM, data["population"], dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu)
+        data = {'population': {0: 1000, 1: 2000, 2: 3000}}
+        results = energy_demand_model(base_data, data["population"])
 
         return results
 
