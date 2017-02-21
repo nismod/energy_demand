@@ -14,9 +14,9 @@
 #"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-#TODO Switch applian5ces and hours
 #TODO data Different appliances for cold/hot extremes
-#TODO data Heating fro min_max climate 
+#TODO data Heating fro min_max climate
+
 import sys
 import os
 import datetime
@@ -88,7 +88,6 @@ def load_data():
     #print("Fuel data:       " + str(fuel_bd_data))
     #print(hourly_gas_shape)  # Day, weekday, weekend
 
-    print("-----------------------Start calculations----------------------------")
     # ---------------------------------------------------------------
     # Generate generic load profiles (shapes) [in %]
     # ---------------------------------------------------------------
@@ -96,6 +95,7 @@ def load_data():
     # Shape of base year for a full year for appliances (electricity) from HES data [%]
     shape_app_elec = mf.shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
     print("Shape appliances")
+
     # Shape of base year for a full year for heating demand derived from XX [%]
     shape_hd_gas = mf.shape_bd_hd(csv_temp_2015, hourly_gas_shape)
 
@@ -144,6 +144,7 @@ def load_data():
     print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
     print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
     print(" ")
+
     base_data = [SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd, timesteps_own_selection]
 
     return base_data
@@ -190,7 +191,7 @@ def energy_demand_model(base_data, pop_data_external):
     '''
 
     # ---------------------------------------------------------------------------
-    # Generate the wrapper timesteps and add instert data
+    # Generate the wrapper timesteps and instert data (disaggregate over full year)
     # ---------------------------------------------------------------------------
 
     # Create timesteps for full year (wrapper-timesteps)

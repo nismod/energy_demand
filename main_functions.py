@@ -49,7 +49,7 @@ def get_dates_datelist(date_list):
     Arguments
     =========
     -date_list      [dates] List containing start and end dates
-    
+
     Returns
     =========
     -timestep-date  [dates] List containing all dates according to number of hours
@@ -90,7 +90,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
                 timesteps
                     hours
                         applications
-                        
+
     '''
     # Region, Fuel
     hours = range(24)
@@ -105,7 +105,6 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
     # Initialise simulation array
     h_XX = 1 # BEcause for every timstep only one hozrs
     data_timesteps_elec = np.zeros((len(fuel_type_lu), len(reg_lu), len(timesteps), h_XX, len(app_type_lu)), dtype=float)
-    #data_timesteps_elec = np.zeros((len(fuel_type_lu), len(reg_lu), len(timesteps), len(hours), len(app_type_lu)), dtype=float)
 
     # Iterate regions
     for reg_nr in range(len(reg_lu)):
@@ -118,16 +117,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
             year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
 
             # Collect absolute data from
-            #print("Add data to timstep container:    Timestep " + str(t_step) + str(" cnt_h: ") + str(cnt_h) + str("  Region_Nr") + str(reg_nr) + str("  Yearday") + str(year_day_python) + ("   ") + str(bd_app_elec[fuel_type][reg_nr][year_day_python][:,cnt_h].sum()))
-            #data_timesteps_elec[fuel_type][reg_nr][t_step][:, cnt_h] = bd_app_elec[fuel_type][reg_nr][year_day_python][:, cnt_h] # Iterate over roew
-            #print("A:  + " + str(data_timesteps_elec[fuel_type][reg_nr][t_step])) #[cnt_h]))
-            #print("B:  + " + str(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h]))
-
-            #print(data_timesteps_elec[fuel_type][reg_nr][t_step].shape)
-            #print(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h].shape)
             data_timesteps_elec[fuel_type][reg_nr][t_step] = bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h] # Iterate over roew #TODO CHECK
-            #print(data_timesteps_elec[fuel_type][reg_nr][t_step][cnt_h])
-            #print(data_timesteps_elec[fuel_type][reg_nr][t_step])
 
             cnt_h += 1
             if cnt_h == 23:
@@ -341,7 +331,7 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
         _val = sys.exc_info()
         _, _value, _tb = sys.exc_info()
         print("Errors from function db_appliances:")
-        traceback.print_tb(_tb)         
+        traceback.print_tb(_tb)
         print (_value)
         sys.exit()
 
@@ -360,11 +350,6 @@ def writeToEnergySupply(path_out_csv, fueltype, in_data):
     '''
     # Prepare data that as follows:
     outData = []
-
-    # NEW: Create ID 
-
-    # WRITE TO YAMAL FILE 
-    
 
     print("Data for energy supply model")
 
@@ -533,7 +518,7 @@ def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
     return fuel_type_per_region_hourly
 
 def conversion_ktoe_gwh(data_ktoe):
-    """ Conversion of ktoe to gwh according to 
+    """ Conversion of ktoe to gwh according to
     https://www.iea.org/statistics/resources/unitconverter/
 
     Arguments
@@ -550,36 +535,22 @@ def conversion_ktoe_gwh(data_ktoe):
     return data_gwh
 
 
-# ------------------------- New Code
-
-
-
 def timesteps_full_year():
-    '''Creates list with every date of the base year
-
-    Input:
-
-    Output:
-    -data_timesteps_elec    Timesteps containing appliances electricity data
-    '''
-    """This function generates a single list from a list with start and end dates
-    and adds the same date into the list according to the number of hours in a day.
+    """Dictionary with all hourly time periods of the base year (total 8760).
 
     Arguments
     =========
-    -date_list      [dates] List containing start and end dates
 
     Returns
     =========
-    -timestep-date  [dates] List containing all dates according to number of hours
+    -timestep_full_year_dict
     """
     full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
     start_date, end_date = full_year_date[0], full_year_date[1]
     list_dates = list(datetime_range(start=start_date, end=end_date)) # List with every date in a year
 
     hours, days = range(24), range(365)
-
-    timestep_full_year_dict = {} #  YEARDAY_H
+    timestep_full_year_dict = {}
     timestep_dates = []
 
     #Add to list
