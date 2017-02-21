@@ -88,8 +88,9 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
         regions
             fuel_type
                 timesteps
-                    applications
-                        hours
+                    hours
+                        applications
+                        
     '''
     # Region, Fuel
     hours = range(24)
@@ -98,11 +99,13 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
     # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
     timestep_dates = get_dates_datelist(date_list)
 
-    # Nuber of timesteps
+    # Nuber of timesteps containing all days and hours
     timesteps = range(len(timestep_dates))
 
     # Initialise simulation array
-    data_timesteps_elec = np.zeros((len(fuel_type_lu), len(reg_lu), len(timesteps), len(app_type_lu), len(hours)), dtype=float)
+    h_XX = 1 # BEcause for every timstep only one hozrs
+    data_timesteps_elec = np.zeros((len(fuel_type_lu), len(reg_lu), len(timesteps), h_XX, len(app_type_lu)), dtype=float)
+    #data_timesteps_elec = np.zeros((len(fuel_type_lu), len(reg_lu), len(timesteps), len(hours), len(app_type_lu)), dtype=float)
 
     # Iterate regions
     for reg_nr in range(len(reg_lu)):
@@ -116,7 +119,15 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
 
             # Collect absolute data from
             #print("Add data to timstep container:    Timestep " + str(t_step) + str(" cnt_h: ") + str(cnt_h) + str("  Region_Nr") + str(reg_nr) + str("  Yearday") + str(year_day_python) + ("   ") + str(bd_app_elec[fuel_type][reg_nr][year_day_python][:,cnt_h].sum()))
-            data_timesteps_elec[fuel_type][reg_nr][t_step][:, cnt_h] = bd_app_elec[fuel_type][reg_nr][year_day_python][:, cnt_h] # ITerate hour of appliances (column) # Problem dass nur eine h und nicht
+            #data_timesteps_elec[fuel_type][reg_nr][t_step][:, cnt_h] = bd_app_elec[fuel_type][reg_nr][year_day_python][:, cnt_h] # Iterate over roew
+            #print("A:  + " + str(data_timesteps_elec[fuel_type][reg_nr][t_step])) #[cnt_h]))
+            #print("B:  + " + str(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h]))
+
+            #print(data_timesteps_elec[fuel_type][reg_nr][t_step].shape)
+            #print(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h].shape)
+            data_timesteps_elec[fuel_type][reg_nr][t_step] = bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h] # Iterate over roew #TODO CHECK
+            #print(data_timesteps_elec[fuel_type][reg_nr][t_step][cnt_h])
+            #print(data_timesteps_elec[fuel_type][reg_nr][t_step])
 
             cnt_h += 1
             if cnt_h == 23:
@@ -202,15 +213,15 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
                                     Within each month, the same load curves are
                                     used for every working/holiday day.
         year_days of base year
-            appliance_typ
-                hour
+            hour
+                appliance_typ
     '''
     # Initilaise array to store all values for a year
     year_days, month_nr, hours = range(365), range(12), range(24)
-    year_raw_values = np.zeros((len(year_days), len(app_type_lu), len(hours)), dtype=float)
+    year_raw_values = np.zeros((len(year_days), len(hours), len(app_type_lu)), dtype=float)
 
     # Initialise HES dictionary with every month and day-type
-    hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(app_type_lu), len(hours)), dtype=float)
+    hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(hours), len(app_type_lu)), dtype=float)
 
     # Read in energy profiles of base_year
     raw_elec_data = read_csv(path_base_elec_load_profiles)
@@ -223,7 +234,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
         # iterate over hour
         for hour in hours:
             _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000)) # [kWH electric] Converts the summed watt into kWH
-            hes_data[daytype][month][appliance_typ][hour] = _value
+            hes_data[daytype][month][hour][appliance_typ] = _value
             k_header += 1
 
     # Create list with all dates of a whole year
@@ -251,7 +262,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
     total_y_demand = year_raw_values.sum()
 
     # Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
-    appliances_shape = np.zeros((len(year_days), len(app_type_lu), len(hours)), dtype=float)
+    appliances_shape = np.zeros((len(year_days), len(hours), len(app_type_lu)), dtype=float)
     appliances_shape = (1.0/total_y_demand) * year_raw_values
 
     # Test for errors
@@ -300,7 +311,7 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     fuel_bd_data_electricity = fuel_bd_data[:, 1] # Base fuel per region
 
     dim_appliance = shape_app_elec.shape
-
+    print("DIM: " + str(dim_appliance))
     # Initialise array
     fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
     fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
@@ -630,33 +641,56 @@ def get_season(yearday):
         season = 3
     return season
 
-def assign_wrapper_data(daytype, _season):
+def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
     """ Get position in own container of yearly wrapper container"""
+
+    # TODO: Improvea a lot....dirty
+
+    season_lengths = []
+    hours = 24
+
+    # Get length of each period selected
+    for i in timesteps_own_selection:
+        start_date, end_date = i[0], i[1]
+        list_dates = list(datetime_range(start=start_date, end=end_date))
+        season_lengths.append(len(list_dates))
+    #print("season_lengths: " + str(season_lengths))
+
     if _season == 0:
         if daytype == 0:
+
+            # Get day
             yearday_position_data_array = 0 #1. Jan monday
+            position_own_container = (season_lengths[0]-3) * 24 + hour_container
         else:
             yearday_position_data_array = 1
+            position_own_container = season_lengths[0] * 24 + hour_container
 
     if _season == 1:
         if daytype == 0:
             yearday_position_data_array = 2 #1. Jan monday
+            position_own_container = (season_lengths[1]-3) * 24 + hour_container
         else:
             yearday_position_data_array = 3
+            position_own_container = season_lengths[1] * 24 + hour_container
 
     if _season == 2:
         if daytype == 0:
             yearday_position_data_array = 4 #1. Jan monday
+            position_own_container = (season_lengths[2]-3) * 24 + hour_container
         else:
             yearday_position_data_array = 5
+            position_own_container = season_lengths[2] * 24 + hour_container
 
     if _season == 3:
         if daytype == 0:
             yearday_position_data_array = 6 #1. Jan monday
+            position_own_container = (season_lengths[3]-3) * 24 + hour_container
         else:
             yearday_position_data_array = 7
+            position_own_container = season_lengths[3] * 24 + hour_container
 
-    return yearday_position_data_array
+    return position_own_container
 
 def get_wrapper_result_nested_dict(fuel_type_lu, reg_pop, timesteps):
     """ Generates nested dictionary for providing results to smif
@@ -672,46 +706,54 @@ def get_wrapper_result_nested_dict(fuel_type_lu, reg_pop, timesteps):
 
 
 
-def add_electricity_demand(e_app_bd, reg_pop, fuel_type, timesteps, result_dict):
+def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection):
     """Add data to wrapper timesteps
 
     """
     import datetime
     from datetime import date
 
-    for region_nr in range(len(reg_pop)):
-        year_hour = 0
-        for timestep in timesteps: #Iterate over timesteps of full year
-            year_hour += 1
-            timestep_id = str(timestep)
-            _yearday = int(timestep.split("_")[0])   # Yearday
-            _h = int(timestep.split("_")[1])         # Hour
-            start_period, end_period = timesteps[timestep]['start'], timesteps[timestep]['end']
+    # Iteratue fuels
+    for _ftyp in range(len(fuel_type_lu)):
 
-            # Assign correct data from selection
-            # Get season
-            _season = get_season(_yearday)   
+        if _ftyp is not fuel_type:
+            continue
 
-            # Get weekday
-            _yeardayReal = _yearday + 1 #Plus one from python
-            date_from_yearday = datetime.datetime.strptime('2015 ' + str(_yeardayReal), '%Y %j')
-            daytype = get_weekday_type(date_from_yearday)
+        for region_nr in range(len(reg_pop)):
+            year_hour = 0
+            for timestep in timesteps: #Iterate over timesteps of full year
+                timestep_id = str(timestep)
+                _yearday = int(timestep.split("_")[0])   # Yearday
+                _h = int(timestep.split("_")[1])         # Hour
+                start_period, end_period = timesteps[timestep]['start'], timesteps[timestep]['end']
 
-            #get_wrapper_position(_season, daytype) # Get wrapper timeID position of own timesteps
-            # Provide daytype, _season, hour...
-            day_own_container = assign_wrapper_data(daytype, _season) # AS input should
+                # Assign correct data from selection
+                # Get season
+                _season = get_season(_yearday)
 
-            #print("day_own_container: " + str(day_own_container))
+                # Get daytype
+                _yeardayReal = _yearday + 1 #Plus one from python
+                date_from_yearday = datetime.datetime.strptime('2015 ' + str(_yeardayReal), '%Y %j')
+                daytype = get_weekday_type(date_from_yearday)
 
-            #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
-            #result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_yearday][_h].sum()
+                # Get position in own timesteps
+                hour_own_container = year_hour - _yearday * 24 #Hour of the day
+                day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
 
-            # DUMMY DATA
-            #print("...---...")
-            #print(fuel_type)
-            #print(region_nr)
-            #print(day_own_container)
-            #print(_h) # Is missing!
-            result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_type][region_nr][day_own_container].sum()  # Problem: Timesteps in are in fuel, region, TIMESTEP, appliances, hours
-            #print(" Region: " + str(region_nr) + str("  year_hour; " + str(year_hour)) + str("   Demand teimstep:  ") + str(timestep) + str("   Sum: " + str(e_app_bd[fuel_elec][region_nr][_h].sum())))
+                #print("day_own_container: " + str(day_own_container))
+
+                #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
+                #result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_yearday][_h].sum()
+
+                # DUMMY DATA
+                #print("...---...")
+                #print(fuel_type)
+                #print(region_nr)
+                #print(day_own_container)
+                #print(_h) # Is missing!
+                #print("EE:G " + str(e_app_bd[fuel_type][region_nr][day_own_container]))
+                #print("---")
+                result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_type][region_nr][day_own_container_position].sum()  # Problem: Timesteps in are in fuel, region, TIMESTEP, appliances, hours
+                year_hour += 1
+
     return result_dict
