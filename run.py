@@ -1,7 +1,7 @@
 """ The sectorl model wrapper for smif to run the energy demand mdoel"""
 
 from smif.sector_model import SectorModel
-from . import hire
+from main import energy_demand_model, load_data
 
 class EDWrapper(SectorModel):
 
@@ -12,13 +12,16 @@ class EDWrapper(SectorModel):
         =========
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
-        # some data manipulation
-        model = hire.Model()
+        # Load Data
+        SIM_PARAM, fuel_type_lu, dwelling_type_lu, reg_pop, fuel_bd_data, csv_temp_2015, hourly_gas_shape, shape_app_elec, shape_hd_gas, bd_app_elec, bd_hd_gas, timesteps_app_bd, timesteps_hd_bd = load_data()
+        
+        # Data Manipulation
+        # ...
 
-        model.popülation = data["population"]
-        model.apply_decisions(decisions)
-        model.run()
-        return model.results
+        # Run Model
+        results = energy_demand_model(SIM_PARAM, data["population"], dwelling_type_lu, timesteps_app_bd, timesteps_hd_bd, fuel_type_lu)
+
+        return results
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function
@@ -38,3 +41,5 @@ class EDWrapper(SectorModel):
             A scalar component generated from the simulation model results
         """
         pass
+
+#if __name__ == "__main__":

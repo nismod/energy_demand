@@ -545,11 +545,57 @@ def conversion_ktoe_gwh(data_ktoe):
 
 # ------------------------- New Code
 
-def timesteps_full_year(date_list): 
-    ''' Create final timsteps for full year (no gap year) and disaggregates c
+def get_dates_datelist_inl_period(full_year_date):
+    """This function generates a single list from a list with start and end dates
+    and adds the same date into the list according to the number of hours in a day.
+
+    Arguments
+    =========
+    -date_list      [dates] List containing start and end dates
+
+    Returns
+    =========
+    -timestep-date  [dates] List containing all dates according to number of hours
+    """
+    from datetime import datetime  
+    from datetime import timedelta 
+
+    hours = range(24)
+    days = range(365)
+
+    timestep_full_year_dict = {} #  YEARDAY_H
+    timestep_dates = []
+
+    # Iterate dates
+    start_date, end_date = full_year_date[0], full_year_date[1]
+    list_dates = list(datetime_range(start=start_date, end=end_date))
+
+    #Add to list
+    h_year_id = 0
+    for day_date in list_dates:
+        _info = day_date.timetuple() # Get date
+        day_of_that_year = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
+        
+        h_id = 0
+        # Interate hours
+        for hour in hours:
+            #Create ID (yearday_hour of day)
+            yearday_h_id = str(str(day_of_that_year) + str("_") + str(h_id))
+            start_period = str("P" + str(h_year_id) + str("H"))
+            end_period = str("P" + str(h_year_id + 1) + str("H"))
+
+            # Add to dict
+            timestep_full_year_dict[yearday_h_id] = [start_period, end_period]
+
+            h_id += 1
+            h_year_id += 1
+
+    return timestep_full_year_dict
+
+def timesteps_full_year():
+    ''' Create final timsteps for full year and add data:
 
     Input:
-    -date_list              List containing selection of dates the simulation should run
 
     Output:
     -data_timesteps_elec    Timesteps containing appliances electricity data
@@ -557,18 +603,18 @@ def timesteps_full_year(date_list):
     # Region, Fuel
     hours = range(24)
 
-    timesteps_selection = ([date(2015, 1, 12), date(2015, 12, 31)], []) # Base Year
-
-    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    timestep_dates = get_dates_datelist(timesteps_selection)
+    full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
+    timestep_dates = get_dates_datelist_inl_period(full_year_date)
 
     # Number of timesteps
     timesteps = range(len(timestep_dates))
+    print("Number of timesteps: " + str(len(timesteps)))
+    return timestep_dates
 
-    # Initialise simulation array
-    print("Number of timetsp: " + str(len(data_timesteps_hd_gas)))
+    '''# Initialise simulation array
+    print("Number of timetsp: " + str(len(timesteps)))
 
-    # Iterate regions
+    # Iterate fuels, regions and hours
 
     cnt_h = 0
     for t_step in timesteps:
@@ -585,5 +631,6 @@ def timesteps_full_year(date_list):
         cnt_h += 1
         if cnt_h == 23:
             cnt_h = 0
+    '''
+    #return data_timesteps_hd_gas
 
-    return data_timesteps_hd_gas
