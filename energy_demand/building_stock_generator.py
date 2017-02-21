@@ -11,9 +11,9 @@
 
 1. Calculate base stock
 2. Calculate new building stock based on demographics
-3. 
+3.
 
-# Input from real world 
+# Input from real world
 # ---------------------
 - nr_dwellings
 - total_floor_area
@@ -21,11 +21,11 @@
 - total population
 - XY coordinates
 - Pop_ID
-- 
+-
 
 
 # Generate Real World Building Stock
-ID, X, Y, 
+ID, X, Y,
 
 # Average population per dwelling type
 
@@ -62,7 +62,7 @@ def get_hlc(dw_type, age):
         }
 
     # Get linearly fitted value
-    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1] 
+    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
 
     return hlc
 
