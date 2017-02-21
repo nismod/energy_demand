@@ -19,6 +19,7 @@
 #TODO data Heating fro min_max climate 
 import sys
 import os
+import datetime
 from datetime import date
 import numpy as np
 import main_functions as mf                         # Functions main module
@@ -127,9 +128,6 @@ def load_data():
         [date(P1_YEAR_BASE, 10, 12), date(P1_YEAR_BASE, 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
 
-    # Whole year
-    #timesteps_selection = ([date(P1_YEAR_BASE, 1, 12), date(P1_YEAR_BASE, 12, 31)], []) # whole year
-
     # Populate timesteps base year data (appliances, electricity)
     timesteps_app_bd = mf.create_timesteps_app(timesteps_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu) # [GWh]
 
@@ -159,7 +157,7 @@ def energy_demand_model(base_data, pop_data_external):
     Output:
 
     """
-    import datetime
+
     #print ("Energy Demand Model - Main funtion simulation parameter: " + str(SIM_PARAM))
     SIM_PARAM = base_data[0]
     fuel_type_lu = base_data[1]
@@ -175,8 +173,6 @@ def energy_demand_model(base_data, pop_data_external):
     timesteps_app_bd = base_data[11]
     timesteps_hd_bd = base_data[12]
 
-    print("Length of initial selection: " + str(len(timesteps_app_bd[0][0])))
-
     # Run different sub-models (sector models)
     e_app_bd, g_hd_bd = residential_model.run(SIM_PARAM, shape_app_elec, reg_pop, timesteps_app_bd, timesteps_hd_bd)
 
@@ -190,7 +186,7 @@ def energy_demand_model(base_data, pop_data_external):
     '''
 
     # ---------------------------------------------------------------------------
-    # Write timestpes to energy demand model
+    # Generate the wrapper timesteps and add instert data
     # ---------------------------------------------------------------------------
 
     # Create timesteps for full year (wrapper-timesteps)
@@ -200,45 +196,13 @@ def energy_demand_model(base_data, pop_data_external):
     result_dict = mf.get_wrapper_result_nested_dict(fuel_type_lu, reg_pop, timesteps)
 
     # Add electricity data to result dict for wrapper
-    fuel_type = 0
-    for region_nr in range(len(reg_pop)):
-        year_hour = 0
-        for timestep in timesteps: #Iterate over timesteps of full year
-            year_hour += 1
-            timestep_id = str(timestep)
-            _yearday = int(timestep.split("_")[0])   # Yearday
-            _h = int(timestep.split("_")[1])         # Hour
-            start_period = timesteps[timestep]['start']
-            end_period = timesteps[timestep]['end']
+    fuel_type = 0 # Elec
+    result_dict = mf.add_electricity_demand(e_app_bd, reg_pop, fuel_type, timesteps, result_dict)
 
-            # ---------------------------------
-            # Assign correct data from selection
-            # ---------------------------------
-            # Get season
-            _season = mf.get_season(_yearday)
+    # Add gas data
+    #fuel_type = 1 # gas
+    #result_dict = mf.add_electricity_demand(e_app_bd, reg_pop, fuel_type, timesteps, result_dict)
 
-            # Get weekday
-            _yeardayReal = _yearday + 1
-            _m = '2015 ' + str(_yeardayReal) #Plus one from python
-            date_from_yearday = datetime.datetime.strptime(_m, '%Y %j')
-            daytype = mf.get_weekday_type(date_from_yearday)
-
-            #get_wrapper_position(_season, daytype) # Get wrapper timeID position of own timesteps
-            day_own_container = mf.assign_wrapper_data(daytype, _season) # AS input should 
-
-            #print("day_own_container: " + str(day_own_container))
-
-            #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
-            #result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_yearday][_h].sum()
-
-            # DUMMY DATA
-            #print("...---...")
-            #print(fuel_type)
-            #print(region_nr)
-            #print(day_own_container)
-            #print(_h) # Is missing!
-            result_dict[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_type][region_nr][day_own_container].sum()  # Problem: Timesteps in are in fuel, region, TIMESTEP, appliances, hours
-            #print(" Region: " + str(region_nr) + str("  year_hour; " + str(year_hour)) + str("   Demand teimstep:  ") + str(timestep) + str("   Sum: " + str(e_app_bd[fuel_elec][region_nr][_h].sum())))
 
     # Write YAML file
     # ---------------
@@ -247,9 +211,9 @@ def energy_demand_model(base_data, pop_data_external):
     #    yaml.dump(timesteps, outfile, default_flow_style=False)
 
     print("Finished energy demand model")
-    print("-------------------------")
-    print("Total Length: " + str(len(result_dict[0][1])))
-    print("Total Length: " + str(result_dict[0][1]))
+    #print("-------------------------")
+    #print("Total Length: " + str(len(result_dict[0][1])))
+    #print("Total Length: " + str(result_dict[0][1]))
     return result_dict
 
 # Run
