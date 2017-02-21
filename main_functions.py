@@ -10,7 +10,8 @@ import sys
 import traceback
 from datetime import date, timedelta as td
 import numpy as np
-
+from datetime import datetime  
+from datetime import timedelta
 
 def read_csv(path_to_csv, _dt=()):
     """
@@ -238,12 +239,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
         _info = date_in_year.timetuple()
         month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
         year_day_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
-        weekday = _info[6]                # 0: Monday
-
-        if weekday == 5 or weekday == 6:
-            daytype = 1 # Holiday
-        else:
-            daytype = 0 # Working day
+        daytype = get_weekday_type(date_in_year)
 
         _data = hes_data[daytype][month_python] # Get day from HES raw data array
 
@@ -336,7 +332,6 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
         traceback.print_tb(_tb)         
         print (_value)
         sys.exit()
-
 
     return fuel_type_per_region_hourly
 
@@ -545,7 +540,16 @@ def conversion_ktoe_gwh(data_ktoe):
 
 # ------------------------- New Code
 
-def get_dates_datelist_inl_period(full_year_date):
+
+
+def timesteps_full_year():
+    '''Creates list with every date of the base year
+
+    Input:
+
+    Output:
+    -data_timesteps_elec    Timesteps containing appliances electricity data
+    '''
     """This function generates a single list from a list with start and end dates
     and adds the same date into the list according to the number of hours in a day.
 
@@ -557,35 +561,30 @@ def get_dates_datelist_inl_period(full_year_date):
     =========
     -timestep-date  [dates] List containing all dates according to number of hours
     """
-    from datetime import datetime  
-    from datetime import timedelta 
+    full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
+    start_date, end_date = full_year_date[0], full_year_date[1]
+    list_dates = list(datetime_range(start=start_date, end=end_date)) # List with every date in a year
 
-    hours = range(24)
-    days = range(365)
+    hours, days = range(24), range(365)
 
     timestep_full_year_dict = {} #  YEARDAY_H
     timestep_dates = []
-
-    # Iterate dates
-    start_date, end_date = full_year_date[0], full_year_date[1]
-    list_dates = list(datetime_range(start=start_date, end=end_date))
 
     #Add to list
     h_year_id = 0
     for day_date in list_dates:
         _info = day_date.timetuple() # Get date
         day_of_that_year = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
-        
+
         h_id = 0
         # Interate hours
-        for hour in hours:
+        for _ in hours:
             #Create ID (yearday_hour of day)
             yearday_h_id = str(str(day_of_that_year) + str("_") + str(h_id))
             start_period = str("P" + str(h_year_id) + str("H"))
             end_period = str("P" + str(h_year_id + 1) + str("H"))
 
             # Add to dict
-            #timestep_full_year_dict[yearday_h_id] = [start_period, end_period]
             timestep_full_year_dict[yearday_h_id] = {'start': start_period, 'end': end_period}
 
             h_id += 1
@@ -593,47 +592,22 @@ def get_dates_datelist_inl_period(full_year_date):
 
     return timestep_full_year_dict
 
-def timesteps_full_year():
-    ''' Create final timsteps for full year and add data:
+def get_weekday_type(date_from_yearday):
+    """Gets the weekday of a date
 
-    Input:
+    input:
+    -date_from_yearday      date
 
-    Output:
-    -data_timesteps_elec    Timesteps containing appliances electricity data
-    '''
-    # Region, Fuel
-    hours = range(24)
-
-    full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
-    timestep_dates = get_dates_datelist_inl_period(full_year_date)
-
-    # Number of timesteps
-    timesteps = range(len(timestep_dates))
-    print("Number of timesteps: " + str(len(timesteps)))
-    return timestep_dates
-
-    '''# Initialise simulation array
-    print("Number of timetsp: " + str(len(timesteps)))
-
-    # Iterate fuels, regions and hours
-
-    cnt_h = 0
-    for t_step in timesteps:
-
-        # Get appliances demand of region for every date of timeperiod
-        _info = timestep_dates[t_step].timetuple() # Get date
-        year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
-
-        #print("DAY SN: " + str(year_day_python) + str("  ") + str(sum(bd_hd_gas[fuel_type][reg_nr][year_day_python])))
-
-        # Get data and copy hour
-        data_timesteps_hd_gas[fuel_type][reg_nr][t_step][cnt_h] = bd_hd_gas[fuel_type][reg_nr][year_day_python][cnt_h]
-
-        cnt_h += 1
-        if cnt_h == 23:
-            cnt_h = 0
-    '''
-    #return data_timesteps_hd_gas
+    output:
+    -daytype: 1: holiday, 0; working day
+    """
+    _info = date_from_yearday.timetuple()
+    weekday = _info[6]                # 0: Monday
+    if weekday == 5 or weekday == 6:
+        daytype = 1 # Holiday
+    else:
+        daytype = 0 # Working day
+    return daytype
 
 def get_season(yearday):
     """
@@ -682,3 +656,15 @@ def assign_wrapper_data(daytype, _season):
             yearday_position_data_array = 7
 
     return yearday_position_data_array
+
+def get_wrapper_result_nested_dict(fuel_type_lu, reg_pop, timesteps):
+    """ Generates nested dictionary for providing results to smif
+    """
+    result_dict = {}
+    for i in range(len(fuel_type_lu)):
+        result_dict[i] = {}
+        for j in range(len(reg_pop)):
+            result_dict[i][j] = {}
+            for k in timesteps:
+                result_dict[i][j][k] = {}
+    return result_dict
