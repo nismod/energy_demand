@@ -1,5 +1,8 @@
 """ Functions for building stock"""
 
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
+
+
 class House(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 

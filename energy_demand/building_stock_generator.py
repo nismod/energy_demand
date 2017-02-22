@@ -1,12 +1,18 @@
+import sys
+import os
 from pprint import pprint
+import building_stock_functions as bf
+from main_functions import read_csv
 
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # Read in
+# ---------------------------------------------------------------
 path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
 path_pop_reg_lu = os.path.join(path_main, 'residential_model/energy_fact_file_housing_stock_age.csv')
 
-dw_age_distribution = mf.read_csv(path_pop_reg_base, float)
-
+dw_age_distribution = read_csv(path_pop_reg_lu, float)
+print(dw_age_distribution)
 print("re")
 # Assumptions
 
@@ -16,13 +22,14 @@ print("re")
 
 dwelling_number = 1000
 house_id = ""
-coordinates = []]
+coordinates = []
+'''
 age = age
         self.hlc = hlc
         self.pop = pop
         self.floor_area = floor_area
         self.temp = temp
-
+'''
 """
 #Spatial unit
 -Make possible also for postcodes...
@@ -54,7 +61,7 @@ ID, X, Y,
 
 # Average floor area per dwelling type
 """
-import building_stock_functions as bf
+
 
 
 

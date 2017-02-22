@@ -65,6 +65,7 @@ from datetime import date
 from datetime import timedelta as td
 import numpy as np
 
+
 #from datetime import date, timedelta as td
 #from datetime import datetime
 #import datetime
@@ -388,7 +389,7 @@ def datetime_range(start=None, end=None):
     for i in range(span.days + 1):
         yield start + td(days=i)
 
-def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
+def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     '''
     This function uses the generic shapes of the load profiles to hourly disaggregate energy demand
     for all regions and fuel types
@@ -574,7 +575,7 @@ def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
     print("Sum appliances_shape: " + str(shape_hd.sum()))
     return shape_hd
 
-def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
+def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
     '''This function calculates absolut heating demands with help of shape for all regions
 
     out:
@@ -856,3 +857,14 @@ def own_timesteps(timesteps_own_selection):
 
 
     return timestep_dates
+
+
+def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM, csv_temp_2015, hourly_gas_shape):
+    """ Gets load curve shapes """
+    # Shape of base year for a full year for appliances (electricity) from HES data [%]
+    shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
+
+    # Shape of base year for a full year for heating demand derived from XX [%]
+    shape_hd_gas = shape_bd_hd(csv_temp_2015, hourly_gas_shape)
+
+    return  shape_app_elec, shape_hd_gas
