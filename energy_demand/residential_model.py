@@ -60,12 +60,8 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     # ---------------------------------------------
     # DUMMY SIMULATION WITH POPULATION
     # ---------------------------------------------
-    print(reg_pop)
-    
     pop_base_year = reg_pop[:, 1]  # 1: 2015, 2: 2016...
     pop_curr_year = reg_pop[:, year_curr + 1]
-
-    #print(timesteps_app_bd[0]*1000)
 
     if year_curr != 0: # not base year
         print("Elec appliance base year: " + str(timesteps_app_bd.sum()))

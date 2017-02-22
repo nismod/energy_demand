@@ -4,7 +4,8 @@ from smif.sector_model import SectorModel
 from main import energy_demand_model, load_data
 
 class EDWrapper(SectorModel):
-
+    """Energy Demand Wrapper"""
+    
     def simulate(self, decisions, state, data):
         """This method should allow run model with inputs and outputs as arrays
 
@@ -18,8 +19,8 @@ class EDWrapper(SectorModel):
         # ...
 
         # Run Model
-        data = {'population': {0: 1000, 1: 2000, 2: 3000}}
-        results = energy_demand_model(base_data, data["population"])
+        pop_data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
+        results = energy_demand_model(base_data, pop_data["population"])
 
         return results
 

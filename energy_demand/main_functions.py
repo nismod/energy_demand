@@ -1,5 +1,57 @@
-"""
-This file stores all functions of main.py
+"""This file stores all functions of main.py"""
+
+
+r"""A one-line summary that does not use variable names or the
+    function name.
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+    This can have multiple paragraphs.
+    You may include some math:
 
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -9,35 +61,76 @@ import csv
 import sys
 import traceback
 import datetime
-from datetime import date, timedelta as td
+from datetime import date
+from datetime import timedelta as td
 import numpy as np
-from datetime import datetime  
-from datetime import timedelta
 
-def read_csv(path_to_csv, _dt=()):
-    """
-    This function reads in CSV files and skip header row.
+#from datetime import date, timedelta as td
+#from datetime import datetime
+#import datetime
 
-    Arguments
-    =========
-    -path_to_csv            Path to CSV file
-    -_dt                    Array type: default: float, otherweise
+def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
+    """Generates nested dictionary for providing results to smif
+
+    Parameters
+    ----------
+    fuel_type_lu : array
+        Contains all fuel types
+    reg_pop : array
+        Containes all population of different regions
+    timesteps : ??
+        Contaings all timesteps for the full year
 
     Returns
-    =========
-    -elements_array         Array containing whole CSV file entries
-    """
-    with open(path_to_csv, 'r') as csvfile:              # Read CSV file
-        list_elements = []
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines) # Skip first row
+    -------
+    result_dict : dict
+        Returns a nested dictionary for energy supply model. (fueltype/region/timeID)
 
-        # Rows
+    Notes
+    -----
+    notes
+    """
+
+    result_dict = {}
+    for i in range(len(fuel_type_lu)):
+        result_dict[i] = {}
+        for j in range(len(reg_pop)): #TODO: use region lu
+            result_dict[i][j] = {}
+            for k in timesteps:
+                result_dict[i][j][k] = {}
+    return result_dict
+
+def read_csv(path_to_csv, _dt=()):
+    """This function reads in CSV files and skips header row.
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
+
+    Returns
+    -------
+    elements_array : array_like
+        Returns an array `elements_array` with the read in csv files.
+
+    Notes
+    -----
+    The header row is always skipped.
+    """
+    list_elements = []
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
         for row in read_lines:
             list_elements.append(row)
 
+    # Convert list into array
     if _dt == float:
-        elements_array = np.array(list_elements, dtype=_dt)    # Convert list into array
+        elements_array = np.array(list_elements, dtype=_dt)
     else:
         elements_array = np.array(list_elements)
     return elements_array
@@ -49,7 +142,7 @@ def get_dates_datelist(date_list):
     Arguments
     =========
     -date_list      [dates] List containing start and end dates
-    
+
     Returns
     =========
     -timestep-date  [dates] List containing all dates according to number of hours
@@ -90,7 +183,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
                 timesteps
                     hours
                         applications
-                        
+
     '''
     # Region, Fuel
     hours = range(24)
@@ -341,7 +434,7 @@ def bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
         _val = sys.exc_info()
         _, _value, _tb = sys.exc_info()
         print("Errors from function db_appliances:")
-        traceback.print_tb(_tb)         
+        traceback.print_tb(_tb)
         print (_value)
         sys.exit()
 
@@ -358,13 +451,11 @@ def writeToEnergySupply(path_out_csv, fueltype, in_data):
     Output:
     -               Print results
     '''
-    # Prepare data that as follows:
     outData = []
 
-    # NEW: Create ID 
+    # NEW: Create ID
 
-    # WRITE TO YAMAL FILE 
-    
+    # WRITE TO YAMAL FILE
 
     print("Data for energy supply model")
 
@@ -533,7 +624,7 @@ def bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
     return fuel_type_per_region_hourly
 
 def conversion_ktoe_gwh(data_ktoe):
-    """ Conversion of ktoe to gwh according to 
+    """ Conversion of ktoe to gwh according to
     https://www.iea.org/statistics/resources/unitconverter/
 
     Arguments
@@ -633,11 +724,11 @@ def get_season(yearday):
 
     if yearday in winter1 or yearday in winter2:
         season = 0 # Winter
-    if yearday in spring:
+    elif yearday in spring:
         season = 1
-    if yearday in summer:
+    elif yearday in summer:
         season = 2
-    if yearday in autumn:
+    elif yearday in autumn:
         season = 3
     return season
 
@@ -692,17 +783,7 @@ def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
 
     return position_own_container
 
-def get_wrapper_result_nested_dict(fuel_type_lu, reg_pop, timesteps):
-    """ Generates nested dictionary for providing results to smif
-    """
-    result_dict = {}
-    for i in range(len(fuel_type_lu)):
-        result_dict[i] = {}
-        for j in range(len(reg_pop)):
-            result_dict[i][j] = {}
-            for k in timesteps:
-                result_dict[i][j][k] = {}
-    return result_dict
+
 
 
 
@@ -710,13 +791,11 @@ def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps
     """Add data to wrapper timesteps
 
     """
-    import datetime
-    from datetime import date
 
     # Iteratue fuels
     for _ftyp in range(len(fuel_type_lu)):
 
-        if _ftyp is not fuel_type:
+        if _ftyp is not fuel_type: # IF other fueltype
             continue
 
         for region_nr in range(len(reg_pop)):
@@ -735,11 +814,12 @@ def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps
                 _yeardayReal = _yearday + 1 #Plus one from python
                 date_from_yearday = datetime.datetime.strptime('2015 ' + str(_yeardayReal), '%Y %j')
                 daytype = get_weekday_type(date_from_yearday)
+                #daytype = 1
 
                 # Get position in own timesteps
                 hour_own_container = year_hour - _yearday * 24 #Hour of the day
                 day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
-
+                day_own_container_position = 1
                 #print("day_own_container: " + str(day_own_container))
 
                 #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out
