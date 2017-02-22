@@ -163,7 +163,7 @@ def get_dates_datelist(date_list):
                 timestep_dates.append(j)
     return timestep_dates
 
-def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu):
+def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, own_timesteps):
     '''Creates the timesteps for which the energy demand of the appliances is calculated.
     Then base energy demand is added for each timestep read in from yearly demand aray.
 
@@ -189,7 +189,8 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
     fuel_type = 0 #elec
 
     # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    timestep_dates = get_dates_datelist(date_list)
+    #timestep_dates = get_dates_datelist(date_list)
+    timestep_dates = own_timesteps
 
     # Nuber of timesteps containing all days and hours
     timesteps = range(len(timestep_dates))
@@ -227,7 +228,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
 
     return data_timesteps_elec
 
-def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu): # TODO: HIER GIBTS NOCH ERROR
+def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, own_timesteps): # TODO: HIER GIBTS NOCH ERROR
     '''
     This function creates the simulation time steps for which the heating energy is calculated.
     Then it selects energy demand from the yearl list for the simulation period.
@@ -251,7 +252,8 @@ def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu): # TODO: HIE
     fuel_type = 1 #gas
 
     # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    timestep_dates = get_dates_datelist(date_list)
+    #timestep_dates = get_dates_datelist(date_list)
+    timestep_dates = own_timesteps
 
     # Number of timesteps
     timesteps = range(len(timestep_dates))

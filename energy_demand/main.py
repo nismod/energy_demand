@@ -46,7 +46,7 @@ def load_data():
 
     """
 
-# -------------------
+    # -------------------
     # Local paths to data
     # -------------------
     path_main = r'C:\Users\cenv0553\GIT\NISMODII\data'
@@ -137,13 +137,13 @@ def load_data():
         )
 
     # Create own timesteps
-    #own_timesteps = mf.create_own_timesteps(timesteps_own_selection)
+    own_timesteps = mf.own_timesteps(timesteps_own_selection)
 
     # Populate timesteps base year data (appliances, electricity)
-    timesteps_app_bd = mf.create_timesteps_app(timesteps_own_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu) # [GWh]
+    timesteps_app_bd = mf.create_timesteps_app(timesteps_own_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, own_timesteps) # [GWh]
 
     # Populate timesteps base year data (heating demand, ga)
-    timesteps_hd_bd = mf.create_timesteps_hd(timesteps_own_selection, bd_hd_gas, reg_lu, fuel_type_lu) # [GWh]
+    timesteps_hd_bd = mf.create_timesteps_hd(timesteps_own_selection, bd_hd_gas, reg_lu, fuel_type_lu, own_timesteps) # [GWh]
 
     print("----------------------Statistics--------------------")
     print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
@@ -249,10 +249,10 @@ def energy_demand_model(bd_internal, pop_data_external):
 
     # Write YAML file
     # ---------------
-    path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'
-    with open(path_YAML, 'w') as outfile:
-        yaml.dump(yaml_list, outfile, default_flow_style=False)
-    # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
+    #path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
+    #with open(path_YAML, 'w') as outfile:
+    #    yaml.dump(yaml_list, outfile, default_flow_style=False)
+
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))
     print("FINAL timesteps: " + str(len(result_dict[0][0])))

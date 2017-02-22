@@ -1,3 +1,22 @@
+# Specify the mapping of model timesteps to durations within a year
+# assume modelling 365 days (no extra day in leap years, no leap seconds)
+
+# Each time interval must have
+# - start (period since beginning of year)
+# - end (period since beginning of year)
+# - id (label to use when passing between integration layer and sector model)
+
+# use ISO 8601 duration format to specify periods = P[n]Y[n]M[n]DT[n]H[n]M[n]S
+# - https://en.wikipedia.org/wiki/ISO_8601#Durations
+
+# Here we specify monthly values, assuming the model has a four outputs, each
+# corresponding to a typical month in the given season, we map the model outputs
+# to the whole year's duration.
+
+# If the model were to output an hourly value instead, we would map that to 8760
+# intervals, each one hour long, again covering the whole year.
+
+
 - end: P1H
   id: '0_0'
   start: P0H
