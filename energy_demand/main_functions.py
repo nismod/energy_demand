@@ -163,7 +163,7 @@ def get_dates_datelist(date_list):
                 timestep_dates.append(j)
     return timestep_dates
 
-def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, own_timesteps):
+def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     '''Creates the timesteps for which the energy demand of the appliances is calculated.
     Then base energy demand is added for each timestep read in from yearly demand aray.
 
@@ -187,10 +187,6 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
     '''
     # Region, Fuel
     fuel_type = 0 #elec
-
-    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    #timestep_dates = get_dates_datelist(date_list)
-    timestep_dates = own_timesteps
 
     # Nuber of timesteps containing all days and hours
     timesteps = range(len(timestep_dates))
@@ -228,7 +224,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
 
     return data_timesteps_elec
 
-def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, own_timesteps): # TODO: HIER GIBTS NOCH ERROR
+def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
     '''
     This function creates the simulation time steps for which the heating energy is calculated.
     Then it selects energy demand from the yearl list for the simulation period.
@@ -250,10 +246,6 @@ def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, own_timestep
     # Region, Fuel
     hours = range(24)
     fuel_type = 1 #gas
-
-    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    #timestep_dates = get_dates_datelist(date_list)
-    timestep_dates = own_timesteps
 
     # Number of timesteps
     timesteps = range(len(timestep_dates))
@@ -792,7 +784,7 @@ def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
 
 
 
-def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection):
+def add_demand_result_dict(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection):
     """Add data to wrapper timesteps
 
     """
@@ -809,7 +801,7 @@ def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps
                 timestep_id = str(timestep)
                 _yearday = int(timestep.split("_")[0])   # Yearday
                 _h = int(timestep.split("_")[1])         # Hour
-                start_period, end_period = timesteps[timestep]['start'], timesteps[timestep]['end']
+                #start_period, end_period = timesteps[timestep]['start'], timesteps[timestep]['end']
 
                 # Assign correct data from selection
                 # Get season
@@ -823,7 +815,7 @@ def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps
 
                 # Get position in own timesteps
                 hour_own_container = year_hour - _yearday * 24 #Hour of the day
-                day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
+                #day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
                 day_own_container_position = 1
                 #print("day_own_container: " + str(day_own_container))
 

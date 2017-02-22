@@ -21,9 +21,7 @@ from datetime import date
 import main_functions as mf                         # Functions main module
 import residential_model                            # Residential sub-module
 import yaml
-import numpy as np
-#import datetime
-#import os
+#import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -91,7 +89,7 @@ def load_data():
     fuel_bd_data = mf.read_csv(path_base_data_fuel, float)                  # All disaggregated fuels for different regions
     csv_temp_2015 = mf.read_csv(path_temp_2015)                             # csv_temp_2015
     hourly_gas_shape = mf.read_csv(path_hourly_gas_shape, float)            # Load hourly shape for gas from Robert Sansom
-    # Read in more date such as floor area, nr of households etc. for base year 
+    # Read in more date such as floor area, nr of households etc. for base year
 
     #print("reg_pop:         " + str(reg_pop))
     #print("Fuel data:       " + str(fuel_bd_data))
@@ -241,17 +239,18 @@ def energy_demand_model(bd_internal, pop_data_external):
 
     # Add electricity data to result dict for wrapper
     fuel_type = 0 # Elec
-    result_dict = mf.add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection)
+    result_dict = mf.add_demand_result_dict(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection)
 
     # Add gas data
     fuel_type = 1 # gas
-    result_dict = mf.add_electricity_demand(g_hd_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection)
+    result_dict = mf.add_demand_result_dict(g_hd_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection)
 
     # Write YAML file
-    # ---------------
-    #path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
-    #with open(path_YAML, 'w') as outfile:
-    #    yaml.dump(yaml_list, outfile, default_flow_style=False)
+    yaml_write = False
+    if yaml_write: # == True:
+        path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
+        with open(path_YAML, 'w') as outfile:
+            yaml.dump(yaml_list, outfile, default_flow_style=False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))
