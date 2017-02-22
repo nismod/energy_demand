@@ -89,4 +89,3 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
 
     else:
         return timesteps_app_bd, timesteps_hd_bd
-    

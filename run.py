@@ -5,7 +5,7 @@ from energy_demand.main import energy_demand_model, load_data
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
-    
+
     def simulate(self, decisions, state, data):
         """This method should allow run model with inputs and outputs as arrays
 
@@ -48,5 +48,5 @@ class EDWrapper(SectorModel):
 if __name__ == "__main__":
     energy_demand = EDWrapper() # Wrapper function
 
-    data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
-    energy_demand.simulate([], [], data)
+    data_pop = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
+    energy_demand.simulate([], [], data_pop)

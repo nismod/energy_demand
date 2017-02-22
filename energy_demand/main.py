@@ -19,14 +19,13 @@
 
 #!python3.6
 
-#TODO data Different appliances for cold/hot extremes
-#TODO data Heating fro min_max climate
+#TODOs data Different appliances for cold/hot extremes, data Heating fro min_max climate
+
 import sys
 import os
 from datetime import date
 import energy_demand.main_functions as mf
 from energy_demand import residential_model
-
 import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
@@ -70,7 +69,7 @@ def load_data():
     P3_SIM_PERIOD = range(P2_YEAR_END - P1_YEAR_BASE)                       # List with simulation years
     P0_YEAR_CURR = YEAR_SIMULATION - P1_YEAR_BASE                           # [int] Current year in current simulation
     SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
-    print(path_pop_reg_lu)
+
     # Lookup tables
     reg_lu = mf.read_csv(path_pop_reg_lu)                                   # Region lookup table
     dwelling_type_lu = mf.read_csv(path_dwelling_type_lu)                   # Dwelling types lookup table
@@ -165,9 +164,9 @@ def load_data():
                       'timesteps_hd_bd': timesteps_hd_bd,
                       'timesteps_own_selection': timesteps_own_selection}
 
-    #todo: reduce variables    
+    #todo: reduce variables
     return load_data_dict
- 
+
 # ---------------------------------------------------------------
 # Run Model
 # ---------------------------------------------------------------

@@ -100,5 +100,3 @@ ID, X, Y,
 __dict__
 """
 #a = Town_region("Testname", 10).S_D
-
-
