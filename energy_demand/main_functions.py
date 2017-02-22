@@ -90,7 +90,6 @@ def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
     -----
     notes
     """
-
     result_dict = {}
     for i in range(len(fuel_type_lu)):
         result_dict[i] = {}
@@ -136,16 +135,22 @@ def read_csv(path_to_csv, _dt=()):
     return elements_array
 
 def get_dates_datelist(date_list):
-    """This function generates a single list from a list with start and end dates
-    and adds the same date into the list according to the number of hours in a day.
+    """Generets a list with all dates from a list containing start and end dates.
 
-    Arguments
-    =========
-    -date_list      [dates] List containing start and end dates
+    Parameters
+    ----------
+    date_list : list
+        Contaings lists with start and end dates
 
     Returns
-    =========
-    -timestep-date  [dates] List containing all dates according to number of hours
+    -------
+    timestep_dates : list
+        A list containing 24 dates for every day
+
+    Notes
+    -----
+    If e.g. 2 days are found in the interval, 24 times the first and 24
+    times the second day are added to a list.
     """
     # Create timestep dates
     hours = range(24)
@@ -163,30 +168,37 @@ def get_dates_datelist(date_list):
                 timestep_dates.append(j)
     return timestep_dates
 
-def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
-    '''Creates the timesteps for which the energy demand of the appliances is calculated.
+def create_timesteps_app(date_list, fuel_type, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
+    """Creates the timesteps for which the energy demand of the appliances is calculated.
     Then base energy demand is added for each timestep read in from yearly demand aray.
 
-    Arguments
-    =========
-    -date_list              [dates] List containing selection of dates the simulation should run
-    -bd_app_elec            Base demand applications (electricity)
-    -reg_lu                 Region look-up table
-    -fuel_type_lu           Fuel type look-up table
-    -app_type_lu            Appliance look-up table
+    Parameters
+    ----------
+    date_list : list
+        Contaings lists with start and end dates
+    fuel_type : int
+        Fuel type
+    bd_app_elec : list
+        Base demand applications (electricity)
+    reg_lu : list
+        Region look-up table
+    fuel_type_lu : list
+        Fuel type look-up table
+        ...
 
     Returns
-    =========
-    -data_timesteps_elec    Timesteps containing appliances electricity data
-        regions
-            fuel_type
-                timesteps
-                    hours
-                        applications
+    -------
+    data_timesteps_elec : array
+        Timesteps containing appliances electricity data
+            regions
+                fuel_type
+                    timesteps
+                        hours
+                            applications
+    Notes
+    -----
 
-    '''
-    # Region, Fuel
-    fuel_type = 0 #elec
+    """
 
     # Nuber of timesteps containing all days and hours
     timesteps = range(len(timestep_dates))
@@ -224,7 +236,7 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
 
     return data_timesteps_elec
 
-def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
+def create_timesteps_hd(date_list, fuel_type, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
     '''
     This function creates the simulation time steps for which the heating energy is calculated.
     Then it selects energy demand from the yearl list for the simulation period.
@@ -245,8 +257,7 @@ def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dat
     '''
     # Region, Fuel
     hours = range(24)
-    fuel_type = 1 #gas
-
+    
     # Number of timesteps
     timesteps = range(len(timestep_dates))
 
@@ -275,7 +286,7 @@ def create_timesteps_hd(date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dat
     return data_timesteps_hd_gas
 
 
-def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_year):
+def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
     '''
     This function reads in the HES eletricity load profiles
     of the base year and stores them in form of an array.
@@ -287,7 +298,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
     #TODO: expand for different regions, different dwelling types, fuels...
 
     Input:
-    -path_base_elec_load_profiles   Path to .csv file with HSE data
+    -path_bd_e_load_profiles   Path to .csv file with HSE data
     -season_lookup                  Lookup dictionary with seasons
     -daytypee_lu                    Lookup dictionary with type of days
     -app_type_lu              Looup dictionary containing all appliances
@@ -310,7 +321,7 @@ def shape_bd_app(path_base_elec_load_profiles, daytypee_lu, app_type_lu, base_ye
     hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(hours), len(app_type_lu)), dtype=float)
 
     # Read in energy profiles of base_year
-    raw_elec_data = read_csv(path_base_elec_load_profiles)
+    raw_elec_data = read_csv(path_bd_e_load_profiles)
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:

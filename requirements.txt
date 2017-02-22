@@ -1,3 +1,4 @@
 # Add your requirements here like:
 numpy
+yaml
 # scipy>=0.9

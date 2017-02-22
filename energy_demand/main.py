@@ -17,6 +17,8 @@
 #"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+#!python3.6
+
 #TODO data Different appliances for cold/hot extremes
 #TODO data Heating fro min_max climate
 import sys
@@ -52,7 +54,7 @@ def load_data():
     # Local paths to data
     # -------------------
     #path_main = '../data'
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
     path_pop_reg_lu = os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv')
     path_pop_reg_base = os.path.join(path_main, 'scenario_and_base_data/population_regions.csv')
     path_dwelling_type_lu = os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv')
@@ -61,7 +63,7 @@ def load_data():
     path_day_type_lu = os.path.join(path_main, 'residential_model/lookup_day_type.csv')
     path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
 
-    path_base_elec_load_profiles = os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv')   # Path to base population
+    path_bd_e_load_profiles = os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv')   # Path to base population
     path_base_data_fuel = os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv')                                 # Path to base fuel data
     path_temp_2015 = os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv')                                            # Path to temperature data
     path_hourly_gas_shape = os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv')                    # Path to hourly gas shape
@@ -105,7 +107,7 @@ def load_data():
     # ---------------------------------------------------------------
 
     # Shape of base year for a full year for appliances (electricity) from HES data [%]
-    shape_app_elec = mf.shape_bd_app(path_base_elec_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
+    shape_app_elec = mf.shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
 
     # Shape of base year for a full year for heating demand derived from XX [%]
     shape_hd_gas = mf.shape_bd_hd(csv_temp_2015, hourly_gas_shape)
@@ -143,10 +145,12 @@ def load_data():
     own_timesteps = mf.own_timesteps(timesteps_own_selection)
 
     # Populate timesteps base year data (appliances, electricity)
-    timesteps_app_bd = mf.create_timesteps_app(timesteps_own_selection, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, own_timesteps) # [GWh]
+    fuel_type = 0 # elec
+    timesteps_app_bd = mf.create_timesteps_app(timesteps_own_selection, fuel_type, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, own_timesteps) # [GWh]
 
     # Populate timesteps base year data (heating demand, ga)
-    timesteps_hd_bd = mf.create_timesteps_hd(timesteps_own_selection, bd_hd_gas, reg_lu, fuel_type_lu, own_timesteps) # [GWh]
+    fuel_type = 1 #gas
+    timesteps_hd_bd = mf.create_timesteps_hd(timesteps_own_selection, fuel_type, bd_hd_gas, reg_lu, fuel_type_lu, own_timesteps) # [GWh]
 
     print("----------------------Statistics--------------------")
     print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
@@ -187,6 +191,7 @@ def energy_demand_model(bd_internal, pop_data_external):
     -----
 
     """
+
 
     # Get input and convert into necessary formats
     # -------------------------------------------------
@@ -235,12 +240,8 @@ def energy_demand_model(bd_internal, pop_data_external):
     # Generate the wrapper timesteps and add instert data (from own timeperiod to full year)
     print("Generate resutls for wrapper (read into nested dictionary")
     # ---------------------------------------------------------------------------
-
-    # Create timesteps for full year (wrapper-timesteps)
-    timesteps, yaml_list = mf.timesteps_full_year()
-
-    # Initialise nested Dicionatry for wrapper (Fuel type, region, hour)
-    result_dict = mf.init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps)
+    timesteps, yaml_list = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
+    result_dict = mf.init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps)      # Initialise nested Dicionatry for wrapper (Fuel type, region, hour)
 
     # Add electricity data to result dict for wrapper
     fuel_type = 0 # Elec
@@ -251,11 +252,13 @@ def energy_demand_model(bd_internal, pop_data_external):
     result_dict = mf.add_demand_result_dict(g_hd_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection)
 
     # Write YAML file
-    yaml_write = False
+    #yaml_write = False
     # if yaml_write: # == True:
     #     path_YAML = 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
     #     with open(path_YAML, 'w') as outfile:
     #         yaml.dump(yaml_list, outfile, default_flow_style=False)
+
+    # Write functtion to also write out results
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))

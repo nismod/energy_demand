@@ -13,14 +13,16 @@ class EDWrapper(SectorModel):
         =========
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
-        # Load Data
+        # Load data needed for energy demand model
         base_data = load_data()
-        # Data Manipulation
+
+        # Maybe manipulate some more data
         # ...
 
         # Run Model
-        #pop_data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
         results = energy_demand_model(base_data, data["population"])
+
+        # TODO: write out to csv file or similar
 
         return results
 
@@ -44,8 +46,7 @@ class EDWrapper(SectorModel):
         pass
 
 if __name__ == "__main__":
-    energy_demand = EDWrapper()
+    energy_demand = EDWrapper() # Wrapper function
 
     data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
-
     energy_demand.simulate([], [], data)
