@@ -7,7 +7,7 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-import residential_model_functions as rf
+import energy_demand.residential_model_functions as rf
 
 def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     """

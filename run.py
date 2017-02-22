@@ -1,7 +1,7 @@
 """ The sectorl model wrapper for smif to run the energy demand mdoel"""
 
 from smif.sector_model import SectorModel
-from main import energy_demand_model, load_data
+from energy_demand.main import energy_demand_model, load_data
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
@@ -43,4 +43,9 @@ class EDWrapper(SectorModel):
         """
         pass
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    energy_demand = EDWrapper()
+
+    data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
+
+    energy_demand.simulate([], [], data)

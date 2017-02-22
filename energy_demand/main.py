@@ -17,9 +17,10 @@
 #TODO data Different appliances for cold/hot extremes
 #TODO data Heating fro min_max climate
 import sys
+import os
 from datetime import date
-import main_functions as mf                         # Functions main module
-import residential_model                            # Residential sub-module
+import energy_demand.main_functions as mf                         # Functions main module
+from energy_demand import residential_model                            # Residential sub-module
 import yaml
 import numpy as np
 
@@ -47,19 +48,19 @@ def load_data():
     # -------------------
     # Local paths to data
     # -------------------
-    path_main = r'C:\Users\cenv0553\GIT\NISMODII\data'
-    path_pop_reg_lu = path_main + r'\scenario_and_base_data\lookup_nr_regions.csv'
-    path_pop_reg_base = path_main + r'\scenario_and_base_data\population_regions.csv'
-    path_dwelling_type_lu = path_main + r'\residential_model\lookup_dwelling_type.csv'
-    path_lookup_appliances = path_main + r'\residential_model\lookup_appliances.csv'
-    path_fuel_type_lu = path_main + r'\scenario_and_base_data\lookup_fuel_types.csv'
-    path_day_type_lu = path_main + r'\residential_model\lookup_day_type.csv'
-    path_seasons_lookup = path_main + r'\scenario_and_base_data\lookup_season.csv'
+    path_main = '/vagrant/models/energy_demand/data'
+    path_pop_reg_lu = os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv')
+    path_pop_reg_base = os.path.join(path_main, 'scenario_and_base_data/population_regions.csv')
+    path_dwelling_type_lu = os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv')
+    path_lookup_appliances = os.path.join(path_main, 'residential_model/lookup_appliances.csv')
+    path_fuel_type_lu = os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv')
+    path_day_type_lu = os.path.join(path_main, 'residential_model/lookup_day_type.csv')
+    path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
 
-    path_base_elec_load_profiles = path_main + r'\residential_model\base_appliances_eletricity_load_profiles.csv'   # Path to base population
-    path_base_data_fuel = path_main + r'\scenario_and_base_data\base_data_fuel.csv'                                 # Path to base fuel data
-    path_temp_2015 = path_main + r'\residential_model\CSV_YEAR_2015.csv'                                            # Path to temperature data
-    path_hourly_gas_shape = path_main +  r'\residential_model\residential_gas_hourly_shape.csv'                     # Path to hourly gas shape
+    path_base_elec_load_profiles = os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv')   # Path to base population
+    path_base_data_fuel = os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv')                                 # Path to base fuel data
+    path_temp_2015 = os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv')                                            # Path to temperature data
+    path_hourly_gas_shape = os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv')                    # Path to hourly gas shape
 
     # Global variables
     YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
@@ -247,10 +248,10 @@ def energy_demand_model(bd_internal, pop_data_external):
 
     # Write YAML file
     yaml_write = False
-    if yaml_write: # == True:
-        path_YAML = r'C:\Users\cenv0553\GIT\NISMODII\TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
-        with open(path_YAML, 'w') as outfile:
-            yaml.dump(yaml_list, outfile, default_flow_style=False)
+    # if yaml_write: # == True:
+    #     path_YAML = 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
+    #     with open(path_YAML, 'w') as outfile:
+    #         yaml.dump(yaml_list, outfile, default_flow_style=False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))
