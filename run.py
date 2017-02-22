@@ -19,8 +19,8 @@ class EDWrapper(SectorModel):
         # ...
 
         # Run Model
-        pop_data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
-        results = energy_demand_model(base_data, pop_data["population"])
+        #pop_data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
+        results = energy_demand_model(base_data, data["population"])
 
         return results
 

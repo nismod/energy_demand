@@ -845,5 +845,3 @@ def own_timesteps(timesteps_own_selection):
 
 
     return timestep_dates
-
-

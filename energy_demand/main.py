@@ -21,7 +21,7 @@ from datetime import date
 import main_functions as mf                         # Functions main module
 import residential_model                            # Residential sub-module
 import yaml
-#import numpy as np
+import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
