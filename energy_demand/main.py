@@ -11,6 +11,9 @@
 # e  = electricitiy
 # g  = gas
 # lu = look up
+
+# The docs can be found here: http://ed.readthedocs.io
+
 #"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -19,8 +22,8 @@
 import sys
 import os
 from datetime import date
-import energy_demand.main_functions as mf                         # Functions main module
-from energy_demand import residential_model                            # Residential sub-module
+import energy_demand.main_functions as mf
+from energy_demand import residential_model
 import yaml
 import numpy as np
 
@@ -48,7 +51,8 @@ def load_data():
     # -------------------
     # Local paths to data
     # -------------------
-    path_main = '/vagrant/models/energy_demand/data'
+    #path_main = '../data'
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'
     path_pop_reg_lu = os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv')
     path_pop_reg_base = os.path.join(path_main, 'scenario_and_base_data/population_regions.csv')
     path_dwelling_type_lu = os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv')
@@ -69,7 +73,7 @@ def load_data():
     P3_SIM_PERIOD = range(P2_YEAR_END - P1_YEAR_BASE)                       # List with simulation years
     P0_YEAR_CURR = YEAR_SIMULATION - P1_YEAR_BASE                           # [int] Current year in current simulation
     SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
-
+    print(path_pop_reg_lu)
     # Lookup tables
     reg_lu = mf.read_csv(path_pop_reg_lu)                                   # Region lookup table
     dwelling_type_lu = mf.read_csv(path_dwelling_type_lu)                   # Dwelling types lookup table
@@ -229,7 +233,7 @@ def energy_demand_model(bd_internal, pop_data_external):
 
     # ---------------------------------------------------------------------------
     # Generate the wrapper timesteps and add instert data (from own timeperiod to full year)
-    print("Write out to final nested dictionary")
+    print("Generate resutls for wrapper (read into nested dictionary")
     # ---------------------------------------------------------------------------
 
     # Create timesteps for full year (wrapper-timesteps)
