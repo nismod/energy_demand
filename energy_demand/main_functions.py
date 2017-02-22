@@ -186,7 +186,6 @@ def create_timesteps_app(date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_
 
     '''
     # Region, Fuel
-    hours = range(24)
     fuel_type = 0 #elec
 
     # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
@@ -669,6 +668,7 @@ def timesteps_full_year():
     list_dates = list(datetime_range(start=start_date, end=end_date)) # List with every date in a year
 
     hours, days = range(24), range(365)
+    yaml_list = [] ## l = [{'id': value, 'start': 'p', 'end': 'P2',   }
 
     timestep_full_year_dict = {} #  YEARDAY_H
     timestep_dates = []
@@ -693,7 +693,10 @@ def timesteps_full_year():
             h_id += 1
             h_year_id += 1
 
-    return timestep_full_year_dict
+            #Add to yaml listyaml
+            yaml_list.append({'id': yearday_h_id, 'start': start_period, 'end': end_period})
+
+    return timestep_full_year_dict, yaml_list
 
 def get_weekday_type(date_from_yearday):
     """Gets the weekday of a date
@@ -837,3 +840,16 @@ def add_electricity_demand(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps
                 year_hour += 1
 
     return result_dict
+
+
+def own_timesteps(timesteps_own_selection):
+    """Create own timesteps
+    """
+
+    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
+    timestep_dates = get_dates_datelist(timesteps_own_selection)
+
+
+    return timestep_dates
+
+
