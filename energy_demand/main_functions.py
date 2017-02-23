@@ -1,7 +1,7 @@
 """This file stores all functions of main.py"""
 
 
-r"""A one-line summary that does not use variable names or the
+"""A one-line summary that does not use variable names or the
     function name.
     Several sentences providing an extended description. Refer to
     variables using back-ticks, e.g. `var`.
@@ -55,8 +55,6 @@ r"""A one-line summary that does not use variable names or the
 
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
-print ("Loading main functions")
-
 import csv
 import sys
 import traceback
@@ -64,7 +62,7 @@ import datetime
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
-
+print ("Loading main functions")
 
 #from datetime import date, timedelta as td
 #from datetime import datetime
@@ -796,7 +794,7 @@ def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
 
 
 
-def add_demand_result_dict(e_app_bd, fuel_type_lu, reg_pop, fuel_type, timesteps, result_dict, timesteps_own_selection):
+def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps, result_dict, timesteps_own_selection):
     """Add data to wrapper timesteps
 
     """

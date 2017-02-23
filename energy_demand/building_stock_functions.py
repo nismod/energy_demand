@@ -68,10 +68,8 @@ def get_hlc(dw_type, age):
         0: [-0.0223, 48.292],       # Detached
         1: [-0.0223, 48.251],       # Semi-Detached
         2: [-0.0223, 48.063],       # Terraced Average
-        3: [-0.0223, ],             # Data but not used
-        4: [-0.0223, ],             # Data but not used
-        5: [-0.0223, 48.261],       # Bungalow
-        6: [-0.0223, 48.063]        # Terraced average
+        3: [-0.0223, 47.02],        # Flats
+        4: [-0.0223, 48.261],       # Bungalow
         }
 
     # Get linearly fitted value
