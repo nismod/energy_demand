@@ -1,5 +1,5 @@
 # Add your requirements here like:
 numpy
 yaml
-energy_demand
-smif
+# energy_demand
+# smif

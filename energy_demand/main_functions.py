@@ -868,3 +868,35 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM
     shape_hd_gas = shape_bd_hd(csv_temp_2015, hourly_gas_shape)
 
     return  shape_app_elec, shape_hd_gas
+
+def read_data(paths_dict):
+    """Reads in all csv files and stores them in a dictionary"""
+
+    data = {}
+
+    # Read data
+    reg_lu = read_csv(paths_dict['path_pop_reg_lu'])                                  # Region lookup table
+    dwelling_type_lu = read_csv(paths_dict['path_dwelling_type_lu'])                   # Dwelling types lookup table
+    app_type_lu = read_csv(paths_dict['path_lookup_appliances'])                       # Appliances types lookup table
+    fuel_type_lu = read_csv(paths_dict['path_fuel_type_lu'])                        # Fuel type lookup
+    day_type_lu = read_csv(paths_dict['path_day_type_lu'])                         # Day type lookup
+    #season_lookup = read_csv(paths_dict[]'path_season's_lookup'])                        # Season lookup
+
+    reg_pop = read_csv(paths_dict['path_pop_reg_base'], float)                         # Population data
+    fuel_bd_data = read_csv(paths_dict['path_base_data_fuel'], float)                  # All disaggregated fuels for different regions
+    csv_temp_2015 = read_csv(paths_dict['path_temp_2015'])                             # csv_temp_2015
+    hourly_gas_shape = read_csv(paths_dict['path_hourly_gas_shape'], float)           # Load hourly shape for gas from Robert Sansom
+
+    # Insert into dictionary
+    data['reg_lu'] = reg_lu
+    data['dwelling_type_lu'] = dwelling_type_lu
+    data['app_type_lu'] = app_type_lu
+    data['fuel_type_lu'] = fuel_type_lu
+    data['day_type_lu'] = day_type_lu
+
+    data['reg_pop'] = reg_pop
+    data['fuel_bd_data'] = fuel_bd_data
+    data['csv_temp_2015'] = csv_temp_2015
+    data['hourly_gas_shape'] = hourly_gas_shape
+
+    return data
