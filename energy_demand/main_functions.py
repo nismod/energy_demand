@@ -167,16 +167,16 @@ def get_dates_datelist(date_list):
                 timestep_dates.append(j)
     return timestep_dates
 
-def create_timesteps_app(date_list, fuel_type, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
+def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     """Creates the timesteps for which the energy demand of the appliances is calculated.
     Then base energy demand is added for each timestep read in from yearly demand aray.
 
     Parameters
     ----------
-    date_list : list
-        Contaings lists with start and end dates
     fuel_type : int
         Fuel type
+    date_list : list
+        Contaings lists with start and end dates
     bd_app_elec : list
         Base demand applications (electricity)
     reg_lu : list
@@ -235,7 +235,7 @@ def create_timesteps_app(date_list, fuel_type, bd_app_elec, reg_lu, fuel_type_lu
 
     return data_timesteps_elec
 
-def create_timesteps_hd(date_list, fuel_type, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
+def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
     '''
     This function creates the simulation time steps for which the heating energy is calculated.
     Then it selects energy demand from the yearl list for the simulation period.
@@ -627,25 +627,26 @@ def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
     return fuel_type_per_region_hourly
 
 def conversion_ktoe_gwh(data_ktoe):
-    """ Conversion of ktoe to gwh according to
-    https://www.iea.org/statistics/resources/unitconverter/
-
-    Arguments
-    =========
-    -data_ktoe  [float] Energy demand in ktoe
+    """Conversion of ktoe to gwh
+    
+    Parameters
+    ----------
+    data_ktoe : float
+        Energy demand in ktoe
 
     Returns
-    =========
-    -data_gwh   [float] Energy demand in GWh
+    -------
+    data_gwh : float
+        Energy demand in GWh
+
+    Notes
+    -----
+    https://www.iea.org/statistics/resources/unitconverter/
     """
 
     data_gwh = data_ktoe * 11.6300000
 
     return data_gwh
-
-
-# ------------------------- New Code
-
 
 
 def timesteps_full_year():
@@ -898,3 +899,17 @@ def read_data(paths_dict):
     data['hourly_gas_shape'] = hourly_gas_shape
 
     return data
+
+    def write_YAML(yaml_write, path_YAML):
+        """ Creates a YAML file with the timesteps IDs
+        
+        l = [{'id': value, 'start': 'p', 'end': 'P2',   }
+        
+        """
+        if yaml_write: 
+            import yaml
+        _, yaml_list = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
+        
+        with open(path_YAML, 'w') as outfile:
+            yaml.dump(yaml_list, outfile, default_flow_style=False)
+        return

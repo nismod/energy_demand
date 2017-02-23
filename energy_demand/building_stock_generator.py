@@ -1,5 +1,4 @@
-import sys
-import os
+import sys, os
 from pprint import pprint
 import building_stock_functions as bf
 from main_functions import read_csv
@@ -25,32 +24,35 @@ dw_floor_area = {0: 147, 1: 96, 2: 82.5, 3: 61, 4: 77} # Id, average m2 of dw_ty
 dw_lookup = np.array(([0, 'Detached'], [1, 'Semi-Detached'], [2, 'Terraced (mid_end)'], [3, 'Flat'], [4, 'Bungalow']))
 
 # Assumptions
-pop2015_by = 100     # [person]
-floor_area_by = 2000 # [m2]
-nr_dw = 55        # [nr of buildings]
-pop2015_new = 200     # [person]
+pop2015_by = 100        # [person]
+floor_area_by = 2000    # [m2]
+nr_dw = 55              # [nr of buildings]
+pop2015_new = 200       # [person]
 
-# Factors to calculate
+# Derived factors
 floor_area_per_person_base_year_by = floor_area_by / pop2015_by # [m2/person] Floor area per person
-floor_area_per_building_by = floor_area_by / nr_dw  # [m2/dw] meter per building
-persons_per_build = pop2015_by / nr_dw     # [pers/build]
-
+floor_area_per_building_by = floor_area_by / nr_dw              # [m2/dw] meter per building
+persons_per_build = pop2015_by / nr_dw                          # [pers/build]
 
 
 # -----------Calculate the share of total floor area beloinging to each dwelling type-----------
+def get_percent_floor_area_per_dw_type():
+    
+    return 
+
 total_floor_area = 0
 dw_floor_area_percent = {} # initialise
 
 for row in dw_lookup:
     # Get number of building of dwellin type
     percent_buildings_dw = (dw_dist[2015][int(row[0])])/100
-    nr_dw_typXY = nr_dw * percent_buildings_dw 
+    nr_dw_typXY = nr_dw * percent_buildings_dw
 
     # absolute usable floor area per dwelling type
     fl_type = nr_dw_typXY * dw_floor_area[int(row[0])]
 
     # sum total area
-    total_floor_area += fl_type 
+    total_floor_area += fl_type
     dw_floor_area_percent[int(row[0])] = fl_type # add absolute are ato dict
 
 # Convert absolute values into percentages
@@ -92,7 +94,6 @@ for row in dw_lookup:
 
         # Share of population for this dwelling type (distribute pop according to floor area)
         _pop_2015_dwelling_type = floor_area_share_dw_of_ttal / floor_area_per_person_base_year_by
-        
         print("_pop_2015_dwelling_type " + str(_pop_2015_dwelling_type))
 
         # Age class (because only comparison within the same dwelling class, we can redistribute buildlings with floor area)

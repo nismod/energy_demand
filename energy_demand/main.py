@@ -19,7 +19,7 @@
 
 #!python3.6
 
-#TODOs data Different appliances for cold/hot extremes, data Heating fro min_max climate
+# NOCHT TUN ata Different appliances for cold/hot extremes, data Heating fro min_max climate
 
 import sys
 import os
@@ -49,13 +49,13 @@ def load_data():
 
     """
     # Global variables
-    YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
+    #YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
     P1_YEAR_BASE = 2015                                                     # [int] First year of the simulation period
-    P2_YEAR_END = 2050                                                      # [int] Last year of the simulation period
-    P3_SIM_PERIOD = range(P2_YEAR_END - P1_YEAR_BASE)                       # List with simulation years
-    P0_YEAR_CURR = YEAR_SIMULATION - P1_YEAR_BASE                           # [int] Current year in current simulation
-    SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
-
+    #P2_YEAR_END = 2050                                                      # [int] Last year of the simulation period
+    #P3_SIM_PERIOD = range(P2_YEAR_END - P1_YEAR_BASE)                       # List with simulation years
+    #P0_YEAR_CURR = YEAR_SIMULATION - P1_YEAR_BASE                           # [int] Current year in current simulation
+    #SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
+    SIM_PARAM = [0, 2015, 2050, range(50)]    # Store all parameters in one list
 
 
     #------Store all paths to data in dict-------------------
@@ -109,12 +109,10 @@ def load_data():
     own_timesteps = mf.own_timesteps(timesteps_own_selection)
 
     # Populate timesteps base year data (appliances, electricity)
-    fuel_type = 0 # elec
-    timesteps_app_bd = mf.create_timesteps_app(timesteps_own_selection, fuel_type, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
+    timesteps_app_bd = mf.create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
 
     # Populate timesteps base year data (heating demand, ga)
-    fuel_type = 1 #gas
-    timesteps_hd_bd = mf.create_timesteps_hd(timesteps_own_selection, fuel_type, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
+    timesteps_hd_bd = mf.create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
 
     print("----------------------Statistics--------------------")
     print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
@@ -216,17 +214,10 @@ def energy_demand_model(data, pop_data_external):
     # Add gas data
     result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
 
-    # Write YAML file
-    yaml_write = False
-    if yaml_write: # == True:
-        import yaml
-        _, yaml_list = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
-        path_YAML = 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml'     # l = [{'id': value, 'start': 'p', 'end': 'P2',   }
-        with open(path_YAML, 'w') as outfile:
-            yaml.dump(yaml_list, outfile, default_flow_style=False)
+    # Write YAML File
+    #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
 
     # Write function to also write out results
-
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))
     print("FINAL timesteps: " + str(len(result_dict[0][0])))
