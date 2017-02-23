@@ -133,39 +133,7 @@ def read_csv(path_to_csv, _dt=()):
         elements_array = np.array(list_elements)
     return elements_array
 
-def get_dates_datelist(date_list):
-    """Generets a list with all dates from a list containing start and end dates.
 
-    Parameters
-    ----------
-    date_list : list
-        Contaings lists with start and end dates
-
-    Returns
-    -------
-    timestep_dates : list
-        A list containing 24 dates for every day
-
-    Notes
-    -----
-    If e.g. 2 days are found in the interval, 24 times the first and 24
-    times the second day are added to a list.
-    """
-    # Create timestep dates
-    hours = range(24)
-    timestep_dates = []
-
-    for i in date_list:
-        start_date, end_date = i[0], i[1]
-        list_dates = list(datetime_range(start=start_date, end=end_date))
-
-        #Add to list
-        for j in list_dates:
-
-            #Append 24 time steps per day
-            for _ in hours:
-                timestep_dates.append(j)
-    return timestep_dates
 
 def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     """Creates the timesteps for which the energy demand of the appliances is calculated.
@@ -236,27 +204,40 @@ def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu
     return data_timesteps_elec
 
 def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, timestep_dates): # TODO: HIER GIBTS NOCH ERROR
-    '''
-    This function creates the simulation time steps for which the heating energy is calculated.
+    """This function creates the simulation time steps for which the heating energy is calculated.
     Then it selects energy demand from the yearl list for the simulation period.
 
-    Input:
-    -date_list              List containing selection of dates the simulation should run
-    -bd_hd_gas              Base demand heating (gas)
-    -reg_lu                 Region look-up table
-    -fuel_type_lu           Fuel type look-up table
+    Parameters
+    ----------
+    date_list : list
+        List containing selection of dates the simulation should run
+    bd_hd_gas : 
+        Base demand heating (gas)
+    reg_lu : array
+        Region look-up table
+    fuel_type_lu : array
+        Fuel type look-up table
 
-    Output:
-    -data_timesteps_elec    Timesteps containing appliances electricity data
-        regions
-            fuel_type
-                timesteps
-                    applications
-                        hours
-    '''
+    Returns
+    -------
+    data_timesteps_hd_gas :
+        Returns a nested dictionary for energy supply model. (fueltype/region/timeID)
+
+
+        -data_timesteps_elec    Timesteps containing appliances electricity data
+            regions
+                fuel_type
+                    timesteps
+                        applications
+                            hours
+    Notes
+    -----
+    notes
+    """
+
     # Region, Fuel
     hours = range(24)
-    
+
     # Number of timesteps
     timesteps = range(len(timestep_dates))
 
@@ -378,15 +359,6 @@ def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
 
     return appliances_shape
 
-def datetime_range(start=None, end=None):
-    '''
-    This function calculates all dates between a star and end date.
-    '''
-
-    span = end - start
-    for i in range(span.days + 1):
-        yield start + td(days=i)
-
 def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     '''
     This function uses the generic shapes of the load profiles to hourly disaggregate energy demand
@@ -443,6 +415,21 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
 
     return fuel_type_per_region_hourly
 
+def datetime_range(start=None, end=None):
+    """Calculates all dates between a star and end date.
+
+    Parameters
+    ----------
+    start : date
+        Start date
+    end : date
+        end date
+
+    """
+    span = end - start
+    for i in range(span.days + 1):
+        yield start + td(days=i)
+        
 def writeToEnergySupply(path_out_csv, fueltype, in_data):
     '''
     REads out results (which still need to be preared) to list of energy supply model.
@@ -574,6 +561,7 @@ def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
     return shape_hd
 
 def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
+    
     '''This function calculates absolut heating demands with help of shape for all regions
 
     out:
@@ -628,7 +616,7 @@ def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
 
 def conversion_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
-    
+
     Parameters
     ----------
     data_ktoe : float
@@ -648,26 +636,20 @@ def conversion_ktoe_gwh(data_ktoe):
 
     return data_gwh
 
-
 def timesteps_full_year():
-    '''Creates list with every date of the base year
-
-    Input:
-
-    Output:
-    -data_timesteps_elec    Timesteps containing appliances electricity data
-    '''
     """This function generates a single list from a list with start and end dates
     and adds the same date into the list according to the number of hours in a day.
 
-    Arguments
-    =========
-    -date_list      [dates] List containing start and end dates
+    Parameters
+    ----------
+
 
     Returns
-    =========
-    -timestep-date  [dates] List containing all dates according to number of hours
+    -------
+    timestep : list
+        List containing all dates according to number of hours
     """
+
     full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
     start_date, end_date = full_year_date[0], full_year_date[1]
     list_dates = list(datetime_range(start=start_date, end=end_date)) # List with every date in a year
@@ -706,11 +688,19 @@ def timesteps_full_year():
 def get_weekday_type(date_from_yearday):
     """Gets the weekday of a date
 
-    input:
-    -date_from_yearday      date
+    Parameters
+    ----------
+    date_from_yearday : date
+        Date of a day in ayear
 
-    output:
-    -daytype: 1: holiday, 0; working day
+    Returns
+    -------
+    daytype : int
+        If 1: holiday, if 0; working day
+
+    Notes
+    -----
+    notes
     """
     _info = date_from_yearday.timetuple()
     weekday = _info[6]                # 0: Monday
@@ -791,10 +781,6 @@ def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
 
     return position_own_container
 
-
-
-
-
 def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps, result_dict, timesteps_own_selection):
     """Add data to wrapper timesteps
 
@@ -846,20 +832,60 @@ def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps
 
     return result_dict
 
+def own_timesteps(date_list):
+    """Create own timesteps. "Generets a list with all dates from a list containing start and end dates.
 
-def own_timesteps(timesteps_own_selection):
-    """Create own timesteps
+    Parameters
+    ----------
+    date_list : list
+        List with start and end dates
+
+    Returns
+    -------
+    timestep_dates : list
+        List with all own timesteps (24 dates for every day)
+
+    Notes
+    -----
+    If e.g. 2 days are found in the interval, 24 times the first and 24
+    times the second day are added to a list.
     """
+    # Create timestep dates
+    hours = range(24)
+    timestep_dates = []
 
-    # Generate a list with all dates (the same date is added 24 times each because of 24 hours)
-    timestep_dates = get_dates_datelist(timesteps_own_selection)
+    for i in date_list:
+        start_date, end_date = i[0], i[1]
+        list_dates = list(datetime_range(start=start_date, end=end_date))
 
+        #Add to list
+        for j in list_dates:
 
+            #Append 24 time steps per day
+            for _ in hours:
+                timestep_dates.append(j)
     return timestep_dates
 
 
 def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM, csv_temp_2015, hourly_gas_shape):
-    """ Gets load curve shapes """
+    """ Gets load curve shapes
+
+    Parameters
+    ----------
+    paths_dict : dict
+        Dictionary containing paths
+
+    Returns
+    -------
+    shape_app_elec : array
+        Array with shape of electricity demand of appliances (full year)
+    shape_hd_gas : array
+        Array with shape of heating demand (full year)
+
+    Info
+    -------
+    More Info
+    """
     # Shape of base year for a full year for appliances (electricity) from HES data [%]
     shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
 
@@ -869,8 +895,19 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM
     return  shape_app_elec, shape_hd_gas
 
 def read_data(paths_dict):
-    """Reads in all csv files and stores them in a dictionary"""
+    """Reads in all csv files and stores them in a dictionary
 
+    Parameters
+    ----------
+    paths_dict : dict
+        Dictionary containing paths
+
+    Returns
+    -------
+    data : dict
+        Dictionary containing read in data from csv files
+
+    """
     data = {}
 
     # Read data
@@ -900,16 +937,22 @@ def read_data(paths_dict):
 
     return data
 
-    def write_YAML(yaml_write, path_YAML):
-        """ Creates a YAML file with the timesteps IDs
-        
-        l = [{'id': value, 'start': 'p', 'end': 'P2',   }
-        
-        """
-        if yaml_write: 
-            import yaml
-        _, yaml_list = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
-        
+def write_YAML(yaml_write, path_YAML):
+    """Creates a YAML file with the timesteps IDs
+
+    Parameters
+    ----------
+    yaml_write : int
+        Whether a yaml file should be written or not (1 or 0)
+    path_YAML : str
+        Path to write out YAML file
+
+    """
+    if yaml_write:
+        import yaml
+        _, yaml_list = timesteps_full_year()  # Create timesteps for full year (wrapper-timesteps)
+
         with open(path_YAML, 'w') as outfile:
             yaml.dump(yaml_list, outfile, default_flow_style=False)
-        return
+    return
+
