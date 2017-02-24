@@ -98,7 +98,7 @@ def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
                 result_dict[i][j][k] = {}
     return result_dict
 
-def read_csv(path_to_csv, _dt=()):
+def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
 
     Parameters
@@ -127,13 +127,40 @@ def read_csv(path_to_csv, _dt=()):
             list_elements.append(row)
 
     # Convert list into array
-    if _dt == float:
-        elements_array = np.array(list_elements, dtype=_dt)
-    else:
-        elements_array = np.array(list_elements)
+    elements_array = np.array(list_elements, float)
     return elements_array
 
+def read_csv(path_to_csv):
+    """This function reads in CSV files and skips header row.
 
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
+
+    Returns
+    -------
+    elements_array : array_like
+        Returns an array `elements_array` with the read in csv files.
+
+    Notes
+    -----
+    The header row is always skipped.
+    """
+    list_elements = []
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            list_elements.append(row)
+
+    # Convert list into array
+    elements_array = np.array(list_elements)
+    return elements_array
 
 def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     """Creates the timesteps for which the energy demand of the appliances is calculated.
@@ -234,8 +261,7 @@ def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, t
     -----
     notes
     """
-
-    # Region, Fuel
+    # Region
     hours = range(24)
 
     # Number of timesteps
@@ -329,6 +355,8 @@ def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
         _info = date_in_year.timetuple()
         month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
         yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        print("date_in_year: " + str(date_in_year))
+        prnt("..")
         daytype = get_weekday_type(date_in_year)
 
         _data = hes_data[daytype][month_python] # Get day from HES raw data array
@@ -642,7 +670,6 @@ def conversion_ktoe_gwh(data_ktoe):
     """
 
     data_gwh = data_ktoe * 11.6300000
-
     return data_gwh
 
 def timesteps_full_year():
@@ -651,7 +678,6 @@ def timesteps_full_year():
 
     Parameters
     ----------
-
 
     Returns
     -------
@@ -719,7 +745,7 @@ def get_weekday_type(date_from_yearday):
         daytype = 0 # Working day
     return daytype
 
-def get_season(yearday):
+def get_season_yearday(yearday):
     """
     Gets the season from yearday.
 
@@ -811,7 +837,7 @@ def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps
 
                 # Assign correct data from selection
                 # Get season
-                _season = get_season(_yearday)
+                _season = get_season_yearday(_yearday)
 
                 # Get daytype
                 _yeardayReal = _yearday + 1 #Plus one from python
@@ -927,10 +953,10 @@ def read_data(paths_dict):
     day_type_lu = read_csv(paths_dict['path_day_type_lu'])                         # Day type lookup
     #season_lookup = read_csv(paths_dict[]'path_season's_lookup'])                        # Season lookup
 
-    reg_pop = read_csv(paths_dict['path_pop_reg_base'], float)                         # Population data
-    fuel_bd_data = read_csv(paths_dict['path_base_data_fuel'], float)                  # All disaggregated fuels for different regions
+    reg_pop = read_csv_float(paths_dict['path_pop_reg_base'])                         # Population data
+    fuel_bd_data = read_csv_float(paths_dict['path_base_data_fuel'])                  # All disaggregated fuels for different regions
     csv_temp_2015 = read_csv(paths_dict['path_temp_2015'])                             # csv_temp_2015
-    hourly_gas_shape = read_csv(paths_dict['path_hourly_gas_shape'], float)           # Load hourly shape for gas from Robert Sansom
+    hourly_gas_shape = read_csv_float(paths_dict['path_hourly_gas_shape'])           # Load hourly shape for gas from Robert Sansom
 
     # Insert into dictionary
     data['reg_lu'] = reg_lu
