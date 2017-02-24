@@ -1,6 +1,6 @@
-DWELLING_TYPE_NR,DWELLING_TYPE
-0,Detached
-1,Semi-Detached
-2,Terraced (mid_end)
-3,Flat
-4,Bungalow
+dwelling_nr,dwelling_type
+0,detached
+1,semi_detached
+2,terraced
+3,flat
+4,bungalow

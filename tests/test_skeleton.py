@@ -6,7 +6,22 @@ import energy_demand.main_functions as mf
 from datetime import date
 import numpy as np
 
-# --------------W$Main_functions
+# --------------Main_functions
+
+
+def test_read_csv_dict():
+    """Testing function"""
+
+    # in test value
+    in_value_1 = 'data/_test_data/test_csv.csv'
+
+    expected = {15: {'test_value': 3}}
+
+    # call function
+    out_value = mf.read_csv_dict(in_value_1)
+
+    assert out_value == expected
+
 def test_read_csv_float():
     """Testing function"""
 

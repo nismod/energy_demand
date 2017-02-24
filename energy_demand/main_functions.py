@@ -153,7 +153,7 @@ def read_csv(path_to_csv):
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
-
+        print("readLines: " + str())
         # Iterate rows
         for row in read_lines:
             list_elements.append(row)
@@ -355,8 +355,6 @@ def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
         _info = date_in_year.timetuple()
         month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
         yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
-        print("date_in_year: " + str(date_in_year))
-        prnt("..")
         daytype = get_weekday_type(date_in_year)
 
         _data = hes_data[daytype][month_python] # Get day from HES raw data array
@@ -499,7 +497,7 @@ def writeToEnergySupply(path_out_csv, fueltype, in_data):
             supplyTimeStep += 1
 
     '''# Read existing CSV
-    existing_data = read_csv(path_out_csv)
+    existing_data = read_csv(path_dictpath_out_csv)
     print(existing_data)
 
     for i, j in zip(existing_data, new_data):
@@ -907,7 +905,7 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM
 
     Parameters
     ----------
-    paths_dict : dict
+     : dict
         Dictionary containing paths
 
     Returns
@@ -929,12 +927,92 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM
 
     return  shape_app_elec, shape_hd_gas
 
-def read_data(paths_dict):
+def read_csv_nested_dict(path_to_csv):
+    """Read in csv file into nested dictionary with first row element as main key
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    out_dict : dict
+        Dictionary with first row element as main key and headers as key for nested dict.
+        All entries and main key are returned as float
+
+    Info
+    -------
+    Example:
+
+        Year    Header1 Header2
+        1990    Val1    Val2
+
+        returns {float(1990): {str(Header1): float(Val1), str(Header2): Val2}}
+    """
+
+    out_dict = {}
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            print(row)
+            out_dict[float(row[0])] = {}
+            cnt = 1 # because skip first element
+            for i in row[1:]:
+                out_dict[float(row[0])][_headings[cnt]] = float(i)
+                cnt += 1
+
+    return out_dict
+
+def read_csv_dict(path_to_csv):
+    """Read in csv file into a dict
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    out_dict : dict
+        Dictionary with first row element as main key and headers as key for nested dict.
+        All entries and main key are returned as float
+
+    Info
+    -------
+    Example:
+
+        Year    Header1 Header2
+        1990    Val1    Val2
+
+        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): Val2}}
+    """
+
+    out_dict = {}
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            print("row: " + str(row))
+            cnt = 0
+            for i in row:
+                out_dict[_headings[cnt]] = float(i)
+                cnt += 1
+
+    return out_dict
+
+
+def read_data(path_dict):
     """Reads in all csv files and stores them in a dictionary
 
     Parameters
     ----------
-    paths_dict : dict
+    path_dict : dict
         Dictionary containing paths
 
     Returns
@@ -946,17 +1024,34 @@ def read_data(paths_dict):
     data = {}
 
     # Read data
-    reg_lu = read_csv(paths_dict['path_pop_reg_lu'])                                  # Region lookup table
-    dwelling_type_lu = read_csv(paths_dict['path_dwelling_type_lu'])                   # Dwelling types lookup table
-    app_type_lu = read_csv(paths_dict['path_lookup_appliances'])                       # Appliances types lookup table
-    fuel_type_lu = read_csv(paths_dict['path_fuel_type_lu'])                        # Fuel type lookup
-    day_type_lu = read_csv(paths_dict['path_day_type_lu'])                         # Day type lookup
-    #season_lookup = read_csv(paths_dict[]'path_season's_lookup'])                        # Season lookup
+    reg_lu = read_csv(path_dict['path_pop_reg_lu'])                                  # Region lookup table
+    dwelling_type_lu = read_csv(path_dict['path_dwelling_type_lu'])                   # Dwelling types lookup table
+    app_type_lu = read_csv(path_dict['path_lookup_appliances'])                       # Appliances types lookup table
+    fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                        # Fuel type lookup
+    day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
+    #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                        # Season lookup
 
-    reg_pop = read_csv_float(paths_dict['path_pop_reg_base'])                         # Population data
-    fuel_bd_data = read_csv_float(paths_dict['path_base_data_fuel'])                  # All disaggregated fuels for different regions
-    csv_temp_2015 = read_csv(paths_dict['path_temp_2015'])                             # csv_temp_2015
-    hourly_gas_shape = read_csv_float(paths_dict['path_hourly_gas_shape'])           # Load hourly shape for gas from Robert Sansom
+    reg_pop = read_csv_float(path_dict['path_pop_reg_base'])                         # Population data
+    fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])                  # All disaggregated fuels for different regions
+    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                             # csv_temp_2015
+    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])           # Load hourly shape for gas from Robert Sansom
+
+    #path_dwtype_age = read_csv_float(['path_dwtype_age'])
+    print("--")
+    dwtype_distr = read_csv_nested_dict(path_dict['path_dwtype_dist'])
+    print("ff")
+    dwtype_age_distr = read_csv_nested_dict(path_dict['path_dwtype_age'])
+    print("tt")
+    dwtype_floor_area = read_csv_dict(path_dict['path_dwtype_floor_area'])
+
+
+    print("OO")
+    print(dwtype_distr)
+    print("---")
+    print(dwtype_age_distr)
+    print("---")
+    print(dwtype_floor_area)
+    #prnt("...")
 
     # Insert into dictionary
     data['reg_lu'] = reg_lu
@@ -969,6 +1064,10 @@ def read_data(paths_dict):
     data['fuel_bd_data'] = fuel_bd_data
     data['csv_temp_2015'] = csv_temp_2015
     data['hourly_gas_shape'] = hourly_gas_shape
+
+    data['dwtype_distr'] = dwtype_distr
+    data['dwtype_age_distr'] = dwtype_age_distr
+    data['dwtype_floor_area'] = dwtype_floor_area
 
     return data
 

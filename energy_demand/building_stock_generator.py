@@ -10,16 +10,14 @@ import numpy as np
     """ Virtual Building generator"""
 
     get_assumption_age_distribution
-'''
+
 
     return
-
+'''
 # Data
 # ---------------------------------------------------------------
 path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
 
-# Age distribution of building stock for a given year
-path_age_dw_types = os.path.join(path_main, 'residential_model/energy_fact_file_housing_stock_age.csv')
 #dw_age_distribution = read_csv(path_age_dw_types, float)
 dw_dist_age = {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
 

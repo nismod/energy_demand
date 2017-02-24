@@ -70,8 +70,12 @@ def load_data():
                   'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
                   'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
                   'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
-                  'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv')
-                                           #path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
+                  'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
+
+                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
+                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
+                  'path_dwtype_floor_area': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floor_area.csv')
+                                     #path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
                  }
 
     # ------Read in all data from csv files-------------------
@@ -139,7 +143,12 @@ def load_data():
                  'bd_hd_gas': bd_hd_gas,
                  'timesteps_app_bd': timesteps_app_bd,
                  'timesteps_hd_bd': timesteps_hd_bd,
-                 'timesteps_own_selection': timesteps_own_selection}
+                 'timesteps_own_selection': timesteps_own_selection,
+
+                 'dwtype_distr' : data['dwtype_distr'],
+                 'dwtype_age_distr' : data['dwtype_age_distr'],
+                 'dwtype_floor_area' : data['dwtype_floor_area']
+                 }
 
     #todo: reduce variables
     return data_dict
