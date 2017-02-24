@@ -215,8 +215,8 @@ def energy_demand_model(data, pop_data_external):
 
     # Add electricity data to result dict for wrapper
     result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
-    print(result_dict[0][0])
-    prnt("..")
+    #print(result_dict[0][0])
+    #prnt("..")
     # Add gas data
     result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
 
