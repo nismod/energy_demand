@@ -58,6 +58,18 @@ def test_get_weekday_type():
     assert out_value == expected
 
 
+'''def test_timesteps_full_year():
+    """Testing function"""
+
+    # in test value
+   
+    expected = 0
+
+    # call function
+    out_value_1, out_value_1 = mf.timesteps_full_year(in_value)
+
+    assert out_value == expected
+'''
 # ----
 '''
 def test_fib():

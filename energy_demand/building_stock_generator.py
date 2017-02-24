@@ -5,6 +5,15 @@ from main_functions import read_csv
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+
+'''def virtual_building_stock():
+    """ Virtual Building generator"""
+
+    get_assumption_age_distribution
+'''
+
+    return
+
 # Data
 # ---------------------------------------------------------------
 path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove

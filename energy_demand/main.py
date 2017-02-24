@@ -76,7 +76,7 @@ def load_data():
 
     # ------Read in all data from csv files-------------------
     data = mf.read_data(paths_dict)
-    
+
     print(data['fuel_type_lu'])
     # ------Generate generic load profiles (shapes) [in %]-------------------
     shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(paths_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
@@ -114,7 +114,7 @@ def load_data():
     # Populate timesteps base year data (appliances, electricity)
     timesteps_app_bd = mf.create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
     #print(timesteps_app_bd[0][0])
-    
+
     # Populate timesteps base year data (heating demand, ga)
     timesteps_hd_bd = mf.create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
 
@@ -190,6 +190,10 @@ def energy_demand_model(data, pop_data_external):
     # Run sub modules
     print(" Start executing sub models of energy demand module")
     # ---------------------------------------------------------------------------
+
+    # Build residential building stock
+    #virtual_building_stock()
+
 
     # Run different sub-models (sector models)
     e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], reg_pop, data['timesteps_app_bd'], data['timesteps_hd_bd'])
