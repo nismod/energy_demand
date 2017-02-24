@@ -183,17 +183,17 @@ def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu
 
             # Get appliances demand of region for every date of timeperiod
             _info = timestep_dates[t_step].timetuple() # Get date
-            year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
+            yearday_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
 
             # Collect absolute data from
-            #print("Add data to timstep container:    Timestep " + str(t_step) + str(" cnt_h: ") + str(cnt_h) + str("  Region_Nr") + str(reg_nr) + str("  Yearday") + str(year_day_python) + ("   ") + str(bd_app_elec[fuel_type][reg_nr][year_day_python][:,cnt_h].sum()))
-            #data_timesteps_elec[fuel_type][reg_nr][t_step][:, cnt_h] = bd_app_elec[fuel_type][reg_nr][year_day_python][:, cnt_h] # Iterate over roew
+            #print("Add data to timstep container:    Timestep " + str(t_step) + str(" cnt_h: ") + str(cnt_h) + str("  Region_Nr") + str(reg_nr) + str("  Yearday") + str(yearday_python) + ("   ") + str(bd_app_elec[fuel_type][reg_nr][yearday_python][:,cnt_h].sum()))
+            #data_timesteps_elec[fuel_type][reg_nr][t_step][:, cnt_h] = bd_app_elec[fuel_type][reg_nr][yearday_python][:, cnt_h] # Iterate over roew
             #print("A:  + " + str(data_timesteps_elec[fuel_type][reg_nr][t_step])) #[cnt_h]))
-            #print("B:  + " + str(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h]))
+            #print("B:  + " + str(bd_app_elec[fuel_type][reg_nr][yearday_python][cnt_h]))
 
             #print(data_timesteps_elec[fuel_type][reg_nr][t_step].shape)
-            #print(bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h].shape)
-            data_timesteps_elec[fuel_type][reg_nr][t_step] = bd_app_elec[fuel_type][reg_nr][year_day_python][cnt_h] # Iterate over roew #TODO CHECK
+            #print(bd_app_elec[fuel_type][reg_nr][yearday_python][cnt_h].shape)
+            data_timesteps_elec[fuel_type][reg_nr][t_step] = bd_app_elec[fuel_type][reg_nr][yearday_python][cnt_h] # Iterate over roew #TODO CHECK
             #print(data_timesteps_elec[fuel_type][reg_nr][t_step][cnt_h])
             #print(data_timesteps_elec[fuel_type][reg_nr][t_step])
 
@@ -252,12 +252,12 @@ def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, t
 
             # Get appliances demand of region for every date of timeperiod
             _info = timestep_dates[t_step].timetuple() # Get date
-            year_day_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
+            yearday_python = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
 
-            #print("DAY SN: " + str(year_day_python) + str("  ") + str(sum(bd_hd_gas[fuel_type][reg_nr][year_day_python])))
+            #print("DAY SN: " + str(yearday_python) + str("  ") + str(sum(bd_hd_gas[fuel_type][reg_nr][yearday_python])))
 
             # Get data and copy hour
-            data_timesteps_hd_gas[fuel_type][reg_nr][t_step][cnt_h] = bd_hd_gas[fuel_type][reg_nr][year_day_python][cnt_h]
+            data_timesteps_hd_gas[fuel_type][reg_nr][t_step][cnt_h] = bd_hd_gas[fuel_type][reg_nr][yearday_python][cnt_h]
 
             cnt_h += 1
             if cnt_h == 23:
@@ -293,6 +293,7 @@ def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
             hour
                 appliance_typ
     '''
+    # --------Read in HES data----------
     # Initilaise array to store all values for a year
     year_days, month_nr, hours = range(365), range(12), range(24)
     year_raw_values = np.zeros((len(year_days), len(hours), len(app_type_lu)), dtype=float)
@@ -327,13 +328,13 @@ def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
     for date_in_year in list_dates:
         _info = date_in_year.timetuple()
         month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
-        year_day_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
         daytype = get_weekday_type(date_in_year)
 
         _data = hes_data[daytype][month_python] # Get day from HES raw data array
 
         # Add values to yearly array
-        year_raw_values[year_day_python] = _data
+        year_raw_values[yearday_python] = _data
 
     # Calculate yearly total demand over all day years and all appliances
     total_y_demand = year_raw_values.sum()
@@ -375,7 +376,6 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
                         hours
     '''
     fuelType_elec = 0 # Electrcitiy
-
     fuel_bd_data_electricity = fuel_bd_data[:, 1] # Base fuel per region
 
     dim_appliance = shape_app_elec.shape
@@ -384,7 +384,7 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
     fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
 
-    # Add electricity base data
+    '''# Add electricity base data
     for region_nr in range(len(reg_lu)):
         fuel_type_per_region[fuelType_elec][region_nr] = fuel_bd_data_electricity[region_nr]
 
@@ -393,7 +393,16 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
         reg_demand = fuel_type_per_region[fuelType_elec][region_nr]
         reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
         fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+    '''
+    #'''
+    # Add electricity base data per region
+    for region_nr in range(len(reg_lu)):
 
+        reg_demand = fuel_bd_data_electricity[region_nr] 
+        reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
+        fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+    #'''
+    
     # Test for errors
     try:
         _control = round(float(fuel_type_per_region_hourly.sum()), 4) # Sum of input energy data, rounded to 4 digits
@@ -524,16 +533,16 @@ def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
 
         _info = date_gas_day.timetuple()
         #month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
-        year_day_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
         weekday = _info[6]                # 0: Monday
 
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
             _data = hourly_gas_shape_wkend * heating_demand_correlation
-            hd_data[year_day_python] = _data  # DATA ARRAY
+            hd_data[yearday_python] = _data  # DATA ARRAY
         else:
             _data = hourly_gas_shape_wkday * heating_demand_correlation
-            hd_data[year_day_python] = _data  # DATA ARRAY
+            hd_data[yearday_python] = _data  # DATA ARRAY
 
     # Convert yearly data into percentages (create shape). Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
     total_y_hd = hd_data.sum()  # Calculate yearly total demand over all day years and all appliances
@@ -812,8 +821,8 @@ def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps
 
                 # Get position in own timesteps
                 hour_own_container = year_hour - _yearday * 24 #Hour of the day
-                #day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
-                day_own_container_position = 1
+                day_own_container_position = get_own_position(daytype, _season, hour_own_container, timesteps_own_selection) # AS input should
+                #day_own_container_position = 1
                 #print("day_own_container: " + str(day_own_container))
 
                 #result_array[fuel_type][region_nr][timestep_id] = e_app_bd[fuel_elec][region_nr][_h].sum() # List with data out

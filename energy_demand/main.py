@@ -76,7 +76,8 @@ def load_data():
 
     # ------Read in all data from csv files-------------------
     data = mf.read_data(paths_dict)
-
+    
+    print(data['fuel_type_lu'])
     # ------Generate generic load profiles (shapes) [in %]-------------------
     shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(paths_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
 
@@ -84,7 +85,9 @@ def load_data():
 
     # Base demand of appliances over a full year (electricity)
     bd_app_elec = mf.get_bd_appliances(shape_app_elec, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
-
+    #print(bd_app_elec[0][0])
+    #print(bd_app_elec.shape)
+    #prnt()
     # Base demand of heating demand (gas)
     bd_hd_gas = mf.get_bd_hd_gas(shape_hd_gas, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
 
@@ -110,7 +113,8 @@ def load_data():
 
     # Populate timesteps base year data (appliances, electricity)
     timesteps_app_bd = mf.create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
-
+    #print(timesteps_app_bd[0][0])
+    
     # Populate timesteps base year data (heating demand, ga)
     timesteps_hd_bd = mf.create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
 
@@ -189,6 +193,7 @@ def energy_demand_model(data, pop_data_external):
 
     # Run different sub-models (sector models)
     e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], reg_pop, data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    #print(e_app_bd[0][0])
 
     '''
     transportation_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
@@ -210,7 +215,8 @@ def energy_demand_model(data, pop_data_external):
 
     # Add electricity data to result dict for wrapper
     result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
-
+    print(result_dict[0][0])
+    prnt("..")
     # Add gas data
     result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
 
@@ -222,6 +228,7 @@ def energy_demand_model(data, pop_data_external):
     print("FINAL region:    " + str(len(result_dict[0])))
     print("FINAL timesteps: " + str(len(result_dict[0][0])))
     print("Finished energy demand model")
+    print(result_dict[0][0])
     return result_dict
 
 # Run
