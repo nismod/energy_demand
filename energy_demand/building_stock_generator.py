@@ -6,20 +6,37 @@ import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 
-'''def virtual_building_stock():
+def virtual_building_stock(data):
     """ Virtual Building generator"""
 
-    get_assumption_age_distribution
+    #get_assumption_age_distribution
+    dwtype_distr = data['dwtype_distr']             # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
+    dwtype_age_distr = data['dwtype_age_distr']     # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
+    dwtype_floor_area = data['dwtype_floor_area']   # Floor area [m2]                       {'semi_detached': 96.0, 'terraced': 82.5, 'flat': 61.0, 'detached': 147.0, 'bungalow': 77.0}
 
+    print(dwtype_distr)
+    print("---")
+    print(dwtype_age_distr)
+    print("---")
+    print(dwtype_floor_area)
+    print("---")
+    reg_lu = data['reg_lu']
+    print(reg_lu)
+    print(data['reg_pop'])
+
+    # Iterate regions
+    for region in reg_lu:
+        print("region: " + int(region))
+
+        # Read in population, floor area, nr of dwellings for every region
+        reg_pop = data['reg_pop']
 
     return
-'''
-# Data
+
+'''# Data
 # ---------------------------------------------------------------
 path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
 
-#dw_age_distribution = read_csv(path_age_dw_types, float)
-dw_dist_age = {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
 
 # Percentages of dwelling types for a given year (%)
 dw_dist = {2015: {0: 16.6, 1: 26.0, 2: 28.2, 3: 20.4, 4: 8.8}} # Year, dwellintype, percentage
@@ -114,6 +131,7 @@ for row in dw_lookup:
         dw_type_ID_houses = bf.House(['X', 'Y'], uniqueID, year, _hlc, _pop_2015_dwelling_type_age_class, floor_area_dw_age_ttal, 9999)
         building_stock.append(dw_type_ID_houses)
 
+
 print("Buillding Stock: " + str(len(building_stock)))
 for i in building_stock:
     print(i.__dict__)
@@ -123,9 +141,9 @@ for i in building_stock:
     _ += i.pop
 print("TOTAL SUM: " + str(_))
 prnt("..")
+'''
 
-
-
+'''
 # --------------- calculations with scenario
 
 #print(dw_age_distribution)
@@ -172,6 +190,7 @@ print(" New houses to build: " + str(nr_dw_new - nr_dw))
 dwelling_number = 1000
 house_id = ""
 coordinates = []
+'''
 '''
 age = age
         self.hlc = hlc

@@ -25,6 +25,7 @@ import sys
 import os
 from datetime import date
 import energy_demand.main_functions as mf
+import building_stock_generator as bg
 from energy_demand import residential_model
 import numpy as np
 
@@ -81,7 +82,6 @@ def load_data():
     # ------Read in all data from csv files-------------------
     data = mf.read_data(paths_dict)
 
-    print(data['fuel_type_lu'])
     # ------Generate generic load profiles (shapes) [in %]-------------------
     shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(paths_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
 
@@ -131,12 +131,13 @@ def load_data():
     print(" ")
 
     data_dict = {'SIM_PARAM': SIM_PARAM,
+                 'reg_lu': data['reg_lu'],
                  'fuel_type_lu': data['fuel_type_lu'],
-                 'dwelling_type_lu': ['dwelling_type_lu'],
-                 'reg_pop': ['reg_pop'],
-                 'fuel_bd_data': ['fuel_bd_data'],
-                 'csv_temp_2015': ['csv_temp_2015'],
-                 'hourly_gas_shape': ['hourly_gas_shape'],
+                 'dwelling_type_lu': data['dwelling_type_lu'],
+                 'reg_pop': data['reg_pop'],
+                 'fuel_bd_data': data['fuel_bd_data'],
+                 'csv_temp_2015': data['csv_temp_2015'],
+                 'hourly_gas_shape': data['hourly_gas_shape'],
                  'shape_app_elec': shape_app_elec,
                  'shape_hd_gas': shape_hd_gas,
                  'bd_app_elec': bd_app_elec,
@@ -148,6 +149,7 @@ def load_data():
                  'dwtype_distr' : data['dwtype_distr'],
                  'dwtype_age_distr' : data['dwtype_age_distr'],
                  'dwtype_floor_area' : data['dwtype_floor_area']
+
                  }
 
     #todo: reduce variables
@@ -182,16 +184,22 @@ def energy_demand_model(data, pop_data_external):
     -----
 
     """
-
-    # Get input and convert into necessary formats
-    # -------------------------------------------------
+    # Add external data to data dictionary
+    # ----
 
     # population data
     _t = pop_data_external.items()
     l = []
     for i in _t:
         l.append(i)
-    reg_pop = np.array(l, dtype=float)
+    reg_pop_array = np.array(l, dtype=float)
+    data['reg_pop_array'] = reg_pop_array
+    data['reg_pop'] = pop_data_external
+
+    # Get input and convert into necessary formats
+    # -------------------------------------------------
+
+
 
     #print ("Energy Demand Model - Main funtion simulation parameter: " + str(SIM_PARAM))
 
@@ -201,11 +209,13 @@ def energy_demand_model(data, pop_data_external):
     # ---------------------------------------------------------------------------
 
     # Build residential building stock
-    #virtual_building_stock()
+    #bg.virtual_building_stock(data)
+    #prnt(":.")
+
 
 
     # Run different sub-models (sector models)
-    e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], reg_pop, data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], reg_pop_array, data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''
@@ -224,14 +234,14 @@ def energy_demand_model(data, pop_data_external):
     timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
 
     # Initialise nested Dicionatry for wrapper (Fuel type, region, hour)
-    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], reg_pop, timesteps)
+    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], reg_pop_array, timesteps)
 
     # Add electricity data to result dict for wrapper
-    result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
+    result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], reg_pop_array, timesteps, result_dict, data['timesteps_own_selection'])
     #print(result_dict[0][0])
     #prnt("..")
     # Add gas data
-    result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop, timesteps, result_dict, data['timesteps_own_selection'])
+    result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop_array, timesteps, result_dict, data['timesteps_own_selection'])
 
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')

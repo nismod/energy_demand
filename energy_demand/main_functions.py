@@ -153,7 +153,7 @@ def read_csv(path_to_csv):
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
-        print("readLines: " + str())
+
         # Iterate rows
         for row in read_lines:
             list_elements.append(row)
@@ -968,8 +968,9 @@ def read_csv_nested_dict(path_to_csv):
     return out_dict
 
 def read_csv_dict(path_to_csv):
-    """Read in csv file into a dict
+    """Read in csv file into a dict (with header)
 
+    The function tests if a value is a string or float
     Parameters
     ----------
     path_to_csv : str
@@ -988,7 +989,7 @@ def read_csv_dict(path_to_csv):
         Year    Header1 Header2
         1990    Val1    Val2
 
-        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): Val2}}
+        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
     """
 
     out_dict = {}
@@ -998,14 +999,58 @@ def read_csv_dict(path_to_csv):
 
         # Iterate rows
         for row in read_lines:
-            print("row: " + str(row))
             cnt = 0
+            # Iterate row entries
             for i in row:
-                out_dict[_headings[cnt]] = float(i)
+                
+                # Test if float or string
+                #if isinstance(float(i), float) == True: 
+                try:
+                    _value = float(i)
+                    out_dict[_headings[cnt]] = float(i)
+                except:
+                    out_dict[_headings[cnt]] = str(i)
                 cnt += 1
 
     return out_dict
 
+def read_csv_region_lu(path_to_csv):
+    """Read in csv file into a dict (with header)
+
+    The function tests if a value is a string or float
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    out_dict : dict
+        Dictionary with first row element as main key and headers as key for nested dict.
+        All entries and main key are returned as float
+
+    Info
+    -------
+    Example:
+
+        Year    Header1 Header2
+        1990    Val1    Val2
+
+        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
+    """
+
+    out_dict = {}
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            cnt = 0
+            # Iterate row entries
+            out_dict[int(row[0])] = str(row[1])
+
+    return out_dict
 
 def read_data(path_dict):
     """Reads in all csv files and stores them in a dictionary
@@ -1019,22 +1064,23 @@ def read_data(path_dict):
     -------
     data : dict
         Dictionary containing read in data from csv files
-
+    
+    #Todo: Iterate every row and test if string or float value and then only write one write in function
     """
     data = {}
 
     # Read data
-    reg_lu = read_csv(path_dict['path_pop_reg_lu'])                                  # Region lookup table
-    dwelling_type_lu = read_csv(path_dict['path_dwelling_type_lu'])                   # Dwelling types lookup table
-    app_type_lu = read_csv(path_dict['path_lookup_appliances'])                       # Appliances types lookup table
-    fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                        # Fuel type lookup
+    reg_lu = read_csv_region_lu(path_dict['path_pop_reg_lu'])                          # Region lookup table
+    dwelling_type_lu = read_csv(path_dict['path_dwelling_type_lu'])               # Dwelling types lookup table
+    app_type_lu = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
+    fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
     day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
-    #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                        # Season lookup
+    #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                 # Season lookup
 
-    reg_pop = read_csv_float(path_dict['path_pop_reg_base'])                         # Population data
-    fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])                  # All disaggregated fuels for different regions
-    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                             # csv_temp_2015
-    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])           # Load hourly shape for gas from Robert Sansom
+    reg_pop = read_csv_region_lu(path_dict['path_pop_reg_base'])                      # Population data
+    fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
+    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015
+    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom
 
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
     print("--")
@@ -1043,15 +1089,6 @@ def read_data(path_dict):
     dwtype_age_distr = read_csv_nested_dict(path_dict['path_dwtype_age'])
     print("tt")
     dwtype_floor_area = read_csv_dict(path_dict['path_dwtype_floor_area'])
-
-
-    print("OO")
-    print(dwtype_distr)
-    print("---")
-    print(dwtype_age_distr)
-    print("---")
-    print(dwtype_floor_area)
-    #prnt("...")
 
     # Insert into dictionary
     data['reg_lu'] = reg_lu
