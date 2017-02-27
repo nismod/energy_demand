@@ -31,7 +31,7 @@ def changeLoadProfilesDependingOnEfficiencies(load_profiles):
 
     return load_profiles
 
-def create_building_stock(reg_pop, dwelling_type_lu):
+def create_building_stock(reg_pop, dwtype_lu):
     """
     This function reads in base buildings, floor area etc. and calculates the number of buildings for each dwelling type....
 
@@ -43,5 +43,5 @@ def create_building_stock(reg_pop, dwelling_type_lu):
     -
     """
 
-    building = np.zeros(len(reg_pop), len(dwelling_type_lu))
+    building = np.zeros(len(reg_pop), len(dwtype_lu))
     return building

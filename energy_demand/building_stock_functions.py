@@ -6,13 +6,15 @@
 class House(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 
-    def __init__(self, coordinates, house_id, age, hlc, pop, floor_area, temp):
+    def __init__(self, coordinates, dwtype, house_id, age, hlc, pop, floor_area, temp):
         """Returns a new dwelling object.
 
         Parameters
         ----------
         coordinates : float
-            Coordinates
+            coordinates
+        dwtype : int
+            Dwelling type id
         age :   int
             Age of dwelling
         hlc : float
@@ -27,8 +29,9 @@ class House(object):
         """
         self.house_id = house_id
         self.coordinates = coordinates
+        self.dwtype = dwtype
         self.age = age
-        self.hlc = hlc
+        self.hlc = get_hlc(dwtype, age) #hlc
         self.pop = pop
         self.floor_area = floor_area
         self.temp = temp

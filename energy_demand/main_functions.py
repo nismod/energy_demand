@@ -902,7 +902,7 @@ def own_timesteps(date_list):
     return timestep_dates
 
 
-def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM, csv_temp_2015, hourly_gas_shape):
+def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, global_variables, csv_temp_2015, hourly_gas_shape):
     """ Gets load curve shapes
 
     Parameters
@@ -922,7 +922,7 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM
     More Info
     """
     # Shape of base year for a full year for appliances (electricity) from HES data [%]
-    shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, SIM_PARAM[1])
+    shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, global_variables['base_year'])
 
     # Shape of base year for a full year for heating demand derived from XX [%]
     shape_hd_gas = shape_bd_hd(csv_temp_2015, hourly_gas_shape)
@@ -1004,22 +1004,24 @@ def read_csv_dict(path_to_csv):
             cnt = 0
             # Iterate row entries
             for i in row:
-                
+
                 # Test if float or string
-                #if isinstance(float(i), float) == True: 
                 try:
-                    _value = float(i)
                     out_dict[_headings[cnt]] = float(i)
                 except:
                     out_dict[_headings[cnt]] = str(i)
+
+                #if isinstance(float(i), str):
+                #    out_dict[_headings[cnt]] = str(i)
+                #else:
+                #    out_dict[_headings[cnt]] = float(i) 
                 cnt += 1
 
     return out_dict
 
 def read_csv_dict_no_header(path_to_csv):
-    """Read in csv file into a dict (with header)
+    """Read in csv file into a dict (without header)
 
-    The function tests if a value is a string or float
     Parameters
     ----------
     path_to_csv : str
@@ -1048,9 +1050,21 @@ def read_csv_dict_no_header(path_to_csv):
 
         # Iterate rows
         for row in read_lines:
-            cnt = 0
+            print(row)
+            print(isinstance(row[1], str))
+
             # Iterate row entries
-            out_dict[int(row[0])] = str(row[1])
+            #out_dict[int(row[0])] = str(row[1])
+            try:
+                out_dict[int(row[0])] = float(row[1])
+            except:
+                out_dict[int(row[0])] = str(row[1])
+                
+                # Test if entry (not key) is flaot or string
+                #if isinstance(row[1], str):
+                #    out_dict[int(row[0])] = str(row[1])
+                #else:
+                #    out_dict[int(row[0])] = float(row[1])
 
     return out_dict
 
@@ -1072,35 +1086,37 @@ def read_data(path_main):
     #Todo: Iterate every row and test if string or float value and then only write one write in function
     """
     path_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
-                  'path_pop_reg_base': os.path.join(path_main, 'scenario_and_base_data/population_regions.csv'),
-                  'path_dwelling_type_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
-                  'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances.csv'),
-                  'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
-                  'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
-                  'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
-                  'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
-                  'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
-                  'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
+                 'path_pop_reg_base': os.path.join(path_main, 'scenario_and_base_data/population_regions.csv'),
+                 'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
+                 'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances.csv'),
+                 'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
+                 'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
+                 'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
+                 'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
+                 'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
+                 'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
 
-                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
-                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
-                  'path_dwtype_floor_area_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floor_area.csv'),
-                  'path_reg_floor_area': os.path.join(path_main, 'residential_model/data_residential_model_floor_area.csv'),
-                  'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv')
-                                     #path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
-                 }
+                 'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
+                 'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
+                 'path_dwtype_floor_area_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floor_area.csv'),
+                 'path_reg_floor_area': os.path.join(path_main, 'residential_model/data_residential_model_floor_area.csv'),
+                 'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv')
+                }
 
     data = {}
 
+    # TODO: Convert from percentage where necssary (einheitlich machen)
+
     # Read data
-    reg_lu = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                          # Region lookup table
-    dwelling_type_lu = read_csv(path_dict['path_dwelling_type_lu'])               # Dwelling types lookup table
+    reg_lu = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
+    dwtype_lu = read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
     app_type_lu = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
     fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
     day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
     #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                 # Season lookup
 
-    reg_pop = read_csv_dict_no_header(path_dict['path_pop_reg_base'])                      # Population data
+    reg_pop = read_csv_dict_no_header(path_dict['path_pop_reg_base'])             # Population data
+    reg_pop_array = read_csv_float(path_dict['path_pop_reg_base'])             # Population data
     fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
     csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015
     hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom
@@ -1115,12 +1131,13 @@ def read_data(path_main):
 
     # Insert into dictionary
     data['reg_lu'] = reg_lu
-    data['dwelling_type_lu'] = dwelling_type_lu
+    data['dwtype_lu'] = dwtype_lu
     data['app_type_lu'] = app_type_lu
     data['fuel_type_lu'] = fuel_type_lu
     data['day_type_lu'] = day_type_lu
 
     data['reg_pop'] = reg_pop
+    data['reg_pop_array'] = reg_pop_array
     data['fuel_bd_data'] = fuel_bd_data
     data['csv_temp_2015'] = csv_temp_2015
     data['hourly_gas_shape'] = hourly_gas_shape
@@ -1142,8 +1159,12 @@ def add_to_data(data, pop_data_external): # Convert to array, store in data
     for i in _t:
         l.append(i)
     reg_pop_array = np.array(l, dtype=float)
-    data['reg_pop_array'] = reg_pop_array
-    data['reg_pop'] = pop_data_external
+    data['reg_pop_external_array'] = reg_pop_array
+    data['reg_pop_external'] = pop_data_external
+
+    #print(data['reg_pop'][0])
+    #print(isinstance(data['reg_pop'][0], int))
+    #prin("kk")
 
     # Add other data
     return data

@@ -54,19 +54,23 @@ def load_data():
 
     # Global variables
     #YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
-    P1_YEAR_BASE = 2015                                                     # [int] First year of the simulation period
+    #global_variables['base_year'] = 2015                                                      # [int] First year of the simulation period
     #P2_YEAR_END = 2050                                                      # [int] Last year of the simulation period
-    #P3_SIM_PERIOD = range(P2_YEAR_END - P1_YEAR_BASE)                       # List with simulation years
-    #P0_YEAR_CURR = YEAR_SIMULATION - P1_YEAR_BASE                           # [int] Current year in current simulation
-    #SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
-    SIM_PARAM = [0, 2015, 2050, range(50)]    # Store all parameters in one list
+    #P3_SIM_PERIOD = range(P2_YEAR_END - global_variables['base_year'])                       # List with simulation years
+    #P0_YEAR_CURR = YEAR_SIMULATION - global_variables['base_year']                           # [int] Current year in current simulation
+    #global_variables = [P0_YEAR_CURR, global_variables['base_year'], P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
+    global_variables = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
 
     # ------Read in all data from csv files-------------------
     data, path_dict = mf.read_data(path_main)
-    data['SIM_PARAM'] = SIM_PARAM # add to data dict
+    data['global_variables'] = global_variables # add to data dict
+
+    #print(isinstance(reg_floor_area[0], int))
+    #print(isinstance(reg_floor_area[0], float))
+
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
-    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
+    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], global_variables, data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
 
     # ------Base demand for the base year for all modelled elements-------------------
@@ -90,10 +94,10 @@ def load_data():
     # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
     # ---------------------------------------------------------------
     timesteps_own_selection = (
-        [date(P1_YEAR_BASE, 1, 12), date(P1_YEAR_BASE, 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
-        [date(P1_YEAR_BASE, 4, 13), date(P1_YEAR_BASE, 4, 19)],     # Week Summer (April) Week 16  range(59:150)
-        [date(P1_YEAR_BASE, 7, 13), date(P1_YEAR_BASE, 7, 19)],     # Week Fall (July) Week 25 range(151:242)
-        [date(P1_YEAR_BASE, 10, 12), date(P1_YEAR_BASE, 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        [date(global_variables['base_year'], 1, 12), date(global_variables['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(global_variables['base_year'], 4, 13), date(global_variables['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(global_variables['base_year'], 7, 13), date(global_variables['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(global_variables['base_year'], 10, 12), date(global_variables['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
     data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
 
@@ -117,6 +121,9 @@ def load_data():
     print(" ")
 
     return data
+
+
+
 
 # ---------------------------------------------------------------
 # Run Model
@@ -150,29 +157,20 @@ def energy_demand_model(data, pop_data_external):
     # Add external data to data dictionary
     # ----
 
-    # population data
-    data = mf.add_to_data(data, pop_data_external) # Convert to array, store in data
+    # population data (scrap)
+    data_external = {}
+    data_external = mf.add_to_data(data_external, pop_data_external) # Convert to array, store in data
 
-    # Get input and convert into necessary formats
-    # -------------------------------------------------
+    #print ("Energy Demand Model - Main funtion simulation parameter: " + str(global_variables))
 
-
-
-    #print ("Energy Demand Model - Main funtion simulation parameter: " + str(SIM_PARAM))
-
-    # ---------------------------------------------------------------------------
-    # Run sub modules
-    print(" Start executing sub models of energy demand module")
-    # ---------------------------------------------------------------------------
 
     # Build residential building stock
-    #bg.virtual_building_stock(data)
+    bg.virtual_building_stock(data)
     #prnt(":.")
 
 
-
     # Run different sub-models (sector models)
-    e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], data['reg_pop_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data['global_variables'], data['shape_app_elec'], data['reg_pop_array'], data_external['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''

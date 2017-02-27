@@ -13,6 +13,7 @@ class EDWrapper(SectorModel):
         =========
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
+        
         # Load data needed for energy demand model
         base_data = load_data()
 

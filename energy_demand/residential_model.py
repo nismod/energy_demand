@@ -9,7 +9,7 @@
 
 import energy_demand.residential_model_functions as rf
 
-def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
+def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timesteps_app_bd, timesteps_hd_bd):
     """
     Main function of residential model.
 
@@ -18,7 +18,7 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     A. Residential electriciy demand
 
     Input:
-    -SIM_PARAM
+    -global_variables
     -load_profiles
     -...
 
@@ -26,10 +26,10 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     -timesteps_app_bd   Hourly energy demand residential
     -timesteps_hd_bd    Hourly gas demand residential
     """
-    year_curr = SIM_PARAM[0]     # Current year of simulation
-    year_base = SIM_PARAM[1]        # Base year
-
-
+    year_curr = global_variables['current_year']     # Current year of simulation
+    year_base = global_variables['base_year']        # Base year
+    print("CURRY: " + str(year_curr))
+ 
     # --------------------------------------
     # Appliances
     # --------------------------------------
@@ -38,7 +38,7 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     #timesteps_app_sim_year = rf.changeLoadProfilesDependingOnEfficiencies(timesteps_app_bd) # Dummy so far
 
     # Crate Building Stock
-    #building_stock = create_building_stock(reg_pop, dwelling_type_lu)
+    #building_stock = create_building_stock(reg_pop, dwtype_lu)
 
     # Calculate total demand (multiply individual building load curves with number of buildings)
     #dict_elec_demand_all_buildings(load_profiles_sim_year, building_stock)
@@ -58,11 +58,14 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
     # ------------------
 
     # ---------------------------------------------
-    # DUMMY SIMULATION WITH POPULATION
+    # DUMMY SIMULATION WITH POPULATION (scrap)
     # ---------------------------------------------
-    pop_base_year = reg_pop[:, 1]  # 1: 2015, 2: 2016...
-    pop_curr_year = reg_pop[:, year_curr + 1]
-
+    pop_base_year = reg_pop_base[:, 1]  # 1: 2015, 2: 2016...
+    
+    # Convert base year to array
+    pop_curr_year = reg_pop_external[:, 1]
+    print(reg_pop_external * reg_pop_base)
+    #print("..")
     if year_curr != 0: # not base year
         print("Elec appliance base year: " + str(timesteps_app_bd.sum()))
         print("Gas heatinb base year:     " + str(timesteps_hd_bd.sum()))
@@ -72,10 +75,22 @@ def run(SIM_PARAM, load_profiles, reg_pop, timesteps_app_bd, timesteps_hd_bd):
         timesteps_hd_sim_year = timesteps_hd_bd * 0
 
         # Calculate new regional demand
-        for region_Nr in range(len(reg_pop)):
+        for region_Nr in range(len(reg_pop_base)):
 
             # New electricity demand
             fuel_e = 0
+            print(region_Nr)
+            print(timesteps_app_sim_year[fuel_e][region_Nr])
+            print(pop_curr_year[region_Nr])
+            print(pop_base_year[region_Nr])
+            print(timesteps_app_bd[fuel_e][region_Nr])
+            print("..")
+            print(timesteps_app_bd[fuel_e][region_Nr].shape)
+            print(timesteps_app_sim_year[fuel_e][region_Nr].shape)
+            print(pop_curr_year[region_Nr].shape)
+            print("...")
+            print((pop_curr_year[region_Nr] / pop_base_year[region_Nr]))
+
             timesteps_app_sim_year[fuel_e][region_Nr] = (pop_curr_year[region_Nr] / pop_base_year[region_Nr]) * timesteps_app_bd[fuel_e][region_Nr]     # New pop / old pop * base demand
 
             # New heating demand
