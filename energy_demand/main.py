@@ -49,6 +49,9 @@ def load_data():
     -----
 
     """
+    #path_main = '../data'
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
+
     # Global variables
     #YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
     P1_YEAR_BASE = 2015                                                     # [int] First year of the simulation period
@@ -58,42 +61,23 @@ def load_data():
     #SIM_PARAM = [P0_YEAR_CURR, P1_YEAR_BASE, P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
     SIM_PARAM = [0, 2015, 2050, range(50)]    # Store all parameters in one list
 
-
-    #------Store all paths to data in dict-------------------
-    #path_main = '../data'
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
-    paths_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
-                  'path_pop_reg_base': os.path.join(path_main, 'scenario_and_base_data/population_regions.csv'),
-                  'path_dwelling_type_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
-                  'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances.csv'),
-                  'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
-                  'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
-                  'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
-                  'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
-                  'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
-                  'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
-
-                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
-                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
-                  'path_dwtype_floor_area': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floor_area.csv')
-                                     #path_seasons_lookup = os.path.join(path_main, 'scenario_and_base_data/lookup_season.csv')
-                 }
-
     # ------Read in all data from csv files-------------------
-    data = mf.read_data(paths_dict)
+    data, path_dict = mf.read_data(path_main)
+    data['SIM_PARAM'] = SIM_PARAM # add to data dict
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
-    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(paths_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
+    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], SIM_PARAM, data['csv_temp_2015'], data['hourly_gas_shape'])
+    data['shape_app_elec'] = shape_app_elec # add to data dict
 
     # ------Base demand for the base year for all modelled elements-------------------
 
     # Base demand of appliances over a full year (electricity)
     bd_app_elec = mf.get_bd_appliances(shape_app_elec, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
-    #print(bd_app_elec[0][0])
-    #print(bd_app_elec.shape)
-    #prnt()
+    data['bd_app_elec'] = bd_app_elec # add to data dict
+
     # Base demand of heating demand (gas)
     bd_hd_gas = mf.get_bd_hd_gas(shape_hd_gas, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
+    data['bd_hd_gas'] = bd_hd_gas # add to data dict
 
     print("---Summary Base Demand")
     print("Base Fuel elec appliances total per year (uk):             " + str(data['fuel_bd_data'][:, 1].sum()))
@@ -111,16 +95,18 @@ def load_data():
         [date(P1_YEAR_BASE, 7, 13), date(P1_YEAR_BASE, 7, 19)],     # Week Fall (July) Week 25 range(151:242)
         [date(P1_YEAR_BASE, 10, 12), date(P1_YEAR_BASE, 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
+    data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
 
     # Create own timesteps
     own_timesteps = mf.own_timesteps(timesteps_own_selection)
 
     # Populate timesteps base year data (appliances, electricity)
     timesteps_app_bd = mf.create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
-    #print(timesteps_app_bd[0][0])
+    data['timesteps_app_bd'] = timesteps_app_bd # add to data dict
 
     # Populate timesteps base year data (heating demand, ga)
     timesteps_hd_bd = mf.create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
+    data['timesteps_hd_bd'] = timesteps_hd_bd # add to data dict
 
     print("----------------------Statistics--------------------")
     print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
@@ -130,30 +116,7 @@ def load_data():
     print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
     print(" ")
 
-    data_dict = {'SIM_PARAM': SIM_PARAM,
-                 'reg_lu': data['reg_lu'],
-                 'fuel_type_lu': data['fuel_type_lu'],
-                 'dwelling_type_lu': data['dwelling_type_lu'],
-                 'reg_pop': data['reg_pop'],
-                 'fuel_bd_data': data['fuel_bd_data'],
-                 'csv_temp_2015': data['csv_temp_2015'],
-                 'hourly_gas_shape': data['hourly_gas_shape'],
-                 'shape_app_elec': shape_app_elec,
-                 'shape_hd_gas': shape_hd_gas,
-                 'bd_app_elec': bd_app_elec,
-                 'bd_hd_gas': bd_hd_gas,
-                 'timesteps_app_bd': timesteps_app_bd,
-                 'timesteps_hd_bd': timesteps_hd_bd,
-                 'timesteps_own_selection': timesteps_own_selection,
-
-                 'dwtype_distr' : data['dwtype_distr'],
-                 'dwtype_age_distr' : data['dwtype_age_distr'],
-                 'dwtype_floor_area' : data['dwtype_floor_area']
-
-                 }
-
-    #todo: reduce variables
-    return data_dict
+    return data
 
 # ---------------------------------------------------------------
 # Run Model
@@ -188,13 +151,7 @@ def energy_demand_model(data, pop_data_external):
     # ----
 
     # population data
-    _t = pop_data_external.items()
-    l = []
-    for i in _t:
-        l.append(i)
-    reg_pop_array = np.array(l, dtype=float)
-    data['reg_pop_array'] = reg_pop_array
-    data['reg_pop'] = pop_data_external
+    data = mf.add_to_data(data, pop_data_external) # Convert to array, store in data
 
     # Get input and convert into necessary formats
     # -------------------------------------------------
@@ -215,7 +172,7 @@ def energy_demand_model(data, pop_data_external):
 
 
     # Run different sub-models (sector models)
-    e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], reg_pop_array, data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data['SIM_PARAM'], data['shape_app_elec'], data['reg_pop_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''
@@ -234,14 +191,14 @@ def energy_demand_model(data, pop_data_external):
     timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
 
     # Initialise nested Dicionatry for wrapper (Fuel type, region, hour)
-    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], reg_pop_array, timesteps)
+    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
 
     # Add electricity data to result dict for wrapper
-    result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], reg_pop_array, timesteps, result_dict, data['timesteps_own_selection'])
+    result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
     #print(result_dict[0][0])
     #prnt("..")
     # Add gas data
-    result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], reg_pop_array, timesteps, result_dict, data['timesteps_own_selection'])
+    result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
 
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')

@@ -21,15 +21,23 @@ def virtual_building_stock(data):
     print(dwtype_floor_area)
     print("---")
     reg_lu = data['reg_lu']
-    print(reg_lu)
-    print(data['reg_pop'])
+
+    print("fff")
+    print(data['reg_floor_area'])
 
     # Iterate regions
-    for region in reg_lu:
-        print("region: " + int(region))
+    for region_id in reg_lu:
+        print("region: " + str(region_id))
 
-        # Read in population, floor area, nr of dwellings for every region
-        reg_pop = data['reg_pop']
+        # Read base data
+        reg_id_pop = data['reg_pop'][region_id]    # Read in population
+        reg_id_floor_area = data['reg_floor_area'][region_id]    # Read in floor area
+        reg_id_dw_nr = data['reg_dw_nr'][region_id]    # Read in nr of dwellings
+
+
+        print("RegPOP: " + str(reg_id_pop))
+        print("reg_floor_area: " + str(reg_id_floor_area))
+        print("reg_dw_nr: " + str(reg_id_dw_nr))
 
     return
 
