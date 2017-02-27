@@ -165,11 +165,11 @@ def energy_demand_model(data, pop_data_external):
 
 
     # Build residential building stock
-    bg.virtual_building_stock(data)
-    #prnt(":.")
+    old_dwellings, new_dwellings = bg.virtual_building_stock(data)
 
 
     # Run different sub-models (sector models)
+    # -- Residential model
     e_app_bd, g_hd_bd = residential_model.run(data['global_variables'], data['shape_app_elec'], data['reg_pop_array'], data_external['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 

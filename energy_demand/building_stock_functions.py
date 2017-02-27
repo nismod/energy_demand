@@ -3,7 +3,7 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 
-class House(object):
+class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 
     def __init__(self, coordinates, dwtype, house_id, age, hlc, pop, floor_area, temp):
@@ -31,7 +31,7 @@ class House(object):
         self.coordinates = coordinates
         self.dwtype = dwtype
         self.age = age
-        self.hlc = get_hlc(dwtype, age) #hlc
+        self.hlc = get_hlc(dwtype, age) # Calculate heat loss coefficient with age and dwelling type
         self.pop = pop
         self.floor_area = floor_area
         self.temp = temp

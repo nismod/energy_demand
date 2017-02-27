@@ -7,17 +7,39 @@ import numpy as np
 
 
 def virtual_building_stock(data):
-    """ Virtual Building generator"""
+    """Creates a virtual building stock based on base year data and assumptions
+
+    Parameters
+    ----------
+    data : dict
+        Base data
+
+    Returns
+    -------
+    dw_stock_old : list
+        List containing dwelling objects of existing buildings
+
+    dw_stock_new : list
+        List containing dwelling objects of new buildings
+
+    Notes
+    -----
+    The header row is always skipped.
+    """
+    uniqueID = 100000
+    dw_stock_old, dw_stock_new = [], [] # Initialise
 
     #get_assumption_age_distribution
-    base_year = 2015
+    base_year = data['global_variables']['base_year']
+
     dwtype_distr = data['dwtype_distr'][base_year]             # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     dwtype_age_distr = data['dwtype_age_distr'][base_year]     # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
-    dwtype_floor_area = data['dwtype_floor_area']   # Floor area [m2]                       {'semi_detached': 96.0, 'terraced': 82.5, 'flat': 61.0, 'detached': 147.0, 'bungalow': 77.0}
-    reg_floor_area = data['reg_floor_area']   # Floor Area in a region
+    dwtype_floor_area = data['dwtype_floor_area']              # Floor area [m2]                       {'semi_detached': 96.0, 'terraced': 82.5, 'flat': 61.0, 'detached': 147.0, 'bungalow': 77.0}
+    reg_floor_area = data['reg_floor_area']                    # Floor Area in a region
     dw_lu = data['dwtype_lu']
     global_variables = data['global_variables']
-
+    reg_lu = data['reg_lu']                                    # Regions
+    reg_pop = data['reg_pop']
     print(dwtype_distr)
     print("---")
     print(dwtype_age_distr)
@@ -28,35 +50,30 @@ def virtual_building_stock(data):
     print("oo")
     print(dw_lu)
 
-
-    reg_lu = data['reg_lu']
-    uniqueID = 100000
-    dwelling_stock_old = []
-    dwelling_stock_new = []
-
     # Iterate regions
-    for region_id in reg_lu:
-        print(region_id)
+    for reg_id in reg_lu:
 
         # Read base data
-        reg_id_pop_by = data['reg_pop'][region_id]              # Read in population
-        reg_id_floor_area_by = reg_floor_area[region_id]        # Read in floor area
-        reg_id_dw_nr = data['reg_dw_nr'][region_id]             # Read in nr of dwellings
-        print("RegPOP: " + str(reg_id_pop_by))
+        reg_id_floor_area_by = reg_floor_area[reg_id]       # Read in floor area
+        reg_id_dw_nr = data['reg_dw_nr'][reg_id]            # Read in nr of dwellings
         print("reg_floor_area: " + str(reg_id_floor_area_by))
         print("reg_dw_nr: " + str(reg_id_dw_nr))
-        floor_area_p_base_year = get_percent_floor_area_per_dw_type(dw_lu, dwtype_distr, dwtype_floor_area, reg_id_dw_nr) # Percent of floor area of base year (is the same for all old buildings)
 
-        # Calculate floor area per person
+        floor_area_p_by = p_floor_area_dwtype(dw_lu, dwtype_distr, dwtype_floor_area, reg_id_dw_nr) # Percent of floor area of base year (is the same for all old buildings)
+
+        # --Scenario drivers
+        # base year
+        reg_id_pop_by = reg_pop[reg_id]                     # Read in population
         reg_id_floor_area_pp_by = reg_id_floor_area_by / reg_id_pop_by   # Floor area per person [m2/person]
+        reg_id_floor_area_by_pd = reg_id_floor_area_by / reg_id_dw_nr    # Floor area per dwelling [m2/dwelling]
 
-        # Calculate floor area per dwelling
-        reg_id_floor_area_by_pd = reg_id_floor_area_by / reg_id_dw_nr # Floor area per dwelling [m2/dwelling]
-
-        # --- Assumptions of scenario
-        reg_id_pop_cy = reg_id_pop_by * 1.5                      ### #TODO: get new population
+        # current year
+        reg_id_pop_cy = reg_id_pop_by * 1.5                             ### #TODO: get new population
         reg_id_floor_area_pp_cy = reg_id_floor_area_pp_by * 1.05        ### #TODO: get new reg_id_floor_area_pp_by
-        reg_id_floor_area_by_pd_cy = reg_id_floor_area_by_pd * 0.1        ### #TODO: get new reg_id_floor_area_by_pd
+        reg_id_floor_area_by_pd_cy = reg_id_floor_area_by_pd * 0.1      ### #TODO: get new reg_id_floor_area_by_pd
+
+        # Population
+        #pop_new_dw = reg_id_pop_cy - reg_id_pop_by
 
         # Calculate total floor area
         total_floor_area_cy = reg_id_floor_area_pp_cy * reg_id_pop_cy
@@ -72,9 +89,7 @@ def virtual_building_stock(data):
         print("New buildings:       " + str(dw_new))
         print("total_nr_dw:       " + str(total_nr_dw))
 
-        # Population
-        pop_by = reg_id_pop_by
-        pop_new_dw = reg_id_pop_cy - pop_by
+
 
         # ---- old buildings
         # Distribute old dwellings according to dwelling distribution
@@ -87,7 +102,7 @@ def virtual_building_stock(data):
             percent_dw_type = dwtype_distr[dw_type_name] / 100              # Percentage of dwelling type
             print("percentage of dwelling type: " + str(percent_dw_type))
 
-            dw_type_floor_area = floor_area_p_base_year[dw_type_name] * total_floor_area_cy
+            dw_type_floor_area = floor_area_p_by[dw_type_name] * total_floor_area_cy
             print("Floor area of dwelling types: " + str(dw_type_floor_area))
 
             ## Get scenario parameter?? TODO:
@@ -113,7 +128,7 @@ def virtual_building_stock(data):
                 # --- create building object
                 _hlc = bf.get_hlc(dw_type_id, float(dwtype_age_id))
 
-                dwelling_stock_old.append(bf.House(['X', 'Y'], dw_type_id, uniqueID, float(dwtype_age_id), _hlc, _pop_2015_dwelling_type_age_class, dw_type_age_class_floor_area, 9999))
+                dw_stock_old.append(bf.Dwelling(['X', 'Y'], dw_type_id, uniqueID, float(dwtype_age_id), _hlc, _pop_2015_dwelling_type_age_class, dw_type_age_class_floor_area, 9999))
                 uniqueID += 1
 
         # ------------ new buildings
@@ -144,22 +159,22 @@ def virtual_building_stock(data):
                 _hlc = bf.get_hlc(dw_type_id, dw_age)
 
                 # --- create building object
-                dwelling_stock_new.append(bf.House(['X', 'Y'], dw_type_id, uniqueID, simulation_year, _hlc, _pop_2015_dwelling_type_age_class_new/nr_sim_y, dw_type_age_class_floor_area/nr_sim_y, 9999))
+                dw_stock_new.append(bf.Dwelling(['X', 'Y'], dw_type_id, uniqueID, simulation_year, _hlc, _pop_2015_dwelling_type_age_class_new/nr_sim_y, dw_type_age_class_floor_area/nr_sim_y, 9999))
                 uniqueID += 1
 
     print("....")
-    for h in dwelling_stock_old:
+    for h in dw_stock_old:
         print(h.__dict__)
     print(".............")
-    for i in dwelling_stock_new:
+    for i in dw_stock_new:
         print(i.__dict__)
 
-    return dwelling_stock_old, dwelling_stock_new
+    return dw_stock_old, dw_stock_new
 
 
 
 # -----------Calculate the share of total floor area beloinging to each dwelling type-----------
-def get_percent_floor_area_per_dw_type(dw_lookup, dw_dist, dw_floor_area, reg_id_dw_nr):
+def p_floor_area_dwtype(dw_lookup, dw_dist, dw_floor_area, reg_id_dw_nr):
     """ Calculates the percentage of floor area  belonging to each dwelling type
     depending on average floor area per dwelling type
     dw_lookup - dwelling types
@@ -194,154 +209,7 @@ def get_percent_floor_area_per_dw_type(dw_lookup, dw_dist, dw_floor_area, reg_id
     return dw_floor_area_p
 
 
-'''# Data
-# ---------------------------------------------------------------
-path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
-
-
-# Percentages of dwelling types for a given year (%)
-dw_dist = {2015: {0: 16.6, 1: 26.0, 2: 28.2, 3: 20.4, 4: 8.8}} # Year, dwellintype, percentage
-
-#Floor Area: The usubale floor area is taken rom (Annex Table 3.1 Housing Supply)
-dw_floor_area = {0: 147, 1: 96, 2: 82.5, 3: 61, 4: 77} # Id, average m2 of dw_type
-
-# Dwelling types
-dw_lookup = np.array(([0, 'Detached'], [1, 'Semi-Detached'], [2, 'Terraced (mid_end)'], [3, 'Flat'], [4, 'Bungalow']))
-
-# Assumptions
-pop2015_by = 100        # [person]
-floor_area_by = 2000    # [m2]
-nr_dw = 55              # [nr of buildings]
-pop2015_new = 200       # [person]
-
-# Derived factors
-floor_area_per_person_base_year_by = floor_area_by / pop2015_by # [m2/person] Floor area per person
-floor_area_per_building_by = floor_area_by / nr_dw              # [m2/dw] meter per building
-persons_per_build = pop2015_by / nr_dw                          # [pers/build]
-
-
-# -----------Calculate the share of total floor area beloinging to each dwelling type-----------
-def get_percent_floor_area_per_dw_type():
-    
-    return 
-
-total_floor_area_cy = 0
-dw_floor_area_percent = {} # initialise
-
-for row in dw_lookup:
-    # Get number of building of dwellin type
-    percent_buildings_dw = (dw_dist[2015][int(row[0])])/100
-    nr_dw_typXY = nr_dw * percent_buildings_dw
-
-    # absolute usable floor area per dwelling type
-    fl_type = nr_dw_typXY * dw_floor_area[int(row[0])]
-
-    # sum total area
-    total_floor_area_cy += fl_type
-    dw_floor_area_percent[int(row[0])] = fl_type # add absolute are ato dict
-
-# Convert absolute values into percentages
-for i in dw_floor_area_percent:
-    _ = (1/total_floor_area_cy)*dw_floor_area_percent[i]
-    dw_floor_area_percent[i] = _
-
-print("Percentage of total floor area belonging to each dwelling type: " + str(dw_floor_area_percent))
-
-# -----------Generate building stock
-building_stock = []
-cnt = 1
-
-# Iterate housing type array
-for row in dw_lookup:
-
-    # Dwelling type
-    dw_type_ID = int(row[0])
-
-    # Iterate over years
-    for age in dw_dist_age[2015]:
-        uniqueID = 555 + cnt
-
-        # share of buildings belonging to this age class
-        dw_are_class_percentage = dw_dist_age[2015][age]/100
-
-        # Age class
-        year = age
-
-        # get hcl
-        _hlc = bf.get_hlc(dw_type_ID, age)
-
-        # Settlment type
-        # --
-        # Get floor area of this dwelling type
-        floor_area_share_dw = dw_floor_area_percent[dw_type_ID] # prozent
-        floor_area_share_dw_of_ttal = floor_area_share_dw * floor_area_by # absolut
-
-
-        # Share of population for this dwelling type (distribute pop according to floor area)
-        _pop_2015_dwelling_type = floor_area_share_dw_of_ttal / floor_area_per_person_base_year_by
-        print("_pop_2015_dwelling_type " + str(_pop_2015_dwelling_type))
-
-        # Age class (because only comparison within the same dwelling class, we can redistribute buildlings with floor area)
-        # Get floor area of dwellin type age class
-        floor_area_dw_age_ttal = floor_area_share_dw_of_ttal * dw_are_class_percentage
-
-        _pop_2015_dwelling_type_age_class = floor_area_dw_age_ttal / floor_area_per_person_base_year_by
-        print("_pop_2015_dwelling_type_age_class:" + str(_pop_2015_dwelling_type_age_class))
-
-        # Create House object
-        dw_type_ID_houses = bf.House(['X', 'Y'], uniqueID, year, _hlc, _pop_2015_dwelling_type_age_class, floor_area_dw_age_ttal, 9999)
-        building_stock.append(dw_type_ID_houses)
-
-
-print("Buillding Stock: " + str(len(building_stock)))
-for i in building_stock:
-    print(i.__dict__)
-
-_ = 0
-for i in building_stock:
-    _ += i.pop
-print("TOTAL SUM: " + str(_))
-prnt("..")
-'''
-
-'''
-# --------------- calculations with scenario
-
-#print(dw_age_distribution)
-#print("re")
-
-
-
-
-
-print(" BASE YEAR")
-print("-------------")
-print("pop2015_by:                          " + str(pop2015_by))
-print("floor_area_by                        " + str(floor_area_by))
-print("nr_dw                                " + str(nr_dw))
-print("floor_area_per_person_base_year_by:  " + str(floor_area_per_person_base_year_by))
-print("floor_area_per_building_by:          " + str(floor_area_per_building_by))
-print("persons_per_build:                   " + str(persons_per_build))
-print()
-
-# Scenario assumptions: Increase floor area per person by 1% and reduce number of persons per buildin by 1 %
-floor_area_per_person_base_scen_year = (floor_area_per_person_base_year_by/100) * (100 + 1)
-persons_per_build_scen_year = (persons_per_build/100) * (100 - 1)
-floor_area_per_building_new = floor_area_per_building_by  # Assume that floor area per building remains constant (houses are not getting bigger then)
-
-print("floor_area_per_person_base_scen_year:  " + str(floor_area_per_person_base_scen_year))
-#print("persons_per_build_new                  " + str(persons_per_build_scen_year))
-
-# Calculate new nr of Buildings
-new_floor_area = (pop2015_new * floor_area_per_person_base_scen_year) 
-nr_dw_new = new_floor_area / floor_area_per_building_new
-
-print(" NEw Floor area:      " + str(new_floor_area))
-print("New number of houses: " + str(nr_dw_new))
-print(" New houses to build: " + str(nr_dw_new - nr_dw))
-
-
-
+"""
 # (1) Distribution of dwellings per type
 # (2) Age distribution of dwellings
 # (3) Average floor area per type
@@ -351,15 +219,14 @@ print(" New houses to build: " + str(nr_dw_new - nr_dw))
 dwelling_number = 1000
 house_id = ""
 coordinates = []
-'''
-'''
+
 age = age
         self.hlc = hlc
         self.pop = pop
         self.floor_area = floor_area
         self.temp = temp
-'''
-"""
+
+
 #Spatial unit
 -Make possible also for postcodes...
 
@@ -394,11 +261,6 @@ ID, X, Y,
 
 
 
-
-
-
-
-
 '''class Town_region(object):
     """Region with dwellings in it
 
@@ -422,7 +284,6 @@ ID, X, Y,
         print("SS: " + str(SUM_DRIVERS))
         return SUM_DRIVERS
 '''
-
 
 #
 """

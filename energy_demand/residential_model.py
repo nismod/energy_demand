@@ -28,8 +28,7 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
     """
     year_curr = global_variables['current_year']     # Current year of simulation
     year_base = global_variables['base_year']        # Base year
-    print("CURRY: " + str(year_curr))
- 
+
     # --------------------------------------
     # Appliances
     # --------------------------------------
@@ -61,7 +60,7 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
     # DUMMY SIMULATION WITH POPULATION (scrap)
     # ---------------------------------------------
     pop_base_year = reg_pop_base[:, 1]  # 1: 2015, 2: 2016...
-    
+
     # Convert base year to array
     pop_curr_year = reg_pop_external[:, 1]
     print(reg_pop_external * reg_pop_base)
@@ -104,3 +103,10 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
 
     else:
         return timesteps_app_bd, timesteps_hd_bd
+
+def read_raw_UKERC_data():
+    """ This file read in UKERC data
+
+    
+    """
+    return
