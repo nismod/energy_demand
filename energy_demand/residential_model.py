@@ -1,15 +1,9 @@
-"""
-    ----------------------------------------------------------------
-    Description: This is the residential model
-    Authors:
-    ----------------------------------------------------------------
-
-"""
+"""Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 import energy_demand.residential_model_functions as rf
 
-def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timesteps_app_bd, timesteps_hd_bd):
+def run(glob_var, load_profiles, reg_pop_base, reg_pop_external, timesteps_app_bd, timesteps_hd_bd):
     """
     Main function of residential model.
 
@@ -18,7 +12,7 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
     A. Residential electriciy demand
 
     Input:
-    -global_variables
+    -glob_var
     -load_profiles
     -...
 
@@ -26,8 +20,8 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
     -timesteps_app_bd   Hourly energy demand residential
     -timesteps_hd_bd    Hourly gas demand residential
     """
-    year_curr = global_variables['current_year']     # Current year of simulation
-    year_base = global_variables['base_year']        # Base year
+    year_curr = glob_var['current_year']     # Current year of simulation
+    year_base = glob_var['base_year']        # Base year
 
     # --------------------------------------
     # Appliances
@@ -107,6 +101,6 @@ def run(global_variables, load_profiles, reg_pop_base, reg_pop_external, timeste
 def read_raw_UKERC_data():
     """ This file read in UKERC data
 
-    
+
     """
     return

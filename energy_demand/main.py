@@ -24,11 +24,11 @@
 import sys
 from datetime import date
 import energy_demand.main_functions as mf
-import building_stock_generator as bg
-import assumptions as assumpt
+import energy_demand.building_stock_generator as bg
+import energy_demand.assumptions as assumpt
 
 from energy_demand import residential_model
-import numpy as np
+#import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -57,15 +57,15 @@ def load_data():
     data, path_dict = mf.read_data(path_main)
 
     # Global variables
-    global_variables = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
-    data['global_variables'] = global_variables # add to data dict
+    glob_var = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
+    data['glob_var'] = glob_var # add to data dict
 
     #print(isinstance(reg_floor_area[0], int))
     #print(isinstance(reg_floor_area[0], float))
 
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
-    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], global_variables, data['csv_temp_2015'], data['hourly_gas_shape'])
+    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], glob_var, data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
 
     # ------Base demand for the base year for all modelled elements-------------------
@@ -89,10 +89,10 @@ def load_data():
     # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
     # ---------------------------------------------------------------
     timesteps_own_selection = (
-        [date(global_variables['base_year'], 1, 12), date(global_variables['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
-        [date(global_variables['base_year'], 4, 13), date(global_variables['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
-        [date(global_variables['base_year'], 7, 13), date(global_variables['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
-        [date(global_variables['base_year'], 10, 12), date(global_variables['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        [date(glob_var['base_year'], 1, 12), date(glob_var['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(glob_var['base_year'], 4, 13), date(glob_var['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(glob_var['base_year'], 7, 13), date(glob_var['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(glob_var['base_year'], 10, 12), date(glob_var['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
     data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
 
@@ -156,18 +156,18 @@ def energy_demand_model(data, assumptions, data_ext):
     # Conert population data int array
     data_ext = mf.add_to_data(data_ext, data_ext['population']) # Convert to array, store in data
 
-    #print ("Energy Demand Model - Main funtion simulation parameter: " + str(global_variables))
+    #print ("Energy Demand Model - Main funtion simulation parameter: " + str(glob_var))
 
 
     # Build base year building stock
 
     # Build virtual residential building stock
-    old_dwellings, new_dwellings = bg.virtual_building_stock(data, assumptions, data_ext)
+    reg_building_stock_by, reg_building_stock_cur_yr = bg.virtual_building_stock(data, assumptions, data_ext)
 
 
     # Run different sub-models (sector models)
     # -- Residential model
-    e_app_bd, g_hd_bd = residential_model.run(data['global_variables'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''
@@ -217,7 +217,7 @@ if __name__ == "__main__":
     data_external = {'population': {0: 3000001, 1: 5300001, 2: 53000001}}
 
     base_data = load_data()     # Get own data
-    assumptions = assumpt.load_assumptions() # Get all assumptions
+    assumptions_model_run = assumpt.load_assumptions() # Get all assumptions
 
-    energy_demand_model(base_data, assumptions, data_external)
+    energy_demand_model(base_data, assumptions_model_run, data_external)
     print("Finished everything")

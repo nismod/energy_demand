@@ -1,70 +1,15 @@
 """This file stores all functions of main.py"""
 
-
-"""A one-line summary that does not use variable names or the
-    function name.
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-    This can have multiple paragraphs.
-    You may include some math:
-
-"""
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
 import sys
 import os
 import csv
-import sys
 import traceback
 import datetime
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
 print ("Loading main functions")
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #from datetime import date, timedelta as td
 #from datetime import datetime
@@ -905,7 +850,7 @@ def own_timesteps(date_list):
     return timestep_dates
 
 
-def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, global_variables, csv_temp_2015, hourly_gas_shape):
+def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, glob_var, csv_temp_2015, hourly_gas_shape):
     """ Gets load curve shapes
 
     Parameters
@@ -925,7 +870,7 @@ def get_load_curve_shapes(path_bd_e_load_profiles, day_type_lu, app_type_lu, glo
     More Info
     """
     # Shape of base year for a full year for appliances (electricity) from HES data [%]
-    shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, global_variables['base_year'])
+    shape_app_elec = shape_bd_app(path_bd_e_load_profiles, day_type_lu, app_type_lu, glob_var['base_year'])
 
     # Shape of base year for a full year for heating demand derived from XX [%]
     shape_hd_gas = shape_bd_hd(csv_temp_2015, hourly_gas_shape)
@@ -1010,7 +955,7 @@ def read_csv_dict(path_to_csv):
                 # Test if float or string
                 try:
                     out_dict[_headings[cnt]] = float(i)
-                except:
+                except ValueError:
                     out_dict[_headings[cnt]] = str(i)
 
                 #if isinstance(float(i), str):
@@ -1053,7 +998,7 @@ def read_csv_dict_no_header(path_to_csv):
             # Iterate row entries
             try:
                 out_dict[int(row[0])] = float(row[1])
-            except:
+            except ValueError:
                 out_dict[int(row[0])] = str(row[1])
 
     return out_dict
@@ -1231,3 +1176,61 @@ def write_to_csv_will(reesult_dict, reg_lu):
 
         #with open(path, 'w') as outfile:
         #    yaml.dump(yaml_list, outfile, default_flow_style=False)
+
+
+
+
+
+"""A one-line summary that does not use variable names or the
+    function name.
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+    This can have multiple paragraphs.
+    You may include some math:
+
+"""

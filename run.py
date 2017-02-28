@@ -13,18 +13,18 @@ class EDWrapper(SectorModel):
         =========
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
-        
+
         # Load data needed for energy demand model
         base_data = load_data()
 
         # Load all assumptions
-        assumptions = load_assumptions()
+        assumptions_model_run = load_assumptions()
 
         # Maybe manipulate some more data
         # ...
 
         # Run Model
-        results = energy_demand_model(base_data, assumptions, data)
+        results = energy_demand_model(base_data, assumptions_model_run, data)
 
         # TODO: write out to csv file or similar
 

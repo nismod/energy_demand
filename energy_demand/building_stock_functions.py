@@ -76,7 +76,7 @@ def get_hlc(dw_type, age):
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
     return hlc
 
-class BuildingStockRegion(object):
+class DwStockRegion(object):
     """Class of the building stock in a region"""
     # TODO: Include old and new stock
 
@@ -122,7 +122,7 @@ class BuildingStockRegion(object):
             sum_driver += dwelling.scenario_driver_lighting
         return sum_driver
 
-def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_diff_floor_area_pp):
+def get_floor_area_pp(reg_floor_area, reg_pop, glob_var, assump_final_diff_floor_area_pp):
     """ Calculates future floor area per person depending on
     assumptions on final change and base year data
 
@@ -134,7 +134,7 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
     reg_pop : dict
         Population of base year for all region
 
-    global_variables : dict
+    glob_var : dict
         Contains all global simulation variables
 
     assump_final_diff_floor_area_pp : float
@@ -151,8 +151,8 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
 
     # initialisation
     data_floor_area_pp = {}
-    sim_period = range(global_variables['base_year'], global_variables['end_year'] + 1, 1) #base year, current year, iteration step
-    base_year = global_variables['base_year']
+    sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
+    base_year = glob_var['base_year']
 
     # Iterate regions
     for reg_id in reg_pop:
@@ -161,7 +161,7 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
 
         # Iterate simulation years
         for y in sim_period:
-            curr_year = y - global_variables['base_year']
+            curr_year = y - glob_var['base_year']
 
             if y == base_year:
                 sim_years[y] = floor_area_pp_by # base year value
@@ -174,7 +174,7 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
 
     return data_floor_area_pp
 
-def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, global_variables):
+def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
     """Calculates the yearly distribution of dw types
     based on assumption of distribution on end_year
 
@@ -190,7 +190,7 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, global_variables):
     assump_dwtype_distr : dict
         Distribution of dwelling types end year
 
-    global_variables : dict
+    glob_var : dict
         Contains all global simulation variables
 
     Returns
@@ -200,11 +200,11 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, global_variables):
     """
 
     dwtype_distr = {}
-    sim_period = range(global_variables['base_year'], global_variables['end_year'] + 1, 1) #base year, current year, iteration step
+    sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
 
     # Iterate years
     for current_year in sim_period:
-        sim_year = current_year - global_variables['base_year']
+        sim_year = current_year - glob_var['base_year']
         y_distr = {}
 
         # iterate type
@@ -235,7 +235,7 @@ def get_dwtype_age_distr(get_dwtype_age_distr_base):
     assump_dwtype_distr : dict
         Distribution of dwelling types end year
 
-    global_variables : dict
+    glob_var : dict
         Contains all global simulation variables
 
     Returns
