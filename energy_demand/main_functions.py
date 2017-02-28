@@ -1190,31 +1190,39 @@ def write_YAML(yaml_write, path_YAML):
 
 
 def write_to_csv_will(reesult_dict, reg_lu):
+    """ Write reults for energy supply model
+    e.g.
+    
+    england, P0H, P1H, 139.42, 123.49
+
+    """
     import csv
 
     path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_gas.csv']
-
+    cnt = 0
     for path in path_csvs:
-        yaml_list = []
+        print("path: " + str(path))
+        #yaml_list = []
         with open(path, 'w', newline='') as fp:
-            
+
             a = csv.writer(fp, delimiter=',')
             data = []
-            for i in range(len(reesult_dict)): # Iterate over fuel type
-                for reg in reesult_dict[i]:
-                    region_name = reg_lu[reg]
+            #for i in range(len(reesult_dict)): # Iterate over fuel type
 
-                    # iterate timesteps
-                    for ts in reesult_dict[i][reg]:
-                        _start = ts.split('_')[0]
-                        _end = ts.split('_')[1]
+            for reg in reesult_dict[cnt]:
+                print("Region: " + str(reg))
+                region_name = reg_lu[reg]
 
-                        print(reesult_dict[i][reg])
-                        print("region_name: " + str(region_name))
+                # iterate timesteps
+                for ts in reesult_dict[cnt][reg]:
+                    #print("ts: " + str(ts))
+                    _start = ts.split('_')[0]
+                    _end = ts.split('_')[1]
 
-                        yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[i][reg][ts], 'units': 'GWh', year: 'XXXX'})
-                        data.append([region_name, _start, _end, reesult_dict[i][reg][ts]])
-                        a.writerows(data)
+                    #yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[i][reg][ts], 'units': 'GWh', 'year': 'XXXX'})
+                    data.append([region_name, _start, _end, reesult_dict[cnt][reg][ts]])
+            a.writerows(data)
+        cnt += 1
 
-        with open(path, 'w') as outfile:
-            yaml.dump(yaml_list, outfile, default_flow_style=False)
+        #with open(path, 'w') as outfile:
+        #    yaml.dump(yaml_list, outfile, default_flow_style=False)
