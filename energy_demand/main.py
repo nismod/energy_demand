@@ -22,7 +22,6 @@
 # NOCHT TUN ata Different appliances for cold/hot extremes, data Heating fro min_max climate
 
 import sys
-import os
 from datetime import date
 import energy_demand.main_functions as mf
 import building_stock_generator as bg
@@ -56,8 +55,7 @@ def load_data():
 
     # ------Read in all data from csv files-------------------
     data, path_dict = mf.read_data(path_main)
-    
-    
+
     # Global variables
     global_variables = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
     data['global_variables'] = global_variables # add to data dict
@@ -164,7 +162,7 @@ def energy_demand_model(data, assumptions, data_ext):
     # Build base year building stock
 
     # Build virtual residential building stock
-    #old_dwellings, new_dwellings = bg.virtual_building_stock(data, assumptions, data_ext)
+    old_dwellings, new_dwellings = bg.virtual_building_stock(data, assumptions, data_ext)
 
 
     # Run different sub-models (sector models)
@@ -200,10 +198,8 @@ def energy_demand_model(data, assumptions, data_ext):
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
 
-    # ---
-    _, yaml_list = mf.timesteps_full_year()  # Create timesteps for full year (wrapper-timesteps)
-
-    mf.write_to_csv_will(result_dict, data['reg_lu'])
+    # --- Write out functions....scrap to improve
+    #mf.write_to_csv_will(result_dict, data['reg_lu'])
     #rint("..")
 
 
@@ -219,7 +215,7 @@ def energy_demand_model(data, assumptions, data_ext):
 if __name__ == "__main__":
     # New function to load data
     data_external = {'population': {0: 3000001, 1: 5300001, 2: 53000001}}
-    
+
     base_data = load_data()     # Get own data
     assumptions = assumpt.load_assumptions() # Get all assumptions
 

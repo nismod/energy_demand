@@ -240,7 +240,7 @@ def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, t
     ----------
     date_list : list
         List containing selection of dates the simulation should run
-    bd_hd_gas : 
+    bd_hd_gas :
         Base demand heating (gas)
     reg_lu : array
         Region look-up table
@@ -426,11 +426,11 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     # Add electricity base data per region
     for region_nr in range(len(reg_lu)):
 
-        reg_demand = fuel_bd_data_electricity[region_nr] 
+        reg_demand = fuel_bd_data_electricity[region_nr]
         reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
         fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
     #'''
-    
+
     # Test for errors
     try:
         _control = round(float(fuel_type_per_region_hourly.sum()), 4) # Sum of input energy data, rounded to 4 digits
@@ -466,7 +466,7 @@ def datetime_range(start=None, end=None):
     span = end - start
     for i in range(span.days + 1):
         yield start + td(days=i)
-        
+
 def writeToEnergySupply(path_out_csv, fueltype, in_data):
     '''
     REads out results (which still need to be preared) to list of energy supply model.
@@ -598,7 +598,6 @@ def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
     return shape_hd
 
 def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
-    
     '''This function calculates absolut heating demands with help of shape for all regions
 
     out:
@@ -696,7 +695,7 @@ def timesteps_full_year():
     timestep_dates = []
 
     #Add to list
-    h_year_id = 0
+    #h_year_id = 0
     for day_date in list_dates:
         _info = day_date.timetuple() # Get date
         day_of_that_year = _info[7] - 1             # -1 because in _info yearday 1: 1. Jan
@@ -705,15 +704,19 @@ def timesteps_full_year():
         # Interate hours
         for _ in hours:
             #Create ID (yearday_hour of day)
+            start_period = "P{}H".format(day_of_that_year * 24 + h_id)
+            end_period = "P{}H".format(day_of_that_year * 24 + h_id + 1)
+
             yearday_h_id = str(str(day_of_that_year) + str("_") + str(h_id))
-            start_period = str("P" + str(h_year_id) + str("H"))
-            end_period = str("P" + str(h_year_id + 1) + str("H"))
+
+            #start_period = str("P" + str(h_year_id) + str("H"))
+            #end_period = str("P" + str(h_year_id + 1) + str("H"))
 
             # Add to dict
             timestep_full_year_dict[yearday_h_id] = {'start': start_period, 'end': end_period}
 
             h_id += 1
-            h_year_id += 1
+            #h_year_id += 1
 
             #Add to yaml listyaml
             yaml_list.append({'id': yearday_h_id, 'start': start_period, 'end': end_period})
@@ -1052,7 +1055,7 @@ def read_csv_dict_no_header(path_to_csv):
                 out_dict[int(row[0])] = float(row[1])
             except:
                 out_dict[int(row[0])] = str(row[1])
-                
+
     return out_dict
 
 def read_data(path_main):
@@ -1192,11 +1195,10 @@ def write_YAML(yaml_write, path_YAML):
 def write_to_csv_will(reesult_dict, reg_lu):
     """ Write reults for energy supply model
     e.g.
-    
+
     england, P0H, P1H, 139.42, 123.49
 
     """
-    import csv
 
     path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_gas.csv']
     cnt = 0
@@ -1215,12 +1217,15 @@ def write_to_csv_will(reesult_dict, reg_lu):
 
                 # iterate timesteps
                 for ts in reesult_dict[cnt][reg]:
-                    #print("ts: " + str(ts))
-                    _start = ts.split('_')[0]
-                    _end = ts.split('_')[1]
+                    _day = int(ts.split('_')[0])
+                    _hour = int(ts.split('_')[1])
+
+                    start_id = "P{}H".format(_day * 24 + _hour)
+                    end_id = "P{}H".format(_day * 24 + _hour + 1)
 
                     #yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[i][reg][ts], 'units': 'GWh', 'year': 'XXXX'})
-                    data.append([region_name, _start, _end, reesult_dict[cnt][reg][ts]])
+                    data.append([region_name, start_id, end_id, reesult_dict[cnt][reg][ts]])
+
             a.writerows(data)
         cnt += 1
 

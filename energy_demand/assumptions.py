@@ -22,10 +22,8 @@ def load_assumptions():
     # ------------------------------------------------------------------------
 
     # Building stock related
-    change_floor_area_pp = -0.1        # Assumption of change in floor area up to end_year ASSUMPTION
-
-
-    #assump_dwtype_distr = {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}    # Assumption of distribution of dwelling types in end_year ASSUMPTION
+    change_floor_area_pp = -0.1                                                                                  # Assumption of change in floor area up to end_year ASSUMPTION
+    assump_dwtype_distr = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}    # Assumption of distribution of dwelling types in end_year ASSUMPTION
 
 
 
@@ -34,5 +32,6 @@ def load_assumptions():
 
     # Add to dictionary
     assumptions_dict['change_floor_area_pp'] = change_floor_area_pp
+    assumptions_dict['assump_dwtype_distr'] = assump_dwtype_distr
 
     return assumptions_dict

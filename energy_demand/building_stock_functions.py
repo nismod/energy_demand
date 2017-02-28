@@ -1,7 +1,5 @@
 """ Functions for building stock"""
-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
-
 
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
@@ -25,7 +23,6 @@ class Dwelling(object):
             Floor area of dwelling
         temp : float
             Climate variable...(tbd)
-
         """
         self.house_id = house_id
         self.coordinates = coordinates
@@ -83,47 +80,47 @@ class BuildingStockRegion(object):
     """Class of the building stock in a region"""
     # TODO: Include old and new stock
 
-    def __init__(self, region_ID, dwelling_list):
+    def __init__(self, region_ID, dwellings):
         """Returns a new building stock region object.
 
         Parameters
         ----------
         region_ID : float
             Region ID of building stock
-        dwelling_list : list
+        dwellings : list
             List containing all dwelling objects
         """
         self.region_ID = region_ID
-        self.dwelling_list = dwelling_list
+        self.dwellings = dwellings
 
     def get_tot_pop(self):
         """ Get total population"""
         totpop = 0
-        for dwelling in self.dwelling_list:
-            totpop += dwelling.pop()
-        return totpop
+        for dwelling in self.dwellings:
+            #print(dwelling.__dict__)
+            totpop += dwelling.pop
+        return round(totpop, 3)
 
     def get_sum_scenario_driver_water_heating(self):
         """ Sum all scenario driver for water heating"""
         sum_driver = 0
-        for dwelling in self.dwelling_list:
-            sum_driver += dwelling.scenario_driver_water_heating()
+        for dwelling in self.dwellings:
+            sum_driver += dwelling.scenario_driver_water_heating
         return sum_driver
 
     def get_sum_scenario_driver_space_heating(self):
         """ Sum all scenario driver for space heating"""
         sum_driver = 0
-        for dwelling in self.dwelling_list:
-            sum_driver += dwelling.scenario_driver_space_heating()
+        for dwelling in self.dwellings:
+            sum_driver += dwelling.scenario_driver_space_heating
         return sum_driver
 
     def get_sum_scenario_driver_lighting(self):
         """ Sum all scenario driver for lighting heating"""
         sum_driver = 0
-        for dwelling in self.dwelling_list:
-            sum_driver += dwelling.scenario_driver_lighting()
+        for dwelling in self.dwellings:
+            sum_driver += dwelling.scenario_driver_lighting
         return sum_driver
-
 
 def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_diff_floor_area_pp):
     """ Calculates future floor area per person depending on
@@ -139,7 +136,7 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
 
     global_variables : dict
         Contains all global simulation variables
-        
+
     assump_final_diff_floor_area_pp : float
         Assumption of change in floor area up to end of simulation
 
@@ -162,25 +159,95 @@ def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_di
         sim_years = {}
         floor_area_pp_by = reg_floor_area[reg_id] / reg_pop[reg_id] # Floor area per person of base year
 
+        # Iterate simulation years
         for y in sim_period:
-            sim_year = y - global_variables['base_year']
+            curr_year = y - global_variables['base_year']
 
             if y == base_year:
                 sim_years[y] = floor_area_pp_by # base year value
             else:
-                # Change up to current year
-                diff_cy = sim_year * (((1 + assump_final_diff_floor_area_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
-
-                # Floor area of simulation year
-                floor_ara_pp_sim_year = floor_area_pp_by * (1 + diff_cy)
-
+                # Change up to current year (linear)
+                diff_cy = curr_year * (((1 + assump_final_diff_floor_area_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
+                floor_ara_pp_sim_year = floor_area_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
                 sim_years[y] = floor_ara_pp_sim_year
-
-        # Values for every simulation year
-        data_floor_area_pp[reg_id] = sim_years
+        data_floor_area_pp[reg_id] = sim_years  # Values for every simulation year
 
     return data_floor_area_pp
 
-def get_dwtype_dist():
-    
-    return
+def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, global_variables):
+    """Calculates the yearly distribution of dw types
+    based on assumption of distribution on end_year
+
+    Linear change over time
+
+    # Todo: Check modelling interval (2050/2051)
+
+    Parameters
+    ----------
+    base_dwtype_distr : dict
+        Distribution of dwelling types base year
+
+    assump_dwtype_distr : dict
+        Distribution of dwelling types end year
+
+    global_variables : dict
+        Contains all global simulation variables
+
+    Returns
+    -------
+    dwtype_distr : dict
+        Contains all dwelling type distribution for every year
+    """
+
+    dwtype_distr = {}
+    sim_period = range(global_variables['base_year'], global_variables['end_year'] + 1, 1) #base year, current year, iteration step
+
+    # Iterate years
+    for current_year in sim_period:
+        sim_year = current_year - global_variables['base_year']
+        y_distr = {}
+
+        # iterate type
+        for dtype in base_dwtype_distr:
+            val_by = base_dwtype_distr[dtype]               # base year value
+            val_cy = assump_dwtype_distr[dtype]             # cur year value
+
+            diff_val = val_cy - val_by                      # Total difference
+            diff_y = diff_val / (len(sim_period)-1)         # Linear difference per year
+
+            y_distr[dtype] = val_by + (diff_y * sim_year)   # Differene up to current year
+        dwtype_distr[current_year] = y_distr
+
+    return dwtype_distr
+
+def get_dwtype_age_distr(get_dwtype_age_distr_base):
+    """Calculates age distribution
+
+    Linear change over time
+
+    # Todo: Check modelling interval (2050/2051)
+
+    Parameters
+    ----------
+    base_dwtype_distr : dict
+        Distribution of dwelling types base year
+
+    assump_dwtype_distr : dict
+        Distribution of dwelling types end year
+
+    global_variables : dict
+        Contains all global simulation variables
+
+    Returns
+    -------
+    dwtype_distr : dict
+        Contains all dwelling type distribution for every year
+    """
+    print(get_dwtype_age_distr_base)
+
+    # {'1918': 20.82643491, '1941': 36.31645864, '1977.5': 29.44333304, '1996.5': 8.00677683, '2002': 5.407611848}
+
+
+    prnt("...")
+
+    return dwtype_age_distr_sim
