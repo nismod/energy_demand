@@ -97,59 +97,9 @@ def virtual_building_stock(data, assumptions, data_ext):
         # ---- base year DONE
         dw_stock_base = generate_dwellings_distribution(uniqueID, dw_lu, dwtype_distr_by, floor_area_p_by, floor_area_by, dwtype_age_distr_by, floor_area_pp_by, tot_floor_area_cy, pop_by)
 
-        '''control_pop = 0
-        control_floor_area = 0
-        # Iterate dwelling types
-        for dw in dw_lu:
-            dw_type_id, dw_type_name = dw, dw_lu[dw]
-            percent_dw_type = dwtype_distr_by[dw_type_name] / 100                   # Percentage of dwelling type
-            dw_type_floor_area = floor_area_p_by[dw_type_name] * floor_area_by      # Floor areay of existing buildlings
-
-            # Distribute according to age
-            for dwtype_age_id in dwtype_age_distr_by:
-                age_class_p = dwtype_age_distr_by[dwtype_age_id] / 100 # Percent of dw of age class
-
-                # Floor area of dwelling_class_age
-                dw_type_age_class_floor_area = dw_type_floor_area * age_class_p # Distribute proportionally floor area
-                control_floor_area += dw_type_age_class_floor_area
-
-                # Pop
-                pop_dwtype_age_class = dw_type_age_class_floor_area / floor_area_pp_by # Floor area is divided by base area value
-                control_pop += pop_dwtype_age_class
-
-                # --- create building object
-                dw_stock_base.append(bf.Dwelling(['X', 'Y'], dw_type_id, uniqueID, float(dwtype_age_id), pop_dwtype_age_class, dw_type_age_class_floor_area, 9999))
-                uniqueID += 1
-
-        assert round(tot_floor_area_cy, 3) == round(control_floor_area, 3)  # Test if floor area are the same
-        assert round(pop_by, 3) == round(control_pop, 3)                    # Test if pop is the same
-        '''
         # Current Year Building stock
         # ---- old buildings
-        control_pop, control_floor_area, _scrap_pop_new, _scrap_floor_new = 0, 0, 0, 0
-
-        # Iterate dwelling types
-        for dw in dw_lu:
-            dw_type_id, dw_type_name = dw, dw_lu[dw]
-            percent_dw_type = dwtype_distr_by[dw_type_name] / 100                   # Percentage of dwelling type
-            dw_type_floor_area = floor_area_p_by[dw_type_name] * floor_area_by      # Floor areay of existing buildlings
-
-            # Distribute according to age
-            for dwtype_age_id in dwtype_age_distr_by:
-                age_class_p = dwtype_age_distr_by[dwtype_age_id] / 100 # Percent of dw of age class
-
-                # Floor area of dwelling_class_age
-                dw_type_age_class_floor_area = dw_type_floor_area * age_class_p # Distribute proportionally floor area
-                control_floor_area += dw_type_age_class_floor_area
-
-                # Pop
-                pop_dwtype_age_class = dw_type_age_class_floor_area / floor_area_pp_cy # Existing floor area is divided by new area us per person. Distribed with floor area..could do better
-                control_pop += pop_dwtype_age_class
-
-                # create building object
-                dw_stock_old.append(bf.Dwelling(['X', 'Y'], dw_type_id, uniqueID, float(dwtype_age_id), pop_dwtype_age_class, dw_type_age_class_floor_area, 9999))
-                uniqueID += 1
-
+        dw_stock_cur_old = generate_dwellings_distribution(uniqueID, dw_lu, dwtype_distr_by, floor_area_p_by, floor_area_by, dwtype_age_distr_by, floor_area_pp_cy, tot_floor_area_cy, tot_floor_area_cy/floor_area_pp_cy)
 
         # ------------ new buildings
         for dw in dw_lu:
@@ -289,6 +239,8 @@ def generate_dwellings_distribution(uniqueID, dw_lu, dwtype_distr_by, floor_area
             uniqueID += 1
 
     assert round(tot_floor_area_cy, 3) == round(control_floor_area, 3)  # Test if floor area are the same
+    print(pop_by)
+    print(control_pop)
     assert round(pop_by, 3) == round(control_pop, 3)                    # Test if pop is the same
 
     return dw_stock_base
