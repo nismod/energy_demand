@@ -6,7 +6,7 @@
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 
-    def __init__(self, coordinates, dwtype, house_id, age, hlc, pop, floor_area, temp):
+    def __init__(self, coordinates, dwtype, house_id, age, pop, floor_area, temp):
         """Returns a new dwelling object.
 
         Parameters
@@ -78,4 +78,48 @@ def get_hlc(dw_type, age):
     # Get linearly fitted value
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
     return hlc
-    
+
+class BuildingStockRegion(object):
+    """Class of the building stock in a region"""
+
+    def __init__(self, region_ID, dwelling_list):
+        """Returns a new building stock region object.
+
+        Parameters
+        ----------
+        region_ID : float
+            Region ID of building stock
+        dwelling_list : list
+            List containing all dwelling objects
+        """
+        self.region_ID = region_ID
+        self.dwelling_list = dwelling_list
+
+    def get_tot_pop(self):
+        """ Get total population"""
+        totpop = 0
+        for dwelling in self.dwelling_list:
+            totpop += dwelling.pop()
+        return totpop
+
+    def get_sum_scenario_driver_water_heating(self):
+        """ Sum all scenario driver for water heating"""
+        sum_driver = 0
+        for dwelling in self.dwelling_list:
+            sum_driver += dwelling.scenario_driver_water_heating()
+        return sum_driver
+
+    def get_sum_scenario_driver_space_heating(self):
+        """ Sum all scenario driver for space heating"""
+        sum_driver = 0
+        for dwelling in self.dwelling_list:
+            sum_driver += dwelling.scenario_driver_space_heating()
+        return sum_driver
+
+    def get_sum_scenario_driver_lighting(self):
+        """ Sum all scenario driver for lighting heating"""
+        sum_driver = 0
+        for dwelling in self.dwelling_list:
+            sum_driver += dwelling.scenario_driver_lighting()
+        return sum_driver
+
