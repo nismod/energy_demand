@@ -407,7 +407,7 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     fuel_bd_data_electricity = fuel_bd_data[:, 1] # Base fuel per region
 
     dim_appliance = shape_app_elec.shape
-    print("DIM: " + str(dim_appliance))
+
     # Initialise array
     fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
     fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
@@ -960,7 +960,6 @@ def read_csv_nested_dict(path_to_csv):
 
         # Iterate rows
         for row in read_lines:
-            print(row)
             out_dict[float(row[0])] = {}
             cnt = 1 # because skip first element
             for i in row[1:]:
@@ -1012,9 +1011,6 @@ def read_csv_dict(path_to_csv):
                     out_dict[_headings[cnt]] = str(i)
 
                 #if isinstance(float(i), str):
-                #    out_dict[_headings[cnt]] = str(i)
-                #else:
-                #    out_dict[_headings[cnt]] = float(i) 
                 cnt += 1
 
     return out_dict
@@ -1050,22 +1046,13 @@ def read_csv_dict_no_header(path_to_csv):
 
         # Iterate rows
         for row in read_lines:
-            print(row)
-            print(isinstance(row[1], str))
 
             # Iterate row entries
-            #out_dict[int(row[0])] = str(row[1])
             try:
                 out_dict[int(row[0])] = float(row[1])
             except:
                 out_dict[int(row[0])] = str(row[1])
                 
-                # Test if entry (not key) is flaot or string
-                #if isinstance(row[1], str):
-                #    out_dict[int(row[0])] = str(row[1])
-                #else:
-                #    out_dict[int(row[0])] = float(row[1])
-
     return out_dict
 
 def read_data(path_main):
@@ -1082,7 +1069,7 @@ def read_data(path_main):
         Dictionary containing read in data from csv files
     path_dict : dict
         Dictionary containing all path to individual files
-    
+
     #Todo: Iterate every row and test if string or float value and then only write one write in function
     """
     path_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
@@ -1129,7 +1116,19 @@ def read_data(path_main):
     reg_floor_area = read_csv_dict_no_header(path_dict['path_reg_floor_area'])
     reg_dw_nr = read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
-    # Insert into dictionary
+
+
+
+
+
+
+
+
+
+
+
+
+    # ---------Insert into dictionary
     data['reg_lu'] = reg_lu
     data['dwtype_lu'] = dwtype_lu
     data['app_type_lu'] = app_type_lu
@@ -1189,3 +1188,33 @@ def write_YAML(yaml_write, path_YAML):
             yaml.dump(yaml_list, outfile, default_flow_style=False)
     return
 
+
+def write_to_csv_will(reesult_dict, reg_lu):
+    import csv
+
+    path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_gas.csv']
+
+    for path in path_csvs:
+        yaml_list = []
+        with open(path, 'w', newline='') as fp:
+            
+            a = csv.writer(fp, delimiter=',')
+            data = []
+            for i in range(len(reesult_dict)): # Iterate over fuel type
+                for reg in reesult_dict[i]:
+                    region_name = reg_lu[reg]
+
+                    # iterate timesteps
+                    for ts in reesult_dict[i][reg]:
+                        _start = ts.split('_')[0]
+                        _end = ts.split('_')[1]
+
+                        print(reesult_dict[i][reg])
+                        print("region_name: " + str(region_name))
+
+                        yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[i][reg][ts], 'units': 'GWh', year: 'XXXX'})
+                        data.append([region_name, _start, _end, reesult_dict[i][reg][ts]])
+                        a.writerows(data)
+
+        with open(path, 'w') as outfile:
+            yaml.dump(yaml_list, outfile, default_flow_style=False)

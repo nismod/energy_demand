@@ -2,7 +2,7 @@
 
 from smif.sector_model import SectorModel
 from energy_demand.main import energy_demand_model, load_data
-
+from energy_demand.assumptions import load_assumptions
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
 
@@ -17,11 +17,14 @@ class EDWrapper(SectorModel):
         # Load data needed for energy demand model
         base_data = load_data()
 
+        # Load all assumptions
+        assumptions = load_assumptions()
+
         # Maybe manipulate some more data
         # ...
 
         # Run Model
-        results = energy_demand_model(base_data, data["population"])
+        results = energy_demand_model(base_data, assumptions, data)
 
         # TODO: write out to csv file or similar
 

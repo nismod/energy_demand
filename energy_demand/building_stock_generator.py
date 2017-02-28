@@ -6,13 +6,17 @@ import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 
-def virtual_building_stock(data):
+def virtual_building_stock(data, assumptions, data_ext):
     """Creates a virtual building stock based on base year data and assumptions
 
     Parameters
     ----------
     data : dict
-        Base data
+        Base data (data loaded)
+    assumptions : dict
+        All assumptions
+    data_ext : dict
+        Data provided externally from simulation
 
     Returns
     -------
@@ -25,11 +29,14 @@ def virtual_building_stock(data):
     Notes
     -----
     The header row is always skipped.
+    # TODO: check base year run...
     """
     uniqueID = 100000      # Initialise
     reg_building_stock = {}
 
-    base_year = data['global_variables']['base_year']          # Base year
+    # Base year data
+    base_year = data['global_variables']['base_year']
+    reg_pop = data['reg_pop']
 
     dwtype_distr = data['dwtype_distr'][base_year]             # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     dwtype_age_distr = data['dwtype_age_distr'][base_year]     # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
@@ -38,20 +45,20 @@ def virtual_building_stock(data):
     dw_lu = data['dwtype_lu']
     global_variables = data['global_variables']
     reg_lu = data['reg_lu']                                    # Regions
-    reg_pop = data['reg_pop']
-    print(dwtype_distr)
-    print("---")
-    print(dwtype_age_distr)
-    print("---")
-    print(dwtype_floor_area)
-    print("-tt--")
-    print(reg_floor_area)
-    print("oo")
-    print(dw_lu)
+
+    # External data (current year)
+    reg_pop_cy = data_ext['population']
+
+
+    # ----- Building stock scenario assumptions
+    #assump_dwtype_distr = {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}    # Assumption of distribution of dwelling types in end_year ASSUMPTION
+
+    data_floor_area_pp = bf.get_floor_area_pp(reg_floor_area, reg_pop_cy, global_variables, assumptions['change_floor_area_pp']) # Calculate floor area per person over simulation period
+    #dwt_dist = get_dwtype_dist(assumptions['assump_dwtype_distr']) # Calculate distribution of dwelling types over simulation period
 
     # Iterate regions
     for reg_id in reg_lu:
-        dw_stock_old, dw_stock_new = [], []      # Initialise
+        dw_stock_old, dw_stock_new = [], []          # Initialise
 
         # Read base year data
         floor_area_by = reg_floor_area[reg_id]       # Read in floor area
@@ -62,17 +69,17 @@ def virtual_building_stock(data):
 
         # --Scenario drivers
         # base year
-        pop_by = reg_pop[reg_id]                            # Read in population
+        pop_by = reg_pop[reg_id]                    # Read in population
         floor_area_pp_by = floor_area_by / pop_by           # Floor area per person [m2/person]
         floor_area_by_pd = floor_area_by / dw_nr            # Floor area per dwelling [m2/dwelling]
 
-        # current year
-        pop_cy = pop_by * 1.5                               ### #TODO: get new population
-        floor_area_pp_cy = floor_area_pp_by * 1.05          ### #TODO: get new floor_area_pp_by
-        floor_area_by_pd_cy = floor_area_by_pd * 0.1        ### #TODO:floor area per dwelling get new floor_area_by_pd (if not constant over time, cann't extrapolate for any year)
+        # Current year of simulation
+        pop_cy = reg_pop_cy[reg_id]                                              # Read in population for current year
+        floor_area_pp_cy = data_floor_area_pp[reg_id][global_variables['current_year']]     # Read in from simulated floor_area_pp dict for current year
+        floor_area_by_pd_cy = floor_area_by_pd                                              ### #TODO:floor area per dwelling get new floor_area_by_pd (if not constant over time, cann't extrapolate for any year)
 
         # Population
-        pop_new_dw = pop_cy - pop_by
+        #pop_new_dw = pop_cy - pop_by
 
         # Total new floor area
         tot_floor_area_cy = floor_area_pp_cy * pop_cy
@@ -86,12 +93,12 @@ def virtual_building_stock(data):
         print("total_nr_dw:       " + str(total_nr_dw))
 
         # ---- old buildings
-        _scrap_pop_old = 0
-        _scrap_floor_old = 0
-        _scrap_pop_new = 0
-        _scrap_floor_new = 0
+        _scrap_pop_old, _scrap_floor_old, _scrap_pop_new, _scrap_floor_new = 0, 0, 0, 0
 
-        # Iterate dwelling types
+        # Do This for base yeare and simulation year!
+        # dwtype_age_distr['curr_year']
+
+        # Iterate dwelling types (BASE YEAR Or NEW YEAR??)
         for dw in dw_lu:
             dw_type_id, dw_type_name = dw, dw_lu[dw]
             percent_dw_type = dwtype_distr[dw_type_name] / 100                      # Percentage of dwelling type
@@ -160,24 +167,14 @@ def virtual_building_stock(data):
         print("Floor area of current year:  " + str(tot_floor_area_cy))
 
         # Generate region and save it in dictionary
-        reg_building_stock[reg_id] = bf.BuildingStockRegion(reg_id, dw_stock_old + dw_stock_new)
+        reg_building_stock[reg_id] = bf.BuildingStockRegion(reg_id, dw_stock_old + dw_stock_new) # Add old and new buildings to stock
 
-    '''print("....")
-    for h in dw_stock_old:
-        print(h.__dict__)
-    print(".............")
-    for i in dw_stock_new:
-        print(i.__dict__)
-    '''
 
-    print(reg_building_stock)
-    print(reg_building_stock[0].get_sum_scenario_driver_water_heating())
-    print("oooo")
-    print(reg_building_stock[0].dwelling_list)
-    l = reg_building_stock[0].dwelling_list
+    #print(reg_building_stock[0].dwelling_list)
+    #l = reg_building_stock[0].dwelling_list
     for i in l:
         print(i.__dict__)
-    prnt("..")
+
 
     return dw_stock_old, dw_stock_new
 

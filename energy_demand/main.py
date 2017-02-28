@@ -26,6 +26,8 @@ import os
 from datetime import date
 import energy_demand.main_functions as mf
 import building_stock_generator as bg
+import assumptions as assumpt
+
 from energy_demand import residential_model
 import numpy as np
 
@@ -52,17 +54,12 @@ def load_data():
     #path_main = '../data'
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
 
-    # Global variables
-    #YEAR_SIMULATION = 2015                                                  # Provide year for which to run the simulation
-    #global_variables['base_year'] = 2015                                                      # [int] First year of the simulation period
-    #P2_YEAR_END = 2050                                                      # [int] Last year of the simulation period
-    #P3_SIM_PERIOD = range(P2_YEAR_END - global_variables['base_year'])                       # List with simulation years
-    #P0_YEAR_CURR = YEAR_SIMULATION - global_variables['base_year']                           # [int] Current year in current simulation
-    #global_variables = [P0_YEAR_CURR, global_variables['base_year'], P2_YEAR_END, P3_SIM_PERIOD]    # Store all parameters in one list
-    global_variables = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
-
     # ------Read in all data from csv files-------------------
     data, path_dict = mf.read_data(path_main)
+    
+    
+    # Global variables
+    global_variables = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
     data['global_variables'] = global_variables # add to data dict
 
     #print(isinstance(reg_floor_area[0], int))
@@ -128,7 +125,7 @@ def load_data():
 # ---------------------------------------------------------------
 # Run Model
 # ---------------------------------------------------------------
-def energy_demand_model(data, pop_data_external):
+def energy_demand_model(data, assumptions, data_ext):
     """Main function to run energy demand module
 
     This function is executed in the wrapper.
@@ -136,10 +133,11 @@ def energy_demand_model(data, pop_data_external):
     Parameters
     ----------
     data : dict
-        A list containing all data not provided externally
-
-    pop_data_external : dict
-        Population data from wrapper
+        Contains all data not provided externally
+    assumptions : dict
+        Contains all assumptions
+    data_ext : dict
+        All data provided externally
 
     Returns
     -------
@@ -152,25 +150,26 @@ def energy_demand_model(data, pop_data_external):
 
     Notes
     -----
-
+    All messy now...needs cleaning
     """
     # Add external data to data dictionary
     # ----
 
-    # population data (scrap)
-    data_external = {}
-    data_external = mf.add_to_data(data_external, pop_data_external) # Convert to array, store in data
+    # Conert population data int array
+    data_ext = mf.add_to_data(data_ext, data_ext['population']) # Convert to array, store in data
 
     #print ("Energy Demand Model - Main funtion simulation parameter: " + str(global_variables))
 
 
-    # Build residential building stock
-    old_dwellings, new_dwellings = bg.virtual_building_stock(data)
+    # Build base year building stock
+
+    # Build virtual residential building stock
+    #old_dwellings, new_dwellings = bg.virtual_building_stock(data, assumptions, data_ext)
 
 
     # Run different sub-models (sector models)
     # -- Residential model
-    e_app_bd, g_hd_bd = residential_model.run(data['global_variables'], data['shape_app_elec'], data['reg_pop_array'], data_external['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data['global_variables'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''
@@ -201,6 +200,13 @@ def energy_demand_model(data, pop_data_external):
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
 
+    # ---
+    _, yaml_list = mf.timesteps_full_year()  # Create timesteps for full year (wrapper-timesteps)
+
+    mf.write_to_csv_will(result_dict, data['reg_lu'])
+    #rint("..")
+
+
     # Write function to also write out results
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[0])))
@@ -212,7 +218,10 @@ def energy_demand_model(data, pop_data_external):
 # Run
 if __name__ == "__main__":
     # New function to load data
-    pop_data = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
-    base_data = load_data()
-    energy_demand_model(base_data, pop_data["population"])
+    data_external = {'population': {0: 3000001, 1: 5300001, 2: 53000001}}
+    
+    base_data = load_data()     # Get own data
+    assumptions = assumpt.load_assumptions() # Get all assumptions
+
+    energy_demand_model(base_data, assumptions, data_external)
     print("Finished everything")

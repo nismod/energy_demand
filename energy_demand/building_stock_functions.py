@@ -81,6 +81,7 @@ def get_hlc(dw_type, age):
 
 class BuildingStockRegion(object):
     """Class of the building stock in a region"""
+    # TODO: Include old and new stock
 
     def __init__(self, region_ID, dwelling_list):
         """Returns a new building stock region object.
@@ -123,3 +124,63 @@ class BuildingStockRegion(object):
             sum_driver += dwelling.scenario_driver_lighting()
         return sum_driver
 
+
+def get_floor_area_pp(reg_floor_area, reg_pop, global_variables, assump_final_diff_floor_area_pp):
+    """ Calculates future floor area per person depending on
+    assumptions on final change and base year data
+
+    Parameters
+    ----------
+    reg_floor_area : dict
+        Floor area base year for all region
+
+    reg_pop : dict
+        Population of base year for all region
+
+    global_variables : dict
+        Contains all global simulation variables
+        
+    assump_final_diff_floor_area_pp : float
+        Assumption of change in floor area up to end of simulation
+
+    Returns
+    -------
+    data_floor_area_pp : dict
+        Contains all values for floor area per person for every year
+
+    Linear change of floor area
+    # todo: check with simulation period
+    """
+
+    # initialisation
+    data_floor_area_pp = {}
+    sim_period = range(global_variables['base_year'], global_variables['end_year'] + 1, 1) #base year, current year, iteration step
+    base_year = global_variables['base_year']
+
+    # Iterate regions
+    for reg_id in reg_pop:
+        sim_years = {}
+        floor_area_pp_by = reg_floor_area[reg_id] / reg_pop[reg_id] # Floor area per person of base year
+
+        for y in sim_period:
+            sim_year = y - global_variables['base_year']
+
+            if y == base_year:
+                sim_years[y] = floor_area_pp_by # base year value
+            else:
+                # Change up to current year
+                diff_cy = sim_year * (((1 + assump_final_diff_floor_area_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
+
+                # Floor area of simulation year
+                floor_ara_pp_sim_year = floor_area_pp_by * (1 + diff_cy)
+
+                sim_years[y] = floor_ara_pp_sim_year
+
+        # Values for every simulation year
+        data_floor_area_pp[reg_id] = sim_years
+
+    return data_floor_area_pp
+
+def get_dwtype_dist():
+    
+    return
