@@ -32,7 +32,7 @@ from energy_demand import residential_model
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
-def load_data():
+def load_data(data_external):
     """All base data no provided externally are loaded
 
     All necessary data to run energy demand model is loaded.
@@ -57,15 +57,15 @@ def load_data():
     data, path_dict = mf.read_data(path_main)
 
     # Global variables
-    glob_var = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
-    data['glob_var'] = glob_var # add to data dict
+    #glob_var = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
+    #data['glob_var'] = glob_var # add to data dict
 
     #print(isinstance(reg_floor_area[0], int))
     #print(isinstance(reg_floor_area[0], float))
 
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
-    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], glob_var, data['csv_temp_2015'], data['hourly_gas_shape'])
+    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_external['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
 
     # ------Base demand for the base year for all modelled elements-------------------
@@ -89,10 +89,10 @@ def load_data():
     # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
     # ---------------------------------------------------------------
     timesteps_own_selection = (
-        [date(glob_var['base_year'], 1, 12), date(glob_var['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
-        [date(glob_var['base_year'], 4, 13), date(glob_var['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
-        [date(glob_var['base_year'], 7, 13), date(glob_var['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
-        [date(glob_var['base_year'], 10, 12), date(glob_var['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        [date(data_external['glob_var']['base_year'], 1, 12), date(data_external['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(data_external['glob_var']['base_year'], 4, 13), date(data_external['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(data_external['glob_var']['base_year'], 7, 13), date(data_external['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(data_external['glob_var']['base_year'], 10, 12), date(data_external['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
     data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
 
@@ -167,7 +167,7 @@ def energy_demand_model(data, assumptions, data_ext):
 
     # Run different sub-models (sector models)
     # -- Residential model
-    e_app_bd, g_hd_bd = residential_model.run(data['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
+    e_app_bd, g_hd_bd = residential_model.run(data_ext['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
     #print(e_app_bd[0][0])
 
     '''
@@ -213,13 +213,18 @@ def energy_demand_model(data, assumptions, data_ext):
 
 # Run
 if __name__ == "__main__":
-    # New function to load data
+    # External data provided to wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3001001, 1: 5301001, 2: 53001001}
-                                   }
+                                   },
+
+                     'glob_var': {'base_year': 2015,
+                                  'current_year': 2015,
+                                  'end_year': 2050
+                                 },
                     }
 
-    base_data = load_data()     # Get own data
+    base_data = load_data(data_external)               # Get own data
     assumptions_model_run = assumpt.load_assumptions() # Get all assumptions
 
     energy_demand_model(base_data, assumptions_model_run, data_external)
