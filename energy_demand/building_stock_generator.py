@@ -33,6 +33,7 @@ def virtual_building_stock(data, assumptions, data_ext):
 
     # Base year data
     base_year = data['glob_var']['base_year']
+    current_year = data['glob_var']['current_year']
     dwtype_distr_by = data['dwtype_distr'][base_year]          # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     dwtype_age_distr_by = data['dwtype_age_distr'][base_year]  # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
     #dwtype_floor_area = data['dwtype_floor_area']              # Floor area [m2]                       {'semi_detached': 96.0, 'terraced': 82.5, 'flat': 61.0, 'detached': 147.0, 'bungalow': 77.0}
@@ -42,7 +43,7 @@ def virtual_building_stock(data, assumptions, data_ext):
     reg_lu = data['reg_lu']                                    # Regions
 
     # External data (current year)
-    reg_pop_cy = data_ext['population']
+    reg_pop_cy = data_ext['population'][current_year]
 
     # ----- Building stock scenario assumptions
     data_floor_area_pp_sim = bf.get_floor_area_pp(data['reg_floor_area'], reg_pop_cy, glob_var, assumptions['change_floor_area_pp']) # Calculate floor area per person over simulation period
@@ -65,7 +66,7 @@ def virtual_building_stock(data, assumptions, data_ext):
 
         # Current year of simulation
         pop_cy = reg_pop_cy[reg_id]                                              # Read in population for current year
-        floor_area_pp_cy = data_floor_area_pp_sim[reg_id][glob_var['current_year']]     # Read in from simulated floor_area_pp dict for current year
+        floor_area_pp_cy = data_floor_area_pp_sim[reg_id][current_year]     # Read in from simulated floor_area_pp dict for current year
         floor_area_by_pd_cy = floor_area_by_pd                                              ### #TODO:floor area per dwelling get new floor_area_by_pd (if not constant over time, cann't extrapolate for any year)
 
         # Total new floor area

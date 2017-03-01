@@ -55,9 +55,9 @@ def run(glob_var, load_profiles, reg_pop_base, reg_pop_external, timesteps_app_b
     # ---------------------------------------------
     pop_base_year = reg_pop_base[:, 1]  # 1: 2015, 2: 2016...
 
-    # Convert base year to array
-    pop_curr_year = reg_pop_external[:, 1]
-    print(reg_pop_external * reg_pop_base)
+    # Convert base year to array # TODO: REMOVE
+    pop_curr_year = reg_pop_external[year_curr][:, 1]
+    #print(reg_pop_external * reg_pop_base)
     #print("..")
     if year_curr != 0: # not base year
         print("Elec appliance base year: " + str(timesteps_app_bd.sum()))

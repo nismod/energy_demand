@@ -1101,17 +1101,20 @@ def add_to_data(data, pop_data_external): # Convert to array, store in data
     """ All all data received externally to main data dictionars. Convert also to array"""
 
     # Add population data
-    _t = pop_data_external.items()
-    l = []
-    for i in _t:
-        l.append(i)
-    reg_pop_array = np.array(l, dtype=float)
-    data['reg_pop_external_array'] = reg_pop_array
-    data['reg_pop_external'] = pop_data_external
+    reg_pop_array = {}
+    for pop_year in pop_data_external:
 
-    #print(data['reg_pop'][0])
-    #print(isinstance(data['reg_pop'][0], int))
-    #prin("kk")
+        _t = pop_data_external[pop_year].items()
+        l = []
+        for i in _t:
+            l.append(i)
+        reg_pop_array[pop_year] = np.array(l, dtype=float)
+    data['reg_pop_external_array'] = reg_pop_array
+        #data['reg_pop_external'] = pop_data_external
+
+        #print(data['reg_pop'][0])
+        #print(isinstance(data['reg_pop'][0], int))
+        #prin("kk")
 
     # Add other data
     return data

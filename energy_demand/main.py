@@ -214,7 +214,10 @@ def energy_demand_model(data, assumptions, data_ext):
 # Run
 if __name__ == "__main__":
     # New function to load data
-    data_external = {'population': {0: 3000001, 1: 5300001, 2: 53000001}}
+    data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
+                                    2016: {0: 3001001, 1: 5301001, 2: 53001001}
+                                   }
+                    }
 
     base_data = load_data()     # Get own data
     assumptions_model_run = assumpt.load_assumptions() # Get all assumptions

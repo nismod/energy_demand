@@ -46,7 +46,7 @@ class Dwelling(object):
         return self.floor_area * self.pop * self.temp * self.hlc
 
 def get_hlc(dw_type, age):
-    """Calculates the linearly derived hlc
+    """Calculates the linearly derived hlc depending on age and dwelling type
 
     Parameters
     ----------
@@ -61,7 +61,8 @@ def get_hlc(dw_type, age):
 
     Notes
     -----
-    Source: Table 3.17 ECUK Tables
+    Source: Linear trends derived from Table 3.17 ECUK Tables
+    https://www.gov.uk/government/collections/energy-consumption-in-the-uk
     """
     # Dict with linear fits for all different dwelling types { dw_type: [slope, constant]}
     linear_fits_hlc = {
@@ -78,7 +79,6 @@ def get_hlc(dw_type, age):
 
 class DwStockRegion(object):
     """Class of the building stock in a region"""
-    # TODO: Include old and new stock
 
     def __init__(self, region_ID, dwellings):
         """Returns a new building stock region object.
@@ -94,7 +94,7 @@ class DwStockRegion(object):
         self.dwellings = dwellings
 
     def get_tot_pop(self):
-        """ Get total population"""
+        """Get total population of all dwellings"""
         totpop = 0
         for dwelling in self.dwellings:
             #print(dwelling.__dict__)
@@ -102,21 +102,21 @@ class DwStockRegion(object):
         return round(totpop, 3)
 
     def get_sum_scenario_driver_water_heating(self):
-        """ Sum all scenario driver for water heating"""
+        """Sum all scenario driver for water heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += dwelling.scenario_driver_water_heating
         return sum_driver
 
     def get_sum_scenario_driver_space_heating(self):
-        """ Sum all scenario driver for space heating"""
+        """Sum all scenario driver for space heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += dwelling.scenario_driver_space_heating
         return sum_driver
 
     def get_sum_scenario_driver_lighting(self):
-        """ Sum all scenario driver for lighting heating"""
+        """Sum all scenario driver for lighting heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += dwelling.scenario_driver_lighting
@@ -198,7 +198,6 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
     dwtype_distr : dict
         Contains all dwelling type distribution for every year
     """
-
     dwtype_distr = {}
     sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
 
@@ -221,7 +220,7 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
     return dwtype_distr
 
 def get_dwtype_age_distr(get_dwtype_age_distr_base):
-    """Calculates age distribution
+    """Get age distribution
 
     Linear change over time
 
