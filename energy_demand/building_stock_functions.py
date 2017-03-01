@@ -122,7 +122,7 @@ class DwStockRegion(object):
             sum_driver += dwelling.scenario_driver_lighting
         return sum_driver
 
-def get_floor_area_pp(reg_floor_area, reg_pop, glob_var, assump_final_diff_floor_area_pp):
+def get_floor_area_pp(reg_floor_area, reg_pop_by, glob_var, assump_final_diff_floor_area_pp):
     """ Calculates future floor area per person depending on
     assumptions on final change and base year data
 
@@ -131,7 +131,7 @@ def get_floor_area_pp(reg_floor_area, reg_pop, glob_var, assump_final_diff_floor
     reg_floor_area : dict
         Floor area base year for all region
 
-    reg_pop : dict
+    reg_pop_by : dict
         Population of base year for all region
 
     glob_var : dict
@@ -155,9 +155,9 @@ def get_floor_area_pp(reg_floor_area, reg_pop, glob_var, assump_final_diff_floor
     base_year = glob_var['base_year']
 
     # Iterate regions
-    for reg_id in reg_pop:
+    for reg_id in reg_pop_by:
         sim_years = {}
-        floor_area_pp_by = reg_floor_area[reg_id] / reg_pop[reg_id] # Floor area per person of base year
+        floor_area_pp_by = reg_floor_area[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
 
         # Iterate simulation years
         for y in sim_period:

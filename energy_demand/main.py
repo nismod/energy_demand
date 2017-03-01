@@ -14,7 +14,7 @@
 
 # The docs can be found here: http://ed.readthedocs.io
 
-#"""
+"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #!python3.6
@@ -55,14 +55,6 @@ def load_data(data_external):
 
     # ------Read in all data from csv files-------------------
     data, path_dict = mf.read_data(path_main)
-
-    # Global variables
-    #glob_var = {'base_year': 2015, 'current_year': 2015, 'end_year': 2050}
-    #data['glob_var'] = glob_var # add to data dict
-
-    #print(isinstance(reg_floor_area[0], int))
-    #print(isinstance(reg_floor_area[0], float))
-
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
     shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_external['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
@@ -219,7 +211,7 @@ if __name__ == "__main__":
                                    },
 
                      'glob_var': {'base_year': 2015,
-                                  'current_year': 2015,
+                                  'current_year': 2016,
                                   'end_year': 2050
                                  },
                     }
