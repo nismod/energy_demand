@@ -4,7 +4,7 @@
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 
-    def __init__(self, coordinates, dwtype, house_id, age, pop, floor_area, temp):
+    def __init__(self, coordinates, dwtype, house_id, age, pop, floorarea, temp):
         """Returns a new dwelling object.
 
         Parameters
@@ -19,7 +19,7 @@ class Dwelling(object):
             Heat loss coefficient
         dw_pop : float
             Dwelling population
-        floor_area : float
+        floorarea : float
             Floor area of dwelling
         temp : float
             Climate variable...(tbd)
@@ -30,7 +30,7 @@ class Dwelling(object):
         self.age = age
         self.hlc = get_hlc(dwtype, age) # Calculate heat loss coefficient with age and dwelling type
         self.pop = pop
-        self.floor_area = floor_area
+        self.floorarea = floorarea
         self.temp = temp
 
     def scenario_driver_water_heating(self):
@@ -39,11 +39,11 @@ class Dwelling(object):
 
     def scenario_driver_lighting(self):
         """calc scenario driver with population and floor area"""
-        return self.floor_area * self.pop
+        return self.floorarea * self.pop
 
     def scenario_driver_space_heating(self):
         """calc scenario driver with population and floor area"""
-        return self.floor_area * self.pop * self.temp * self.hlc
+        return self.floorarea * self.pop * self.temp * self.hlc
 
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type
@@ -122,13 +122,13 @@ class DwStockRegion(object):
             sum_driver += dwelling.scenario_driver_lighting
         return sum_driver
 
-def get_floor_area_pp(reg_floor_area, reg_pop_by, glob_var, assump_final_diff_floor_area_pp):
+def get_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on
     assumptions on final change and base year data
 
     Parameters
     ----------
-    reg_floor_area : dict
+    reg_floorarea : dict
         Floor area base year for all region
 
     reg_pop_by : dict
@@ -137,12 +137,12 @@ def get_floor_area_pp(reg_floor_area, reg_pop_by, glob_var, assump_final_diff_fl
     glob_var : dict
         Contains all global simulation variables
 
-    assump_final_diff_floor_area_pp : float
+    assump_final_diff_floorarea_pp : float
         Assumption of change in floor area up to end of simulation
 
     Returns
     -------
-    data_floor_area_pp : dict
+    data_floorarea_pp : dict
         Contains all values for floor area per person for every year
 
     Linear change of floor area
@@ -150,31 +150,31 @@ def get_floor_area_pp(reg_floor_area, reg_pop_by, glob_var, assump_final_diff_fl
     """
 
     # initialisation
-    data_floor_area_pp = {}
+    data_floorarea_pp = {}
     sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
     base_year = glob_var['base_year']
 
     # Iterate regions
     for reg_id in reg_pop_by:
         sim_years = {}
-        floor_area_pp_by = reg_floor_area[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
+        floorarea_pp_by = reg_floorarea[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
 
         # Iterate simulation years
         for y in sim_period:
             curr_year = y - glob_var['base_year']
 
             if y == base_year:
-                sim_years[y] = floor_area_pp_by # base year value
+                sim_years[y] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
-                diff_cy = curr_year * (((1 + assump_final_diff_floor_area_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
-                floor_ara_pp_sim_year = floor_area_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
+                diff_cy = curr_year * (((1 + assump_final_diff_floorarea_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
+                floor_ara_pp_sim_year = floorarea_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
                 sim_years[y] = floor_ara_pp_sim_year
-        data_floor_area_pp[reg_id] = sim_years  # Values for every simulation year
+        data_floorarea_pp[reg_id] = sim_years  # Values for every simulation year
 
-    return data_floor_area_pp
+    return data_floorarea_pp
 
-def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
+def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     """Calculates the yearly distribution of dw types
     based on assumption of distribution on end_year
 
@@ -187,7 +187,7 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
     base_dwtype_distr : dict
         Distribution of dwelling types base year
 
-    assump_dwtype_distr : dict
+    assump_dwtype_distr_ey : dict
         Distribution of dwelling types end year
 
     glob_var : dict
@@ -202,21 +202,33 @@ def get_dwtype_dist(base_dwtype_distr, assump_dwtype_distr, glob_var):
     sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
 
     # Iterate years
-    for current_year in sim_period:
-        sim_year = current_year - glob_var['base_year']
-        y_distr = {}
+    for sim_year in sim_period:
+        sim_year_nr = sim_year - glob_var['base_year']
 
-        # iterate type
-        for dtype in base_dwtype_distr:
-            val_by = base_dwtype_distr[dtype]               # base year value
-            val_cy = assump_dwtype_distr[dtype]             # cur year value
+        if sim_year == glob_var['base_year']:
+            y_distr = dwtype_distr_by # If base year, base year distribution
+        else:
+            y_distr = {}
 
-            diff_val = val_cy - val_by                      # Total difference
-            diff_y = diff_val / (len(sim_period)-1)         # Linear difference per year
+            # iterate type
+            for dtype in dwtype_distr_by:
+                val_by = dwtype_distr_by[dtype]               # base year value
+                sim_y = assump_dwtype_distr_ey[dtype]         # cur year value
+                diff_val = sim_y - val_by                           # Total difference
+                diff_y = diff_val / (len(sim_period)-1)             # Linear difference per year
+                y_distr[dtype] = val_by + (diff_y * sim_year_nr)    # Differene up to current year
 
-            y_distr[dtype] = val_by + (diff_y * sim_year)   # Differene up to current year
-        dwtype_distr[current_year] = y_distr
+        dwtype_distr[sim_year] = y_distr
 
+    # test if not 100% all entries
+    for i in dwtype_distr:
+        n = 0
+        for e in dwtype_distr[i]:
+            n += dwtype_distr[i][e]
+        if round(n, 1) != 100:
+            print("ERROR")
+            import sys
+            sys.exit()
     return dwtype_distr
 
 def get_dwtype_age_distr(get_dwtype_age_distr_base):
@@ -231,7 +243,7 @@ def get_dwtype_age_distr(get_dwtype_age_distr_base):
     base_dwtype_distr : dict
         Distribution of dwelling types base year
 
-    assump_dwtype_distr : dict
+    assump_dwtype_distr_by : dict
         Distribution of dwelling types end year
 
     glob_var : dict

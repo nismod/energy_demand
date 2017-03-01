@@ -1033,8 +1033,8 @@ def read_data(path_main):
 
                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
-                 'path_dwtype_floor_area_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floor_area.csv'),
-                 'path_reg_floor_area': os.path.join(path_main, 'residential_model/data_residential_model_floor_area.csv'),
+                 'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
+                 'path_reg_floorarea': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
                  'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv')
                 }
 
@@ -1059,9 +1059,9 @@ def read_data(path_main):
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
     dwtype_distr = read_csv_nested_dict(path_dict['path_dwtype_dist'])
     dwtype_age_distr = read_csv_nested_dict(path_dict['path_dwtype_age'])
-    dwtype_floor_area = read_csv_dict(path_dict['path_dwtype_floor_area_dw_type'])
+    dwtype_floorarea = read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
 
-    reg_floor_area = read_csv_dict_no_header(path_dict['path_reg_floor_area'])
+    reg_floorarea = read_csv_dict_no_header(path_dict['path_reg_floorarea'])
     reg_dw_nr = read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
 
@@ -1091,8 +1091,8 @@ def read_data(path_main):
 
     data['dwtype_distr'] = dwtype_distr
     data['dwtype_age_distr'] = dwtype_age_distr
-    data['dwtype_floor_area'] = dwtype_floor_area
-    data['reg_floor_area'] = reg_floor_area
+    data['dwtype_floorarea'] = dwtype_floorarea
+    data['reg_floorarea'] = reg_floorarea
     data['reg_dw_nr'] = reg_dw_nr
 
     return data, path_dict

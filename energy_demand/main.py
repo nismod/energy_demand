@@ -32,7 +32,7 @@ from energy_demand import residential_model
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
-def load_data(data_external):
+def load_data(data_ext):
     """All base data no provided externally are loaded
 
     All necessary data to run energy demand model is loaded.
@@ -57,7 +57,7 @@ def load_data(data_external):
     data, path_dict = mf.read_data(path_main)
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
-    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_external['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
+    shape_app_elec, shape_hd_gas = mf.get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
 
     # ------Base demand for the base year for all modelled elements-------------------
@@ -81,10 +81,10 @@ def load_data(data_external):
     # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
     # ---------------------------------------------------------------
     timesteps_own_selection = (
-        [date(data_external['glob_var']['base_year'], 1, 12), date(data_external['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
-        [date(data_external['glob_var']['base_year'], 4, 13), date(data_external['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
-        [date(data_external['glob_var']['base_year'], 7, 13), date(data_external['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
-        [date(data_external['glob_var']['base_year'], 10, 12), date(data_external['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        [date(data_ext['glob_var']['base_year'], 1, 12), date(data_ext['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(data_ext['glob_var']['base_year'], 4, 13), date(data_ext['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(data_ext['glob_var']['base_year'], 7, 13), date(data_ext['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(data_ext['glob_var']['base_year'], 10, 12), date(data_ext['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
         )
     data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
 
@@ -205,6 +205,7 @@ def energy_demand_model(data, assumptions, data_ext):
 
 # Run
 if __name__ == "__main__":
+
     # External data provided to wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3001001, 1: 5301001, 2: 53001001}
