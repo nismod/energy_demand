@@ -1,10 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 import pytest
 import energy_demand.main_functions as mf
+import energy_demand.building_stock_functions as bf
+import energy_demand.building_stock_generator as bg
 from datetime import date
-import numpy as np
+
+
+
+from pytest import raises
+
+# --------------Building STock generator
+def test_raises_error_get_dwtype_dist():
+    """ Test if the error is raised if wrong input data"""
+    # in test value
+    wrong_data = {'semi_detached': 20.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
+    in_value_2 = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}
+    in_value_3 = {'base_year': 2015, 'current_year': 2016, 'end_year': 2050}
+
+    with raises(AssertionError):
+        bf.get_dwtype_dist(wrong_data, in_value_2, in_value_3)
+
+
+
+
 
 # --------------Main_functions
 

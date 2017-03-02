@@ -154,7 +154,7 @@ def energy_demand_model(data, assumptions, data_ext):
     # Build base year building stock
 
     # Build virtual residential building stock
-    reg_building_stock_by, reg_building_stock_cur_yr = bg.virtual_building_stock(data, assumptions, data_ext)
+    #reg_building_stock_by, reg_building_stock_cur_yr = bg.virtual_building_stock(data, assumptions, data_ext)
 
 
     # Run different sub-models (sector models)
@@ -217,8 +217,13 @@ if __name__ == "__main__":
                                  },
                     }
 
-    base_data = load_data(data_external)               # Get own data
-    assumptions_model_run = assumpt.load_assumptions() # Get all assumptions
+    # Load data
+    base_data = load_data(data_external)                        # Get own data
+    assumptions_model_run = assumpt.load_assumptions(base_data) # Get all assumptions
+
+    # Generate virtual building stock over whole simulatin period
+    data = bg.virtual_building_stock(base_data, assumptions_model_run, data_external)
+
 
     energy_demand_model(base_data, assumptions_model_run, data_external)
     print("Finished everything")

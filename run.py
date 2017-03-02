@@ -50,6 +50,7 @@ class EDWrapper(SectorModel):
         pass
 
 if __name__ == "__main__":
+    # See in main file ....
     energy_demand = EDWrapper() # Wrapper function
 
     #data_external = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}

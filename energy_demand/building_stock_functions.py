@@ -122,7 +122,7 @@ class DwStockRegion(object):
             sum_driver += dwelling.scenario_driver_lighting
         return sum_driver
 
-def get_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
+def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on
     assumptions on final change and base year data
 
@@ -212,23 +212,17 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
 
             # iterate type
             for dtype in dwtype_distr_by:
-                val_by = dwtype_distr_by[dtype]               # base year value
-                sim_y = assump_dwtype_distr_ey[dtype]         # cur year value
-                diff_val = sim_y - val_by                           # Total difference
-                diff_y = diff_val / (len(sim_period)-1)             # Linear difference per year
-                y_distr[dtype] = val_by + (diff_y * sim_year_nr)    # Differene up to current year
+                val_by = dwtype_distr_by[dtype]                         # base year value
+                sim_y = assump_dwtype_distr_ey[dtype]                   # cur year value
+                diff_val = sim_y - val_by                               # Total difference
+                diff_y = diff_val / (len(sim_period)-1)                 # Linear difference per year
+                y_distr[dtype] = val_by + (diff_y * sim_year_nr) / 100   # Differene up to current year #TODO: Check procent
 
         dwtype_distr[sim_year] = y_distr
 
-    # test if not 100% all entries
-    for i in dwtype_distr:
-        n = 0
-        for e in dwtype_distr[i]:
-            n += dwtype_distr[i][e]
-        if round(n, 1) != 100:
-            print("ERROR")
-            import sys
-            sys.exit()
+    # Test if distribution is 100%
+    for y in dwtype_distr:
+        assert round(sum(dwtype_distr[y].values()), 1) == 100 # "The values in the dictionary do not sum to 100"
     return dwtype_distr
 
 def get_dwtype_age_distr(get_dwtype_age_distr_base):
