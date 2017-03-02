@@ -4,11 +4,13 @@
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling"""
 
-    def __init__(self, coordinates, dwtype, house_id, age, pop, floorarea, temp):
+    def __init__(self, sim_y, coordinates, dwtype, house_id, age, pop, floorarea, HDD, assumptions):
         """Returns a new dwelling object.
 
         Parameters
         ----------
+        sim_y : int
+            Simulation year
         coordinates : float
             coordinates
         dwtype : int
@@ -21,9 +23,10 @@ class Dwelling(object):
             Dwelling population
         floorarea : float
             Floor area of dwelling
-        temp : float
-            Climate variable...(tbd)
+        int_temp : float
+            Internal temperatur
         """
+        self.sim_y = sim_y
         self.house_id = house_id
         self.coordinates = coordinates
         self.dwtype = dwtype
@@ -31,7 +34,7 @@ class Dwelling(object):
         self.hlc = get_hlc(dwtype, age) # Calculate heat loss coefficient with age and dwelling type
         self.pop = pop
         self.floorarea = floorarea
-        self.temp = temp
+        self.HDD = get_HDD_based_on_int_temp(sim_y, assumptions, HDD) # Get internal temperature depending on assumptions of sim_year
 
     def scenario_driver_water_heating(self):
         """calc scenario driver with population and heat loss coefficient"""
@@ -43,7 +46,15 @@ class Dwelling(object):
 
     def scenario_driver_space_heating(self):
         """calc scenario driver with population and floor area"""
-        return self.floorarea * self.pop * self.temp * self.hlc
+        return self.floorarea * self.pop * self.HDD * self.hlc
+
+def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
+    """ Get internal temperature based on assumptions"""
+    t_base_standard = 15 # Degree celsius
+    HDD = "tbd"
+    # Recalcuulate heating degree days based on internal temperature change
+    # Hitchins Formula
+    return HDD
 
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type
