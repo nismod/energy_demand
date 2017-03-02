@@ -19,22 +19,28 @@ def load_assumptions(data):
     # Load assumptions from csv files
     dwtype_floorarea = data['dwtype_floorarea']
 
+
+    # -------------------------------
+    # Assumptions Technological stock
+    # ------------------------------
+
+
     # ------------------------------------------------------------------------
     # Residential model
     # ------------------------------------------------------------------------
 
     # Building stock related
-    change_floorarea_pp = 0.1 # [%]                                                                                  # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
+    assump_change_floorarea_pp = 0.1 # [%]                                                                                  # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
     assump_dwtype_distr_ey = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}     # Assumption of distribution of dwelling types in end_year ASSUMPTION
-    dwtype_floorarea = dwtype_floorarea # Average floor area per dwelling type (loaded from CSV)
+    assump_dwtype_floorarea = dwtype_floorarea # Average floor area per dwelling type (loaded from CSV)
 
 
 
 
 
     # Add to dictionary
-    assumptions_dict['change_floorarea_pp'] = change_floorarea_pp
+    assumptions_dict['assump_change_floorarea_pp'] = assump_change_floorarea_pp
     assumptions_dict['assump_dwtype_distr_ey'] = assump_dwtype_distr_ey
-    assumptions_dict['dwtype_floorarea'] = dwtype_floorarea
+    assumptions_dict['assump_dwtype_floorarea'] = assump_dwtype_floorarea
 
     return assumptions_dict

@@ -45,10 +45,10 @@ def virtual_building_stock(data, assumptions, data_ext):
     dwtype_distr_sim = bf.get_dwtype_dist(dwtype_distr_by, assumptions['assump_dwtype_distr_ey'], glob_var)                                                    # Calculate distribution of dwelling types over simulation period
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea'], data_ext['population'][base_year], glob_var, assumptions['change_floorarea_pp']) # Get floor area per person of sim_yr
+    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea'], data_ext['population'][base_year], glob_var, assumptions['assump_change_floorarea_pp']) # Get floor area per person of sim_yr
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd                        ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
-    floorarea_p_sy = p_floorarea_dwtype(dw_lu, assumptions['dwtype_floorarea'], dwtype_distr_sim)
+    floorarea_p_sy = p_floorarea_dwtype(dw_lu, assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
 
     # Iterate regions
     for reg_id in reg_lu:

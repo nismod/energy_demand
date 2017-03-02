@@ -97,7 +97,6 @@ class DwStockRegion(object):
         """Get total population of all dwellings"""
         totpop = 0
         for dwelling in self.dwellings:
-            #print(dwelling.__dict__)
             totpop += dwelling.pop
         return round(totpop, 3)
 
