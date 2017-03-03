@@ -9,8 +9,8 @@ class TechnologicalStock(object):
 
         Parameters
         ----------
-        coordinates : float
-            coordinates
+        year : float
+            kk
 
         """
         self.reg = reg
@@ -21,7 +21,6 @@ class TechnologicalStock(object):
 
         #Appliances 
         ## Lighting
-        
 
         ## Heating
         self.e_boiler_A = e_boiler_A

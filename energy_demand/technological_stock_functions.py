@@ -1,7 +1,7 @@
 """ Functions for technology stock"""
+import math as m
 
-
-def linearDiffusion(current_year, base_year, fract_by, fract_ey, sim_years):
+def lineardiffusion(current_year, base_year, fract_by, fract_ey, sim_years):
     """This function assumes a linear technology diffusion.
 
     All necessary data to run energy demand model is loaded.
@@ -38,15 +38,16 @@ def linearDiffusion(current_year, base_year, fract_by, fract_ey, sim_years):
     return fract_sy
 
 
-def sigmoidEfficiencyPos(base_year, year_end, current_year):
-    """Calculates a sigmoid diffusion path of a lower to a higher value (saturation is assumed at the endyear)"""
+def sigmoidefficiency(base_year, year_end, current_year):
+    """Calculates a sigmoid diffusion path of a lower to a higher value
+    (saturation is assumed at the endyear)
+    """
 
     # TODO: READ IN START AND END AND DECIDE IF NEG OR POSITIVE DIFFUSTION
     # CREATE POSITIVE AND NEGATIVE DIFFUSION
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    y_trans = -6 + (12 /(year_end - base_year) * (current_year - base_year))
+    y_trans = -6 + (12 / (year_end - base_year) * (current_year - base_year))
 
-    # Convert x-value into y value on sigmoid curve reaching from -6 to 6
     sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
     sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1)
 
@@ -55,7 +56,7 @@ def sigmoidEfficiencyPos(base_year, year_end, current_year):
 
     return val_yr
 
-def sigmoidTechnologyDiffusion(current_year, saturate_year, year_invention, base_year):
+def sigmoidtechnologydiffusion(current_year, saturate_year, year_invention, base_year):
     """This function assumes "S"-Curve technology diffusion (logistic function).
 
     The function reads in the following assumptions about the technology to calculate the
@@ -91,7 +92,7 @@ def sigmoidTechnologyDiffusion(current_year, saturate_year, year_invention, base
             years_availalbe = current_year - year_invention
 
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    year_translated = -6 + (12/(saturate_year - year_invention)) * years_availalbe
+    year_translated = -6 + (12 / (saturate_year - year_invention)) * years_availalbe
 
     # Convert x-value into y value on sigmoid curve reaching from -6 to 6
     sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
@@ -101,6 +102,3 @@ def sigmoidTechnologyDiffusion(current_year, saturate_year, year_invention, base
     val_yr = 1 / (1 + m.exp(-1 * sigmoidsteepness * (year_translated - sigmoidmidpoint)))
 
     return val_yr
-
-#for i in range(2015, 2050):
-#    print("year: " + str(i) + "  " + str(sigmoidTechnologyDiffusion(i, 2100, 2020, 2015)))

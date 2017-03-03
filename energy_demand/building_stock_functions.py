@@ -15,7 +15,7 @@ class Dwelling(object):
             coordinates
         dwtype : int
             Dwelling type id
-        age :   int
+        age : int
             Age of dwelling
         hlc : float
             Heat loss coefficient
@@ -50,7 +50,11 @@ class Dwelling(object):
 
 def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
     """ Get internal temperature based on assumptions"""
-    t_base_standard = 15 # Degree celsius
+    #t_base_standard = 15 # Degree celsius
+
+    # Diffusion of internal temperature
+    #int_temp_sim_y = get_internal_temperature(sim_y)
+    #HDD = recalculate_hitchens(int_temp_sim_y)
     HDD = "tbd"
     # Recalcuulate heating degree days based on internal temperature change
     # Hitchins Formula
@@ -226,7 +230,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
                 sim_y = assump_dwtype_distr_ey[dtype]                   # cur year value
                 diff_val = sim_y - val_by                               # Total difference
                 diff_y = diff_val / (len(sim_period)-1)                 # Linear difference per year
-                y_distr[dtype] = val_by + (diff_y * sim_year_nr) / 100   # Differene up to current year #TODO: Check procent
+                y_distr[dtype] = val_by + (diff_y * sim_year_nr) / 100  # Differene up to current year #TODO: Check procent
 
         dwtype_distr[sim_year] = y_distr
 
@@ -234,7 +238,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     for y in dwtype_distr:
         assert round(sum(dwtype_distr[y].values()), 1) == 100 # "The values in the dictionary do not sum to 100"
     return dwtype_distr
-
+'''
 def get_dwtype_age_distr(get_dwtype_age_distr_base):
     """Get age distribution
 
@@ -262,7 +266,5 @@ def get_dwtype_age_distr(get_dwtype_age_distr_base):
 
     # {'1918': 20.82643491, '1941': 36.31645864, '1977.5': 29.44333304, '1996.5': 8.00677683, '2002': 5.407611848}
 
-
-    prnt("...")
-
     return dwtype_age_distr_sim
+    '''
