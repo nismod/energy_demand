@@ -94,7 +94,7 @@ def virtual_building_stock(data, assumptions, data_ext):
     l = reg_building_stock_cur_yr[0].dwellings
     for i in l:
         print(i.__dict__)
-    
+
     # Add to data
     data['reg_building_stock_by'] = reg_building_stock_by
     data['reg_building_stock_cur_yr'] = reg_building_stock_cur_yr
