@@ -1030,7 +1030,6 @@ def read_data(path_main):
                  'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
                  'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
                  'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
-
                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
                  'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
@@ -1180,9 +1179,44 @@ def write_to_csv_will(reesult_dict, reg_lu):
         #with open(path, 'w') as outfile:
         #    yaml.dump(yaml_list, outfile, default_flow_style=False)
 
+'''
+def calc_daily_load_factor(daily_loads):
+    """Calculates load factor of a day
 
+    Parameters
+    ----------
+    daily_loads : ??
+        Load for every hours
 
+    Returns
+    -------
+    load_factor : float
+        Daily load factor
+    """
+    sum_load, max_load = 0, 0
 
+    # Iterate hours to get max and average demand
+    for i in daily_loads:
+        h_load = ..
+        sum_load += ..
+
+        if h_load > max_load:
+            max_load = h_load
+    
+    average_load = sum_load / len(daily_loads)
+
+    load_factor = average_load / max_load
+    
+
+    return load_factor
+'''
+
+def calc_peak_from_average(daily_loads):
+    
+    # 
+    max_load = average_load / load_factor
+
+    return max_load
 
 """A one-line summary that does not use variable names or the
     function name.
