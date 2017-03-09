@@ -15,6 +15,84 @@ print ("Loading main functions")
 #from datetime import datetime
 #import datetime
 
+def load_data(data_ext):
+    """All base data no provided externally are loaded
+
+    All necessary data to run energy demand model is loaded.
+    This data is loaded in the wrapper.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    data : list
+        Returns a list where all datas are wrapped together.
+
+    Notes
+    -----
+
+    """
+    #path_main = '../data'
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
+
+    # ------Read in all data from csv files-------------------
+    data, path_dict = read_data(path_main)
+
+    # ------Generate generic load profiles (shapes) [in %]-------------------
+    shape_app_elec, shape_hd_gas = get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
+    data['shape_app_elec'] = shape_app_elec # add to data dict
+
+    # ------Base demand for the base year for all modelled elements-------------------
+
+    # Base demand of appliances over a full year (electricity)
+    bd_app_elec = get_bd_appliances(shape_app_elec, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
+    data['bd_app_elec'] = bd_app_elec # add to data dict
+
+    # Base demand of heating demand (gas)
+    bd_hd_gas = get_bd_hd_gas(shape_hd_gas, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
+    data['bd_hd_gas'] = bd_hd_gas # add to data dict
+
+    print("---Summary Base Demand")
+    print("Base Fuel elec appliances total per year (uk):             " + str(data['fuel_bd_data'][:, 1].sum()))
+    print("Base Fuel elec appliances total per year (region, hourly): " + str(bd_app_elec.sum()))
+    print("  ")
+    print("Base gas hd appliances total per year (uk):                " + str(data['fuel_bd_data'][:, 2].sum()))
+    print("Base gas hd appliancestotal per year (region, hourly):     " + str(bd_hd_gas.sum()))
+
+    # ---------------------------------------------------------------
+    # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
+    # ---------------------------------------------------------------
+    timesteps_own_selection = (
+        [date(data_ext['glob_var']['base_year'], 1, 12), date(data_ext['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(data_ext['glob_var']['base_year'], 4, 13), date(data_ext['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(data_ext['glob_var']['base_year'], 7, 13), date(data_ext['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(data_ext['glob_var']['base_year'], 10, 12), date(data_ext['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        )
+    data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
+
+    # Create own timesteps
+    own_timesteps = get_own_timesteps(timesteps_own_selection)
+
+    # Populate timesteps base year data (appliances, electricity)
+    timesteps_app_bd = create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
+    data['timesteps_app_bd'] = timesteps_app_bd # add to data dict
+
+    # Populate timesteps base year data (heating demand, ga)
+    timesteps_hd_bd = create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
+    data['timesteps_hd_bd'] = timesteps_hd_bd # add to data dict
+
+    print("----------------------Statistics--------------------")
+    print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
+    print("Number of timestpes heating demand:      " + str(len(timesteps_hd_bd[1][0])))
+    print(" ")
+    print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
+    print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
+    print(" ")
+
+    return data
+
+
 def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
     """Generates nested dictionary for providing results to smif
 
@@ -815,7 +893,7 @@ def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps
 
     return result_dict
 
-def own_timesteps(date_list):
+def get_own_timesteps(date_list):
     """Create own timesteps. "Generets a list with all dates from a list containing start and end dates.
 
     Parameters

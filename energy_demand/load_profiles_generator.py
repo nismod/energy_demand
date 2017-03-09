@@ -8,7 +8,76 @@ from datetime import date
 import unittest
 import matplotlib.pyplot as plt
 
+# Yearly 
 
+# Daily load profiles
+# dtype, hour, data
+# 
+#
+
+
+
+'''
+
+def get_max_daily_load(main_dict_dayyear):
+    result_max = {0: None, 1: None}
+    # Iterate days to get maximum day
+    for daytape in main_dict_dayyear:
+        max_p_demand_of_an_hour = 0 
+
+        for day in main_dict_dayyear[daytape]:
+            daily_max = max(main_dict_dayyear[daytape][day])
+
+            if max_p_demand_of_an_hour < daily_max:
+                daytype_max = day
+        
+        result_max[daytape] = main_dict_dayyear[daytape][daytype_max]
+    
+    return result_max
+
+'''
+'''
+def ABSOLUTE (main_dict_dayyear_absolute):
+    """
+    This function creates the shape of the base year heating demand over the full year
+
+    """
+
+    # Initilaise array to store all values for a year
+    daytype, year_days, hours = 2, 365, 24
+
+    # Get hourly distribution (Sansom Data)
+    # ------------------------------------
+    hourly_hd = np.zeros((1, hours), dtype=float)
+
+    # List storing all
+    yeardays_percent = np.zeros((year_days, hours), dtype=float)
+
+    # Initialise dictionary with every day and hour
+    hd_data = np.zeros((daytype, year_days, hours), dtype=float)
+
+    for yearday in main_dict_dayyear_absolute:
+        #_info = main_dict_dayyear_absolute[yearday].timetuple() # Get date
+        #yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        #weekday = _info[6]                # 0: Monday
+
+        year_raw_values[yearday] = main_dict_dayyear_absolute[yearday] # Copy all values into
+
+        # Distribute daily deamd into hourly demand
+        if weekday == 5 or weekday == 6:
+            _data = hourly_gas_shape_wkend * heating_demand_correlation
+            hd_data[yearday_python] = _data  # DATA ARRAY
+        else:
+            _data = hourly_gas_shape_wkday * heating_demand_correlation
+            hd_data[yearday_python] = _data  # DATA ARRAY
+
+    # Convert yearly data into percentages (create shape). Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
+    total_y_hd = hd_data.sum()  # Calculate yearly total demand over all day years and all appliances
+    shape_hd = np.zeros((len(year_days), len(hours)), dtype=float)
+    shape_hd = (1.0/total_y_hd) * hd_data
+
+    return shape_hd
+'''
 
 def read_in_non_residential_load_curves():
     """
@@ -23,8 +92,8 @@ def read_in_non_residential_load_curves():
     # out_dict_av: Every daily measurment is taken from all files and averaged
     # out_dict_not_average: Every measurment of of every file is plotted
 
-    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community
-    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community
+    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community
+    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community
 
     all_csv_in_folder = os.listdir(folder_path) # Get all files in folder
 
@@ -36,6 +105,14 @@ def read_in_non_residential_load_curves():
             day_dict = {k: [] for k in range(24)}
             month_dict[f] = day_dict
         main_dict[i] = month_dict
+
+    # Initialise yearday dict
+    main_dict_dayyear_absolute = {}
+    for f in range(365):
+        day_dict_h = {k: [] for k in range(24)}
+        main_dict_dayyear_absolute[f] = day_dict_h
+
+
 
     # Dict
     dict_result = {0: {}, 1: {}}
@@ -61,6 +138,9 @@ def read_in_non_residential_load_curves():
                 # Test if file has correct form
                 if len(row) != 49: # Skip row
                     continue
+
+                # Test if file has 365 entries:
+
                 
                 #try:
                 # Convert all values except date into float values
@@ -89,6 +169,10 @@ def read_in_non_residential_load_curves():
                 # Daytype
                 daytype = mf.get_weekday_type(date_row)
 
+                # Get Dayyear
+                _info = date_row.timetuple()
+                yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+
                 # Month Python
                 month_python = month - 1
 
@@ -100,6 +184,10 @@ def read_in_non_residential_load_curves():
                     if cnt == 2:
                         control_sum += abs(first_half_hour + half_hour_val)
                         main_dict[daytype][month_python][h_day].append((first_half_hour + half_hour_val) * (100 / daily_sum)) # Calc percent of total daily demand
+
+                        # Add to day_dict absolute numbers
+                        #main_dict_dayyear_absolute[yearday_python][h_day].append((first_half_hour + half_hour_val)) # Calc percent of total daily demand
+
                         cnt = 0
                         h_day += 1
 
@@ -109,6 +197,13 @@ def read_in_non_residential_load_curves():
                 assertions = unittest.TestCase('__init__')
                 assertions.assertAlmostEqual(control_sum, daily_sum, places=7, msg=None, delta=None)
 
+
+    # Get min and max daily load curve over the full year
+    #(main_dict_dayyear_absolute)
+
+    #max_loads = get_max_daily_load(main_dict_dayyear) # Funkt nicht
+    #print(max_loads)
+    #prnt("..")
     # -----------------------------------------------
     # Calculate average and add to overall dictionary
     # -----------------------------------------------

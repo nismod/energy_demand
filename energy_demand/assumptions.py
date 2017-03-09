@@ -13,7 +13,7 @@ def load_assumptions(data):
     -----
 
     """
-    assumptions_dict = {}
+    assump_dict = {}
 
 
     # Load assumptions from csv files
@@ -21,33 +21,110 @@ def load_assumptions(data):
 
 
     # ============================================================
-    # Assumptions Technological stock
+    # Assumptions Technological Stock
     # ============================================================
 
+    # eff_by: Efficiencies of technologes in base year
+    # eff_ey: Efficiencies of technologes in end year
 
-    # -- Efficiencies
+    # -----------------
+    # Efficiencies
+    # -----------------
 
-    # Residential - Appliances
-    eff_boiler_A_by = 0.5           # Efficiency of technology 
+    ## Efficiencies residential, base year
+    eff_by = {
+        'boiler_A' : 0.7,
+        'boiler_B' : 0.8,
+        'new_tech_A': 0.1,
+        'tech_A' : 0.5,
+        'tech_B' : 0.5,
+        'tech_C': 0.0,
+        'tech_D' : 0.5,
+        'tech_E' : 0.5,
+        'tech_F': 0.0
+        }
+
+    # Efficiencies residential, end year
+    eff_ey = {
+        'boiler_A' : 0.7,
+        'boiler_B' : 0.9,
+        'new_tech_A': 0.2,
+        'tech_A' : 0.5,
+        'tech_B' : 0.5,
+        'tech_C': 0.0,
+        'tech_D' : 0.5,
+        'tech_E' : 0.5,
+        'tech_F': 0.0
+        }
+
+    # Share of fuel types (base year could also be calculated and loaded)
+    fuel_type_p_by = {
+        'space_heating_solid' : 0.0182,
+        'space_heating_gas' : 0.7633,
+        'space_heating_elec' : 0.0791,
+        'space_heating_oil' : 0.0811,
+        'space_heating_HEATSOLD' : 0.0,
+        'space_heating_renew' : 0.0581,
+        'space_heating_hydro' : 0.0,
+    }
+
+    fuel_type_p_ey = {
+        'space_heating_solid' : 0.0182,
+        'space_heating_gas' : 0.7633,
+        'space_heating_elec' : 0.0791,
+        'space_heating_oil' : 0.0811,
+        'space_heating_HEATSOLD' : 0.0,
+        'space_heating_renew' : 0.0581,
+        'space_heating_hydro' : 0.0,
+    }
 
 
+    # ----------------------------------
+    # Fraction of technologies
+    # ----------------------------------
+    # p_tech_by : Share of technology in base year [in %]
+    # p_tech_ey : Share of technology in the end year
+
+    # Residential, base year
+    p_tech_by = {
+        'boiler_A' : 0.5,
+        'boiler_B' : 0.5,
+        'new_tech_A': 0.0
+        }
+
+    tech_market_year = {
+        'new_tech_A': 2000
+        }
+
+    tech_saturation_year = {
+        'new_tech_A': 2017
+        }
 
 
-    # -- Share of technology in base year [in %]
-    distr_boiler_A_by = 0.5 # [%] 
+    # Check if 100 %
+    assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
+
+    # Residential, end year
+    p_tech_ey = {
+        'boiler_A' : 0.4,
+        'boiler_B' : 0.5,
+        'new_tech_A' : 0.1
+        }
 
 
+    # Add dictionaries to assumptions
+    assump_dict['eff_by'] = eff_by
+    assump_dict['eff_ey'] = eff_ey
+    assump_dict['p_tech_by'] = p_tech_by
+    assump_dict['p_tech_ey'] = p_tech_ey
+    assump_dict['tech_market_year'] = tech_market_year
+    assump_dict['tech_saturation_year'] = tech_saturation_year
+    assump_dict['fuel_type_p_by'] = fuel_type_p_by
+    assump_dict['fuel_type_p_ey'] = fuel_type_p_ey
 
-
-    # Share of technology in the year 2060
-    distr_boiler_A_by =
-
-
-
-    assumptions_dict['distr_e_boiler_A'] = generate_distr(eff_boiler_A_by, 
 
     # ============================================================
-    # Residential model
+    # Assumptions Residential Building Stock
     # ============================================================
 
     # Building stock related
@@ -57,14 +134,9 @@ def load_assumptions(data):
 
 
 
-
-
-
-
-
     # Add to dictionary
-    assumptions_dict['assump_change_floorarea_pp'] = assump_change_floorarea_pp
-    assumptions_dict['assump_dwtype_distr_ey'] = assump_dwtype_distr_ey
-    assumptions_dict['assump_dwtype_floorarea'] = assump_dwtype_floorarea
+    assump_dict['assump_change_floorarea_pp'] = assump_change_floorarea_pp
+    assump_dict['assump_dwtype_distr_ey'] = assump_dwtype_distr_ey
+    assump_dict['assump_dwtype_floorarea'] = assump_dwtype_floorarea
 
-    return assumptions_dict
+    return assump_dict

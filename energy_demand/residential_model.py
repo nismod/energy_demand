@@ -23,32 +23,35 @@ def run(glob_var, load_profiles, reg_pop_base, reg_pop_external, timesteps_app_b
     year_curr = glob_var['current_year']     # Current year of simulation
     year_base = glob_var['base_year']        # Base year
 
-    # --------------------------------------
-    # Appliances
-    # --------------------------------------
 
-    # Assumptions about efficiences, technologies (Change  eletricity load curves for the appliances)
-    #timesteps_app_sim_year = rf.changeLoadProfilesDependingOnEfficiencies(timesteps_app_bd) # Dummy so far
+    # Generate residential technology stock for the simulation year_base
+    def generate_technology_stock():
+        pass
+    technology_stock_efficiencies = generate_technology_stock()
 
-    # Crate Building Stock
-    #building_stock = create_building_stock(reg_pop, dwtype_lu)
+    # Calculate fuel demand for every year only considering fuel swaps and general efficiency gains
+    def fuel_swaps_efficiency_assumptions():
+        pass
+    #fuel_demand_after_fuel_swap = fuel_swaps_efficiency_assumptions(base_year_fuel_demand)
 
-    # Calculate total demand (multiply individual building load curves with number of buildings)
-    #dict_elec_demand_all_buildings(load_profiles_sim_year, building_stock)
-
-    # Define how much of different technologies and efficiens are taken up on the market and calculate new usage
-
-    # Read in population, floor area, nr of households etc...for current year (depending on scenario)
+    # Calculate new yearly demand for current year with help scenario driver
+    # after_scen_driver_fuel_demand_for_every_year_and_end_use
+    #
 
 
-    #-------------------
-    # Space heating
-    # ------------------
 
 
-    #-------------------
-    # Sum Appliances & heating
-    # ------------------
+
+
+
+
+
+
+
+
+
+
+
 
     # ---------------------------------------------
     # DUMMY SIMULATION WITH POPULATION (scrap)

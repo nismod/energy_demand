@@ -53,6 +53,8 @@ if __name__ == "__main__":
     # See in main file ....
     energy_demand = EDWrapper() # Wrapper function
 
-    #data_external = {'population': {0: 3000000, 1: 5300000, 2: 53000000}}
-    data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001}, 2016: {0: 3001001, 1: 5301001, 2: 53001001}}}
+    data_external = {'population':
+                     {2015: {0: 3000001, 1: 5300001, 2: 53000001},
+                      2016: {0: 3001001, 1: 5301001, 2: 53001001}}
+                    }
     energy_demand.simulate([], [], data_external)
