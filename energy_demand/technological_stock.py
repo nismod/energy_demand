@@ -2,7 +2,31 @@
 import math as m
 import technological_stock_functions as tf
 
-class TechStockResid(object):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class resid_tech_stock(object):
     """Class of a technological stock of a year of the residential model"""
 
     def __init__(self, reg, year, assumptions, data_ext):
@@ -56,14 +80,19 @@ class TechStockResid(object):
         micro_CHP_thermal
         '''
 
-        '''# Calculate fraction of technologies
-        self.p_boiler_A = tf.frac_sy_sigm(base_year, self.year, end_year, assumptions, 'boiler_A')
-        self.p_boiler_B = tf.frac_sy_sigm(base_year, self.year, end_year, assumptions, 'boiler_B')
+        # Calculate fraction of technologies for each end use demand
+        ####self.p_boiler_A = tf.frac_sy_sigm(base_year, self.year, end_year, assumptions, 'boiler_A')
+        #self.p_boiler_B = tf.frac_sy_sigm(base_year, self.year, end_year, assumptions, 'boiler_B')
 
         # New technologies (e.g. % der Pop...)
-        self.p_new_tech_A = tf.frac_sy_sigm_new_technology(base_year, self.year, end_year, assumptions, 'new_tech_A')
-        self.NEWDEMAND_tech_A = self.p_new_tech_A * 1000 # kwh
-        '''
+        ##self.p_new_tech_A = tf.frac_sy_sigm_new_technology(base_year, self.year, end_year, assumptions, 'new_tech_A')
+        ##self.NEWDEMAND_tech_A = self.p_new_tech_A * 1000 # kwh
+
+        # Technologie-mix base year of end use demand (to calculate efficiency)
+        ##sh_
+        
+        ## Cal scenario driver of Replacement mix of current year:
+        #assump_repl_sh_gas: [kohle: 0%, hydro: 50%, gas: 0%, ] --> calc for every sig diffu path
 
 
 
@@ -73,15 +102,14 @@ class TechStockResid(object):
 
 # # Switch Spae Heating (oil): Tech_from   to   eff_tech_tp
 
-'''
-# EXAMPLE
-fuel_end_use_to_switch = 'space_heating_gas' # Which fuel end is to be switched
-tot_fuel_from_by = fuel_array[fueltype=gas][reg][end_use]
-tot_fuel_to_by = fuel_array[fueltype=elec][reg][end_use]   # Demand of fuel which is added
-# l(data_ext, curr_year, assumptions, eff_tech_from, eff_tech_tp, fuel_end_use_to_switch, tot_fuel_from_by, tot_fuel_to_by):
-new_demand_from_fuel, new_demand_to_fuel = tf.switch_fuel(data_ext, self.year, assumptions, self.eff_boiler_A, self.eff_boiler_B, fuel_end_use_to_switch, tot_fuel_from_by, tot_fuel_to_by)
 
-'''
+# EXAMPLE
+#fuel_end_use_to_switch = 'space_heating_gas' # Which fuel end is to be switched
+#tot_fuel_from_by = fuel_array[fueltype=gas][reg][end_use]
+#tot_fuel_to_by = fuel_array[fueltype=elec][reg][end_use]   # Demand of fuel which is added
+#### l(data_ext, curr_year, assumptions, eff_tech_from, eff_tech_tp, fuel_end_use_to_switch, tot_fuel_from_by, tot_fuel_to_by):
+#new_demand_from_fuel, new_demand_to_fuel = tf.switch_fuel(data_ext, self.year, assumptions, self.eff_boiler_A, self.eff_boiler_B, fuel_end_use_to_switch, tot_fuel_from_by, tot_fuel_to_by)
+
 
 
 
@@ -107,13 +135,3 @@ new_demand_from_fuel, new_demand_to_fuel = tf.switch_fuel(data_ext, self.year, a
             # Lighting	
             # Appliances
 
-
-        # --> Sigmoid replacement of fuel shares (e.g. replace 10% of heating (oil) with gas): Heating: Gas, 80%, oil: 10%, 10% rest)
-        #heating_oil_by = 20%
-        #heating_oil_cy = sigmoid(heating_oil_by, assumption_tech_heating_oil_switch)
-        #heating_gas_boiler_A = (base_year_percentage, )
-        #heating_hydrogen_boiler_A = 
-
-        # With help of technology replacement assumptions, calculate how the end use is made up of technologies (calc technological stock for every year)
-        # E.g. Base Year: Heitzen: 80% Gasheizung Gas Heizungen Technologie A & 20 % Heat Source pum,p, End Year: 50% Gas, 50% Heat Source pum,
-        # --> Sigmoid replacement of individ technology (e.g. End use demand (e.g. heating demand) to hydrogen base demand (hydrogen boiler) for each fuel type [3/3/3/3] #[gas, elec, oil, hydrogen] 

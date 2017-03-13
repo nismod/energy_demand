@@ -18,13 +18,14 @@
 #!python3.6
 
 import sys
-from datetime import date
+
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
 from energy_demand import residential_model
 import energy_demand.technological_stock as ts
-#import numpy as np
+import numpy as np
+#from datetime import date
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data, assumptions, data_ext):
@@ -54,7 +55,7 @@ def energy_demand_model(data, assumptions, data_ext):
     -----
     All messy now...needs cleaning
     """
-    # Add external data to data dictionary
+
     # Convert population data int array
     data_ext = mf.add_to_data(data_ext, data_ext['population']) # Convert to array, store in data
 
@@ -70,6 +71,38 @@ def energy_demand_model(data, assumptions, data_ext):
 
     Service_sector_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
     '''
+
+
+    # new approach
+    # ------------------
+    import energy_demand.main_object_approach as tttt
+
+
+    print(data['fuel_type_lu'])
+    print(data['reg_lu'])
+    print(data['fuel_bd_data'])
+    print(data['data_residential_by_fuel_end_uses'])
+    print(data['fueldata_disagg'])
+
+    # Testdata
+    test_fuel = {0:
+                    {'heating': np.array((len(data['fuel_type_lu']), 1)),
+                    'cooking':  np.array((len(data['fuel_type_lu']), 1))
+                    }
+                }
+    data['fueldata_disagg'] = test_fuel
+
+    # Iterate regions
+    for reg in data['reg_lu']:
+        print("Region: " + str(reg))
+        a = tttt.Region(reg, data, data_ext)
+
+        print(len(a.end_uses))
+
+        prnt("..")
+
+
+
 
     # ---------------------------------------------------------------------------
     # Generate the wrapper timesteps and add instert data (from own timeperiod to full year)
@@ -122,18 +155,21 @@ if __name__ == "__main__":
 
     # Load data
     base_data = mf.load_data(data_external)
+    #print(base_data)
 
     # Load assumptions
     assumptions_model_run = assumpt.load_assumptions(base_data)
-    print(assumptions_model_run)
+    #print(assumptions_model_run)
 
     # Generate virtual building stock over whole simulatin period
-    data = bg.virtual_building_stock(base_data, assumptions_model_run, data_external)
+    __building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
 
     # Generate technological stock over whole simulation period
-    base_tech_stock_resid = ts.TechStockResid("REG A", 2015, assumptions_model_run, data_external)
+    base_tech_stock_resid = ts.resid_tech_stock("REG A", 2015, assumptions_model_run, data_external)
 
-    neu = ts.TechStockResid("REG A", 2016, assumptions_model_run, data_external)
+    neu = ts.resid_tech_stock("REG A", 2016, assumptions_model_run, data_external)
+
+
     '''print(base.__dict__)
     print("------")
     print(base_tech_stock_resid.NEWDEMAND_tech_A)
@@ -145,6 +181,8 @@ if __name__ == "__main__":
     print("NEU: " + str(NEU))
     prnt("..")
     '''
+
+
 
 
     # Run main function

@@ -39,6 +39,11 @@ def load_data(data_ext):
     # ------Read in all data from csv files-------------------
     data, path_dict = read_data(path_main)
 
+    # ------Disaggregate national data into regional data-------------------
+    reg_data_assump_disaggreg = 1 # scrap
+    fueldata_disagg = disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg) # This shoudl be done outside main function
+    data['fueldata_disagg'] = fueldata_disagg
+
     # ------Generate generic load profiles (shapes) [in %]-------------------
     shape_app_elec, shape_hd_gas = get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
@@ -994,6 +999,8 @@ def read_csv_nested_dict(path_to_csv):
 
     return out_dict
 
+
+
 def read_csv_dict(path_to_csv):
     """Read in csv file into a dict (with header)
 
@@ -1112,7 +1119,9 @@ def read_data(path_main):
                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
                  'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
                  'path_reg_floorarea': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
-                 'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv')
+                 'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
+
+                 'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv')
                 }
 
     data = {}
@@ -1123,12 +1132,14 @@ def read_data(path_main):
     reg_lu = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
     dwtype_lu = read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
     app_type_lu = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
-    fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
+    #fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
+    fuel_type_lu = read_csv_dict_no_header(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
+    
     day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
     #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                 # Season lookup
 
     reg_pop = read_csv_dict_no_header(path_dict['path_pop_reg_base'])             # Population data
-    reg_pop_array = read_csv_float(path_dict['path_pop_reg_base'])             # Population data
+    reg_pop_array = read_csv_float(path_dict['path_pop_reg_base'])               # Population data
     fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
     csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015
     hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom
@@ -1142,9 +1153,8 @@ def read_data(path_main):
     reg_dw_nr = read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
 
-
-
-
+    # Data new approach
+    data_residential_by_fuel_end_uses = read_csv_dict(path_dict['path_data_residential_by_fuel_end_uses'])
 
 
 
@@ -1172,7 +1182,27 @@ def read_data(path_main):
     data['reg_floorarea'] = reg_floorarea
     data['reg_dw_nr'] = reg_dw_nr
 
+    data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
+
+
     return data, path_dict
+
+def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
+    """This function disaggregates fuel demand based on region specific parameters"""
+
+    regions = data['reg_lu']
+    national_fuel = data['data_residential_by_fuel_end_uses'] # residential data
+    dict_with_reg_fuel_data = {}
+
+    # Iterate regions
+    for i in regions:
+        
+        # Do regional disagregation
+        reg_fuel = national_fuel # TODO     reg_fuel_demand = .update((x, y*2) for x, y in a.items())
+        dict_with_reg_fuel_data[i] = reg_fuel
+
+    return dict_with_reg_fuel_data
+
 
 def add_to_data(data, pop_data_external): # Convert to array, store in data
     """ All all data received externally to main data dictionars. Convert also to array"""

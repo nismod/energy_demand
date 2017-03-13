@@ -3,7 +3,7 @@
 
 import energy_demand.building_stock_functions as bf
 
-def virtual_building_stock(data, assumptions, data_ext):
+def resid_build_stock(data, assumptions, data_ext):
     """Creates a virtual building stock based on base year data and assumptions
 
     Parameters

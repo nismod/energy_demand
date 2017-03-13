@@ -1,3 +1,8 @@
-FUEL_ID,FUELTYP
-0,ELECTRICITY
-1,GAS
+fuel_id,fueltype
+0,solid_fuel
+1,gas
+2,electricity
+3,oil
+4, heat_sold 
+5, bioenergy_waste 
+6,hydrogen

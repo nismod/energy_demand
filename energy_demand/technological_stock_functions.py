@@ -44,7 +44,7 @@ def switch_fuel(data_ext, curr_year, assumptions, eff_tech_from, eff_tech_tp, fu
     # Calculate new base year fuel
     new_from_demand = tot_fuel_from_by - fuel_switched
 
-    # Calculate new fuel demand considering technological efficiencies
+    # Calculate new fuel demand considering technological efficiencies #TODO: Kann nich nur eine Technologie sein, sondern auch mehrere....
     new_to_demand = tot_fuel_to_by + (fuel_switched * (eff_tech_from / eff_tech_tp))
 
     return new_from_demand, new_to_demand
