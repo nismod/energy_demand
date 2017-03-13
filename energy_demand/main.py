@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
                      'glob_var': {'base_year': 2015,
                                   'current_year': 2016,
-                                  'end_year': 2016
+                                  'end_year': 2020
                                  },
                     }
 
@@ -135,15 +135,14 @@ if __name__ == "__main__":
 
     # Load assumptions
     assumptions_model_run = assumpt.load_assumptions(base_data)
-    #print(assumptions_model_run)
 
     # Generate virtual building stock over whole simulatin period
-    __building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
+    #__building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
 
     # Generate technological stock over whole simulation period
-    base_tech_stock_resid = ts.resid_tech_stock("REG A", 2015, assumptions_model_run, data_external)
+    #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
 
-    neu = ts.resid_tech_stock("REG A", 2016, assumptions_model_run, data_external)
+    #neu = ts.resid_tech_stock(2016, assumptions_model_run, data_external)
 
 
     '''print(base.__dict__)

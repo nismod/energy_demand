@@ -29,7 +29,7 @@ import technological_stock_functions as tf
 class resid_tech_stock(object):
     """Class of a technological stock of a year of the residential model"""
 
-    def __init__(self, reg, year, assumptions, data_ext):
+    def __init__(self, year, data, assumptions, data_ext):
         """Technological stock
 
         Parameters
@@ -43,42 +43,28 @@ class resid_tech_stock(object):
         data_ext : dict
             Dictionary with all external data.
         """
-        base_year = data_ext['glob_var']['base_year']
-        end_year = data_ext['glob_var']['end_year']
+        self.base_year = data_ext['glob_var']['base_year']
+        self.end_year = data_ext['glob_var']['end_year']
+        self.assumptions = assumptions
+        self.year = year
 
-        self.reg = reg      # Name of the region
-        self.year = year    # Year
+        # Execute function to add all technological efficiencies as self.
+        self.crate_iteration_efficiency(assumptions['eff_by'])
 
 
-        # Efficiencies of all technologies usd in residential model
+    def crate_iteration_efficiency(self, eff_by):
+        """Iterate technology list base yeare and add to technology_stock"""
+        a = {}
+        for technology in eff_by:
+            a[technology] = tf.eff_sy_lin(self.base_year, self.year, self.end_year, self.assumptions, technology)
 
-        #Appliances
-        ## Lighting
+        self.technologies = a
+        for _ in self.technologies:
+            #print("TECHNO: " + str(_))
+            # Creat self objects {'key': Value}
+            vars(self).update(self.technologies)
 
-        ## Heating
-        # Efficiencies of technologies for simulation year ( # linear extrapolation: e.g. from 0.8 to 0.9) (was in NISMOD 1 sigmoid)
-        self.eff_boiler_A = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'boiler_A')
-        self.eff_boiler_B = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'boiler_B')
-        self.eff_new_tech_A = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'new_tech_A')
 
-        self.eff_tech_A = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_A')
-        self.eff_tech_B = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_B')
-        self.eff_tech_C = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_C')
-        self.eff_tech_A = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_D')
-        self.eff_tech_B = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_E')
-        self.eff_tech_C = tf.eff_sy_lin(base_year, self.year, end_year, assumptions, 'tech_F')
-
-        '''boiler_gas
-        boiler_oil
-        boiler_condensing
-        boiler_biomass
-        ASHP
-        HP_ground_source
-        HP_air_source
-        HP_gas
-        micro_CHP_elec
-        micro_CHP_thermal
-        '''
 
         # Calculate fraction of technologies for each end use demand
         ####self.p_boiler_A = tf.frac_sy_sigm(base_year, self.year, end_year, assumptions, 'boiler_A')
@@ -98,9 +84,6 @@ class resid_tech_stock(object):
 
 # yearly_Fuel_Demand_after_switch = change_fuel_demans(technology_stock, FUEL_ARRAY)
 
-# Functions to calculate share of fuel type
-
-# # Switch Spae Heating (oil): Tech_from   to   eff_tech_tp
 
 
 # EXAMPLE

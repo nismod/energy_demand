@@ -125,7 +125,7 @@ def frac_sy_sigm(base_year, current_year, year_end, assumptions, fuel_enduse_swi
     return fract_cy
 
 
-def frac_sy_sigm_new_fuel_enduse_switch(base_year, current_year, year_end, assumptions, fuel_enduse_switch):
+'''def frac_sy_sigm_new_fuel_enduse_switch(base_year, current_year, year_end, assumptions, fuel_enduse_switch):
     """ Calculate share of a fuel_enduse_switch in a year based on assumptions
 
         Parameters
@@ -157,7 +157,7 @@ def frac_sy_sigm_new_fuel_enduse_switch(base_year, current_year, year_end, assum
     print("p_of_diffusion: " + str(p_of_diffusion))
     #fract_cy = p_of_diffusion * max_possible
     return p_of_diffusion
-
+'''
 
 def lineardiffusion(base_year, current_year, eff_by, eff_ey, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.

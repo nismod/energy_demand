@@ -1344,6 +1344,15 @@ def write_to_csv_will(reesult_dict, reg_lu):
         #with open(path, 'w') as outfile:
         #    yaml.dump(yaml_list, outfile, default_flow_style=False)
 
+def convert_to_array(fuel_type_p_ey):
+    """Convert dictionary to array"""
+    for i in fuel_type_p_ey:
+        a = fuel_type_p_ey[i].items()
+        a = list(a)
+        fuel_type_p_ey[i] = np.array(a, dtype=float)
+    return fuel_type_p_ey
+
+
 '''
 def calc_daily_load_factor(daily_loads):
     """Calculates load factor of a day
