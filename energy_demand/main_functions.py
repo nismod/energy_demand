@@ -192,6 +192,62 @@ def read_csv(path_to_csv):
     elements_array = np.array(list_elements)
     return elements_array
 
+def read_csv_base_data_resid(path_to_csv):
+    """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
+
+    Returns
+    -------
+    elements_array : dict
+        Returns an dict with arrays
+
+    Notes
+    -----
+    the first row is the fuel_ID
+    The header is the sub_key
+    # Quick and dirty
+    """
+    l = []
+    end_uses_dict = {}
+
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        _headings = next(read_lines)                      # Skip first row
+
+        # Iterate rows
+        for row in read_lines: # select row
+            l.append(row)
+
+        for i in _headings[1:]: # skip first
+            end_uses_dict[i] = np.zeros((len(l), 1)) # len fuel_ids
+
+        cnt_fueltype = 0
+        for row in l:
+            cnt = 1 #skip first
+            for i in row[1:]:
+                end_use = _headings[cnt]
+                end_uses_dict[end_use][cnt_fueltype] = i
+                cnt += 1
+
+            cnt_fueltype += 1
+
+    #import pprint
+    '''for i in end_uses_dict:
+        print("Appliances"  + str(i))
+        print(end_uses_dict[i])
+        print("--")
+    '''
+    return end_uses_dict
+
+
+
+
 def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     """Creates the timesteps for which the energy demand of the appliances is calculated.
     Then base energy demand is added for each timestep read in from yearly demand aray.
@@ -1154,7 +1210,8 @@ def read_data(path_main):
 
 
     # Data new approach
-    data_residential_by_fuel_end_uses = read_csv_dict(path_dict['path_data_residential_by_fuel_end_uses'])
+    #print(path_dict['path_data_residential_by_fuel_end_uses'])
+    data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
 
 
 

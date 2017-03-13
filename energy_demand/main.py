@@ -73,34 +73,10 @@ def energy_demand_model(data, assumptions, data_ext):
     '''
 
 
-    # new approach
+    # new approach - OBJECT ORIENTED
     # ------------------
     import energy_demand.main_object_approach as tttt
-
-
-    print(data['fuel_type_lu'])
-    print(data['reg_lu'])
-    print(data['fuel_bd_data'])
-    print(data['data_residential_by_fuel_end_uses'])
-    print(data['fueldata_disagg'])
-
-    # Testdata
-    test_fuel = {0:
-                    {'heating': np.array((len(data['fuel_type_lu']), 1)),
-                    'cooking':  np.array((len(data['fuel_type_lu']), 1))
-                    }
-                }
-    data['fueldata_disagg'] = test_fuel
-
-    # Iterate regions
-    for reg in data['reg_lu']:
-        print("Region: " + str(reg))
-        a = tttt.Region(reg, data, data_ext)
-
-        print(len(a.end_uses))
-
-        prnt("..")
-
+    tttt.test_run_new_model(data, data_ext, assumptions)
 
 
 

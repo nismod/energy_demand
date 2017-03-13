@@ -1,5 +1,6 @@
 """ This file contains all assumptions of the energy demand model"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+import numpy as np
 
 def load_assumptions(data):
     """All assumptions
@@ -15,10 +16,8 @@ def load_assumptions(data):
     """
     assump_dict = {}
 
-
     # Load assumptions from csv files
     dwtype_floorarea = data['dwtype_floorarea']
-
 
     # ============================================================
     # Assumptions Technological Stock
@@ -58,7 +57,141 @@ def load_assumptions(data):
         }
 
     # Share of fuel types (base year could also be calculated and loaded)
-    fuel_type_p_by = {
+    fuel_type_p_by = {'light': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                  },
+                     'cold': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'wet': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'consumer_electronics': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'home_computing': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'cooking': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                }
+                    }
+
+    # Convert to array
+    for i in fuel_type_p_by:
+        a = fuel_type_p_by[i].items()
+        a = list(a)
+        fuel_type_p_by[i] = np.array(a, dtype=float)
+
+
+    fuel_type_p_ey = {'light': {
+                                  '0' : 0.2,
+                                  '1' : 0.3,
+                                  '2' : 0.4,
+                                  '3' : 0.0,
+                                  '4' : 0.0,
+                                  '5' : 0.0,
+                                  '6' : 0.0
+                                  },
+                      'cold': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                     'cooking': {
+                                  '0' : 0.2,
+                                  '1' : 0.3,
+                                  '2' : 0.4,
+                                  '3' : 0.0,
+                                  '4' : 0.0,
+                                  '5' : 0.0,
+                                  '6' : 0.0
+                                },
+                    'wet': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'consumer_electronics': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'home_computing': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                },
+                    'cooking': {
+                                  '0' : 0.0182,
+                                  '1' : 0.7633,
+                                  '2' : 0.0791,
+                                  '3' : 0.0811,
+                                  '4' : 0.0,
+                                  '5' : 0.0581,
+                                  '6' : 0.0
+                                }
+                    }
+
+    # Convert to array
+    for i in fuel_type_p_ey:
+        a = fuel_type_p_ey[i].items()
+        a = list(a)
+        fuel_type_p_ey[i] = np.array(a, dtype=float)
+
+    '''fuel_type_p_by = {
         'space_heating_solid' : 0.0182,
         'space_heating_gas' : 0.7633,
         'space_heating_elec' : 0.0791,
@@ -77,6 +210,7 @@ def load_assumptions(data):
         'space_heating_renew' : 0.0581,
         'space_heating_hydro' : 0.0,
     }
+    '''
 
 
     # ----------------------------------
