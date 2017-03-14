@@ -64,17 +64,8 @@ def energy_demand_model(data, assumptions, data_ext):
     # -- Residential model
     e_app_bd, g_hd_bd = residential_model.run(data_ext['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
 
-    '''
-    transportation_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
-
-    Industry_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
-
-    Service_sector_model.run(modelrun_id, year, year_base, year_curr, total_yr, cur_yr)
-    '''
-
 
     # new approach - OBJECT ORIENTED
-    # ------------------
     import energy_demand.main_object_approach as tttt
     tttt.test_run_new_model(data, data_ext, assumptions)
 

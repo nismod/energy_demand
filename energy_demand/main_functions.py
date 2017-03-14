@@ -33,20 +33,33 @@ def load_data(data_ext):
     -----
 
     """
-    #path_main = '../data'
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # Remove
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # #path_main = '../data'
 
     # ------Read in all data from csv files-------------------
     data, path_dict = read_data(path_main)
 
+
     # ------Disaggregate national data into regional data-------------------
-    reg_data_assump_disaggreg = 1 # scrap
-    fueldata_disagg = disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg) # This shoudl be done outside main function
+    fueldata_disagg = disaggregate_base_demand_for_reg(data, 1) # This shoudl be done outside main function
     data['fueldata_disagg'] = fueldata_disagg
 
-    # ------Generate generic load profiles (shapes) [in %]-------------------
-    
 
+    # ------Generate generic load profiles (shapes) for all electricity appliances from HES data [in %]-------------------
+    import energy_demand.new_load_profile_generator as nlg
+    data['dict_shapes_end_use_h'] = {} # scrap...implement above
+    data['dict_shapes_end_use_day'] = {} # scrap...implement above
+
+
+    # RAW HES data classified according to , [yearday = 0-364 of base year][daytype = 0: wkday, 1:wkend, 2: coldest:, 3: warmest][month_python] 
+    HES_DATA = nlg.read_HES_data(data, data_ext, path_dict['path_bd_e_load_profiles'], 'light')
+    print("Red in HES DATA")
+    year_raw_values_HES = nlg.assign_HES_data_to_year(data, HES_DATA, data_ext)
+    print("Red in year_raw_values_HES")
+
+    for i in data['data_residential_by_fuel_end_uses']:
+        print("i: " + str(i))
+        end_use = i # End use read from avaialble fuels...
+        data = nlg.get_HES_end_uses_shape(data, HES_DATA, year_raw_values_HES, end_use)
 
 
     shape_app_elec, shape_hd_gas = get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
@@ -1181,7 +1194,9 @@ def read_data(path_main):
                  'path_reg_floorarea': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
                  'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
 
-                 'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv')
+                 'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
+                 'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv')
+
                 }
 
     data = {}
@@ -1214,9 +1229,9 @@ def read_data(path_main):
 
 
     # Data new approach
-    #print(path_dict['path_data_residential_by_fuel_end_uses'])
+    #print(path_dict['path_data_residential_by_fuel_end_uses']) #TODO: Maybe store end_uses_more directly
     data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
-
+    lu_appliances_HES_matched = read_csv(path_dict['path_lu_appliances_HES_matched'])
 
 
 
@@ -1244,6 +1259,7 @@ def read_data(path_main):
     data['reg_dw_nr'] = reg_dw_nr
 
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
+    data['lu_appliances_HES_matched'] = lu_appliances_HES_matched
 
 
     return data, path_dict

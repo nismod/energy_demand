@@ -15,32 +15,6 @@ import matplotlib.pyplot as plt
 # 
 #
 
-day_p_of_year = np.empty((365, 1), dtype=float)  
-h_p_of_day = np.empty((365, 24), dtype=float)
-
-peak_h_max = np.empty((1,24), dtype=float)
-peak_h_min = np.empty((1,24), dtype=float)
-
-
-# Fueltype? Assumption that for all fuel types hte curves look the same for the fueltypes
-
-h_dict = {
-    'end_use':
-        {
-        'peak_h_max': peak_h_max,
-        'normal_h': h_p_of_day,
-        'peak_h_min': peak_h_min
-        },
-    }
-
-d_dict = {
-    'end_use':
-        {
-        'peak_h_max': peak_h_max,
-        'normal_h': h_p_of_day,
-        'peak_h_min': peak_h_min
-        },
-    }
 
 
 '''

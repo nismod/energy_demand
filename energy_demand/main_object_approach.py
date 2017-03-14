@@ -20,7 +20,10 @@ import energy_demand.technological_stock_functions as tf
 #    - All shapes
 #    - All Demand switches
 
-
+# Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
+#
+#
+#
 
 class Region(object):
     """ Class of region """
@@ -31,10 +34,10 @@ class Region(object):
         self.data = data
         self.data_ext = data_ext
         self.assumptions = assumption                                       # Improve: Assumptions per region
-
-        self.current_year = data_ext['glob_var']['current_year']            # Current year
-        self.fueldata_reg = data['fueldata_disagg'][reg_name]               # Fuel array of region
+        self.current_year = self.data_ext['glob_var']['current_year']            # Current year
+        self.fueldata_reg = self.data ['fueldata_disagg'][reg_name]               # Fuel array of region (used to extract all end_uses)
         #self.pop = data_ext['population'][self.current_year][self.reg_name] # Population of current year
+
 
         # Create all end use attributes
         self.create_end_use_objects()     # Add end uses and fuel to region
@@ -42,8 +45,12 @@ class Region(object):
         # Sum final fuels of all end_uses
         self.fuels_new = self.sum_final_fuel_all_enduses()
 
-    # Functions within class
-    # ----------------------
+        # Get peak demand
+
+        # Sum daily
+
+        # Sum hourly
+
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
         a = {}
@@ -53,9 +60,7 @@ class Region(object):
         for _ in self.end_uses:
             vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
 
-    # Sum daily
 
-    # Sum hourly
 
 
     def sum_final_fuel_all_enduses(self):
@@ -81,10 +86,6 @@ class Region(object):
 
 
 
-
-
-
-
 class EndUseClassResid(Region):
     """Class of an energy use category (e.g. lignting) of residential sector"""
 
@@ -95,21 +96,37 @@ class EndUseClassResid(Region):
         self.data_ext = data_ext                            # from parent class
         self.assumptions = assumptions                      # Assumptions from regions
         self.fueldata_reg = fueldata_reg[self.enduse_name]  # Regional fuel data
-
-        self.tech_stock = self.data['tech_stock'] #ts.resid_tech_stock(self.current_year, self.data, self.assumptions, self.data_ext) # Generate technology stock of year
+        self.tech_stock = self.data['tech_stock']           # Technological stock
 
         # General efficiency gains of technology over time #TODO
 
+        # Calculate demand with changing elasticity (elasticity maybe on household level)
+        self.reg_fuel_after_elasticity = self.elasticity_energy_demand()
+
         # Calculate fuel switches
-        self.reg_fuel_after_switch = self.fuel_switches()   # Fuel after switching
+        self.reg_fuel_after_switch = self.fuel_switches()
 
         # Calculate new fuel demands after scenario drivers
         self.fuel_data_reg_after_scenario_driver_yearly = self.scenario_driver_for_each_enduse()
+
+        # Disaggregate yearly demand for every day
         self.fuel_data_daily = self.from_yearly_to_daily()
+
+        # Disaggregate daily demand to hourly demand
         self.self_fuel_data_hourly = self.from_daily_to_hourly()
+
+        # Calculate peak day
         self.peak_daily = self.peak_daily()
+
+        # Calculate peak hour
         self.peak_hourly = self.peak_hourly()
 
+
+
+    def elasticity_energy_demand(self):
+        """ Adapts yearls fuel use depending on elasticity """
+        # Will maybe be on household level
+        pass
 
     def fuel_switches(self):
         """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
