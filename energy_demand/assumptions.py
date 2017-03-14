@@ -81,12 +81,13 @@ def load_assumptions(data):
     # -------------
     # Fuel Switches assumptions
     # -------------
+    # TODO: Write function to insert fuel swatches
 
     # Technology which is installed for which enduse
     tech_install = {'light': 'boiler_A'}
 
     # Technologies used for the different fuel types where the new technology is used
-    replacement_dict_simple = {'light': {0: 'boiler_B',
+    tech_replacement_dict = {'light': {0: 'boiler_B',
                                          1: 'boiler_B',
                                          2: 'boiler_B',
                                          3: 'boiler_B',
@@ -345,7 +346,7 @@ def load_assumptions(data):
     assump_dict['fuel_type_p_by'] = fuel_type_p_by
     assump_dict['fuel_type_p_ey'] = fuel_type_p_ey
 
-    assump_dict['replacement_dict_simple'] = replacement_dict_simple 
+    assump_dict['tech_replacement_dict'] = tech_replacement_dict 
     assump_dict['tech_install'] = tech_install
 
     # ============================================================
