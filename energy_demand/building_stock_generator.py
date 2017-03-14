@@ -53,16 +53,16 @@ def resid_build_stock(data, assumptions, data_ext):
     for reg_id in reg_lu:
 
         # Base year data of region
-        floorarea_by = data['reg_floorarea'][reg_id]      # Read in floor area of base year
-        pop_by = data_ext['population'][base_year][reg_id]                  # Read in population
-        floorarea_pp_by = floorarea_by / pop_by           # Floor area per person [m2/person]
+        floorarea_by = data['reg_floorarea'][reg_id]        # Read in floor area of base year
+        pop_by = data_ext['population'][base_year][reg_id]  # Read in population
+        floorarea_pp_by = floorarea_by / pop_by             # Floor area per person [m2/person]
 
         # Iterate simulation year
         for sim_y in sim_period:
 
             # Calculate new necessary floor area of simulation year
-            floorarea_pp_sy = data_floorarea_pp[reg_id][sim_y]                          #  Get floor area per person of sim_yr
-            tot_floorarea_sy = floorarea_pp_sy * data_ext['population'][sim_y][reg_id]  # floor area per person simulation year * population of simulation year in region
+            floorarea_pp_sy = data_floorarea_pp[reg_id][sim_y]                          # Get floor area per person of sim_yr
+            tot_floorarea_sy = floorarea_pp_sy * data_ext['population'][sim_y][reg_id]  # Floor area per person simulation year * population of simulation year in region
             new_floorarea_sim_year = tot_floorarea_sy - floorarea_by                    # tot new floor area - area base year
 
             # Only calculate changing
@@ -159,14 +159,14 @@ def generate_dw_existing(uniqueID, sim_y, dw_lu, floorarea_p, floorarea_by, dwty
     # Iterate dwelling types
     for dw in dw_lu:
         dw_type_id, dw_type_name = dw, dw_lu[dw]
-        dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by      # Floor area of existing buildlings
+        dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by            # Floor area of existing buildlings
 
         # Distribute according to age
         for dwtype_age_id in dwtype_age_distr_by:
             age_class_p = dwtype_age_distr_by[dwtype_age_id] / 100              # Percent of dw of age class
 
             # Floor area of dwelling_class_age
-            dw_type_age_class_floorarea = dw_type_floorarea * age_class_p     # Distribute proportionally floor area
+            dw_type_age_class_floorarea = dw_type_floorarea * age_class_p       # Distribute proportionally floor area
             control_floorarea += dw_type_age_class_floorarea
 
             # Pop

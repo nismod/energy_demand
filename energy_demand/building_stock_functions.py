@@ -35,6 +35,7 @@ class Dwelling(object):
         self.pop = pop
         self.floorarea = floorarea
         self.HDD = get_HDD_based_on_int_temp(sim_y, assumptions, HDD) # Get internal temperature depending on assumptions of sim_year
+        #self.HOUSEHOLDINCOME?
 
     def scenario_driver_water_heating(self):
         """calc scenario driver with population and heat loss coefficient"""
@@ -56,6 +57,7 @@ def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
     #int_temp_sim_y = get_internal_temperature(sim_y)
     #HDD = recalculate_hitchens(int_temp_sim_y)
     HDD = "tbd"
+    HDD = 999
     # Recalcuulate heating degree days based on internal temperature change
     # Hitchins Formula
     return HDD
@@ -108,6 +110,12 @@ class DwStockRegion(object):
         self.region_ID = region_ID
         self.dwellings = dwellings
 
+        # Execute functions of stock
+        self.pop = self.get_tot_pop()
+        self.sd_water_heating = self.get_sum_scenario_driver_water_heating()
+        self.sd_heating = self.get_sum_scenario_driver_space_heating()
+        self.sd_lighting = self.get_sum_scenario_driver_lighting()
+
     def get_tot_pop(self):
         """Get total population of all dwellings"""
         totpop = 0
@@ -119,21 +127,21 @@ class DwStockRegion(object):
         """Sum all scenario driver for water heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_water_heating
+            sum_driver += dwelling.scenario_driver_water_heating()
         return sum_driver
 
     def get_sum_scenario_driver_space_heating(self):
         """Sum all scenario driver for space heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_space_heating
+            sum_driver += dwelling.scenario_driver_space_heating()
         return sum_driver
 
     def get_sum_scenario_driver_lighting(self):
         """Sum all scenario driver for lighting heating"""
         sum_driver = 0
         for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_lighting
+            sum_driver += dwelling.scenario_driver_lighting()
         return sum_driver
 
 def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):

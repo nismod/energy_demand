@@ -15,27 +15,23 @@ import energy_demand.technological_stock as ts
 import energy_demand.technological_stock_functions as tf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-# Dict for every end_use with
-#    - Scenario Drivers
-#    - All shapes
-#    - All Demand switches
+
 
 # Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 #
-#
-#
+
 
 class Region(object):
     """ Class of region """
 
     def __init__(self, reg_name, data, data_ext, assumption):
         """ Constructor. Initialising different methods"""
-        self.reg_name = reg_name                                            # Name/ID of region
+        self.reg_name = reg_name                                       # Name/ID of region
         self.data = data
         self.data_ext = data_ext
-        self.assumptions = assumption                                       # Improve: Assumptions per region
-        self.current_year = self.data_ext['glob_var']['current_year']            # Current year
-        self.fueldata_reg = self.data ['fueldata_disagg'][reg_name]               # Fuel array of region (used to extract all end_uses)
+        self.assumptions = assumption                                  # Improve: Assumptions per region
+        self.current_year = data_ext['glob_var']['current_year']       # Current year
+        self.fueldata_reg = data['fueldata_disagg'][reg_name]          # Fuel array of region (used to extract all end_uses)
         #self.pop = data_ext['population'][self.current_year][self.reg_name] # Population of current year
 
 
@@ -55,11 +51,10 @@ class Region(object):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
         a = {}
         for enduse_name in self.fueldata_reg:
-            a[enduse_name] = EndUseClassResid(self.current_year, self.data, self.data_ext, enduse_name, self.assumptions, self.fueldata_reg)
+            a[enduse_name] = EndUseClassResid(self.reg_name, self.current_year, self.data, self.data_ext, enduse_name, self.assumptions, self.fueldata_reg)
         self.end_uses = a
         for _ in self.end_uses:
             vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
-
 
 
 
@@ -89,39 +84,37 @@ class Region(object):
 class EndUseClassResid(Region):
     """Class of an energy use category (e.g. lignting) of residential sector"""
 
-    def __init__(self, current_year, data, data_ext, enduse_name, assumptions, fueldata_reg):
+    def __init__(self, reg_name, current_year, data, data_ext, enduse_name, assumptions, fueldata_reg):
+
+        # --General data
+        self.reg_name = reg_name                            # Region
         self.enduse_name = enduse_name                      # EndUse Name
         self.current_year = current_year                    # from parent class
         self.data = data                                    # from parent class
         self.data_ext = data_ext                            # from parent class
         self.assumptions = assumptions                      # Assumptions from regions
-        self.fueldata_reg = fueldata_reg[self.enduse_name]  # Regional fuel data
-        self.tech_stock = self.data['tech_stock']           # Technological stock
+        self.fueldata_reg = fueldata_reg[enduse_name]       # Regional base fuel data
+        self.tech_stock = data['tech_stock']                # Technological stock
 
-        # General efficiency gains of technology over time #TODO
+        # --Load shapes
+        self.load_shape_d = data['dict_shapes_end_use_d'][enduse_name]['shape_d_non_peak']  # shape_d
+        self.load_shape_h = data['dict_shapes_end_use_h'][enduse_name]['shape_h_non_peak']  # shape_h
+        self.load_shape_peak_d = data['dict_shapes_end_use_d'][enduse_name]['peak_d_shape'] # shape_d peak
+        self.load_shape_peak_h = data['dict_shapes_end_use_h'][enduse_name]['peak_h_shape'] # shape_h peak
 
-        # Calculate demand with changing elasticity (elasticity maybe on household level)
-        self.reg_fuel_after_elasticity = self.elasticity_energy_demand()
-
-        # Calculate fuel switches
-        self.reg_fuel_after_switch = self.fuel_switches()
-
-        # Calculate new fuel demands after scenario drivers
-        self.fuel_data_reg_after_scenario_driver_yearly = self.scenario_driver_for_each_enduse()
-
-        # Disaggregate yearly demand for every day
-        self.fuel_data_daily = self.from_yearly_to_daily()
-
-        # Disaggregate daily demand to hourly demand
-        self.self_fuel_data_hourly = self.from_daily_to_hourly()
-
-        # Calculate peak day
-        self.peak_daily = self.peak_daily()
-
-        # Calculate peak hour
-        self.peak_hourly = self.peak_hourly()
-
-
+        # --Yearly fuel data 
+        #self.efficiency_gains....                                                                   # General efficiency gains of technology over time #TODO
+        self.reg_fuel_after_elasticity = self.elasticity_energy_demand()                             # Calculate demand with changing elasticity (elasticity maybe on household level)
+        self.reg_fuel_after_switch = self.fuel_switches()                                            # Calculate fuel switches
+        self.fuel_data_reg_after_scenario_driver_yearly = self.scenario_driver_for_each_enduse()     # Calculate new fuel demands after scenario drivers
+        
+        # --Daily fuel data
+        self.fuel_data_daily = self.from_yearly_to_daily()                                           # Disaggregate yearly demand for every day
+        
+        # --Hourly fuel data
+        self.self_fuel_data_hourly = self.from_daily_to_hourly()                                     # Disaggregate daily demand to hourly demand
+        self.peak_daily = self.peak_daily()                                             # Calculate peak day
+        self.peak_hourly = self.peak_hourly()                                           #Calculate peak hour
 
     def elasticity_energy_demand(self):
         """ Adapts yearls fuel use depending on elasticity """
@@ -186,7 +179,33 @@ class EndUseClassResid(Region):
             return fuel_switch_array
 
     def scenario_driver_for_each_enduse(self):
-        pass
+        """The fuels for every end use are multiplied with scenario driver
+        #TODO: Check if in sub-functions alway the latest data is taken (process train)
+        """
+
+        fueldata = self.reg_fuel_after_switch   # data
+        enduse = self.enduse_name               # enduse
+        print("self.data['reg_building_stock_by']")
+        by_building_stock = self.data['reg_building_stock_by'][self.reg_name]       # Base year building stock
+        cy_building_stock = self.data['reg_building_stock_cur_yr'][self.reg_name]   # Current building stock
+
+        if enduse == 'heating':
+            attr_building_stock = 'sd_heating'
+        else:
+            #TODO: add very end_use
+            attr_building_stock = 'sd_heating'
+
+        print("attr_building_stock: " + str(attr_building_stock))
+        by_driver = getattr(by_building_stock, attr_building_stock)
+        cy_driver = getattr(cy_building_stock, attr_building_stock)
+
+        factor_driver = cy_driver / by_driver  #TODO: Or the other way round
+
+        print("fueldata: " + str(fueldata))
+
+        fueldata_scenario_diver = fueldata * factor_driver
+
+        return fueldata_scenario_diver
 
     def from_yearly_to_daily(self):
         #Get from dict for every end_use:
@@ -208,7 +227,7 @@ class EndUseClassResid(Region):
 
 # ----------------------------------------
 
-def test_run_new_model(data, data_ext, assumptions):
+def new_energy_demand_model(data, data_ext, assumptions):
 
     # Now the data needs to look like
     # ----------------------------------------
@@ -221,11 +240,8 @@ def test_run_new_model(data, data_ext, assumptions):
     tech_stock = ts.resid_tech_stock(data_ext['glob_var']['current_year'], data, assumptions, data_ext) #TODO ASSUMPTIONS
     data['tech_stock'] = tech_stock
 
-    # Get Building stock
-
-
-
-    # Iterate regions
+ 
+    # Iterate REGION AND GENERATE OBJECTS
     for reg in data['reg_lu']:
             print("Region: " + str(reg))
 

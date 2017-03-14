@@ -15,7 +15,7 @@ print ("Loading main functions")
 #from datetime import datetime
 #import datetime
 
-def load_data(data_ext):
+def load_data(data, data_ext, path_main):
     """All base data no provided externally are loaded
 
     All necessary data to run energy demand model is loaded.
@@ -23,6 +23,8 @@ def load_data(data_ext):
 
     Parameters
     ----------
+    data : dict
+        Dict with own data
 
     Returns
     -------
@@ -33,86 +35,20 @@ def load_data(data_ext):
     -----
 
     """
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' # #path_main = '../data'
 
-    # ------Read in all data from csv files-------------------
-    data, path_dict = read_data(path_main)
+    # As soon as old model is deleted, mode this to data_loader
+    import energy_demand.data_loader as dl
 
+    # ------Read in all data from csv files which have to be read in anyway
+    data = read_data(data, path_main)
 
-    # ------Disaggregate national data into regional data-------------------
-    fueldata_disagg = disaggregate_base_demand_for_reg(data, 1) # This shoudl be done outside main function
-    data['fueldata_disagg'] = fueldata_disagg
-
-
-    # ------Generate generic load profiles (shapes) for all electricity appliances from HES data [in %]-------------------
-    import energy_demand.new_load_profile_generator as nlg
-    data['dict_shapes_end_use_h'] = {} # scrap...implement above
-    data['dict_shapes_end_use_day'] = {} # scrap...implement above
-
-
-    # RAW HES data classified according to , [yearday = 0-364 of base year][daytype = 0: wkday, 1:wkend, 2: coldest:, 3: warmest][month_python] 
-    HES_DATA = nlg.read_HES_data(data, data_ext, path_dict['path_bd_e_load_profiles'], 'light')
-    print("Red in HES DATA")
-    year_raw_values_HES = nlg.assign_HES_data_to_year(data, HES_DATA, data_ext)
-    print("Red in year_raw_values_HES")
-
-    for i in data['data_residential_by_fuel_end_uses']:
-        print("i: " + str(i))
-        end_use = i # End use read from avaialble fuels...
-        data = nlg.get_HES_end_uses_shape(data, HES_DATA, year_raw_values_HES, end_use)
-
-
-    shape_app_elec, shape_hd_gas = get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
-    data['shape_app_elec'] = shape_app_elec # add to data dict
-
-    # ------Base demand for the base year for all modelled elements-------------------
-
-    # Base demand of appliances over a full year (electricity)
-    bd_app_elec = get_bd_appliances(shape_app_elec, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
-    data['bd_app_elec'] = bd_app_elec # add to data dict
-
-    # Base demand of heating demand (gas)
-    bd_hd_gas = get_bd_hd_gas(shape_hd_gas, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
-    data['bd_hd_gas'] = bd_hd_gas # add to data dict
-
-    print("---Summary Base Demand")
-    print("Base Fuel elec appliances total per year (uk):             " + str(data['fuel_bd_data'][:, 1].sum()))
-    print("Base Fuel elec appliances total per year (region, hourly): " + str(bd_app_elec.sum()))
-    print("  ")
-    print("Base gas hd appliances total per year (uk):                " + str(data['fuel_bd_data'][:, 2].sum()))
-    print("Base gas hd appliancestotal per year (region, hourly):     " + str(bd_hd_gas.sum()))
-
-    # ---------------------------------------------------------------
-    # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
-    # ---------------------------------------------------------------
-    timesteps_own_selection = (
-        [date(data_ext['glob_var']['base_year'], 1, 12), date(data_ext['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
-        [date(data_ext['glob_var']['base_year'], 4, 13), date(data_ext['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
-        [date(data_ext['glob_var']['base_year'], 7, 13), date(data_ext['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
-        [date(data_ext['glob_var']['base_year'], 10, 12), date(data_ext['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
-        )
-    data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
-
-    # Create own timesteps
-    own_timesteps = get_own_timesteps(timesteps_own_selection)
-
-    # Populate timesteps base year data (appliances, electricity)
-    timesteps_app_bd = create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
-    data['timesteps_app_bd'] = timesteps_app_bd # add to data dict
-
-    # Populate timesteps base year data (heating demand, ga)
-    timesteps_hd_bd = create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
-    data['timesteps_hd_bd'] = timesteps_hd_bd # add to data dict
-
-    print("----------------------Statistics--------------------")
-    print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
-    print("Number of timestpes heating demand:      " + str(len(timesteps_hd_bd[1][0])))
-    print(" ")
-    print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
-    print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
-    print(" ")
+    # --- Execute data generatore
+    run_data_collection = True # Otherwise already read out files are read in from txt files
+    data = dl.generate_data(data, run_data_collection)
 
     return data
+
+
 
 
 def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
@@ -1161,27 +1097,28 @@ def read_csv_dict_no_header(path_to_csv):
 
     return out_dict
 
-def read_data(path_main):
+def read_data(data, path_main):
     """Reads in all csv files and stores them in a dictionary
 
     Parameters
     ----------
     path_main : str
         Path to main model folder
+    path_dict : dict
+        Dictionary containing all path to individual files
 
     Returns
     -------
     data : dict
         Dictionary containing read in data from csv files
-    path_dict : dict
-        Dictionary containing all path to individual files
+
 
     #Todo: Iterate every row and test if string or float value and then only write one write in function
     """
     path_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
                  'path_pop_reg_base': os.path.join(path_main, 'scenario_and_base_data/population_regions.csv'),
                  'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
-                 'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances.csv'),
+                 'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
                  'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
                  'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
                  'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
@@ -1199,8 +1136,7 @@ def read_data(path_main):
 
                 }
 
-    data = {}
-
+    data['path_dict'] = path_dict
     # TODO: Convert from percentage where necssary (einheitlich machen)
 
     # Read data
@@ -1216,8 +1152,8 @@ def read_data(path_main):
     reg_pop = read_csv_dict_no_header(path_dict['path_pop_reg_base'])             # Population data
     reg_pop_array = read_csv_float(path_dict['path_pop_reg_base'])               # Population data
     fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
-    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015
-    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom
+    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in shape_residential_heating_gas
+    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in shape_residential_heating_gas
 
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
     dwtype_distr = read_csv_nested_dict(path_dict['path_dwtype_dist'])
@@ -1261,8 +1197,10 @@ def read_data(path_main):
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
     data['lu_appliances_HES_matched'] = lu_appliances_HES_matched
 
-
-    return data, path_dict
+    # load shapes
+    data['dict_shapes_end_use_h'] = {} 
+    data['dict_shapes_end_use_d'] = {} 
+    return data
 
 def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     """This function disaggregates fuel demand based on region specific parameters"""
@@ -1273,12 +1211,19 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
 
     # Iterate regions
     for i in regions:
-        
-        # Do regional disagregation
-        reg_fuel = national_fuel # TODO     reg_fuel_demand = .update((x, y*2) for x, y in a.items())
-        dict_with_reg_fuel_data[i] = reg_fuel
+        reg_disaggregate_factor_per_enduse_and_reg = 1 #TODO: create dict with disaggregation factors
 
-    return dict_with_reg_fuel_data
+        # Disaggregate fuel depending on end_use
+        __ = {}
+        for enduse in national_fuel:
+            __[enduse] = national_fuel[enduse] * reg_disaggregate_factor_per_enduse_and_reg
+
+
+        dict_with_reg_fuel_data[i] = __
+
+    data['fueldata_disagg'] = dict_with_reg_fuel_data
+
+    return data
 
 
 def add_to_data(data, pop_data_external): # Convert to array, store in data
@@ -1411,6 +1356,65 @@ def calc_peak_from_average(daily_loads):
     max_load = average_load / load_factor
 
     return max_load
+
+
+def OLDMODEL_load_data(data, data_ext, path_main):
+    
+
+    # ----------below old model
+
+    shape_app_elec, shape_hd_gas = get_load_curve_shapes(data['path_dict']['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
+    data['shape_app_elec'] = shape_app_elec # add to data dict
+
+    # ------Base demand for the base year for all modelled elements-------------------
+
+    # Base demand of appliances over a full year (electricity)
+    bd_app_elec = get_bd_appliances(shape_app_elec, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
+    data['bd_app_elec'] = bd_app_elec # add to data dict
+
+    # Base demand of heating demand (gas)
+    bd_hd_gas = get_bd_hd_gas(shape_hd_gas, data['reg_lu'], data['fuel_type_lu'], data['fuel_bd_data'])
+    data['bd_hd_gas'] = bd_hd_gas # add to data dict
+
+    print("---Summary Base Demand")
+    print("Base Fuel elec appliances total per year (uk):             " + str(data['fuel_bd_data'][:, 1].sum()))
+    print("Base Fuel elec appliances total per year (region, hourly): " + str(bd_app_elec.sum()))
+    print("  ")
+    print("Base gas hd appliances total per year (uk):                " + str(data['fuel_bd_data'][:, 2].sum()))
+    print("Base gas hd appliancestotal per year (region, hourly):     " + str(bd_hd_gas.sum()))
+
+    # ---------------------------------------------------------------
+    # Generate simulation timesteps and assing base demand (e.g. 1 week in each season, 24 hours)
+    # ---------------------------------------------------------------
+    timesteps_own_selection = (
+        [date(data_ext['glob_var']['base_year'], 1, 12), date(data_ext['glob_var']['base_year'], 1, 18)],     # Week Spring (Jan) Week 03  range(334 : 364) and 0:58
+        [date(data_ext['glob_var']['base_year'], 4, 13), date(data_ext['glob_var']['base_year'], 4, 19)],     # Week Summer (April) Week 16  range(59:150)
+        [date(data_ext['glob_var']['base_year'], 7, 13), date(data_ext['glob_var']['base_year'], 7, 19)],     # Week Fall (July) Week 25 range(151:242)
+        [date(data_ext['glob_var']['base_year'], 10, 12), date(data_ext['glob_var']['base_year'], 10, 18)],   # Week Winter (October) Week 42 range(243:333)
+        )
+    data['timesteps_own_selection'] = timesteps_own_selection # add to data dict
+
+    # Create own timesteps
+    own_timesteps = get_own_timesteps(timesteps_own_selection)
+
+    # Populate timesteps base year data (appliances, electricity)
+    timesteps_app_bd = create_timesteps_app(0, timesteps_own_selection, bd_app_elec, data['reg_lu'], data['fuel_type_lu'], data['app_type_lu'], own_timesteps) # [GWh]
+    data['timesteps_app_bd'] = timesteps_app_bd # add to data dict
+
+    # Populate timesteps base year data (heating demand, ga)
+    timesteps_hd_bd = create_timesteps_hd(1, timesteps_own_selection, bd_hd_gas, data['reg_lu'], data['fuel_type_lu'], own_timesteps) # [GWh]
+    data['timesteps_hd_bd'] = timesteps_hd_bd # add to data dict
+
+    print("----------------------Statistics--------------------")
+    print("Number of timesteps appliances:          " + str(len(timesteps_app_bd[0][0])))
+    print("Number of timestpes heating demand:      " + str(len(timesteps_hd_bd[1][0])))
+    print(" ")
+    print("Sum Appliances simulation period:        " + str(timesteps_app_bd.sum()))
+    print("Sum heating emand simulation period:     " + str(timesteps_hd_bd.sum()))
+    print(" ")
+
+    return data
+
 
 """A one-line summary that does not use variable names or the
     function name.

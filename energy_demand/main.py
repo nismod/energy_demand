@@ -18,7 +18,6 @@
 #!python3.6
 
 import sys
-
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
@@ -56,6 +55,26 @@ def energy_demand_model(data, assumptions, data_ext):
     All messy now...needs cleaning
     """
 
+    # NEW MODEL HERE
+    import energy_demand.main_object_approach as NEWMODEL
+    NEWMODEL.new_energy_demand_model(data, data_ext, assumptions)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # OLD MODEL BELOW
     # Convert population data int array
     data_ext = mf.add_to_data(data_ext, data_ext['population']) # Convert to array, store in data
 
@@ -63,12 +82,6 @@ def energy_demand_model(data, assumptions, data_ext):
 
     # -- Residential model
     e_app_bd, g_hd_bd = residential_model.run(data_ext['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
-
-
-    # new approach - OBJECT ORIENTED
-    import energy_demand.main_object_approach as tttt
-    tttt.test_run_new_model(data, data_ext, assumptions)
-
 
 
     # ---------------------------------------------------------------------------
@@ -117,20 +130,33 @@ if __name__ == "__main__":
                                  },
                     }
 
+    base_data = {}
 
-    # ----------- Model calculations outside main function
 
-    # DATA
+    # Model calculations outside main function
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                        # #path_main = '../data'
+    base_data = mf.load_data(base_data, data_external, path_main)              # Load and generate data
 
-    # Load data
-    base_data = mf.load_data(data_external)
-    #print(base_data)
+    base_data = mf.OLDMODEL_load_data(base_data, data_external, path_main)     # DELETE SOON
 
-    # Load assumptions
-    assumptions_model_run = assumpt.load_assumptions(base_data)
+
+    assumptions_model_run = assumpt.load_assumptions(base_data)                # Load assumptions
+    data = mf.disaggregate_base_demand_for_reg(base_data, 1)                   # Disaggregate national data into regional data
+
+    # Generate virtual building stock over whole simulatin period
+    base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
+
+
+
+    # Generate technological stock over whole simulation period
+    #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
+
+    # -----------------
+    # Run main function
+    # -----------------
+    energy_demand_model(base_data, assumptions_model_run, data_external)
 
     # Wheater generater (change base_demand data)
-
 
     # Generate virtual building stock over whole simulatin period
     #__building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
@@ -154,8 +180,4 @@ if __name__ == "__main__":
     '''
 
 
-
-
-    # Run main function
-    energy_demand_model(base_data, assumptions_model_run, data_external)
     print("Finished everything")
