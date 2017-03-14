@@ -129,12 +129,17 @@ if __name__ == "__main__":
 
     # ----------- Model calculations outside main function
 
+    # DATA
+
     # Load data
     base_data = mf.load_data(data_external)
     #print(base_data)
 
     # Load assumptions
     assumptions_model_run = assumpt.load_assumptions(base_data)
+
+    # Wheater generater (change base_demand data)
+
 
     # Generate virtual building stock over whole simulatin period
     #__building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)

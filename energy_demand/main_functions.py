@@ -45,6 +45,10 @@ def load_data(data_ext):
     data['fueldata_disagg'] = fueldata_disagg
 
     # ------Generate generic load profiles (shapes) [in %]-------------------
+    
+
+
+
     shape_app_elec, shape_hd_gas = get_load_curve_shapes(path_dict['path_bd_e_load_profiles'], data['day_type_lu'], data['app_type_lu'], data_ext['glob_var'], data['csv_temp_2015'], data['hourly_gas_shape'])
     data['shape_app_elec'] = shape_app_elec # add to data dict
 
