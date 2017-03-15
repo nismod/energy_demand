@@ -1,18 +1,21 @@
 """ new load profile generator """
-import numpy as np
+
 import os
 import csv
-import main_functions as mf
-from datetime import date
 import unittest
+from datetime import date
+import main_functions as mf
+
+
 import matplotlib.pyplot as plt
 import data_loader_functions as df
+import numpy as np
 
 def generate_data(data, run_data_collection):
     """ This function loads all that which does not neet to be run every time"""
     base_year_load_data = 2015
 
-    if run_data_collection == False:
+    if run_data_collection is False:
         # TODO
         # Read in dumped csv files
         return data

@@ -1,16 +1,17 @@
-import sys
-import os
-import csv
-import traceback
-import datetime
-from datetime import date
-from datetime import timedelta as td
+""" NEw Model """
+#import sys
+#import os
+#import csv
+#import traceback
+#import datetime
+#from datetime import date
+#from datetime import timedelta as td
 import numpy as np
 
-import energy_demand.main_functions as mf
-import energy_demand.building_stock_generator as bg
-import energy_demand.assumptions as assumpt
-from energy_demand import residential_model
+#import energy_demand.main_functions as mf
+#import energy_demand.building_stock_generator as bg
+#import energy_demand.assumptions as assumpt
+#from energy_demand import residential_model
 import energy_demand.technological_stock as ts
 import energy_demand.technological_stock_functions as tf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -102,15 +103,15 @@ class EndUseClassResid(Region):
         self.load_shape_peak_d = data['dict_shapes_end_use_d'][enduse_name]['peak_d_shape'] # shape_d peak
         self.load_shape_peak_h = data['dict_shapes_end_use_h'][enduse_name]['peak_h_shape'] # shape_h peak
 
-        # --Yearly fuel data 
+        # --Yearly fuel data
         #self.efficiency_gains....                                                                   # General efficiency gains of technology over time #TODO
         self.reg_fuel_after_elasticity = self.elasticity_energy_demand()                             # Calculate demand with changing elasticity (elasticity maybe on household level)
         self.reg_fuel_after_switch = self.fuel_switches()                                            # Calculate fuel switches
         self.fuel_data_reg_after_scenario_driver_yearly = self.scenario_driver_for_each_enduse()     # Calculate new fuel demands after scenario drivers
-        
+
         # --Daily fuel data
         self.fuel_data_daily = self.from_yearly_to_daily()                                           # Disaggregate yearly demand for every day
-        
+
         # --Hourly fuel data
         self.self_fuel_data_hourly = self.from_daily_to_hourly()                                     # Disaggregate daily demand to hourly demand
         self.peak_daily = self.peak_daily()                                             # Calculate peak day
@@ -164,7 +165,7 @@ class EndUseClassResid(Region):
                 eff_tech_remove = getattr(self.tech_stock, tech_replace)  # Get efficiency of technology to be replaced
 
                 # Fuel factor
-                fuel_factor = eff_tech_remove / eff_replacement       #TODO ev. auch umgekehrt 
+                fuel_factor = eff_tech_remove / eff_replacement       #TODO ev. auch umgekehrt
                 fuel_consid_eff = fuel_diff * fuel_factor
                 print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
 
@@ -185,7 +186,7 @@ class EndUseClassResid(Region):
 
         fueldata = self.reg_fuel_after_switch   # data
         enduse = self.enduse_name               # enduse
-        print("self.data['reg_building_stock_by']")
+
         by_building_stock = self.data['reg_building_stock_by'][self.reg_name]       # Base year building stock
         cy_building_stock = self.data['reg_building_stock_cur_yr'][self.reg_name]   # Current building stock
 
@@ -195,7 +196,7 @@ class EndUseClassResid(Region):
             #TODO: add very end_use
             attr_building_stock = 'sd_heating'
 
-        print("attr_building_stock: " + str(attr_building_stock))
+        # Scenariodriver of building base and new stock
         by_driver = getattr(by_building_stock, attr_building_stock)
         cy_driver = getattr(cy_building_stock, attr_building_stock)
 
@@ -208,17 +209,21 @@ class EndUseClassResid(Region):
         return fueldata_scenario_diver
 
     def from_yearly_to_daily(self):
+        """DESCRIPTION """
         #Get from dict for every end_use:
         pass
 
     def from_daily_to_hourly(self):
+        """ DESCRIPTION"""
         #Get from dict for every end_use:
         pass
 
     def peak_daily(self):
+        """ DESCRIPTION"""
         pass
 
     def peak_hourly(self):
+        """ DESCRIPTION"""
         pass
 
 
@@ -228,7 +233,7 @@ class EndUseClassResid(Region):
 # ----------------------------------------
 
 def new_energy_demand_model(data, data_ext, assumptions):
-
+    """NEWMODEL"""
     # Now the data needs to look like
     # ----------------------------------------
     #data['fueldata_disagg'] = {0:, data['data_residential_by_fuel_end_uses']} #test_fuel_disaggregated
@@ -240,17 +245,16 @@ def new_energy_demand_model(data, data_ext, assumptions):
     tech_stock = ts.resid_tech_stock(data_ext['glob_var']['current_year'], data, assumptions, data_ext) #TODO ASSUMPTIONS
     data['tech_stock'] = tech_stock
 
- 
+
     # Iterate REGION AND GENERATE OBJECTS
     for reg in data['reg_lu']:
-            print("Region: " + str(reg))
+        print("Region: " + str(reg))
 
-            # Residential
-            a = Region(reg, data, data_ext, assumptions)
+        # Residential
+        a = Region(reg, data, data_ext, assumptions)
 
-            print(a.cooking)
+        print(a.cooking)
 
-            print(len(a.end_uses))
-            #prnt("..")
-            #return
-
+        print(len(a.end_uses))
+        #prnt("..")
+        #return

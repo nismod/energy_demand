@@ -56,7 +56,9 @@ def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
     # Diffusion of internal temperature
     #int_temp_sim_y = get_internal_temperature(sim_y)
     #HDD = recalculate_hitchens(int_temp_sim_y)
-    HDD = "tbd"
+    sim_y = sim_y
+    assumptions = assumptions
+    #HDD = "tbd"
     HDD = 999
     # Recalcuulate heating degree days based on internal temperature change
     # Hitchins Formula
