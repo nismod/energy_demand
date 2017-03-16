@@ -325,6 +325,12 @@ def new_energy_demand_model(data, data_ext, assumptions):
         # Residential
         a = Region(reg, data, data_ext, assumptions)
 
+        hourly_all_fuels = a.sum_final_fuel_all_enduses_h()
+        
+        gas_final = hourly_all_fuels[0]
+        elec = hourly_all_fuels[1]
+        print(gas_final.shape)
+        prnt(".dd..")
         print(a.cooking)
 
         print(len(a.end_uses))
