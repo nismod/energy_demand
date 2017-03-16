@@ -11,6 +11,8 @@
 # e  = electricitiy
 # g  = gas
 # lu = look up
+# h = hour
+# d = day
 
 # The docs can be found here: http://ed.readthedocs.io
 """
@@ -21,14 +23,12 @@ import sys
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
-from energy_demand import residential_model
 import energy_demand.technological_stock as ts
-import energy_demand.main_object_approach as mm
-#import numpy as np
-#from datetime import date
+import energy_demand.residential_model as rm
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
-def energy_demand_model(data, assumptions, data_ext):
+def energy_demand_model(data, data_ext):
     """Main function of energy demand model to calculate yearly demand
 
     This function is executed in the wrapper.
@@ -37,8 +37,6 @@ def energy_demand_model(data, assumptions, data_ext):
     ----------
     data : dict
         Contains all data not provided externally
-    assumptions : dict
-        Contains all assumptions
     data_ext : dict
         All data provided externally
 
@@ -55,20 +53,19 @@ def energy_demand_model(data, assumptions, data_ext):
     -----
     All messy now...needs cleaning
     """
+    all_Regions = []
 
-    tech_stock = ts.resid_tech_stock(data_ext['glob_var']['current_year'], data, assumptions, data_ext) #TODO ASSUMPTIONS
+    tech_stock = ts.resid_tech_stock(data, data_ext)
     data['tech_stock'] = tech_stock
 
     # Iterate regions and generate objects
     timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
     result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
 
-    all_Regions = []
-
     for reg in data['reg_lu']:
 
         # Residential
-        a = mm.Region(reg, data, data_ext, assumptions)
+        a = rm.Region(reg, data, data_ext)
         all_Regions.append(a)
 
     result_dict = mf.convert_result_to_final_total_format(data, all_Regions)
@@ -86,7 +83,6 @@ def energy_demand_model(data, assumptions, data_ext):
     print("FINAL timesteps: " + str(len(result_dict[1][0])))
     print("Finished energy demand model")
     return result_dict
-
 
 # Run
 if __name__ == "__main__":
@@ -107,7 +103,11 @@ if __name__ == "__main__":
     # Model calculations outside main function
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                        # #path_main = '../data'
     base_data = mf.load_data(base_data, data_external, path_main)              # Load and generate data
+    
+    
     assumptions_model_run = assumpt.load_assumptions(base_data)                # Load assumptions
+    base_data['assumptions'] = assumptions_model_run                           # Add assumptions to data
+
     base_data = mf.disaggregate_base_demand_for_reg(base_data, 1)              # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
@@ -120,7 +120,8 @@ if __name__ == "__main__":
     # -----------------
     # Run main function
     # -----------------
-    energy_demand_model(base_data, assumptions_model_run, data_external)
+    
+    energy_demand_model(base_data, data_external)
 
     # Wheater generater (change base_demand data)
 
