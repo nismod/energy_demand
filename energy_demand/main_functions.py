@@ -4,7 +4,7 @@ import sys
 import os
 import csv
 import traceback
-import datetime
+
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
@@ -14,6 +14,32 @@ print ("Loading main functions")
 #from datetime import date, timedelta as td
 #from datetime import datetime
 #import datetime
+
+
+def convert_result_to_final_total_format(data, all_Regions):
+    """Convert into nested citionary with fueltype, region, hour"""
+
+    timesteps, _ = timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
+    result_dict = init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
+
+    for reg in all_Regions:
+        print("Reg_NAme " + str(reg))
+        region_name = reg.reg_name
+
+        # Get total fuel fuel
+        hourly_all_fuels = reg.tot_all_enduses_h()
+
+        # Iterate fueltypes
+        for fueltype in data['fuel_type_lu']:
+
+            fuel_total_h_all_end_uses = hourly_all_fuels[fueltype]
+
+            # Convert array into dict for out_read
+            out_dict = dict(enumerate(fuel_total_h_all_end_uses))
+
+            result_dict[fueltype][region_name] = out_dict
+
+    return result_dict
 
 def load_data(data, data_ext, path_main):
     """All base data no provided externally are loaded
@@ -47,9 +73,6 @@ def load_data(data, data_ext, path_main):
     data = dl.generate_data(data, run_data_collection)
 
     return data
-
-
-
 
 def init_dict_energy_supply(fuel_type_lu, reg_pop, timesteps):
     """Generates nested dictionary for providing results to smif
@@ -190,16 +213,7 @@ def read_csv_base_data_resid(path_to_csv):
 
             cnt_fueltype += 1
 
-    #import pprint
-    '''for i in end_uses_dict:
-        print("Appliances"  + str(i))
-        print(end_uses_dict[i])
-        print("--")
-    '''
     return end_uses_dict
-
-
-
 
 def create_timesteps_app(fuel_type, date_list, bd_app_elec, reg_lu, fuel_type_lu, app_type_lu, timestep_dates):
     """Creates the timesteps for which the energy demand of the appliances is calculated.
@@ -715,11 +729,13 @@ def timesteps_full_year():
     Parameters
     ----------
 
+
     Returns
     -------
     timestep : list
         List containing all dates according to number of hours
     """
+    #TODO: improve
 
     full_year_date = [date(2015, 1, 1), date(2015, 12, 31)] # Base Year
     start_date, end_date = full_year_date[0], full_year_date[1]
@@ -856,7 +872,7 @@ def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
 
     return position_own_container
 
-def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps, result_dict, timesteps_own_selection):
+'''def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps, result_dict, timesteps_own_selection):
     """Add data to wrapper timesteps
 
     """
@@ -906,7 +922,7 @@ def add_demand_result_dict(fuel_type, e_app_bd, fuel_type_lu, reg_pop, timesteps
                 year_hour += 1
 
     return result_dict
-
+'''
 def get_own_timesteps(date_list):
     """Create own timesteps. "Generets a list with all dates from a list containing start and end dates.
 
@@ -1145,7 +1161,7 @@ def read_data(data, path_main):
     app_type_lu = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
     #fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
     fuel_type_lu = read_csv_dict_no_header(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
-    
+
     day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
     #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                 # Season lookup
 
@@ -1200,8 +1216,8 @@ def read_data(data, path_main):
     data['lu_appliances_HES_matched'] = lu_appliances_HES_matched
 
     # load shapes
-    data['dict_shapes_end_use_h'] = {} 
-    data['dict_shapes_end_use_d'] = {} 
+    data['dict_shapes_end_use_h'] = {}
+    data['dict_shapes_end_use_d'] = {}
     return data
 
 def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
@@ -1271,7 +1287,7 @@ def write_YAML(yaml_write, path_YAML):
     return
 
 
-def write_to_csv_will(reesult_dict, reg_lu):
+def write_to_csv_will(data, reesult_dict, reg_lu):
     """ Write reults for energy supply model
     e.g.
 
@@ -1279,26 +1295,27 @@ def write_to_csv_will(reesult_dict, reg_lu):
 
     """
 
-    path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/NEU_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/NEU_gas.csv']
-    fueltype = 1
-    for path in path_csvs:
-        print("path: " + str(path))
-        print("--------------------")
-        #yaml_list = []
-        with open(path, 'w', newline='') as fp:
+    for fueltype in data['fuel_type_lu']:
 
+        #TODO: Give relative path stored in data[pathdict]
+        path = 'C:/Users/cenv0553/GIT/NISMODII/model_output/_fueltype_{}_hourly_results'.format(fueltype)
+
+        yaml_list = []
+        with open(path, 'w', newline='') as fp:
             a = csv.writer(fp, delimiter=',')
             data = []
-            #for i in range(len(reesult_dict)): # Iterate over fuel type
 
             for reg in reesult_dict[fueltype]:
                 region_name = reg_lu[reg]
 
+
                 for _day in reesult_dict[fueltype][reg]:
-                    for _hour in reesult_dict[fueltype][reg][_day]:
+                    for _hour in range(24):
+
                         start_id = "P{}H".format(_day * 24 + _hour)
                         end_id = "P{}H".format(_day * 24 + _hour + 1)
-                        #yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[cnt][reg][_hour], 'units': 'GWh', 'year': 'XXXX'})
+                        yaml_list.append({'region': region_name, 'start': start_id, 'end': end_id, 'value': reesult_dict[fueltype][reg][_day][_hour], 'units': 'CHECK GWH', 'year': 'XXXX'})
+
                         data.append([region_name, start_id, end_id, reesult_dict[fueltype][reg][_day][_hour]])
 
             a.writerows(data)
@@ -1349,14 +1366,12 @@ def calc_daily_load_factor(daily_loads):
 '''
 
 def calc_peak_from_average(daily_loads):
-    
-    # 
     max_load = average_load / load_factor
 
     return max_load
 
 
-def OLDMODEL_load_data(data, data_ext, path_main):
+'''def OLDMODEL_load_data(data, data_ext, path_main):
     
 
     # ----------below old model
@@ -1412,7 +1427,7 @@ def OLDMODEL_load_data(data, data_ext, path_main):
     print(" ")
 
     return data
-
+'''
 
 """A one-line summary that does not use variable names or the
     function name.

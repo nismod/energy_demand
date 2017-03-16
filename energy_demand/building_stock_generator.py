@@ -82,23 +82,23 @@ def resid_build_stock(data, assumptions, data_ext):
         reg_building_stock_cur_yr[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dwellings)    # Add old and new buildings to stock
         reg_building_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base)                 # Add base year stock
 
-    print("Base dwelling")
-    print(reg_building_stock_by[0].get_tot_pop())
+    #print("Base dwelling")
+    #print(reg_building_stock_by[0].get_tot_pop())
     l = reg_building_stock_by[0].dwellings
-    for i in l:
-        print(i.__dict__)
+    #for i in l:
+    #    print(i.__dict__)
 
-    print("Curryear dwelling")
-    print(reg_building_stock_cur_yr[0].get_tot_pop())
+    ##print("Curryear dwelling")
+    #print(reg_building_stock_cur_yr[0].get_tot_pop())
     l = reg_building_stock_cur_yr[0].dwellings
-    for i in l:
-        print(i.__dict__)
+    #for i in l:
+    #    print(i.__dict__)
 
     # Add to data
     data['reg_building_stock_by'] = reg_building_stock_by
     data['reg_building_stock_cur_yr'] = reg_building_stock_cur_yr
 
-    print(" -- Virtual Building Stock generated")
+    #print(" -- Virtual Building Stock generated")
     return data
 
 def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):

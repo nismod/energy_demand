@@ -56,82 +56,35 @@ def energy_demand_model(data, assumptions, data_ext):
     All messy now...needs cleaning
     """
 
-    # NEW MODEL HERE
-    #import energy_demand.main_object_approach as NEWMODEL
-    #NEWMODEL.new_energy_demand_model(data, data_ext, assumptions)
     tech_stock = ts.resid_tech_stock(data_ext['glob_var']['current_year'], data, assumptions, data_ext) #TODO ASSUMPTIONS
     data['tech_stock'] = tech_stock
 
-    # Iterate REGION AND GENERATE OBJECTS
-    result_dict = {1: {}, 2: {}} #Number of fueltypes #TODO: Improve
+    # Iterate regions and generate objects
+    timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
+    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
+
+    all_Regions = []
 
     for reg in data['reg_lu']:
-        reg_dict = {}
-        print("Region: " + str(reg))
 
         # Residential
         a = mm.Region(reg, data, data_ext, assumptions)
-        hourly_all_fuels = a.tot_all_enduses_h()
+        all_Regions.append(a)
 
-        gas_final = hourly_all_fuels[1]
-        elec = hourly_all_fuels[2]
-
-        # Convert output into dict
-        out_dict_gas = dict(enumerate(gas_final))   # Convert array into dict for out_read
-        for i in out_dict_gas:
-                new = dict(enumerate(out_dict_gas[i]))
-                out_dict_gas[i] = new
-
-        out_dict_elec = dict(enumerate((elec)))      # Convert array into dict for out_read
-        for i in out_dict_elec:
-                new = dict(enumerate(out_dict_elec[i]))
-                out_dict_elec[i] = new
-
-        result_dict[1][reg] = out_dict_gas
-        result_dict[2][reg] = out_dict_elec
+    result_dict = mf.convert_result_to_final_total_format(data, all_Regions)
 
 
-
-    '''# OLD MODEL BELOW
-    # Convert population data int array
-    data_ext = mf.add_to_data(data_ext, data_ext['population']) # Convert to array, store in data
-
-    # Run different sub-models (sector models)
-
-    # -- Residential model
-    e_app_bd, g_hd_bd = residential_model.run(data_ext['glob_var'], data['shape_app_elec'], data['reg_pop_array'], data_ext['reg_pop_external_array'], data['timesteps_app_bd'], data['timesteps_hd_bd'])
-
-    '''
-    ''' # ---------------------------------------------------------------------------
-    # Generate the wrapper timesteps and add instert data (from own timeperiod to full year)
-    print("Generate resutls for wrapper (read into nested dictionary")
-    # ---------------------------------------------------------------------------
-    timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
-
-    # Initialise nested Dicionatry for wrapper (Fuel type, region, hour)
-    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
-
-    # Add electricity data to result dict for wrapper
-    #result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
-    result_dict = mf.add_demand_result_dict(0, e_app_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
-    #print(result_dict[0][0])
-
-    # Add gas data
-    #result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
-    result_dict = mf.add_demand_result_dict(1, g_hd_bd, data['fuel_type_lu'], data['reg_pop_array'], timesteps, result_dict, data['timesteps_own_selection'])
-    '''
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
 
     # --- Write out functions....scrap to improve
-    mf.write_to_csv_will(result_dict, data['reg_lu']) #TODO IMprove
+    mf.write_to_csv_will(data, result_dict, data['reg_lu']) #TODO IMprove
 
     # Write function to also write out results
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))
     print("FINAL timesteps: " + str(len(result_dict[1][0])))
     print("Finished energy demand model")
-    #print(result_dict)
     return result_dict
 
 
@@ -154,16 +107,11 @@ if __name__ == "__main__":
     # Model calculations outside main function
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                        # #path_main = '../data'
     base_data = mf.load_data(base_data, data_external, path_main)              # Load and generate data
-
-    base_data = mf.OLDMODEL_load_data(base_data, data_external, path_main)     # DELETE SOON
-
-
     assumptions_model_run = assumpt.load_assumptions(base_data)                # Load assumptions
     base_data = mf.disaggregate_base_demand_for_reg(base_data, 1)              # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
-
 
 
     # Generate technological stock over whole simulation period

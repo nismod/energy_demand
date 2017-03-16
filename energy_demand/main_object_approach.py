@@ -63,35 +63,34 @@ class Region(object):
     def sum_final_fuel_all_enduses(self):
         '''Summen all fuel types over all end uses'''
 
-        # Initialise empty array to store fuel
-        summary_fuel = np.empty((len(self.data['fuel_type_lu']), 1))
-        cnt = 0
+        # Initialise array to store fuel
+        summary_fuel = np.zeros((len(self.data['fuel_type_lu']), 1))
 
         for enduse in self.reg_fuel:
 
             # Fuel of Enduse
             fuel_end_use = self.__getattr__subclass__(enduse, 'fuel_data_reg_after_scenario_driver_yearly') #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
-            #print(fuel_end_use.shape)
 
             # Iterate fuels
-            #print("A: " + str(summary_fuel.shape))
-            #print("B: " + str(fuel_end_use.shape))
             summary_fuel += fuel_end_use
-
-            cnt += 1
 
         return summary_fuel
 
     def tot_all_enduses_h(self):
         """Calculate total hourly fuel demand for each fueltype"""
 
-        # Initialise empty array to store fuel
-        summary_fuel_h = np.empty((len(self.data['fuel_type_lu']), 365, 24))
+        # Initialise array to store fuel
+        summary_fuel_h = np.zeros((len(self.data['fuel_type_lu']), 365, 24))
 
         for enduse in self.reg_fuel:
-            fuel_end_use_h = self.__getattr__subclass__(enduse, 'reg_fuel_h') #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
+            #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
+            fuel_end_use_h = self.__getattr__subclass__(enduse, 'reg_fuel_h')
+
+            #fuel_end_use_h = np.around(fuel_end_use_h,10) #TODO: Consider rounding values
             summary_fuel_h += fuel_end_use_h
 
+        # Read out more error information (e.g. RuntimeWarning)
+        np.seterr(all='raise') # If not round, problem....np.around(fuel_end_use_h,10)
         return summary_fuel_h
 
     def __getattr__(self, attr):
@@ -293,37 +292,3 @@ class EndUseClassResid(Region):
     def peak_h(self):
         """ DESCRIPTION"""
         pass
-
-
-
-
-
-# ----------------------------------------
-'''
-def new_energy_demand_model(data, data_ext, assumptions):
-    """NEWMODEL"""
-    # Now the data needs to look like
-    # ----------------------------------------
-    #data['fueldata_disagg'] = {0:, data['data_residential_by_fuel_end_uses']} #test_fuel_disaggregated
-
-    #assumptions = {0: assumptions, 1: assumptions, 2: assumptions} # ASsumptions per region
-    #print (assumptions)
-
-    # Generate technological stock
-    tech_stock = ts.resid_tech_stock(data_ext['glob_var']['current_year'], data, assumptions, data_ext) #TODO ASSUMPTIONS
-    data['tech_stock'] = tech_stock
-
-
-    # Iterate REGION AND GENERATE OBJECTS
-    for reg in data['reg_lu']:
-        print("Region: " + str(reg))
-
-        # Residential
-        a = Region(reg, data, data_ext, assumptions)
-
-        hourly_all_fuels = a.tot_all_enduses_h()
-
-        gas_final = hourly_all_fuels[0]
-        elec = hourly_all_fuels[1]
-    
-'''
