@@ -1279,10 +1279,11 @@ def write_to_csv_will(reesult_dict, reg_lu):
 
     """
 
-    path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/will_file_gas.csv']
-    cnt = 0
+    path_csvs = ['C:/Users/cenv0553/GIT/NISMODII/model_output/NEU_elec.csv', 'C:/Users/cenv0553/GIT/NISMODII/model_output/NEU_gas.csv']
+    fueltype = 1
     for path in path_csvs:
         print("path: " + str(path))
+        print("--------------------")
         #yaml_list = []
         with open(path, 'w', newline='') as fp:
 
@@ -1290,23 +1291,18 @@ def write_to_csv_will(reesult_dict, reg_lu):
             data = []
             #for i in range(len(reesult_dict)): # Iterate over fuel type
 
-            for reg in reesult_dict[cnt]:
-                print("Region: " + str(reg))
+            for reg in reesult_dict[fueltype]:
                 region_name = reg_lu[reg]
 
-                # iterate timesteps
-                for ts in reesult_dict[cnt][reg]:
-                    _day = int(ts.split('_')[0])
-                    _hour = int(ts.split('_')[1])
-
-                    start_id = "P{}H".format(_day * 24 + _hour)
-                    end_id = "P{}H".format(_day * 24 + _hour + 1)
-
-                    #yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[i][reg][ts], 'units': 'GWh', 'year': 'XXXX'})
-                    data.append([region_name, start_id, end_id, reesult_dict[cnt][reg][ts]])
+                for _day in reesult_dict[fueltype][reg]:
+                    for _hour in reesult_dict[fueltype][reg][_day]:
+                        start_id = "P{}H".format(_day * 24 + _hour)
+                        end_id = "P{}H".format(_day * 24 + _hour + 1)
+                        #yaml_list.append({'region': region_name, 'start': _start, 'end': _end, 'value': reesult_dict[cnt][reg][_hour], 'units': 'GWh', 'year': 'XXXX'})
+                        data.append([region_name, start_id, end_id, reesult_dict[fueltype][reg][_day][_hour]])
 
             a.writerows(data)
-        cnt += 1
+        fueltype += 1
 
         #with open(path, 'w') as outfile:
         #    yaml.dump(yaml_list, outfile, default_flow_style=False)

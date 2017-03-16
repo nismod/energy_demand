@@ -47,7 +47,7 @@ class Region(object):
         # Sum daily
 
         # Sum hourly
-        self.h_sum_data = self.sum_final_fuel_all_enduses_h()
+        self.h_sum_data = self.tot_all_enduses_h()
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
@@ -66,35 +66,31 @@ class Region(object):
         # Initialise empty array to store fuel
         summary_fuel = np.empty((len(self.data['fuel_type_lu']), 1))
         cnt = 0
-        print("ss" + str(summary_fuel.shape))
-        print(self.reg_fuel)
 
         for enduse in self.reg_fuel:
-            
+
             # Fuel of Enduse
             fuel_end_use = self.__getattr__subclass__(enduse, 'fuel_data_reg_after_scenario_driver_yearly') #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
-
-            print(fuel_end_use.shape)
+            #print(fuel_end_use.shape)
 
             # Iterate fuels
-            print("A: " + str(summary_fuel.shape))
-            print("B: " + str(fuel_end_use.shape))
+            #print("A: " + str(summary_fuel.shape))
+            #print("B: " + str(fuel_end_use.shape))
             summary_fuel += fuel_end_use
 
             cnt += 1
 
         return summary_fuel
 
-    def sum_final_fuel_all_enduses_h(self):
+    def tot_all_enduses_h(self):
+        """Calculate total hourly fuel demand for each fueltype"""
 
         # Initialise empty array to store fuel
         summary_fuel_h = np.empty((len(self.data['fuel_type_lu']), 365, 24))
 
-        k_fueltype = 0
         for enduse in self.reg_fuel:
             fuel_end_use_h = self.__getattr__subclass__(enduse, 'reg_fuel_h') #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
-            summary_fuel_h[k_fueltype] += fuel_end_use_h[k_fueltype]
-            k_fueltype += 1
+            summary_fuel_h += fuel_end_use_h
 
         return summary_fuel_h
 
@@ -178,23 +174,23 @@ class EndUseClassResid(Region):
 
             # Calculate percentage differences over full simulation period
             fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
-            print("fuel_diff: " + str(fuel_diff))
+            #print("fuel_diff: " + str(fuel_diff))
 
             # Calculate sigmoid diffusion of fuel switches
             fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
-            print("fuel_p_cy:" + str(fuel_p_cy))
-            print(fuel_p_ey[:, 1])
-            print("fuel_p_ey:" + str(fuel_p_ey))
-            print(fuel_p_cy.shape)
-            print("self.reg_fuel: " + str(self.reg_fuel))
-            print(self.reg_fuel.shape)
+            #print("fuel_p_cy:" + str(fuel_p_cy))
+            #print(fuel_p_ey[:, 1])
+            #print("fuel_p_ey:" + str(fuel_p_ey))
+            #print(fuel_p_cy.shape)
+            #print("self.reg_fuel: " + str(self.reg_fuel))
+            #print(self.reg_fuel.shape)
 
             # Differences in absolute fuel amounts
             absolute_fuel_diff = self.reg_fuel[0] * fuel_p_cy # Multiply fuel demands by percentage changes
-            print("absolute_fuel_diff: " + str(absolute_fuel_diff))
-            print("Technology which is installed:           " + str(tech_install))
-            print("Efficiency of technology to be installed " + str(eff_replacement))
-            print("Current Year:" + str(self.current_year))
+            #print("absolute_fuel_diff: " + str(absolute_fuel_diff))
+            #print("Technology which is installed:           " + str(tech_install))
+            #print("Efficiency of technology to be installed " + str(eff_replacement))
+            #print("Current Year:" + str(self.current_year))
 
             fuel_type = 0
             for fuel_diff in absolute_fuel_diff:
@@ -204,8 +200,8 @@ class EndUseClassResid(Region):
                 # Fuel factor
                 fuel_factor = eff_tech_remove / eff_replacement       #TODO ev. auch umgekehrt
                 fuel_consid_eff = fuel_diff * fuel_factor
-                print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
-                print("fuel_diff: " + str(fuel_diff))
+                #print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
+                #print("fuel_diff: " + str(fuel_diff))
                 # Add  fuels (if minus, no technology weighting is necessary)
                 if fuel_diff > 0:
                     fuel_switch_array[int(fuel_type)] += fuel_consid_eff # Add Fuel
@@ -239,7 +235,7 @@ class EndUseClassResid(Region):
 
         factor_driver = cy_driver / by_driver  #TODO: Or the other way round
 
-        print("fueldata: " + str(fueldata))
+        #print("fueldata: " + str(fueldata))
 
         fueldata_scenario_diver = fueldata * factor_driver
 
@@ -303,7 +299,7 @@ class EndUseClassResid(Region):
 
 
 # ----------------------------------------
-
+'''
 def new_energy_demand_model(data, data_ext, assumptions):
     """NEWMODEL"""
     # Now the data needs to look like
@@ -325,14 +321,9 @@ def new_energy_demand_model(data, data_ext, assumptions):
         # Residential
         a = Region(reg, data, data_ext, assumptions)
 
-        hourly_all_fuels = a.sum_final_fuel_all_enduses_h()
-        
+        hourly_all_fuels = a.tot_all_enduses_h()
+
         gas_final = hourly_all_fuels[0]
         elec = hourly_all_fuels[1]
-        print(gas_final.shape)
-        prnt(".dd..")
-        print(a.cooking)
-
-        print(len(a.end_uses))
-        #prnt("..")
-        #return
+    
+'''
