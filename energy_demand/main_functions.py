@@ -1167,6 +1167,8 @@ def read_data(data, path_main):
     # Data new approach
     #print(path_dict['path_data_residential_by_fuel_end_uses']) #TODO: Maybe store end_uses_more directly
     data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
+
+
     lu_appliances_HES_matched = read_csv(path_dict['path_lu_appliances_HES_matched'])
 
 

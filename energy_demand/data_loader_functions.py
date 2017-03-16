@@ -140,7 +140,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
     # -------------------------
     # Calculate non-peak shapes
     # -------------------------
-    shape_d_non_peak = np.zeros((365,))
+    shape_d_non_peak = np.zeros((365, 1))
     shape_h_non_peak = np.zeros((365, 24))
 
     for day in range(365):
@@ -233,10 +233,18 @@ def shape_residential_heating_gas(data, end_use):
     # Total yearly heating demand
     total_y_hd = np.sum(hd_data)
 
-    # Percentage of total demand for every day
-    shape_d_non_peak = (1.0/total_y_hd) * hd_data
+    shape_d_non_peak = np.zeros((365, 1)) #Two dimensional array with one row
 
-    print("Sum appliances_shape: " + str(shape_d_non_peak))
+    # Percentage of total demand for every day
+    cnt = 0
+    for day in hd_data:
+        shape_d_non_peak[cnt] = (1.0/total_y_hd) * np.sum(day) #calc daily demand in percent
+        cnt += 1
+
+    #print("Sum appliances_shape: " + str(shape_d_non_peak))
+    #print(shape_d_non_peak.shape)
+    #print(end_use)
+    #prnt("..")
 
     # Add to hourly shape
     data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape': shape_h_non_peak, 'shape_h_non_peak': shape_h_non_peak} # TODO: no peak for gas
