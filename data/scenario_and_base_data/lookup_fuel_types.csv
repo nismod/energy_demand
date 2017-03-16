@@ -4,5 +4,4 @@ fuel_id,fueltype
 2,electricity
 3,oil
 4, heat_sold 
-5, bioenergy_waste 
-6,hydrogen
+5, bioenergy_waste

@@ -3,28 +3,23 @@
 
 import numpy as np
 
-#import energy_demand.main_functions as mf
-#import energy_demand.building_stock_generator as bg
-#import energy_demand.assumptions as assumpt
-#from energy_demand import residential_model
 import energy_demand.technological_stock as ts
 import energy_demand.technological_stock_functions as tf
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
 class Region(object):
     """ Class of region """
 
-    def __init__(self, reg_name, data, data_ext):
+    def __init__(self, reg_id, data, data_ext):
         """ Constructor. Initialising different methods"""
-        self.reg_name = reg_name                                       # Name/ID of region
+        self.reg_id = reg_id                                        # ID of region
         self.data = data
         self.data_ext = data_ext
-        self.assumptions = data['assumptions']                                  # Improve: Assumptions per region
-        self.current_year = data_ext['glob_var']['current_year']       # Current year
-        self.reg_fuel = data['fueldata_disagg'][reg_name]          # Fuel array of region (used to extract all end_uses)
-        #self.pop = data_ext['population'][self.current_year][self.reg_name] # Population of current year
+        self.assumptions = data['assumptions']                      # Improve: Assumptions per region
+        self.current_year = data_ext['glob_var']['current_year']    # Current year
+        self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
+        #self.pop = data_ext['population'][self.current_year][self.reg_id] # Population of current year
 
         # Create all end use attributes
         self.create_end_use_objects()
@@ -44,7 +39,7 @@ class Region(object):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
         a = {}
         for enduse in self.reg_fuel:
-            a[enduse] = EndUseClassResid(self.reg_name, self.current_year, self.data, self.data_ext, enduse, self.reg_fuel)
+            a[enduse] = EndUseClassResid(self.reg_id, self.current_year, self.data, self.data_ext, enduse, self.reg_fuel)
         self.end_uses = a
         for _ in self.end_uses:
             vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
@@ -58,8 +53,8 @@ class Region(object):
         for enduse in self.reg_fuel:
 
             # Fuel of Enduse
-            fuel_end_use = self.__getattr__subclass__(enduse, 'fuel_data_reg_after_scenario_driver_yearly') #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class
-
+            #TODO: Replace reg_fuel_after_switch with Final Energy Demand from end_use_class)
+            fuel_end_use = self.__getattr__subclass__(enduse, 'reg_fuelscen_driver')
             sum_fuels += fuel_end_use
 
         return sum_fuels
@@ -94,10 +89,10 @@ class Region(object):
 class EndUseClassResid(Region):
     """Class of an energy use category (e.g. lignting) of residential sector"""
 
-    def __init__(self, reg_name, current_year, data, data_ext, enduse, reg_fuel):
+    def __init__(self, reg_id, current_year, data, data_ext, enduse, reg_fuel):
 
         # --General data
-        self.reg_name = reg_name                  # Region
+        self.reg_id = reg_id                  # Region
         self.enduse = enduse                      # EndUse Name
         self.current_year = current_year          # from parent class
         self.data = data                          # from parent class
@@ -109,21 +104,20 @@ class EndUseClassResid(Region):
         # --Load shapes
         self.load_shape_d = data['dict_shapes_end_use_d'][enduse]['shape_d_non_peak']  # shape_d
         self.load_shape_h = data['dict_shapes_end_use_h'][enduse]['shape_h_non_peak']  # shape_h
-        self.load_shape_peak_d = data['dict_shapes_end_use_d'][enduse]['peak_d_shape'] # shape_d peak
+        self.load_shape_peak_d = data['dict_shapes_end_use_d'][enduse]['peak_d_shape'] # shape_d peak (Factor to calc one day)
         self.load_shape_peak_h = data['dict_shapes_end_use_h'][enduse]['peak_h_shape'] # shape_h peak
 
         # --Yearly fuel data
-        #self.efficiency_gains....                                                                   # General efficiency gains of technology over time #TODO
-        self.reg_fuel_after_elasticity = self.elasticity_energy_demand()                             # Calculate demand with changing elasticity (elasticity maybe on household level)
-        self.reg_fuel_after_switch = self.fuel_switches()                                            # Calculate fuel switches
-        self.fuel_data_reg_after_scenario_driver_yearly = self.scenario_driver_for_each_enduse()     # Calculate new fuel demands after scenario drivers
+        #self.efficiency_gains....                                                      # General efficiency gains of technology over time #TODO
+        self.reg_fuel_after_elasticity = self.elasticity_energy_demand()                # Calculate demand with changing elasticity (elasticity maybe on household level)
+        self.reg_fuel_after_switch = self.fuel_switches()                               # Calculate fuel switches
+        self.reg_fuelscen_driver = self.scenario_driver_for_each_enduse()               # Calculate new fuel demands after scenario drivers
 
         # --Daily fuel data
-        self.reg_fuel_d = self.from_yearly_to_daily()                                           # Disaggregate yearly demand for every day
+        self.reg_fuel_d = self.from_yearly_to_daily()                                   # Disaggregate yearly demand for every day
 
         # --Hourly fuel data
-        self.reg_fuel_h = self.from_daily_to_hourly()                                     # Disaggregate daily demand to hourly demand
-
+        self.reg_fuel_h = self.from_daily_to_hourly()                                   # Disaggregate daily demand to hourly demand
         self.peak_d = self.peak_d()                                           # Calculate peak day TODO
         self.peak_h = self.peak_h()                                           #Calculate peak hour TODO
 
@@ -142,11 +136,9 @@ class EndUseClassResid(Region):
 
         # Test whether share of fuel types stays identical
         if np.array_equal(fuel_p_by, fuel_p_ey):            # no fuel switches
-            return self.reg_fuel                        #print("No Fuel Switches (same perentages)")
-        else:                                               #print("Fuel is switched in Enduse: "  + str(self.enduse))
-
-            # Out_dict initialisation
-            fuel_switch_array = np.copy((self.reg_fuel))
+            return self.reg_fuel                        # No Fuel Switches (same perentages)
+        else:
+            fuel_switch_array = np.copy((self.reg_fuel))    # Out_dict initialisation
 
             # Assumptions about which technology is installed and replaced
             tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
@@ -174,20 +166,19 @@ class EndUseClassResid(Region):
             #print("Efficiency of technology to be installed " + str(eff_replacement))
             #print("Current Year:" + str(self.current_year))
 
-            fuel_type = 0
-            for fuel_diff in absolute_fuel_diff:
+            for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
                 tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
                 eff_tech_remove = getattr(self.tech_stock, tech_replace)  # Get efficiency of technology to be replaced
 
-                # Fuel factor
-                fuel_factor = eff_tech_remove / eff_replacement       #TODO ev. auch umgekehrt
+                # Fuel factor   #TODO ev. auch umgekehrt
+                fuel_factor = eff_tech_remove / eff_replacement       
                 fuel_consid_eff = fuel_diff * fuel_factor
                 #print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
                 #print("fuel_diff: " + str(fuel_diff))
                 # Add  fuels (if minus, no technology weighting is necessary)
                 if fuel_diff > 0:
                     fuel_switch_array[int(fuel_type)] += fuel_consid_eff # Add Fuel
-                fuel_type += 1
+
 
             #print("Old Fuel: " + str(self.reg_fuel))
             #print("--")
@@ -199,17 +190,17 @@ class EndUseClassResid(Region):
         #TODO: Check if in sub-functions alway the latest data is taken (process train)
         """
 
-        if self.enduse  == 'heating':
+        if self.enduse == 'heating':
             attr_building_stock = 'sd_heating'
         else:
             #TODO: add very end_use
             attr_building_stock = 'sd_heating'
 
         # Scenariodriver of building base and new stock
-        #a = self.data['reg_building_stock_by'][self.reg_name]
-        #b = self.data['reg_building_stock_cur_yr'][self.reg_name]
-        by_driver = getattr(self.data['reg_building_stock_by'][self.reg_name], attr_building_stock)     # Base year building stock
-        cy_driver = getattr(self.data['reg_building_stock_cur_yr'][self.reg_name], attr_building_stock) # Current building stock
+        #a = self.data['reg_building_stock_by'][self.reg_id]
+        #b = self.data['reg_building_stock_cur_yr'][self.reg_id]
+        by_driver = getattr(self.data['reg_building_stock_by'][self.reg_id], attr_building_stock)     # Base year building stock
+        cy_driver = getattr(self.data['reg_building_stock_cur_yr'][self.reg_id], attr_building_stock) # Current building stock
 
         factor_driver = cy_driver / by_driver  #TODO: Or the other way round
 
@@ -220,14 +211,13 @@ class EndUseClassResid(Region):
     def from_yearly_to_daily(self):
         """Generate array with fuels for every day"""
 
-        fuels_d = np.zeros((len(self.fuel_data_reg_after_scenario_driver_yearly), 365))
+        fuels_d = np.zeros((len(self.reg_fuel), 365))
 
-        # Iterate yearday and 
-        for k, fueltype_year_data in enumerate(self.fuel_data_reg_after_scenario_driver_yearly):
-            fuels_d[k] = self.load_shape_d[:, 0] * fueltype_year_data # load_shape_d is  a two dim array with load shapes in first row
+        # Iterate yearday and
+        for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver): #TODOC: Chedk if really reg_fuelscen_driver
+            fuels_d[k] = self.load_shape_d[:, 0] * fueltype_year_data[0] # load_shape_d is  a two dim array with load shapes in first row
 
         return fuels_d
-
 
     def from_daily_to_hourly(self):
         """Hourly data for every day in a year
@@ -251,15 +241,28 @@ class EndUseClassResid(Region):
 
             # Iterate days and multiply daily fuel data with daily shape
             for day in range(365):
-                fuels_h[k][day] = fuel_type_data[day] * self.load_shape_h[day]
+                fuels_h[k][day] = self.load_shape_h[day] * fuel_type_data[day]
 
         return fuels_h
 
-
     def peak_d(self):
-        """ DESCRIPTION"""
-        pass
+        """ PEAK DAY DEMAND"""
+        fuels_d_peak = np.zeros((len(self.reg_fuel), 365))
+
+        # Iterate yearday and
+        for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver):
+            fuels_d_peak[k] = self.load_shape_peak_d * fueltype_year_data[0] # load_shape_d is  a two dim array with load shapes in first row
+
+        return fuels_d_peak
 
     def peak_h(self):
-        """ DESCRIPTION"""
-        pass
+        """ ONE SINGLE DAY"""
+        fuels_h_peak = np.zeros((self.reg_fuel_d.shape[0], 1, 24)) #fueltypes, days, hours
+        
+        for k, fuel_type_data in enumerate(self.peak_d):
+
+            # Iterate days and multiply daily fuel data with daily shape
+            for day in range(1):
+                fuels_h_peak[k][day] = self.load_shape_peak_h[day] * fuel_type_data[day]
+
+        return fuels_h_peak

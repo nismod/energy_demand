@@ -166,9 +166,9 @@ class Region(object):
     """ Class of region """
 
     # Constructor (initialise class)
-    def __init__(self, reg_name):
-        self.reg_name = reg_name                    # Name/ID of region
-        self.fueldata_reg = fueldata_orig[reg_name] # Fuel array of region
+    def __init__(self, reg_id):
+        self.reg_id = reg_id                    # Name/ID of region
+        self.fueldata_reg = fueldata_orig[reg_id] # Fuel array of region
 
         #self.year = sim_year
         #self.pop = pop_by
@@ -256,10 +256,10 @@ fueldata = {'Bern': {"Heating": 100, "Cooking": 300}}
 class Region(object):
     """ Class of region """
 
-    def __init__(self, reg_name):
-        self.reg_name = reg_name
+    def __init__(self, reg_id):
+        self.reg_id = reg_id
         self.end_uses = endUses # load end_uses external
-        self.fueldata = fueldata[reg_name] # load fuels external
+        self.fueldata = fueldata[reg_id] # load fuels external
         #print(self.end_uses)
         self.end_uses_all = self.create_endUse_object() # call function within class (Initiase all end uses)
     

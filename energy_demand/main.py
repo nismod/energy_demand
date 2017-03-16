@@ -87,6 +87,9 @@ def energy_demand_model(data, data_ext):
 # Run
 if __name__ == "__main__":
 
+    # Data container
+    base_data = {}
+
     # External data provided to wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3001001, 1: 5301001, 2: 53001001}
@@ -98,21 +101,17 @@ if __name__ == "__main__":
                                  },
                     }
 
-    base_data = {}
-
     # Model calculations outside main function
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                        # #path_main = '../data'
-    base_data = mf.load_data(base_data, data_external, path_main)              # Load and generate data
-    
-    
-    assumptions_model_run = assumpt.load_assumptions(base_data)                # Load assumptions
-    base_data['assumptions'] = assumptions_model_run                           # Add assumptions to data
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'              # #path_main = '../data'
+    base_data = mf.load_data(base_data, path_main)                   # Load and generate data
 
-    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1)              # Disaggregate national data into regional data
+    assumptions_model_run = assumpt.load_assumptions(base_data)      # Load assumptions
+    base_data['assumptions'] = assumptions_model_run                 # Add assumptions to data
+
+    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1)    # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
-
 
     # Generate technological stock over whole simulation period
     #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
@@ -120,7 +119,6 @@ if __name__ == "__main__":
     # -----------------
     # Run main function
     # -----------------
-    
     energy_demand_model(base_data, data_external)
 
     # Wheater generater (change base_demand data)

@@ -1,4 +1,164 @@
 
+def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
+    """
+    This function uses the generic shapes of the load profiles to hourly disaggregate energy demand
+    for all regions and fuel types
+
+    # So far only eletricity appliances
+
+    out:
+    -fuel_type_per_region_hourly        Fueltype per region per appliance per hour
+        fueltype
+            region
+                year_days
+                    appliances
+                        hours
+    """
+    fuelType_elec = 0 # Electrcitiy
+    fuel_bd_data_electricity = fuel_bd_data[:, 1] # Base fuel per region
+
+    dim_appliance = shape_app_elec.shape
+
+    # Initialise array
+    fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
+    fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1], dim_appliance[2]), dtype=float) # To store absolute demand values of hourly appliances
+
+    '''# Add electricity base data
+    for region_nr in range(len(reg_lu)):
+        fuel_type_per_region[fuelType_elec][region_nr] = fuel_bd_data_electricity[region_nr]
+
+    # Appliances per region
+    for region_nr in range(len(reg_lu)):
+        reg_demand = fuel_type_per_region[fuelType_elec][region_nr]
+        reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
+        fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+    '''
+    #'''
+    # Add electricity base data per region
+    for region_nr in range(len(reg_lu)):
+
+        reg_demand = fuel_bd_data_electricity[region_nr]
+        reg_elec_appliance = shape_app_elec * reg_demand # Shape elec appliance * regional demand in [GWh]
+        fuel_type_per_region_hourly[fuelType_elec][region_nr] = reg_elec_appliance
+    #'''
+
+    # Test for errors
+    try:
+        _control = round(float(fuel_type_per_region_hourly.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        _control2 = round(float(fuel_bd_data_electricity.sum()), 4)   # Sum of output energy data, rounded to 4 digits
+
+        if _control == _control2:
+            print("Input total energy demand has been correctly disaggregated.")
+        else:
+            _err = "Error: Something with the disaggregation went wrong.. "
+            raise Exception(_err)
+
+    except _err:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function db_appliances:")
+        traceback.print_tb(_tb)
+        print (_value)
+        sys.exit()
+
+    return fuel_type_per_region_hourly
+
+
+'''
+def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
+    
+    This function reads in the HES eletricity load profiles
+    of the base year and stores them in form of an array.
+    First the absolute values are stored in a HES dictionary
+    for the different month and day-types. Then the total
+    demand of the year is calculated and all array entries
+    calculated as percentage of the total demand.
+
+    #TODO: expand for different regions, different dwelling types, fuels...
+
+    Input:
+    -path_bd_e_load_profiles   Path to .csv file with HSE data
+    -season_lookup                  Lookup dictionary with seasons
+    -daytypee_lu                    Lookup dictionary with type of days
+    -app_type_lu              Looup dictionary containing all appliances
+    -base_year                      Base year
+
+    Output:
+    -appliances_shape               [%] Array containing the shape of appliances
+                                    for every day in the base year
+                                    Within each month, the same load curves are
+                                    used for every working/holiday day.
+        year_days of base year
+            hour
+                appliance_typ
+    '''
+    # --------Read in HES data----------
+    # Initilaise array to store all values for a year
+    year_days, month_nr, hours = range(365), range(12), range(24)
+    year_raw_values = np.zeros((len(year_days), len(hours), len(app_type_lu)), dtype=float)
+
+    # Initialise HES dictionary with every month and day-type
+    hes_data = np.zeros((len(daytypee_lu), len(month_nr), len(hours), len(app_type_lu)), dtype=float)
+
+    # Read in energy profiles of base_year
+    raw_elec_data = read_csv(path_bd_e_load_profiles)
+
+    # Iterate raw data of hourly eletrictiy demand
+    for row in raw_elec_data:
+        month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
+        k_header = 3    # TODO: Check if in excel data starts here
+
+        # iterate over hour
+        for hour in hours:
+            _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000)) # [kWH electric] Converts the summed watt into kWH
+            hes_data[daytype][month][hour][appliance_typ] = _value
+            k_header += 1
+
+    # Create list with all dates of a whole year
+    start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
+    list_dates = list(datetime_range(start=start_date, end=end_date))
+
+    # Error because of leap year
+    if len(list_dates) != 365:
+        a = "Error: Leap year has 366 day and not 365.... "
+        raise Exception(a)
+
+    # Assign every date to the place in the array of the year
+    for date_in_year in list_dates:
+        _info = date_in_year.timetuple()
+        month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
+        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        daytype = get_weekday_type(date_in_year)
+
+        _data = hes_data[daytype][month_python] # Get day from HES raw data array
+
+        # Add values to yearly array
+        year_raw_values[yearday_python] = _data
+
+    # Calculate yearly total demand over all day years and all appliances
+    total_y_demand = year_raw_values.sum()
+
+    # Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
+    appliances_shape = np.zeros((len(year_days), len(hours), len(app_type_lu)), dtype=float)
+    appliances_shape = (1.0/total_y_demand) * year_raw_values
+
+    # Test for errors
+    # ---------------
+    try:
+        _control = float(appliances_shape.sum())
+        _control = round(_control, 4) # round for 4 digits
+        if _control == 1.0:
+            print("Sum of shape is 100 % - good")
+        else:
+            _err = "Error: The shape calculation is not 100%. Something went wrong... "
+            raise Exception(_err)
+    except _err:
+        _val = sys.exc_info()
+        print (_val)
+        sys.exit()
+
+    return appliances_shape
+    '''
 '''def OLDMODEL_load_data(data, data_ext, path_main):
     
 
