@@ -64,9 +64,9 @@ def get_bd_appliances(shape_app_elec, reg_lu, fuel_type_lu, fuel_bd_data):
     return fuel_type_per_region_hourly
 
 
-'''
+
 def shape_bd_app(path_bd_e_load_profiles, daytypee_lu, app_type_lu, base_year):
-    
+    '''
     This function reads in the HES eletricity load profiles
     of the base year and stores them in form of an array.
     First the absolute values are stored in a HES dictionary
@@ -483,3 +483,244 @@ def create_timesteps_hd(fuel_type, date_list, bd_hd_gas, reg_lu, fuel_type_lu, t
 
     return data_timesteps_hd_gas
 '''
+
+def shape_bd_hd(csv_temp_2015, hourly_gas_shape):
+    """
+    This function creates the shape of the base year heating demand over the full year
+
+    #Todo: Different shapes depending on workingday/holiday
+
+    Input:
+    -csv_temp_2015      SNCWV temperatures for every gas-year day
+    -hourly_gas_shape   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
+
+    """
+
+    # Initilaise array to store all values for a year
+    year_days, hours = range(365), range(24)
+
+    # Get hourly distribution (Sansom Data)
+    # ------------------------------------
+    hourly_hd = np.zeros((1, len(hours)), dtype=float)
+
+    # Hourly gas shape
+    hourly_gas_shape_day = hourly_gas_shape[0]
+    hourly_gas_shape_wkday = hourly_gas_shape[1]
+    hourly_gas_shape_wkend = hourly_gas_shape[2]
+
+    # Initialistion
+    year_raw_values = np.zeros((len(year_days), len(hours)), dtype=float)
+
+    # Initialise dictionary with every day and hour
+    hd_data = np.zeros((len(year_days), len(hours)), dtype=float)
+
+    # Read in SNCWV and calculate heatin demand for every yearday
+    for row in csv_temp_2015:
+        sncwv = float(row[1])
+
+        row_split = row[0].split("/")
+        _day = int(row_split[0])
+        _month = int(row_split[1])
+        _year = int(row_split[2])
+
+        date_gas_day = date(_year, _month, _day)
+
+        # Calculate demand based on correlation
+        heating_demand_correlation = -158.15 * sncwv + 3622.5
+
+        _info = date_gas_day.timetuple()
+        #month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
+        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        weekday = _info[6]                # 0: Monday
+
+        # Distribute daily deamd into hourly demand
+        if weekday == 5 or weekday == 6:
+            _data = hourly_gas_shape_wkend * heating_demand_correlation
+            hd_data[yearday_python] = _data  # DATA ARRAY
+        else:
+            _data = hourly_gas_shape_wkday * heating_demand_correlation
+            hd_data[yearday_python] = _data  # DATA ARRAY
+
+    # Convert yearly data into percentages (create shape). Calculate Shape of the eletrictiy distribution of the appliances by assigning percent values each
+    total_y_hd = hd_data.sum()  # Calculate yearly total demand over all day years and all appliances
+    shape_hd = np.zeros((len(year_days), len(hours)), dtype=float)
+    shape_hd = (1.0/total_y_hd) * hd_data
+
+    # Error #TODO: write seperately
+    try:
+        _control = round(float(shape_hd.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        if _control == 1:
+            print("Sum of shape is 100 % - good")
+        else:
+            _err = "Error: Something with the shape curve creation went wrong "
+            raise Exception(_err)
+
+    except _err:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function shape curve gas:")
+        traceback.print_tb(_tb)         # Print errors
+        print (_value)
+        sys.exit()
+
+    print("Sum appliances_shape: " + str(shape_hd.sum()))
+    return shape_hd
+
+def get_bd_hd_gas(shape_hd_gas, reg_lu, fuel_type_lu, fuel_bd_data):
+    '''This function calculates absolut heating demands with help of shape for all regions
+
+    out:
+    -fuel_type_per_region_hourly        Fueltype per region per appliance per hour
+        fueltype
+            region
+                year_days
+                    appliances
+                        hours
+    '''
+    fuelType_gas = 1 # gas
+
+    fuel_bd_data_gs = fuel_bd_data[:, 2] # Gas data heating deamnd
+
+    dim_appliance = shape_hd_gas.shape
+
+    # Initialise array
+    fuel_type_per_region = np.zeros((len(fuel_type_lu), len(reg_lu)), dtype=float) # To store absolute demand values
+    fuel_type_per_region_hourly = np.zeros((len(fuel_type_lu), len(reg_lu), dim_appliance[0], dim_appliance[1]), dtype=float) # To store absolute demand values of hourly appliances
+
+    # Add gas base data
+    for region_nr in range(len(reg_lu)):
+        fuel_type_per_region[fuelType_gas][region_nr] = fuel_bd_data_gs[region_nr]
+
+    # Appliances per region
+    for region_nr in range(len(reg_lu)):
+        reg_demand = fuel_type_per_region[fuelType_gas][region_nr]
+        reg_hd_gas = shape_hd_gas * reg_demand # heating demand shape * regional demand in [GWh]
+
+        fuel_type_per_region_hourly[fuelType_gas][region_nr] = reg_hd_gas
+
+    # Test for errors
+    try:
+        _control = round(float(fuel_bd_data_gs.sum()), 4) # Sum of input energy data, rounded to 4 digits
+        _control2 = round(float(fuel_type_per_region_hourly.sum()), 4)   # Sum of output energy data, rounded to 4 digits
+
+        if _control == _control2:
+            print("Input total energy demand has been correctly disaggregated.")
+        else:
+            _err = "Error: Something with the disaggregation went wrong.. "
+            raise Exception(_err)
+
+    except _err:
+        _val = sys.exc_info()
+        _, _value, _tb = sys.exc_info()
+        print("Errors from function bd_hd_gas:")
+        traceback.print_tb(_tb)         # Print errors
+        print (_value)
+        sys.exit()
+
+    return fuel_type_per_region_hourly
+
+'''
+def get_season_yearday(yearday):
+    """
+    Gets the season from yearday.
+
+    """
+    winter1, winter2 = range(334, 365), range(0, 60)
+    spring = range(59, 152)
+    summer = range(151, 243)
+    autumn = range(243, 334)
+
+    if yearday in winter1 or yearday in winter2:
+        season = 0 # Winter
+    elif yearday in spring:
+        season = 1
+    elif yearday in summer:
+        season = 2
+    elif yearday in autumn:
+        season = 3
+    return season
+
+def get_own_position(daytype, _season, hour_container, timesteps_own_selection):
+    """ Get position in own container of yearly wrapper container"""
+
+    # TODO: Improvea a lot....dirty
+
+    season_lengths = []
+    hours = 24
+
+    # Get length of each period selected
+    for i in timesteps_own_selection:
+        start_date, end_date = i[0], i[1]
+        list_dates = list(datetime_range(start=start_date, end=end_date))
+        season_lengths.append(len(list_dates))
+    #print("season_lengths: " + str(season_lengths))
+
+    if _season == 0:
+        if daytype == 0:
+
+            # Get day
+            yearday_position_data_array = 0 #1. Jan monday
+            position_own_container = (season_lengths[0]-3) * 24 + hour_container
+        else:
+            yearday_position_data_array = 1
+            position_own_container = season_lengths[0] * 24 + hour_container
+
+    if _season == 1:
+        if daytype == 0:
+            yearday_position_data_array = 2 #1. Jan monday
+            position_own_container = (season_lengths[1]-3) * 24 + hour_container
+        else:
+            yearday_position_data_array = 3
+            position_own_container = season_lengths[1] * 24 + hour_container
+
+    if _season == 2:
+        if daytype == 0:
+            yearday_position_data_array = 4 #1. Jan monday
+            position_own_container = (season_lengths[2]-3) * 24 + hour_container
+        else:
+            yearday_position_data_array = 5
+            position_own_container = season_lengths[2] * 24 + hour_container
+
+    if _season == 3:
+        if daytype == 0:
+            yearday_position_data_array = 6 #1. Jan monday
+            position_own_container = (season_lengths[3]-3) * 24 + hour_container
+        else:
+            yearday_position_data_array = 7
+            position_own_container = season_lengths[3] * 24 + hour_container
+
+    return position_own_container
+
+def get_own_timesteps(date_list):
+    """Create own timesteps. "Generets a list with all dates from a list containing start and end dates.
+
+    Parameters
+    ----------
+    date_list : list
+        List with start and end dates
+
+    Returns
+    -------
+    timestep_dates : list
+        List with all own timesteps (24 dates for every day)
+
+    Notes
+    -----
+    If e.g. 2 days are found in the interval, 24 times the first and 24
+    times the second day are added to a list.
+    """
+    # Create timestep dates
+    hours = range(24)
+    timestep_dates = []
+
+    for i in date_list:
+        start_date, end_date = i[0], i[1]
+        list_dates = list(datetime_range(start=start_date, end=end_date))
+
+        #Add to list
+        for j in list_dates:
+
+            #Append 24 time steps per day
+            for _ in hours:
+                timestep_dates.append(j)
+    return timestep_dates

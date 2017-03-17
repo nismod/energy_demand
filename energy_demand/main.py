@@ -42,32 +42,31 @@ def energy_demand_model(data, data_ext):
 
     Returns
     -------
-    result_dict : nested dict
+    result_dict : nested dict [fuel_type : region : timestep]
         A nested dictionary containing all data for energy
         supply model with timesteps for every hour in a year.
-        fuel_type
-            region
-                timestep
 
     Notes
     -----
-    All messy now...needs cleaning
+
     """
     all_Regions = []
 
-    tech_stock = ts.resid_tech_stock(data, data_ext)
-    data['tech_stock'] = tech_stock
+    # Technological stock
+    data['tech_stock'] = ts.resid_tech_stock(data, data_ext)
 
     # Iterate regions and generate objects
     timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
     result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
 
+    # Create regions for residential model
     for reg in data['reg_lu']:
 
         # Residential
         a = rm.Region(reg, data, data_ext)
         all_Regions.append(a)
 
+    # Convert to dict for energy_supply_model
     result_dict = mf.convert_result_to_final_total_format(data, all_Regions)
 
 
@@ -102,13 +101,13 @@ if __name__ == "__main__":
                     }
 
     # Model calculations outside main function
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'              # #path_main = '../data'
-    base_data = mf.load_data(base_data, path_main)                   # Load and generate data
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'             # #path_main = '../data'
+    base_data = mf.load_data(base_data, path_main)                  # Load and generate data
 
-    assumptions_model_run = assumpt.load_assumptions(base_data)      # Load assumptions
-    base_data['assumptions'] = assumptions_model_run                 # Add assumptions to data
+    assumptions_model_run = assumpt.load_assumptions(base_data)     # Load assumptions
+    base_data['assumptions'] = assumptions_model_run                # Add assumptions to data
 
-    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1)    # Disaggregate national data into regional data
+    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1) # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
@@ -130,19 +129,5 @@ if __name__ == "__main__":
     #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
 
     #neu = ts.resid_tech_stock(2016, assumptions_model_run, data_external)
-
-
-    '''print(base.__dict__)
-    print("------")
-    print(base_tech_stock_resid.NEWDEMAND_tech_A)
-    print(base.p_new_tech_A)
-    print(neu.driver_lighting())
-
-    ORIG = 100 #kwh
-    NEU = ORIG * base.driver_lighting() / neu.driver_lighting()
-    print("NEU: " + str(NEU))
-    prnt("..")
-    '''
-
 
     print("Finished everything")
