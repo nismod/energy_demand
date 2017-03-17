@@ -1,0 +1,6 @@
+
+{Enduse:
+    'yearly_shape'
+    'total_demand'
+    ....
+    }

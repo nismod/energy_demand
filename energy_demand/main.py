@@ -53,7 +53,7 @@ def energy_demand_model(data, data_ext):
     all_Regions = []
 
     # Technological stock
-    data['tech_stock'] = ts.resid_tech_stock(data, data_ext)
+    data['tech_stock'] = ts.ResidTechStock(data, data_ext)
 
     # Iterate regions and generate objects
     timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
 
     # Generate technological stock over whole simulation period
-    #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
+    #base_tech_stock_resid = ts.ResidTechStock(2015, assumptions_model_run, data_external)
 
     # -----------------
     # Run main function
