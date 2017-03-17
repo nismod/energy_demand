@@ -1,13 +1,11 @@
 """This file stores all functions of main.py"""
 
-import sys
 import os
 import csv
-import traceback
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
-print ("Loading main functions")
+print("Loading main functions")
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def convert_result_to_final_total_format(data, all_Regions):
@@ -306,7 +304,6 @@ def timesteps_full_year():
     Parameters
     ----------
 
-
     Returns
     -------
     timestep : list
@@ -318,11 +315,9 @@ def timesteps_full_year():
     start_date, end_date = full_year_date[0], full_year_date[1]
     list_dates = list(datetime_range(start=start_date, end=end_date)) # List with every date in a year
 
-    hours, days = 24, range(365)
+    hours = 24
     yaml_list = [] ## l = [{'id': value, 'start': 'p', 'end': 'P2',   }
-
     timestep_full_year_dict = {} #  YEARDAY_H
-    timestep_dates = []
 
     #Add to list
     #h_year_id = 0
@@ -609,6 +604,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     regions = data['reg_lu']
     national_fuel = data['data_residential_by_fuel_end_uses'] # residential data
     dict_with_reg_fuel_data = {}
+    reg_data_assump_disaggreg = reg_data_assump_disaggreg
 
     # Iterate regions
     for i in regions:
@@ -689,10 +685,7 @@ def convert_to_array(fuel_type_p_ey):
         fuel_type_p_ey[i] = np.array(a, dtype=float)
     return fuel_type_p_ey
 
-def calc_peak_from_average(daily_loads):
-    max_load = average_load / load_factor
 
-    return max_load
 
 
 """A one-line summary that does not use variable names or the

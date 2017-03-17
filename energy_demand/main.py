@@ -86,8 +86,10 @@ def energy_demand_model(data, data_ext):
 # Run
 if __name__ == "__main__":
 
-    # Data container
-    base_data = {}
+    # -------------------------------------------------------------------
+    # Execute only once befure executing energy demand module for a year
+    # ------------------------------------------------------------------_
+    # Wheater generater (change base_demand data)
 
     # External data provided to wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
@@ -99,6 +101,9 @@ if __name__ == "__main__":
                                   'end_year': 2020
                                  },
                     }
+
+    # Data container #TODO: add data_external to base_data
+    base_data = {}
 
     # Model calculations outside main function
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'             # #path_main = '../data'
@@ -120,14 +125,5 @@ if __name__ == "__main__":
     # -----------------
     energy_demand_model(base_data, data_external)
 
-    # Wheater generater (change base_demand data)
-
-    # Generate virtual building stock over whole simulatin period
-    #__building_stock = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
-
-    # Generate technological stock over whole simulation period
-    #base_tech_stock_resid = ts.resid_tech_stock(2015, assumptions_model_run, data_external)
-
-    #neu = ts.resid_tech_stock(2016, assumptions_model_run, data_external)
-
-    print("Finished everything")
+    print("Finished running Energy Demand Model")
+    

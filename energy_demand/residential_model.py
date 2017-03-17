@@ -28,16 +28,23 @@ class Region(object):
         self.fuels_new = self.tot_all_enduses_y()
 
         # Get peak demand day
-        self.reg_peak_h = self.get_reg_peak_d()
+        self.enduse_fuel_peak_d = self.get_enduse_peak_d()
 
-        # Get peak demand h
-        self.reg_peak_h = self.get_reg_peak_h()
+        # Get peak demand h (summarise over all enduses)
+        self.enduse_fuel_peak_h = self.get_enduse_peak_h()
 
-        # Sum daily
+        # Sum daily demand
         self.fuels_tot_enduses_d = self.tot_all_enduses_d()
 
-        # Sum hourly
+        # Sum hourly demand
         self.fuels_tot_enduses_h = self.tot_all_enduses_h()
+
+        # Testing
+        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h went wrong')
+
+        # Calculate load factors
+        self.reg_load_factor_d = self.load_factor_d()
+        self.reg_load_factor_h = self.load_factor_h()
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
@@ -72,27 +79,27 @@ class Region(object):
 
         return sum_fuels_d
 
-    def get_reg_peak_d(self):
+    def get_enduse_peak_d(self):
         """Summarise peak value of all end_uses"""
-        sum_reg_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))
+        sum_enduse_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))
 
         for enduse in self.reg_fuel:
 
             # Fuel of Enduse
-            sum_reg_peak_d += self.__getattr__subclass__(enduse, 'reg_peak_d')
+            sum_enduse_peak_d += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_d')
 
-        return sum_reg_peak_d
+        return sum_enduse_peak_d
 
-    def get_reg_peak_h(self):
+    def get_enduse_peak_h(self):
         """Summarise peak value of all end_uses"""
-        sum_reg_peak_h = np.zeros((len(self.data['fuel_type_lu']), 1, 24))
+        sum_enduse_peak_h = np.zeros((len(self.data['fuel_type_lu']), 1, 24))
 
         for enduse in self.reg_fuel:
 
             # Fuel of Enduse
-            sum_reg_peak_h += self.__getattr__subclass__(enduse, 'reg_peak_h')
+            sum_enduse_peak_h += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_h')
 
-        return sum_reg_peak_h
+        return sum_enduse_peak_h
 
     def tot_all_enduses_h(self):
         """Calculate total hourly fuel demand for each fueltype"""
@@ -101,11 +108,61 @@ class Region(object):
         sum_fuels_h = np.zeros((len(self.data['fuel_type_lu']), 365, 24))
 
         for enduse in self.reg_fuel:
-            sum_fuels_h += self.__getattr__subclass__(enduse, 'reg_fuel_h') #np.around(fuel_end_use_h,10)
+            sum_fuels_h += self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
 
         # Read out more error information (e.g. RuntimeWarning)
         #np.seterr(all='raise') # If not round, problem....np.around(fuel_end_use_h,10)
         return sum_fuels_h
+
+    def load_factor_d(self):
+        """Calculate load factor of a day in a year
+        """
+
+        # Initialise array to store fuel
+        lf_y = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        maximum_d = self.enduse_fuel_peak_d
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
+
+            # Averae load = yearly demand / nr of days
+            average_demand = np.sum(data_fueltype) / 365
+
+            # Calculate load factor
+            lf_y[k] = average_demand / maximum_d[k]
+
+        return lf_y
+
+    def load_factor_h(self):
+        """Calculate load factor of a h in a year
+        # TODO: PEAK CAlculations are still wrong
+
+        # Note retirmd as [%]...
+        """
+        # Initialise array to store fuel
+        lf_y = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
+            #print("FUELTYPE: " + str(fueltype))
+            maximum_h_of_day = np.amax(self.enduse_fuel_peak_h[fueltype])
+
+            #print("maximum_h_of_day: " + str(maximum_h_of_day))
+
+            # If there is a maximum day hour
+            if maximum_h_of_day != 0:
+
+                # Averae load = yearly demand / nr of days
+                average_demand_h = np.sum(data_fueltype) / (365 * 24)
+                #print("data_fueltype:    " + str(np.sum(data_fueltype)))
+                #print("average_demand_h: " + str(average_demand_h))
+
+                # Calculate load factor
+                lf_y[fueltype] = average_demand_h / maximum_h_of_day
+
+        #print("lf_y: " + str(lf_y))
+        return lf_y
 
     def __getattr__(self, attr):
         """ Get method of own object"""
@@ -150,9 +207,13 @@ class EndUseClassResid(Region):
         self.reg_fuel_d = self.enduse_y_to_d()                                           # Disaggregate yearly demand for every day
 
         # --Hourly fuel data
-        self.reg_fuel_h = self.enduse_d_to_h()                                           # Disaggregate daily demand to hourly demand
-        self.reg_peak_d = self.enduse_peak_d()                                           # Calculate peak day TODO
-        self.reg_peak_h = self.enduse_peak_h()                                           #Calculate peak hour TODO
+        self.enduse_fuel_h = self.enduse_d_to_h()                                        # Disaggregate daily demand to hourly demand
+        self.enduse_fuel_peak_d = self.enduse_peak_d()                                   # Calculate peak day TODO
+        self.enduse_fuel_peak_h = self.enduse_peak_h()                                   # Calculate peak hour TODO
+
+        # Testing
+        np.testing.assert_almost_equal(np.sum(self.reg_fuel_d), np.sum(self.enduse_fuel_h), decimal=7, err_msg='', verbose=True)
+        #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.reg_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_elasticity(self):
         """ Adapts yearls fuel use depending on elasticity """
@@ -318,6 +379,11 @@ class EndUseClassResid(Region):
 
         # Iterate yearday and
         for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver):
+            #print("AA")
+            #print(fueltype_year_data[0])
+            #print(self.enduse_shape_peak_d)
+            #print(self.enduse_shape_peak_d * fueltype_year_data[0])
+            #prnt("..dd")
             fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0] # enduse_shape_d is  a two dim array with load shapes in first row
 
         return fuels_d_peak
@@ -341,8 +407,12 @@ class EndUseClassResid(Region):
         fuels_h_peak = np.zeros((self.reg_fuel_d.shape[0], 1, 24)) #fueltypes  days, hours
 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
-        for k, fuel_data in enumerate(self.reg_peak_d):
+        for k, fuel_data in enumerate(self.enduse_fuel_peak_d):
             for day in range(1):
-                fuels_h_peak[k][day] = self.enduse_shape_peak_h[day] * fuel_data[day]
+                #print("fuel_data: " + str(fuel_data))
+                #print(self.enduse_shape_peak_h)
+                #print(self.enduse_shape_peak_h * fuel_data[day])
+                #prnt("..")
+                fuels_h_peak[k][day] = self.enduse_shape_peak_h * fuel_data[day]
 
         return fuels_h_peak
