@@ -12,16 +12,27 @@ import energy_demand.main_functions as mf
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
 class Region(object):
-    """Class of region """
+    """Class of a region for the residential model
 
+    The main class of the residential model. For every region, a Region Object needs to be generated.
+
+    Parameters
+    ----------
+    reg_id : int
+        The ID of the region. The actual region name is stored in `reg_lu`
+    data : dict
+        Dictionary containing data
+    data_ext : dict
+        Dictionary containing all data provided specifically for scenario run and from wrapper.abs
+    """
     def __init__(self, reg_id, data, data_ext):
-        """ Constructor. Initialising different methods"""
+        """Constructor or Region"""
         self.reg_id = reg_id                                        # ID of region
         self.data = data                                            # data
-        self.data_ext = data_ext                                    # external data
-        self.assumptions = data['assumptions']                      # Improve: Assumptions per region
-        self.current_year = data_ext['glob_var']['current_year']    # Current year       
-        self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
+        self.data_ext = data_ext                                    #: external data
+        self.assumptions = data['assumptions']                      #: Improve: Assumptions per region
+        self.current_year = data_ext['glob_var']['current_year']    #: Current year
+        self.reg_fuel = data['fueldata_disagg'][reg_id]             #: Fuel array of region (used to extract all end_uses)
 
         #self.pop = data_ext['population'][self.current_year][self.reg_id] # Population of current year
 
@@ -304,7 +315,7 @@ class EndUseClassResid(Region):
         #get_enduse_technologies = data['assumptions']['tech_by_enduse'][self.enduse] #e.g. lightning = {'fueltype': {'tech_A': 0.5, 'tech_B': 0.5}}
 
         # Get technologies and share of enduse
-        tech_and_shares = data['assump_dict']['technologies_enduse_by'][self.enduse]
+        tech_and_shares = self.data['assump_dict']['technologies_enduse_by'][self.enduse]
 
         # Iterate fuels
         for k, fuel in self.reg_fuel:

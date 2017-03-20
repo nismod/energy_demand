@@ -4,7 +4,7 @@ import os
 import csv
 import unittest
 from datetime import date
-import main_functions as mf
+#import main_functions as mf
 
 
 import matplotlib.pyplot as plt

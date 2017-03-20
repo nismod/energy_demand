@@ -50,15 +50,14 @@ def energy_demand_model(data, data_ext):
 
     Returns
     -------
-    result_dict : nested dict [fuel_type : region : timestep]
-        A nested dictionary containing all data for energy
-        supply model with timesteps for every hour in a year.
+    result_dict : dict
+        A nested dictionary containing all data for energy supply model with timesteps for every hour in a year.
+        [fuel_type : region : timestep]
 
     """
     # Initialisation
-    all_regions = []                                                                                    # List to store all regions
-    timesteps, _ = mf.timesteps_full_year()                                                             # Create timesteps for full year (wrapper-timesteps)
-    result_dict = mf.initialise_energy_supply_dict(data['fuel_type_lu'], data['reg_lu'], timesteps)    # Dict for output to energy supply model
+    all_regions = [] # List to store all regions
+    result_dict = mf.initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year']) # Dict for output to energy supply model
 
     # --------------------------
     # Residential model
@@ -97,10 +96,10 @@ def energy_demand_model(data, data_ext):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_result_to_final_total_format(data, all_regions)
+    result_dict = mf.convert_result_to_final_total_format(data, data_ext, all_regions)
 
     # Write YAML File
-    #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
+    #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml', data_ext['glob_var']['base_year'])
 
     # --- Write out functions....scrap to improve
     mf.write_to_csv_will(data, result_dict, data['reg_lu']) #TODO IMprove
@@ -139,11 +138,11 @@ if __name__ == "__main__":
     base_data = {}
 
     # Model calculations outside main function
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                          # #path_main = '../data'
-    base_data = mf.load_data(base_data, path_main)                               # Load and generate data
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' #path_main = '../data'
+    base_data = mf.load_data(base_data, path_main) # Load and generate data
 
-    assumptions_model_run = assumpt.load_assumptions(base_data)                  # Load assumptions
-    base_data['assumptions'] = assumptions_model_run                             # Add assumptions to data
+    assumptions_model_run = assumpt.load_assumptions(base_data) # Load assumptions
+    base_data['assumptions'] = assumptions_model_run # Add assumptions to data
 
     base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) # Disaggregate national data into regional data
 
@@ -160,3 +159,68 @@ if __name__ == "__main__":
 
     print("Finished running Energy Demand Model")
     
+
+
+
+
+
+
+
+
+
+
+
+
+    """A one-line summary that does not use variable names or the
+    function name.
+    Several sentences providing an extended description. Refer to
+    variables using back-ticks, e.g. `var`.
+
+    Parameters
+    ----------
+    var1 : array_like
+        Array_like means all those objects -- lists, nested lists, etc. --
+        that can be converted to an array.  We can also refer to
+        variables like `var1`.
+    var2 : int
+        The type above can either refer to an actual Python type
+        (e.g. ``int``), or describe the type of the variable in more
+        detail, e.g. ``(N,) ndarray`` or ``array_like``.
+    long_var_name : {'hi', 'ho'}, optional
+        Choices in brackets, default first when optional.
+
+    Returns
+    -------
+    type
+        Explanation of anonymous return value of type ``type``.
+    describe : type
+        Explanation of return value named `describe`.
+    out : type
+        Explanation of `out`.
+
+    Other Parameters
+    ----------------
+    only_seldom_used_keywords : type
+        Explanation
+    common_parameters_listed_above : type
+        Explanation
+
+    Raises
+    ------
+    BadException
+        Because you shouldn't have done that.
+
+    See Also
+    --------
+    otherfunc : relationship (optional)
+    newfunc : Relationship (optional), which could be fairly long, in which
+              case the line wraps here.
+    thirdfunc, fourthfunc, fifthfunc
+
+    Notes
+    -----
+    Notes about the implementation algorithm (if needed).
+    This can have multiple paragraphs.
+    You may include some math:
+
+"""

@@ -2,39 +2,45 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 class Dwelling(object):
-    """Class of a single dwelling or of a aggregated group of dwelling"""
+    """Class of a single dwelling or of a aggregated group of dwelling
 
-    def __init__(self, sim_y, coordinates, dwtype, house_id, age, pop, floorarea, HDD, assumptions):
-        """Returns a new dwelling object.
+    The main class of the residential model. For every region, a Region Object needs to be generated.
 
-        Parameters
-        ----------
-        sim_y : int
-            Simulation year
-        coordinates : float
-            coordinates
-        dwtype : int
-            Dwelling type id
-        age : int
-            Age of dwelling
-        hlc : float
-            Heat loss coefficient
-        dw_pop : float
-            Dwelling population
-        floorarea : float
-            Floor area of dwelling
-        int_temp : float
-            Internal temperatur
-        """
-        self.sim_y = sim_y
-        self.house_id = house_id
+    Parameters
+    ----------
+    curr_y : int
+        Current year of simulation
+    coordinates : float
+        coordinates
+    dwtype : int
+        Dwelling type id. Description can be found in `daytype_lu`
+    house_id : int
+        Unique ID of dwelling or dwelling group
+    age : int
+        Age of dwelling in years (year the building was built)
+    pop : float
+        Dwelling population
+    floorarea : float
+        Floor area of dwelling
+    hlc : float
+        Heat loss coefficient
+    HDD : float
+        Heating degree days
+    assumptions : dict
+        Modelling assumptions stored in dictionary
+    """
+    def __init__(self, curr_y, coordinates, dwtype, house_id, age, pop, floorarea, HDD, assumptions):
+        """Returns a new dwelling object"""
+        self.curr_y = curr_y
         self.coordinates = coordinates
         self.dwtype = dwtype
+        self.house_id = house_id
         self.age = age
-        self.hlc = get_hlc(dwtype, age) # Calculate heat loss coefficient with age and dwelling type
         self.pop = pop
         self.floorarea = floorarea
-        self.HDD = get_HDD_based_on_int_temp(sim_y, assumptions, HDD) # Get internal temperature depending on assumptions of sim_year
+
+        self.HDD = get_HDD_based_on_int_temp(curr_y, assumptions, HDD) #: Get internal temperature depending on assumptions of sim_year
+        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type 
         #self.HOUSEHOLDINCOME?
 
     def scenario_driver_water_heating(self):

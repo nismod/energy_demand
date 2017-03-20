@@ -1,5 +1,5 @@
 
-import energy_demand.main_functions as mf
+#import energy_demand.main_functions as mf
 import numpy as np
 import os
 import csv
@@ -75,9 +75,8 @@ def assign_hes_data_to_year(data, hes_data, base_year):
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
-        _info = yearday.timetuple()
-        month_python = _info[1] - 1       # - 1 because in _info: Month 1 = Jan
-        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+        month_python = yearday.timetuple()[1] - 1 # - 1 because in _info: Month 1 = Jan
+        yearday_python = yearday.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
         daytype = mf.get_weekday_type(yearday)
 
         _data = hes_data[daytype][month_python] # Get day from HES raw data array
@@ -181,10 +180,10 @@ def shape_residential_heating_gas(data, end_use):
 
 
     # Get hourly distribution (Sansom Data)
-    #hourly_gas_shape_day = hourly_gas_shape[0]     # Hourly gas shape
-    hourly_gas_shape_wkday = hourly_gas_shape[1]    # Hourly gas shape
-    hourly_gas_shape_wkend = hourly_gas_shape[2]    # Hourly gas shape
-    peak_h_shape = hourly_gas_shape[3]              # Manually derived peak from Robert Sansom
+    #hourly_gas_shape_day = hourly_gas_shape[0]  # Hourly gas shape
+    hourly_gas_shape_wkday = hourly_gas_shape[1] # Hourly gas shape
+    hourly_gas_shape_wkend = hourly_gas_shape[2] # Hourly gas shape
+    peak_h_shape = hourly_gas_shape[3] # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in csv_temp_2015:
@@ -194,9 +193,9 @@ def shape_residential_heating_gas(data, end_use):
         _month = int(row_split[1])
         _year = int(row_split[2])
         date_gas_day = date(_year, _month, _day)
-        _info = date_gas_day.timetuple()
-        yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
-        weekday = _info[6]                # 0: Monday
+
+        yearday_python = date_gas_day.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+        weekday = date_gas_day.timetuple()[6] # 0: Monday
 
         # Calculate demand based on correlation Source: Correlation taken from CWV and Seasonsal Normal demands Rolling
         heating_demand_correlation = -158.15 * sncwv + 3622.5
@@ -355,8 +354,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                     daytype = mf.get_weekday_type(date_row)
 
                     # Get yearday
-                    _info = date_row.timetuple()
-                    yearday_python = _info[7] - 1    # - 1 because in _info: 1.Jan = 1
+                    yearday_python = date_row.timetuple()[7] - 1    # - 1 because in _info: 1.Jan = 1
 
                     # Month Python
                     month_python = month - 1
