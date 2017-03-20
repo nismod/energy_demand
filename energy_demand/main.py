@@ -16,7 +16,6 @@
 
 - Read out individal load shapes
 - HEating Degree DAys
-- Plot Yearly data
 
 - efficiencies
 - leasitciies
@@ -55,9 +54,6 @@ def energy_demand_model(data, data_ext):
         A nested dictionary containing all data for energy
         supply model with timesteps for every hour in a year.
 
-    Notes
-    -----
-
     """
     # Initialisation
     all_regions = []                                                                                    # List to store all regions
@@ -67,7 +63,6 @@ def energy_demand_model(data, data_ext):
     # --------------------------
     # Residential model
     # --------------------------
-
 
     # Generate technological stock
     data['tech_stock'] = ts.ResidTechStock(data, data_ext)
@@ -118,8 +113,6 @@ def energy_demand_model(data, data_ext):
 
     # Plot REgion 0 for half a year
     #pf.plot_x_days(result_dict[2], 0, 12)
-
-
 
     return result_dict
 

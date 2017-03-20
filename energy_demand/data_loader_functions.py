@@ -159,10 +159,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
 
 # CWV WEATER GAS SAMSON-----------------------------------
 def shape_residential_heating_gas(data, end_use):
-    """
-    This function creates the shape of the base year heating demand over the full year
-
-    #Todo: Different shapes depending on workingday/holiday
+    """Creates the shape of the base year heating demand over the full year
 
     Input:
     -csv_temp_2015      SNCWV temperatures for every gas-year day
@@ -170,26 +167,24 @@ def shape_residential_heating_gas(data, end_use):
 
     #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
     """
-
-    # Read in temperatures for base year
-    csv_temp_2015 = mf.read_csv(data['path_dict']['path_temp_2015'])
-    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape']) / 100 #Because given in percentages (division no inlfuence on results as relative anyway)
-    #print("hourly_gas_shape " + str(hourly_gas_shape))
-
-    data['csv_temp_2015'] = csv_temp_2015
-    #add hourly data
-
     # Initilaise array to store all values for a year
     year_days, hours = 365, 24
     hourly_hd = np.zeros((1, hours), dtype=float)
     hd_data = np.zeros((year_days, hours), dtype=float)
-    #shape_hd = np.zeros((year_days, hours), dtype=float)
+
+
+    # Read in temperatures for base year
+    csv_temp_2015 = mf.read_csv(data['path_dict']['path_temp_2015'])
+    data['csv_temp_2015'] = csv_temp_2015
+
+    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
+
 
     # Get hourly distribution (Sansom Data)
-    #hourly_gas_shape_day = hourly_gas_shape[0]      # Hourly gas shape
+    #hourly_gas_shape_day = hourly_gas_shape[0]     # Hourly gas shape
     hourly_gas_shape_wkday = hourly_gas_shape[1]    # Hourly gas shape
     hourly_gas_shape_wkend = hourly_gas_shape[2]    # Hourly gas shape
-
+    peak_h_shape = hourly_gas_shape[3]              # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in csv_temp_2015:
@@ -247,20 +242,22 @@ def shape_residential_heating_gas(data, end_use):
         cnt += 1
 
     # PEAK-----------------------------------------------------------------------------
-    
-    
-    # TODO: GET PEAK OF HEATING
-    #print("TEST:")
-    #print(shape_d_non_peak.shape)
-    #prnt("..")
 
+    # Get maximum daily demand
+    _list = []
+    for demand in csv_temp_2015:
+        _list.append(float(demand[1]))
 
+    max_day_demand = max(_list) #maximum demand
+
+    # Factor to calc maximum daily peak #TODO: INclude uncertainty?
+    peak_d_shape = max_day_demand / total_y_hd
 
     # Add to hourly shape
-    data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape': shape_h_non_peak, 'shape_h_non_peak': shape_h_non_peak} # TODO: no peak for gas
+    data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak} # TODO: no peak for gas
 
     # Add to daily shape
-    data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape': shape_d_non_peak, 'shape_d_non_peak': shape_d_non_peak} # No peak
+    data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak} # No peak
 
     return data
 

@@ -3,6 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 import energy_demand.technological_stock as ts
 import energy_demand.technological_stock_functions as tf
@@ -50,7 +51,7 @@ class Region(object):
         self.reg_load_factor_h = self.load_factor_h()
 
         # Plot stacked end_uses
-        #self.plot_stacked_regional_end_use()
+        #self.plot_stacked_regional_end_use(1, 2) #days, fueltype
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
@@ -180,39 +181,58 @@ class Region(object):
         object_subclass = getattr(object_class, attr_sub_class)
         return object_subclass
 
+    def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype):
+        """ Plots stacked end_use for a region
+        #TODO: Make that end_uses can be sorted, improve legend...
+        """
 
-    '''def plot_stacked_regional_end_use(self):
-        """ PLot End Uses of Region """
+        fig, ax = plt.subplots()
+        nr_hours_to_plot = nr_of_day_to_plot * 24
 
-        nr_of_day_to_plot = 10
-        fueltype = 2
+        x = np.arange(nr_hours_to_plot)
+        legend_entries = []
 
-        x_values = range(nr_of_day_to_plot * 24)
-        
+        # Initialise (number of enduses, number of hours to plot)
+        Y_init = np.zeros((len(self.reg_fuel), nr_hours_to_plot))
 
-        # Iterate End_uses
-        for enduse in self.reg_fuel:
-            y_values = []
+        # Iterate enduse
+        for k, enduse in enumerate(self.reg_fuel):
+            legend_entries.append(enduse)
+            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+            data_fueltype_enduse = np.zeros((nr_hours_to_plot, ))
+            list_all_h = []
 
-            print(" ENDUSE: " + str(enduse))
-            day_all_fuels = self.__getattr__subclass__(enduse, 'enduse_fuel_h')
+            #Get data of a fueltype
+            for j, fuel_data in enumerate(sum_fuels_h[fueltype][:nr_of_day_to_plot]):
 
-            for day, d_value in enumerate(day_all_fuels[fueltype]):
+                for h in fuel_data:
+                    list_all_h.append(h)
 
-                # ONLY PLOT HALF A YEAR
-                if day < nr_of_day_to_plot:
+            Y_init[k] = list_all_h
 
-                    for h in d_value:
-                        y_values.append(h)
+        color_list = ["green", "red", "#6E5160"]
 
-            plt.plot(x_values, y_values)
+        sp = ax.stackplot(x,Y_init)
+        proxy = [mpl.patches.Rectangle((0,0), 0,0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+
+        ax.legend(proxy, legend_entries)
+
+        plt.axis('tight')
 
         plt.xlabel("Hours")
         plt.ylabel("Energy demand in kWh")
-        plt.title("Energy Demand")
-        plt.legend()
+        plt.title("Stacked energy demand")
+
+        #from matplotlib.patches import Rectangle
+
+        #legend_boxes = []
+        #for i in color_list:
+        #    box = Rectangle((0, 0), 1, 1, fc=i)
+        #    legend_boxes.append(box)
+        #ax.legend(legend_boxes, legend_entries)
+
+        #ax.stackplot(x, Y_init)
         plt.show()
-        '''
 
 
 class EndUseClassResid(Region):

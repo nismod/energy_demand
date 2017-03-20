@@ -2,6 +2,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+
+    
+
+
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load"""
 
