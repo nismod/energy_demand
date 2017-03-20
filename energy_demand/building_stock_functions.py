@@ -111,12 +111,14 @@ class DwStockRegion(object):
         """
         self.region_ID = region_ID
         self.dwellings = dwellings
-
-        # Execute functions of stock
         self.pop = self.get_tot_pop()
-        self.sd_water_heating = self.get_sum_scenario_driver_water_heating()
-        self.sd_heating = self.get_sum_scenario_driver_space_heating()
-        self.sd_lighting = self.get_sum_scenario_driver_lighting()
+
+        # Execute functions of stock #TODO: Maybe improve that only end_use needs to be entered...
+
+        self.water_heating = self.get_sum_scenario_driver_water_heating()
+        self.heating = self.get_sum_scenario_driver_space_heating()
+        self.lighting = self.get_sum_scenario_driver_lighting()
+        # TODO: Add more
 
     def get_tot_pop(self):
         """Get total population of all dwellings"""

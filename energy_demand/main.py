@@ -14,6 +14,14 @@
 # h = hour
 # d = day
 
+- Read out individal load shapes
+- HEating Degree DAys
+- Plot Yearly data
+
+- efficiencies
+- leasitciies
+- assumptions
+
 # The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -25,6 +33,7 @@ import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
 import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
+import energy_demand.plot_functions as pf
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -50,25 +59,50 @@ def energy_demand_model(data, data_ext):
     -----
 
     """
-    all_Regions = []
+    # Initialisation
+    all_regions = []                                                                                    # List to store all regions
+    timesteps, _ = mf.timesteps_full_year()                                                             # Create timesteps for full year (wrapper-timesteps)
+    result_dict = mf.initialise_energy_supply_dict(data['fuel_type_lu'], data['reg_lu'], timesteps)    # Dict for output to energy supply model
 
-    # Technological stock
+    # --------------------------
+    # Residential model
+    # --------------------------
+
+
+    # Generate technological stock
     data['tech_stock'] = ts.ResidTechStock(data, data_ext)
 
-    # Iterate regions and generate objects
-    timesteps, _ = mf.timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
-    result_dict = mf.init_dict_energy_supply(data['fuel_type_lu'], data['reg_pop_array'], timesteps)
-
-    # Create regions for residential model
+    # Create regions for residential model Iterate regions and generate objects
     for reg in data['reg_lu']:
 
         # Residential
         a = rm.Region(reg, data, data_ext)
-        all_Regions.append(a)
+        all_regions.append(a)
+
+
+
+    # --------------------------
+    # Service Model
+    # --------------------------
+
+
+
+    # --------------------------
+    # Industry Model
+    # --------------------------
+
+
+
+    # --------------------------
+    # Transportation Model
+    # --------------------------
+
+
+
+
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_result_to_final_total_format(data, all_Regions)
-
+    result_dict = mf.convert_result_to_final_total_format(data, all_regions)
 
     # Write YAML File
     #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml')
@@ -81,6 +115,12 @@ def energy_demand_model(data, data_ext):
     print("FINAL region:    " + str(len(result_dict[1])))
     print("FINAL timesteps: " + str(len(result_dict[1][0])))
     print("Finished energy demand model")
+
+    # Plot REgion 0 for half a year
+    #pf.plot_x_days(result_dict[2], 0, 12)
+
+
+
     return result_dict
 
 # Run
@@ -106,13 +146,13 @@ if __name__ == "__main__":
     base_data = {}
 
     # Model calculations outside main function
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'             # #path_main = '../data'
-    base_data = mf.load_data(base_data, path_main)                  # Load and generate data
+    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/'                          # #path_main = '../data'
+    base_data = mf.load_data(base_data, path_main)                               # Load and generate data
 
-    assumptions_model_run = assumpt.load_assumptions(base_data)     # Load assumptions
-    base_data['assumptions'] = assumptions_model_run                # Add assumptions to data
+    assumptions_model_run = assumpt.load_assumptions(base_data)                  # Load assumptions
+    base_data['assumptions'] = assumptions_model_run                             # Add assumptions to data
 
-    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1) # Disaggregate national data into regional data
+    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)

@@ -8,13 +8,13 @@ import numpy as np
 print("Loading main functions")
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def convert_result_to_final_total_format(data, all_Regions):
+def convert_result_to_final_total_format(data, all_regions):
     """Convert into nested citionary with fueltype, region, hour"""
 
     timesteps, _ = timesteps_full_year()                                 # Create timesteps for full year (wrapper-timesteps)
-    result_dict = init_dict_energy_supply(data['fuel_type_lu'], data['reg_lu'], timesteps)
+    result_dict = initialise_energy_supply_dict(data['fuel_type_lu'], data['reg_lu'], timesteps)
 
-    for reg in all_Regions:
+    for reg in all_regions:
         print("reg_id " + str(reg))
         region_name = reg.reg_id
 
@@ -72,7 +72,7 @@ def load_data(data, path_main):
     # test if...
     return data
 
-def init_dict_energy_supply(fuel_type_lu, reg_lu, timesteps):
+def initialise_energy_supply_dict(fuel_type_lu, reg_lu, timesteps):
     """Generates nested dictionary for providing results to smif
 
     Parameters
@@ -474,7 +474,6 @@ def read_csv_dict_no_header(path_to_csv):
 
         returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
     """
-
     out_dict = {}
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
@@ -510,15 +509,13 @@ def read_data(data, path_main):
     #Todo: Iterate every row and test if string or float value and then only write one write in function
     """
     path_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
-                 'path_pop_reg_base': os.path.join(path_main, 'scenario_and_base_data/population_regions.csv'),
                  'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
                  'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
                  'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
                  'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
-                 'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/base_appliances_eletricity_load_profiles.csv'),
-                 'path_base_data_fuel': os.path.join(path_main, 'scenario_and_base_data/base_data_fuel.csv'),
+                 'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/HES_base_appliances_eletricity_load_profiles.csv'),
                  'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
-                 'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/residential_gas_hourly_shape.csv'),
+                 'path_hourly_gas_shape': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
                  'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
                  'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
                  'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
@@ -531,92 +528,80 @@ def read_data(data, path_main):
                 }
 
     data['path_dict'] = path_dict
-    # TODO: Convert from percentage where necssary (einheitlich machen)
 
-    # Read data
-    reg_lu = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
-    dwtype_lu = read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
-    app_type_lu = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
-    #fuel_type_lu = read_csv(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
-    fuel_type_lu = read_csv_dict_no_header(path_dict['path_fuel_type_lu'])                       # Fuel type lookup
+    # Lookup data
+    data['reg_lu'] = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
+    data['dwtype_lu'] = read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
+    data['app_type_lu'] = read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
+    data['fuel_type_lu'] = read_csv_dict_no_header(path_dict['path_fuel_type_lu'])        # Fuel type lookup
+    data['day_type_lu'] = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
 
-    day_type_lu = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
-    #season_lookup = read_csv(path_dict[]'path_season's_lookup'])                 # Season lookup
-
-    reg_pop = read_csv_dict_no_header(path_dict['path_pop_reg_base'])             # Population data
-    reg_pop_array = read_csv_float(path_dict['path_pop_reg_base'])               # Population data
-    fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
-    csv_temp_2015 = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in shape_residential_heating_gas
-    hourly_gas_shape = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in shape_residential_heating_gas
+    #fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
+    data['csv_temp_2015'] = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in shape_residential_heating_gas
+    data['hourly_gas_shape'] = read_csv_float(path_dict['path_hourly_gas_shape'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in shape_residential_heating_gas
 
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
-    dwtype_distr = read_csv_nested_dict(path_dict['path_dwtype_dist'])
-    dwtype_age_distr = read_csv_nested_dict(path_dict['path_dwtype_age'])
-    dwtype_floorarea = read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
+    data['dwtype_distr'] = read_csv_nested_dict(path_dict['path_dwtype_dist'])
+    data['dwtype_age_distr'] = read_csv_nested_dict(path_dict['path_dwtype_age'])
+    data['dwtype_floorarea']  = read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
 
-    reg_floorarea = read_csv_dict_no_header(path_dict['path_reg_floorarea'])
-    reg_dw_nr = read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
-
-
-    # Data new approach
-    #print(path_dict['path_data_residential_by_fuel_end_uses']) #TODO: Maybe store end_uses_more directly
-    data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
-
-
-    lu_appliances_HES_matched = read_csv(path_dict['path_lu_appliances_HES_matched'])
-
-
-
-
-
-
-
-    # ---------Insert into dictionary
-    data['reg_lu'] = reg_lu
-    data['dwtype_lu'] = dwtype_lu
-    data['app_type_lu'] = app_type_lu
-    data['fuel_type_lu'] = fuel_type_lu
-    data['day_type_lu'] = day_type_lu
-
-    data['reg_pop'] = reg_pop
-    data['reg_pop_array'] = reg_pop_array
-    data['fuel_bd_data'] = fuel_bd_data
-    data['csv_temp_2015'] = csv_temp_2015
-    data['hourly_gas_shape'] = hourly_gas_shape
-
-    data['dwtype_distr'] = dwtype_distr
-    data['dwtype_age_distr'] = dwtype_age_distr
-    data['dwtype_floorarea'] = dwtype_floorarea
-    data['reg_floorarea'] = reg_floorarea
-    data['reg_dw_nr'] = reg_dw_nr
-
-    data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
-    data['lu_appliances_HES_matched'] = lu_appliances_HES_matched
+    data['reg_floorarea'] = read_csv_dict_no_header(path_dict['path_reg_floorarea'])
+    data['reg_dw_nr'] = read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
     # load shapes
     data['dict_shapes_end_use_h'] = {}
     data['dict_shapes_end_use_d'] = {}
+
+
+    # Data new approach
+    data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
+
+
+    data['lu_appliances_HES_matched'] = read_csv(path_dict['path_lu_appliances_HES_matched'])
+
+
+    # --------------------------
+    # Convert loaded data into correct units
+    # --------------------------
+    for enduse in data_residential_by_fuel_end_uses:
+        data_residential_by_fuel_end_uses[enduse] = conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse]) # TODO: Check if ktoe
+
+    data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
+
+
     return data
 
-def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
-    """This function disaggregates fuel demand based on region specific parameters"""
+def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_external):
+    """This function disaggregates fuel demand based on region specific parameters
+    for the base year
+    """
+
+    #TODO: So far simple disaggregation by population
 
     regions = data['reg_lu']
     national_fuel = data['data_residential_by_fuel_end_uses'] # residential data
     dict_with_reg_fuel_data = {}
     reg_data_assump_disaggreg = reg_data_assump_disaggreg
-
+    base_year = data_external['glob_var']['base_year']
     # Iterate regions
-    for i in regions:
-        reg_disaggregate_factor_per_enduse_and_reg = 1 #TODO: create dict with disaggregation factors
+    for region in regions:
+
+        #Scrap improve
+        reg_pop = data_external['population'][base_year][region]         # Regional popluation
+        total_pop = sum(data_external['population'][base_year].values()) # Total population
 
         # Disaggregate fuel depending on end_use
-        __ = {}
+        intermediate_dict = {}
+
         for enduse in national_fuel:
-            __[enduse] = national_fuel[enduse] * reg_disaggregate_factor_per_enduse_and_reg
 
+            # So far simply pop
+            reg_disaggregate_factor_per_enduse_and_reg = reg_pop / total_pop  #TODO: create dict with disaggregation factors
 
-        dict_with_reg_fuel_data[i] = __
+            #TODO: Get enduse_specific disaggreagtion reg_disaggregate_factor_per_enduse_and_reg
+            intermediate_dict[enduse] = national_fuel[enduse] * reg_disaggregate_factor_per_enduse_and_reg
+
+        dict_with_reg_fuel_data[region] = intermediate_dict
 
     data['fueldata_disagg'] = dict_with_reg_fuel_data
 
@@ -668,6 +653,7 @@ def write_to_csv_will(data, reesult_dict, reg_lu):
 
                         start_id = "P{}H".format(_day * 24 + _hour)
                         end_id = "P{}H".format(_day * 24 + _hour + 1)
+                        
                         yaml_list.append({'region': region_name, 'start': start_id, 'end': end_id, 'value': reesult_dict[fueltype][reg][_day][_hour], 'units': 'CHECK GWH', 'year': 'XXXX'})
 
                         data.append([region_name, start_id, end_id, reesult_dict[fueltype][reg][_day][_hour]])
@@ -685,6 +671,28 @@ def convert_to_array(fuel_type_p_ey):
         fuel_type_p_ey[i] = np.array(a, dtype=float)
     return fuel_type_p_ey
 
+
+def get_elasticity(demand_base, elasticity, price_base, price_curr):
+    """Price Elasticity = (% Change in Quantity) / (% Change in Price)
+
+    elasticity = (Q_base - Q_curr) / (P_base - P_curr)
+
+    reformulate
+
+    OK
+
+    Q_curr = -1 * (elasticity * (P_base - P_curr) - Q_base)
+    """
+    pricediff = price_base - price_curr                     # Absolute price difference (e.g. 20 - 15 --> 5)
+    #pricediff_p = -1 * (pricediff / demand_base)            # Price diff in percent (e.g. -1 * (5/20) --> -0.25)
+    #demand_diff_in_p = elasticity * pricediff_p             # Demand difference in percent of base demand
+    #demand_diff_absolute = demand_diff_in_p * demand_base   # Demand diff in absolute
+    #current_demand = demand_base + demand_diff_absolute     # new demand
+
+    # New current demand
+    current_demand = -1 * ((elasticity * pricediff) - demand_base)
+
+    return current_demand
 
 
 

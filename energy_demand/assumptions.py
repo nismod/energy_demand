@@ -1,7 +1,5 @@
 """ This file contains all assumptions of the energy demand model"""
-
 import numpy as np
-
 import energy_demand.main_functions as mf
 
 def load_assumptions(data):
@@ -55,13 +53,15 @@ def load_assumptions(data):
         'micro_CHP_thermal': 0.5
         }
 
+    assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
+
     ## Efficiencies residential, end year
     eff_ey = {
         'boiler_A' : 0.9,
         'boiler_B' : 0.5,
         'new_tech_A': 0.1,
         'tech_A' : 0.5,
-        'tech_B' : 0.5,
+        'tech_B' : 0.9,
         'tech_C': 0.0,
         'tech_D' : 0.5,
         'tech_E' : 0.5,
@@ -78,34 +78,41 @@ def load_assumptions(data):
         'micro_CHP_thermal': 0.5
         }
 
+    assump_dict['eff_ey'] = eff_ey      # Add dictionaries to assumptions
+
     # -------------
     # Fuel Switches assumptions
     # -------------
     # TODO: Write function to insert fuel swatches
 
-    # Technology which is installed for which enduse
+    # Technology which is installed for which enduse in case of fuel switches
     tech_install = {'light': 'boiler_A'}
 
-    # Technologies used for the different fuel types where the new technology is used
+    assump_dict['tech_install'] = tech_install
+
+    # Technologies used for the different fuel types where the new technology is introduced
     tech_replacement_dict = {'light': {0: 'boiler_B',
-                                         1: 'boiler_B',
-                                         2: 'boiler_B',
-                                         3: 'boiler_B',
-                                         4: 'boiler_B',
-                                         5: 'boiler_B',
-                                         6: 'boiler_B',
-                                         7: 'boiler_B'
-                                        },
-                              }
+                                       1: 'boiler_B',
+                                       2: 'boiler_B',
+                                       3: 'boiler_B',
+                                       4: 'boiler_B',
+                                       5: 'boiler_B',
+                                       6: 'boiler_B',
+                                       7: 'boiler_B'
+                                      },
+                            }
+
+    assump_dict['tech_replacement_dict'] = tech_replacement_dict
+
 
     # Percentage of fuel types (base year could also be calculated and loaded)
-    fuel_type_p_by = {'light': {'0' : 0.0,
-                                '1' : 0.7,
-                                '2' : 0.1,
-                                '3' : 0.0,
-                                '4' : 0.0,
-                                '5' : 0.0,
-                                '6' : 0.2
+    fuel_type_p_by = {'light': {0 : 0.0,
+                                1 : 0.7,
+                                2 : 0.1,
+                                3 : 0.0,
+                                4 : 0.0,
+                                5 : 0.0,
+                                6 : 0.2
                                },
                       'cold': {'0' : 0.0182,
                                '1' : 0.7633,
@@ -162,6 +169,9 @@ def load_assumptions(data):
                                   '6' : 0.0
                                   }
                     }
+    # Convert to array
+    fuel_type_p_by = mf.convert_to_array(fuel_type_p_by)
+    assump_dict['fuel_type_p_by'] = fuel_type_p_by
 
     # Check if base demand is 100 %
     #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
@@ -239,133 +249,57 @@ def load_assumptions(data):
                                   '6' : 0.0
                                   }
                     }
+    
+    fuel_type_p_ey = mf.convert_to_array(fuel_type_p_ey)
+    assump_dict['fuel_type_p_ey'] = fuel_type_p_ey
 
     # Check if base demand is 100 %
     #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
 
 
-    # Convert to array
-    fuel_type_p_by = mf.convert_to_array(fuel_type_p_by)
-    fuel_type_p_ey = mf.convert_to_array(fuel_type_p_ey)
-
-
-
-
-    # ----------------------------------
-    # Technologes for different uses
-    # ----------------------------------
-    technologies_enduse_by = {'light': {
-                                        0: 'boiler_A',
-                                        1: 'boiler_A',
-                                        2: 'boiler_A',
-                                        3: 'boiler_A',
-                                        4: 'boiler_A',
-                                        5: 'boiler_A',
-                                        6: 'boiler_A',
-                                        7: 'boiler_A'},
-                      'cold': {
-                                  '0' : 0.0182,
-                                  '1' : 0.7633,
-                                  '2' : 0.0791,
-                                  '3' : 0.0811,
-                                  '4' : 0.0,
-                                  '5' : 0.0581,
-                                  '6' : 0.0
-                                },
-                     'cooking': {
-                                  '0' : 0.2,
-                                  '1' : 0.3,
-                                  '2' : 0.4,
-                                  '3' : 0.0,
-                                  '4' : 0.0,
-                                  '5' : 0.0,
-                                  '6' : 0.0
-                                },
-                    'wet': {
-                                  '0' : 0.0182,
-                                  '1' : 0.7633,
-                                  '2' : 0.0791,
-                                  '3' : 0.0811,
-                                  '4' : 0.0,
-                                  '5' : 0.0581,
-                                  '6' : 0.0
-                                },
-                    'consumer_electronics': {
-                                  '0' : 0.0182,
-                                  '1' : 0.7633,
-                                  '2' : 0.0791,
-                                  '3' : 0.0811,
-                                  '4' : 0.0,
-                                  '5' : 0.0581,
-                                  '6' : 0.0
-                                },
-                    'home_computing': {
-                                  '0' : 0.0182,
-                                  '1' : 0.7633,
-                                  '2' : 0.0791,
-                                  '3' : 0.0811,
-                                  '4' : 0.0,
-                                  '5' : 0.0581,
-                                  '6' : 0.0
-                                },
-                    'cooking': {
-                                  '0' : 0.0182,
-                                  '1' : 0.7633,
-                                  '2' : 0.0791,
-                                  '3' : 0.0811,
-                                  '4' : 0.0,
-                                  '5' : 0.0581,
-                                  '6' : 0.0
-                                }
-                    }
-
 
 
 
 
 
     # ----------------------------------
-    # Fraction of technologies
+    # Which technologies are used for which end_use and to which share
     # ----------------------------------
-    # p_tech_by : Share of technology in base year [in %]
-    # p_tech_ey : Share of technology in the end year
+    #Share of technology for every enduse and fueltype in base year [in %]
+    technologies_enduse_by = {
+                              'light': {
+                                        0: {},
+                                        1: {},
+                                        2: {'tech_A': 0.5, 'tech_B': 0.5},
+                                        3: {},
+                                        4: {},
+                                        5: {},
+                                        6: {},
+                                        7: {}
+                                      }
+                             }
 
-    # Residential, base year
-    '''
-    p_tech_by = {
-        'boiler_A' : 0.5,
-        'boiler_B' : 0.5,
-        'new_tech_A': 0.0
-        }
+    assump_dict['technologies_enduse_by'] = technologies_enduse_by
 
-    tech_market_year = {
-        'new_tech_A': 2000
-        }
+    # --Technological split in end_year
+    technologies_enduse_ey = {
+                            'light': {
+                                        0: {},
+                                        1: {},
+                                        2: {'tech_A': 0.3, 'tech_B': 0.4},
+                                        3: {},
+                                        4: {},
+                                        5: {},
+                                        6: {},
+                                        7: {}
+                                    }  
+                            }
 
-    tech_saturation_year = {
-        'new_tech_A': 2017
-        }
-    '''
-    # Residential, end year
-    '''p_tech_ey = {
-        'boiler_A' : 0.4,
-        'boiler_B' : 0.5,
-        'new_tech_A' : 0.1
-        }
-    '''
+    assump_dict['technologies_enduse_ey'] = technologies_enduse_ey
 
-    # Add dictionaries to assumptions
-    assump_dict['eff_by'] = eff_by
-    assump_dict['eff_ey'] = eff_ey
-    #assump_dict['p_tech_by'] = p_tech_by
-    #assump_dict['p_tech_ey'] = p_tech_ey
-    #assump_dict['tech_market_year'] = tech_market_year
-    #assump_dict['tech_saturation_year'] = tech_saturation_year
-    assump_dict['fuel_type_p_by'] = fuel_type_p_by
-    assump_dict['fuel_type_p_ey'] = fuel_type_p_ey
 
-    assump_dict['tech_replacement_dict'] = tech_replacement_dict 
-    assump_dict['tech_install'] = tech_install
+
+
 
     # ============================================================
     # Assumptions Residential Building Stock
@@ -375,7 +309,6 @@ def load_assumptions(data):
     assump_change_floorarea_pp = 0.1 # [%]                                                                           # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
     assump_dwtype_distr_ey = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}     # Assumption of distribution of dwelling types in end_year ASSUMPTION
     assump_dwtype_floorarea = dwtype_floorarea                                                                       # Average floor area per dwelling type (loaded from CSV)
-
 
 
     # Add to dictionary

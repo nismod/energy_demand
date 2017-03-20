@@ -6,7 +6,7 @@ import csv
 import main_functions as mf
 from datetime import date
 import unittest
-import matplotlib.pyplot as plt
+
 import data_loader_functions as df
 
 
@@ -59,8 +59,6 @@ def read_hes_data(data):
             k_header += 1
 
     return hes_data, hes_y_coldest, hes_y_warmest
-
-
 
 def assign_hes_data_to_year(data, hes_data, base_year):
     ''' Fill every base year day with correct data '''
@@ -175,7 +173,7 @@ def shape_residential_heating_gas(data, end_use):
 
     # Read in temperatures for base year
     csv_temp_2015 = mf.read_csv(data['path_dict']['path_temp_2015'])
-    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape'])
+    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape']) / 100 #Because given in percentages (division no inlfuence on results as relative anyway)
     #print("hourly_gas_shape " + str(hourly_gas_shape))
 
     data['csv_temp_2015'] = csv_temp_2015
@@ -191,6 +189,7 @@ def shape_residential_heating_gas(data, end_use):
     #hourly_gas_shape_day = hourly_gas_shape[0]      # Hourly gas shape
     hourly_gas_shape_wkday = hourly_gas_shape[1]    # Hourly gas shape
     hourly_gas_shape_wkend = hourly_gas_shape[2]    # Hourly gas shape
+
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in csv_temp_2015:
@@ -457,6 +456,9 @@ def read_raw_carbon_trust_data(data, folder_path):
     #data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak
     #prnt("..")
 
+    # Write out enduse load shape #TODO
+    #write_enduse_load_shape_to_csv()
+
 
     return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days
 
@@ -476,7 +478,7 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     maxday_h_shape = maxday_h_shape / len(hourly_shape_of_maximum_days)
     #print("maxday_h_shape: " + str(maxday_h_shape))
     #print(len(hourly_shape_of_maximum_days))
-    #plot_load_shape_d(maxday_h_shape)
+    #pf.plot_load_shape_d(maxday_h_shape)
     return maxday_h_shape
 
 def followup_processing():
@@ -508,74 +510,3 @@ def followup_processing():
     return
 
 
-def plot_FUNCTIONSE():
-
-    plot_average = True
-
-    x_values = range(24)
-
-    #-- plot yearly average
-    print("Yearly Average over all measurements")
-    for daytype in yearly_averaged_load_curve:
-
-        # y-values
-        y_values = list(yearly_averaged_load_curve[daytype].values())
-        print("y_values")
-        print(y_values)
-        plt.plot(x_values, y_values, label = 'daytype %s'%daytype)
-
-    plt.xlabel("hours")
-    plt.ylabel("percentage of daily demand")
-    plt.title("Plotting all month for the daytype {}".format(daytype))
-    plt.legend()
-    plt.show()
-
-
-    # --- if average is calculated
-    if plot_average == True:
-
-        # plot all month
-        for month in range(12):
-
-            # y-values
-            y_values = list(out_dict_average[daytype][month].values())
-            plt.plot(x_values, y_values, label = 'Month %s'%month)
-
-        plt.xlabel("hours")
-        plt.ylabel("percentage of daily demand")
-        plt.title("Plotting all month for the daytype {}".format(daytype))
-        plt.legend()
-        plt.show()
-
-
-    # --- if individual days are plotted
-    if plot_average == False:
-
-        month = 3
-        daytype = 1 # Daytaoe
-
-        # y-values
-        y_values = list(out_dict_not_average[daytype][month].values()) #) # daytype = 0, January = 0
-
-        plt.plot(x_values, y_values)
-        plt.xlabel("hours")
-        plt.ylabel("percentage of daily demand")
-        plt.title("Plotting the Month of {} for the daytype {}".format(month, daytype))
-        plt.show()
-
-#print("Finished loead profiles generator")
-
-
-def plot_load_shape_d(daily_load_shape):
-    """With input 2 dim array plot daily load"""
-
-    x_values = range(24)
-    y_values = list(daily_load_shape[:, 0] * 100) # to get percentages
-
-    plt.plot(x_values, y_values)
-
-    plt.xlabel("Hours")
-    plt.ylabel("Percentage of daily demand")
-    plt.title("Load curve of a day")
-    plt.legend()
-    plt.show()

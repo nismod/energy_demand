@@ -2,9 +2,11 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import energy_demand.technological_stock as ts
 import energy_demand.technological_stock_functions as tf
+import energy_demand.main_functions as mf
 
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
@@ -17,11 +19,12 @@ class Region(object):
         self.data = data                                            # data
         self.data_ext = data_ext                                    # external data
         self.assumptions = data['assumptions']                      # Improve: Assumptions per region
-        self.current_year = data_ext['glob_var']['current_year']    # Current year
+        self.current_year = data_ext['glob_var']['current_year']    # Current year       
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
+
         #self.pop = data_ext['population'][self.current_year][self.reg_id] # Population of current year
 
-        # Create all end use attributes
+        # Create all end uses objects
         self.create_end_use_objects()
 
         # Sum final fuels of all end_uses
@@ -45,6 +48,9 @@ class Region(object):
         # Calculate load factors
         self.reg_load_factor_d = self.load_factor_d()
         self.reg_load_factor_h = self.load_factor_h()
+
+        # Plot stacked end_uses
+        #self.plot_stacked_regional_end_use()
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
@@ -174,12 +180,47 @@ class Region(object):
         object_subclass = getattr(object_class, attr_sub_class)
         return object_subclass
 
+
+    '''def plot_stacked_regional_end_use(self):
+        """ PLot End Uses of Region """
+
+        nr_of_day_to_plot = 10
+        fueltype = 2
+
+        x_values = range(nr_of_day_to_plot * 24)
+        
+
+        # Iterate End_uses
+        for enduse in self.reg_fuel:
+            y_values = []
+
+            print(" ENDUSE: " + str(enduse))
+            day_all_fuels = self.__getattr__subclass__(enduse, 'enduse_fuel_h')
+
+            for day, d_value in enumerate(day_all_fuels[fueltype]):
+
+                # ONLY PLOT HALF A YEAR
+                if day < nr_of_day_to_plot:
+
+                    for h in d_value:
+                        y_values.append(h)
+
+            plt.plot(x_values, y_values)
+
+        plt.xlabel("Hours")
+        plt.ylabel("Energy demand in kWh")
+        plt.title("Energy Demand")
+        plt.legend()
+        plt.show()
+        '''
+
+
 class EndUseClassResid(Region):
     """Class of an end use category of the residential sector"""
 
     def __init__(self, reg_id, data, data_ext, enduse, reg_fuel):
 
-        # --General data
+        # --General data, fueldata, technological stock
         self.reg_id = reg_id                                        # Region
         self.enduse = enduse                                        # EndUse Name
         self.current_year = data_ext['glob_var']['current_year']    # from parent class
@@ -196,29 +237,70 @@ class EndUseClassResid(Region):
         self.enduse_shape_peak_h = data['dict_shapes_end_use_h'][enduse]['peak_h_shape'] # shape_h peak
 
         # --Yearly fuel data
-        #self.efficiency_gains....                                                       # General efficiency gains of technology over time #TODO
-        self.reg_fuel_after_elasticity = self.enduse_elasticity()                        # Calculate demand with changing elasticity (elasticity maybe on household level)
-        self.reg_fuel_after_switch = self.enduse_fuel_switches()                         # Calculate fuel switches
-
-        # THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
-        self.reg_fuelscen_driver = self.enduse_scenario_driver()                         # Calculate new fuel demands after scenario drivers
+        #self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time #TODO
+        self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
+        self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
+        self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
 
         # --Daily fuel data
-        self.reg_fuel_d = self.enduse_y_to_d()                                           # Disaggregate yearly demand for every day
+        self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
 
         # --Hourly fuel data
-        self.enduse_fuel_h = self.enduse_d_to_h()                                        # Disaggregate daily demand to hourly demand
-        self.enduse_fuel_peak_d = self.enduse_peak_d()                                   # Calculate peak day TODO
-        self.enduse_fuel_peak_h = self.enduse_peak_h()                                   # Calculate peak hour TODO
+        self.enduse_fuel_h = self.enduse_d_to_h()                        # Disaggregate daily demand to hourly demand
+        self.enduse_fuel_peak_d = self.enduse_peak_d()                   # Calculate peak day
+        self.enduse_fuel_peak_h = self.enduse_peak_h()                   # Calculate peak hour
 
         # Testing
         np.testing.assert_almost_equal(np.sum(self.reg_fuel_d), np.sum(self.enduse_fuel_h), decimal=7, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.reg_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_elasticity(self):
-        """ Adapts yearls fuel use depending on elasticity """
+        """ Adapts yearls fuel use depending on elasticity
+
+        Maybe implement elasticities with floor area"""
+        '''
+        new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
+
         # Will maybe be on household level
+
+        fuelprice_by = 100  #Ev. mix aus verschiedenen fueltypes
+        fuelprice_cy = 105
+
+        elasticity_enduse = 0.5
+
+        for k, fuel in enumerate(self.reg_fuel_after_switch):
+            new_fuels[k] = mf.get_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+        return new_fuels
+        '''
         pass
+
+    def enduse_eff_gains(self):
+        """Adapts yearls fuel use depending on efficiency gains of technologies """
+        # Will maybe be on household level
+
+        out_dict = np.zeros((self.reg_fuel.shape[0], 1)) #fueltypes, data
+
+        # Get technologies of end_use
+        #get_enduse_technologies = data['assumptions']['tech_by_enduse'][self.enduse] #e.g. lightning = {'fueltype': {'tech_A': 0.5, 'tech_B': 0.5}}
+
+        # Get technologies and share of enduse
+        tech_and_shares = data['assump_dict']['technologies_enduse_by'][self.enduse]
+
+        # Iterate fuels
+        for k, fuel in self.reg_fuel:
+
+            # Iterate technologies and average efficiencies relative to distribution
+            av_efficiency = 0
+            for technology in tech_and_shares[k]:
+                eff_tech_cy = self.tech_stock['technology']
+                tech_cy_share = tech_and_shares[k][technology]
+                av_efficiency += tech_cy_share * eff_tech_cy
+
+            # Calc new demand considering efficiency change
+            out_dict[k] = av_efficiency * fuel
+
+        return out_dict
+
 
     def enduse_fuel_switches(self):
         """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
@@ -251,7 +333,7 @@ class EndUseClassResid(Region):
             tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
             eff_replacement = getattr(self.tech_stock, tech_install)
 
-            tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current echnologes which are to be replaced
+            tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current technologes which are to be replaced
 
             # Calculate percentage differences over full simulation period
             fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
@@ -309,10 +391,10 @@ class EndUseClassResid(Region):
         This is the energy end use used for disaggregating to daily and hourly
         """
         if self.enduse == 'heating':
-            attr_building_stock = 'sd_heating'
+            attr_building_stock =  'heating' #'sd_{}'.format('heating')
         else:
             #TODO: add very end_use
-            attr_building_stock = 'sd_heating'
+            attr_building_stock = 'heating' #'heating'
 
         # Scenariodriver of building stock base year and new stock
         by_driver = getattr(self.data['reg_building_stock_by'][self.reg_id], attr_building_stock)     # Base year building stock
