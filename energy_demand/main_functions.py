@@ -6,11 +6,12 @@ from datetime import date
 from datetime import timedelta as td
 import numpy as np
 import data_loader as dl
+import yaml
 
 print("Loading main functions")
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def convert_result_to_final_total_format(data, data_ext, all_regions):
+def convert_out_format_es(data, data_ext, all_regions):
     """Adds total hourly fuel data into nested dict
 
     Parameters
@@ -60,7 +61,8 @@ def load_data(data, path_main):
 
 
     """
-    path_dict = {'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
+    path_dict = {'path_main': path_main,
+                 'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
                  'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
                  'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
                  'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
@@ -75,13 +77,13 @@ def load_data(data, path_main):
                  'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
 
                  'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
-                 'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv')
+                 'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
                 }
 
     data['path_dict'] = path_dict
 
     # -- Reads in all csv files and store them in a dictionary
-    
+    data['path_main'] = path_main
     # Lookup data
     data['reg_lu'] = read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
     data['dwtype_lu'] = read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
@@ -520,28 +522,27 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
 
     return data
 
-def write_YAML(yaml_write, path_YAML, base_year):
+def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
 
     Parameters
     ----------
-    yaml_write : int
+    crit_write : int
         Whether a yaml file should be written or not (1 or 0)
     path_YAML : str
         Path to write out YAML file
-    base_year : int
-        Base year of simulation
+    yaml_list : list
+        List containing YAML dictionaries for every region
 
     """
-    if yaml_write:
-        import yaml
-        _, yaml_list = timesteps_full_year(base_year)  # Create timesteps for full year (wrapper-timesteps)
-
+    print("Write YAML file with length: " + str(len(yaml_list)))
+    if crit_write:
+        #_, yaml_list = timesteps_full_year(base_year)  # Create timesteps for full year (wrapper-timesteps)
         with open(path_YAML, 'w') as outfile:
             yaml.dump(yaml_list, outfile, default_flow_style=False)
     return
 
-def write_to_csv_will(data, reesult_dict, reg_lu):
+def write_to_csv_will(data, result_dict, reg_lu, crit_YAML):
     """ Write reults for energy supply model
     e.g.
 
@@ -549,40 +550,58 @@ def write_to_csv_will(data, reesult_dict, reg_lu):
 
     """
 
+    main_path = data['path_dict']['path_main'][:-5] # Remove data from path_main
+
     for fueltype in data['fuel_type_lu']:
 
-        #TODO: Give relative path stored in data[pathdict]
-        path = 'C:/Users/cenv0553/GIT/NISMODII/model_output/_fueltype_{}_hourly_results'.format(fueltype)
+        # Path to create csv file
+        path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype)) 
 
-        yaml_list = []
         with open(path, 'w', newline='') as fp:
-            a = csv.writer(fp, delimiter=',')
+            csv_writer = csv.writer(fp, delimiter=',')
             data = []
+            yaml_list_fuel_type = []
 
-            for reg in reesult_dict[fueltype]:
-                region_name = reg_lu[reg]
+            # Iterate fueltypes
+            for reg in result_dict[fueltype]:
 
-                for _day in reesult_dict[fueltype][reg]:
+                for _day in result_dict[fueltype][reg]:
                     for _hour in range(24):
 
                         start_id = "P{}H".format(_day * 24 + _hour)
                         end_id = "P{}H".format(_day * 24 + _hour + 1)
+                        data.append([reg_lu[reg], start_id, end_id, result_dict[fueltype][reg][_day][_hour]])
 
-                        yaml_list.append({'region': region_name, 'start': start_id, 'end': end_id, 'value': reesult_dict[fueltype][reg][_day][_hour], 'units': 'CHECK GWH', 'year': 'XXXX'})
+                        yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(result_dict[fueltype][reg][_day][_hour]), 'units': 'CHECK GWH', 'year': 'XXXX'})
 
-                        data.append([region_name, start_id, end_id, reesult_dict[fueltype][reg][_day][_hour]])
+            csv_writer.writerows(data)
 
-            a.writerows(data)
+            # Write YAML
+            write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
 
-        #with open(path, 'w') as outfile:
-        #    yaml.dump(yaml_list, outfile, default_flow_style=False)
+def convert_to_array(in_dict):
+    """Convert dictionary to array
 
-def convert_to_array(fuel_type_p_ey):
-    """Convert dictionary to array"""
-    for i in fuel_type_p_ey:
-        a = list(fuel_type_p_ey[i].items())
-        fuel_type_p_ey[i] = np.array(a, dtype=float)
-    return fuel_type_p_ey
+    As an input the base data is provided and price differences and elasticity
+
+    Parameters
+    ----------
+    in_dict : dict
+        One-level dictionary
+
+    Returns
+    -------
+    in_dict : array
+        Array with identical data of dict
+
+    Example
+    -------
+    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
+    """
+    for i in in_dict:
+        a = list(in_dict[i].items())
+        in_dict[i] = np.array(a, dtype=float)
+    return in_dict
 
 def get_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity

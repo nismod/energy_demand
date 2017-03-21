@@ -24,6 +24,8 @@ class Region(object):
         Dictionary containing data
     data_ext : dict
         Dictionary containing all data provided specifically for scenario run and from wrapper.abs
+
+    # TODO: CHECK IF data could be reduced as input (e.g. only provide fuels and not data)
     """
     def __init__(self, reg_id, data, data_ext):
         """Constructor or Region"""
@@ -135,8 +137,8 @@ class Region(object):
     def load_factor_d(self):
         """Calculate load factor of a day in a year
         """
-
-        # Initialise array to store fuel
+        pass
+        '''# Initialise array to store fuel
         lf_y = np.zeros((len(self.data['fuel_type_lu']), 1))
 
         maximum_d = self.enduse_fuel_peak_d
@@ -151,6 +153,7 @@ class Region(object):
             lf_y[k] = average_demand / maximum_d[k]
 
         return lf_y
+        '''
 
     def load_factor_h(self):
         """Calculate load factor of a h in a year
@@ -315,7 +318,7 @@ class EndUseClassResid(Region):
         #get_enduse_technologies = data['assumptions']['tech_by_enduse'][self.enduse] #e.g. lightning = {'fueltype': {'tech_A': 0.5, 'tech_B': 0.5}}
 
         # Get technologies and share of enduse
-        tech_and_shares = self.data['assump_dict']['technologies_enduse_by'][self.enduse]
+        tech_and_shares = self.data['assumptions']['technologies_enduse_by'][self.enduse]
 
         # Iterate fuels
         for k, fuel in self.reg_fuel:

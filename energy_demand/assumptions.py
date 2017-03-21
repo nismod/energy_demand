@@ -3,12 +3,12 @@ import numpy as np
 import energy_demand.main_functions as mf
 
 def load_assumptions(data):
-    """All assumptions
+    """All assumptions of the energy demand model are loaded and added to the data
 
     Returns
     -------
     data : dict
-        dict with assumptions
+        Data dictionary with added ssumption dict
 
     Notes
     -----
@@ -29,7 +29,7 @@ def load_assumptions(data):
     # -----------------
     # Efficiencies
     # -----------------
-
+  
     ## Efficiencies residential, base year
     eff_by = {
         'boiler_A' : 0.1,
@@ -78,7 +78,36 @@ def load_assumptions(data):
         'micro_CHP_thermal': 0.5
         }
 
-    assump_dict['eff_ey'] = eff_ey      # Add dictionaries to assumptions
+    assump_dict['eff_ey'] = eff_ey # Add dictionaries to assumptions
+
+    ## How much of efficiency potential is achieved
+    eff_achieved = {
+        'boiler_A' : 0.5,
+        'boiler_B' : 0.3,
+        'new_tech_A': 0.1,
+        'tech_A' : 0.5,
+        'tech_B' : 0.5,
+        'tech_C': 0.0,
+        'tech_D' : 0.5,
+        'tech_E' : 0.5,
+        'tech_F': 0.0,
+        'boiler_gas': 0.5,
+        'boiler_oil': 0.5,
+        'boiler_condensing': 0.5,
+        'boiler_biomass': 0.5,
+        'ASHP': 0.5,
+        'HP_ground_source': 0.5,
+        'HP_air_source': 0.5,
+        'HP_gas': 0.5,
+        'micro_CHP_elec': 0.5,
+        'micro_CHP_thermal': 0.5
+        }
+
+    # Helper function eff_achieved
+    for i in eff_achieved:
+      eff_achieved[i] = 0.5
+    
+    assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
 
     # -------------
     # Fuel Switches assumptions
@@ -250,8 +279,8 @@ def load_assumptions(data):
                                   }
                     }
     
-    fuel_type_p_ey = mf.convert_to_array(fuel_type_p_ey)
-    assump_dict['fuel_type_p_ey'] = fuel_type_p_ey
+    # Convert to array
+    assump_dict['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey)
 
     # Check if base demand is 100 %
     #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
@@ -316,4 +345,5 @@ def load_assumptions(data):
     assump_dict['assump_dwtype_distr_ey'] = assump_dwtype_distr_ey
     assump_dict['assump_dwtype_floorarea'] = assump_dwtype_floorarea
 
-    return assump_dict
+    data['assumptions'] = assump_dict
+    return data

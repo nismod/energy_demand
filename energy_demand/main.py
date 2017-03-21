@@ -25,7 +25,7 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
-
+import os
 import sys
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
@@ -64,7 +64,7 @@ def energy_demand_model(data, data_ext):
     # --------------------------
 
     # Generate technological stock
-    data['tech_stock'] = ts.ResidTechStock(data, data_ext)
+    data['tech_stock'] = ts.ResidTechStock(data['assumptions'], data_ext)
 
     # Create regions for residential model Iterate regions and generate objects
     for reg in data['reg_lu']:
@@ -96,15 +96,12 @@ def energy_demand_model(data, data_ext):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_result_to_final_total_format(data, data_ext, all_regions)
-
-    # Write YAML File
-    #mf.write_YAML(False, 'C:/Users/cenv0553/GIT/NISMODII/TESTYAML.yaml', data_ext['glob_var']['base_year'])
+    result_dict = mf.convert_out_format_es(data, data_ext, all_regions)
 
     # --- Write out functions....scrap to improve
-    mf.write_to_csv_will(data, result_dict, data['reg_lu']) #TODO IMprove
+    print("...Write results for energy supply model to csv file and YAML files")
+    mf.write_to_csv_will(data, result_dict, data['reg_lu'], False) # FALSE: don't create YAML file
 
-    # Write function to also write out results
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))
     print("FINAL timesteps: " + str(len(result_dict[1][0])))
@@ -112,7 +109,6 @@ def energy_demand_model(data, data_ext):
 
     # Plot REgion 0 for half a year
     #pf.plot_x_days(result_dict[2], 0, 12)
-
     return result_dict
 
 # Run
@@ -141,13 +137,13 @@ if __name__ == "__main__":
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' #path_main = '../data'
     base_data = mf.load_data(base_data, path_main) # Load and generate data
 
-    assumptions_model_run = assumpt.load_assumptions(base_data) # Load assumptions
-    base_data['assumptions'] = assumptions_model_run # Add assumptions to data
+    base_data = assumpt.load_assumptions(base_data) # Load assumptions
+    #base_data['assumptions'] = assumptions_model_run # Add assumptions to data
 
     base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) # Disaggregate national data into regional data
 
     # Generate virtual building stock over whole simulatin period
-    base_data = bg.resid_build_stock(base_data, assumptions_model_run, data_external)
+    base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
     # Generate technological stock over whole simulation period
     #base_tech_stock_resid = ts.ResidTechStock(2015, assumptions_model_run, data_external)
@@ -158,7 +154,7 @@ if __name__ == "__main__":
     energy_demand_model(base_data, data_external)
 
     print("Finished running Energy Demand Model")
-    
+
 
 
 

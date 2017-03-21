@@ -1,33 +1,28 @@
 """ Functions for fuel_enduse_switch stock"""
 import math as m
 
-def eff_sy_lin(base_year, current_year, year_end, assumptions, fuel_enduse_switch):
+'''def eff_sy_lin(base_year, current_year, year_end, assumptions, technology):
     """ Calculates lineare diffusion
     Parameters
     ----------
     base_year : float
         Base year
-    #TODO
+
     Returns
     -------
-    fract_cy : float
+    diffusion : float
         Share of fuel switch in simluation year
     """
-    eff_by = assumptions['eff_by'][fuel_enduse_switch]
-    eff_ey = assumptions['eff_ey'][fuel_enduse_switch]
+    eff_by = assumptions['eff_by'][technology]
+    eff_ey = assumptions['eff_ey'][technology]
     sim_years = year_end - base_year
 
-    '''# Diff
-    if eff_by > eff_ey:
-        diff_frac = -1 * (eff_by - eff_ey) # minus
-    else:
-        diff_frac = eff_ey - eff_by
-    '''
 
     # How far the diffusion is
-    linear_eff_diffusion = round(lineardiffusion(base_year, current_year, eff_by, eff_ey, sim_years), 2)
+    diffusion = round(lineardiffusion(base_year, current_year, eff_by, eff_ey, sim_years), 2)
 
-    return linear_eff_diffusion
+    return diffusion
+'''
 
 def frac_sy_sigm(base_year, current_year, year_end, assumptions, fuel_enduse_switch):
     """ Calculate sigmoid diffusion of a fuel type share of a current year
