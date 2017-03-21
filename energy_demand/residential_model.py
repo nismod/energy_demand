@@ -68,10 +68,10 @@ class Region(object):
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
-        a = {}
+        self.end_uses = {}
         for enduse in self.reg_fuel:
-            a[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
-        self.end_uses = a
+            self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
+
         for _ in self.end_uses:
             vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
 
@@ -135,10 +135,9 @@ class Region(object):
         return sum_fuels_h
 
     def load_factor_d(self):
-        """Calculate load factor of a day in a year
-        """
-        pass
-        '''# Initialise array to store fuel
+        """Calculate load factor of a day in a year"""
+
+        # Initialise array to store fuel
         lf_y = np.zeros((len(self.data['fuel_type_lu']), 1))
 
         maximum_d = self.enduse_fuel_peak_d
@@ -153,7 +152,6 @@ class Region(object):
             lf_y[k] = average_demand / maximum_d[k]
 
         return lf_y
-        '''
 
     def load_factor_h(self):
         """Calculate load factor of a h in a year
@@ -258,11 +256,13 @@ class EndUseClassResid(Region):
         self.reg_id = reg_id                                        # Region
         self.enduse = enduse                                        # EndUse Name
         self.current_year = data_ext['glob_var']['current_year']    # from parent class
+        self.base_year = data_ext['glob_var']['base_year']    # from parent class
         self.data = data                                            # from parent class
         self.data_ext = data_ext                                    # from parent class
         self.assumptions = data['assumptions']                      # Assumptions from regions
         self.reg_fuel = reg_fuel[enduse]                            # Regional base fuel data
-        self.tech_stock = data['tech_stock']                        # Technological stock
+        self.tech_stock_by = data['tech_stock_by']                        # Technological stock base_data['tech_stock_by']
+        self.tech_stock_cy = data['tech_stock_cy']                        # Technological stock base_data['tech_stock_by']
 
         # --Load shapes
         self.enduse_shape_d = data['dict_shapes_end_use_d'][enduse]['shape_d_non_peak']  # shape_d
@@ -271,7 +271,7 @@ class EndUseClassResid(Region):
         self.enduse_shape_peak_h = data['dict_shapes_end_use_h'][enduse]['peak_h_shape'] # shape_h peak
 
         # --Yearly fuel data
-        #self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time #TODO
+        self.reg_fuel_eff_gains = self.enduse_eff_gains()               # General efficiency gains of technology over time #TODO
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
@@ -289,52 +289,84 @@ class EndUseClassResid(Region):
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.reg_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_elasticity(self):
-        """ Adapts yearls fuel use depending on elasticity
+        """Adapts yearls fuel use depending on elasticity
 
-        Maybe implement elasticities with floor area"""
-        '''
+        Maybe implement elasticities with floor area
+
+        # TODO: MAYBE ALSO USE BUILDING STOCK TO SEE HOW ELASTICITY CHANGES WITH FLOOR AREA
+        """
         new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
+        elasticity_enduse = self.assumptions['elasticities'][self.enduse]
 
-        # Will maybe be on household level
+        for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
 
-        fuelprice_by = 100  #Ev. mix aus verschiedenen fueltypes
-        fuelprice_cy = 105
+            # Fuel prices
+            fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
+            fuelprice_cy = self.data_ext['fuel_price'][self.current_year][fueltype]
 
-        elasticity_enduse = 0.5
+            new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
 
-        for k, fuel in enumerate(self.reg_fuel_after_switch):
-            new_fuels[k] = mf.get_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
         return new_fuels
-        '''
-        pass
 
     def enduse_eff_gains(self):
-        """Adapts yearls fuel use depending on efficiency gains of technologies """
-        # Will maybe be on household level
+        """Adapts yearls fuel use depending on efficiency gains of technologies
 
-        out_dict = np.zeros((self.reg_fuel.shape[0], 1)) #fueltypes, data
+        1. The technological fraction of each enduse is read
+        2. The efficiencies of base and current year of all years are read ind
+        3. Overall efficiency of all technologies is used
 
-        # Get technologies of end_use
-        #get_enduse_technologies = data['assumptions']['tech_by_enduse'][self.enduse] #e.g. lightning = {'fueltype': {'tech_A': 0.5, 'tech_B': 0.5}}
+                    # Will maybe be on household level
+        """
+        out_dict = np.zeros((self.reg_fuel.shape[0], 1)) # fueltypes, data
 
         # Get technologies and share of enduse
-        tech_and_shares = self.data['assumptions']['technologies_enduse_by'][self.enduse]
+        print("oooo")
+        for i in self.tech_stock_by.__dict__:
+            print(i)
+            print("----")
 
+        tech_and_shares_by = getattr(self.tech_stock_by, 'tech_frac') #self.data['assumptions']['technologies_enduse_by'][self.enduse]
+
+        tech_and_shares_cy =getattr(self.tech_stock_cy, 'tech_frac')
+
+        print("tech_and_shares_by:")
+        print(tech_and_shares_by)
+
+        print("tech_and_shares_by:")
+        print(tech_and_shares_cy)
+
+
+        # HERE WORK IN PROGRESS
         # Iterate fuels
-        for k, fuel in self.reg_fuel:
+        for fueltype, fueldata in enumerate(self.reg_fuel):
 
-            # Iterate technologies and average efficiencies relative to distribution
-            av_efficiency = 0
-            for technology in tech_and_shares[k]:
-                eff_tech_cy = self.tech_stock['technology']
-                tech_cy_share = tech_and_shares[k][technology]
-                av_efficiency += tech_cy_share * eff_tech_cy
+            # Iterate technologies and average efficiencies relative to distribution for base year
+            av_efficiency_by = 0
+            for technology in tech_and_shares_by[self.enduse][fueltype]:
 
+                # Share of technology * efficiency of base year technology
+                av_efficiency_by += tech_and_shares_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
+            print("av_efficiency_by: " + str(av_efficiency_by))
+            # Iterate technologies and average efficiencies relative to distribution for current
+            #READ SHARE FROM TECH_STOCK
+            av_efficiency_cy = 0
+            print(tech_and_shares_cy)
+            print("self.enduse: " + str(self.enduse))
+            print(fueltype)
+            for technology in tech_and_shares_cy[self.enduse][fueltype]:
+
+                # Share of technology * efficiency of base year technology
+                av_efficiency_cy += tech_and_shares_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology) # calculate overall efficiency of all technologies
+            print("av_efficiency_cy: " + str(av_efficiency_cy))
             # Calc new demand considering efficiency change
-            out_dict[k] = av_efficiency * fuel
-
+            if av_efficiency_cy != 0: # Do not copy any values
+                out_dict[fueltype] = fueldata * (av_efficiency_by / av_efficiency_cy) #TODO: Ev umgekehrt
+            else:
+                out_dict[fueltype] = fueldata
+        print(out_dict)
+        print("---")
+        print(self.reg_fuel)
         return out_dict
-
 
     def enduse_fuel_switches(self):
         """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
@@ -362,10 +394,13 @@ class EndUseClassResid(Region):
             return self.reg_fuel                            # No Fuel Switches (same perentages)
         else:
             fuel_switch_array = np.copy((self.reg_fuel))    # Out_dict initialisation
-
+            print("self.enduse")
+            print(self.enduse)
+            print("dd")
+            print(self.assumptions['tech_install'][self.enduse])
             # Assumptions about which technology is installed and replaced
             tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
-            eff_replacement = getattr(self.tech_stock, tech_install)
+            eff_replacement = getattr(self.tech_stock_cy, tech_install) 
 
             tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current technologes which are to be replaced
 
@@ -391,7 +426,7 @@ class EndUseClassResid(Region):
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
                 tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
-                eff_tech_remove = getattr(self.tech_stock, tech_replace)  # Get efficiency of technology to be replaced
+                eff_tech_remove = getattr(self.tech_stock_cy, tech_replace)  # Get efficiency of technology to be replaced
 
                 # Fuel factor   #TODO ev. auch umgekehrt
                 fuel_factor = eff_tech_remove / eff_replacement
@@ -532,3 +567,14 @@ class EndUseClassResid(Region):
                 fuels_h_peak[k][day] = self.enduse_shape_peak_h * fuel_data[day]
 
         return fuels_h_peak
+
+    '''def __getattr__(self, attr):
+        """ Get attribute of class"""
+        return self.attr
+
+    def __getattr__subclass__(self, attr_main_class, attr_sub_class):
+        """ Returns the attribute of a subclass"""
+        object_class = getattr(self, attr_main_class)
+        object_subclass = getattr(object_class, attr_sub_class)
+        return object_subclass
+    '''

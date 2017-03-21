@@ -144,7 +144,8 @@ def initialise_energy_supply_dict(number_fuel_types, number_reg, base_year):
     result_dict : dict
         Returns a nested dictionary for energy supply model (fueltype/region/timeID)
     """
-    timesteps, _ = timesteps_full_year(base_year) # Create timesteps for full year (wrapper-timesteps)
+    # Create timesteps for full year (wrapper-timesteps)
+    timesteps = timesteps_full_year(base_year) 
 
     result_dict = {}
     for i in range(number_fuel_types):
@@ -319,7 +320,7 @@ def timesteps_full_year(base_year):
     # List with all dates of the base year
     list_dates = list(datetime_range(start=date(base_year, 1, 1), end=date(base_year, 12, 31))) # List with every date in a year
 
-    yaml_list = []
+    #yaml_list = []
     timesteps = {}
 
     #Add to list
@@ -336,9 +337,9 @@ def timesteps_full_year(base_year):
             timesteps[yearday_h_id] = {'start': start_period, 'end': end_period}
 
             #Add to yaml listyaml
-            yaml_list.append({'id': yearday_h_id, 'start': start_period, 'end': end_period})
+            #yaml_list.append({'id': yearday_h_id, 'start': start_period, 'end': end_period})
 
-    return timesteps, yaml_list
+    return timesteps
 
 def get_weekday_type(date_from_yearday):
     """Gets the weekday of a date
@@ -535,8 +536,8 @@ def write_YAML(crit_write, path_YAML, yaml_list):
         List containing YAML dictionaries for every region
 
     """
-    print("Write YAML file with length: " + str(len(yaml_list)))
     if crit_write:
+        print("Write YAML file with length: " + str(len(yaml_list)))
         #_, yaml_list = timesteps_full_year(base_year)  # Create timesteps for full year (wrapper-timesteps)
         with open(path_YAML, 'w') as outfile:
             yaml.dump(yaml_list, outfile, default_flow_style=False)
@@ -567,7 +568,6 @@ def write_to_csv_will(data, result_dict, reg_lu, crit_YAML):
 
                 for _day in result_dict[fueltype][reg]:
                     for _hour in range(24):
-
                         start_id = "P{}H".format(_day * 24 + _hour)
                         end_id = "P{}H".format(_day * 24 + _hour + 1)
                         data.append([reg_lu[reg], start_id, end_id, result_dict[fueltype][reg][_day][_hour]])
@@ -603,7 +603,52 @@ def convert_to_array(in_dict):
         in_dict[i] = np.array(a, dtype=float)
     return in_dict
 
-def get_elasticity(base_demand, elasticity, price_base, price_curr):
+def convert_to_array_TECHNOLOGES(in_dict, tech_lu):
+    """Convert dictionary to array
+
+    The input array of efficiency is replaced and technologies are replaced with technology IDs
+
+    # TODO: WRITE DOCUMENTATION
+    Parameters
+    ----------
+    in_dict : dict
+        One-level dictionary
+
+    Returns
+    -------
+    in_dict : array
+        Array with identical data of dict
+
+    Example
+    -------
+    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
+    """
+    out_dict = {}
+
+    for fueltype in in_dict:
+        a = list(in_dict[fueltype].items())
+        print("fueltype: " + str(fueltype))
+        print("a: " + str(a))
+
+        # REplace technologies with technology ID
+        replaced_tech_with_ID = []
+        for enduse_tech_eff in a:
+            technology = enduse_tech_eff[0]
+            tech_eff = enduse_tech_eff[1]
+            replaced_tech_with_ID.append((tech_lu[technology], tech_eff))
+        print("replaced_tech_with_ID: " + str(replaced_tech_with_ID))
+
+        # IF empty replace with 0.0, 0.0) to have an array with length 2
+        if replaced_tech_with_ID == []:
+            out_dict[fueltype] = []
+        else:
+            replaced_with_ID = np.array(replaced_tech_with_ID, dtype=float)
+
+            out_dict[fueltype] = replaced_with_ID
+
+    return out_dict
+
+def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
 
     As an input the base data is provided and price differences and elasticity
@@ -629,20 +674,17 @@ def get_elasticity(base_demand, elasticity, price_base, price_curr):
     Price elasticity is defined as follows:
 
         price elasticity = (% change in quantity) / (% change in price)
-
-        elasticity       = (Q_base - Q_curr)      / (P_base - P_curr)
+        or
+        elasticity       = ((Q_base - Q_curr) / Q_base) / ((P_base - P_curr)/P_base)
 
     Reformulating to calculate current demand:
 
-        Q_curr = -1 * (elasticity * (P_base - P_curr) - Q_base)
+        Q_curr = -1 * ((elasticity * ((P_base - P_curr) / P_base)) * Q_base)  - Q_base)
 
     """
-    pricediff = price_base - price_curr                     # Absolute price difference (e.g. 20 - 15 --> 5)
-    #pricediff_p = -1 * (pricediff / base_demand)            # Price diff in percent (e.g. -1 * (5/20) --> -0.25)
-    #demand_diff_in_p = elasticity * pricediff_p             # Demand difference in percent of base demand
-    #demand_diff_absolute = demand_diff_in_p * base_demand   # Demand diff in absolute
-    #current_demand = base_demand + demand_diff_absolute     # new demand
+    pricediff_p = (price_base - price_curr) / price_base                   # Absolute price difference (e.g. 20 - 15 --> 5)
 
     # New current demand
-    current_demand = -1 * ((elasticity * pricediff) - base_demand)
+    current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
+
     return current_demand

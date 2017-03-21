@@ -63,8 +63,8 @@ def energy_demand_model(data, data_ext):
     # Residential model
     # --------------------------
 
-    # Generate technological stock
-    data['tech_stock'] = ts.ResidTechStock(data['assumptions'], data_ext)
+    # Generate technological stock for base year
+    data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
 
     # Create regions for residential model Iterate regions and generate objects
     for reg in data['reg_lu']:
@@ -120,6 +120,7 @@ if __name__ == "__main__":
     # Wheater generater (change base_demand data)
 
     # External data provided to wrapper
+    # --Or only price of current year
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3001001, 1: 5301001, 2: 53001001}
                                    },
@@ -128,6 +129,10 @@ if __name__ == "__main__":
                                   'current_year': 2016,
                                   'end_year': 2020
                                  },
+
+                     'fuel_price': {2015: {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0},
+                                    2016: {0: 12.0, 1: 13.0, 2: 14.0, 3: 12.0, 4: 13.0, 5: 14.0, 6: 13.0, 7: 13.0}
+                                   },
                     }
 
     # Data container #TODO: add data_external to base_data
@@ -145,8 +150,8 @@ if __name__ == "__main__":
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
-    # Generate technological stock over whole simulation period
-    #base_tech_stock_resid = ts.ResidTechStock(2015, assumptions_model_run, data_external)
+    # Generate technological stock for base year (Maybe for full simualtion period? TODO)
+    base_data['tech_stock_by'] = ts.ResidTechStock(base_data, base_data['assumptions'], data_external, data_external['glob_var']['base_year'])
 
     # -----------------
     # Run main function
