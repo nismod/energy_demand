@@ -91,19 +91,17 @@ def lineardiffusion(base_year, current_year, eff_by, eff_ey, sim_years):
 
     return fract_sy
 
-
 def sigmoidefficiency(base_year, current_year, year_end):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
     """
-
     # TODO: READ IN START AND END AND DECIDE IF NEG OR POSITIVE DIFFUSTION
     # CREATE POSITIVE AND NEGATIVE DIFFUSION
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
     y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_year - base_year)
 
     sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
-    sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1)
+    sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1) TODO: Make as global ssumption
 
     # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
     val_yr = 1 / (1 + m.exp(-1 * sigmoidsteepness * (y_trans - sigmoidmidpoint)))

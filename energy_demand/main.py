@@ -25,7 +25,7 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
-import os
+
 import sys
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg

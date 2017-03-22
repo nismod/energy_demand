@@ -111,11 +111,15 @@ def load_data(data, path_main):
     data['lu_appliances_HES_matched'] = read_csv(path_dict['path_lu_appliances_HES_matched'])
 
 
-
+    # ----------------------------------------
     # --Convert loaded data into correct units
+    # ----------------------------------------
+
+    # Fuel residential
     for enduse in data_residential_by_fuel_end_uses:
         data_residential_by_fuel_end_uses[enduse] = conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse]) # TODO: Check if ktoe
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
+
 
     # --- Execute data generatore
     data = dl.generate_data(data, True) # Otherwise already read out files are read in from txt files
@@ -598,12 +602,14 @@ def convert_to_array(in_dict):
     -------
     in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
     """
+    copy_dict = {}
     for i in in_dict:
         a = list(in_dict[i].items())
-        in_dict[i] = np.array(a, dtype=float)
+        copy_dict[i] = np.array(a, dtype=float)
+        #in_dict[i] = np.array(a, dtype=float)
     return in_dict
 
-def convert_to_array_TECHNOLOGES(in_dict, tech_lu):
+def convert_to_array_technologies(in_dict, tech_lu):
     """Convert dictionary to array
 
     The input array of efficiency is replaced and technologies are replaced with technology IDs
@@ -688,3 +694,10 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
 
     return current_demand
+
+def convert_date_to_yearday(date_base_year, month, day):
+    """Converts a base year day to yearday of baseyear"""
+
+    date_base_year = date(date_base_year, month, day)
+    yearday = date_base_year.timetuple()[7] - 1
+    return yearday

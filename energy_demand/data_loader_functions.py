@@ -106,7 +106,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
         return data
 
     # Get end use of HES data of current end_use of EUREC Data
-    for i in data['lu_appliances_HES_matched']:
+    for i in data['lu_appliances_HES_matched']: #TODO: Here the HES DATA ARE MACHTED
         if i[1] == end_use:
             hes_app_id = int(i[0])
             break
@@ -305,7 +305,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     # out_dict_not_average: Every measurment of of every file is plotted
 
     # Get all files in folder
-    all_csv_in_folder = os.listdir(folder_path) 
+    all_csv_in_folder = os.listdir(folder_path)
 
     # Initialise dictionaries
     main_dict, main_dict_dayyear_absolute = dict_init()
@@ -323,14 +323,14 @@ def read_raw_carbon_trust_data(data, folder_path):
             read_lines = csv.reader(csv_file, delimiter=',')  # Read line
             _headings = next(read_lines)                      # Skip first row
             maximum_dayly_demand = 0                          # Used for searching maximum
-            
+
             # Count number of lines in CSV file
             row_data = []
             for count_row, row in enumerate(read_lines):
                 row_data.append(row)
             print("Number of lines in csv file: " + str(count_row))
 
-            if count_row > 364:                             # if more than one year is recorded in csv file
+            if count_row > 364: # if more than one year is recorded in csv file
 
                 # Iterate day
                 for row in row_data:
@@ -453,7 +453,6 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Write out enduse load shape #TODO
     #write_enduse_load_shape_to_csv()
-
 
     return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days
 

@@ -84,13 +84,11 @@ def resid_build_stock(data, assumptions, data_ext):
 
     #print("Base dwelling")
     #print(reg_building_stock_by[0].get_tot_pop())
-    l = reg_building_stock_by[0].dwellings
-    #for i in l:
-    #    print(i.__dict__)
+    #l = reg_building_stock_by[0].dwellings
 
     ##print("Curryear dwelling")
     #print(reg_building_stock_cur_yr[0].get_tot_pop())
-    l = reg_building_stock_cur_yr[0].dwellings
+    #l = reg_building_stock_cur_yr[0].dwellings
     #for i in l:
     #    print(i.__dict__)
 

@@ -20,5 +20,6 @@ def read_in_all_disaggregation_parameters():
     pass
 
 def disaggregate(region_characteristics, yearly_data):
-    
+
+
     pass

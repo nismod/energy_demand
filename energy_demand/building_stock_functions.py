@@ -120,11 +120,16 @@ class DwStockRegion(object):
         self.pop = self.get_tot_pop()
 
         # Execute functions of stock #TODO: Maybe improve that only end_use needs to be entered...
-
+        self.space_heating = self.get_sum_scenario_driver_space_heating()
         self.water_heating = self.get_sum_scenario_driver_water_heating()
-        self.heating = self.get_sum_scenario_driver_space_heating()
+        #self.cooking = self.()
         self.lighting = self.get_sum_scenario_driver_lighting()
-        # TODO: Add more
+        #self.cold = self.()
+        #self.wet = self.()
+        #self.consumer_electronics = self.()
+        #self.home_computing = self.()
+        #self.cooking = self.()
+        # TODO: maybe automate that if new end use is added?
 
     def get_tot_pop(self):
         """Get total population of all dwellings"""
