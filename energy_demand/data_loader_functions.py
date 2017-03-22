@@ -63,11 +63,9 @@ def read_hes_data(data):
 def assign_hes_data_to_year(data, hes_data, base_year):
     ''' Fill every base year day with correct data '''
 
-    year_days = 365
-    hours = 24
     app_type_lu = data['app_type_lu']
 
-    year_raw_values = np.zeros((year_days, hours, len(app_type_lu)), dtype=float)
+    year_raw_values = np.zeros((365, 24, len(app_type_lu)), dtype=float)
 
     # Create list with all dates of a whole year
     start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
@@ -85,6 +83,39 @@ def assign_hes_data_to_year(data, hes_data, base_year):
         year_raw_values[yearday_python] = _data   # now [yearday][hour][appliance_typ]
 
     return year_raw_values
+
+def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year):
+    """Fill every base year day with correct data"""
+
+    shape_h_non_peak = np.zeros((365, 24))
+
+    # -- Daily shape over full year (365,1)
+
+    # Create list with all dates of a whole year
+    start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
+    list_dates = list(mf.datetime_range(start=start_date, end=end_date))
+
+    # Assign every date to the place in the array of the year
+    for yearday in list_dates:
+        month_python = yearday.timetuple()[1] - 1 # - 1 because in _info: Month 1 = Jan
+        yearday_python = yearday.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+        daytype = mf.get_weekday_type(yearday)
+        _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
+
+        # Add values to yearly
+        _data = np.array(list(_data.items()))
+        shape_h_non_peak[yearday_python] = np.array(_data[:,1], dtype=float)   # now [yearday][24 hours with relative shape]
+
+
+    # -- Daily shape over full year (365,1)
+
+    # Add to hourly shape
+    #data['dict_shp_enduse_h_resid'][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak}
+
+    # Add to daily shape
+    #data['dict_shp_enduse_d_resid'][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak}
+
+    return shape_h_non_peak
 
 def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
     ''' read out end-use shape'''
@@ -149,15 +180,15 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
         shape_h_non_peak[day] = (1 / d_sum) * year_raw_values[day, :, hes_app_id]
 
     # Add to hourly shape
-    data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak}
+    data['dict_shp_enduse_h_resid'][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak}
 
     # Add to daily shape
-    data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak}
+    data['dict_shp_enduse_d_resid'][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak}
 
     return data
 
 # CWV WEATER GAS SAMSON-----------------------------------
-def shape_residential_heating_gas(data, end_use):
+def read_shp_heating_gas(data, end_use, dict_shape_h, dict_shape_d, pathCSV):
     """Creates the shape of the base year heating demand over the full year
 
     Input:
@@ -167,17 +198,13 @@ def shape_residential_heating_gas(data, end_use):
     #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
     """
     # Initilaise array to store all values for a year
-    year_days, hours = 365, 24
-    hourly_hd = np.zeros((1, hours), dtype=float)
-    hd_data = np.zeros((year_days, hours), dtype=float)
-
+    hourly_hd = np.zeros((1, 24), dtype=float)
+    hd_data = np.zeros((365, 24), dtype=float)
 
     # Read in temperatures for base year
-    csv_temp_2015 = mf.read_csv(data['path_dict']['path_temp_2015'])
-    data['csv_temp_2015'] = csv_temp_2015
+    data['csv_temp_2015'] = mf.read_csv(data['path_dict'][pathCSV])
 
-    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
-
+    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
 
     # Get hourly distribution (Sansom Data)
     #hourly_gas_shape_day = hourly_gas_shape[0]  # Hourly gas shape
@@ -186,13 +213,10 @@ def shape_residential_heating_gas(data, end_use):
     peak_h_shape = hourly_gas_shape[3] # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
-    for row in csv_temp_2015:
+    for row in data['csv_temp_2015']:
         sncwv = float(row[1])
         row_split = row[0].split("/")
-        _day = int(row_split[0])
-        _month = int(row_split[1])
-        _year = int(row_split[2])
-        date_gas_day = date(_year, _month, _day)
+        date_gas_day = date(int(row_split[2]), int(row_split[1]), int(row_split[0])) # year, month, day
 
         yearday_python = date_gas_day.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
         weekday = date_gas_day.timetuple()[6] # 0: Monday
@@ -202,23 +226,20 @@ def shape_residential_heating_gas(data, end_use):
 
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
-            _data = hourly_gas_shape_wkend * heating_demand_correlation
-            hd_data[yearday_python] = _data  # DATA ARRAY
+            hd_data[yearday_python] = hourly_gas_shape_wkend * heating_demand_correlation
         else:
-            _data = hourly_gas_shape_wkday * heating_demand_correlation
-            hd_data[yearday_python] = _data  # DATA ARRAY
+            hd_data[yearday_python] = hourly_gas_shape_wkday * heating_demand_correlation
 
     # NONPEAK------------------------------------------------------------------------------
     # ---------------
     # hourly
     # ---------------
     shape_h_non_peak = np.copy(hd_data)
-    print("shape_h_non_peak" + str(shape_h_non_peak))
-    cnt = 0
-    for hourly_values in shape_h_non_peak:
+    #print("shape_h_non_peak" + str(shape_h_non_peak))
+
+    for cnt, hourly_values in enumerate(shape_h_non_peak):
         day_sum = np.sum(hourly_values)
         shape_h_non_peak[cnt] = (1.0 / day_sum) * hourly_values
-        cnt += 1
 
     print("shape_h_non_peak: " + str(shape_h_non_peak))
     # ---------------
@@ -230,21 +251,19 @@ def shape_residential_heating_gas(data, end_use):
     shape_d_non_peak = np.zeros((365, 1)) #Two dimensional array with one row
 
     # Percentage of total demand for every day
-    cnt = 0
-    for day in hd_data:
+
+    for cnt, day in enumerate(hd_data):
         #print("---")
         #print("total_y_hd: " + str(total_y_hd))
         #print("np.sum(day): " + str(np.sum(day)))
         #print((1.0/total_y_hd) * np.sum(day))
-
         shape_d_non_peak[cnt] = (1.0/total_y_hd) * np.sum(day) #calc daily demand in percent
-        cnt += 1
 
     # PEAK-----------------------------------------------------------------------------
 
     # Get maximum daily demand
     _list = []
-    for demand in csv_temp_2015:
+    for demand in data['csv_temp_2015']:
         _list.append(float(demand[1]))
 
     max_day_demand = max(_list) #maximum demand
@@ -253,10 +272,11 @@ def shape_residential_heating_gas(data, end_use):
     peak_d_shape = max_day_demand / total_y_hd
 
     # Add to hourly shape
-    data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak} # TODO: no peak for gas
+
+    data[dict_shape_h][end_use] = {'peak_h_shape': peak_h_shape, 'shape_h_non_peak': shape_h_non_peak} # TODO: no peak for gas
 
     # Add to daily shape
-    data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak} # No peak
+    data[dict_shape_d][end_use]  = {'peak_d_shape': peak_d_shape, 'shape_d_non_peak': shape_d_non_peak} # No peak
 
     return data
 
@@ -445,17 +465,16 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Add SHAPES
     # Add to hourly non-residential shape
-    #data['dict_shapes_end_use_h'][end_use] = {'peak_h_shape_non_resid': maxday_h_shape, 'shape_h_non_peak': } 
+    #data['dict_shp_enduse_h_resid'][end_use] = {'peak_h_shape_non_resid': maxday_h_shape, 'shape_h_non_peak': } 
 
     # Add to daily shape
-    #data['dict_shapes_end_use_d'][end_use]  = {'peak_d_shape_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak
+    #data['dict_shp_enduse_d_resid'][end_use]  = {'peak_d_shape_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak
     #prnt("..")
 
     # Write out enduse load shape #TODO
     #write_enduse_load_shape_to_csv()
 
     return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days
-
 
 def non_residential_peak_h(hourly_shape_of_maximum_days):
     """ Returns the peak of the day """
@@ -475,8 +494,9 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     #pf.plot_load_shape_d(maxday_h_shape)
     return maxday_h_shape
 
-def followup_processing():
-    out_dict_average, out_dict_not_average = read_raw_carbon_trust_data()
+
+
+'''def followup_processing(out_dict_average, out_dict_not_average):
 
     # --------------------------------------------------------
     # Calculate average daily load shape for all mongth (averaged)
@@ -502,5 +522,5 @@ def followup_processing():
     print("Result yearly averaged:")
     print(yearly_averaged_load_curve)
     return
-
+'''
 

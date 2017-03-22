@@ -33,7 +33,6 @@ import energy_demand.assumptions as assumpt
 import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
-
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data, data_ext):
@@ -56,36 +55,20 @@ def energy_demand_model(data, data_ext):
 
     """
     # Initialisation
-    all_regions = [] # List to store all regions
-    result_dict = mf.initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year']) # Dict for output to energy supply model
+    #result_dict = mf.initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year']) # Dict for output to energy supply model
 
     # --------------------------
     # Residential model
     # --------------------------
-
-    # Generate technological stock for base year
-    data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
-
-    # Create regions for residential model Iterate regions and generate objects
-    for reg in data['reg_lu']:
-
-        # Residential
-        a = rm.Region(reg, data, data_ext)
-        all_regions.append(a)
-
-
+    all_regions_resid = rm.residential_model_main_function(data, data_ext)
 
     # --------------------------
     # Service Model
     # --------------------------
 
-
-
     # --------------------------
     # Industry Model
     # --------------------------
-
-
 
     # --------------------------
     # Transportation Model
@@ -96,11 +79,10 @@ def energy_demand_model(data, data_ext):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, data_ext, all_regions)
+    result_dict = mf.convert_out_format_es(data, data_ext, all_regions_resid)
 
-    # --- Write out functions....scrap to improve
-    print("...Write results for energy supply model to csv file and YAML files")
-    mf.write_to_csv_will(data, result_dict, data['reg_lu'], False) # FALSE: don't create YAML file
+    # --- Write to csv and YAML
+    mf.write_to_csv_will(data, result_dict, data['reg_lu'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))
@@ -119,8 +101,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------_
     # Wheater generater (change base_demand data)
 
-    # External data provided to wrapper
-    # --Or only price of current year
+    # External data provided from wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3001001, 1: 5301001, 2: 53001001}
                                    },
@@ -133,19 +114,24 @@ if __name__ == "__main__":
                      'fuel_price': {2015: {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0},
                                     2016: {0: 12.0, 1: 13.0, 2: 14.0, 3: 12.0, 4: 13.0, 5: 14.0, 6: 13.0, 7: 13.0}
                                    },
+                     # Demand of other sectors
+                     'external_enduses': {'waste_water': {0: 10000}, #Yearly fuel data
+                                          'ICT_model': {}
+                                         }
                     }
 
-    # Data container #TODO: add data_external to base_data
+    # Data container
     base_data = {}
 
     # Model calculations outside main function
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' #path_main = '../data'
-    base_data = mf.load_data(base_data, path_main) # Load and generate data
+    base_data = mf.load_data(base_data, path_main, data_external) # Load and generate data
 
-    base_data = assumpt.load_assumptions(base_data) # Load assumptions
-    #base_data['assumptions'] = assumptions_model_run # Add assumptions to data
+    # Load assumptions
+    base_data = assumpt.load_assumptions(base_data)
 
-    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) # Disaggregate national data into regional data
+    # Disaggregate national data into regional data
+    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) 
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
@@ -153,20 +139,10 @@ if __name__ == "__main__":
     # Generate technological stock for base year (Maybe for full simualtion period? TODO)
     base_data['tech_stock_by'] = ts.ResidTechStock(base_data, base_data['assumptions'], data_external, data_external['glob_var']['base_year'])
 
-    # -----------------
+
     # Run main function
-    # -----------------
     energy_demand_model(base_data, data_external)
-
     print("Finished running Energy Demand Model")
-
-
-
-
-
-
-
-
 
 
 

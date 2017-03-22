@@ -64,7 +64,7 @@ def plot_FUNCTIONSE():
 
     plt.xlabel("hours")
     plt.ylabel("percentage of daily demand")
-    plt.title("Plotting all month for the daytype {}".format(daytype))
+    plt.title("Plotting all month for the daytype {}".format(str(daytype)))
     plt.legend()
     plt.show()
 

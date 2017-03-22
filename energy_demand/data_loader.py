@@ -35,13 +35,18 @@ def generate_data(data, run_data_collection):
     #prnt("oklo")
     # Dump created end_use_dictionaries into txt files #TODO
 
+
+
     # ----------------------------
     # Residential Gas demand ()
     # Daily shapes taken from Robert Sansom
     # Yearly peak from CSWV
     # ----------------------------
-    end_use = 'heating'
-    data = df.shape_residential_heating_gas(data, end_use)
+    # CSV Residential
+    data = df.read_shp_heating_gas(data, 'heating', 'dict_shp_enduse_h_resid', 'dict_shp_enduse_d_resid', 'path_temp_2015')
+
+    #CSV Service
+    #data = df.read_shp_heating_gas(data, 'heating', 'dict_shp_enduse_h_service', 'dict_shp_enduse_d_service', 'path_temp_2015_service')
 
 
     # ---------------------
@@ -49,10 +54,41 @@ def generate_data(data, run_data_collection):
     # - electricity for non-residential
     # -
     # ---------------------
+    
+    # ENDUSE XY
     folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
     out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days = df.read_raw_carbon_trust_data(data, folder_path)
 
+    # Read in CWV for non-residential
+
+    # Get yearly profiles
+    enduse = 'WHATEVERENDUSE'
+    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data)
+
+    '''import matplotlib.pyplot as plt
+    import numpy as np
+
+    x_values = range(365 * 24)
+    y_values = []
+    #y_values = all_hours_year[region].values()
+
+    for day, daily_values in enumerate(year_data):
+
+        # ONLY PLOT HALF A YEAR
+        if day < 365:
+            for hour in daily_values:
+                y_values.append(hour)
+
+    plt.plot(x_values, y_values)
+
+    plt.legend()
+    plt.show()
+    print("")
+    '''
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
+
+    # ENDUSE XY
+    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
 
     # ADD DICTS TO data

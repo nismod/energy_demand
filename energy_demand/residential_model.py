@@ -8,8 +8,43 @@ import matplotlib as mpl
 
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
+import energy_demand.technological_stock as ts
 
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
+
+
+
+def residential_model_main_function(data, data_ext):
+    """Main residential model
+
+
+    """
+    all_regions = [] # List to store all regions
+
+    # Generate technological stock for base year
+    data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
+
+    # Create regions for residential model Iterate regions and generate objects
+    for reg in data['reg_lu']:
+
+        # Residential
+        a = Region(reg, data, data_ext)
+        all_regions.append(a)
+
+    return all_regions
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Region(object):
     """Class of a region for the residential model
@@ -32,7 +67,7 @@ class Region(object):
         self.reg_id = reg_id                                        # ID of region
         self.data = data                                            # data
         self.data_ext = data_ext                                    # external data
-        self.assumptions = data['assumptions']                      
+        self.assumptions = data['assumptions']
         self.current_year = data_ext['glob_var']['current_year']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
 
@@ -71,10 +106,19 @@ class Region(object):
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
         self.end_uses = {}
+
+        # Load all enduses from fuels
         for enduse in self.reg_fuel:
             print("ENDUSE:" + str(enduse))
 
             self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
+
+        # load external fuels from wrapper #TODO
+        #for external_enduse in self.data_ext['external_enduses']:
+        #    print("Externla Enduse: " + str(external_enduse))#
+        #
+        #     self.end_uses[external_enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, external_enduse, self.reg_fuel)
+
 
         for _ in self.end_uses:
             vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
@@ -215,7 +259,7 @@ class Region(object):
 
             Y_init[k] = list_all_h
 
-        color_list = ["green", "red", "#6E5160"]
+        #color_list = ["green", "red", "#6E5160"]
 
         sp = ax.stackplot(x, Y_init)
         proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
@@ -278,10 +322,10 @@ class EndUseClassResid(Region):
         self.tech_stock_cy = data['tech_stock_cy']                        # Technological stock base_data['tech_stock_by']
 
         # --Load shapes
-        self.enduse_shape_d = data['dict_shapes_end_use_d'][enduse]['shape_d_non_peak']  # shape_d
-        self.enduse_shape_h = data['dict_shapes_end_use_h'][enduse]['shape_h_non_peak']  # shape_h
-        self.enduse_shape_peak_d = data['dict_shapes_end_use_d'][enduse]['peak_d_shape'] # shape_d peak (Factor to calc one day)
-        self.enduse_shape_peak_h = data['dict_shapes_end_use_h'][enduse]['peak_h_shape'] # shape_h peak
+        self.enduse_shape_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_non_peak']  # shape_d
+        self.enduse_shape_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_non_peak']  # shape_h
+        self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['peak_d_shape'] # shape_d peak (Factor to calc one day)
+        self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['peak_h_shape'] # shape_h peak
 
         # --Yearly fuel data
         self.reg_fuel_eff_gains = self.enduse_eff_gains()               # General efficiency gains of technology over time
@@ -397,8 +441,8 @@ class EndUseClassResid(Region):
         -----
         """
         # Share of fuel types for each end use
-        fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year
-        fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year
+        fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year 
+        fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
 
         # Test whether share of fuel types stays identical
         if np.array_equal(fuel_p_by, fuel_p_ey):            # no fuel switches
@@ -409,7 +453,7 @@ class EndUseClassResid(Region):
             print(self.enduse)
             print("dd")
             print(self.assumptions['tech_install'][self.enduse])
-            
+
             # Assumptions about which technology is installed and replaced
             tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
             eff_replacement = getattr(self.tech_stock_cy, tech_install)
@@ -419,13 +463,17 @@ class EndUseClassResid(Region):
             print("tech_replacement_dict")
             print(tech_replacement_dict)
 
+            print("fuel_p_ey " + str(fuel_p_ey))
+            print("fuel_p_by " + str(fuel_p_by))
+
 
             # Calculate percentage differences over full simulation period
-            fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
+            ###fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
             #print("fuel_diff: " + str(fuel_diff))
 
             # Calculate sigmoid diffusion of fuel switches
-            fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
+            ###fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
+            fuel_p_cy = fuel_p_by * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
             #print("fuel_p_cy:" + str(fuel_p_cy))
             #print(fuel_p_ey[:, 1])
             #print("fuel_p_ey:" + str(fuel_p_ey))
@@ -434,24 +482,28 @@ class EndUseClassResid(Region):
             #print(self.reg_fuel.shape)
 
             # Differences in absolute fuel amounts
-            absolute_fuel_diff = self.reg_fuel[0] * fuel_p_cy # Multiply fuel demands by percentage changes
+            absolute_fuel_diff = self.reg_fuel[0] * fuel_p_cy[:, 1] # Multiply fuel demands by percentage changes
             #print("absolute_fuel_diff: " + str(absolute_fuel_diff))
             #print("Technology which is installed:           " + str(tech_install))
             #print("Efficiency of technology to be installed " + str(eff_replacement))
             #print("Current Year:" + str(self.current_year))
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
-                tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
-                eff_tech_remove = getattr(self.tech_stock_cy, tech_replace)  # Get efficiency of technology to be replaced
-
-                # Fuel factor   #TODO ev. auch umgekehrt
-                fuel_factor = eff_tech_remove / eff_replacement
-                fuel_consid_eff = fuel_diff * fuel_factor
-                #print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
-                #print("fuel_diff: " + str(fuel_diff))
-                # Add  fuels (if minus, no technology weighting is necessary)
+                
+                # Only if there is a fuel difference
                 if fuel_diff > 0:
-                    fuel_switch_array[int(fuel_type)] += fuel_consid_eff # Add Fuel
+                
+                    tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
+                    eff_tech_remove = getattr(self.tech_stock_cy, tech_replace)  # Get efficiency of technology to be replaced
+
+                    # Fuel factor   #TODO ev. auch umgekehrt
+                    fuel_factor = eff_tech_remove / eff_replacement
+                    fuel_consid_eff = fuel_diff * fuel_factor
+                    print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
+                    print("fuel_diff: " + str(fuel_diff))
+                    # Add  fuels (if minus, no technology weighting is necessary)
+                    if fuel_diff > 0:
+                        fuel_switch_array[int(fuel_type)] += fuel_consid_eff # Add Fuel
 
             #print("Old Fuel: " + str(self.reg_fuel))
             #print("--")

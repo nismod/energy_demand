@@ -20,7 +20,7 @@ ECUK TABLE FUEL DATA                              Shapes
 ====================                              ==================
                                                   [y] ?? Wheater Generator
 
-Space_heating (Table 3.8)                 -->     [h,p_h] Sansom (2014) which is based on Carbon Trust field data: 
+Space_heating (Table 3.8)                 -->     [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
                                                   [d,p_d] National Grid (residential data based on CWW):
 
 Water_heating (Table 3.8)                 -->     [d,h,p_d,p_h] HES: Water heating (shapes for all fuels)
@@ -129,19 +129,19 @@ def load_assumptions(data):
 
 
     # ============================================================
-    # Elasticities (Long-term resid_elasticities) 
+    # Elasticities (Long-term resid_elasticities)
     # #TODO: Elasticties over time change? Not implemented so far
     # ============================================================
     resid_elasticities = {'space_heating': 0,
-                    'water' : 0,
-                    'cooking' : 0,
-                    'lighting': 0,
-                    'cold': 0,
-                    'wet': 0,
-                    'consumer_electronics': 0,
-                    'home_computing': 0,
-                    'cooking': 0,
-                   }
+                          'water' : 0,
+                          'cooking' : 0,
+                          'lighting': 0,
+                          'cold': 0,
+                          'wet': 0,
+                          'consumer_electronics': 0,
+                          'home_computing': 0,
+                          'cooking': 0,
+                         }
     assump_dict['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
 
@@ -193,7 +193,6 @@ def load_assumptions(data):
         'micro_CHP_elec': 0.5,
         'micro_CHP_thermal': 0.5
         }
-
     assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
 
     ## Efficiencies residential, end year
@@ -263,13 +262,12 @@ def load_assumptions(data):
     # Helper function eff_achieved
     # THIS can be used for scenarios to define how much of the fficiency was achieved
     for i in assump_dict['eff_achieved']:
-      assump_dict['eff_achieved'][i] = 0.5
+        assump_dict['eff_achieved'][i] = 0.5
 
 
     # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
     data['tech_lu'] = {}
-    tech_id = 1000
-    for tech in eff_by:
+    for tech_id, tech in enumerate(eff_by, 1000):
         data['tech_lu'][tech] = tech_id
         tech_id += 1
 
@@ -290,49 +288,60 @@ def load_assumptions(data):
     fuel_type_p_by = generate_fuel_type_p_by(data)
     assump_dict['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
+    #print("")
+    #print(assump_dict['fuel_type_p_by']['lighting'])
+    #print(",,,")
+    #prnt("..")
 
     # Perc
-    # Only write those which should be replaced
-    assump_fuel_frac_ey = {'lighting': {
-                                  '0' : 0.2,
-                                  '1' : 0.3,
-                                  '2' : 0.5,
-                                  '3' : 0.0,
-                                  '4' : 0.0,
-                                  '5' : 0.0,
-                                  '6' : 0.0
-    }}
-
+    # Only write those which should be replaced --> How much the fuel of each fueltype is reduced based on base_demand (can be more than 100% overall fueltypes)
+    # Don't specify total fuel percentage of enduse but only how much is reduced to base_year
+    # TODO: Acual percentage of fueltype yould be calculated...
+    assump_fuel_frac_ey = {'lighting': {'0' : -1.0,
+                                        '1' : -0.3,
+                                        '2' : -0.5,
+                                        '3' : 0.0,
+                                        '4' : -0.2,
+                                        '5' : 0.0,
+                                        '6' : 0.0
+                                       }
+                          }
 
     # Helper function - Replace all enduse from assump_fuel_frac_ey
     fuel_type_p_ey = {}
     for enduse in fuel_type_p_by:
-        if enduse not in fuel_type_p_ey:
+        if enduse not in assump_fuel_frac_ey:
             fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
         else:
             fuel_type_p_ey[enduse] = assump_fuel_frac_ey[enduse]
     # Convert to array
-    assump_dict['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey)
+    a = mf.convert_to_array(fuel_type_p_ey)
+
+    assump_dict['fuel_type_p_ey'] = a
 
 
-    # -- Share of technologies for each enduse
-
+    # ----------------------------------------------------------------------------------
+    # -- Share of technologies within each fueltype and for each enduse
+    # ----------------------------------------------------------------------------------
     # Technology which is installed for the share of fueltype to be replaced
     assump_dict['tech_install'] = {'lighting': 'LED'}
 
     # Technologies used for the different fuel types where the new technology is introduced
-    tech_replacement_dict = {'lighting': 
-                                        {0: 'boiler_B',
-                                        1: 'boiler_B',
-                                        2: 'boiler_B',
-                                        3: 'boiler_B',
-                                        4: 'boiler_B',
-                                        5: 'boiler_B',
-                                        6: 'boiler_B',
-                                        7: 'boiler_B'
+    tech_replacement_dict = {'lighting':{0: 'boiler_oil',
+                                         1: 'boiler_gas',
+                                         2: 'boiler_B',
+                                         3: '',
+                                         4: 'boiler_B',
+                                         5: '',
+                                         6: '',
+                                         7: ''
                                         },
                             }
     assump_dict['tech_replacement_dict'] = tech_replacement_dict
+
+
+
+
 
     # ----------------------------------
     # Which technologies are used for which end_use and to which share
@@ -340,15 +349,14 @@ def load_assumptions(data):
     #Share of technology for every enduse and fueltype in base year [in %]
     # Only shares within each fueltype !!!!
     technologies_enduse_by = {
-                              'lighting': {
-                                        0: {},
-                                        1: {},
-                                        2: {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}, #As in old model
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
+                              'lighting': {0: {},
+                                           1: {},
+                                           2: {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}, #As in old model
+                                           3: {},
+                                           4: {},
+                                           5: {},
+                                           6: {},
+                                           7: {}
                                       },
                                'cold': {
                                         0: {},
