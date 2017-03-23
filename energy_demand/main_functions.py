@@ -7,6 +7,7 @@ from datetime import timedelta as td
 import numpy as np
 import data_loader as dl
 import yaml
+
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def convert_out_format_es(data, data_ext, all_regions):
@@ -59,7 +60,9 @@ def load_data(data, path_main, data_ext):
 
     """
     path_dict = {
+
         # Residential
+        # -----------
         'path_main': path_main,
         'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
         'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
@@ -67,20 +70,19 @@ def load_data(data, path_main, data_ext):
         'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
         'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
         'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/HES_base_appliances_eletricity_load_profiles.csv'),
-        'path_temp_2015': os.path.join(path_main, 'residential_model/CSV_YEAR_2015.csv'),
+        'path_temp_2015': os.path.join(path_main, 'residential_model/SNCWV_YEAR_2015.csv'),
         'path_hourly_gas_shape_resid': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
         'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
         'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
         'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
         'path_reg_floorarea': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
         'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
-
         'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
-
-        'path_write_out_shape_txts': os.path.join(path_main, 'residential_model/txt_load_shapes'),
+        'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
         # Service
+        # -----------
         'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv')
         }
 
@@ -97,7 +99,7 @@ def load_data(data, path_main, data_ext):
     data['day_type_lu'] = read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
 
     #fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
-    data['csv_temp_2015'] = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in read_shp_heating_gas
+    data['path_temp_2015'] = read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in read_shp_heating_gas
     data['hourly_gas_shape'] = read_csv_float(path_dict['path_hourly_gas_shape_resid'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
 
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
@@ -136,8 +138,12 @@ def load_data(data, path_main, data_ext):
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
 
 
-    # --- Execute data generatore
-    data = dl.generate_data(data, True) # Otherwise already read out files are read in from txt files
+    # --- Generate load_shapes ##TODO
+    data = dl.generate_data(data) # Otherwise already read out files are read in from txt files
+
+    
+    # -- Read in load shapes from files #TODO::
+    data = dl.collect_shapes_from_txts(data)
 
     # ---TESTS
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
