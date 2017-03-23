@@ -78,6 +78,8 @@ def load_data(data, path_main, data_ext):
         'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
 
+        'path_write_out_shape_txts': os.path.join(path_main, 'residential_model/txt_load_shapes'),
+
         # Service
         'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv')
         }
@@ -732,3 +734,32 @@ def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data): #TODO: ALSO
             new_fuel_array[fueltype] = data_ext['external_enduses'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
+
+
+'''
+# Description: Degree days calculator
+# Aurthors: Pranab Baruah; Scott Thacker
+
+import math as m
+
+# estimate mean temperature from base temp
+def DD_HITCHIN_BASE(d_days, t_base, days):
+
+    k       = 0.8
+    t_mean  = 1.0
+    DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
+    while DD >= d_days:
+        DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
+        t_prev = t_mean - 0.001
+        t_mean = t_mean + 0.001
+        
+    return t_prev
+
+# function to calculate degree days
+def DD_HITCHIN(t_mean, t_base, days):
+    
+    k   = 0.8
+    DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
+    
+    return DD
+'''

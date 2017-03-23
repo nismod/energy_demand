@@ -12,8 +12,6 @@ import energy_demand.technological_stock as ts
 
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
-
-
 def residential_model_main_function(data, data_ext):
     """Main residential model
 
@@ -324,8 +322,8 @@ class EndUseClassResid(Region):
         # --Load shapes
         self.enduse_shape_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_non_peak']  # shape_d
         self.enduse_shape_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_non_peak']  # shape_h
-        self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['peak_d_shape'] # shape_d peak (Factor to calc one day)
-        self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['peak_h_shape'] # shape_h peak
+        self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day)
+        self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         # --Yearly fuel data
         self.reg_fuel_eff_gains = self.enduse_eff_gains()               # General efficiency gains of technology over time

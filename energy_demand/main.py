@@ -20,6 +20,7 @@
 - efficiencies
 - leasitciies
 - assumptions
+- Overall total for every region...own class?
 
 # The docs can be found here: http://ed.readthedocs.io
 """
