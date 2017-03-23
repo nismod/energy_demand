@@ -1,7 +1,7 @@
 """Main file containing the energy demand model main function
 #
 # Description: Energy Demand Model - Run one year
-# Authors: Sven Eggimann, ...
+# Authors: Sven Eggimann, ... Aurthors: Pranab Baruah; Scott Thacker
 #
 # Abbreviations:
 # -------------
@@ -22,8 +22,15 @@
 
 
 Down the line
-- make sure that if a fuel type is added this correspoends to the fuel dict
-# The docs can be found here: http://ed.readthedocs.io
+- make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
+
+Open questions
+- PEAK to ED
+- Other Enduses from external wrapper?
+- 
+# TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
+
+The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
@@ -57,10 +64,10 @@ def energy_demand_model(data, data_ext):
 
     """
     # Initialisation
-    
+
     # SCENARIO UNCERTAINTY
     # TODO: Implement wheater generator (multiply fuel with different scenarios)
-    #data = wheater_generator_(data) # Read in CWV data and calcul difference between average and min and max of year 2015
+    #data = wheater_generator(data) # Read in CWV data and calcul difference between average and min and max of year 2015
 
     # --------------------------
     # Residential model
@@ -87,7 +94,7 @@ def energy_demand_model(data, data_ext):
     result_dict = mf.convert_out_format_es(data, data_ext, all_regions_resid)
 
     # --- Write to csv and YAML
-    mf.write_to_csv_will(data, result_dict, data['reg_lu'], False)
+    mf.write_final_result(data, result_dict, data['reg_lu'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))

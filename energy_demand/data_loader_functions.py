@@ -173,7 +173,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
     # -------------------------
     shape_d_non_peak = np.zeros((365, 1))
     shape_h_non_peak = np.zeros((365, 24))
-    
+
     for day in range(365):
         d_sum = np.sum(year_raw_values[day, :, hes_app_id])
         shape_d_non_peak[day] = (1 / total_y_end_use_demand) * d_sum
@@ -181,7 +181,6 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
         # daily shape
         shape_h_non_peak[day] = (1 / d_sum) * year_raw_values[day, :, hes_app_id]
 
-    print("finishddd")
     return data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
 
 # CWV WEATER GAS SAMSON-----------------------------------
@@ -238,7 +237,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
             if wheater_scenario == 'actual':
                 heating_demand_correlation = -158.15 * sncwv + 3622.5
-            
+
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
             hd_data[yearday_python] = hourly_gas_shape_wkend * heating_demand_correlation
@@ -254,7 +253,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
         day_sum = np.sum(hourly_values)
         shape_h_non_peak[cnt] = (1.0 / day_sum) * hourly_values
 
-    print("shape_h_non_peak: " + str(shape_h_non_peak))
+    #print("shape_h_non_peak: " + str(shape_h_non_peak))
 
     # --day
     shape_d_non_peak = np.zeros((365, 1)) #Two dimensional array with one row
@@ -312,8 +311,6 @@ def read_raw_carbon_trust_data(data, folder_path):
         I. Iterate individual files which are about a year (even though gaps exist)
         II. Select those day with the maximum load
         III. Get the hourly shape of this day
-
-
 
     """
     # Dictionary: month, daytype, hour
@@ -495,8 +492,6 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     #pf.plot_load_shape_d(maxday_h_shape)
     return maxday_h_shape
 
-
-
 '''def followup_processing(out_dict_average, out_dict_not_average):
 
     # --------------------------------------------------------
@@ -525,8 +520,6 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     return
 '''
 
-
-
 def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, other_string_info):
     """ Function collecting functions to write out txt files"""
     #print(shape_h_peak.shape)       # 24
@@ -537,8 +530,6 @@ def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d
     jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str(other_string_info) + str('.txt')))
     jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
     jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
-
-
 
 def jason_to_txt_shape_h_peak(input_array, outfile_path):
     """Wrte to txt. Array with shape: (24,)"""

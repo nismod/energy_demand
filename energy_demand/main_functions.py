@@ -579,14 +579,26 @@ def write_YAML(crit_write, path_YAML, yaml_list):
             yaml.dump(yaml_list, outfile, default_flow_style=False)
     return
 
-def write_to_csv_will(data, result_dict, reg_lu, crit_YAML):
-    """ Write reults for energy supply model
-    e.g.
+def write_final_result(data, result_dict, reg_lu, crit_YAML):
+    """Write reults for energy supply model
 
-    england, P0H, P1H, 139.42, 123.49
+    Parameters
+    ----------
+    data : dict
+        Whether a yaml file should be written or not (1 or 0)
+    result_dict : dict
+        Dictionary which is stored to txt
+    reg_lu : dict
+        Look up dictionar for regions
+    crit_YAML : bool
+        Criteria if YAML files are generated
 
+    Example
+    -------
+    The output in the textfile is as follows:
+
+        england, P0H, P1H, 139.42, 123.49
     """
-
     main_path = data['path_dict']['path_main'][:-5] # Remove data from path_main
 
     for fueltype in data['fuel_type_lu']:
@@ -664,8 +676,6 @@ def convert_to_array_technologies(in_dict, tech_lu):
 
     for fueltype in in_dict:
         a = list(in_dict[fueltype].items())
-        #print("fueltype: " + str(fueltype))
-        #print("a: " + str(a))
 
         # REplace technologies with technology ID
         replaced_tech_with_ID = []
@@ -673,14 +683,12 @@ def convert_to_array_technologies(in_dict, tech_lu):
             technology = enduse_tech_eff[0]
             tech_eff = enduse_tech_eff[1]
             replaced_tech_with_ID.append((tech_lu[technology], tech_eff))
-        #print("replaced_tech_with_ID: " + str(replaced_tech_with_ID))
 
         # IF empty replace with 0.0, 0.0) to have an array with length 2
         if replaced_tech_with_ID == []:
             out_dict[fueltype] = []
         else:
             replaced_with_ID = np.array(replaced_tech_with_ID, dtype=float)
-
             out_dict[fueltype] = replaced_with_ID
 
     return out_dict
@@ -719,7 +727,7 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
         Q_curr = -1 * ((elasticity * ((P_base - P_curr) / P_base)) * Q_base)  - Q_base)
 
     """
-    pricediff_p = (price_base - price_curr) / price_base                   # Absolute price difference (e.g. 20 - 15 --> 5)
+    pricediff_p = (price_base - price_curr) / price_base
 
     # New current demand
     current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
@@ -728,13 +736,12 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
 
 def convert_date_to_yearday(date_base_year, month, day):
     """Converts a base year day to yearday of baseyear"""
-
     date_base_year = date(date_base_year, month, day)
     yearday = date_base_year.timetuple()[7] - 1
     return yearday
 
 def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data): #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
-    """ This data check what enduses are provided by wrapper
+    """This data check what enduses are provided by wrapper
     and then adds the yearls fule data to data"""
     for external_enduse in data_ext['external_enduses']:
 

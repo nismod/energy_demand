@@ -3,10 +3,8 @@
 import os
 import csv
 import unittest
-from datetime import date
 import matplotlib.pyplot as plt
 import energy_demand.data_loader_functions as df
-import numpy as np
 import main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -16,22 +14,23 @@ import main_functions as mf
 # All pre-processed load shapes are read in from .txt files
 # ---------------------------------------------------
 def collect_shapes_from_txts(data):
+    """Rread in load shapes from text without accesing raw files"""
 
     # ----------------------------------------------------------------------
-    # RESIDENTIAL MODEL .txt files
+    # RESIDENTIAL MODEL txt files
     # ----------------------------------------------------------------------
     # Iterate folders and get all enduse
     path_txt_shapes = data['path_dict']['path_txt_shapes_resid']
     all_csv_in_folder = os.listdir(path_txt_shapes)
 
-    # Read all enduese from files
+    # Read all enduses from files
     enduses = []
     for file_name in all_csv_in_folder:
         enduse = file_name.split("__")[0] # two dashes because individual enduses may contain a single slash
         if enduse not in enduses:
             enduses.append(enduse)
-    print("ENDUSES: " + str(enduses))
-    # Read shapes from txt files
+
+    # Read load shapes from txt files
     for end_use in enduses:
         shape_h_peak = df.read_txt_shape_h_peak(os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
         shape_h_non_peak = df.read_txt_shape_h_non_peak(os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_h_non_peak') + str('.txt')))
@@ -51,7 +50,6 @@ def collect_shapes_from_txts(data):
 
     return data
 
-
 def generate_data(data):
     """This function loads all that which does not neet to be run every time"""
 
@@ -68,8 +66,7 @@ def generate_data(data):
 
     # Load shape for all end_uses
     for end_use in data['data_residential_by_fuel_end_uses']:
-        if end_use not in data['lu_appliances_HES_matched'][:, 1]:
-            print("Enduse not HES data: " + str(end_use))
+        if end_use not in data['lu_appliances_HES_matched'][:, 1]: #Enduese not in HES data
             continue
 
         data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.get_hes_end_uses_shape(data, hes_data, year_raw_values_hes, hes_y_peak, _, end_use)
@@ -83,7 +80,8 @@ def generate_data(data):
         shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
         df.create_txt_shapes('heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
 
-
+    # TODO:
+    # Add load shapes of external enduses (e.g. sewer treatment plants, )
 
 
 
@@ -116,7 +114,5 @@ def generate_data(data):
 
     # ENDUSE XY
     #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
-
-
 
     return data

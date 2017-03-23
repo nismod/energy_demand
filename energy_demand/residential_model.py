@@ -4,18 +4,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-
-
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 
-# TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
-
 def residential_model_main_function(data, data_ext):
-    """Main residential model
+    """Main function of residential model
 
+    This function is executed in the wrapper.
 
+    Parameters
+    ----------
+    data : dict
+        Contains all data not provided externally
+    data_ext : dict
+        All data provided externally
+
+    Returns
+    -------
+    all_regions : list
+        List containing all region objects of residential demand model
+
+    # TODO: Improve
     """
     all_regions = [] # List to store all regions
 
@@ -25,29 +35,18 @@ def residential_model_main_function(data, data_ext):
     # Create regions for residential model Iterate regions and generate objects
     for region_name in data['reg_lu']:
 
+        # Create new region
+        region_object = Region(region_name, data, data_ext)
+
         # Initiate residential regions
-        a = Region(region_name, data, data_ext)
-        all_regions.append(a)
+        all_regions.append(region_object)
 
     return all_regions
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class Region(object):
     """Class of a region for the residential model
 
-    The main class of the residential model. For every region, a Region Object needs to be generated.
+    The main class of the residential model. For every region, a Region object needs to be generated.
 
     Parameters
     ----------
@@ -69,28 +68,27 @@ class Region(object):
         self.current_year = data_ext['glob_var']['current_year']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
 
-        #self.pop = data_ext['population'][self.current_year][self.reg_id] # Population of current year
+        # Create all enduse object
+        self.create_enduse_objects()
 
-        # Create all end uses objects
-        self.create_end_use_objects()
-
-        # Sum final fuels of all end_uses
+        # Sum final 'yearly' fuels (summarised over all enduses)
         self.fuels_new = self.tot_all_enduses_y()
 
-        # Get peak demand day
+        # Get 'peak demand day' (summarised over all enduses)
         self.enduse_fuel_peak_d = self.get_enduse_peak_d()
 
-        # Get peak demand h (summarise over all enduses)
+        # Get 'peak demand h' (summarised over all enduses)
         self.enduse_fuel_peak_h = self.get_enduse_peak_h()
 
-        # Sum daily demand
+        # Sum 'daily' demand in region (summarised over all enduses)
         self.fuels_tot_enduses_d = self.tot_all_enduses_d()
 
-        # Sum hourly demand
+        # Sum 'hourly' demand in region (summarised over all enduses)
         self.fuels_tot_enduses_h = self.tot_all_enduses_h()
 
         # Testing
-        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h went wrong')
+        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
+        # add some more
 
         # Calculate load factors
         self.reg_load_factor_d = self.load_factor_d()
@@ -101,25 +99,18 @@ class Region(object):
         fueltype_to_plot, nr_days_to_plot = 2, 1
         self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
 
-    def create_end_use_objects(self):
-        """Initialises all defined end uses. Adds an object for each end use to the Region class"""
+    def create_enduse_objects(self):
+        """All enduses are initialised and inserted as an attribute of the Region Class"""
+        # New enduses
         self.end_uses = {}
 
-        # Load all enduses from fuels
+        # Iterate enduses
         for enduse in self.reg_fuel:
-            #print("ENDUSE:" + str(enduse))
-
             self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
 
-        # load external fuels from wrapper #TODO
-        #for external_enduse in self.data_ext['external_enduses']:
-        #    print("Externla Enduse: " + str(external_enduse))#
-        #
-        #     self.end_uses[external_enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, external_enduse, self.reg_fuel)
-
-
-        for _ in self.end_uses:
-            vars(self).update(self.end_uses)     # Creat self objects {'key': Value}
+        # Update attributes
+        vars(self).update(self.end_uses)
+        return
 
     def tot_all_enduses_y(self):
         """Sum all fuel types over all end uses"""
@@ -216,17 +207,18 @@ class Region(object):
         return lf_y
 
     def __getattr__(self, attr):
-        """ Get method of own object"""
+        """Get method of own object"""
         return self.attr
 
     def __getattr__subclass__(self, attr_main_class, attr_sub_class):
-        """ Returns the attribute of a subclass"""
+        """Get the attribute of a subclass"""
         object_class = getattr(self, attr_main_class)
         object_subclass = getattr(object_class, attr_sub_class)
         return object_subclass
 
     def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
-        """ Plots stacked end_use for a region
+        """Plots stacked end_use for a region
+
         #TODO: Make that end_uses can be sorted, improve legend...
 
         0: 0-1
@@ -244,23 +236,21 @@ class Region(object):
 
         x = range(nr_hours_to_plot)
 
-
         legend_entries = []
 
         # Initialise (number of enduses, number of hours to plot)
         Y_init = np.zeros((len(self.reg_fuel), nr_hours_to_plot))
-
 
         # Iterate enduse
         for k, enduse in enumerate(self.reg_fuel):
             legend_entries.append(enduse)
             sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
 
-            data_fueltype_enduse = np.zeros((nr_hours_to_plot, ))
+            #data_fueltype_enduse = np.zeros((nr_hours_to_plot, ))
             list_all_h = []
 
             #Get data of a fueltype
-            for j, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
 
                 for h in fuel_data:
                     list_all_h.append(h)
@@ -274,12 +264,10 @@ class Region(object):
 
         ax.legend(proxy, legend_entries)
 
-
         #ticks x axis
         ticks_x = range(24)
 
         plt.xticks(ticks_x)
-
 
         #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
         plt.axis('tight')
@@ -289,7 +277,6 @@ class Region(object):
         plt.title("Stacked energy demand for region{}".format(reg_name))
 
         #from matplotlib.patches import Rectangle
-
         #legend_boxes = []
         #for i in color_list:
         #    box = Rectangle((0, 0), 1, 1, fc=i)
@@ -334,8 +321,8 @@ class EndUseClassResid(Region):
         self.data_ext = data_ext                                    # from parent class
         self.assumptions = data['assumptions']                      # Assumptions from regions
         self.reg_fuel = reg_fuel[enduse]                            # Regional base fuel data
-        self.tech_stock_by = data['tech_stock_by']                        # Technological stock base_data['tech_stock_by']
-        self.tech_stock_cy = data['tech_stock_cy']                        # Technological stock base_data['tech_stock_by']
+        self.tech_stock_by = data['tech_stock_by']                  # Technological stock base_data['tech_stock_by']
+        self.tech_stock_cy = data['tech_stock_cy']                  # Technological stock base_data['tech_stock_by']
 
         # --Load shapes
         self.enduse_shape_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_non_peak']  # shape_d
@@ -344,7 +331,7 @@ class EndUseClassResid(Region):
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         # --Yearly fuel data
-        self.reg_fuel_eff_gains = self.enduse_eff_gains()               # General efficiency gains of technology over time
+        self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
@@ -376,7 +363,6 @@ class EndUseClassResid(Region):
             # Fuel prices
             fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
             fuelprice_cy = self.data_ext['fuel_price'][self.current_year][fueltype]
-
             new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
 
         return new_fuels
@@ -457,7 +443,7 @@ class EndUseClassResid(Region):
         -----
         """
         # Share of fuel types for each end use
-        fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year 
+        fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year
         fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
 
         # Test whether share of fuel types stays identical
@@ -465,10 +451,6 @@ class EndUseClassResid(Region):
             return self.reg_fuel                            # No Fuel Switches (same perentages)
         else:
             fuel_switch_array = np.copy((self.reg_fuel))    # Out_dict initialisation
-            print("self.enduse")
-            print(self.enduse)
-            print("dd")
-            print(self.assumptions['tech_install'][self.enduse])
 
             # Assumptions about which technology is installed and replaced
             tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
@@ -505,10 +487,10 @@ class EndUseClassResid(Region):
             #print("Current Year:" + str(self.current_year))
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
-                
+
                 # Only if there is a fuel difference
                 if fuel_diff > 0:
-                
+
                     tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
                     eff_tech_remove = getattr(self.tech_stock_cy, tech_replace)  # Get efficiency of technology to be replaced
 
@@ -556,13 +538,13 @@ class EndUseClassResid(Region):
             fueldata_scenario_diver = self.reg_fuel_after_switch * factor_driver
 
             return fueldata_scenario_diver
+
         else:
             # This fuel is not changed by building related scenario driver
             return self.reg_fuel_after_switch
 
     def enduse_y_to_d(self):
         """Generate array with fuels for every day"""
-
         fuels_d = np.zeros((len(self.reg_fuel), 365))
 
         # Iterate yearday and
@@ -616,11 +598,6 @@ class EndUseClassResid(Region):
 
         # Iterate yearday and
         for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver):
-            #print("AA")
-            #print(fueltype_year_data[0])
-            #print(self.enduse_shape_peak_d)
-            #print(self.enduse_shape_peak_d * fueltype_year_data[0])
-            #prnt("..dd")
             fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0] # enduse_shape_d is  a two dim array with load shapes in first row
 
         return fuels_d_peak
@@ -646,21 +623,6 @@ class EndUseClassResid(Region):
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
         for k, fuel_data in enumerate(self.enduse_fuel_peak_d):
             for day in range(1):
-                #print("fuel_data: " + str(fuel_data))
-                #print(self.enduse_shape_peak_h)
-                #print(self.enduse_shape_peak_h * fuel_data[day])
-                #prnt("..")
                 fuels_h_peak[k][day] = self.enduse_shape_peak_h * fuel_data[day]
 
         return fuels_h_peak
-
-    '''def __getattr__(self, attr):
-        """ Get attribute of class"""
-        return self.attr
-
-    def __getattr__subclass__(self, attr_main_class, attr_sub_class):
-        """ Returns the attribute of a subclass"""
-        object_class = getattr(self, attr_main_class)
-        object_subclass = getattr(object_class, attr_sub_class)
-        return object_subclass
-    '''
