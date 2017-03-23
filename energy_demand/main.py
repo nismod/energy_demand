@@ -16,12 +16,13 @@
 
 - Read out individal load shapes
 - HEating Degree DAys
-
 - efficiencies
-- leasitciies
 - assumptions
 - Overall total for every region...own class?
 
+
+Down the line
+- make sure that if a fuel type is added this correspoends to the fuel dict
 # The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -56,7 +57,10 @@ def energy_demand_model(data, data_ext):
 
     """
     # Initialisation
-    #result_dict = mf.initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year']) # Dict for output to energy supply model
+    
+    # SCENARIO UNCERTAINTY
+    # TODO: Implement wheater generator (multiply fuel with different scenarios)
+    #data = wheater_generator_(data) # Read in CWV data and calcul difference between average and min and max of year 2015
 
     # --------------------------
     # Residential model
@@ -91,7 +95,7 @@ def energy_demand_model(data, data_ext):
     print("Finished energy demand model")
 
     # Plot REgion 0 for half a year
-    #pf.plot_x_days(result_dict[2], 0, 12)
+    #pf.plot_x_days(result_dict[2], 0, 2)
     return result_dict
 
 # Run
@@ -129,6 +133,7 @@ if __name__ == "__main__":
     base_data = mf.load_data(base_data, path_main, data_external) # Load and generate data
 
     # Load assumptions
+    print("Load Assumptions")
     base_data = assumpt.load_assumptions(base_data)
 
     # Disaggregate national data into regional data

@@ -116,8 +116,6 @@ def load_data(data, path_main, data_ext):
     # Data new approach
     data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
 
-
-
     # Add the yearly fuel data of the external Wrapper to the enduses (RESIDENTIAL HERE)
     ###data = add_yearly_external_fuel_data(data, data_ext, data_residential_by_fuel_end_uses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
@@ -141,7 +139,6 @@ def load_data(data, path_main, data_ext):
     # --- Generate load_shapes ##TODO
     data = dl.generate_data(data) # Otherwise already read out files are read in from txt files
 
-    
     # -- Read in load shapes from files #TODO::
     data = dl.collect_shapes_from_txts(data)
 
@@ -263,6 +260,7 @@ def read_csv_base_data_resid(path_to_csv):
     the first row is the fuel_ID
     The header is the sub_key
     # Quick and dirty
+    The fuel input dictionary must have a value for every fuel (0)
     """
     lines = []
     end_uses_dict = {}
@@ -278,9 +276,14 @@ def read_csv_base_data_resid(path_to_csv):
         for i in _headings[1:]: # skip first
             end_uses_dict[i] = np.zeros((len(lines), 1)) # len fuel_ids
 
+
         for cnt_fueltype, row in enumerate(lines):
             cnt = 1 #skip first
             for i in row[1:]:
+
+                #if type(i) == str:
+                #    print("Error: All fuel input varaibles must be a int or float value (not empty excel row)")
+
                 end_use = _headings[cnt]
                 end_uses_dict[end_use][cnt_fueltype] = i
                 cnt += 1

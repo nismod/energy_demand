@@ -130,18 +130,19 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
     # Relationship of total yearly demand with averaged values and a peak day
     appliances_HES = data['app_type_lu']
 
+
     # If enduse is not in data
     #print(data['lu_appliances_HES_matched'])
-    if end_use not in data['lu_appliances_HES_matched'][:, 1]:
-        #print("Enduse not HES data: " + str(end_use))
-        return data
+    #if end_use not in data['lu_appliances_HES_matched'][:, 1]:
+    #    print("Enduse not HES data: " + str(end_use))
+    #    return data #, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
 
     # Get end use of HES data of current end_use of EUREC Data
     for i in data['lu_appliances_HES_matched']: #TODO: Here the HES DATA ARE MACHTED
         if i[1] == end_use:
             hes_app_id = int(i[0])
             break
-
+            
     # Select end use daily peak demand
     peak_h_values = hes_y_peak[:, hes_app_id]
     #print("peak_h_values: " + str(peak_h_values))
@@ -172,7 +173,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
     # -------------------------
     shape_d_non_peak = np.zeros((365, 1))
     shape_h_non_peak = np.zeros((365, 24))
-
+    
     for day in range(365):
         d_sum = np.sum(year_raw_values[day, :, hes_app_id])
         shape_d_non_peak[day] = (1 / total_y_end_use_demand) * d_sum
@@ -180,6 +181,7 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
         # daily shape
         shape_h_non_peak[day] = (1 / d_sum) * year_raw_values[day, :, hes_app_id]
 
+    print("finishddd")
     return data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
 
 # CWV WEATER GAS SAMSON-----------------------------------
@@ -525,15 +527,15 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
 
 
 
-def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak):
+def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, other_string_info):
     """ Function collecting functions to write out txt files"""
     #print(shape_h_peak.shape)       # 24
     #print(shape_h_non_peak.shape)   # 365, 24
     #print(shape_d_peak.shape)       # ()
     #print(shape_d_non_peak.shape)   # 365, 1
-    jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
-    jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str('.txt')))
-    jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str('.txt')))
+    jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str(other_string_info) + str('.txt')))
+    jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str(other_string_info) + str('.txt')))
+    jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
     jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
 
 

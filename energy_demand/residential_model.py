@@ -23,10 +23,10 @@ def residential_model_main_function(data, data_ext):
     data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
 
     # Create regions for residential model Iterate regions and generate objects
-    for reg in data['reg_lu']:
+    for region_name in data['reg_lu']:
 
-        # Residential
-        a = Region(reg, data, data_ext)
+        # Initiate residential regions
+        a = Region(region_name, data, data_ext)
         all_regions.append(a)
 
     return all_regions
@@ -97,9 +97,9 @@ class Region(object):
         self.reg_load_factor_h = self.load_factor_h()
 
         # Plot stacked end_uses
-        #start_plot = mf.convert_date_to_yearday(2015, 6, 6)
-        #fueltype_to_plot, nr_days_to_plot = 2, 1
-        #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot) #days, fueltype
+        start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
+        fueltype_to_plot, nr_days_to_plot = 2, 1
+        self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
 
     def create_end_use_objects(self):
         """Initialises all defined end uses. Adds an object for each end use to the Region class"""
@@ -107,7 +107,7 @@ class Region(object):
 
         # Load all enduses from fuels
         for enduse in self.reg_fuel:
-            print("ENDUSE:" + str(enduse))
+            #print("ENDUSE:" + str(enduse))
 
             self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
 
@@ -225,27 +225,37 @@ class Region(object):
         object_subclass = getattr(object_class, attr_sub_class)
         return object_subclass
 
-    def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday):
+    def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
         """ Plots stacked end_use for a region
         #TODO: Make that end_uses can be sorted, improve legend...
+
+        0: 0-1
+        1: 1-2
+        2:
+
+        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
         """
 
-        ax = plt.subplots()
-        nr_hours_to_plot = nr_of_day_to_plot * 24
+        fig, ax = plt.subplots() #fig is needed
+        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
 
         day_start_plot = yearday
         day_end_plot = (yearday + nr_of_day_to_plot)
 
-        x = np.arange(nr_hours_to_plot)
+        x = range(nr_hours_to_plot)
+
+
         legend_entries = []
 
         # Initialise (number of enduses, number of hours to plot)
         Y_init = np.zeros((len(self.reg_fuel), nr_hours_to_plot))
 
+
         # Iterate enduse
         for k, enduse in enumerate(self.reg_fuel):
             legend_entries.append(enduse)
             sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
             data_fueltype_enduse = np.zeros((nr_hours_to_plot, ))
             list_all_h = []
 
@@ -264,11 +274,19 @@ class Region(object):
 
         ax.legend(proxy, legend_entries)
 
+
+        #ticks x axis
+        ticks_x = range(24)
+
+        plt.xticks(ticks_x)
+
+
+        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
         plt.axis('tight')
 
         plt.xlabel("Hours")
-        plt.ylabel("Energy demand in kWh")
-        plt.title("Stacked energy demand")
+        plt.ylabel("Energy demand in GWh")
+        plt.title("Stacked energy demand for region{}".format(reg_name))
 
         #from matplotlib.patches import Rectangle
 

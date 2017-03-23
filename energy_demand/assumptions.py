@@ -108,8 +108,6 @@ Other (e,g) (Table 5.05)                            -->   Use overall electricit
 
 '''
 
-
-
 def load_assumptions(data):
     """All assumptions of the energy demand model are loaded and added to the data
 
@@ -140,7 +138,7 @@ def load_assumptions(data):
                           'wet': 0,
                           'consumer_electronics': 0,
                           'home_computing': 0,
-                          'cooking': 0,
+                          'heating': 0
                          }
     assump_dict['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
@@ -286,6 +284,9 @@ def load_assumptions(data):
 
     #Generate fuel distribution of base year for every end_use #TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     fuel_type_p_by = generate_fuel_type_p_by(data)
+    #print("fuel_type_p_by")
+    #print(fuel_type_p_by)
+    #prnt("..")
     assump_dict['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
     #print("")
@@ -348,72 +349,27 @@ def load_assumptions(data):
     # ----------------------------------
     #Share of technology for every enduse and fueltype in base year [in %]
     # Only shares within each fueltype !!!!
-    technologies_enduse_by = {
-                              'lighting': {0: {},
-                                           1: {},
-                                           2: {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}, #As in old model
-                                           3: {},
-                                           4: {},
-                                           5: {},
-                                           6: {},
-                                           7: {}
-                                      },
-                               'cold': {
-                                        0: {},
-                                        1: {},
-                                        2: {},
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
-                                      },
-                               'wet': {
-                                        0: {},
-                                        1: {},
-                                        2: {},
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
-                                      }
-                             }
+
+    # Create technoogy empties for all enduses
+    technologies_enduse_by = {}
+    fuel_data = data['data_residential_by_fuel_end_uses']
+    for enduse in fuel_data:
+
+        technologies_enduse_by[enduse] = {}
+
+        for fueltype in range(len(data['fuel_type_lu'])): #
+            technologies_enduse_by[enduse][fueltype] = {}
+
+    # Add technological split where known
+    technologies_enduse_by['lighting'][2] = {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
+
+    # add to dict
     assump_dict['technologies_enduse_by'] = technologies_enduse_by
 
     # --Technological split in end_year  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
-    technologies_enduse_ey = {
-                            'lighting': {
-                                        0: {},
-                                        1: {},
-                                        2: {'halogen_elec': 0.00, 'standard_lighting_bulb': 0.72, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18},
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
-                                      },
-                               'cold': {
-                                        0: {},
-                                        1: {},
-                                        2: {},
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
-                                      },
-                               'wet': {
-                                        0: {},
-                                        1: {},
-                                        2: {},
-                                        3: {},
-                                        4: {},
-                                        5: {},
-                                        6: {},
-                                        7: {}
-                                      }
-                             }
+    technologies_enduse_ey = technologies_enduse_by.copy()
+
+    technologies_enduse_ey['lighting'][2] = {'halogen_elec': 0.00, 'standard_lighting_bulb': 0.72, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
 
     assump_dict['technologies_enduse_ey'] = technologies_enduse_ey
 
@@ -442,37 +398,24 @@ def load_assumptions(data):
 
 
 # ------------- Helper functions
-# 
+
 def generate_fuel_type_p_by(data):
-      """Assumption helper function to generate percentage fuel distribution for every encuse"""
-          
-      fuel_data = data['data_residential_by_fuel_end_uses']
-      out_dict = {}
+    """Assumption helper function to generate percentage fuel distribution for every encuse"""
 
-      for enduse in fuel_data:
-            out_dict[enduse] = {}
+    fuel_data = data['data_residential_by_fuel_end_uses']
+    out_dict = {}
 
-            # sum fueltype
-            sum_fueltype = np.sum(fuel_data[enduse])
-            if sum_fueltype != 0:
-                  fuels_in_p = fuel_data[enduse] / sum_fueltype
-            else:
-                  fuels_in_p = fuel_data[enduse] # all zeros
-              
-            for fueltype, fuels in enumerate(fuels_in_p):
-                  out_dict[enduse][fueltype] = float(fuels) # Convert to %
-                    
-      return out_dict
+    for enduse in fuel_data:
+        out_dict[enduse] = {}
 
+        # sum fueltype
+        sum_fueltype = np.sum(fuel_data[enduse])
+        if sum_fueltype != 0:
+            fuels_in_p = fuel_data[enduse] / sum_fueltype
+        else:
+            fuels_in_p = fuel_data[enduse] # all zeros
 
+        for fueltype, fuels in enumerate(fuels_in_p):
+            out_dict[enduse][fueltype] = float(fuels) # Convert to %
 
-
-
-
-
-
-
-
-
-
-
+    return out_dict

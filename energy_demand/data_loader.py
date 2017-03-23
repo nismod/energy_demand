@@ -27,10 +27,10 @@ def collect_shapes_from_txts(data):
     # Read all enduese from files
     enduses = []
     for file_name in all_csv_in_folder:
-        enduse = file_name.split("_")[0]
+        enduse = file_name.split("__")[0] # two dashes because individual enduses may contain a single slash
         if enduse not in enduses:
             enduses.append(enduse)
-
+    print("ENDUSES: " + str(enduses))
     # Read shapes from txt files
     for end_use in enduses:
         shape_h_peak = df.read_txt_shape_h_peak(os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
@@ -68,12 +68,20 @@ def generate_data(data):
 
     # Load shape for all end_uses
     for end_use in data['data_residential_by_fuel_end_uses']:
+        if end_use not in data['lu_appliances_HES_matched'][:, 1]:
+            print("Enduse not HES data: " + str(end_use))
+            continue
+
         data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.get_hes_end_uses_shape(data, hes_data, year_raw_values_hes, hes_y_peak, _, end_use)
-        df.create_txt_shapes(end_use, path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak) # Write shapes to txt
+        df.create_txt_shapes(end_use, path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "") # Write shapes to txt
 
     # Robert Sansom, Yearly peak from CSWV - Residential Gas demand, Daily shapes
-    shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', 'actual') # Composite Wheater Variable for residential gas heating
-    df.create_txt_shapes('heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak) # Write shapes to txt
+    wheater_scenarios = ['actual', 'max_cold', 'min_warm'] # Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
+
+    # Iterate wheater scenarios
+    for wheater_scen in wheater_scenarios:
+        shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
+        df.create_txt_shapes('heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
 
 
 
@@ -88,12 +96,10 @@ def generate_data(data):
     # Service Gas demand, Daily shapes taken from Robert Sansom, Yearly peak from CSWV
     # ----------------------------
     #CSV Service
-    #data = df.read_shp_heating_gas(data, 'heating', 'dict_shp_enduse_h_service', 'dict_shp_enduse_d_service', 'path_temp_2015_service')
-
+    #shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'service', 'actual') # Composite Wheater Variable for residential gas heating
+    #df.create_txt_shapes('heating_service', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, _) # Write shapes to txt
     # ---------------------
-    # Load Carbon Trust data
-    # - electricity for non-residential
-    # -
+    # Load Carbon Trust data - electricity for non-residential
     # ---------------------
 
     # ENDUSE XY
