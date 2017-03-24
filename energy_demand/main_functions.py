@@ -7,6 +7,7 @@ from datetime import timedelta as td
 import numpy as np
 import data_loader as dl
 import yaml
+import unittest
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -103,7 +104,7 @@ def load_data(data, path_main, data_ext):
     data['hourly_gas_shape'] = read_csv_float(path_dict['path_hourly_gas_shape_resid'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
 
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
-    data['dwtype_distr'] = read_csv_nested_dict(path_dict['path_dwtype_dist'])
+    data['dwtype_distr'] = read_csv_nested_dict(path_dict['path_dwtype_dist'])      # dISTRIBUTION of dwelligns base year #TODO: REMOVE AND ONLY LOAD YEAR 2015
     data['dwtype_age_distr'] = read_csv_nested_dict(path_dict['path_dwtype_age'])
     data['dwtype_floorarea']  = read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
     data['reg_floorarea'] = read_csv_dict_no_header(path_dict['path_reg_floorarea'])
@@ -115,6 +116,11 @@ def load_data(data, path_main, data_ext):
 
     # Data new approach
     data_residential_by_fuel_end_uses = read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
+
+    scrap = 0
+    for enduse in data_residential_by_fuel_end_uses:
+        scrap += np.sum(data_residential_by_fuel_end_uses[enduse])
+    print("scrap FUELS READ IN FROM EXCEL: " + str(scrap))
 
     # Add the yearly fuel data of the external Wrapper to the enduses (RESIDENTIAL HERE)
     ###data = add_yearly_external_fuel_data(data, data_ext, data_residential_by_fuel_end_uses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
@@ -131,8 +137,9 @@ def load_data(data, path_main, data_ext):
     # ----------------------------------------
 
     # Fuel residential
-    for enduse in data_residential_by_fuel_end_uses:
+    '''for enduse in data_residential_by_fuel_end_uses:
         data_residential_by_fuel_end_uses[enduse] = conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse]) # TODO: Check if ktoe
+    ''' #IS GOOD DONT TAKE AWAY
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
 
 
@@ -146,6 +153,11 @@ def load_data(data, path_main, data_ext):
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
     for end_use in data['data_residential_by_fuel_end_uses']:
         assert len(data['fuel_type_lu']) == len(data['data_residential_by_fuel_end_uses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
+
+    scrap = 0
+    for enduse in data['data_residential_by_fuel_end_uses']:
+        scrap += np.sum(data_residential_by_fuel_end_uses[enduse])
+    print("scrap FUELS FINAL FOR OUT: " + str(scrap))
 
     return data
 
@@ -537,6 +549,11 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
     base_year = data_ext['glob_var']['base_year']
 
+    # TEST: sum national fuel before disaggregation
+    tot_fuel_before_disaggregation = 0
+    for i in national_fuel:
+        tot_fuel_before_disaggregation += np.sum(national_fuel[i])
+
     # Iterate regions
     for region in regions:
 
@@ -545,17 +562,27 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
         total_pop = sum(data_ext['population'][base_year].values()) # Total population
         inter_dict = {} # Disaggregate fuel depending on end_use
 
+        # So far simply pop
+        reg_disaggregate_factor_per_enduse_and_reg = reg_pop / total_pop  #TODO: create dict with disaggregation factors
+
         for enduse in national_fuel:
-
-            # So far simply pop
-            reg_disaggregate_factor_per_enduse_and_reg = reg_pop / total_pop  #TODO: create dict with disaggregation factors
-
             #TODO: Get enduse_specific disaggreagtion reg_disaggregate_factor_per_enduse_and_reg
             inter_dict[enduse] = national_fuel[enduse] * reg_disaggregate_factor_per_enduse_and_reg
-
         reg_fuel[region] = inter_dict
 
     data['fueldata_disagg'] = reg_fuel
+
+    # TEST: sum fuel after disaggregation
+    tot_fuel_after_disaggregation = 0
+    for reg in reg_fuel:
+        for enduse in reg_fuel[reg]:
+            tot_fuel_after_disaggregation += np.sum(reg_fuel[reg][enduse])
+
+    print("tot_fuel_before_disaggregation: " + str(tot_fuel_before_disaggregation))
+    print("tot_fuel_after_disaggregation: " + str(tot_fuel_after_disaggregation))
+    # Check if total fuel is the same before and after aggregation
+    assertions = unittest.TestCase('__init__')
+    assertions.assertAlmostEqual(tot_fuel_before_disaggregation, tot_fuel_after_disaggregation, places=2, msg=None, delta=None)
 
     return data
 

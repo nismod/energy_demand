@@ -68,7 +68,9 @@ def resid_build_stock(data, assumptions, data_ext):
             # Only calculate changing
             uniqueID = 000 #TODO: IMProove
             if sim_y == base_year:
+                print("BASE YEAR")
                 dw_stock_base = generate_dw_existing(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, dwtype_age_distr_by, floorarea_pp_by, floorarea_by, pop_by, assumptions)
+                dw_stock_new_dwellings = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
                 # The number of people in the existing dwelling stock may change. Therfore calculate alos except for base year. Total floor number is assumed to be identical Here age of buildings could be changed
@@ -79,6 +81,10 @@ def resid_build_stock(data, assumptions, data_ext):
                     dw_stock_new_dwellings = generate_dw_new(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dwellings, new_floorarea_sim_year, assumptions)
 
         # Generate region and save it in dictionary
+        print("DWELLIGN STOCK")
+        print(reg_id)
+        print(dw_stock_new_dwellings)
+
         reg_building_stock_cur_yr[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dwellings)    # Add old and new buildings to stock
         reg_building_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base)                 # Add base year stock
 

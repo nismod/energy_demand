@@ -43,6 +43,7 @@ import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
 print("Start Energy Demand Model with python version: " + str(sys.version))
+import numpy as np
 
 def energy_demand_model(data, data_ext):
     """Main function of energy demand model to calculate yearly demand
@@ -105,6 +106,10 @@ def energy_demand_model(data, data_ext):
     #pf.plot_x_days(result_dict[2], 0, 2)
     return result_dict
 
+
+
+
+
 # Run
 if __name__ == "__main__":
 
@@ -115,11 +120,11 @@ if __name__ == "__main__":
 
     # External data provided from wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
-                                    2016: {0: 3001001, 1: 5301001, 2: 53001001}
+                                    2016: {0: 3000001, 1: 5300001, 2: 53000001}
                                    },
 
                      'glob_var': {'base_year': 2015,
-                                  'current_year': 2016,
+                                  'current_year': 2015,
                                   'end_year': 2020
                                  },
 
@@ -127,7 +132,7 @@ if __name__ == "__main__":
                                     2016: {0: 12.0, 1: 13.0, 2: 14.0, 3: 12.0, 4: 13.0, 5: 14.0, 6: 13.0, 7: 13.0}
                                    },
                      # Demand of other sectors
-                     'external_enduses': {'waste_water': {0: 10000}, #Yearly fuel data
+                     'external_enduses': {'waste_water': {0: 0}, #Yearly fuel data
                                           'ICT_model': {}
                                          }
                     }
@@ -151,7 +156,6 @@ if __name__ == "__main__":
 
     # Generate technological stock for base year (Maybe for full simualtion period? TODO)
     base_data['tech_stock_by'] = ts.ResidTechStock(base_data, base_data['assumptions'], data_external, data_external['glob_var']['base_year'])
-
 
     # Run main function
     energy_demand_model(base_data, data_external)

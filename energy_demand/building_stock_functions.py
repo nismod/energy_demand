@@ -49,6 +49,8 @@ class Dwelling(object):
 
     def scenario_driver_lighting(self):
         """calc scenario driver with population and floor area"""
+        #print("POOL             " + str(self.pop))
+        #print("floorarea :      " + str(self.floorarea))
         return self.floorarea * self.pop
 
     def scenario_driver_space_heating(self):

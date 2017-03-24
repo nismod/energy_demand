@@ -27,6 +27,14 @@ def residential_model_main_function(data, data_ext):
 
     # TODO: Improve
     """
+
+    fuel_in = 0
+    for reg in data['fueldata_disagg']:
+        for enduse in data['fueldata_disagg'][reg]: 
+            fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
+    print("TEST MAIN START:" + str(fuel_in))
+
+
     all_regions = [] # List to store all regions
 
     # Generate technological stock for base year
@@ -41,6 +49,15 @@ def residential_model_main_function(data, data_ext):
         # Initiate residential regions
         all_regions.append(region_object)
 
+
+    #TEST total fuel after run 
+    fueltot = 0
+    for reg in all_regions:
+        fuels_out = getattr(reg, 'fuels_new') #fuels_new
+        fueltot += np.sum(fuels_out)
+    print("Total Fuel after run: " + str(fueltot))
+    print("DIFF: " + str(fueltot - fuel_in))
+    prnt("..")
     return all_regions
 
 class Region(object):
@@ -97,7 +114,7 @@ class Region(object):
         # Plot stacked end_uses
         start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
         fueltype_to_plot, nr_days_to_plot = 2, 1
-        self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
+        #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
 
     def create_enduse_objects(self):
         """All enduses are initialised and inserted as an attribute of the Region Class"""
@@ -331,11 +348,19 @@ class EndUseClassResid(Region):
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         # --Yearly fuel data
+        print("ENDUSE: " + str(self.enduse))
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
+        print("AAA: " + str(np.sum(self.reg_fuel_eff_gains)))
+        
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
+        print("bbb: " + str(np.sum(self.reg_fuel_after_switch)))
+        
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
+        print("ccc: " + str(np.sum(self.reg_fuel_after_elasticity)))
+        
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
-
+        print("DDD: " + str(np.sum(self.reg_fuelscen_driver)))
+        print("----")
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
 
@@ -445,7 +470,11 @@ class EndUseClassResid(Region):
         # Share of fuel types for each end use
         fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year
         fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
-
+        #print("---")
+        #print(fuel_p_by)
+        #print("---")
+        #print(fuel_p_ey)
+        #print(np.array_equal(fuel_p_by, fuel_p_ey))
         # Test whether share of fuel types stays identical
         if np.array_equal(fuel_p_by, fuel_p_ey):            # no fuel switches
             return self.reg_fuel                            # No Fuel Switches (same perentages)
@@ -458,11 +487,11 @@ class EndUseClassResid(Region):
 
             tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current technologes which are to be replaced
 
-            print("tech_replacement_dict")
-            print(tech_replacement_dict)
+            #print("tech_replacement_dict")
+            #print(tech_replacement_dict)
 
-            print("fuel_p_ey " + str(fuel_p_ey))
-            print("fuel_p_by " + str(fuel_p_by))
+            #print("fuel_p_ey " + str(fuel_p_ey))
+            #print("fuel_p_by " + str(fuel_p_by))
 
 
             # Calculate percentage differences over full simulation period
@@ -536,7 +565,11 @@ class EndUseClassResid(Region):
 
             factor_driver = cy_driver / by_driver  #TODO: Or the other way round
             fueldata_scenario_diver = self.reg_fuel_after_switch * factor_driver
-
+            print("self.enduse: " + str(self.enduse))
+            print(cy_driver) #ERROR: CURRENT YEAR LIGHTIGNS HAS NO 
+            print(by_driver)
+            print(fueldata_scenario_diver)
+            #pint("..")
             return fueldata_scenario_diver
 
         else:
