@@ -32,8 +32,11 @@ def residential_model_main_function(data, data_ext):
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     print("TEST MAIN START:" + str(fuel_in))
 
-    # Generate technological stock for base year
-    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_year'])
+
+    #data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for base year
+    # Generate technological stock
+    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for current year
+    data['tech_stock_by'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_year']) # Generate technological stock for base year
 
     # Add all region instances as an attribute (region name) into a Country class
     resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
@@ -114,7 +117,7 @@ class Region(object):
         self.data = data                                            # data
         self.data_ext = data_ext                                    # external data
         self.assumptions = data['assumptions']
-        self.current_year = data_ext['glob_var']['current_year']    # Current year
+        self.current_yr = data_ext['glob_var']['current_yr']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
 
         # Set attributs of all enduses
@@ -366,7 +369,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # --General data, fueldata, technological stock
         self.reg_id = reg_id                                        # Region
         self.enduse = enduse                                        # EndUse Name
-        self.current_year = data_ext['glob_var']['current_year']    # from parent class
+        self.current_yr = data_ext['glob_var']['current_yr']    # from parent class
         self.base_year = data_ext['glob_var']['base_year']          # from parent class
         self.data = data                                            # from parent class
         self.data_ext = data_ext                                    # from parent class
@@ -433,7 +436,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             if fuel != 0: # if fuel exists
                 # Fuel prices
                 fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
-                fuelprice_cy = self.data_ext['fuel_price'][self.current_year][fueltype]
+                fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype]
 
                 new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
 
@@ -548,8 +551,8 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             #print("fuel_diff: " + str(fuel_diff))
 
             # Calculate sigmoid diffusion of fuel switches
-            ###fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
-            fuel_p_cy = fuel_p_by * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_year, self.data_ext['glob_var']['end_year'])
+            ###fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
+            fuel_p_cy = fuel_p_by * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
             #print("fuel_p_cy:" + str(fuel_p_cy))
             #print(fuel_p_ey[:, 1])
             #print("fuel_p_ey:" + str(fuel_p_ey))
@@ -562,7 +565,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             #print("absolute_fuel_diff: " + str(absolute_fuel_diff))
             #print("Technology which is installed:           " + str(tech_install))
             #print("Efficiency of technology to be installed " + str(eff_replacement))
-            #print("Current Year:" + str(self.current_year))
+            #print("Current Year:" + str(self.current_yr))
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
 

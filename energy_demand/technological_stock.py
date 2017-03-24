@@ -16,21 +16,21 @@ class ResidTechStock(object):
         tbd
     data_ext : dict
         tbd
-    current_year : int
+    current_yr : int
         Current year
 
     TODO: Improve and replace glob_var
     """
-    def __init__(self, data, data_ext, current_year):
+    def __init__(self, data, data_ext, current_yr):
         """Constructor of technologies for residential sector"""
         self.base_year = data_ext['glob_var']['base_year']
         self.end_year = data_ext['glob_var']['end_year']
-        self.current_year = current_year #data_ext['glob_var']['current_year']
+        self.current_yr = current_yr
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
 
         # Execute function to add all technological efficiencies as self argument
-        self.crate_iteration_efficiency()
+        self.create_iteration_efficiency()
 
         # get share of technologies of base_year
         self.tech_frac_by_assumptions = data['assumptions']['technologies_enduse_by']
@@ -40,7 +40,7 @@ class ResidTechStock(object):
         # Get share of technology of current year #TODO
         self.tech_frac = self.get_sigmoid_tech_diff()
 
-    def crate_iteration_efficiency(self):
+    def create_iteration_efficiency(self):
         """Iterate technologes in 'base_year' dict and add to technology_stock
 
         The efficiency of each technology is added as `self` attribute.
@@ -63,7 +63,7 @@ class ResidTechStock(object):
             sim_years = self.end_year - self.base_year
 
             # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated TODO: Ev. round
-            theor_max_eff = tf.lineardiffusion(self.base_year, self.current_year, eff_by, eff_ey, sim_years)
+            theor_max_eff = tf.lineardiffusion(self.base_year, self.current_yr, eff_by, eff_ey, sim_years)
 
             # Get assmuption how much of efficiency potential is reaped
             achieved_eff = self.assumptions['eff_achieved'][technology]
@@ -79,7 +79,7 @@ class ResidTechStock(object):
 
         With help of assumptions on the fraction of technologies for each
         enduse and fueltype for the `base_year` and `end_year` the
-        fraction of technologies for the `current_year` is calculated.
+        fraction of technologies for the `current_yr` is calculated.
 
         Also the change in fuel is calculated depending on the relationship
         `sigmoid_frac_tech_change`.
@@ -97,7 +97,7 @@ class ResidTechStock(object):
         tech_frac_cy = {}
 
         # Sigmoid efficiency for all technologies (TODO: TECHNOLOGY SPECIFIC DIFFUSION)
-        sigmoid_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_year, self.end_year)
+        sigmoid_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year)
 
         for enduse in tech_frac_by:
             tech_frac_cy[enduse] = {}

@@ -36,7 +36,7 @@ def resid_build_stock(data, assumptions, data_ext):
     dwtype_distr_by = data['dwtype_distr'][base_year]          # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     dwtype_age_distr_by = data['dwtype_age_distr'][base_year]  # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
     reg_lu = data['reg_lu']                                    # Regions
-    sim_period = range(base_year, glob_var['current_year'] + 1, 1)         #base year, current year + 1, iteration step
+    sim_period = range(base_year, glob_var['current_yr'] + 1, 1)         #base year, current year + 1, iteration step
 
     # Get distribution of dwelling types of all simulation years
     dwtype_distr_sim = bf.get_dwtype_dist(dwtype_distr_by, assumptions['assump_dwtype_distr_ey'], glob_var) # Calculate distribution of dwelling types over simulation period

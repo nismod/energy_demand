@@ -36,6 +36,7 @@ The docs can be found here: http://ed.readthedocs.io
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
 
+import os
 import sys
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
@@ -118,32 +119,36 @@ if __name__ == "__main__":
     # Execute only once befure executing energy demand module for a year
     # ------------------------------------------------------------------_
     # Wheater generater (change base_demand data)
-
+    # { 'population': [ obs, obs ]  }
+    # obs.value == 3000000
+    # obs.region == 1
+    # obs.interval == 2
+    # obs.units == 'count'
     # External data provided from wrapper
     data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
                                     2016: {0: 3000001, 1: 5300001, 2: 53000001}
                                    },
 
                      'glob_var': {'base_year': 2015,
-                                  'current_year': 2016,
+                                  'current_yr': 2016,
                                   'end_year': 2020
                                  },
 
                      'fuel_price': {2015: {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0},
                                     2016: {0: 12.0, 1: 13.0, 2: 14.0, 3: 12.0, 4: 13.0, 5: 14.0, 6: 13.0, 7: 13.0}
                                    },
+
                      # Demand of other sectors
                      'external_enduses': {'waste_water': {0: 0}, #Yearly fuel data
                                           'ICT_model': {}
                                          }
                     }
 
-    # Data container
-    base_data = {}
+
 
     # Model calculations outside main function
-    path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' #path_main = '../data'
-    base_data = dl.load_data(base_data, path_main, data_external) # Load and generate data
+    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+    base_data = dl.load_data(path_main, data_external) # Load and generate data
 
     # Load assumptions
     print("Load Assumptions")
@@ -155,8 +160,7 @@ if __name__ == "__main__":
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
-    # Generate technological stock for base year (Maybe for full simualtion period? TODO)
-    base_data['tech_stock_by'] = ts.ResidTechStock(base_data, data_external, data_external['glob_var']['base_year'])
+
 
     # Run main function
     energy_demand_model(base_data, data_external)

@@ -8,7 +8,7 @@ import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def load_data(data, path_main, data_ext):
+def load_data(path_main, data_ext):
     """All base data no provided externally are loaded
 
     All necessary data to run energy demand model is loaded.
@@ -27,6 +27,10 @@ def load_data(data, path_main, data_ext):
         Returns a list where storing all data
 
     """
+
+    # Data container
+    data = {}
+
     path_dict = {
 
         # Residential
