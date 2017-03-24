@@ -528,63 +528,7 @@ def read_csv_dict_no_header(path_to_csv):
     return out_dict
 
 
-def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
-    """This function disaggregates fuel demand based on region specific parameters
-    for the base year
 
-    The residential, service and industry demand is disaggregated according to
-    different factors
-
-    - floorarea
-    - population
-    - etc...abs
-    TODO: Write disaggregation
-    """
-
-    #TODO: So far simple disaggregation by population
-
-    regions = data['reg_lu']
-    national_fuel = data['data_residential_by_fuel_end_uses'] # residential data
-    reg_fuel = {}
-    #reg_data_assump_disaggreg = reg_data_assump_disaggreg
-    base_year = data_ext['glob_var']['base_year']
-
-    # TEST: sum national fuel before disaggregation
-    tot_fuel_before_disaggregation = 0
-    for i in national_fuel:
-        tot_fuel_before_disaggregation += np.sum(national_fuel[i])
-
-    # Iterate regions
-    for region in regions:
-
-        #Scrap improve
-        reg_pop = data_ext['population'][base_year][region] # Regional popluation
-        total_pop = sum(data_ext['population'][base_year].values()) # Total population
-        inter_dict = {} # Disaggregate fuel depending on end_use
-
-        # So far simply pop
-        reg_disaggregate_factor_per_enduse_and_reg = reg_pop / total_pop  #TODO: create dict with disaggregation factors
-
-        for enduse in national_fuel:
-            #TODO: Get enduse_specific disaggreagtion reg_disaggregate_factor_per_enduse_and_reg
-            inter_dict[enduse] = national_fuel[enduse] * reg_disaggregate_factor_per_enduse_and_reg
-        reg_fuel[region] = inter_dict
-
-    data['fueldata_disagg'] = reg_fuel
-
-    # TEST: sum fuel after disaggregation
-    tot_fuel_after_disaggregation = 0
-    for reg in reg_fuel:
-        for enduse in reg_fuel[reg]:
-            tot_fuel_after_disaggregation += np.sum(reg_fuel[reg][enduse])
-
-    print("tot_fuel_before_disaggregation: " + str(tot_fuel_before_disaggregation))
-    print("tot_fuel_after_disaggregation: " + str(tot_fuel_after_disaggregation))
-    # Check if total fuel is the same before and after aggregation
-    assertions = unittest.TestCase('__init__')
-    assertions.assertAlmostEqual(tot_fuel_before_disaggregation, tot_fuel_after_disaggregation, places=2, msg=None, delta=None)
-
-    return data
 
 def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs

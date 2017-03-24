@@ -6,6 +6,7 @@ import pytest
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_functions as bf
 import energy_demand.building_stock_generator as bg
+import energy_demand.national_dissaggregation as nd
 from datetime import date
 
 
@@ -93,6 +94,30 @@ def test_get_weekday_type():
 
     assert out_value == expected
 
+
+
+
+
+
+'''
+def test_raises_error_disaggregate_base_demand_for_reg():
+    """ Test if the error is raised"""
+
+    data_ext = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001}},
+                     'glob_var': {'base_year': 2015,'end_year': 2020}}
+
+    data = {'reg_lu': {0: 'WALES', 1: 'SCOTLAND', 2: 'ENGLAND'},'data_residential_by_fuel_end_uses': np.array([[0.],[0.],[ 1159.],[0.],[0.],[ 0.]])}
+
+    reg_data_assump_disaggreg = {}
+
+    # in test value
+    wrong_data = {'semi_detached': 20.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
+    in_value_2 = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}
+    in_value_3 = {'base_year': 2015, 'current_year': 2016, 'end_year': 2050}
+
+    with raises(AssertionError):
+        nd.disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext)
+'''
 
 '''def test_timesteps_full_year():
     """Testing function"""

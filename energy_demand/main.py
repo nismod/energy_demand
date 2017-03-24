@@ -42,6 +42,8 @@ import energy_demand.assumptions as assumpt
 import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
+import energy_demand.national_dissaggregation as nd
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 import numpy as np
 
@@ -149,7 +151,7 @@ if __name__ == "__main__":
     base_data = assumpt.load_assumptions(base_data)
 
     # Disaggregate national data into regional data
-    base_data = mf.disaggregate_base_demand_for_reg(base_data, 1, data_external) 
+    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external) 
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)

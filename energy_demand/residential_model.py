@@ -27,7 +27,7 @@ def residential_model_main_function(data, data_ext):
 
     # TODO: Improve
     """
-
+    # TESTING
     fuel_in = 0
     for reg in data['fueldata_disagg']:
         for enduse in data['fueldata_disagg'][reg]: 
@@ -46,19 +46,47 @@ def residential_model_main_function(data, data_ext):
         # Create new region
         region_object = Region(region_name, data, data_ext)
 
+        #region_object.
+
         # Initiate residential regions
         all_regions.append(region_object)
+    
+    #resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
 
 
     #TEST total fuel after run 
     fueltot = 0
     for reg in all_regions:
-        fuels_out = getattr(reg, 'fuels_new') #fuels_new
+        fuels_out = getattr(reg, 'fuels_tot_enduses_h') #fuels_new
         fueltot += np.sum(fuels_out)
     print("Total Fuel after run: " + str(fueltot))
     print("DIFF: " + str(fueltot - fuel_in))
-    prnt("..")
+
     return all_regions
+
+class Country_residential_model(object):
+    """Class of a country containing all regions for the different enduses
+
+    The main class of the residential model. For every region, a Region object needs to be generated.
+
+    Parameters
+    ----------
+    reg_id : int
+        The ID of the region. The actual region name is stored in `reg_lu`
+
+    """
+    def __init__(self, reg_name, data, data_ext):
+        """Constructor or Region"""
+        self.data = data
+        self.data_ext = data_ext
+        self.reg_name = reg_name
+
+    def create_regions(self):
+        self.regions = {}
+        for reg_ID in self.reg_name:
+            self.regions[reg_ID] = Region(reg_ID, self.data, self.data_ext) # Create new region
+        vars(self).update(self.regions)
+
 
 class Region(object):
     """Class of a region for the residential model
@@ -84,6 +112,8 @@ class Region(object):
         self.assumptions = data['assumptions']
         self.current_year = data_ext['glob_var']['current_year']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
+
+        self.end_uses = {}  # Dict to store new enduses which are then converted to attributes
 
         # Create all enduse object
         self.create_enduse_objects()
@@ -118,8 +148,6 @@ class Region(object):
 
     def create_enduse_objects(self):
         """All enduses are initialised and inserted as an attribute of the Region Class"""
-        # New enduses
-        self.end_uses = {}
 
         # Iterate enduses
         for enduse in self.reg_fuel:
@@ -127,7 +155,7 @@ class Region(object):
 
         # Update attributes
         vars(self).update(self.end_uses)
-        return
+        #return
 
     def tot_all_enduses_y(self):
         """Sum all fuel types over all end uses"""
@@ -361,6 +389,7 @@ class EndUseClassResid(Region):
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         print("DDD: " + str(np.sum(self.reg_fuelscen_driver)))
         print("----")
+
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
 
