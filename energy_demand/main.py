@@ -75,7 +75,7 @@ def energy_demand_model(data, data_ext):
     # --------------------------
     # Residential model
     # --------------------------
-    all_regions_resid = rm.residential_model_main_function(data, data_ext)
+    resid_object_country = rm.residential_model_main_function(data, data_ext)
 
     # --------------------------
     # Service Model
@@ -94,7 +94,7 @@ def energy_demand_model(data, data_ext):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, data_ext, all_regions_resid)
+    result_dict = mf.convert_out_format_es(data, data_ext, resid_object_country)
 
     # --- Write to csv and YAML
     mf.write_final_result(data, result_dict, data['reg_lu'], False)

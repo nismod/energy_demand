@@ -10,7 +10,7 @@ class ResidTechStock(object):
 
     Parameters
     ----------
-    data : dict
+    data : dict 
         tbd
     data_ext : dict
         tbd
@@ -51,7 +51,7 @@ class ResidTechStock(object):
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
         """
         technology_list = self.assumptions['eff_by']
-        self.technologies = {}
+        #self.technologies = {}
 
         for technology in technology_list:
 
@@ -66,10 +66,12 @@ class ResidTechStock(object):
             achieved_eff = self.assumptions['eff_achieved'][technology]
 
             # Actual efficiency potential
-            self.technologies[technology] = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
-
-        for _ in self.technologies:
-            vars(self).update(self.technologies) # Creat self objects {'key': Value}
+            #self.technologies[technology] = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
+            value_for_new_attribute = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
+        
+            ResidTechStock.__setattr__(self, technology, value_for_new_attribute)
+        #for _ in self.technologies:
+        #    vars(self).update(self.technologies) # Creat self objects {'key': Value}
 
     def get_sigmoid_tech_diff(self):
         """Calculate change in fuels based on sigmoid diffusion of fraction of technologies

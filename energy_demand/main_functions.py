@@ -11,7 +11,7 @@ import unittest
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def convert_out_format_es(data, data_ext, all_regions):
+def convert_out_format_es(data, data_ext, resid_object_country):
     """Adds total hourly fuel data into nested dict
 
     Parameters
@@ -20,8 +20,8 @@ def convert_out_format_es(data, data_ext, all_regions):
         Dict with own data
     data_ext : dict
         External data
-    all_regions : list
-        Contains all objects of the region
+    resid_object_country : object
+        Contains objects of the region
 
     Returns
     -------
@@ -31,7 +31,9 @@ def convert_out_format_es(data, data_ext, all_regions):
     # Create timesteps for full year (wrapper-timesteps)
     out_dict = initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year'])
 
-    for reg in all_regions:
+    for reg_id in data['reg_lu']:
+        reg = getattr(resid_object_country, str(reg_id))
+        #for reg in all_regions:
         region_name = reg.reg_id # Get object region name
         hourly_all_fuels = reg.tot_all_enduses_h()  # Get total fuel
 

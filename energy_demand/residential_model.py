@@ -41,18 +41,23 @@ def residential_model_main_function(data, data_ext):
     data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
 
     # Create regions for residential model Iterate regions and generate objects
-    for region_name in data['reg_lu']:
+    '''for region_name in data['reg_lu']:
 
         # Create new region
+        print("Region name" + str(region_name))
+        print(type(region_name))
         region_object = Region(region_name, data, data_ext)
 
         #region_object.
+        print(region_object.lighting)
+        #prnt("..")
 
         # Initiate residential regions
         all_regions.append(region_object)
-    
-    #resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
+    '''
+    resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
 
+    #resid_object.
 
     #TEST total fuel after run 
     fueltot = 0
@@ -62,7 +67,7 @@ def residential_model_main_function(data, data_ext):
     print("Total Fuel after run: " + str(fueltot))
     print("DIFF: " + str(fueltot - fuel_in))
 
-    return all_regions
+    return resid_object #all_regions
 
 class Country_residential_model(object):
     """Class of a country containing all regions for the different enduses
@@ -73,20 +78,30 @@ class Country_residential_model(object):
     ----------
     reg_id : int
         The ID of the region. The actual region name is stored in `reg_lu`
-
+    
+    Notes
+    -----
+    this class has as many attributes as regions (for evry rgion an attribute)
     """
-    def __init__(self, reg_name, data, data_ext):
+    def __init__(self, sub_reg_names, data, data_ext):
         """Constructor or Region"""
         self.data = data
         self.data_ext = data_ext
-        self.reg_name = reg_name
+        self.sub_reg_names = sub_reg_names
+        print("START: " + str(self.sub_reg_names))
+        
+        self.create_regions() # create object for every region
 
     def create_regions(self):
-        self.regions = {}
-        for reg_ID in self.reg_name:
-            self.regions[reg_ID] = Region(reg_ID, self.data, self.data_ext) # Create new region
-        vars(self).update(self.regions)
+        print("RRO: " + str(self.sub_reg_names))
+        for reg_ID in self.sub_reg_names:
+            print("REG: ID")
+            print(reg_ID)
+            print(type(reg_ID))
+            reg_object = Region(reg_ID, self.data, self.data_ext)
 
+            # Create an atribute for every regions ()
+            Country_residential_model.__setattr__(self, str(reg_ID), reg_object) 
 
 class Region(object):
     """Class of a region for the residential model
@@ -113,9 +128,9 @@ class Region(object):
         self.current_year = data_ext['glob_var']['current_year']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
 
-        self.end_uses = {}  # Dict to store new enduses which are then converted to attributes
+        #self.end_uses = {}  # Dict to store new enduses which are then converted to attributes
 
-        # Create all enduse object
+        # Set attributs of all enduses
         self.create_enduse_objects()
 
         # Sum final 'yearly' fuels (summarised over all enduses)
@@ -151,10 +166,11 @@ class Region(object):
 
         # Iterate enduses
         for enduse in self.reg_fuel:
-            self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
+            #self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)  super(MyTest, self).
+            Region.__setattr__(self, enduse, EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel))
 
         # Update attributes
-        vars(self).update(self.end_uses)
+        #vars(self).update(self.end_uses)
         #return
 
     def tot_all_enduses_y(self):
@@ -331,7 +347,7 @@ class Region(object):
         #ax.stackplot(x, Y_init)
         plt.show()
 
-class EndUseClassResid(Region):
+class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
     """Class of an end use category of the residential sector
 
     End use class for residential model. For every region, a different
@@ -357,6 +373,9 @@ class EndUseClassResid(Region):
     """
     def __init__(self, reg_id, data, data_ext, enduse, reg_fuel):
 
+        # Call parent data
+        #super().__init__(reg_id, data, data_ext)
+
         # --General data, fueldata, technological stock
         self.reg_id = reg_id                                        # Region
         self.enduse = enduse                                        # EndUse Name
@@ -379,13 +398,13 @@ class EndUseClassResid(Region):
         print("ENDUSE: " + str(self.enduse))
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("AAA: " + str(np.sum(self.reg_fuel_eff_gains)))
-        
+
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
         print("bbb: " + str(np.sum(self.reg_fuel_after_switch)))
-        
+
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         print("ccc: " + str(np.sum(self.reg_fuel_after_elasticity)))
-        
+
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         print("DDD: " + str(np.sum(self.reg_fuelscen_driver)))
         print("----")
