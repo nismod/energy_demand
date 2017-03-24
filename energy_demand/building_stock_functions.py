@@ -4,7 +4,7 @@
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling
 
-    The main class of the residential model. For every region, a Region Object needs to be generated.
+    For every dwelling, the scenario drivers are calculated for each residential end_use.
 
     Parameters
     ----------
@@ -43,19 +43,47 @@ class Dwelling(object):
         self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type 
         #self.HOUSEHOLDINCOME?
 
-    def scenario_driver_water_heating(self):
-        """calc scenario driver with population and heat loss coefficient"""
-        return self.pop
-
-    def scenario_driver_lighting(self):
-        """calc scenario driver with population and floor area"""
-        #print("POOL             " + str(self.pop))
-        #print("floorarea :      " + str(self.floorarea))
-        return self.floorarea * self.pop
+        # Scenario drivers for residential end demands
+        self.space_heating = self.scenario_driver_space_heating()
+        self.water_heating = self.scenario_driver_water_heating()
+        self.cooking = self.scenario_driver_cooking()
+        self.lighting = self.scenario_driver_lighting()
+        self.cold = self.scenario_driver_cold()
+        self.wet = self.scenario_driver_wet()
+        self.consumer_electronics = self.scenario_driver_consumer_electronics()
+        self.computing = self.scenario_driver_computing()
 
     def scenario_driver_space_heating(self):
         """calc scenario driver with population and floor area"""
         return self.floorarea * self.pop * self.HDD * self.hlc
+
+    def scenario_driver_water_heating(self):
+        """calc scenario driver with population and heat loss coefficient"""
+        return self.pop
+
+    def scenario_driver_cooking(self):
+        """calc scenario driver with population and floor area"""
+        return self.pop
+
+    def scenario_driver_lighting(self):
+        """calc scenario driver with population and floor area"""
+        return self.floorarea * self.pop
+
+    def scenario_driver_cold(self):
+        """calc scenario driver with population and floor area"""
+        return self.pop
+
+    def scenario_driver_wet(self):
+        """calc scenario driver with population and floor area"""
+        return self.pop
+
+    def scenario_driver_consumer_electronics(self):
+        """calc scenario driver with population and floor area"""
+        return self.pop
+
+    def scenario_driver_computing(self):
+        """calc scenario driver with population and floor area"""
+        return self.pop
 
 def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
     """ Get internal temperature based on assumptions"""
@@ -116,22 +144,26 @@ class DwStockRegion(object):
             Region ID of building stock
         dwellings : list
             List containing all dwelling objects
+
         """
         self.region_ID = region_ID
         self.dwellings = dwellings
         self.pop = self.get_tot_pop()
 
-        # Execute functions of stock #TODO: Maybe improve that only end_use needs to be entered...
-        self.space_heating = self.get_sum_scenario_driver_space_heating()
-        self.water_heating = self.get_sum_scenario_driver_water_heating()
-        #self.cooking = self.()
-        self.lighting = self.get_sum_scenario_driver_lighting()
-        #self.cold = self.()
-        #self.wet = self.()
-        #self.consumer_electronics = self.()
-        #self.home_computing = self.()
-        #self.cooking = self.()
-        # TODO: maybe automate that if new end use is added?
+        # Summed scenario drivers across all dwellings for every enduse
+        self.sum_water_heating = self.get_scenario_driver_enduse('water_heating')
+        self.sum_cooking = self.get_scenario_driver_enduse('cooking')
+        self.sum_cold = self.get_scenario_driver_enduse('cold')
+        self.sum_wet = self.get_scenario_driver_enduse('wet')
+        self.sum_consumer_electronics = self.get_scenario_driver_enduse('consumer_electronics')
+        self.sum_computing = self.get_scenario_driver_enduse('computing')
+
+    def get_scenario_driver_enduse(self, enduse):
+        """Sum all scenario driver for space heating"""
+        sum_driver = 0
+        for dwelling in self.dwellings:
+            sum_driver += getattr(dwelling, enduse)
+        return sum_driver
 
     def get_tot_pop(self):
         """Get total population of all dwellings"""
@@ -139,27 +171,6 @@ class DwStockRegion(object):
         for dwelling in self.dwellings:
             totpop += dwelling.pop
         return round(totpop, 3)
-
-    def get_sum_scenario_driver_water_heating(self):
-        """Sum all scenario driver for water heating"""
-        sum_driver = 0
-        for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_water_heating()
-        return sum_driver
-
-    def get_sum_scenario_driver_space_heating(self):
-        """Sum all scenario driver for space heating"""
-        sum_driver = 0
-        for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_space_heating()
-        return sum_driver
-
-    def get_sum_scenario_driver_lighting(self):
-        """Sum all scenario driver for lighting heating"""
-        sum_driver = 0
-        for dwelling in self.dwellings:
-            sum_driver += dwelling.scenario_driver_lighting()
-        return sum_driver
 
 def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on
@@ -249,47 +260,15 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
         else:
             y_distr = {}
 
-            # iterate type
             for dtype in dwtype_distr_by:
                 val_by = dwtype_distr_by[dtype]                         # base year value
                 sim_y = assump_dwtype_distr_ey[dtype]                   # cur year value
                 diff_val = sim_y - val_by                               # Total difference
                 diff_y = diff_val / (len(sim_period)-1)                 # Linear difference per year
                 y_distr[dtype] = val_by + (diff_y * sim_year_nr) / 100  # Differene up to current year #TODO: Check procent
-
         dwtype_distr[sim_year] = y_distr
 
     # Test if distribution is 100%
     for y in dwtype_distr:
         assert round(sum(dwtype_distr[y].values()), 1) == 100 # "The values in the dictionary do not sum to 100"
     return dwtype_distr
-'''
-def get_dwtype_age_distr(get_dwtype_age_distr_base):
-    """Get age distribution
-
-    Linear change over time
-
-    # Todo: Check modelling interval (2050/2051)
-
-    Parameters
-    ----------
-    base_dwtype_distr : dict
-        Distribution of dwelling types base year
-
-    assump_dwtype_distr_by : dict
-        Distribution of dwelling types end year
-
-    glob_var : dict
-        Contains all global simulation variables
-
-    Returns
-    -------
-    dwtype_distr : dict
-        Contains all dwelling type distribution for every year
-    """
-    print(get_dwtype_age_distr_base)
-
-    # {'1918': 20.82643491, '1941': 36.31645864, '1977.5': 29.44333304, '1996.5': 8.00677683, '2002': 5.407611848}
-
-    return dwtype_age_distr_sim
-    '''

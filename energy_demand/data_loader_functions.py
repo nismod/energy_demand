@@ -1,13 +1,12 @@
 
 #import energy_demand.main_functions as mf
-import numpy as np
 import os
 import csv
-import main_functions as mf
-from datetime import date
+import numpy as np
 import unittest
 import json
-import data_loader_functions as df
+from datetime import date
+import main_functions as mf
 
 
 # HES-----------------------------------

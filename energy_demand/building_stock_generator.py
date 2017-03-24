@@ -1,6 +1,5 @@
 """ Building Generator"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
-
 import energy_demand.building_stock_functions as bf
 
 def resid_build_stock(data, assumptions, data_ext):
@@ -18,9 +17,9 @@ def resid_build_stock(data, assumptions, data_ext):
     Returns
     -------
     data : dict
-        Adds reg_building_stock_by and reg_building_stock_yr to the data dictionary:
+        Adds reg_dw_stock_by and reg_building_stock_yr to the data dictionary:
 
-        reg_building_stock_by : Base year building stock
+        reg_dw_stock_by : Base year building stock
         reg_building_stock_yr : Building stock for every simulation year
 
     Notes
@@ -29,30 +28,27 @@ def resid_build_stock(data, assumptions, data_ext):
     Needs as an input all population changes up to simulation period....(to calculate built housing)
 
     """
-    reg_building_stock_cur_yr, reg_building_stock_by, dw_stock_new_dwellings = {}, {}, []
+    reg_dw_stock_cy, reg_dw_stock_by, dw_stock_new_dw = {}, {}, []
 
     # Base year data
     glob_var = data_ext['glob_var']
     base_year = glob_var['base_year']
-    current_year = glob_var['current_year']
     dwtype_distr_by = data['dwtype_distr'][base_year]          # Distribution of dwelling types        2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     dwtype_age_distr_by = data['dwtype_age_distr'][base_year]  # Age distribution of dwelling types    {2015: {1918: 20.8, 1928: 36.3, 1949: 29.4, 1968: 8.0, 1995: 5.4}} # year, average_age, percent
     reg_lu = data['reg_lu']                                    # Regions
-    sim_period = range(base_year, current_year + 1, 1)         #base year, current year + 1, iteration step
+    sim_period = range(base_year, glob_var['current_year'] + 1, 1)         #base year, current year + 1, iteration step
 
     # Get distribution of dwelling types of all simulation years
-    dwtype_distr_sim = bf.get_dwtype_dist(dwtype_distr_by, assumptions['assump_dwtype_distr_ey'], glob_var)                                                    # Calculate distribution of dwelling types over simulation period
+    dwtype_distr_sim = bf.get_dwtype_dist(dwtype_distr_by, assumptions['assump_dwtype_distr_ey'], glob_var) # Calculate distribution of dwelling types over simulation period
 
     # Get floor area per person for every simulation year
     data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea'], data_ext['population'][base_year], glob_var, assumptions['assump_change_floorarea_pp']) # Get floor area per person of sim_yr
 
-    # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd                        ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
+    # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
 
     # Iterate regions
     for reg_id in reg_lu:
-
-        # Base year data of region
         floorarea_by = data['reg_floorarea'][reg_id]        # Read in floor area of base year
         pop_by = data_ext['population'][base_year][reg_id]  # Read in population
         floorarea_pp_by = floorarea_by / pop_by             # Floor area per person [m2/person]
@@ -61,46 +57,40 @@ def resid_build_stock(data, assumptions, data_ext):
         for sim_y in sim_period:
 
             # Calculate new necessary floor area of simulation year
-            floorarea_pp_sy = data_floorarea_pp[reg_id][sim_y]                          # Get floor area per person of sim_yr
-            tot_floorarea_sy = floorarea_pp_sy * data_ext['population'][sim_y][reg_id]  # Floor area per person simulation year * population of simulation year in region
-            new_floorarea_sim_year = tot_floorarea_sy - floorarea_by                    # tot new floor area - area base year
+            floorarea_pp_sy = data_floorarea_pp[reg_id][sim_y] # Get floor area per person of sim_yr
+            tot_floorarea_sy = floorarea_pp_sy * data_ext['population'][sim_y][reg_id] # Floor area per person simulation year * population of simulation year in region
+            new_floorarea_sy = tot_floorarea_sy - floorarea_by # tot new floor area - area base year
 
             # Only calculate changing
             uniqueID = 000 #TODO: IMProove
             if sim_y == base_year:
-                print("BASE YEAR")
                 dw_stock_base = generate_dw_existing(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, dwtype_age_distr_by, floorarea_pp_by, floorarea_by, pop_by, assumptions)
-                dw_stock_new_dwellings = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
+                dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
                 # The number of people in the existing dwelling stock may change. Therfore calculate alos except for base year. Total floor number is assumed to be identical Here age of buildings could be changed
-                dw_stock_new_dwellings = generate_dw_existing(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, dwtype_age_distr_by, floorarea_pp_sy, floorarea_by, floorarea_by/floorarea_pp_sy, assumptions)
+                dw_stock_new_dw = generate_dw_existing(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, dwtype_age_distr_by, floorarea_pp_sy, floorarea_by, floorarea_by/floorarea_pp_sy, assumptions)
 
                 # - new dwellings
-                if new_floorarea_sim_year > 0: # If new floor area new buildings are necessary
-                    dw_stock_new_dwellings = generate_dw_new(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dwellings, new_floorarea_sim_year, assumptions)
+                if new_floorarea_sy > 0: # If new floor area new buildings are necessary
+                    dw_stock_new_dw = generate_dw_new(uniqueID, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, assumptions)
 
         # Generate region and save it in dictionary
-        print("DWELLIGN STOCK")
-        print(reg_id)
-        print(dw_stock_new_dwellings)
-
-        reg_building_stock_cur_yr[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dwellings)    # Add old and new buildings to stock
-        reg_building_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base)                 # Add base year stock
+        reg_dw_stock_cy[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dw) # Add old and new buildings to stock
+        reg_dw_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base) # Add base year stock
 
     #print("Base dwelling")
-    #print(reg_building_stock_by[0].get_tot_pop())
-    #l = reg_building_stock_by[0].dwellings
+    #print(reg_dw_stock_by[0].get_tot_pop())
+    #l = reg_dw_stock_by[0].dwellings
 
     ##print("Curryear dwelling")
-    #print(reg_building_stock_cur_yr[0].get_tot_pop())
-    #l = reg_building_stock_cur_yr[0].dwellings
+    #print(reg_dw_stock_cy[0].get_tot_pop())
+    #l = reg_dw_stock_cy[0].dwellings
     #for i in l:
     #    print(i.__dict__)
 
-    # Add to data
-    data['reg_building_stock_by'] = reg_building_stock_by
-    data['reg_building_stock_cur_yr'] = reg_building_stock_cur_yr
+    data['reg_dw_stock_by'] = reg_dw_stock_by # Add to data
+    data['reg_dw_stock_cy'] = reg_dw_stock_cy # Add to data
 
     #print(" -- Virtual Building Stock generated")
     return data
@@ -191,7 +181,7 @@ def generate_dw_existing(uniqueID, sim_y, dw_lu, floorarea_p, floorarea_by, dwty
 
     return dw_stock_base
 
-def generate_dw_new(uniqueID, sim_y, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dwellings, new_floorarea_sim_year, assumptions):
+def generate_dw_new(uniqueID, sim_y, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, assumptions):
     """Generate objects for all new dwellings
 
     All new dwellings are appended to the existing building stock of the region
@@ -205,7 +195,7 @@ def generate_dw_new(uniqueID, sim_y, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_
 
     Returns
     -------
-    dw_stock_new_dwellings : list
+    dw_stock_new_dw : list
         List with appended dwellings
 
     Notes
@@ -221,7 +211,7 @@ def generate_dw_new(uniqueID, sim_y, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_
         dw_type_id, dw_type_name = dw, dw_lu[dw]
 
         # Floor area
-        dw_type_floorarea_new_build = floorarea_p_by[dw_type_name] * new_floorarea_sim_year      # Floor area of existing buildlings
+        dw_type_floorarea_new_build = floorarea_p_by[dw_type_name] * new_floorarea_sy      # Floor area of existing buildlings
         control_floorarea += dw_type_floorarea_new_build
 
         # Pop
@@ -232,10 +222,10 @@ def generate_dw_new(uniqueID, sim_y, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_
         #Todo: Add climate??/internal heat data
         HDD = 199 #get_region_HDD()
 
-        dw_stock_new_dwellings.append(bf.Dwelling(sim_y, ['X', 'Y'], dw_type_id, uniqueID, sim_y, pop_dwtype_sim_year_new_build, dw_type_floorarea_new_build, HDD, assumptions))
+        dw_stock_new_dw.append(bf.Dwelling(sim_y, ['X', 'Y'], dw_type_id, uniqueID, sim_y, pop_dwtype_sim_year_new_build, dw_type_floorarea_new_build, HDD, assumptions))
         uniqueID += 1
 
-    assert round(new_floorarea_sim_year, 3) == round(control_floorarea, 3)  # Test if floor area are the same
-    assert round(new_floorarea_sim_year/floorarea_pp_sy, 3) == round(control_pop, 3)                    # Test if pop is the same
+    assert round(new_floorarea_sy, 3) == round(control_floorarea, 3)  # Test if floor area are the same
+    assert round(new_floorarea_sy/floorarea_pp_sy, 3) == round(control_pop, 3)                    # Test if pop is the same
 
-    return dw_stock_new_dwellings
+    return dw_stock_new_dw

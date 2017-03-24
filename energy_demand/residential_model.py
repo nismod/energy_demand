@@ -34,40 +34,20 @@ def residential_model_main_function(data, data_ext):
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     print("TEST MAIN START:" + str(fuel_in))
 
-
-    all_regions = [] # List to store all regions
-
     # Generate technological stock for base year
     data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
 
-    # Create regions for residential model Iterate regions and generate objects
-    '''for region_name in data['reg_lu']:
-
-        # Create new region
-        print("Region name" + str(region_name))
-        print(type(region_name))
-        region_object = Region(region_name, data, data_ext)
-
-        #region_object.
-        print(region_object.lighting)
-        #prnt("..")
-
-        # Initiate residential regions
-        all_regions.append(region_object)
-    '''
+    # Add all region instances as an attribute (region name) into a Country class
     resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
 
-    #resid_object.
+    # Total fuel of country
+    fueltot = resid_object.tot_reg_fuel
 
     #TEST total fuel after run 
-    fueltot = 0
-    for reg in all_regions:
-        fuels_out = getattr(reg, 'fuels_tot_enduses_h') #fuels_new
-        fueltot += np.sum(fuels_out)
     print("Total Fuel after run: " + str(fueltot))
     print("DIFF: " + str(fueltot - fuel_in))
 
-    return resid_object #all_regions
+    return resid_object
 
 class Country_residential_model(object):
     """Class of a country containing all regions for the different enduses
@@ -78,7 +58,7 @@ class Country_residential_model(object):
     ----------
     reg_id : int
         The ID of the region. The actual region name is stored in `reg_lu`
-    
+
     Notes
     -----
     this class has as many attributes as regions (for evry rgion an attribute)
@@ -88,20 +68,30 @@ class Country_residential_model(object):
         self.data = data
         self.data_ext = data_ext
         self.sub_reg_names = sub_reg_names
-        print("START: " + str(self.sub_reg_names))
-        
-        self.create_regions() # create object for every region
+
+        # create object for every region
+        self.create_regions()
+        self.tot_reg_fuel = self.get_overall_sum()
 
     def create_regions(self):
-        print("RRO: " + str(self.sub_reg_names))
+        """Create all regions and add them as attributes based on region name to this class"""
         for reg_ID in self.sub_reg_names:
-            print("REG: ID")
-            print(reg_ID)
-            print(type(reg_ID))
+
+            # Region object
             reg_object = Region(reg_ID, self.data, self.data_ext)
 
             # Create an atribute for every regions ()
-            Country_residential_model.__setattr__(self, str(reg_ID), reg_object) 
+            Country_residential_model.__setattr__(self, str(reg_ID), reg_object)
+
+    def get_overall_sum(self):
+        """Collect hourly data from all regions and sum across all fuel types"""
+        tot_sum = 0
+        for reg_id in self.data['reg_lu']:
+            reg_object = getattr(self, str(reg_id)) # Get region
+            # Get fuel data of region #Sum hourly demand # could also be read out as houly
+            tot_sum += np.sum(getattr(reg_object, 'fuels_tot_enduses_h'))
+
+        return tot_sum
 
 class Region(object):
     """Class of a region for the residential model
@@ -127,8 +117,6 @@ class Region(object):
         self.assumptions = data['assumptions']
         self.current_year = data_ext['glob_var']['current_year']    # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
-
-        #self.end_uses = {}  # Dict to store new enduses which are then converted to attributes
 
         # Set attributs of all enduses
         self.create_enduse_objects()
@@ -166,12 +154,12 @@ class Region(object):
 
         # Iterate enduses
         for enduse in self.reg_fuel:
-            #self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)  super(MyTest, self).
-            Region.__setattr__(self, enduse, EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel))
 
-        # Update attributes
-        #vars(self).update(self.end_uses)
-        #return
+            # Enduse object
+            enduse_object = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
+
+            #self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)  super(MyTest, self).
+            Region.__setattr__(self, enduse, enduse_object)
 
     def tot_all_enduses_y(self):
         """Sum all fuel types over all end uses"""
@@ -396,6 +384,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         # --Yearly fuel data
         print("ENDUSE: " + str(self.enduse))
+
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("AAA: " + str(np.sum(self.reg_fuel_eff_gains)))
 
@@ -407,7 +396,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         print("DDD: " + str(np.sum(self.reg_fuelscen_driver)))
-        print("----")
+
 
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
@@ -424,20 +413,38 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
     def enduse_elasticity(self):
         """Adapts yearls fuel use depending on elasticity
 
+        # TODO: MAYBE ALSO USE BUILDING STOCK TO SEE HOW ELASTICITY CHANGES WITH FLOOR AREA
         Maybe implement resid_elasticities with floor area
 
-        # TODO: MAYBE ALSO USE BUILDING STOCK TO SEE HOW ELASTICITY CHANGES WITH FLOOR AREA
+        # TODO: Non-linear elasticity. Then for cy the elasticity needs to be calculated
+
+        Info
+        ----------
+        Every enduse can only have on shape independently of the fueltype
+
         """
         new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
+
+        # End use elasticity
         elasticity_enduse = self.assumptions['resid_elasticities'][self.enduse]
+        #elasticity_enduse_cy = nonlinear_def...
 
         for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
 
-            # Fuel prices
-            fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
-            fuelprice_cy = self.data_ext['fuel_price'][self.current_year][fueltype]
-            new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+            if fuel != 0: # if fuel exists
+                # Fuel prices
+                fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
+                fuelprice_cy = self.data_ext['fuel_price'][self.current_year][fueltype]
 
+                new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+
+            else:
+                new_fuels[fueltype] = fuel
+        print("enduse:  " + str(self.enduse))
+        print(elasticity_enduse)
+        print(self.reg_fuel_after_switch)
+        print("....")
+        print(new_fuels)
         return new_fuels
 
     def enduse_eff_gains(self):
@@ -518,19 +525,15 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Share of fuel types for each end use
         fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year
         fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
-        #print("---")
-        #print(fuel_p_by)
-        #print("---")
-        #print(fuel_p_ey)
-        #print(np.array_equal(fuel_p_by, fuel_p_ey))
+
         # Test whether share of fuel types stays identical
-        if np.array_equal(fuel_p_by, fuel_p_ey):            # no fuel switches
-            return self.reg_fuel                            # No Fuel Switches (same perentages)
+        if np.array_equal(fuel_p_by, fuel_p_ey): # no fuel switches
+            return self.reg_fuel
         else:
-            fuel_switch_array = np.copy((self.reg_fuel))    # Out_dict initialisation
+            fuel_switch_array = np.copy((self.reg_fuel)) # Out_dict initialisation
 
             # Assumptions about which technology is installed and replaced
-            tech_install = self.assumptions['tech_install'][self.enduse]                   #  Technology which is installed
+            tech_install = self.assumptions['tech_install'][self.enduse] #  Technology which is installed
             eff_replacement = getattr(self.tech_stock_cy, tech_install)
 
             tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current technologes which are to be replaced
@@ -540,7 +543,6 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
             #print("fuel_p_ey " + str(fuel_p_ey))
             #print("fuel_p_by " + str(fuel_p_by))
-
 
             # Calculate percentage differences over full simulation period
             ###fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
@@ -605,11 +607,11 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         This is the energy end use used for disaggregating to daily and hourly
         """
         # Test if enduse has a building related scenario driver
-        if hasattr(self.data['reg_building_stock_by'][self.reg_id], self.enduse):
+        if hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse):
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(self.data['reg_building_stock_by'][self.reg_id], self.enduse)     # Base year building stock
-            cy_driver = getattr(self.data['reg_building_stock_cur_yr'][self.reg_id], self.enduse) # Current building stock
+            by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse)     # Base year building stock
+            cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
 
             factor_driver = cy_driver / by_driver  #TODO: Or the other way round
             fueldata_scenario_diver = self.reg_fuel_after_switch * factor_driver

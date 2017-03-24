@@ -701,7 +701,7 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
 
     """
     pricediff_p = (price_base - price_curr) / price_base
-
+    
     # New current demand
     current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
 

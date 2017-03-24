@@ -130,7 +130,7 @@ def load_assumptions(data):
     # Elasticities (Long-term resid_elasticities)
     # #TODO: Elasticties over time change? Not implemented so far
     # ============================================================
-    resid_elasticities = {'space_heating': 0,
+    resid_elasticities = {'heating': -0.4,
                           'water' : 0,
                           'cooking' : 0,
                           'lighting': 0,
@@ -138,7 +138,6 @@ def load_assumptions(data):
                           'wet': 0,
                           'consumer_electronics': 0,
                           'home_computing': 0,
-                          'heating': 0
                          }
     assump_dict['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 

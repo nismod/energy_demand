@@ -8,7 +8,7 @@ import energy_demand.building_stock_functions as bf
 import energy_demand.building_stock_generator as bg
 import energy_demand.national_dissaggregation as nd
 from datetime import date
-
+import numpy as np
 
 
 from pytest import raises
@@ -95,7 +95,20 @@ def test_get_weekday_type():
     assert out_value == expected
 
 
+def test_apply_elasticity():
+    """Calculate current demand based on demand elasticity"""
 
+    in_value = np.array([[10.0], [20.0]])
+    elasticity = -0.5
+    price_base = 100
+    price_curr = 80
+
+    expected = -1 * (( -0.5 * ((100 - 80) / 100) * in_value) - in_value)
+    
+    # New current demand
+    out_value = mf.apply_elasticity(in_value, elasticity, price_base, price_curr)
+
+    assert out_value == expected
 
 
 

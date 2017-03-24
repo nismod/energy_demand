@@ -43,6 +43,7 @@ import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
+#import energy_demand.data_loader as dl
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 import numpy as np
@@ -126,7 +127,7 @@ if __name__ == "__main__":
                                    },
 
                      'glob_var': {'base_year': 2015,
-                                  'current_year': 2015,
+                                  'current_year': 2016,
                                   'end_year': 2020
                                  },
 
