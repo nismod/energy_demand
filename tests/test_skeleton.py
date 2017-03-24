@@ -108,7 +108,8 @@ def test_apply_elasticity():
     # New current demand
     out_value = mf.apply_elasticity(in_value, elasticity, price_base, price_curr)
 
-    assert out_value == expected
+    np.testing.assert_array_equal(out_value, expected)
+    #assert out_value == expected
 
 
 

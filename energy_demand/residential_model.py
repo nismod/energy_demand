@@ -44,6 +44,7 @@ def residential_model_main_function(data, data_ext):
     fueltot = resid_object.tot_reg_fuel
 
     #TEST total fuel after run 
+    print("TEST MAIN START:" + str(fuel_in))
     print("Total Fuel after run: " + str(fueltot))
     print("DIFF: " + str(fueltot - fuel_in))
 
@@ -69,8 +70,8 @@ class Country_residential_model(object):
         self.data_ext = data_ext
         self.sub_reg_names = sub_reg_names
 
-        # create object for every region
-        self.create_regions()
+
+        self.create_regions() #: create object for every region
         self.tot_reg_fuel = self.get_overall_sum()
 
     def create_regions(self):
@@ -382,7 +383,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day)
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
-        # --Yearly fuel data
+        # --Yearly fuel data (Check if always function below takes result from function above)
         print("ENDUSE: " + str(self.enduse))
 
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
@@ -614,7 +615,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
 
             factor_driver = cy_driver / by_driver  #TODO: Or the other way round
-            fueldata_scenario_diver = self.reg_fuel_after_switch * factor_driver
+            fueldata_scenario_diver = self.reg_fuel_after_elasticity * factor_driver
             print("self.enduse: " + str(self.enduse))
             print(cy_driver) #ERROR: CURRENT YEAR LIGHTIGNS HAS NO 
             print(by_driver)
@@ -624,7 +625,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         else:
             # This fuel is not changed by building related scenario driver
-            return self.reg_fuel_after_switch
+            return self.reg_fuel_after_elasticity
 
     def enduse_y_to_d(self):
         """Generate array with fuels for every day"""

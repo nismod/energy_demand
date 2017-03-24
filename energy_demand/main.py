@@ -43,7 +43,7 @@ import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
-#import energy_demand.data_loader as dl
+import energy_demand.data_loader as dl
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 import numpy as np
@@ -109,10 +109,6 @@ def energy_demand_model(data, data_ext):
     #pf.plot_x_days(result_dict[2], 0, 2)
     return result_dict
 
-
-
-
-
 # Run
 if __name__ == "__main__":
 
@@ -145,7 +141,7 @@ if __name__ == "__main__":
 
     # Model calculations outside main function
     path_main = r'C:/Users/cenv0553/GIT/NISMODII/data/' #path_main = '../data'
-    base_data = mf.load_data(base_data, path_main, data_external) # Load and generate data
+    base_data = dl.load_data(base_data, path_main, data_external) # Load and generate data
 
     # Load assumptions
     print("Load Assumptions")
@@ -163,61 +159,3 @@ if __name__ == "__main__":
     # Run main function
     energy_demand_model(base_data, data_external)
     print("Finished running Energy Demand Model")
-
-
-
-
-
-    """A one-line summary that does not use variable names or the
-    function name.
-    Several sentences providing an extended description. Refer to
-    variables using back-ticks, e.g. `var`.
-
-    Parameters
-    ----------
-    var1 : array_like
-        Array_like means all those objects -- lists, nested lists, etc. --
-        that can be converted to an array.  We can also refer to
-        variables like `var1`.
-    var2 : int
-        The type above can either refer to an actual Python type
-        (e.g. ``int``), or describe the type of the variable in more
-        detail, e.g. ``(N,) ndarray`` or ``array_like``.
-    long_var_name : {'hi', 'ho'}, optional
-        Choices in brackets, default first when optional.
-
-    Returns
-    -------
-    type
-        Explanation of anonymous return value of type ``type``.
-    describe : type
-        Explanation of return value named `describe`.
-    out : type
-        Explanation of `out`.
-
-    Other Parameters
-    ----------------
-    only_seldom_used_keywords : type
-        Explanation
-    common_parameters_listed_above : type
-        Explanation
-
-    Raises
-    ------
-    BadException
-        Because you shouldn't have done that.
-
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-    This can have multiple paragraphs.
-    You may include some math:
-
-"""

@@ -6,7 +6,7 @@ import numpy as np
 import unittest
 import json
 from datetime import date
-import main_functions as mf
+import energy_demand.main_functions as mf
 
 
 # HES-----------------------------------
