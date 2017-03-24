@@ -7,6 +7,7 @@
 # -------------
 # bd = Base demand
 # by = Base year
+# dw = dwelling
 # p  = Percent
 # e  = electricitiy
 # g  = gas
@@ -44,9 +45,10 @@ import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
+import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
-import numpy as np
+
 
 def energy_demand_model(data, data_ext):
     """Main function of energy demand model to calculate yearly demand
@@ -154,7 +156,7 @@ if __name__ == "__main__":
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
     # Generate technological stock for base year (Maybe for full simualtion period? TODO)
-    base_data['tech_stock_by'] = ts.ResidTechStock(base_data, base_data['assumptions'], data_external, data_external['glob_var']['base_year'])
+    base_data['tech_stock_by'] = ts.ResidTechStock(base_data, data_external, data_external['glob_var']['base_year'])
 
     # Run main function
     energy_demand_model(base_data, data_external)

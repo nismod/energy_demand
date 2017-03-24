@@ -10,19 +10,23 @@ class ResidTechStock(object):
 
     Parameters
     ----------
-    data : dict 
+    data : dict
+        tbd
+    assumptions : dict
         tbd
     data_ext : dict
         tbd
+    current_year : int
+        Current year
 
     TODO: Improve and replace glob_var
     """
-    def __init__(self, data, assumptions, data_ext, current_year):
+    def __init__(self, data, data_ext, current_year):
         """Constructor of technologies for residential sector"""
         self.base_year = data_ext['glob_var']['base_year']
         self.end_year = data_ext['glob_var']['end_year']
         self.current_year = current_year #data_ext['glob_var']['current_year']
-        self.assumptions = assumptions
+        self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
 
         # Execute function to add all technological efficiencies as self argument
@@ -37,12 +41,13 @@ class ResidTechStock(object):
         self.tech_frac = self.get_sigmoid_tech_diff()
 
     def crate_iteration_efficiency(self):
-        """Iterate technology list base yeare and add to technology_stock
+        """Iterate technologes in 'base_year' dict and add to technology_stock
 
-        The efficiency of each technology is added as `self` Attribute
-        Based on assumptions of theoretical maximum efficiency gaing of
-        each technology and the actual achieved efficiency, the efficiency
-        of the current year is calculated based on a linear diffusion
+        The efficiency of each technology is added as `self` attribute.
+        Based on assumptions of theoretical maximum efficiency gains of
+        each technology and assumptions on the actual achieved efficiency, 
+        the efficiency of the current year is calculated based 
+        on a linear diffusion.
 
         Example
         -------
@@ -51,10 +56,8 @@ class ResidTechStock(object):
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
         """
         technology_list = self.assumptions['eff_by']
-        #self.technologies = {}
 
         for technology in technology_list:
-
             eff_by = self.assumptions['eff_by'][technology]
             eff_ey = self.assumptions['eff_ey'][technology]
             sim_years = self.end_year - self.base_year
@@ -68,10 +71,8 @@ class ResidTechStock(object):
             # Actual efficiency potential
             #self.technologies[technology] = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
             value_for_new_attribute = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
-        
+
             ResidTechStock.__setattr__(self, technology, value_for_new_attribute)
-        #for _ in self.technologies:
-        #    vars(self).update(self.technologies) # Creat self objects {'key': Value}
 
     def get_sigmoid_tech_diff(self):
         """Calculate change in fuels based on sigmoid diffusion of fraction of technologies

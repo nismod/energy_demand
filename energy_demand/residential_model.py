@@ -22,10 +22,8 @@ def residential_model_main_function(data, data_ext):
 
     Returns
     -------
-    all_regions : list
-        List containing all region objects of residential demand model
-
-    # TODO: Improve
+    resid_object : object
+        Object containing all regions as attributes for the residential model
     """
     # TESTING
     fuel_in = 0
@@ -35,7 +33,7 @@ def residential_model_main_function(data, data_ext):
     print("TEST MAIN START:" + str(fuel_in))
 
     # Generate technological stock for base year
-    data['tech_stock_cy'] = ts.ResidTechStock(data, data['assumptions'], data_ext, data_ext['glob_var']['current_year'])
+    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_year'])
 
     # Add all region instances as an attribute (region name) into a Country class
     resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
