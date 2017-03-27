@@ -31,11 +31,27 @@ def load_data(path_main, data_ext):
     # Data container
     data = {}
 
+    # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
+    # TODO: Will change if data externally loaded---------------------------
+    reg_lu_dict = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+        reg_lu_dict[reg_name] = reg_name
+    data['reg_lu'] = reg_lu_dict
+
+
+    #FLOOR_AREA_LOOKUP:
+    reg_floor_area = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+        reg_lu_dict[reg_name] = 100000
+    data['reg_floorarea'] = reg_lu_dict
+
+
     path_dict = {
 
         # Residential
         # -----------
         'path_main': path_main,
+        'path_temp_txt': os.path.join(path_main, 'scenario_and_base_data/mean_temp_data'),
         'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
         'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
         'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
@@ -63,8 +79,13 @@ def load_data(path_main, data_ext):
     # -- Reads in all csv files and store them in a dictionary
     data['path_main'] = path_main
 
+    # Read in wheater data for different reiongs TODO
+    #(days_per_month, 0.71, t_base, t_mean)
+    data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
+
+
     # Lookup data
-    data['reg_lu'] = mf.read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
+    #data['reg_lu'] = mf.read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
     data['dwtype_lu'] = mf.read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
     data['app_type_lu'] = mf.read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(path_dict['path_fuel_type_lu'])        # Fuel type lookup
@@ -78,7 +99,7 @@ def load_data(path_main, data_ext):
     data['dwtype_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_dist'])      # dISTRIBUTION of dwelligns base year #TODO: REMOVE AND ONLY LOAD YEAR 2015
     data['dwtype_age_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_age'])
     data['dwtype_floorarea']  = mf.read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
-    data['reg_floorarea'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea'])
+    #data['reg_floorarea'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea'])
     data['reg_dw_nr'] = mf.read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
     # load shapes

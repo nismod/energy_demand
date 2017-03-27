@@ -31,6 +31,8 @@ Open questions
 -
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
+# TODO: technologies: when on market? (diffusion-advanced )
+
 The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -49,7 +51,6 @@ import energy_demand.data_loader as dl
 import numpy as np
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
-
 
 def energy_demand_model(data, data_ext):
     """Main function of energy demand model to calculate yearly demand
@@ -76,6 +77,8 @@ def energy_demand_model(data, data_ext):
     # TODO: Implement wheater generator (multiply fuel with different scenarios)
     #data = wheater_generator(data) # Read in CWV data and calcul difference between average and min and max of year 2015
 
+    # Change demand depending on climate variables
+    
     # --------------------------
     # Residential model
     # --------------------------
@@ -103,9 +106,10 @@ def energy_demand_model(data, data_ext):
     # --- Write to csv and YAML
     mf.write_final_result(data, result_dict, data['reg_lu'], False)
 
+
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))
-    print("FINAL timesteps: " + str(len(result_dict[1][0])))
+    print("FINAL timesteps: " + str(len(result_dict[1]['WALES'])))
     print("Finished energy demand model")
 
     # Plot REgion 0 for half a year
@@ -125,8 +129,10 @@ if __name__ == "__main__":
     # obs.interval == 2
     # obs.units == 'count'
     # External data provided from wrapper
-    data_external = {'population': {2015: {0: 3000001, 1: 5300001, 2: 53000001},
-                                    2016: {0: 3000001, 1: 5300001, 2: 53000001}
+
+    #Reg Floor Area? Reg lookup?
+    data_external = {'population': {2015: {'WALES': 3000001, 'SCOTLAND': 5300001},#, 2: 53000001},
+                                    2016: {'WALES': 3000001, 'SCOTLAND': 5300001}#, 2: 53000001}
                                    },
 
                      'glob_var': {'base_year': 2015,
@@ -144,14 +150,11 @@ if __name__ == "__main__":
                                          }
                     }
 
-
-
     # Model calculations outside main function
-    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+    path_main = os.path.join(os.path.dirname(__file__), '..', 'data') #os.path.join(os.path.dirname(__file__), '..', 'data')
     base_data = dl.load_data(path_main, data_external) # Load and generate data
 
     # Load assumptions
-    print("Load Assumptions")
     base_data = assumpt.load_assumptions(base_data)
 
     # Disaggregate national data into regional data

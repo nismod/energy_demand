@@ -13,14 +13,14 @@ The ECUK table serves as the most important national energy demand input.
 [y]   Yearly variation
 [h]   Shape of each hour in a day
 [d]   Shape of each day in a year
-[p_h] Shape of heak day in hours
+[p_h] Peal Shape of heak day in hours
 [p_d] Relationship between demand of peak day and demand in a year
 
 ECUK TABLE FUEL DATA                              Shapes
 ====================                              ==================
                                                   [y] ?? Wheater Generator
 
-heating (Table 3.8)                 -->     [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
+heating (Table 3.8)                 -->           [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
                                                   [d,p_d] National Grid (residential data based on CWW):
 
 Water_heating (Table 3.8)                 -->     [d,h,p_d,p_h] HES: Water heating (shapes for all fuels)
@@ -104,8 +104,6 @@ Lighting (e) (Table 5.05)                           -->   Use electricity shapes
 
 Other (e,g) (Table 5.05)                            -->   Use overall electricity and overall gas curve
 
-
-
 '''
 
 def load_assumptions(data):
@@ -119,6 +117,7 @@ def load_assumptions(data):
     Notes
     -----
 
+    #TODO: Implement mock_technology for all sectors where not definied with eff of 1
     """
     assump_dict = {}
 
@@ -130,7 +129,7 @@ def load_assumptions(data):
     # Elasticities (Long-term resid_elasticities)
     # #TODO: Elasticties over time change? Not implemented so far
     # ============================================================
-    resid_elasticities = {'heating': -0.4,
+    resid_elasticities = {'heating': 0.0,
                           'water' : 0,
                           'cooking' : 0,
                           'lighting': 0,
@@ -258,11 +257,11 @@ def load_assumptions(data):
 
 
         # -- lightinging
-        'halogen_elec': 0.036,                # 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wiki: self
-        'fluorescent_strip_lightinging': 0.054,  # 50% efficiency gaint to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # 70% efficiency gain to standard lightingbulg
-        'LED' : 0.048                         # 40% savings compared to energy saving lighting bulb
+        'halogen_elec': 0.5,
+        'standard_lighting_bulb': 0.5, 
+        'fluorescent_strip_lightinging': 0.5,  
+        'energy_saving_lighting_bulb': 0.5,    
+        'LED' : 0.5                          
         }
     assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
 
@@ -286,10 +285,9 @@ def load_assumptions(data):
 
     # A. Calc share which is to be switched
     # B. Calculate efficiency of technology which is to be replaced and new technology
-    # C: get shift from fuel to fuel
 
     # -- Share of fuel types for each enduse
-    # TODO: Write function to insert fuel swatches
+    # TODO: Write function to insert fuel switches
 
     #Generate fuel distribution of base year for every end_use #TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     fuel_type_p_by = generate_fuel_type_p_by(data)
@@ -302,8 +300,8 @@ def load_assumptions(data):
     #prnt("..")
 
     # Perc
-    # Only write those which should be replaced --> How much the fuel of each fueltype is reduced based on base_demand (can be more than 100% overall fueltypes)
-    # Don't specify total fuel percentage of enduse but only how much is reduced to base_year
+    # Only write those enduses which should be replaced --> How much the fuel of each fueltype is reduced/increased based on base_demand (can be more than 100% overall fueltypes)
+    # Don't specify total fuel percentage of enduse for enduse but only how much is reduced to base_year
     # TODO: Acual percentage of fueltype yould be calculated...
     assump_fuel_frac_ey = {} 
     '''{'lighting': {'0' : 0,
@@ -412,7 +410,7 @@ def load_assumptions(data):
 # ------------- Helper functions
 
 def generate_fuel_type_p_by(data):
-    """Assumption helper function to generate percentage fuel distribution for every encuse"""
+    """Assumption helper function to generate percentage fuel distribution for every enduse of base year"""
 
     fuel_data = data['data_residential_by_fuel_end_uses']
     out_dict = {}

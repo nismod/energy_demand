@@ -1,15 +1,60 @@
 """This file stores all functions of main.py"""
 import os
 import csv
+import re
 from datetime import date
 from datetime import timedelta as td
 import math as m
 import unittest
 import numpy as np
 import yaml
-
-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+
+def read_txt_t_base_by(path_temp_txt, base_yr):
+    """Read out mean temperatures for all regions and store in dict
+
+    Parameters
+    ----------
+    path_temp_txt : str
+        Path to folder with temperature txt files
+    base_yr : int
+        Base year
+
+    Returns
+    -------
+    out_dict : dict
+        Returns a dict with name of file and base year mean temp for every month
+
+    Example
+    -------
+    out_dict = {'file_name': {0: mean_teamp, 1: mean_temp ...}}
+
+    #
+
+    """
+
+    # get all files in folder
+    all_txt_files = os.listdir(path_temp_txt)
+    out_dict = {}
+
+    # Iterate files in folder
+    for file_name in all_txt_files:
+        reg_name = file_name[:-4] # remove .txt
+        file_name = os.path.join(path_temp_txt, file_name)
+        txt = open(file_name, "r")
+        out_dict_reg = {}
+
+        # Iterate rows in txt file
+        for row in txt:
+            row_split = re.split('\s+', row)
+
+            if row_split[0] == str(base_yr):
+                for month in range(12):
+                    out_dict_reg[month] = float(row_split[month + 1]) #:because first entry is year in txt
+
+        out_dict[reg_name] = out_dict_reg
+
+    return out_dict
 
 def convert_out_format_es(data, data_ext, resid_object_country):
     """Adds total hourly fuel data into nested dict
@@ -29,7 +74,7 @@ def convert_out_format_es(data, data_ext, resid_object_country):
         Returns a dict for energy supply model with fueltype, region, hour"""
 
     # Create timesteps for full year (wrapper-timesteps)
-    out_dict = init_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year'])
+    out_dict = init_energy_supply_dict(len(data['fuel_type_lu']), data['reg_lu'], data_ext['glob_var']['base_year'])
 
     for reg_id in data['reg_lu']:
         reg = getattr(resid_object_country, str(reg_id))
@@ -42,17 +87,15 @@ def convert_out_format_es(data, data_ext, resid_object_country):
 
     return out_dict
 
-
-
-def init_energy_supply_dict(number_fuel_types, number_reg, base_year):
+def init_energy_supply_dict(number_fuel_types, reg_dict, base_year):
     """Generates nested dictionary for providing results to smif
 
     Parameters
     ----------
     number_fuel_types : int
         Number of fuel types
-    number_reg : int
-        Number of regions
+    reg_dict : dict
+        Dictionary with number of regions
     base_year : int
         Base year of simulation
 
@@ -67,7 +110,7 @@ def init_energy_supply_dict(number_fuel_types, number_reg, base_year):
     result_dict = {}
     for i in range(number_fuel_types):
         result_dict[i] = {}
-        for j in range(number_reg):
+        for j in reg_dict:
             result_dict[i][j] = {}
             for k in timesteps:
                 result_dict[i][j][k] = {}
@@ -358,9 +401,7 @@ def read_csv_dict(path_to_csv):
 
             # Iterate row entries
             for k, i in enumerate(row):
-
-                # Test if float or string
-                try:
+                try: # Test if float or string
                     out_dict[_headings[k]] = float(i)
                 except ValueError:
                     out_dict[_headings[k]] = str(i)
@@ -394,20 +435,14 @@ def read_csv_dict_no_header(path_to_csv):
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
-
-        # Iterate rows
-        for row in read_lines:
-
-            # Iterate row entries
-            try:
+        
+        for row in read_lines: # Iterate rows    
+            try: 
                 out_dict[int(row[0])] = float(row[1])
             except ValueError:
                 out_dict[int(row[0])] = str(row[1])
 
     return out_dict
-
-
-
 
 def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
@@ -466,8 +501,8 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
 
                 for _day in result_dict[fueltype][reg]:
                     for _hour in range(24):
-                        start_id = "P{}H".format(_day * 24 + _hour)
-                        end_id = "P{}H".format(_day * 24 + _hour + 1)
+                        start_id = "P{}H".format(str(_day * 24) + str(_hour))
+                        end_id = "P{}H".format(str(_day * 24) + str(_hour + 1))
                         data.append([reg_lu[reg], start_id, end_id, result_dict[fueltype][reg][_day][_hour]])
 
                         yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(result_dict[fueltype][reg][_day][_hour]), 'units': 'CHECK GWH', 'year': 'XXXX'})
@@ -616,26 +651,66 @@ def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data): #TODO: ALSO
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
 
+def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
+    """Calculate the number of heating degree days based on Hitchens
 
-'''
+    Parameters
+    ----------
+    days_per_month : int
+        Number of days of a month
+    k_hitchens_location_constant : int
+        Hitchens constant
+    t_base : int
+        Base temperature 
+    t_mean : int
+        Mean temperature of a month
 
-def DD_HITCHIN_BASE(d_days, t_base, days):
-    # estimate mean temperature from base temp
-    k       = 0.8
-    t_mean  = 1.0
-    DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
-    while DD >= d_days:
-        DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
-        t_prev = t_mean - 0.001
-        t_mean = t_mean + 0.001
+    Info
+    ----
+    For the hitchens constant a value of 0.71 is suggest for the United Kingdom.
+
+    More info: Day, T. (2006). Degree-days: theory and application. https://doi.org/TM41 
+    """
+    hdd = days_per_month * (t_base - t_mean)  / (1 - m.exp(-k_hitchens_location_constant * (t_base-t_mean)))
+
+    return hdd
+
+
+def get_tot_y_hdd_reg(region, t_mean_reg_months):
+    """ Calculate total and regional HDD"""
+
+    month_days = {0: 31, 1: 28, 2: 31, 3: 30, 4: 31, 5: 30, 6: 31, 7: 31, 8: 30, 9: 31, 10: 30, 11: 31}
+    hdd_tot = 0
+
+    for month in range(12):
+
+        t_mean_reg = t_mean_reg_months[month]
+
+        days_per_month = month_days[month]
+        k_hitchens_location_constant = 0.71
+        t_base = 15.5
+        t_mean = t_mean_reg
+
+        hdd = hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean)
+        hdd_tot += hdd
+
+    return hdd_tot
+
+def get_hdd_country(regions, data):
+
+    temp_data = data['temp_mean']
+    hdd_country = 0
+    hdd_regions = {}
+
+    for region in regions:
+
+        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION
+        temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
+
+        t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
+        hdd_reg = get_tot_y_hdd_reg(region, t_mean_reg_months)
+
+        hdd_regions[region] = hdd_reg # get regional temp over year
+        hdd_country += hdd_reg # Sum regions
         
-    return t_prev
-
-# function to calculate degree days
-def DD_HITCHIN(t_mean, t_base, days):
-    
-    k   = 0.8
-    DD  = days * (t_base - t_mean) / (1 - m.exp(-k*(t_base-t_mean)))
-    
-    return DD
-'''
+    return hdd_country, hdd_regions

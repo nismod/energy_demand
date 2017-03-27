@@ -75,9 +75,7 @@ class Country_residential_model(object):
     def create_regions(self):
         """Create all regions and add them as attributes based on region name to this class"""
         for reg_ID in self.sub_reg_names:
-
-            # Region object
-            reg_object = Region(reg_ID, self.data, self.data_ext)
+            reg_object = Region(reg_ID, self.data, self.data_ext) # Region object
 
             # Create an atribute for every regions ()
             Country_residential_model.__setattr__(self, str(reg_ID), reg_object)
@@ -157,7 +155,7 @@ class Region(object):
             # Enduse object
             enduse_object = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
 
-            #self.end_uses[enduse] = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)  super(MyTest, self).
+            # Set attribute
             Region.__setattr__(self, enduse, enduse_object)
 
     def tot_all_enduses_y(self):
