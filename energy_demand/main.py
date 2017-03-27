@@ -28,7 +28,7 @@ Down the line
 Open questions
 - PEAK to ED
 - Other Enduses from external wrapper?
-- 
+-
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
 The docs can be found here: http://ed.readthedocs.io
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     base_data = assumpt.load_assumptions(base_data)
 
     # Disaggregate national data into regional data
-    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external) 
+    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)

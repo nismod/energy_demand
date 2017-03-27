@@ -68,7 +68,8 @@ def assign_hes_data_to_year(data, hes_data, base_year):
 
     # Create list with all dates of a whole year
     start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
-    list_dates = list(mf.datetime_range(start=start_date, end=end_date))
+    #list_dates = list(mf.datetime_range(start=start_date, end=end_date))
+    list_dates = mf.get_datetime_range(start=start_date, end=end_date)
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
@@ -92,7 +93,8 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year
 
     # Create list with all dates of a whole year
     start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
-    list_dates = list(mf.datetime_range(start=start_date, end=end_date))
+    #list_dates = list(mf.datetime_range(start=start_date, end=end_date))
+    list_dates = mf.get_datetime_range(start=start_date, end=end_date)
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:

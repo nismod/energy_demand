@@ -44,7 +44,7 @@ class Dwelling(object):
         #self.HOUSEHOLDINCOME?
 
         # Scenario drivers for residential end demands
-        self.space_heating = self.scenario_driver_space_heating()
+        self.heating = self.scenario_driver_heating()
         self.water_heating = self.scenario_driver_water_heating()
         self.cooking = self.scenario_driver_cooking()
         self.lighting = self.scenario_driver_lighting()
@@ -53,7 +53,7 @@ class Dwelling(object):
         self.consumer_electronics = self.scenario_driver_consumer_electronics()
         self.computing = self.scenario_driver_computing()
 
-    def scenario_driver_space_heating(self):
+    def scenario_driver_heating(self):
         """calc scenario driver with population and floor area"""
         return self.floorarea * self.pop * self.HDD * self.hlc
 
@@ -150,13 +150,14 @@ class DwStockRegion(object):
         self.dwellings = dwellings
         self.pop = self.get_tot_pop()
 
-        # Summed scenario drivers across all dwellings for every enduse
-        self.sum_water_heating = self.get_scenario_driver_enduse('water_heating')
-        self.sum_cooking = self.get_scenario_driver_enduse('cooking')
-        self.sum_cold = self.get_scenario_driver_enduse('cold')
-        self.sum_wet = self.get_scenario_driver_enduse('wet')
-        self.sum_consumer_electronics = self.get_scenario_driver_enduse('consumer_electronics')
-        self.sum_computing = self.get_scenario_driver_enduse('computing')
+        # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
+        self.heating = self.get_scenario_driver_enduse('heating')
+        self.water_heating = self.get_scenario_driver_enduse('water_heating')
+        self.cooking = self.get_scenario_driver_enduse('cooking')
+        self.cold = self.get_scenario_driver_enduse('cold')
+        self.wet = self.get_scenario_driver_enduse('wet')
+        self.consumer_electronics = self.get_scenario_driver_enduse('consumer_electronics')
+        self.computing = self.get_scenario_driver_enduse('computing')
 
     def get_scenario_driver_enduse(self, enduse):
         """Sum all scenario driver for space heating"""
@@ -218,6 +219,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
             else:
                 # Change up to current year (linear)
                 diff_cy = curr_year * (((1 + assump_final_diff_floorarea_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
+
                 floor_ara_pp_sim_year = floorarea_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
                 sim_years[y] = floor_ara_pp_sim_year
         data_floorarea_pp[reg_id] = sim_years  # Values for every simulation year

@@ -32,8 +32,6 @@ def residential_model_main_function(data, data_ext):
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     print("TEST MAIN START:" + str(fuel_in))
 
-
-    #data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for base year
     # Generate technological stock
     data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for current year
     data['tech_stock_by'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_year']) # Generate technological stock for base year
@@ -70,7 +68,6 @@ class Country_residential_model(object):
         self.data = data
         self.data_ext = data_ext
         self.sub_reg_names = sub_reg_names
-
 
         self.create_regions() #: create object for every region
         self.tot_reg_fuel = self.get_overall_sum()
@@ -147,8 +144,8 @@ class Region(object):
         self.reg_load_factor_h = self.load_factor_h()
 
         # Plot stacked end_uses
-        start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
-        fueltype_to_plot, nr_days_to_plot = 2, 1
+        #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
+        #fueltype_to_plot, nr_days_to_plot = 2, 1
         #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
 
     def create_enduse_objects(self):
@@ -612,20 +609,13 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         if hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse):
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse)     # Base year building stock
+            by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
             cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
 
-            factor_driver = cy_driver / by_driver  #TODO: Or the other way round
-            fueldata_scenario_diver = self.reg_fuel_after_elasticity * factor_driver
-            print("self.enduse: " + str(self.enduse))
-            print(cy_driver) #ERROR: CURRENT YEAR LIGHTIGNS HAS NO 
-            print(by_driver)
-            print(fueldata_scenario_diver)
-            #pint("..")
-            return fueldata_scenario_diver
+            factor_driver = by_driver / cy_driver # current / base year (checked) (as in chapter 3.1.2)
+            return self.reg_fuel_after_elasticity * factor_driver
 
-        else:
-            # This fuel is not changed by building related scenario driver
+        else: # This fuel is not changed by building related scenario driver
             return self.reg_fuel_after_elasticity
 
     def enduse_y_to_d(self):

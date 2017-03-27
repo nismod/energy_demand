@@ -3,10 +3,11 @@ import os
 import csv
 from datetime import date
 from datetime import timedelta as td
+import math as m
+import unittest
 import numpy as np
 import yaml
-import unittest
-import math as m
+
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -28,11 +29,10 @@ def convert_out_format_es(data, data_ext, resid_object_country):
         Returns a dict for energy supply model with fueltype, region, hour"""
 
     # Create timesteps for full year (wrapper-timesteps)
-    out_dict = initialise_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year'])
+    out_dict = init_energy_supply_dict(len(data['fuel_type_lu']), len(data['reg_lu']), data_ext['glob_var']['base_year'])
 
     for reg_id in data['reg_lu']:
         reg = getattr(resid_object_country, str(reg_id))
-        #for reg in all_regions:
         region_name = reg.reg_id # Get object region name
         hourly_all_fuels = reg.tot_all_enduses_h()  # Get total fuel
 
@@ -44,7 +44,7 @@ def convert_out_format_es(data, data_ext, resid_object_country):
 
 
 
-def initialise_energy_supply_dict(number_fuel_types, number_reg, base_year):
+def init_energy_supply_dict(number_fuel_types, number_reg, base_year):
     """Generates nested dictionary for providing results to smif
 
     Parameters
@@ -62,7 +62,7 @@ def initialise_energy_supply_dict(number_fuel_types, number_reg, base_year):
         Returns a nested dictionary for energy supply model (fueltype/region/timeID)
     """
     # Create timesteps for full year (wrapper-timesteps)
-    timesteps = timesteps_full_year(base_year) 
+    timesteps = timesteps_full_year(base_year)
 
     result_dict = {}
     for i in range(number_fuel_types):
@@ -95,7 +95,7 @@ def read_csv_float(path_to_csv):
     list_elements = []
 
     # Read CSV file
-    with open(path_to_csv, 'r') as csvfile: 
+    with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',') # Read line
         _headings = next(read_lines) # Skip first row
 
@@ -185,9 +185,9 @@ def read_csv_base_data_resid(path_to_csv):
 
     return end_uses_dict
 
-def datetime_range(start=None, end=None):
+def get_datetime_range(start=None, end=None):
     """Calculates all dates between a star and end date.
-
+    TESTED_PYTEST
     Parameters
     ----------
     start : date
@@ -195,13 +195,15 @@ def datetime_range(start=None, end=None):
     end : date
         end date
     """
+    a = []
     span = end - start
     for i in range(span.days + 1):
-        yield start + td(days=i)
+        a.append(start + td(days=i))
+    return list(a)
 
 def conversion_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
-
+    TESTED_PYTEST
     Parameters
     ----------
     data_ktoe : float
@@ -241,9 +243,8 @@ def timesteps_full_year(base_year):
 
     """
     # List with all dates of the base year
-    list_dates = list(datetime_range(start=date(base_year, 1, 1), end=date(base_year, 12, 31))) # List with every date in a year
+    list_dates = get_datetime_range(start=date(base_year, 1, 1), end=date(base_year, 12, 31)) # List with every date in a year
 
-    #yaml_list = []
     timesteps = {}
 
     #Add to list
@@ -259,14 +260,11 @@ def timesteps_full_year(base_year):
             # Add to dict
             timesteps[yearday_h_id] = {'start': start_period, 'end': end_period}
 
-            #Add to yaml listyaml
-            #yaml_list.append({'id': yearday_h_id, 'start': start_period, 'end': end_period})
-
     return timesteps
 
 def get_weekday_type(date_from_yearday):
     """Gets the weekday of a date
-
+    TESTED_PYTEST
     Parameters
     ----------
     date_from_yearday : date
@@ -311,7 +309,6 @@ def read_csv_nested_dict(path_to_csv):
 
         returns {float(1990): {str(Header1): float(Val1), str(Header2): Val2}}
     """
-
     out_dict = {}
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
@@ -351,7 +348,6 @@ def read_csv_dict(path_to_csv):
 
         returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
     """
-
     out_dict = {}
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
@@ -458,7 +454,7 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
     for fueltype in data['fuel_type_lu']:
 
         # Path to create csv file
-        path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype)) 
+        path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype))
 
         with open(path, 'w', newline='') as fp:
             csv_writer = csv.writer(fp, delimiter=',')
@@ -549,7 +545,7 @@ def convert_to_array_technologies(in_dict, tech_lu):
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
-
+    TESTED_PYTEST
     As an input the base data is provided and price differences and elasticity
 
     Parameters
@@ -582,16 +578,31 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
 
     """
     pricediff_p = (price_base - price_curr) / price_base
-    
+
     # New current demand
     current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
 
     return current_demand
 
-def convert_date_to_yearday(date_base_year, month, day):
-    """Converts a base year day to yearday of baseyear"""
-    date_base_year = date(date_base_year, month, day)
-    yearday = date_base_year.timetuple()[7] - 1
+def convert_date_to_yearday(year, month, day):
+    """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
+    TESTED_PYTEST
+
+    Parameters
+    ----------
+    date_base_year : int
+        Year
+    date_base_year : int
+        Month
+    day : int
+        Day
+
+    Example
+    -------
+    5. January 2015 --> Day nr 5 in year --> -1 because of python --> Out: 4
+    """
+    date_y = date(year, month, day)
+    yearday = date_y.timetuple()[7] - 1 #: correct because of python iterations
     return yearday
 
 def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data): #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE

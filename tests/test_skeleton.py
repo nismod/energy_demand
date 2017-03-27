@@ -8,8 +8,8 @@ import energy_demand.building_stock_functions as bf
 import energy_demand.building_stock_generator as bg
 import energy_demand.national_dissaggregation as nd
 from datetime import date
+from datetime import timedelta as td
 import numpy as np
-
 
 from pytest import raises
 
@@ -29,6 +29,17 @@ def test_raises_error_get_dwtype_dist():
 
 
 # --------------Main_functions
+
+def test_get_datetime_range():
+    """Testing function"""
+    start_date = date(2015, 1, 1)
+    end_date = date(2015, 1, 2)
+
+    expected = [date(2015, 1, 1), date(2015, 1, 2)]
+    out = mf.get_datetime_range(start_date, end_date)
+
+    assert out == expected
+
 
 
 def test_read_csv_dict():
@@ -104,14 +115,29 @@ def test_apply_elasticity():
     price_curr = 80
 
     expected = -1 * (( -0.5 * ((100 - 80) / 100) * in_value) - in_value)
-    
+
     # New current demand
     out_value = mf.apply_elasticity(in_value, elasticity, price_base, price_curr)
 
     np.testing.assert_array_equal(out_value, expected)
-    #assert out_value == expected
 
 
+
+def test_convert_date_to_yearday():
+
+    in_year = 2015
+    in_month = 6
+    in_day = 13
+    expected = 164 - 1
+
+    # call function
+    out_value = mf.convert_date_to_yearday(in_year, in_month, in_day)
+
+    assert out_value == expected
+
+
+    
+    
 
 '''
 def test_raises_error_disaggregate_base_demand_for_reg():

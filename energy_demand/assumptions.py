@@ -20,7 +20,7 @@ ECUK TABLE FUEL DATA                              Shapes
 ====================                              ==================
                                                   [y] ?? Wheater Generator
 
-Space_heating (Table 3.8)                 -->     [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
+heating (Table 3.8)                 -->     [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
                                                   [d,p_d] National Grid (residential data based on CWW):
 
 Water_heating (Table 3.8)                 -->     [d,h,p_d,p_h] HES: Water heating (shapes for all fuels)
@@ -380,21 +380,21 @@ def load_assumptions(data):
     #technologies_enduse_ey['lighting'][2] = {'halogen_elec': 0.00, 'standard_lighting_bulb': 0.72, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
 
     assump_dict['technologies_enduse_ey'] = technologies_enduse_ey
-
-
-
     #assump_dict['technologies_enduse_cy'] = technologies_enduse_cy
 
+
+
+
     # ============================================================
-    # Assumptions Residential Building Stock
+    # Assumptions Residential Dwelling Stock
     # ============================================================
 
     # Building stock related
-    assump_change_floorarea_pp = 0.1 # [%]                                                                           # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
-    
+    assump_change_floorarea_pp = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
+
     #BASE YEAR: 2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
     assump_dwtype_distr_ey = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}     # Assumption of distribution of dwelling types in end_year ASSUMPTION
-    
+
     #assump_dwtype_distr_ey = copy.(data['dwtype_distr'])
     assump_dwtype_floorarea = dwtype_floorarea                                                                       # Average floor area per dwelling type (loaded from CSV)
 
