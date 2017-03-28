@@ -111,7 +111,7 @@ def energy_demand_model(data, data_ext):
 
     # Plot Region 0 for half a year
     # pf.plot_x_days(result_dict[2], 0, 2)
-    return result_dict, resid_object_country
+    return result_dict
 
 
 # Run
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     by = 2015
     ey = 2020 #always includes this year
 
-    sim_years =  range(by, ey + 1) 
+    sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
     a = {'Wales': 3000000} #'Scotland': 5300000
