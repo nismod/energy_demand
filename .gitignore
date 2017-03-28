@@ -40,3 +40,7 @@ docs/api/*
 docs/_build/*
 cover/*
 MANIFEST
+
+# Model results
+model_output/*.csv
+
