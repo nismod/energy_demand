@@ -1,8 +1,14 @@
-""" The sectorl model wrapper for smif to run the energy demand mdoel"""
+"""The sector model wrapper for smif to run the energy demand model
+"""
+import os
 
 from smif.sector_model import SectorModel
-from energy_demand.main import energy_demand_model, load_data
+from energy_demand.main import energy_demand_model
+from energy_demand.data_loader import load_data
 from energy_demand.assumptions import load_assumptions
+from energy_demand.national_dissaggregation import disaggregate_base_demand_for_reg
+from energy_demand.building_stock_generator import resid_build_stock
+
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
 
@@ -13,21 +19,62 @@ class EDWrapper(SectorModel):
         =========
         decision_variables : x-by-1 :class:`numpy.ndarray`
         """
+        timestep = data['timestep']
+
+        # Population
+        pop = {}
+        pop[timestep] = {}
+        for obs in data['population']:
+            pop[timestep][obs.region] = obs.value
+
+        # Fuel prices
+        # - corresponds to `data/scenario_and_base_data/lookup_fuel_types.csv`
+        #   with `_price` appended to each type
+        fuel_price_index = {
+            "solid_fuel_price": 0,
+            "gas_price": 1,
+            "electricity_price": 2,
+            "oil_price": 3,
+            "heat_sold_price": 4,
+            "bioenergy_waste_price": 5,
+            "hydrogen_price": 6,
+            "future_fuel_price": 7,
+        }
+        price = {}
+        price[timestep] = {}
+        for data_key, fuel_type_id in fuel_price_index.items():
+            # expect single value (annual/national) for each fuel price
+            price[timestep][fuel_type_id] = data[data_key][0].value
+
+        data_external = {
+            'population': pop,
+            'glob_var': {
+                'base_year': timestep,
+                'current_yr': timestep,
+                'end_year': timestep
+            },
+            'fuel_price': price
+        }
 
         # Load data needed for energy demand model
-        base_data = load_data()
+        path_main = os.path.join(os.path.dirname(__file__), 'data')
+        base_data = load_data(path_main, data_external)
 
-        # Load all assumptions
-        assumptions_model_run = load_assumptions()
+        # Load assumptions
+        base_data = load_assumptions(base_data)
 
-        # Maybe manipulate some more data
-        # ...
+        # Disaggregate national data into regional data
+        base_data = disaggregate_base_demand_for_reg(
+            base_data, 1, data_external)
+
+        # Generate virtual building stock over whole simulatin period
+        base_data = resid_build_stock(
+            base_data, base_data['assumptions'], data_external)
 
         # Run Model
-        results = energy_demand_model(base_data, assumptions_model_run, data)
+        results = energy_demand_model(base_data, data_external)
 
-        # TODO: write out to csv file or similar
-
+        # results will be written to results.yaml by default
         return results
 
     def extract_obj(self, results):
@@ -48,13 +95,3 @@ class EDWrapper(SectorModel):
             A scalar component generated from the simulation model results
         """
         pass
-
-if __name__ == "__main__":
-    # See in main file ....
-    energy_demand = EDWrapper() # Wrapper function
-
-    data_external = {'population':
-                     {2015: {0: 3000001, 1: 5300001, 2: 53000001},
-                      2016: {0: 3001001, 1: 5301001, 2: 53001001}}
-                    }
-    energy_demand.simulate([], [], data_external)
