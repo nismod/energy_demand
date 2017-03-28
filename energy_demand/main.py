@@ -106,7 +106,7 @@ def energy_demand_model(data, data_ext):
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL region:    " + str(len(result_dict[1])))
-    print("FINAL timesteps: " + str(len(result_dict[1]['WALES'])))
+    print("FINAL timesteps: " + str(len(result_dict[1]['Wales'])))
     print("Finished energy demand model")
 
     # Plot Region 0 for half a year
@@ -130,8 +130,8 @@ if __name__ == "__main__":
     # Reg Floor Area? Reg lookup?
     data_external = {
         'population': {
-            2015: {'WALES': 3000001, 'SCOTLAND': 5300001},
-            2016: {'WALES': 3000001, 'SCOTLAND': 5300001}
+            2015: {'Wales': 3000001, 'Scotland': 5300001},
+            2016: {'Wales': 3000001, 'Scotland': 5300001}
         },
         'glob_var': {
             'base_year': 2015,
