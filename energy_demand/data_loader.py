@@ -245,18 +245,17 @@ def generate_data(data):
     # ---------------------
 
     # ENDUSE XY
-    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
-    out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days = df.read_raw_carbon_trust_data(data, folder_path)
+    # TODO if needed in model - must be accessible in Vagrant, either via git
+    # or other data repository, for download and testing
+    # folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
+    # out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days = df.read_raw_carbon_trust_data(data, folder_path)
 
     # Read in CWV for non-residential
 
     # Get yearly profiles
-    enduse = 'WHATEVERENDUSE'
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data)
+    # enduse = 'WHATEVERENDUSE'
+    # year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data)
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
-
-    # ENDUSE XY
-    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
     return data
