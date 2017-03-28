@@ -4,9 +4,6 @@ import numpy as np
 
 
 
-    
-
-
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load"""
 
@@ -45,6 +42,17 @@ def plot_load_shape_d(daily_load_shape):
     plt.show()
 
 
+def plot_load_shape_d_non_resid(daily_load_shape):
+    """With input 2 dim array plot daily load"""
+
+    x_values = range(24)
+    y_values = list(daily_load_shape[:, 1]) # to get percentages
+
+    plt.plot(x_values, y_values)
+
+    plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
+    plt.legend()
+    plt.show()
 
 def plot_FUNCTIONSE():
 

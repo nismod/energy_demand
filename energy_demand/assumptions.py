@@ -62,7 +62,7 @@ SECTORS                                           SHAPES
   Education (individ)                      -->    Carbon Trust: Education
   Retail (individ)                         -->    Carbon Trust: Retail
   Health (individ)                         -->    Carbon Trust: Health
-  Offices (individ)                        -->    Carbon Trust: Financial & Government??
+  Offices (individ)                        -->    Carbon Trust: Financial & Government
 
   Emergency Services (aggr)                -->    Carbon Trust: Manufacturing, other Sectors ?? (or averaged of all?)
   Hospitality (aggr)
@@ -95,6 +95,7 @@ Catering (e,g) (Table 5.05)                         -->   Use electricity shape 
 Computing (e) (Table 5.05)                          -->   Use electricity shape
 
 Cooling and Ventilation (mainly e) (Table 5.05)     -->   Use electricity shapes and distribute other fueltypes with this shape
+                                                    -->   SHAPE?
 
 Hot Water (e,g) (Table 5.05)                        -->   More gas enduse --> Use gas shape across all sectors and distribute also with it elec.
 

@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
+import energy_demand.plot_functions as pf
+
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data_ext):
@@ -141,7 +143,7 @@ def load_data(path_main, data_ext):
     # -- Read in load shapes from files
     data = collect_shapes_from_txts(data)
 
-    # ---TESTS
+    # ---TESTS----------------------
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
     for end_use in data['data_residential_by_fuel_end_uses']:
         assert len(data['fuel_type_lu']) == len(data['data_residential_by_fuel_end_uses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
@@ -245,14 +247,68 @@ def generate_data(data):
     # ---------------------
 
     # ENDUSE XY
-    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
-    out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days = df.read_raw_carbon_trust_data(data, folder_path)
+    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
+    out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)
+
+
+    # Percentages for every day:
+    jan_yearday = range(0, 30)
+    jul_yearday = range(181, 212)
+    jan = {k: [] for k in range(24)}
+    jul = {k: [] for k in range(24)}
+
+    # Read out for the whole months of jan and ful
+    for day in main_dict_dayyear_absolute:
+        for h in main_dict_dayyear_absolute[day]:
+            if day in jan_yearday:
+                jan[h].append(main_dict_dayyear_absolute[day][h])
+            if day in jul_yearday:
+                jul[h].append(main_dict_dayyear_absolute[day][h])
+    #print(jan)
+    # Average the montly entries
+    for i in jan:
+        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
+        jan[i] = sum(jan[i]) / len(jan[i])
+
+    for i in jul:
+        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
+        jul[i] = sum(jul[i]) / len(jul[i])
+
+    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
+    jan = np.array(list(jan.items())) #convert to array
+    jul = np.array(list(jul.items())) #convert to array
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+
+    x_values = range(24)
+    y_values = list(jan[:, 1]) # to get percentages
+    plt.plot(x_values, list(jan[:, 1]), label="Jan")
+    plt.plot(x_values, list(jul[:, 1]), label="Jul")
+    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
+    plt.legend()
+    plt.show()
+
+    print("ARRA")
+    print(np.sum(jan[:, 1]))
+    print(np.sum(jul[:, 1]))
+    #print(jan)
+    #print("  --  ")
+    #print(jul)
+    #print("---hh--")
+
+    #--- if JAn = 100%
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+    for h ,i in enumerate(jul_percent_of_jan):
+        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
+
+    pf.plot_load_shape_d_non_resid(jan)
+    print("TEST: " + str(jan-jul))
 
     # Read in CWV for non-residential
 
     # Get yearly profiles
     enduse = 'WHATEVERENDUSE'
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data)
+    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data) #TODO: out_dict_av is percentages of day sum up to one .. false
+
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
 

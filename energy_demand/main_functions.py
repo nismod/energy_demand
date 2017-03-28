@@ -661,7 +661,7 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
     k_hitchens_location_constant : int
         Hitchens constant
     t_base : int
-        Base temperature 
+        Base temperature
     t_mean : int
         Mean temperature of a month
 
@@ -669,30 +669,34 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
     ----
     For the hitchens constant a value of 0.71 is suggest for the United Kingdom.
 
-    More info: Day, T. (2006). Degree-days: theory and application. https://doi.org/TM41 
+    More info: Day, T. (2006). Degree-days: theory and application. https://doi.org/TM41
     """
     hdd = days_per_month * (t_base - t_mean)  / (1 - m.exp(-k_hitchens_location_constant * (t_base-t_mean)))
 
-    return hdd
+    return hdd_hitchens
 
+def get_tot_y_hdd_reg(t_mean_reg_months):
+    """Calculate total number of heating degree days
 
-def get_tot_y_hdd_reg(region, t_mean_reg_months):
-    """ Calculate total and regional HDD"""
+    Parameters
+    ----------
+    t_mean_reg_months : float
+        Mean temperature in region
 
+    Info
+    ----
+
+    """
     month_days = {0: 31, 1: 28, 2: 31, 3: 30, 4: 31, 5: 30, 6: 31, 7: 31, 8: 30, 9: 31, 10: 30, 11: 31}
     hdd_tot = 0
 
     for month in range(12):
-
-        t_mean_reg = t_mean_reg_months[month]
-
         days_per_month = month_days[month]
         k_hitchens_location_constant = 0.71
         t_base = 15.5
-        t_mean = t_mean_reg
-
-        hdd = hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean)
-        hdd_tot += hdd
+        t_mean_reg = t_mean_reg_months[month]
+ 
+        hdd_tot += hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean_reg)
 
     return hdd_tot
 
@@ -708,7 +712,7 @@ def get_hdd_country(regions, data):
         temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
 
         t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
-        hdd_reg = get_tot_y_hdd_reg(region, t_mean_reg_months)
+        hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months)
 
         hdd_regions[region] = hdd_reg # get regional temp over year
         hdd_country += hdd_reg # Sum regions

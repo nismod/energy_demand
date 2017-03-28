@@ -301,7 +301,7 @@ def dict_init():
     for f in range(365):
         day_dict_h = {k: [] for k in range(24)}
         main_dict_dayyear_absolute[f] = day_dict_h
-    main_dict, main_dict_dayyear_absolute
+
     return main_dict, main_dict_dayyear_absolute
 
 def read_raw_carbon_trust_data(data, folder_path):
@@ -349,53 +349,61 @@ def read_raw_carbon_trust_data(data, folder_path):
                 row_data.append(row)
             print("Number of lines in csv file: " + str(count_row))
 
+            # Calc yearly demand
             if count_row > 364: # if more than one year is recorded in csv file
 
                 # Iterate day
                 for row in row_data:
+                    #print("row: " + str(row))
 
                     # Test if file has correct form and not more entries than 48 half-hourly entries
                     if len(row) != 49: # Skip row
+                        #aprint("skip row")
                         continue
 
                     row[1:] = map(float, row[1:])   # Convert all values except date into float values
                     daily_sum = sum(row[1:])        # Total daily sum
-                    if daily_sum == 0:              # Skip row if no demand of the day
-                        continue
 
-                    # Nr of lines added
-                    nr_of_line_entries += 1
-
+                    nr_of_line_entries += 1 # Nr of lines added
                     day, month, year  = int(row[0].split("/")[0]), int(row[0].split("/")[1]), int(row[0].split("/")[2])
-                    date_row = date(year, month, day)
 
-                    # Daytype
-                    daytype = mf.get_weekday_type(date_row)
+                    # Redifine yearday to another year and skip 28. of Feb.
+                    if is_leap_year(int(year)) == True:
+                        year = year + 1 # Shift whole dataset to another year
+                        if month == 2 and day == 29:
+                            #print("Skip loeap day")
+                            continue
 
-                    # Get yearday
-                    yearday_python = date_row.timetuple()[7] - 1    # - 1 because in _info: 1.Jan = 1
+                    date_row = date(year, month, day) #Date
+                    daytype = mf.get_weekday_type(date_row) # Daytype
+                    yearday_python = date_row.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+                    month_python = month - 1 # Month Python
 
-                    # Month Python
-                    month_python = month - 1
-
-                    # Iterate hours
                     cnt, h_day, control_sum = 0, 0, 0
                     hourly_load_shape = np.zeros((24, 1))
 
+                    # Iterate hours
                     for half_hour_val in row[1:]:  # Skip first date row in csv file
                         cnt += 1
                         if cnt == 2:
                             demand = first_half_hour + half_hour_val
                             control_sum += abs(demand)
 
-                            # Calc percent of total daily demand
-                            main_dict[daytype][month_python][h_day].append(demand * (1.0 / daily_sum))
+                            if daily_sum == 0: # Skip row if no demand of the day
+                                #print("no demand")
+                                main_dict_dayyear_absolute[yearday_python][h_day].append(demand)
+                                hourly_load_shape[h_day] = 0
+                                continue
+                            else:
+                                # Calc percent of total daily demand
+                                #main_dict[daytype][month_python][h_day].append(demand * (1.0 / daily_sum)) #Wrong only daily shape
+                                main_dict_dayyear_absolute[yearday_python][h_day].append(demand)
 
-                            # Load shape of this day
-                            hourly_load_shape[h_day] = demand * (1.0 / daily_sum)
+                                # Load shape of this day
+                                hourly_load_shape[h_day] = demand * (1.0 / daily_sum)
 
-                            cnt = 0
-                            h_day += 1
+                                cnt = 0
+                                h_day += 1
 
                         first_half_hour = half_hour_val # must be at this position
 
@@ -411,6 +419,27 @@ def read_raw_carbon_trust_data(data, folder_path):
                 # Add load shape of maximum day in csv file
                 hourly_shape_of_maximum_days[path_csv_file] = max_h_shape
 
+    #####YEARDAY VALUES
+    for yearday in main_dict_dayyear_absolute:
+        for h_day in main_dict_dayyear_absolute[yearday]:
+            main_dict_dayyear_absolute[yearday][h_day] = sum(main_dict_dayyear_absolute[yearday][h_day]) / len(main_dict_dayyear_absolute[yearday][h_day]) #average
+
+    yearly_demand = 0
+    for day in main_dict_dayyear_absolute:
+        yearly_demand += sum(main_dict_dayyear_absolute[day].values())
+
+    # Get relative yearly demand
+    '''for yearday in main_dict_dayyear_absolute:
+        for h_day in main_dict_dayyear_absolute[yearday]:
+            #print("yearly_demand: " + str(yearly_demand))
+            #print(yearday)
+            #print(h_day)
+            #print(main_dict_dayyear_absolute[yearday][h_day])
+            main_dict_dayyear_absolute[yearday][h_day] = main_dict_dayyear_absolute[yearday][h_day] / yearly_demand #yearly demand in %
+    '''
+
+    #print("TESTSUM: " + str(np.sum(main_dict_dayyear_absolute)))
+    
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
@@ -473,7 +502,11 @@ def read_raw_carbon_trust_data(data, folder_path):
     # Write out enduse load shape #TODO
     #write_enduse_load_shape_to_csv()
 
-    return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days
+    return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute
+
+def is_leap_year(year):
+    """Determine whether a year is a leap year."""
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
 def non_residential_peak_h(hourly_shape_of_maximum_days):
     """ Returns the peak of the day """
