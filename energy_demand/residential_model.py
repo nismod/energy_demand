@@ -112,7 +112,7 @@ class Region(object):
         self.data = data                                            # data
         self.data_ext = data_ext                                    # external data
         self.assumptions = data['assumptions']
-        self.current_yr = data_ext['glob_var']['current_yr']    # Current year
+        self.current_yr = data_ext['glob_var']['current_yr']        # Current year
         self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
 
         # Set attributs of all enduses
@@ -120,12 +120,15 @@ class Region(object):
 
         # Sum final 'yearly' fuels (summarised over all enduses)
         self.fuels_new = self.tot_all_enduses_y()
+        print("----------dddddd")
+        for fueltype in self.fuels_new:
+            print(np.sum(fueltype)/365)
 
         # Get 'peak demand day' (summarised over all enduses)
-        self.enduse_fuel_peak_d = self.get_enduse_peak_d()
+        self.fuels_peak_d = self.get_enduse_peak_d()
 
         # Get 'peak demand h' (summarised over all enduses)
-        self.enduse_fuel_peak_h = self.get_enduse_peak_h()
+        self.fuels_peak_h = self.get_enduse_peak_h()
 
         # Sum 'daily' demand in region (summarised over all enduses)
         self.fuels_tot_enduses_d = self.tot_all_enduses_d()
@@ -137,9 +140,13 @@ class Region(object):
         np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
         # add some more
 
-        # Calculate load factors
+        # Calculate load factors from peak values
         self.reg_load_factor_d = self.load_factor_d()
+        print("ZEB:" + str(self.reg_load_factor_d))
+
         self.reg_load_factor_h = self.load_factor_h()
+        print("ZEB3:" + str(self.reg_load_factor_h))
+        #prnt("-.")
 
         # Plot stacked end_uses
         #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
@@ -177,7 +184,7 @@ class Region(object):
         return sum_fuels_d
 
     def get_enduse_peak_d(self):
-        """Summarise peak value of all end_uses"""
+        """Summarise absolute fuel of peak days over all end_uses"""
         sum_enduse_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))  # Initialise
 
         for enduse in self.reg_fuel:
@@ -206,51 +213,78 @@ class Region(object):
         return sum_fuels_h
 
     def load_factor_d(self):
-        """Calculate load factor of a day in a year"""
-        lf_y = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise
+        """Calculate load factor of a day in a year from peak values
 
-        maximum_d = self.enduse_fuel_peak_d
+        self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
 
+        Return
+        ------
+        lf_d : array
+            Array with load factor for every fuel type in %
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+
+        #TODO: calculate also not from peak values
+        """
+        lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        # Get day with maximum demand (in percentage of year)
+        peak_d_demand = self.fuels_peak_d
+
+
+        #prnt("oko")
         # Iterate fueltypes to calculate load factors for each fueltype
         for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
+            average_demand = np.sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
+            print("average_demand: " + str(average_demand))
+            print("peak_d_demand: " + str(peak_d_demand[k]))
+            print("---")
 
-            # Averae load = yearly demand / nr of days
-            average_demand = np.sum(data_fueltype) / 365
+            lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
+        
+        # Convert load factor to %
+        lf_d = lf_d * 100
 
-            # Calculate load factor
-            lf_y[k] = average_demand / maximum_d[k]
-
-        return lf_y
+        return lf_d
 
     def load_factor_h(self):
         """Calculate load factor of a h in a year
-        # TODO: PEAK CAlculations are still wrong
 
-        # Note retirmd as [%]...
+        self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+
+        Return
+        ------
+        lf_h : array
+            Array with load factor for every fuel type [in %]
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+
+        #TODO: calculate also not from peak values
         """
-        # Initialise array to store fuel
-        lf_y = np.zeros((len(self.data['fuel_type_lu']), 1))
+        lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
-            #print("FUELTYPE: " + str(fueltype))
-            maximum_h_of_day = np.amax(self.enduse_fuel_peak_h[fueltype])
-
-            #print("maximum_h_of_day: " + str(maximum_h_of_day))
+            maximum_h_of_day = np.amax(self.fuels_peak_h[fueltype])
 
             # If there is a maximum day hour
             if maximum_h_of_day != 0:
-
-                # Averae load = yearly demand / nr of days
-                average_demand_h = np.sum(data_fueltype) / (365 * 24)
-                #print("data_fueltype:    " + str(np.sum(data_fueltype)))
-                #print("average_demand_h: " + str(average_demand_h))
-
-                # Calculate load factor
-                lf_y[fueltype] = average_demand_h / maximum_h_of_day
-
-        #print("lf_y: " + str(lf_y))
-        return lf_y
+                average_demand_h = np.sum(data_fueltype) / (365 * 24) # Averae load = yearly demand / nr of days
+                lf_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
+        
+        # Convert load factor to %
+        lf_h = lf_h * 100
+        return lf_h
 
     def __getattr__(self, attr):
         """Get method of own object"""
@@ -381,6 +415,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         # --Yearly fuel data (Check if always function below takes result from function above)
         print("ENDUSE: " + str(self.enduse))
+        print(data['dict_shp_enduse_d_resid']['heating']['shape_d_peak'])
 
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("AAA: " + str(np.sum(self.reg_fuel_eff_gains)))
@@ -390,17 +425,23 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         print("ccc: " + str(np.sum(self.reg_fuel_after_elasticity)))
-
+        
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         print("DDD: " + str(np.sum(self.reg_fuelscen_driver)))
-
+        print(self.enduse_shape_peak_d)
 
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
 
         # --Hourly fuel data
         self.enduse_fuel_h = self.enduse_d_to_h()                        # Disaggregate daily demand to hourly demand
+        
+        # --Peak data
         self.enduse_fuel_peak_d = self.enduse_peak_d()                   # Calculate peak day
+        print("SS")
+        print(data['dict_shp_enduse_d_resid']['heating']['shape_d_peak'])
+        print(self.enduse_fuel_peak_d)
+        #prnt("..")
         self.enduse_fuel_peak_h = self.enduse_peak_h()                   # Calculate peak hour
 
         # Testing
@@ -652,7 +693,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         return fuels_h
 
     def enduse_peak_d(self):
-        """Disaggregate yearly fuel data to the peak day.
+        """Disaggregate yearly absolute fuel data to the peak day.
 
         Parameters
         ----------
@@ -662,16 +703,26 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         Returns
         -------
         fuels_d_peak : array
-            Hourly fuel data [fueltypes, peak_day, hours]
+            Hourly absolute fuel data
 
-        Notes
+        Example
         -----
+
+        Input: 20 FUEL * 0.004 [0.4%] --> new fuel 
+
         """
         fuels_d_peak = np.zeros((len(self.reg_fuel), 1))
+        print("...ddd")
+        print(self.enduse)
+        print(self.reg_fuelscen_driver)
+        print("---")
+        print(self.enduse_shape_peak_d)
 
         # Iterate yearday and
         for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver):
-            fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0] # enduse_shape_d is  a two dim array with load shapes in first row
+            fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0]
+            #print("elf.enduse_shape_peak_d * fueltype_year_data[0]")
+            #print(self.enduse_shape_peak_d * fueltype_year_data[0])
 
         return fuels_d_peak
 

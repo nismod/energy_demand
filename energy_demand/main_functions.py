@@ -435,9 +435,9 @@ def read_csv_dict_no_header(path_to_csv):
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
-        
-        for row in read_lines: # Iterate rows    
-            try: 
+
+        for row in read_lines: # Iterate rows
+            try:
                 out_dict[int(row[0])] = float(row[1])
             except ValueError:
                 out_dict[int(row[0])] = str(row[1])
@@ -671,21 +671,17 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
 
     More info: Day, T. (2006). Degree-days: theory and application. https://doi.org/TM41
     """
-    hdd = days_per_month * (t_base - t_mean)  / (1 - m.exp(-k_hitchens_location_constant * (t_base-t_mean)))
+    hdd_hitchens = days_per_month * (t_base - t_mean)  / (1 - m.exp(-k_hitchens_location_constant * (t_base-t_mean)))
 
     return hdd_hitchens
 
 def get_tot_y_hdd_reg(t_mean_reg_months):
-    """Calculate total number of heating degree days
+    """Calculate total number of heating degree days in a region
 
     Parameters
     ----------
     t_mean_reg_months : float
         Mean temperature in region
-
-    Info
-    ----
-
     """
     month_days = {0: 31, 1: 28, 2: 31, 3: 30, 4: 31, 5: 30, 6: 31, 7: 31, 8: 30, 9: 31, 10: 30, 11: 31}
     hdd_tot = 0
@@ -695,20 +691,28 @@ def get_tot_y_hdd_reg(t_mean_reg_months):
         k_hitchens_location_constant = 0.71
         t_base = 15.5
         t_mean_reg = t_mean_reg_months[month]
- 
+
         hdd_tot += hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean_reg)
 
     return hdd_tot
 
 def get_hdd_country(regions, data):
+    """Calculate total number of heating degree days in a region
 
+    Parameters
+    ----------
+    regions : dict
+        Dictionary containing regions
+    data : dict
+        Dictionary with data
+    """
     temp_data = data['temp_mean']
+
     hdd_country = 0
     hdd_regions = {}
 
     for region in regions:
-
-        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION
+        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
         temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
 
         t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
@@ -716,5 +720,24 @@ def get_hdd_country(regions, data):
 
         hdd_regions[region] = hdd_reg # get regional temp over year
         hdd_country += hdd_reg # Sum regions
-        
-    return hdd_country, hdd_regions
+
+    return hdd_regions
+
+def get_hdd_individ_reg(region, data):
+    """Calculate total number of heating degree days in a region
+
+    Parameters
+    ----------
+    regions : dict
+        Dictionary containing regions
+    data : dict
+        Dictionary with data
+    """
+
+    #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
+    temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
+
+    t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
+    hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months)
+
+    return hdd_reg

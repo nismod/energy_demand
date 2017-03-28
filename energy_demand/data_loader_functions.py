@@ -118,56 +118,65 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year
 
     return shape_h_non_peak
 
-def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
-    ''' read out end-use shape'''
-    # Calculate yearly total demand over all day years and all appliances
+def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
+    """Read in raw HES data and generate shapes
 
-    # -----------------------------------
-    # Peak calculation
-    # -----------------------------------
+    Calculate peak day demand, 
+
+    Parameters
+    ----------
+    data : data
+        Data container
+    year_raw_values : data
+        Unique dwellinge id
+    hes_y_peak : data
+        Unique dwellinge id
+    hes_y_warmest : data
+        Unique dwellinge id
+    end_use : data
+        Unique dwellinge id
+
+    Returns
+    -------
+    shape_d_peak : float
+        Peak day demand (Calculate factor which can be used to multiply yearly demand to generate peak demand)
+    shape_h_peak : float
+        Peak demand of each hours of peak day 
+
+    Notes
+    -----
     #Todo: Warmest load shape is not used
 
-    #-- daily peak
-    # Relationship of total yearly demand with averaged values and a peak day
+    shape_d_peak    To calculate actual energy demand, the yearly energy demand needs to be multiplied with this factor
+    shape_h_peak    Total sum is 1.0. To calculate actual energy demand, the peak day must be multiplied with this array
+
+    """
+    # Calculate yearly total demand over all day years and all appliances
+
+    # Peak calculation
+    # ----------------
+
+    #-- daily peak     # Relationship of total yearly demand with averaged values and a peak day
     appliances_HES = data['app_type_lu']
 
-
-    # If enduse is not in data
-    #print(data['lu_appliances_HES_matched'])
-    #if end_use not in data['lu_appliances_HES_matched'][:, 1]:
-    #    print("Enduse not HES data: " + str(end_use))
-    #    return data #, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
-
     # Get end use of HES data of current end_use of EUREC Data
-    for i in data['lu_appliances_HES_matched']: #TODO: Here the HES DATA ARE MACHTED
+    for i in data['lu_appliances_HES_matched']:
         if i[1] == end_use:
             hes_app_id = int(i[0])
             break
-            
-    # Select end use daily peak demand
+
+    # --Get peak daily load shape
+
+    # Calculate amount of energy demand for peak day of end_use
     peak_h_values = hes_y_peak[:, hes_app_id]
-    #print("peak_h_values: " + str(peak_h_values))
-
-    total_d_peak_demand = np.sum(peak_h_values)  # Peak is stored in JAN READ_IN HES DATA 2: PEak, 0: January, Select column
-
-    # Total yearly demand of end_use
-    total_y_end_use_demand = np.sum(year_raw_values[:, :, hes_app_id]) 
-
-    # Factor to calculate daily peak demand from total
-    shape_d_peak = (100/total_y_end_use_demand) * total_d_peak_demand
-
-    #print("total_d_peak_demand: " + str(total_d_peak_demand))
-    #print("total_y_end_use_demand: " + str(total_y_end_use_demand))
-    #print("yshape_d_peak: " + str(shape_d_peak))
-
-
-    # -----------------------------------
-    # Get peak daily load shape
-    # -----------------------------------
-
-    #-- hourly shape [% of total daily]
-    # 2: PEAK coldest daytype
-    shape_h_peak = hes_y_peak[:, hes_app_id] / total_d_peak_demand
+    total_d_peak_demand = np.sum(peak_h_values)
+    total_y_end_use_demand = np.sum(year_raw_values[:, :, hes_app_id]) # Calculate total yearly demand of end_use
+    
+    print("------------llllllllll")
+    print(total_y_end_use_demand)
+    print(total_d_peak_demand)
+    shape_d_peak = (1.0 / total_y_end_use_demand) * total_d_peak_demand # Factor to calculate daily peak demand from total
+    shape_h_peak = (1.0 / total_d_peak_demand) * peak_h_values # hourly values of peak day
 
     # -------------------------
     # Calculate non-peak shapes
@@ -176,13 +185,13 @@ def get_hes_end_uses_shape(data, hes_data, year_raw_values, hes_y_peak, hes_y_wa
     shape_h_non_peak = np.zeros((365, 24))
 
     for day in range(365):
-        d_sum = np.sum(year_raw_values[day, :, hes_app_id])
-        shape_d_non_peak[day] = (1 / total_y_end_use_demand) * d_sum
+        day_values = year_raw_values[day, :, hes_app_id]
+        d_sum = np.sum(day_values)
+        
+        shape_d_non_peak[day] = (1.0 / total_y_end_use_demand) * d_sum
+        shape_h_non_peak[day] = (1.0 / d_sum) * day_values # daily shape
 
-        # daily shape
-        shape_h_non_peak[day] = (1 / d_sum) * year_raw_values[day, :, hes_app_id]
-
-    return data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
+    return shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
 
 # CWV WEATER GAS SAMSON-----------------------------------
 def read_shp_heating_gas(data, model_type, wheater_scenario):
@@ -195,8 +204,9 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
     #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
     """
+    all_demand_values = [] # Store all calculated data to select maximum energy use for peak shape
     # Initilaise array to store all values for a year
-    hourly_hd = np.zeros((1, 24), dtype=float)
+    #hourly_hd = np.zeros((1, 24), dtype=float)
     hd_data = np.zeros((365, 24), dtype=float)
 
     hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
@@ -242,9 +252,10 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
             hd_data[yearday_python] = hourly_gas_shape_wkend * heating_demand_correlation
+            all_demand_values.append(hourly_gas_shape_wkend * heating_demand_correlation)
         else:
             hd_data[yearday_python] = hourly_gas_shape_wkday * heating_demand_correlation
-
+            all_demand_values.append(hourly_gas_shape_wkday * heating_demand_correlation)
     # NON-PEAK------------------------------------------------------------------------------
 
     # --hourly
@@ -270,14 +281,17 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
     # PEAK-----------------------------------------------------------------------------
 
-    # Get maximum daily demand
-    _list = []
-    for demand in data['path_temp_2015']:
-        _list.append(float(demand[1]))
-    max_day_demand = max(_list) #maximum demand
+    # ITerate all days and select day with most fuels (sum across all fueltypes) as peak day
+    max_day_demand = 0
+    for day_fuels in all_demand_values:
+        if np.sum(day_fuels)> np.sum(max_day_demand):
+            max_day_demand = np.sum(day_fuels) #maximum demand
 
     # Factor to calc maximum daily peak #TODO: INclude uncertainty?
     shape_d_peak = max_day_demand / total_y_hd
+
+    print("Daily load shape gas loading----" + str(wheater_scenario))
+    print(shape_d_peak)
 
     return shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
 
@@ -371,8 +385,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                     if is_leap_year(int(year)) == True:
                         year = year + 1 # Shift whole dataset to another year
                         if month == 2 and day == 29:
-                            #print("Skip loeap day")
-                            continue
+                            continue #skip leap day
 
                     date_row = date(year, month, day) #Date
                     daytype = mf.get_weekday_type(date_row) # Daytype
@@ -560,11 +573,14 @@ def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d
     #print(shape_h_non_peak.shape)   # 365, 24
     #print(shape_d_peak.shape)       # ()
     #print(shape_d_non_peak.shape)   # 365, 1
-    jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str(other_string_info) + str('.txt')))
-    jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str(other_string_info) + str('.txt')))
-    jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
+    jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
+    jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str('.txt')))
+    jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str('.txt')))
     jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
-
+    #jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str(other_string_info) + str('.txt')))
+    ##jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str(other_string_info) + str('.txt')))
+    #jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
+    #jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
 def jason_to_txt_shape_h_peak(input_array, outfile_path):
     """Wrte to txt. Array with shape: (24,)"""
     np_dict = dict(enumerate(input_array))

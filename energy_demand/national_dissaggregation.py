@@ -57,43 +57,32 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
     test_sum_before = sum_fuels_before(national_fuel)
 
     # Calculate heating degree days in whole country
-    hdd_total_country, hdd_individ_region = mf.get_hdd_country(regions, data)
+    hdd_individ_region = mf.get_hdd_country(regions, data)
 
-    # Total heated days for all person sum of (person in very region * hdd per region)
+    # Total heated days for all person sum of
     tot_hdd_popreg = 0
     for region in regions:
         reg_pop = data_ext['population'][base_year][region] # Regional popluation
-        hdd_reg = hdd_individ_region[region]
-        tot_hdd_popreg += reg_pop * hdd_reg
-    print("tot_hdd_popreg:  " + str(tot_hdd_popreg))
-    print(hdd_total_country * sum(data_ext['population'][base_year].values()))
+        tot_hdd_popreg += reg_pop * hdd_individ_region[region]
 
     # Iterate regions
     for region in regions:
-
-        #Scrap improve
         reg_pop = data_ext['population'][base_year][region] # Regional popluation
         total_pop = sum(data_ext['population'][base_year].values()) # Total population
+        hdd_reg = hdd_individ_region[region] # Hdd of region
         inter_dict = {} # Disaggregate fuel depending on end_use
-
-        # Hdd of region
-        hdd_reg = hdd_individ_region[region]
-        print("Region-----------")
-        print(total_pop)
-        print(reg_pop)
-        print("hdd_reg: " + str(hdd_reg))
-        print("hdd_total_country: " + str(hdd_total_country))
         
+        #TODO: Improve specific disaggregation depending on enduse
         for enduse in national_fuel:
 
             if enduse == 'heating':
                 # Use HDD and pop to disaggregat
                 print("------")
                 #print(reg_pop)
-                print(total_pop)
-                print((reg_pop * hdd_reg) / tot_hdd_popreg)
-                print(reg_pop / total_pop )
-                print("o")
+                #print(total_pop)
+                #print((reg_pop * hdd_reg) / tot_hdd_popreg)
+                #print(reg_pop / total_pop )
+
                 reg_diasg_factor = (reg_pop * hdd_reg) / tot_hdd_popreg
 
                 #reg_diasg_factor = (reg_pop/total_pop) * (hdd_reg / hdd_total_country)
@@ -102,12 +91,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
                 reg_diasg_factor = reg_pop / total_pop 
                 #TODO: Get enduse_specific disaggreagtion reg_diasg_factor
 
-            
             inter_dict[enduse] = national_fuel[enduse] * reg_diasg_factor
-
-            #print("enduse: " + str(enduse))
-            #print(reg_diasg_factor)
-            #print(inter_dict[enduse])
 
         data['fueldata_disagg'][region] = inter_dict
 

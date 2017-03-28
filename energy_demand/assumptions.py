@@ -259,10 +259,10 @@ def load_assumptions(data):
 
         # -- lightinging
         'halogen_elec': 0.5,
-        'standard_lighting_bulb': 0.5, 
-        'fluorescent_strip_lightinging': 0.5,  
-        'energy_saving_lighting_bulb': 0.5,    
-        'LED' : 0.5                          
+        'standard_lighting_bulb': 0.5,
+        'fluorescent_strip_lightinging': 0.5,
+        'energy_saving_lighting_bulb': 0.5,
+        'LED' : 0.5
         }
     assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
 
@@ -304,7 +304,7 @@ def load_assumptions(data):
     # Only write those enduses which should be replaced --> How much the fuel of each fueltype is reduced/increased based on base_demand (can be more than 100% overall fueltypes)
     # Don't specify total fuel percentage of enduse for enduse but only how much is reduced to base_year
     # TODO: Acual percentage of fueltype yould be calculated...
-    assump_fuel_frac_ey = {} 
+    assump_fuel_frac_ey = {}
     '''{'lighting': {'0' : 0,
                                         '1' : 0,
                                         '2' : 0,

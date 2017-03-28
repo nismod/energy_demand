@@ -78,7 +78,7 @@ def energy_demand_model(data, data_ext):
     #data = wheater_generator(data) # Read in CWV data and calcul difference between average and min and max of year 2015
 
     # Change demand depending on climate variables
-    
+
     # --------------------------
     # Residential model
     # --------------------------

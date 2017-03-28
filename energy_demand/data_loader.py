@@ -136,12 +136,15 @@ def load_data(path_main, data_ext):
 
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
 
-
     # --- Generate load_shapes ##TODO
     data = generate_data(data) # Otherwise already read out files are read in from txt files
 
-    # -- Read in load shapes from files
+    # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
     data = collect_shapes_from_txts(data)
+
+
+    print("TEST A")
+    print(data['dict_shp_enduse_d_resid']['heating']['shape_d_peak'])
 
     # ---TESTS----------------------
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
@@ -215,11 +218,12 @@ def generate_data(data):
         if end_use not in data['lu_appliances_HES_matched'][:, 1]: #Enduese not in HES data
             continue
 
-        data, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.get_hes_end_uses_shape(data, hes_data, year_raw_values_hes, hes_y_peak, _, end_use)
+        # Get HES load shapes
+        shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
         df.create_txt_shapes(end_use, path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "") # Write shapes to txt
 
     # Robert Sansom, Yearly peak from CSWV - Residential Gas demand, Daily shapes
-    wheater_scenarios = ['actual', 'max_cold', 'min_warm'] # Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
+    wheater_scenarios = ['actual'] #, 'max_cold', 'min_warm'# Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
 
     # Iterate wheater scenarios
     for wheater_scen in wheater_scenarios:
@@ -246,17 +250,19 @@ def generate_data(data):
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
 
+    
     # ENDUSE XY
-    folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
-    out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)
+    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
+    #out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)
 
-
+    '''
+    
     # Percentages for every day:
     jan_yearday = range(0, 30)
     jul_yearday = range(181, 212)
     jan = {k: [] for k in range(24)}
     jul = {k: [] for k in range(24)}
-
+    
     # Read out for the whole months of jan and ful
     for day in main_dict_dayyear_absolute:
         for h in main_dict_dayyear_absolute[day]:
@@ -294,7 +300,7 @@ def generate_data(data):
     #print("  --  ")
     #print(jul)
     #print("---hh--")
-
+    
     #--- if JAn = 100%
     jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
     for h ,i in enumerate(jul_percent_of_jan):
@@ -304,14 +310,13 @@ def generate_data(data):
     print("TEST: " + str(jan-jul))
 
     # Read in CWV for non-residential
-
+    
     # Get yearly profiles
     enduse = 'WHATEVERENDUSE'
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data) #TODO: out_dict_av is percentages of day sum up to one .. false
-
-
+    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data) #TODO: out_dict_av is percentages of day sum up to one
+    
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
-
+    '''
     # ENDUSE XY
     #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
