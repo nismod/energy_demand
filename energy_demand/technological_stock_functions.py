@@ -84,7 +84,7 @@ def lineardiffusion(base_year, current_yr, eff_by, eff_ey, sim_years):
     fract_sy : float
         The fraction of the fuel_enduse_switch in the simulation year
     """
-    if current_yr == base_year:
+    if current_yr == base_year or sim_years == 0:
         fract_sy = eff_by
     else:
         fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (current_yr - base_year)
@@ -98,7 +98,10 @@ def sigmoidefficiency(base_year, current_yr, year_end):
     # TODO: READ IN START AND END AND DECIDE IF NEG OR POSITIVE DIFFUSTION
     # CREATE POSITIVE AND NEGATIVE DIFFUSION
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_yr - base_year)
+    if year_end == base_year:
+        y_trans = 6.0
+    else:
+        y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_yr - base_year)
 
     sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
     sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1) TODO: Make as global ssumption
