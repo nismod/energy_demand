@@ -171,10 +171,10 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     peak_h_values = hes_y_peak[:, hes_app_id]
     total_d_peak_demand = np.sum(peak_h_values)
     total_y_end_use_demand = np.sum(year_raw_values[:, :, hes_app_id]) # Calculate total yearly demand of end_use
-    
-    print("------------llllllllll")
-    print(total_y_end_use_demand)
-    print(total_d_peak_demand)
+
+
+    ##print(total_y_end_use_demand)
+    #print(total_d_peak_demand)
     shape_d_peak = (1.0 / total_y_end_use_demand) * total_d_peak_demand # Factor to calculate daily peak demand from total
     shape_h_peak = (1.0 / total_d_peak_demand) * peak_h_values # hourly values of peak day
 

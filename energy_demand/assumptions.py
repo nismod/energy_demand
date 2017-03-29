@@ -262,28 +262,32 @@ def load_assumptions(data):
         'standard_lighting_bulb': 0.5,
         'fluorescent_strip_lightinging': 0.5,
         'energy_saving_lighting_bulb': 0.5,
-        'LED' : 0.5
-        }
+        'LED' : 0.6
+    }
+
     assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
+
+    # Define fueltype of each technology
+    technology_fueltype = {'LED': 1}
+    assump_dict['technology_fueltype'] = technology_fueltype
 
     # Helper function eff_achieved
     # THIS can be used for scenarios to define how much of the fficiency was achieved
     for i in assump_dict['eff_achieved']:
-        assump_dict['eff_achieved'][i] = 0.0
+        assump_dict['eff_achieved'][i] = 1.0
 
 
     # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
     data['tech_lu'] = {}
     for tech_id, tech in enumerate(eff_by, 1000):
         data['tech_lu'][tech] = tech_id
-        tech_id += 1
+
 
 
 
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions ()
     # ---------------------------------------------------------------------------------------------------------------------
-
     # A. Calc share which is to be switched
     # B. Calculate efficiency of technology which is to be replaced and new technology
 
@@ -292,28 +296,28 @@ def load_assumptions(data):
 
     #Generate fuel distribution of base year for every end_use #TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     fuel_type_p_by = generate_fuel_type_p_by(data)
-
     assump_dict['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
-    #print("")
-    #print(assump_dict['fuel_type_p_by']['lighting'])
-    #print(",,,")
+    print("fuel_type_p_by")
+    print(assump_dict['fuel_type_p_by']['lighting'])
     #prnt("..")
 
-    # Perc
     # Only write those enduses which should be replaced --> How much the fuel of each fueltype is reduced/increased based on base_demand (can be more than 100% overall fueltypes)
     # Don't specify total fuel percentage of enduse for enduse but only how much is reduced to base_year
     # TODO: Acual percentage of fueltype yould be calculated...
-    assump_fuel_frac_ey = {}
-    '''{'lighting': {'0' : 0,
-                                        '1' : 0,
-                                        '2' : 0,
-                                        '3' : 0.0,
-                                        '4' : 0.0,
-                                        '5' : 0.0,
-                                        '6' : 0.0
-                                       }
-                          }'''
+    # Always positive values (0.2 --> 20% reduction)
+    assump_fuel_frac_ey = {
+        'lighting': {
+            '0' : 0.0,
+            '1' : 0.0,
+            '2' : 0.0, # % of electricity for lighting replaced
+            '3' : 0.0,
+            '4' : 0.0,
+            '5' : 0.0,
+            '6' : 0.0,
+            '7':  0.0
+            }
+    }
 
     # Helper function - Replace all enduse from assump_fuel_frac_ey
     fuel_type_p_ey = {}
@@ -322,28 +326,37 @@ def load_assumptions(data):
             fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
         else:
             fuel_type_p_ey[enduse] = assump_fuel_frac_ey[enduse]
+
     # Convert to array
     assump_dict['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey)
 
+    print("end ear")
+    print(assump_dict['fuel_type_p_ey']['lighting'])
+    #prnt(":..")
 
     # ----------------------------------------------------------------------------------
     # -- Share of technologies within each fueltype and for each enduse
     # ----------------------------------------------------------------------------------
     # Technology which is installed for the share of fueltype to be replaced
-    assump_dict['tech_install'] = {} #{'lighting': 'LED'}
+    assump_dict['tech_install'] = {
+        'lighting': 'LED'
+
+    }
 
     # Technologies used for the different fuel types where the new technology is introduced
-    tech_replacement_dict = {}
-    '''{'lighting':{0: 'boiler_oil',
-                                         1: 'boiler_gas',
-                                         2: 'boiler_B',
-                                         3: '',
-                                         4: 'boiler_B',
-                                         5: '',
-                                         6: '',
-                                         7: ''
-                                        },
-                            }'''
+    tech_replacement_dict = {
+        'lighting':{
+            0: '',
+            1: '',
+            2: 'halogen_elec', # Halogen_elec gets replaced by LED
+            3: 'halogen_elec',
+            4: '',
+            5: '',
+            6: '',
+            7: ''
+        },
+    }
+    
     assump_dict['tech_replacement_dict'] = tech_replacement_dict
 
 

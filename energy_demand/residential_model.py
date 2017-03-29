@@ -559,70 +559,88 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         Notes
         -----
+        Take as fuel input fuels after efficincy gains
         """
         # Share of fuel types for each end use
         fuel_p_by = self.assumptions['fuel_type_p_by'][self.enduse] # Base year
         fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
 
+        print("fuel_p_by")
+        print(fuel_p_by)
+        print(".....")
+        print(fuel_p_ey)
         # Test whether share of fuel types stays identical
         if np.array_equal(fuel_p_by, fuel_p_ey): # no fuel switches
-            return self.reg_fuel
+            #return self.reg_fuel
+            return self.reg_fuel_eff_gains
         else:
             fuel_switch_array = np.copy((self.reg_fuel)) # Out_dict initialisation
 
             # Assumptions about which technology is installed and replaced
-            tech_install = self.assumptions['tech_install'][self.enduse] #  Technology which is installed
-            eff_replacement = getattr(self.tech_stock_cy, tech_install)
+            tech_install = self.assumptions['tech_install'][self.enduse] # Technology which is installed (new technology for switched fuel share)
+            tech_install_fueltype = self.assumptions['technology_fueltype'][tech_install]
 
-            tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] #  Dict with current technologes which are to be replaced
+            #TODO: Either a specific technology in an enduse is defind which is replaced or the average of all technologies is taken?
+            eff_replacement = getattr(self.tech_stock_cy, tech_install) # efficiency of installed technology in current year
 
-            #print("tech_replacement_dict")
-            #print(tech_replacement_dict)
+            tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] # Dict with current technologes which are to be replaced
 
-            #print("fuel_p_ey " + str(fuel_p_ey))
-            #print("fuel_p_by " + str(fuel_p_by))
+            print("SWITHC INFO  " + str(self.enduse))
+            print(tech_install_fueltype)
+            print(tech_install)
+            print(eff_replacement)
+            print("tech_replacement_dict")
+            print(tech_replacement_dict)
 
+            print("fuel_p_by " + str(fuel_p_by))
+            print("fuel_p_ey " + str(fuel_p_ey))
+            
             # Calculate percentage differences over full simulation period
-            ###fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
+            #fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
             #print("fuel_diff: " + str(fuel_diff))
 
-            # Calculate sigmoid diffusion of fuel switches
+            # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
             ###fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
-            fuel_p_cy = fuel_p_by * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
-            #print("fuel_p_cy:" + str(fuel_p_cy))
-            #print(fuel_p_ey[:, 1])
-            #print("fuel_p_ey:" + str(fuel_p_ey))
-            #print(fuel_p_cy.shape)
-            #print("self.reg_fuel: " + str(self.reg_fuel))
-            #print(self.reg_fuel.shape)
+            fuel_p_cy = fuel_p_ey[:, 1] * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
+            print("fuel_p_cy:" + str(fuel_p_cy))
+            print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
+            print(self.reg_fuel)
+            print(fuel_p_cy)
 
-            # Differences in absolute fuel amounts
-            absolute_fuel_diff = self.reg_fuel[0] * fuel_p_cy[:, 1] # Multiply fuel demands by percentage changes
-            #print("absolute_fuel_diff: " + str(absolute_fuel_diff))
-            #print("Technology which is installed:           " + str(tech_install))
-            #print("Efficiency of technology to be installed " + str(eff_replacement))
-            #print("Current Year:" + str(self.current_yr))
+            # Calculate differences in absolute fuel amounts
+            absolute_fuel_diff = self.reg_fuel_eff_gains[:, 0] * fuel_p_cy # Multiply fuel demands by percentage changes
+            print("absolute_fuel_diff: " + str(absolute_fuel_diff))
+            print("Technology which is installed:           " + str(tech_install))
+            print("Efficiency of technology to be installed " + str(eff_replacement))
+            print("Current Year:" + str(self.current_yr))
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
+                print("Fueltype: " + str(fuel_type))
+                print("fuel_diff: " + str(fuel_diff))
 
-                # Only if there is a fuel difference
+                # Only if there is a positive fuel difference
                 if fuel_diff > 0:
 
-                    tech_replace = tech_replacement_dict[fuel_type]           # Technology which is replaced (read from technology replacement dict)
+                    tech_replace = tech_replacement_dict[fuel_type] # Technology which is replaced (read from technology replacement dict)
                     eff_tech_remove = getattr(self.tech_stock_cy, tech_replace)  # Get efficiency of technology to be replaced
 
-                    # Fuel factor   #TODO ev. auch umgekehrt
-                    fuel_factor = eff_tech_remove / eff_replacement
-                    fuel_consid_eff = fuel_diff * fuel_factor
-                    print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(fuel_factor))
-                    print("fuel_diff: " + str(fuel_diff))
-                    # Add  fuels (if minus, no technology weighting is necessary)
-                    if fuel_diff > 0:
-                        fuel_switch_array[int(fuel_type)] += fuel_consid_eff # Add Fuel
+                    print("tech_replace: " + str(tech_replace))
+                    print("eff_tech_remove: " + str(eff_tech_remove))
 
-            #print("Old Fuel: " + str(self.reg_fuel))
-            #print("--")
-            #print("New Fuel: " + str(fuel_switch_array))
+                    # Amount of switched fuel * (efficiency of new technology / efficiency of old technology)
+                    fuel_consid_eff = fuel_diff * eff_replacement / eff_tech_remove
+                    print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_replacement) + "  " + str(eff_replacement / eff_tech_remove))
+
+                    # Substract replaced fuel
+                    fuel_switch_array[int(fuel_type)] = fuel_switch_array[int(fuel_type)] - fuel_diff # substract acutal fuel share
+
+                    # Add new fuel
+                    fuel_switch_array[tech_install_fueltype] += fuel_consid_eff # Add new calculated fuel amount
+
+            print("Old Fuel: " + str(self.reg_fuel_eff_gains))
+            print("--")
+            print("New Fuel: " + str(fuel_switch_array))
+
             return fuel_switch_array
 
     def enduse_scenario_driver(self):
@@ -650,8 +668,8 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             # Scenariodriver of building stock base year and new stock
             by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
             cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
-
             factor_driver = by_driver / cy_driver # current / base year (checked) (as in chapter 3.1.2)
+            
             return self.reg_fuel_after_elasticity * factor_driver
 
         else: # This fuel is not changed by building related scenario driver
