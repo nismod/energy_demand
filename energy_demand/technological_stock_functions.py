@@ -49,6 +49,9 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
     # Fuel share af total ED in end year
     fract_ey = assumptions['fuel_type_p_ey'][fuel_enduse_switch]
 
+    sig_midpoint = assumptions['sig_midpoint']
+    sig_steeppness = assumptions['sig_steeppness']
+
     # Difference
     if fract_by > fract_ey:
         diff_frac = -1 * (fract_by - fract_ey) # minus
@@ -56,7 +59,7 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoidefficiency(base_year, current_yr, year_end), 2)
+    p_of_diffusion = round(sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
@@ -91,28 +94,38 @@ def lineardiffusion(base_year, current_yr, eff_by, eff_ey, sim_years):
 
     return fract_sy
 
-def sigmoidefficiency(base_year, current_yr, year_end):
+def sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 
     Parameters
     ----------
-    current_yr : int
-        The year of the current simulation
-    saturate_year : int
-        The year a fuel_enduse_switch saturaes
-    year_invention : int
-        The year where a fuel_enduse_switch gets on the market
     base_year : int
         Base year of simulation period
+    current_yr : int
+        The year of the current simulation
+    year_end : int
+        The year a fuel_enduse_switch saturaes
+    sig_midpoint : float
+        Mid point of sigmoid diffusion function
+    sig_steeppness : float
+        Steepness of sigmoid diffusion function
+
     Returns
     -------
-    val_yr : float
-        The fraction of the fuel_enduse_switch in the simulation year
-    """
-    sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
-    sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1) TODO: Make as global ssumption
+    cy_p : float
+        The fraction of the fuel_enduse_switch in the current year
 
+    Infos
+    -------
+        sig_midpoint:    can be used to shift curve to the left or right (standard value: 0) 
+        sig_steeppness:    The steepness of the sigmoid curve (standard value: 1) 
+    # INFOS
+
+        year_invention : int
+        The year where a fuel_enduse_switch gets on the market
+
+    """
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
     if year_end == base_year:
         y_trans = 6.0
@@ -120,9 +133,9 @@ def sigmoidefficiency(base_year, current_yr, year_end):
         y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_yr - base_year)
 
     # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
-    val_yr = 1 / (1 + m.exp(-1 * sigmoidsteepness * (y_trans - sigmoidmidpoint)))
+    cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
 
-    return val_yr
+    return cy_p
 
 '''def sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturate_year, year_invention):
     """This function assumes "S"-Curve fuel_enduse_switch diffusion (logistic function).
@@ -158,11 +171,11 @@ def sigmoidefficiency(base_year, current_yr, year_end):
     year_translated = -6 + ((12 / (saturate_year - year_invention)) * years_availalbe)
 
     # Convert x-value into y value on sigmoid curve reaching from -6 to 6
-    sigmoidmidpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
-    sigmoidsteepness = 1 # The steepness of the sigmoid curve (standard value: 1)
+    sig_midpoint = 0  # Can be used to shift curve to the left or right (standard value: 0)
+    sig_steeppness = 1 # The steepness of the sigmoid curve (standard value: 1)
 
     # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
-    val_yr = 1 / (1 + m.exp(-1 * sigmoidsteepness * (year_translated - sigmoidmidpoint)))
+    val_yr = 1 / (1 + m.exp(-1 * sig_steeppness * (year_translated - sig_midpoint)))
 
     return val_yr
 '''

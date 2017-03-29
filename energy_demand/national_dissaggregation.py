@@ -24,7 +24,6 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
 
     Notes
     -----
-    #TODO: So far simple disaggregation by population
     - floorarea
     - population
     - etc...abs
@@ -45,7 +44,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
                 tot += np.sum(reg_fuel[reg][enduse])
         return tot
 
-    # TODO: USE HDD and COOLING DG DAYS to disaggregate regionaly 
+    # TODO: COOLING DG DAYS to disaggregate regionaly 
 
     regions = data['reg_lu']
     base_year = data_ext['glob_var']['base_year']

@@ -362,6 +362,13 @@ def load_assumptions(data):
 
 
 
+    # TRANSITON ASSUMTIONS
+    assump_dict['sig_midpoint'] = 0
+    assump_dict['sig_steeppness'] = 1
+
+
+
+
 
     # ----------------------------------
     # Which technologies are used for which end_use and to which share

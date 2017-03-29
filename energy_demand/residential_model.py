@@ -85,6 +85,7 @@ class Country_residential_model(object):
         tot_sum = 0
         for reg_id in self.data['reg_lu']:
             reg_object = getattr(self, str(reg_id)) # Get region
+
             # Get fuel data of region #Sum hourly demand # could also be read out as houly
             tot_sum += np.sum(getattr(reg_object, 'fuels_tot_enduses_h'))
 
@@ -143,10 +144,10 @@ class Region(object):
         # Calculate load factors from peak values
         self.reg_load_factor_d = self.load_factor_d()
         self.reg_load_factor_h = self.load_factor_h()
-        
-        #TODO: calculate also not from peak values
 
-        #prnt("-.")
+        # Calculate load factors from non peak values
+        self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak()
+        self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak()
 
         # Plot stacked end_uses
         #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
@@ -216,7 +217,7 @@ class Region(object):
         """Calculate load factor of a day in a year from peak values
 
         self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
-        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data) for full year
 
         Return
         ------
@@ -233,17 +234,19 @@ class Region(object):
 
         # Get day with maximum demand (in percentage of year)
         peak_d_demand = self.fuels_peak_d
-
+        print("AAA: " + str(peak_d_demand))
         # Iterate fueltypes to calculate load factors for each fueltype
         for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
             average_demand = np.sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
-            lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
+
+            if average_demand != 0:
+                lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
 
         lf_d = lf_d * 100 # Convert load factor to %
         return lf_d
 
     def load_factor_h(self):
-        """Calculate load factor of a h in a year
+        """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
 
         self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
         self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -263,7 +266,16 @@ class Region(object):
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
+
+            # Maximum fuel of an hour of the peak day
             maximum_h_of_day = np.amax(self.fuels_peak_h[fueltype])
+
+            #Calculate average in full year
+            all_hours = []
+            for day_hours in self.fuels_tot_enduses_h[fueltype]:
+                for h in day_hours:
+                    all_hours.append(h)
+            average_demand_h = sum(all_hours) / (365 * 24) # Averae load = yearly demand / nr of days
 
             # If there is a maximum day hour
             if maximum_h_of_day != 0:
@@ -275,7 +287,7 @@ class Region(object):
         return lf_h
 
     def load_factor_d_non_peak(self):
-        """Calculate load factor of a day in a year from peak values
+        """Calculate load factor of a day in a year from non-peak data
 
         self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
         self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -293,19 +305,20 @@ class Region(object):
         """
         lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
 
-        # Get day with maximum demand (in percentage of year)
-        peak_d_demand = self.fuels_tot_enduses_d
-
         # Iterate fueltypes to calculate load factors for each fueltype
         for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
-            average_demand = np.sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
-            lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
+
+            average_demand = sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
+            max_demand_d = max(data_fueltype)
+
+            if  max_demand_d != 0:
+                lf_d[k] = average_demand / max_demand_d # Calculate load factor
 
         lf_d = lf_d * 100 # Convert load factor to %
         return lf_d
 
     def load_factor_h_non_peak(self):
-        """Calculate load factor of a h in a year
+        """Calculate load factor of a h in a year from non-peak data
 
         self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
         self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -325,12 +338,18 @@ class Region(object):
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
-            maximum_h_of_day = np.amax(self.fuels_tot_enduses_h[fueltype])
+
+            all_hours = []
+            for day_hours in self.fuels_tot_enduses_h[fueltype]:
+                for h in day_hours:
+                    all_hours.append(h)
+            maximum_h_of_day_in_year = max(all_hours)
+
+            average_demand_h = np.sum(data_fueltype) / (365 * 24) # Averae load = yearly demand / nr of days
 
             # If there is a maximum day hour
-            if maximum_h_of_day != 0:
-                average_demand_h = np.sum(data_fueltype) / (365 * 24) # Averae load = yearly demand / nr of days
-                lf_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
+            if maximum_h_of_day_in_year != 0:
+                lf_h[fueltype] = average_demand_h / maximum_h_of_day_in_year # Calculate load factor
 
         lf_h = lf_h * 100 # Convert load factor to %
 
@@ -653,7 +672,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
             ###fuel_p_cy = fuel_diff * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
-            fuel_p_cy = fuel_p_ey[:, 1] * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'])
+            fuel_p_cy = fuel_p_ey[:, 1] * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
             print("fuel_p_cy:" + str(fuel_p_cy))
             print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
             print(self.reg_fuel)

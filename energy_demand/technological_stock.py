@@ -97,7 +97,7 @@ class ResidTechStock(object):
         tech_frac_cy = {}
 
         # Sigmoid efficiency for all technologies (TODO: TECHNOLOGY SPECIFIC DIFFUSION)
-        sigmoid_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year)
+        sigmoid_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
         for enduse in tech_frac_by:
             tech_frac_cy[enduse] = {}
