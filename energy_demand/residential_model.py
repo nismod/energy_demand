@@ -280,7 +280,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             #print("fuel_diff: " + str(fuel_diff))
 
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
-            fuel_p_cy = fuel_p_ey[:, 1] * tf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_year'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+            fuel_p_cy = fuel_p_ey[:, 1] * mf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
             print("fuel_p_cy:" + str(fuel_p_cy))
             print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
             print(self.reg_fuel)

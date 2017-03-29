@@ -122,8 +122,8 @@ def load_assumptions(data):
     """
     assump_dict = {}
 
-
-
+    # Weather Assumptions
+    assump_dict['t_base'] = {'base_year': 15.5, 'end_yr': 14.5}
 
     # ============================================================
     # Elasticities (Long-term resid_elasticities)
@@ -392,7 +392,7 @@ def load_assumptions(data):
     # add to dict
     assump_dict['technologies_enduse_by'] = technologies_enduse_by
 
-    # --Technological split in end_year  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
+    # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     technologies_enduse_ey = technologies_enduse_by.copy()
 
     technologies_enduse_ey['lighting'][2] = {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
@@ -409,7 +409,7 @@ def load_assumptions(data):
     # ============================================================
 
     # Building stock related
-    assump_dict['assump_change_floorarea_pp'] = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
+    assump_dict['assump_change_floorarea_pp'] = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_yr ASSUMPTION (if minus, check if new buildings are needed)
 
     # Dwelling type distribution
     assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year

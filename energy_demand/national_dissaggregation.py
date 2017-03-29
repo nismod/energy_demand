@@ -55,8 +55,8 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
     # Sum national fuel before disaggregation for testing purposes
     test_sum_before = sum_fuels_before(national_fuel)
 
-    # Calculate heating degree days in whole country
-    hdd_individ_region = mf.get_hdd_country(regions, data)
+    # Calculate heating degree days in whole country for base year
+    hdd_individ_region = mf.get_hdd_country(regions, data, base_year)
 
     # Total heated days for all person sum of
     tot_hdd_popreg = 0

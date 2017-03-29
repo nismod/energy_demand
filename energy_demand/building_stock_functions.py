@@ -1,7 +1,7 @@
 """ Functions for building stock"""
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
+# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 import numpy as np
-
+import energy_demand.main_functions as mf
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling
 
@@ -25,12 +25,12 @@ class Dwelling(object):
         Floor area of dwelling
     hlc : float
         Heat loss coefficient
-    HDD : float
+    hdd : float
         Heating degree days
     assumptions : dict
         Modelling assumptions stored in dictionary
     """
-    def __init__(self, curr_y, coordinates, dwtype, age, pop, floorarea, HDD, assumptions):
+    def __init__(self, curr_y, region_dw_is_in, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.coordinates = coordinates
@@ -38,10 +38,12 @@ class Dwelling(object):
         self.age = age
         self.pop = pop
         self.floorarea = floorarea
+        self.region_dw_is_in = region_dw_is_in
 
-        self.HDD = get_HDD_based_on_int_temp(curr_y, assumptions, HDD) #: Get internal temperature depending on assumptions of sim_yr
+        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext) #: Get internal temperature depending on assumptions of sim_yr
         self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
         #self.HOUSEHOLDINCOME?
+        #self.otherattribute
 
         # Scenario drivers for residential end demands
         self.heating = self.scenario_driver_heating()
@@ -55,7 +57,7 @@ class Dwelling(object):
 
     def scenario_driver_heating(self):
         """calc scenario driver with population and floor area"""
-        return self.floorarea * self.pop * self.HDD * self.hlc
+        return self.floorarea * self.pop * self.hdd * self.hlc
 
     def scenario_driver_water_heating(self):
         """calc scenario driver with population and heat loss coefficient"""
@@ -85,20 +87,29 @@ class Dwelling(object):
         """calc scenario driver with population and floor area"""
         return self.pop
 
-def get_HDD_based_on_int_temp(sim_y, assumptions, HDD):
-    """ Get internal temperature based on assumptions"""
-    #t_base_standard = 15 # Degree celsius
-
+def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext):
+    """ Get internal temperature based on assumptions
+    
+    Based on year the t_temp is choosen
+    
+    """
+    
+    
     # Diffusion of internal temperature
-    #int_temp_sim_y = get_internal_temperature(sim_y)
-    #HDD = recalculate_hitchens(int_temp_sim_y)
-    sim_y = sim_y
-    assumptions = assumptions
-    #HDD = "tbd"
-    HDD = 999
-    # Recalcuulate heating degree days based on internal temperature change
-    # Hitchins Formula
-    return HDD
+    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext)
+
+    # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
+    #temperature_region_relocated = mf.get_temp_region(self.region_dw_is_in)
+    temperature_region_relocated = 'Midlands'
+
+     # READ OUT TEMP: Recalcuulate heating degree days based on internal temperature change
+    t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
+
+    hdd = mf.get_tot_y_hdd_reg(t_mean_reg_months, t_base_cy)
+
+    
+    return hdd
+
 
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type
@@ -202,7 +213,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
 
     # initialisation
     data_floorarea_pp = {}
-    sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
+    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1, 1) #base year, current year, iteration step
     base_year = glob_var['base_year']
 
     # Iterate regions
@@ -228,7 +239,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
 
 def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     """Calculates the yearly distribution of dw types
-    based on assumption of distribution on end_year
+    based on assumption of distribution on end_yr
 
     Linear change over time
 
@@ -256,7 +267,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     out = {year: {'dwtype': 0.3}}
     """
     dwtype_distr = {}
-    sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
+    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1, 1) #base year, current year, iteration step
 
     # Iterate years
     for sim_yr in sim_period:

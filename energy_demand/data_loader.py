@@ -1,7 +1,7 @@
 """Loads all necessary data"""
 import os
 import csv
-import unittest
+#import unittest
 import matplotlib.pyplot as plt
 import numpy as np
 import energy_demand.data_loader_functions as df
@@ -100,7 +100,7 @@ def load_data(path_main, data_ext):
     #path_dwtype_age = read_csv_float(['path_dwtype_age'])
     #data['dwtype_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_dist'])      # dISTRIBUTION of dwelligns base year #TODO: REMOVE AND ONLY LOAD YEAR 2015
     data['dwtype_age_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_age'])
-    data['dwtype_floorarea']  = mf.read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
+    #= mf.read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
     #data['reg_floorarea'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea'])
     data['reg_dw_nr'] = mf.read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 

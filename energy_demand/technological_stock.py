@@ -1,7 +1,7 @@
 """The technological stock for every simulation year"""
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
+# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
@@ -23,7 +23,7 @@ class ResidTechStock(object):
     def __init__(self, data, data_ext, current_yr):
         """Constructor of technologies for residential sector"""
         self.base_year = data_ext['glob_var']['base_year']
-        self.end_year = data_ext['glob_var']['end_year']
+        self.end_yr = data_ext['glob_var']['end_yr']
         self.current_yr = current_yr
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
@@ -61,7 +61,7 @@ class ResidTechStock(object):
         for technology in technology_list:
             eff_by = self.assumptions['eff_by'][technology]
             eff_ey = self.assumptions['eff_ey'][technology]
-            sim_years = self.end_year - self.base_year
+            sim_years = self.end_yr - self.base_year
 
             # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
             theor_max_eff = tf.linear_diff(self.base_year, self.current_yr, eff_by, eff_ey, sim_years)
@@ -78,7 +78,7 @@ class ResidTechStock(object):
         """Calculate change in fuel demand based on sigmoid diffusion of fraction of technologies for each enduse
 
         I. With help of assumptions on the fraction of technologies for each
-        enduse and fueltype for the `base_year` and `end_year` the
+        enduse and fueltype for the `base_year` and `end_yr` the
         fraction of technologies for the `current_yr` is calculated.
 
         II.The change in fuel is calculated depending on the relationship
@@ -105,7 +105,7 @@ class ResidTechStock(object):
         tech_frac_ey = self.tech_frac_ey
 
         # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
-        sig_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+        sig_frac_tech_change = mf.sigmoidefficiency(self.base_year, self.current_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
         for enduse in tech_frac_by:
             tech_frac_cy[enduse] = {}
