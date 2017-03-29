@@ -178,7 +178,7 @@ def generate_dw_existing(data, reg_id, uniqueID, sim_y, dw_lu, floorarea_p, floo
             # Calculate number of dwellings
 
     assert round(tot_floorarea_cy, 3) == round(control_floorarea, 3)    # Test if floor area are the same
-    assert round(pop_by, 3) == round(control_pop, 3)                    # Test if pop is the same
+    assert round(pop_by) == round(control_pop)                          # Test if pop is the same
 
     return dw_stock_base
 

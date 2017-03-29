@@ -1,5 +1,5 @@
 """The technological stock for every simulation year"""
-import technological_stock_functions as tf
+import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 
 class ResidTechStock(object):
@@ -45,8 +45,8 @@ class ResidTechStock(object):
 
         The efficiency of each technology is added as `self` attribute.
         Based on assumptions of theoretical maximum efficiency gains of
-        each technology and assumptions on the actual achieved efficiency, 
-        the efficiency of the current year is calculated based 
+        each technology and assumptions on the actual achieved efficiency,
+        the efficiency of the current year is calculated based
         on a linear diffusion.
 
         Example
