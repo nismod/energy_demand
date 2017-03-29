@@ -1,7 +1,7 @@
 """The technological stock for every simulation year"""
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
-
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
@@ -19,7 +19,6 @@ class ResidTechStock(object):
     current_yr : int
         Current year
 
-    TODO: Improve and replace glob_var
     """
     def __init__(self, data, data_ext, current_yr):
         """Constructor of technologies for residential sector"""
@@ -28,26 +27,28 @@ class ResidTechStock(object):
         self.current_yr = current_yr
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
+        self.fuel_types = data['fuel_type_lu']
 
         # Execute function to add all technological efficiencies as self argument
         self.create_iteration_efficiency()
 
-        # get share of technologies of base_year
-        self.tech_frac_by_assumptions = data['assumptions']['technologies_enduse_by']
-        self.tech_frac_ey_assumptions = data['assumptions']['technologies_enduse_ey']
-
-        #self.tech_frac_eyy = data['assumptions']['technologies_enduse_by']
-        # Get share of technology of current year #TODO
-        self.tech_frac = self.get_sigmoid_tech_diff()
+        # get share of technologies
+        self.tech_frac_by = data['assumptions']['technologies_enduse_by'] #base year
+        self.tech_frac_ey = data['assumptions']['technologies_enduse_ey'] #end year
+        self.tech_frac_cy = self.get_sigmoid_tech_diff() #current year
 
     def create_iteration_efficiency(self):
-        """Iterate technologes in 'base_year' dict and add to technology_stock
+        """Iterate technologies of each enduse in 'base_year' and add to technology_stock (linear diffusion)
 
         The efficiency of each technology is added as `self` attribute.
         Based on assumptions of theoretical maximum efficiency gains of
         each technology and assumptions on the actual achieved efficiency,
         the efficiency of the current year is calculated based
         on a linear diffusion.
+
+        Returns
+        -------
+        Sets attributes with efficiency values for the current year
 
         Example
         -------
@@ -62,27 +63,34 @@ class ResidTechStock(object):
             eff_ey = self.assumptions['eff_ey'][technology]
             sim_years = self.end_year - self.base_year
 
-            # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated TODO: Ev. round
-            theor_max_eff = tf.lineardiffusion(self.base_year, self.current_yr, eff_by, eff_ey, sim_years)
+            # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
+            theor_max_eff = tf.linear_diff(self.base_year, self.current_yr, eff_by, eff_ey, sim_years)
 
             # Get assmuption how much of efficiency potential is reaped
             achieved_eff = self.assumptions['eff_achieved'][technology]
 
             # Actual efficiency potential
-            #self.technologies[technology] = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
-            value_for_new_attribute = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
+            cy_eff = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
 
-            ResidTechStock.__setattr__(self, technology, value_for_new_attribute)
+            ResidTechStock.__setattr__(self, technology, cy_eff)
 
     def get_sigmoid_tech_diff(self):
-        """Calculate change in fuels based on sigmoid diffusion of fraction of technologies
+        """Calculate change in fuel demand based on sigmoid diffusion of fraction of technologies for each enduse
 
-        With help of assumptions on the fraction of technologies for each
+        I. With help of assumptions on the fraction of technologies for each
         enduse and fueltype for the `base_year` and `end_year` the
         fraction of technologies for the `current_yr` is calculated.
 
-        Also the change in fuel is calculated depending on the relationship
-        `sigmoid_frac_tech_change`.
+        II.The change in fuel is calculated depending on the relationship
+        `sig_frac_tech_change`.
+
+        Returns
+        -------
+        tech_frac_cy : dict
+            A nested.
+
+        Example
+        -------
 
         Notes
         -----
@@ -90,48 +98,42 @@ class ResidTechStock(object):
         the individual technologies are converted in to IDs in order
         to create arrays. In the end, the technology IDs are replaced
         with strings for each technology.
-
         """
-        tech_frac_by = self.tech_frac_by_assumptions
-        tech_frac_ey = self.tech_frac_ey_assumptions
         tech_frac_cy = {}
 
-        # Sigmoid efficiency for all technologies (TODO: TECHNOLOGY SPECIFIC DIFFUSION)
-        sigmoid_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+        tech_frac_by = self.tech_frac_by
+        tech_frac_ey = self.tech_frac_ey
+
+        # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
+        sig_frac_tech_change = tf.sigmoidefficiency(self.base_year, self.current_yr, self.end_year, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
         for enduse in tech_frac_by:
             tech_frac_cy[enduse] = {}
 
+            # Convert to array and replace fuels with strings
             by_enduse_array = mf.convert_to_array_technologies(tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
             ey_enduse_array = mf.convert_to_array_technologies(tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
 
-            nr_of_fueltypes = len(by_enduse_array)
-
             # If no technolgies are in this enduse
             if ey_enduse_array == []:
-                for fueltype in range(nr_of_fueltypes):
+                for fueltype in range(len(self.fuel_types)):
                     tech_frac_cy[enduse][fueltype] = {}
                 continue # Go to next enduse
 
-            # iterate fuel type and the technologies in iter
-            for fueltype in range(nr_of_fueltypes):
+            # iterate fuel type and the technologies
+            for fueltype in range(len(self.fuel_types)):
 
                 # No technologies are within this fuel type
                 if by_enduse_array[fueltype] == []:
                     tech_frac_cy[enduse][fueltype] = {}
                     continue # Go to next fueltype
 
-                # calc fuel diff (the ID of technology vanishes)
-                diff = ey_enduse_array[fueltype] - by_enduse_array[fueltype]
+                diff = ey_enduse_array[fueltype][:, 1] - by_enduse_array[fueltype][:, 1] # Calculate difference in share of technologies between end and base year
+                diff_fract_sig = diff * sig_frac_tech_change # Multiply overall difference with achieved efficiency
+                diff_cy = by_enduse_array[fueltype][:, 1] + diff_fract_sig # Current year fraction (frac of base year plus changes up to current year)
 
-                # Multiply fraction with fraction_technologies and replace technology_IDs
-                diff_fract_sigmoid = diff * sigmoid_frac_tech_change
-
-                # Current year fraction (frac of base year plus changes up to current year)
-                diff_cy = by_enduse_array[fueltype][:, 1] + diff_fract_sigmoid[:, 1]
-
-                # Convert the arrays back to dictionary and replace IDs of technologies with strings
-                technologey_of_enduse = tech_frac_by[enduse][fueltype].keys() # String name of technologies of enduse and fueltype
+                # Convert the arrays back to dictionary and replace strings of technologies with str
+                technologey_of_enduse = tech_frac_by[enduse][fueltype].keys()
                 tech_frac_cy[enduse][fueltype] = dict(zip(technologey_of_enduse, diff_cy.flatten()))
 
         return tech_frac_cy

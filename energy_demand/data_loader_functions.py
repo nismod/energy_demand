@@ -7,7 +7,7 @@ import unittest
 import json
 from datetime import date
 import energy_demand.main_functions as mf
-
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # HES-----------------------------------
 def read_hes_data(data):
@@ -36,10 +36,9 @@ def read_hes_data(data):
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
         month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
-        k_header = 3    # TODO: Check if in excel data starts here
+        k_header = 3    #Row in Excel where energy data start
 
-        # iterate over hour  = row in csv file
-        for hour in range(hours):
+        for hour in range(hours): # iterate over hour  = row in csv file
             # [kWH electric] Converts the summed watt into kWH TODO: Is not necessary as we are only calculating in relative terms
             _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000))
 
@@ -121,7 +120,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year
 def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
     """Read in raw HES data and generate shapes
 
-    Calculate peak day demand, 
+    Calculate peak day demand
 
     Parameters
     ----------
@@ -141,7 +140,7 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     shape_d_peak : float
         Peak day demand (Calculate factor which can be used to multiply yearly demand to generate peak demand)
     shape_h_peak : float
-        Peak demand of each hours of peak day 
+        Peak demand of each hours of peak day
 
     Notes
     -----
@@ -187,7 +186,7 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
         d_sum = np.sum(day_values)
-        
+
         shape_d_non_peak[day] = (1.0 / total_y_end_use_demand) * d_sum
         shape_h_non_peak[day] = (1.0 / d_sum) * day_values # daily shape
 
@@ -259,7 +258,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
     # NON-PEAK------------------------------------------------------------------------------
 
     # --hourly
-    shape_h_non_peak = np.zeros((365,24), dtype=float)
+    shape_h_non_peak = np.zeros((365, 24), dtype=float)
 
     for cnt, hourly_values in enumerate(hd_data):
         day_sum = np.sum(hourly_values)
@@ -284,7 +283,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
     # ITerate all days and select day with most fuels (sum across all fueltypes) as peak day
     max_day_demand = 0
     for day_fuels in all_demand_values:
-        if np.sum(day_fuels)> np.sum(max_day_demand):
+        if np.sum(day_fuels) > np.sum(max_day_demand):
             max_day_demand = np.sum(day_fuels) #maximum demand
 
     # Factor to calc maximum daily peak #TODO: INclude uncertainty?
@@ -452,7 +451,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     '''
 
     #print("TESTSUM: " + str(np.sum(main_dict_dayyear_absolute)))
-    
+
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
@@ -506,7 +505,7 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Add SHAPES
     # Add to hourly non-residential shape
-    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_h_peak_non_resid': maxday_h_shape, 'shape_h_non_peak': } 
+    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_h_peak_non_resid': maxday_h_shape, 'shape_h_non_peak': }
 
     # Add to daily shape
     #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_d_peak_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak

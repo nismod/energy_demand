@@ -19,7 +19,7 @@ import math as m
 
 
     # How far the diffusion is
-    diffusion = round(lineardiffusion(base_year, current_yr, eff_by, eff_ey, sim_years), 2)
+    diffusion = round(linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years), 2)
 
     return diffusion
 '''
@@ -66,7 +66,7 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
 
     return fract_cy
 
-def lineardiffusion(base_year, current_yr, eff_by, eff_ey, sim_years):
+def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
     All necessary data to run energy demand model is loaded.
     This data is loaded in the wrapper.
@@ -122,6 +122,7 @@ def sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
         sig_steeppness:    The steepness of the sigmoid curve (standard value: 1) 
     # INFOS
 
+    # What also could be impleneted is a technology specific diffusion (parameters for diffusion)
         year_invention : int
         The year where a fuel_enduse_switch gets on the market
 

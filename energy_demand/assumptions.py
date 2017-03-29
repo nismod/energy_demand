@@ -122,8 +122,7 @@ def load_assumptions(data):
     """
     assump_dict = {}
 
-    # Load assumptions from csv files
-    dwtype_floorarea = data['dwtype_floorarea']
+
 
 
     # ============================================================
@@ -268,7 +267,9 @@ def load_assumptions(data):
     assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
 
     # Define fueltype of each technology
-    technology_fueltype = {'LED': 1}
+    technology_fueltype = {
+        'LED': 1
+        }
     assump_dict['technology_fueltype'] = technology_fueltype
 
     # Helper function eff_achieved
@@ -310,7 +311,7 @@ def load_assumptions(data):
         'lighting': {
             '0' : 0.0,
             '1' : 0.0,
-            '2' : 0.0, # % of electricity for lighting replaced
+            '2' : 0.0, # electricity for lighting replaced
             '3' : 0.0,
             '4' : 0.0,
             '5' : 0.0,
@@ -347,7 +348,7 @@ def load_assumptions(data):
     tech_replacement_dict = {
         'lighting':{
             0: '',
-            1: '',
+            1: 'halogen_elec',
             2: 'halogen_elec', # Halogen_elec gets replaced by LED
             3: 'halogen_elec',
             4: '',
@@ -356,17 +357,16 @@ def load_assumptions(data):
             7: ''
         },
     }
-    
+
     assump_dict['tech_replacement_dict'] = tech_replacement_dict
 
 
 
-
-    # TRANSITON ASSUMTIONS
+    # --------------------------------
+    # Technology diffusion assumpionts
+    # --------------------------------
     assump_dict['sig_midpoint'] = 0
     assump_dict['sig_steeppness'] = 1
-
-
 
 
 
@@ -409,20 +409,18 @@ def load_assumptions(data):
     # ============================================================
 
     # Building stock related
-    assump_change_floorarea_pp = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
+    assump_dict['assump_change_floorarea_pp'] = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_year ASSUMPTION (if minus, check if new buildings are needed)
 
-    #BASE YEAR: 2015.0: {'semi_detached': 26.0, 'terraced': 28.3, 'flat': 20.3, 'detached': 16.6, 'bungalow': 8.8}
-    assump_dwtype_distr_ey = {'semi_detached': 20.0, 'terraced': 20, 'flat': 30, 'detached': 20, 'bungalow': 10}     # Assumption of distribution of dwelling types in end_year ASSUMPTION
+    # Dwelling type distribution
+    assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
+    assump_dict['assump_dwtype_distr_ey'] = {'semi_detached': 0.36, 'terraced': 0.183, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #end year
 
-    #assump_dwtype_distr_ey = copy.(data['dwtype_distr'])
-    assump_dwtype_floorarea = dwtype_floorarea                                                                       # Average floor area per dwelling type (loaded from CSV)
+    # Floor area per dwelling type
+    assump_dict['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77}             #TODO MAYBE IMPELEMENT THAT DIFFERENT FOR EVERY YEAR                                               # Average floor area per dwelling type (loaded from CSV)
 
 
-    # Add to dictionary
-    assump_dict['assump_change_floorarea_pp'] = assump_change_floorarea_pp
-    assump_dict['assump_dwtype_distr_ey'] = assump_dwtype_distr_ey
-    assump_dict['assump_dwtype_floorarea'] = assump_dwtype_floorarea
 
+    # Add assumptions to data dict
     data['assumptions'] = assump_dict
     return data
 

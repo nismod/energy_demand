@@ -640,9 +640,12 @@ def convert_date_to_yearday(year, month, day):
     yearday = date_y.timetuple()[7] - 1 #: correct because of python iterations
     return yearday
 
-def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data): #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
+def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data):
     """This data check what enduses are provided by wrapper
-    and then adds the yearls fule data to data"""
+    and then adds the yearls fule data to data
+
+    #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
+    """
     for external_enduse in data_ext['external_enduses']:
 
         new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))

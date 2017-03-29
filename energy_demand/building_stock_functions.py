@@ -1,5 +1,6 @@
 """ Functions for building stock"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+import numpy as np
 
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling
@@ -29,18 +30,17 @@ class Dwelling(object):
     assumptions : dict
         Modelling assumptions stored in dictionary
     """
-    def __init__(self, curr_y, coordinates, dwtype, house_id, age, pop, floorarea, HDD, assumptions):
+    def __init__(self, curr_y, coordinates, dwtype, age, pop, floorarea, HDD, assumptions):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.coordinates = coordinates
         self.dwtype = dwtype
-        self.house_id = house_id
         self.age = age
         self.pop = pop
         self.floorarea = floorarea
 
-        self.HDD = get_HDD_based_on_int_temp(curr_y, assumptions, HDD) #: Get internal temperature depending on assumptions of sim_year
-        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type 
+        self.HDD = get_HDD_based_on_int_temp(curr_y, assumptions, HDD) #: Get internal temperature depending on assumptions of sim_yr
+        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
         #self.HOUSEHOLDINCOME?
 
         # Scenario drivers for residential end demands
@@ -207,7 +207,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
 
     # Iterate regions
     for reg_id in reg_pop_by:
-        sim_years = {}
+        sim_yrs = {}
         floorarea_pp_by = reg_floorarea[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
 
         # Iterate simulation years
@@ -215,14 +215,14 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
             curr_year = y - glob_var['base_year']
 
             if y == base_year:
-                sim_years[y] = floorarea_pp_by # base year value
+                sim_yrs[y] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
                 diff_cy = curr_year * (((1 + assump_final_diff_floorarea_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
 
-                floor_ara_pp_sim_year = floorarea_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
-                sim_years[y] = floor_ara_pp_sim_year
-        data_floorarea_pp[reg_id] = sim_years  # Values for every simulation year
+                floor_ara_pp_sim_yr = floorarea_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
+                sim_yrs[y] = floor_ara_pp_sim_yr
+        data_floorarea_pp[reg_id] = sim_yrs  # Values for every simulation year
 
     return data_floorarea_pp
 
@@ -249,28 +249,34 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     -------
     dwtype_distr : dict
         Contains all dwelling type distribution for every year
+
+    Example
+    -------
+
+    out = {year: {'dwtype': 0.3}}
     """
     dwtype_distr = {}
     sim_period = range(glob_var['base_year'], glob_var['end_year'] + 1, 1) #base year, current year, iteration step
 
     # Iterate years
-    for sim_year in sim_period:
-        sim_year_nr = sim_year - glob_var['base_year']
+    for sim_yr in sim_period:
+        sim_yr_nr = sim_yr - glob_var['base_year']
 
-        if sim_year == glob_var['base_year']:
+        if sim_yr == glob_var['base_year']:
             y_distr = dwtype_distr_by # If base year, base year distribution
         else:
             y_distr = {}
 
             for dtype in dwtype_distr_by:
-                val_by = dwtype_distr_by[dtype]                         # base year value
-                sim_y = assump_dwtype_distr_ey[dtype]                   # cur year value
-                diff_val = sim_y - val_by                               # Total difference
-                diff_y = diff_val / (len(sim_period)-1)                 # Linear difference per year
-                y_distr[dtype] = val_by + (diff_y * sim_year_nr) / 100  # Differene up to current year #TODO: Check procent
-        dwtype_distr[sim_year] = y_distr
+                val_by = dwtype_distr_by[dtype] # base year value
+                sim_y = assump_dwtype_distr_ey[dtype] # cur year value
+                diff_val = sim_y - val_by # Total difference
+                diff_y = diff_val / (len(sim_period)-1) # Linear difference per year
+                y_distr[dtype] = val_by + (diff_y * sim_yr_nr) # Difference up to current year
+
+        dwtype_distr[sim_yr] = y_distr
 
     # Test if distribution is 100%
     for y in dwtype_distr:
-        assert round(sum(dwtype_distr[y].values()), 1) == 100 # "The values in the dictionary do not sum to 100"
+        np.testing.assert_almost_equal(sum(dwtype_distr[y].values()), 1.0, decimal=7, err_msg='The distribution of dwelling types went wrong', verbose=True)
     return dwtype_distr

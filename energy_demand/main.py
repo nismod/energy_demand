@@ -168,4 +168,3 @@ if __name__ == "__main__":
     results = energy_demand_model(base_data, data_external)
     #print(results)
     print("Finished running Energy Demand Model")
-
