@@ -105,23 +105,18 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         # --Yearly fuel data (Check if always function below takes result from function above)
-        #TODO: CHeck that if baseyear, nothing is changed anywhere
-        print("ENDUSE: " + str(self.enduse))
-        print(self.reg_fuel)
-        print(self.current_yr)
-
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
-        print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
+        #print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
 
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
-        print("reg_fuel_after_switch: " + str(np.sum(self.reg_fuel_after_switch)))
+        #print("reg_fuel_after_switch: " + str(np.sum(self.reg_fuel_after_switch)))
 
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        print("reg_fuel_after_elasticity: " + str(np.sum(self.reg_fuel_after_elasticity)))
+        #print("reg_fuel_after_elasticity: " + str(np.sum(self.reg_fuel_after_elasticity)))
 
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
-        print("reg_fuelscen_driver: " + str(np.sum(self.reg_fuelscen_driver)))
-        print(self.reg_fuelscen_driver)
+        #print("reg_fuelscen_driver: " + str(np.sum(self.reg_fuelscen_driver)))
+        #print(self.reg_fuelscen_driver)
 
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
@@ -136,7 +131,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_fuel_peak_h = self.enduse_peak_h()                   # Calculate peak hour
 
         # Testing
-        np.testing.assert_almost_equal(np.sum(self.reg_fuel_d), np.sum(self.enduse_fuel_h), decimal=7, err_msg='', verbose=True)
+        np.testing.assert_almost_equal(np.sum(self.reg_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.reg_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_elasticity(self):
@@ -354,6 +349,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         -----
         This is the energy end use used for disaggregating to daily and hourly
         """
+        print(self.data['dw_stock'])
         # Test if enduse has a building related scenario driver
         if hasattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) and self.current_yr != self.base_year:
 
@@ -500,7 +496,7 @@ class Country_residential_model(object):
         test_sum = 0
         for enduse in self.tot_country_fuel_enduse_specific:
             test_sum += self.tot_country_fuel_enduse_specific[enduse]
-        np.testing.assert_almost_equal(np.sum(self.tot_country_fuel), test_sum, decimal=7, err_msg='', verbose=True)
+        np.testing.assert_almost_equal(np.sum(self.tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
 
 
     def create_regions(self):

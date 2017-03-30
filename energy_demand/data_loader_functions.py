@@ -500,7 +500,7 @@ def read_raw_carbon_trust_data(data, folder_path):
             test_sum = sum(map(abs, out_dict_av[daytype][month].values())) # Sum absolute values
             assertions = unittest.TestCase('__init__')
             #TODO: Don't know why it doesnt owrk
-            #np.testing.assert_almost_equal(test_sum, 100.0, decimal=7, err_msg='', verbose=True)
+            #np.testing.assert_almost_equal(test_sum, 100.0, decimal=5, err_msg='', verbose=True)
             #assertions.assertAlmostEqual(test_sum, 100.0, places=2, msg=None, delta=None)
 
     # Add SHAPES

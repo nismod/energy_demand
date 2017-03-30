@@ -141,9 +141,9 @@ if __name__ == "__main__":
     for i in sim_years:
         y_data = {}
         for reg in a:
-            y_data[reg] = a[reg] *1.25
+            y_data[reg] = a[reg] # + (a[reg] * 1.04)
         pop_dummy[i] = y_data
-        a = y_data
+        #a = y_data
 
     fuel_price_dummy = {}
     a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0}

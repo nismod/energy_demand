@@ -158,9 +158,6 @@ class DwStockRegion(object):
         self.pop = self.get_tot_pop()
 
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
-
-        print("DATA: test")
-        print(data['resid_enduses'])
         # Set for the dwelling stock attributes for every enduse
         for enduse in data['resid_enduses']:
             new_enduse_attr = self.get_scenario_driver_enduse(enduse)
@@ -181,8 +178,10 @@ class DwStockRegion(object):
         return round(totpop, 3)
 
 def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
-    """ Calculates future floor area per person depending on
-    assumptions on final change and base year data
+    """ Calculates future floor area per person depending on assumptions on final change and base year data
+
+    Assumption: Linear Change of floor area per person
+
 
     Parameters
     ----------
@@ -206,11 +205,9 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
     Linear change of floor area
     # todo: check with simulation period
     """
-
     # initialisation
     data_floorarea_pp = {}
     sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1, 1) #base year, current year, iteration step
-    base_year = glob_var['base_year']
 
     # Iterate regions
     for reg_id in reg_pop_by:
@@ -218,17 +215,17 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
         floorarea_pp_by = reg_floorarea[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
 
         # Iterate simulation years
-        for y in sim_period:
-            curr_year = y - glob_var['base_year']
+        for sim_yr in sim_period:
+            curr_year = sim_yr - glob_var['base_year']
 
-            if y == base_year:
-                sim_yrs[y] = floorarea_pp_by # base year value
+            if sim_yr == glob_var['base_year']:
+                sim_yrs[sim_yr] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
-                diff_cy = curr_year * (((1 + assump_final_diff_floorarea_pp) - 1) / (len(sim_period)-1)) # substract from sim_period 1 because of base year
+                diff_cy = mf.linear_diff(glob_var['base_year'], sim_yr, 1, (1 + assump_final_diff_floorarea_pp), (len(sim_period)-1))
 
-                floor_ara_pp_sim_yr = floorarea_pp_by * (1 + diff_cy)                                  # Floor area of simulation year
-                sim_yrs[y] = floor_ara_pp_sim_yr
+                # Floor area per person of simulation year
+                sim_yrs[sim_yr] = floorarea_pp_by * diff_cy # Floor area of simulation year
         data_floorarea_pp[reg_id] = sim_yrs  # Values for every simulation year
 
     return data_floorarea_pp
@@ -286,5 +283,5 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
 
     # Test if distribution is 100%
     for y in dwtype_distr:
-        np.testing.assert_almost_equal(sum(dwtype_distr[y].values()), 1.0, decimal=7, err_msg='The distribution of dwelling types went wrong', verbose=True)
+        np.testing.assert_almost_equal(sum(dwtype_distr[y].values()), 1.0, decimal=5, err_msg='The distribution of dwelling types went wrong', verbose=True)
     return dwtype_distr
