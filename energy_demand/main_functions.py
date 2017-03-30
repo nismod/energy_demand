@@ -10,6 +10,18 @@ import numpy as np
 import yaml
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+def get_temp_region(dw_reg_id, coordinates):
+    """ 
+    #TODO Reallocation any region input with wheater region (mabe also coordinate inputs)
+
+    """
+    coordinates = coordinates
+    
+    temperature_region_relocated = 'Midlands'
+
+    return temperature_region_relocated
+
+
 def read_txt_t_base_by(path_temp_txt, base_yr):
     """Read out mean temperatures for all regions and store in dict
 
@@ -646,11 +658,11 @@ def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data):
 
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
-    for external_enduse in data_ext['external_enduses']:
+    for external_enduse in data_ext['external_enduses_resid']:
 
         new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
-        for fueltype in data_ext['external_enduses'][external_enduse]:
-            new_fuel_array[fueltype] = data_ext['external_enduses'][external_enduse][fueltype]
+        for fueltype in data_ext['external_enduses_resid'][external_enduse]:
+            new_fuel_array[fueltype] = data_ext['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
 
@@ -693,9 +705,9 @@ def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
         days_per_month = month_days[month]
 
         k_hitchens_location_constant = 0.71
-        print(days_per_month)
-        print(t_base)
-        print(t_mean_reg_months[month])
+        #print(days_per_month)
+        #print(t_base)
+        #print(t_mean_reg_months[month])
         hdd_tot += hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean_reg_months[month])
 
     return hdd_tot
@@ -715,14 +727,14 @@ def get_hdd_country(regions, data, base_year):
     hdd_country = 0
     hdd_regions = {}
     t_base = data['assumptions']['t_base']['base_year']
-    print("t_base")
-    print(t_base)
 
     for region in regions:
-        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
-        temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
 
+        coordinates_of_region = "TODO"
+        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
+        temperature_region_relocated = get_temp_region(region, coordinates_of_region)
         t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
+
         hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months, t_base)
 
         hdd_regions[region] = hdd_reg # get regional temp over year
@@ -731,7 +743,7 @@ def get_hdd_country(regions, data, base_year):
     return hdd_regions
 
 def get_hdd_individ_reg(region, data):
-    """Calculate total number of heating degree days in a region
+    """Calculate total number of heating degree days in a region for the base year
 
     Parameters
     ----------
@@ -750,30 +762,36 @@ def get_hdd_individ_reg(region, data):
 
     return hdd_reg
 
-def get_t_base(curr_y, assumptions, data_ext):
-    """Calculate t_base depending with sigmoid diff
+def get_t_base(curr_y, assumptions, base_yr, end_yr):
+    """Calculate base temperature depending on sigmoid diff and location
 
-    Depending on t_base in base and end year,
-    a sigmoid diffusion of differences in t_base
-    (e.g. through termal comfort) are modelled."""
-    base_yr = data_ext['glob_var']['base_year']
-    current_yr = curr_y
-    end_yr = data_ext['glob_var']['end_yr']
+    Depending on the base temperature in the base and end year
+    a sigmoid diffusion from the base temperature from the base year
+    to the end year is calculated
 
-    t_base_by = assumptions['t_base']['base_year']
-    t_base_ey = assumptions['t_base']['end_yr']
-    t_base_diff = t_base_by - t_base_ey # Tempteratuer difference
+    This allows to model changes e.g. in thermal confort
 
-    sig_midpoint = assumptions['sig_midpoint']
-    sig_steeppness = assumptions['sig_steeppness']
+    Parameters
+    ----------
+    curr_y : float
+        Current Year
+    assumptions : dict
+        Dictionary with assumptions
+    base_yr : float
+        tbd
+    """
 
-    t_base_frac = sigmoidefficiency(base_yr, current_yr, end_yr, sig_midpoint, sig_steeppness)
+    # Base temperature of end year minus base temp of base year 
+    t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_year']
+
+    # Sigmoid diffusion
+    t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
     # Temp diff until current year
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = t_base_by + t_diff_cy
+    t_base_cy = assumptions['t_base']['base_year'] + t_diff_cy
 
     return t_base_cy
 
@@ -838,7 +856,7 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
+    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
@@ -873,7 +891,7 @@ def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
 
     return fract_sy
 
-def sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 

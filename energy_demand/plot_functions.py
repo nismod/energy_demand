@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib as mpl
 
 
 def plot_x_days(all_hours_year, region, days):
@@ -111,4 +112,65 @@ def plot_FUNCTIONSE():
 
 #print("Finished loead profiles generator")
 
+def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+    """Plots stacked end_use for a region
 
+
+    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+    """
+
+    fig, ax = plt.subplots() #fig is needed
+    nr_y_to_plot = len(results_resid) #number of simluated years
+    print(nr_y_to_plot)
+    x = range(nr_y_to_plot)
+
+    legend_entries = []
+
+    # Initialise (number of enduses, number of hours to plot)
+    Y_init = np.zeros((len(data['resid_enduses']), nr_y_to_plot))
+
+    for k, enduse in enumerate(data['resid_enduses']):
+        legend_entries.append(enduse)
+        data_over_years = []
+
+        for model_year_object in results_resid:
+            tot_fuel = model_year_object.tot_country_fuel_enduse_specific # FUEL DATA
+            data_over_years.append(tot_fuel[enduse])
+        print(data_over_years)
+        Y_init[k] = data_over_years
+
+        '''# Iterate enduse
+        for k, enduse in enumerate(self.reg_fuel):
+            legend_entries.append(enduse)
+            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
+            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
+            list_all_h = []
+
+            #Get data of a fueltype
+            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+
+                for h in fuel_data:
+                    list_all_h.append(h)
+
+            Y_init[k] = list_all_h
+        '''
+
+    #color_list = ["green", "red", "#6E5160"]
+
+    sp = ax.stackplot(x, Y_init)
+    proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+
+    ax.legend(proxy, legend_entries)
+
+    #ticks x axis
+    #ticks_x = range(2015, 2015 + nr_y_to_plot)
+    #plt.xticks(ticks_x)
+
+    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='red')
+    plt.axis('tight')
+
+    plt.xlabel("Simulation years")
+    plt.title("Stacked energy demand for simulation years for whole UK")
+
+    plt.show()

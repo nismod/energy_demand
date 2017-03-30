@@ -59,7 +59,7 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
+    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
@@ -94,7 +94,7 @@ def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
 
     return fract_sy
 
-def sigmoidefficiency(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 

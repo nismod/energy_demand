@@ -30,7 +30,7 @@ class Dwelling(object):
     assumptions : dict
         Modelling assumptions stored in dictionary
     """
-    def __init__(self, curr_y, region_dw_is_in, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
+    def __init__(self, curr_y, reg_id, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.coordinates = coordinates
@@ -38,9 +38,9 @@ class Dwelling(object):
         self.age = age
         self.pop = pop
         self.floorarea = floorarea
-        self.region_dw_is_in = region_dw_is_in
+        self.dw_reg_id = reg_id
 
-        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext) #: Get internal temperature depending on assumptions of sim_yr
+        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_id, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
         self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
         #self.HOUSEHOLDINCOME?
         #self.otherattribute
@@ -87,28 +87,47 @@ class Dwelling(object):
         """calc scenario driver with population and floor area"""
         return self.pop
 
-def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext):
-    """ Get internal temperature based on assumptions
-    
-    Based on year the t_temp is choosen
-    
+def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, coordinates):
+    """Calculate heating degree days depending on temperatures and base temperature
+
+    The mean temperatures are loaded for the closest wheater station (TODO)
+    and the base temperature is calculated for the given year, depending on
+    assumptions on change in t_base (sigmoid diffusion)
+
+    Parameters
+    ----------
+    curr_y : float
+        Current year
+    assumptions : int
+        tbd
+    dw_reg_id : string
+        Region of the created `Dwelling` object
+
+    Returns
+    -------
+    hdd : int
+        Heating Degree Days
+
+    Notes
+    -----
+    The closest weather region to the region in which the `Dwelling` object is created needs
+    to be found with the function `get_temp_region`
+
     """
-    
-    
-    # Diffusion of internal temperature
-    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext)
+    # Base temperature for current year (Diffusion of sigmoid internal temperature)
+    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext['glob_var']['base_year'], data_ext['glob_var']['end_yr'])
 
     # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
-    #temperature_region_relocated = mf.get_temp_region(self.region_dw_is_in)
-    temperature_region_relocated = 'Midlands'
+    temperature_region_relocated = mf.get_temp_region(dw_reg_id, coordinates)
 
-     # READ OUT TEMP: Recalcuulate heating degree days based on internal temperature change
+     # Read temperature of closest region TODO
     t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
 
+    # Calculate heating degree days based, including change in intermal temp change
     hdd = mf.get_tot_y_hdd_reg(t_mean_reg_months, t_base_cy)
 
-    
     return hdd
+
 
 
 def get_hlc(dw_type, age):
@@ -267,7 +286,8 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     out = {year: {'dwtype': 0.3}}
     """
     dwtype_distr = {}
-    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1, 1) #base year, current year, iteration step
+
+    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1) 
 
     # Iterate years
     for sim_yr in sim_period:

@@ -24,7 +24,7 @@
 
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
-
+- data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 Open questions
 - PEAK to ED
 - Other Enduses from external wrapper?
@@ -111,7 +111,7 @@ def energy_demand_model(data, data_ext):
 
     # Plot Region 0 for half a year
     # pf.plot_x_days(result_dict[2], 0, 2)
-    return result_dict
+    return result_dict, resid_object_country
 
 
 # Run
@@ -127,27 +127,58 @@ if __name__ == "__main__":
     # obs.units == 'count'
     # External data provided from wrapper
 
+    # -------------------
+    # GENERATE DUMMY DATA
+    # -------------------
+    #Dummy
+    by = 2015
+    ey = 2016 #always includes this year
+
+    sim_years =  range(by, ey + 1) 
+
+    pop_dummy = {}
+    a = {'Wales': 3000000, 'Scotland': 5300000}
+    for i in sim_years:
+        y_data = {}
+        for reg in a:
+            y_data[reg] = a[reg] *1.05
+        pop_dummy[i] = y_data
+        a = y_data
+
+    fuel_price_dummy = {}
+    a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0}
+    for i in range(2015, 2020):
+        y_data = {}
+        for reg in a:
+            y_data[reg] = a[reg] *1.0
+        fuel_price_dummy[i] = y_data
+        a = y_data
+
     # Reg Floor Area? Reg lookup?
     data_external = {
-        'population': {
-            2015: {'Wales': 3000001, 'Scotland': 5300001},
-            2016: {'Wales': 3000001, 'Scotland': 5300001}
-        },
-        'glob_var': {
-            'base_year': 2015,
-            'current_yr': 2016,
-            'end_yr': 2020
-        },
-        'fuel_price': {
-            2015: {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0},
-            2016: {0: 12.0, 1: 13.0, 2: 14.0, 3: 12.0, 4: 13.0, 5: 14.0, 6: 13.0, 7: 13.0}
-        },
+
+        'population': pop_dummy,
+        'glob_var' : {},
+        #'glob_var': {
+        #    'base_year': 2015,
+        #    'current_yr': 2016,
+        #    'end_yr': 2017
+        #},
+        'fuel_price': fuel_price_dummy,
+
         # Demand of other sectors
-        'external_enduses': {
-            'waste_water': {0: 0},  # Yearly fuel data
-            'ICT_model': {}
+        'external_enduses_resid': {
+            #'waste_water': {0: 0},  # Yearly fuel data
+            #'ICT_model': {}
         }
     }
+    data_external['glob_var']['end_yr'] = ey
+
+    data_external['glob_var']['base_year'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
+    # ------------------- DUMMY END
+
+
+
 
     # Model calculations outside main function
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -164,7 +195,22 @@ if __name__ == "__main__":
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
+
+    # If several years are run:
+    results_every_year = []
+    for sim_y in sim_years:
+        print("SIM RUN:  " + str(sim_y))
+
+        data_external['glob_var']['current_yr'] = sim_y
+
+        results, resid_object_country = energy_demand_model(base_data, data_external)
+
+        results_every_year.append(resid_object_country)
+        #break
+    # Plot results for every year
+    pf.plot_stacked_Country_end_use(results_every_year, base_data)
+
     # Run main function
     results = energy_demand_model(base_data, data_external)
-    #print(results)
+
     print("Finished running Energy Demand Model")

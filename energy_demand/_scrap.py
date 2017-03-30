@@ -1,4 +1,23 @@
 
+# Dummy data GeneratorExit
+
+pop = {}
+a = {'Wales': 3000000, 'Scotland': 5300000}
+
+for i in range(2015, 2020):
+    y_data = {}
+    for reg in a:
+        y_data[reg] = a[reg] *1.05
+    pop[i] = y_data
+    a = y_data
+
+
+
+
+
+
+
+
 '''
 1. Calculate fraction without fuel switch (assumption about internal shift between technologies)
 2. Caclulate fuel switches: I. Amount of new fuel sigmoid

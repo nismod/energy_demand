@@ -105,7 +105,7 @@ class ResidTechStock(object):
         tech_frac_ey = self.tech_frac_ey
 
         # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
-        sig_frac_tech_change = mf.sigmoidefficiency(self.base_year, self.current_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+        sig_frac_tech_change = mf.sigmoid_diffusion(self.base_year, self.current_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
         for enduse in tech_frac_by:
             tech_frac_cy[enduse] = {}

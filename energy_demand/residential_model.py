@@ -41,7 +41,14 @@ def residential_model_main_function(data, data_ext):
     resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
 
     # Total fuel of country
-    fueltot = resid_object.tot_reg_fuel
+    fueltot = resid_object.tot_country_fuel
+
+    # Total fuel of country for each enduse
+    country_enduses = resid_object.tot_country_fuel_enduse_specific
+    print("country_enduses")
+    print(country_enduses)
+
+    #TODO get tot_fuel_for_ever_enduse
 
     #TEST total fuel after run
     print("TEST MAIN START:" + str(fuel_in))
@@ -151,9 +158,8 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
 
             if fuel != 0: # if fuel exists
-                # Fuel prices
-                fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype]
-                fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype]
+                fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype] # Fuel price by
+                fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
 
                 new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
 
@@ -280,7 +286,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             #print("fuel_diff: " + str(fuel_diff))
 
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
-            fuel_p_cy = fuel_p_ey[:, 1] * mf.sigmoidefficiency(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+            fuel_p_cy = fuel_p_ey[:, 1] * mf.sigmoid_diffusion(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
             print("fuel_p_cy:" + str(fuel_p_cy))
             print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
             print(self.reg_fuel)
@@ -458,24 +464,32 @@ class Country_residential_model(object):
     this class has as many attributes as regions (for evry rgion an attribute)
     """
     def __init__(self, sub_reg_names, data, data_ext):
-        """Constructor or Region"""
+        """Constructor of the class which holds all regions of a country"""
         self.data = data
         self.data_ext = data_ext
         self.sub_reg_names = sub_reg_names
 
         self.create_regions() #: create object for every region
-        self.tot_reg_fuel = self.get_overall_sum()
+        self.tot_country_fuel = self.get_overall_sum()
+        self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse()
+
+
+
+        # TESTING
+        test_sum = 0
+        for enduse in self.tot_country_fuel_enduse_specific:
+            test_sum += self.tot_country_fuel_enduse_specific[enduse]
+        np.testing.assert_almost_equal(np.sum(self.tot_country_fuel), test_sum, decimal=7, err_msg='', verbose=True)
+
 
     def create_regions(self):
         """Create all regions and add them as attributes based on region name to this class"""
-        for reg_ID in self.sub_reg_names:
-            reg_object = Region(reg_ID, self.data, self.data_ext) # Region object
-
-            # Create an atribute for every regions ()
-            Country_residential_model.__setattr__(self, str(reg_ID), reg_object)
+        for reg_name in self.sub_reg_names:
+            reg_object = Region(reg_name, self.data, self.data_ext) # Region object
+            Country_residential_model.__setattr__(self, str(reg_name), reg_object) # Create an atribute for every regions ()
 
     def get_overall_sum(self):
-        """Collect hourly data from all regions and sum across all fuel types"""
+        """Collect hourly data from all regions and sum across all fuel types and enduses"""
         tot_sum = 0
         for reg_id in self.data['reg_lu']:
             reg_object = getattr(self, str(reg_id)) # Get region
@@ -484,6 +498,27 @@ class Country_residential_model(object):
             tot_sum += np.sum(getattr(reg_object, 'fuels_tot_enduses_h'))
 
         return tot_sum
+
+    def get_sum_for_each_enduse(self):
+        """Collect end_use specific hourly data from all regions and sum across all fuel types
+
+        out: {enduse: sum(all_fuel_types)}
+
+        """
+
+        tot_sum_enduses = {}
+        for enduse in self.data['resid_enduses']:
+            tot_sum_enduses[enduse] = 0
+
+        for reg_id in self.data['reg_lu']:
+            reg_object = getattr(self, str(reg_id)) # Get region
+
+            # Get fuel data of region
+            enduse_fuels_reg = getattr(reg_object, 'fuels_new_enduse_specific')
+            for enduse in enduse_fuels_reg:
+                tot_sum_enduses[enduse] += np.sum(enduse_fuels_reg[enduse]) # sum across fuels
+
+        return tot_sum_enduses
 
 class Region(object):
     """Class of a region for the residential model
@@ -502,7 +537,10 @@ class Region(object):
     # TODO: CHECK IF data could be reduced as input (e.g. only provide fuels and not data)
     """
     def __init__(self, reg_id, data, data_ext):
-        """Constructor or Region"""
+        """Constructor or Region
+        # All calculatiosn are basd on driver_fuel_fuel_data #TODO
+        #TODO: ITERATE OVER RESID ENDUSE DICT AND NOT FUELS
+        """
         self.reg_id = reg_id                                        # ID of region
         self.data = data                                            # data
         self.data_ext = data_ext                                    # external data
@@ -515,6 +553,7 @@ class Region(object):
 
         # Sum final 'yearly' fuels (summarised over all enduses)
         self.fuels_new = self.tot_all_enduses_y()
+        self.fuels_new_enduse_specific = self.enduse_specific_y() #each enduse individually
 
         # Get 'peak demand day' (summarised over all enduses)
         self.fuels_peak_d = self.get_enduse_peak_d()
@@ -527,10 +566,6 @@ class Region(object):
 
         # Sum 'hourly' demand in region (summarised over all enduses)
         self.fuels_tot_enduses_h = self.tot_all_enduses_h()
-
-        # Testing
-        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
-        # add some more
 
         # Calculate load factors from peak values
         self.reg_load_factor_d = self.load_factor_d()
@@ -545,32 +580,50 @@ class Region(object):
         #fueltype_to_plot, nr_days_to_plot = 2, 1
         #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
 
+        # Testing
+        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
+
+        test_sum = 0
+        for enduse in self.fuels_new_enduse_specific:
+            test_sum += np.sum(self.fuels_new_enduse_specific[enduse])
+        np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
+        # TODO: add some more
+
     def create_enduse_objects(self):
         """All enduses are initialised and inserted as an attribute of the Region Class"""
 
         # Iterate enduses
-        for enduse in self.reg_fuel:
-
-            # Enduse object
-            enduse_object = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel)
-
-            # Set attribute
-            Region.__setattr__(self, enduse, enduse_object)
+        for enduse in self.data['resid_enduses']:
+            enduse_obj = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel) # Enduse object
+            Region.__setattr__(self, enduse, enduse_obj) # Set attribute
 
     def tot_all_enduses_y(self):
         """Sum all fuel types over all end uses"""
         sum_fuels = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise
 
-        for enduse in self.reg_fuel:
+        for enduse in self.data['resid_enduses']:
             sum_fuels += self.__getattr__subclass__(enduse, 'reg_fuelscen_driver') # Fuel of Enduse
 
         return sum_fuels
+
+    def enduse_specific_y(self):
+        """Sum fuels for every fuel type for each enduse"""
+
+        # Initialise
+        sum_fuels_all_enduses = {}
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_all_enduses[enduse] = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'reg_fuelscen_driver') # Fuel of Enduse
+
+        return sum_fuels_all_enduses
 
     def tot_all_enduses_d(self):
         """Calculate total daily fuel demand for each fueltype"""
         sum_fuels_d = np.zeros((len(self.data['fuel_type_lu']), 365))  # Initialise
 
-        for enduse in self.reg_fuel:
+        for enduse in self.data['resid_enduses']:
             sum_fuels_d += self.__getattr__subclass__(enduse, 'reg_fuel_d')
 
         return sum_fuels_d
@@ -579,7 +632,7 @@ class Region(object):
         """Summarise absolute fuel of peak days over all end_uses"""
         sum_enduse_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))  # Initialise
 
-        for enduse in self.reg_fuel:
+        for enduse in self.data['resid_enduses']:
             sum_enduse_peak_d += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_d') # Fuel of Enduse
 
         return sum_enduse_peak_d
@@ -588,7 +641,7 @@ class Region(object):
         """Summarise peak value of all end_uses"""
         sum_enduse_peak_h = np.zeros((len(self.data['fuel_type_lu']), 1, 24)) # Initialise
 
-        for enduse in self.reg_fuel:
+        for enduse in self.data['resid_enduses']:
             sum_enduse_peak_h += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_h') # Fuel of Enduse
 
         return sum_enduse_peak_h
@@ -597,7 +650,7 @@ class Region(object):
         """Calculate total hourly fuel demand for each fueltype"""
         sum_fuels_h = np.zeros((len(self.data['fuel_type_lu']), 365, 24)) # Initialise
 
-        for enduse in self.reg_fuel:
+        for enduse in self.data['resid_enduses']:
             sum_fuels_h += self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
 
         # Read out more error information (e.g. RuntimeWarning)
@@ -625,10 +678,10 @@ class Region(object):
 
         # Get day with maximum demand (in percentage of year)
         peak_d_demand = self.fuels_peak_d
-        print("AAA: " + str(peak_d_demand))
+
         # Iterate fueltypes to calculate load factors for each fueltype
-        for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
-            average_demand = np.sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
+        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
+            average_demand = np.sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
 
             if average_demand != 0:
                 lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
@@ -656,7 +709,7 @@ class Region(object):
         lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
 
         # Iterate fueltypes to calculate load factors for each fueltype
-        for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
+        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
 
             # Maximum fuel of an hour of the peak day
             maximum_h_of_day = np.amax(self.fuels_peak_h[fueltype])
@@ -670,7 +723,7 @@ class Region(object):
 
             # If there is a maximum day hour
             if maximum_h_of_day != 0:
-                average_demand_h = np.sum(data_fueltype) / (365 * 24) # Averae load = yearly demand / nr of days
+                average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
                 lf_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
 
         lf_h = lf_h * 100 # Convert load factor to %
@@ -697,10 +750,10 @@ class Region(object):
         lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
 
         # Iterate fueltypes to calculate load factors for each fueltype
-        for k, data_fueltype in enumerate(self.fuels_tot_enduses_d):
+        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
 
-            average_demand = sum(data_fueltype) / 365 # Averae_demand = yearly demand / nr of days
-            max_demand_d = max(data_fueltype)
+            average_demand = sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
+            max_demand_d = max(fueldata)
 
             if  max_demand_d != 0:
                 lf_d[k] = average_demand / max_demand_d # Calculate load factor
@@ -728,7 +781,7 @@ class Region(object):
         lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
 
         # Iterate fueltypes to calculate load factors for each fueltype
-        for fueltype, data_fueltype in enumerate(self.fuels_tot_enduses_h):
+        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
 
             all_hours = []
             for day_hours in self.fuels_tot_enduses_h[fueltype]:
@@ -736,7 +789,7 @@ class Region(object):
                     all_hours.append(h)
             maximum_h_of_day_in_year = max(all_hours)
 
-            average_demand_h = np.sum(data_fueltype) / (365 * 24) # Averae load = yearly demand / nr of days
+            average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
 
             # If there is a maximum day hour
             if maximum_h_of_day_in_year != 0:
@@ -787,7 +840,7 @@ class Region(object):
             legend_entries.append(enduse)
             sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
 
-            #data_fueltype_enduse = np.zeros((nr_hours_to_plot, ))
+            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
             list_all_h = []
 
             #Get data of a fueltype
@@ -807,7 +860,6 @@ class Region(object):
 
         #ticks x axis
         ticks_x = range(24)
-
         plt.xticks(ticks_x)
 
         #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
@@ -828,3 +880,71 @@ class Region(object):
         plt.show()
 
 
+def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
+        """Plots stacked end_use for a region
+
+        #TODO: Make that end_uses can be sorted, improve legend...
+
+        0: 0-1
+        1: 1-2
+        2:
+
+        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+        """
+
+        fig, ax = plt.subplots() #fig is needed
+        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
+
+        day_start_plot = yearday
+        day_end_plot = (yearday + nr_of_day_to_plot)
+
+        x = range(nr_hours_to_plot)
+
+        legend_entries = []
+
+        # Initialise (number of enduses, number of hours to plot)
+        Y_init = np.zeros((len(self.reg_fuel), nr_hours_to_plot))
+
+        # Iterate enduse
+        for k, enduse in enumerate(self.reg_fuel):
+            legend_entries.append(enduse)
+            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
+            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
+            list_all_h = []
+
+            #Get data of a fueltype
+            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+
+                for h in fuel_data:
+                    list_all_h.append(h)
+
+            Y_init[k] = list_all_h
+
+        #color_list = ["green", "red", "#6E5160"]
+
+        sp = ax.stackplot(x, Y_init)
+        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+
+        ax.legend(proxy, legend_entries)
+
+        #ticks x axis
+        ticks_x = range(24)
+        plt.xticks(ticks_x)
+
+        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
+        plt.axis('tight')
+
+        plt.xlabel("Hours")
+        plt.ylabel("Energy demand in GWh")
+        plt.title("Stacked energy demand for region{}".format(reg_name))
+
+        #from matplotlib.patches import Rectangle
+        #legend_boxes = []
+        #for i in color_list:
+        #    box = Rectangle((0, 0), 1, 1, fc=i)
+        #    legend_boxes.append(box)
+        #ax.legend(legend_boxes, legend_entries)
+
+        #ax.stackplot(x, Y_init)
+        plt.show()

@@ -76,7 +76,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
 
             if enduse == 'heating':
                 # Use HDD and pop to disaggregat
-                print("------")
+                #print("------")
                 #print(reg_pop)
                 #print(total_pop)
                 #print((reg_pop * hdd_reg) / tot_hdd_popreg)

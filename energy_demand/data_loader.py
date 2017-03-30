@@ -32,24 +32,9 @@ def load_data(path_main, data_ext):
 
     # Data container
     data = {}
-
-    # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
-    # TODO: Will change if data externally loaded---------------------------
-    reg_lu_dict = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
-        reg_lu_dict[reg_name] = reg_name
-    data['reg_lu'] = reg_lu_dict
-
-
-    #FLOOR_AREA_LOOKUP:
-    reg_floor_area = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
-        reg_lu_dict[reg_name] = 100000
-    data['reg_floorarea'] = reg_lu_dict
-
+    data['path_main'] = path_main
 
     path_dict = {
-
         # Residential
         # -----------
         'path_main': path_main,
@@ -78,13 +63,28 @@ def load_data(path_main, data_ext):
 
     data['path_dict'] = path_dict
 
-    # -- Reads in all csv files and store them in a dictionary
-    data['path_main'] = path_main
 
-    # Read in wheater data for different reiongs TODO
-    #(days_per_month, 0.71, t_base, t_mean)
+
+    # ------------------------------------------
+    # RESIDENTIAL SECTOR
+    # ------------------------------------------
+
+    # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
+    # TODO: Will change if data externally loaded---------------------------
+    reg_lu_dict = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+        reg_lu_dict[reg_name] = reg_name
+    data['reg_lu'] = reg_lu_dict
+
+    #FLOOR_AREA_LOOKUP:
+    reg_floor_area = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+        reg_lu_dict[reg_name] = 100000
+    data['reg_floorarea'] = reg_lu_dict
+
+
+    # Read in wheater data for different reiongs TODO #(days_per_month, 0.71, t_base, t_mean)
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
-
 
     # Lookup data
     #data['reg_lu'] = mf.read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
@@ -116,12 +116,25 @@ def load_data(path_main, data_ext):
         scrap += np.sum(data_residential_by_fuel_end_uses[enduse])
     print("scrap FUELS READ IN FROM EXCEL: " + str(scrap))
 
-    # Add the yearly fuel data of the external Wrapper to the enduses (RESIDENTIAL HERE)
+
+
+
+    # Add the yearly fuel data of the external Wrapper to the enduses (RESIDENTIAL HERE) #TODO
     ###data = add_yearly_external_fuel_data(data, data_ext, data_residential_by_fuel_end_uses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
+
+
+    # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
+    data['resid_enduses'] = {}
+    for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
+        data['resid_enduses'][ext_enduse] = ext_enduse
+    
+    for enduse in data_residential_by_fuel_end_uses: # Add resid enduses
+        data['resid_enduses'][enduse] = enduse
 
     data['lu_appliances_HES_matched'] = mf.read_csv(path_dict['path_lu_appliances_HES_matched'])
 
     # SERVICE SECTOR
+    # --------------
     #data['csv_temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # csv_temp_2015 #TODO: Dele
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
