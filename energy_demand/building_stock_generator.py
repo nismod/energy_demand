@@ -55,10 +55,10 @@ def resid_build_stock(data, assumptions, data_ext):
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
-    print(data['dwtype_lu'])
-    print(assumptions['assump_dwtype_floorarea'])
-    print(dwtype_distr_sim)
-    print("floorarea_p_sy: " + str(floorarea_p_sy))
+    #print(data['dwtype_lu'])
+    #print(assumptions['assump_dwtype_floorarea'])
+    #print(dwtype_distr_sim)
+    #print("floorarea_p_sy: " + str(floorarea_p_sy))
 
     # Iterate regions
     for reg_id in reg_lu:
@@ -89,8 +89,8 @@ def resid_build_stock(data, assumptions, data_ext):
                     dw_stock_new_dw = generate_dw_new(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, assumptions, data_ext)
 
         # Generate region and save it in dictionary
-        reg_dw_stock_cy[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dw) # Add old and new buildings to stock
-        reg_dw_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base) # Add base year stock
+        reg_dw_stock_cy[reg_id] = bf.DwStockRegion(reg_id, dw_stock_new_dw, data) # Add old and new buildings to stock
+        reg_dw_stock_by[reg_id] = bf.DwStockRegion(reg_id, dw_stock_base, data) # Add base year stock
 
     #print("Base dwelling")
     #print(reg_dw_stock_by[0].get_tot_pop())

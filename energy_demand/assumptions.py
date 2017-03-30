@@ -125,6 +125,24 @@ def load_assumptions(data):
     # Weather Assumptions
     assump_dict['t_base'] = {'base_year': 15.5, 'end_yr': 14.5}
 
+
+    # ============================================================
+    # DRIVER ASSUMPTIONS (FROM BUILDING STOCK)
+    # ============================================================
+
+    assump_dict['resid_scen_driver_assumptions'] = {
+        'heating': ['pop', 'floorarea', 'hdd', 'hlc'],
+        'water_heating': ['pop'],
+        'lighting': ['pop', 'floorarea'],
+        'cooking': ['pop'],
+        'cold': ['pop'],
+        'wet': ['pop'],
+        'consumer_electronics': ['pop'],
+        'home_computing': ['pop'],
+    }
+
+
+
     # ============================================================
     # Elasticities (Long-term resid_elasticities)
     # #TODO: Elasticties over time change? Not implemented so far
@@ -307,7 +325,9 @@ def load_assumptions(data):
     # Don't specify total fuel percentage of enduse for enduse but only how much is reduced to base_year
     # TODO: Acual percentage of fueltype yould be calculated...
     # Always positive values (0.2 --> 20% reduction)
-    assump_fuel_frac_ey = {
+    assump_fuel_frac_ey = {}
+    '''
+    {
         'lighting': {
             '0' : 0.0,
             '1' : 0.0,
@@ -319,6 +339,7 @@ def load_assumptions(data):
             '7':  0.0
             }
     }
+    '''
 
     # Helper function - Replace all enduse from assump_fuel_frac_ey
     fuel_type_p_ey = {}
@@ -408,8 +429,8 @@ def load_assumptions(data):
     # Assumptions Residential Dwelling Stock
     # ============================================================
 
-    # Building stock related
-    assump_dict['assump_change_floorarea_pp'] = 0.4 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model) # Assumption of change in floor area up to end_yr ASSUMPTION (if minus, check if new buildings are needed)
+    # Building stock related, assumption of change in floor area up to end_yr
+    assump_dict['assump_change_floorarea_pp'] = 0.0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
 
     # Dwelling type distribution
     assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year

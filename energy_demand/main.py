@@ -132,22 +132,22 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2016 #always includes this year
+    ey = 2017 #always includes this year
 
     sim_years =  range(by, ey + 1) 
 
     pop_dummy = {}
-    a = {'Wales': 3000000, 'Scotland': 5300000}
+    a = {'Wales': 3000000} #'Scotland': 5300000
     for i in sim_years:
         y_data = {}
         for reg in a:
-            y_data[reg] = a[reg] *1.05
+            y_data[reg] = a[reg] *1.25
         pop_dummy[i] = y_data
         a = y_data
 
     fuel_price_dummy = {}
     a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0}
-    for i in range(2015, 2020):
+    for i in sim_years:
         y_data = {}
         for reg in a:
             y_data[reg] = a[reg] *1.0
@@ -177,6 +177,7 @@ if __name__ == "__main__":
     data_external['glob_var']['base_year'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
+    print("DUMMY DATA:" + str(data_external))
 
 
 
@@ -199,14 +200,20 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
     for sim_y in sim_years:
-        print("SIM RUN:  " + str(sim_y))
-
         data_external['glob_var']['current_yr'] = sim_y
+
+        print("-------------------------- ")
+        print("SIM RUN:  " + str(sim_y))
+        print(data_external['glob_var']['current_yr'])
+        print("-------------------------- ")
 
         results, resid_object_country = energy_demand_model(base_data, data_external)
 
+
         results_every_year.append(resid_object_country)
-        #break
+
+
+
     # Plot results for every year
     pf.plot_stacked_Country_end_use(results_every_year, base_data)
 

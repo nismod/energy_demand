@@ -105,8 +105,9 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         # --Yearly fuel data (Check if always function below takes result from function above)
+        #TODO: CHeck that if baseyear, nothing is changed anywhere
         print("ENDUSE: " + str(self.enduse))
-        print(data['dict_shp_enduse_d_resid']['heating']['shape_d_peak'])
+        print(self.reg_fuel)
 
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
@@ -119,6 +120,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         print("reg_fuelscen_driver: " + str(np.sum(self.reg_fuelscen_driver)))
+        print(self.reg_fuelscen_driver)
 
         # --Daily fuel data
         self.reg_fuel_d = self.enduse_y_to_d()                           # Disaggregate yearly demand for every day
@@ -128,8 +130,8 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         # --Peak data
         self.enduse_fuel_peak_d = self.enduse_peak_d()                   # Calculate peak day
-        print("enduse_fuel_peak_d")
-        print(self.enduse_fuel_peak_d)
+        #print("enduse_fuel_peak_d")
+        #print(self.enduse_fuel_peak_d)
         self.enduse_fuel_peak_h = self.enduse_peak_h()                   # Calculate peak hour
 
         # Testing
@@ -149,28 +151,32 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         Every enduse can only have on shape independently of the fueltype
 
         """
-        new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
 
-        # End use elasticity
-        elasticity_enduse = self.assumptions['resid_elasticities'][self.enduse]
-        #elasticity_enduse_cy = nonlinear_def...
+        if self.current_yr == self.base_year:
+            return self.reg_fuel_after_switch
+        else:
+            new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
 
-        for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
+            # End use elasticity
+            elasticity_enduse = self.assumptions['resid_elasticities'][self.enduse]
+            #elasticity_enduse_cy = nonlinear_def...
 
-            if fuel != 0: # if fuel exists
-                fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype] # Fuel price by
-                fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
+            for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
 
-                new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+                if fuel != 0: # if fuel exists
+                    fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype] # Fuel price by
+                    fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
 
-            else:
-                new_fuels[fueltype] = fuel
-        print("enduse:  " + str(self.enduse))
-        print(elasticity_enduse)
-        print(self.reg_fuel_after_switch)
-        print("....")
-        print(new_fuels)
-        return new_fuels
+                    new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+
+                else:
+                    new_fuels[fueltype] = fuel
+            #print("enduse:  " + str(self.enduse))
+            ##print(elasticity_enduse)
+            #print(self.reg_fuel_after_switch)
+            #print("....")
+            #print(new_fuels)
+            return new_fuels
 
     def enduse_eff_gains(self):
         """Adapts yearly fuel demand depending on technology mix within each fueltype (e.g. boiler_elcA to boiler_elecB)
@@ -200,36 +206,40 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         # Will maybe be on household level
         """
-        out_dict = np.zeros((self.reg_fuel.shape[0], 1))
+        if self.current_yr != self.base_year:
+            print("calc")
+            out_dict = np.zeros((self.reg_fuel.shape[0], 1))
 
-        # Get technologies and share of technologies for each fueltype and enduse
-        tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_cy')
-        tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_by')
+            # Get technologies and share of technologies for each fueltype and enduse
+            tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_cy')
+            tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_by')
 
-        # Iterate fuels
-        for fueltype, fueldata in enumerate(self.reg_fuel):
+            # Iterate fuels
+            for fueltype, fueldata in enumerate(self.reg_fuel):
 
-            # Iterate technologies and average efficiencies relative to distribution for base year
-            overall_eff_by = 0
-            for technology in tech_frac_by[self.enduse][fueltype]:
+                # Iterate technologies and average efficiencies relative to distribution for base year
+                overall_eff_by = 0
+                for technology in tech_frac_by[self.enduse][fueltype]:
 
-                # Overall efficiency: Share of technology * efficiency of base year technology
-                overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
+                    # Overall efficiency: Share of technology * efficiency of base year technology
+                    overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
 
-            # Iterate technologies and average efficiencies relative to distribution for curren
-            overall_eff_cy = 0
-            for technology in tech_frac_cy[self.enduse][fueltype]:
+                # Iterate technologies and average efficiencies relative to distribution for curren
+                overall_eff_cy = 0
+                for technology in tech_frac_cy[self.enduse][fueltype]:
 
-                # Overall efficiency: Share of technology * efficiency of base year technology
-                overall_eff_cy += tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)
+                    # Overall efficiency: Share of technology * efficiency of base year technology
+                    overall_eff_cy += tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)
 
-            # Calc new demand considering efficiency change
-            if overall_eff_cy != 0: # Do not copy any values
-                out_dict[fueltype] = fueldata * (overall_eff_by / overall_eff_cy) # FROZEN old tech eff / new tech eff
-            else:
-                out_dict[fueltype] = fueldata
+                # Calc new demand considering efficiency change
+                if overall_eff_cy != 0: # Do not copy any values
+                    out_dict[fueltype] = fueldata * (overall_eff_by / overall_eff_cy) # FROZEN old tech eff / new tech eff
+                else:
+                    out_dict[fueltype] = fueldata
 
-        return out_dict
+            return out_dict
+        else:
+            return self.reg_fuel
 
     def enduse_fuel_switches(self):
         """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
@@ -256,7 +266,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         fuel_p_ey = self.assumptions['fuel_type_p_ey'][self.enduse] # End year    #Maximum change in % of fueltype up to endyear
 
         # Test whether share of fuel types stays identical
-        if np.array_equal(fuel_p_by, fuel_p_ey): # no fuel switches
+        if np.array_equal(fuel_p_by, fuel_p_ey) or self.current_yr == self.base_year: # no fuel switches
             #return self.reg_fuel
             return self.reg_fuel_eff_gains
         else:
@@ -271,15 +281,15 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
             tech_replacement_dict = self.assumptions['tech_replacement_dict'][self.enduse] # Dict with current technologes which are to be replaced
 
-            print("SWITHC INFO  " + str(self.enduse))
-            print(tech_install_fueltype)
-            print(tech_install)
-            print(eff_install)
-            print("tech_replacement_dict")
-            print(tech_replacement_dict)
+            #print("SWITHC INFO  " + str(self.enduse))
+            #print(tech_install_fueltype)
+            #print(tech_install)
+            #print(eff_install)
+            #print("tech_replacement_dict")
+            #print(tech_replacement_dict)
 
-            print("fuel_p_by " + str(fuel_p_by))
-            print("fuel_p_ey " + str(fuel_p_ey))
+            #print("fuel_p_by " + str(fuel_p_by))
+            #print("fuel_p_ey " + str(fuel_p_ey))
 
             # Calculate percentage differences over full simulation period
             #fuel_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # difference in percentage (ID gets wasted because it is substracted)
@@ -287,21 +297,21 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
             fuel_p_cy = fuel_p_ey[:, 1] * mf.sigmoid_diffusion(self.data_ext['glob_var']['base_year'], self.current_yr, self.data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
-            print("fuel_p_cy:" + str(fuel_p_cy))
-            print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
-            print(self.reg_fuel)
-            print(fuel_p_cy)
+            ##print("fuel_p_cy:" + str(fuel_p_cy))
+            #print("self.reg_fuel_eff_gains:" + str(self.reg_fuel_eff_gains))
+            #print(self.reg_fuel)
+            #print(fuel_p_cy)
 
             # Calculate differences in absolute fuel amounts
             absolute_fuel_diff = self.reg_fuel_eff_gains[:, 0] * fuel_p_cy # Multiply fuel demands by percentage changes
-            print("absolute_fuel_diff: " + str(absolute_fuel_diff))
-            print("Technology which is installed:           " + str(tech_install))
-            print("Efficiency of technology to be installed " + str(eff_install))
-            print("Current Year:" + str(self.current_yr))
+            #print("absolute_fuel_diff: " + str(absolute_fuel_diff))
+            #print("Technology which is installed:           " + str(tech_install))
+            #print("Efficiency of technology to be installed " + str(eff_install))
+            #print("Current Year:" + str(self.current_yr))
 
             for fuel_type, fuel_diff in enumerate(absolute_fuel_diff):
-                print("Fueltype: " + str(fuel_type))
-                print("fuel_diff: " + str(fuel_diff))
+                #print("Fueltype: " + str(fuel_type))
+                #print("fuel_diff: " + str(fuel_diff))
 
                 # Only if there is a positive fuel difference
                 if fuel_diff > 0:
@@ -310,7 +320,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
                     # Amount of switched fuel * (efficiency of new technology / efficiency of old technology)
                     fuel_consid_eff = fuel_diff * (eff_tech_remove / eff_install) #FROZEN
-                    print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_install) + "  " + str(eff_install / eff_tech_remove))
+                    #print("Technology fuel factor difference: " + str(eff_tech_remove) + "   " + str(eff_install) + "  " + str(eff_install / eff_tech_remove))
 
                     # Substract replaced fuel
                     fuel_switch_array[int(fuel_type)] = fuel_switch_array[int(fuel_type)] - fuel_diff # substract acutal fuel share
@@ -343,17 +353,25 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         -----
         This is the energy end use used for disaggregating to daily and hourly
         """
+
         # Test if enduse has a building related scenario driver
-        if hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse):
+        if hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) and self.current_yr != self.base_year:
 
             # Scenariodriver of building stock base year and new stock
             by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
             cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
-            factor_driver = by_driver / cy_driver # FROZEN current / base year (checked) (as in chapter 3.1.2)
+            factor_driver =  cy_driver / by_driver # FROZEN Here not effecieicny but scenario parameters!   base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            print("factor: " + str(self.enduse + "   " + str(factor_driver)))
 
             return self.reg_fuel_after_elasticity * factor_driver
 
         else: # This fuel is not changed by building related scenario driver
+            print("this enduse has not driver: " + str(self.enduse))
+            print(self.current_yr)
+            print(self.base_year)
+            print(hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse))
+            print(self.data['reg_dw_stock_by'][self.reg_id].__dict__)
+            #prnt("..")
             return self.reg_fuel_after_elasticity
 
     def enduse_y_to_d(self):
@@ -410,11 +428,11 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
         """
         fuels_d_peak = np.zeros((len(self.reg_fuel), 1))
-        print("...ddd")
-        print(self.enduse)
-        print(self.reg_fuelscen_driver)
-        print("---")
-        print(self.enduse_shape_peak_d)
+        #print("...ddd")
+        #print(self.enduse)
+        #print(self.reg_fuelscen_driver)
+        #print("---")
+        #print(self.enduse_shape_peak_d)
 
         # Iterate yearday and
         for k, fueltype_year_data in enumerate(self.reg_fuelscen_driver):
@@ -473,8 +491,11 @@ class Country_residential_model(object):
         self.tot_country_fuel = self.get_overall_sum()
         self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse()
 
-
-
+        n = 0
+        for i in self.tot_country_fuel_enduse_specific:
+            n += self.tot_country_fuel_enduse_specific[i]
+        print("============================ddddddddddd= " + str(self.tot_country_fuel))
+        print("===========================ddddddddddd== " + str(n))
         # TESTING
         test_sum = 0
         for enduse in self.tot_country_fuel_enduse_specific:
@@ -554,6 +575,12 @@ class Region(object):
         # Sum final 'yearly' fuels (summarised over all enduses)
         self.fuels_new = self.tot_all_enduses_y()
         self.fuels_new_enduse_specific = self.enduse_specific_y() #each enduse individually
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR: " + str(self.current_yr) + "  data  " + str(np.sum(self.fuels_new)))
+        f = 0
+        for i in self.fuels_new_enduse_specific:
+            f += np.sum(self.fuels_new_enduse_specific[i])
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR22: " + str(self.current_yr) + "  data  " + str(f))
+        #prnt(".l.")
 
         # Get 'peak demand day' (summarised over all enduses)
         self.fuels_peak_d = self.get_enduse_peak_d()
@@ -614,9 +641,9 @@ class Region(object):
         for enduse in self.data['resid_enduses']:
             sum_fuels_all_enduses[enduse] = np.zeros((len(self.data['fuel_type_lu']), 1))
 
+        # Sum data
         for enduse in self.data['resid_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'reg_fuelscen_driver') # Fuel of Enduse
-
         return sum_fuels_all_enduses
 
     def tot_all_enduses_d(self):
