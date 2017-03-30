@@ -41,41 +41,29 @@ class Dwelling(object):
         self.pop = pop
         self.floorarea = floorarea
         self.dw_reg_id = reg_id
-
-        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_id, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
-        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
         #self.HOUSEHOLDINCOME?
         #self.otherattribute
+        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_id, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
+        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
 
+        # Generate attribute for each enduse containing calculated scenario driver value
+        self.calc_scenario_driver()
 
-        self.scenario_driver()
-
-        # Scenario drivers for residential end demands
-        #self.heating = self.scenario_driver_heating()
-        #self.water_heating = self.scenario_driver_water_heating()
-        #self.cooking = self.scenario_driver_cooking()
-        #self.lighting = self.scenario_driver_lighting()
-        #self.cold = self.scenario_driver_cold()
-        #self.wet = self.scenario_driver_wet()
-        #self.consumer_electronics = self.scenario_driver_consumer_electronics()
-        #self.computing = self.scenario_driver_computing()
-
-    def scenario_driver(self):
+    def calc_scenario_driver(self):
         """ Summen driver values for dwellign depending on enduse and dfined assumptions and add as attribute
         IMPORTANT FUNCTION
         e.g. assumptION. {'heating': ['pop', 'floorarea', 'hdd', 'hlc']}
         """
-        print("DATA: dwelling create attribute")
         # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:
-            print("enduse_dwelling: " + str(enduse))
-
-            driver_value = 1
+            driver_value = 1 #used to sum (not zero!)
             drivers = self.driver_assumptions[enduse]
-            
+
+            # Iterate scenario drivver and get attriute to multiply values
             for driver in drivers:
                 driver_value = driver_value * getattr(self, driver)
 
+            # Set attribute
             Dwelling.__setattr__(self, enduse, driver_value)
 
 def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, coordinates):
@@ -118,8 +106,6 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, co
     hdd = mf.get_tot_y_hdd_reg(t_mean_reg_months, t_base_cy)
 
     return hdd
-
-
 
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type
@@ -177,17 +163,8 @@ class DwStockRegion(object):
         print(data['resid_enduses'])
         # Set for the dwelling stock attributes for every enduse
         for enduse in data['resid_enduses']:
-            print("enduse: " + str(enduse))
             new_enduse_attr = self.get_scenario_driver_enduse(enduse)
             DwStockRegion.__setattr__(self, enduse, new_enduse_attr)
-
-        #self.heating = self.get_scenario_driver_enduse('heating')
-        #self.water_heating = self.get_scenario_driver_enduse('water_heating')
-        #self.cooking = self.get_scenario_driver_enduse('cooking')
-        #self.cold = self.get_scenario_driver_enduse('cold')
-        ##self.wet = self.get_scenario_driver_enduse('wet')
-        #self.consumer_electronics = self.get_scenario_driver_enduse('consumer_electronics')
-        #self.computing = self.get_scenario_driver_enduse('computing')
 
     def get_scenario_driver_enduse(self, enduse):
         """Sum all scenario driver for space heating"""

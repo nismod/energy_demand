@@ -89,7 +89,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # --General data, fueldata, technological stock
         self.reg_id = reg_id                                        # Region
         self.enduse = enduse                                        # EndUse Name
-        self.current_yr = data_ext['glob_var']['current_yr']    # from parent class
+        self.current_yr = data_ext['glob_var']['current_yr']        # from parent class
         self.base_year = data_ext['glob_var']['base_year']          # from parent class
         self.data = data                                            # from parent class
         self.data_ext = data_ext                                    # from parent class
@@ -108,6 +108,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         #TODO: CHeck that if baseyear, nothing is changed anywhere
         print("ENDUSE: " + str(self.enduse))
         print(self.reg_fuel)
+        print(self.current_yr)
 
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
@@ -353,25 +354,24 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         -----
         This is the energy end use used for disaggregating to daily and hourly
         """
-
         # Test if enduse has a building related scenario driver
-        if hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) and self.current_yr != self.base_year:
+        if hasattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) and self.current_yr != self.base_year:
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
-            cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
+            #by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
+            #cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
+            by_driver = getattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) # Base year building stock
+            cy_driver = getattr(self.data['dw_stock'][self.reg_id][self.current_yr], self.enduse) # Current building stock
+
             factor_driver =  cy_driver / by_driver # FROZEN Here not effecieicny but scenario parameters!   base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            print(by_driver)
+            print(cy_driver)
             print("factor: " + str(self.enduse + "   " + str(factor_driver)))
 
             return self.reg_fuel_after_elasticity * factor_driver
 
         else: # This fuel is not changed by building related scenario driver
-            print("this enduse has not driver: " + str(self.enduse))
-            print(self.current_yr)
-            print(self.base_year)
-            print(hasattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse))
-            print(self.data['reg_dw_stock_by'][self.reg_id].__dict__)
-            #prnt("..")
+            print("this enduse has not driver or is base year: " + str(self.enduse))
             return self.reg_fuel_after_elasticity
 
     def enduse_y_to_d(self):
