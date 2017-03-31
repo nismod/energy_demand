@@ -1,5 +1,6 @@
 """ This file contains all assumptions of the energy demand model"""
 import numpy as np
+import copy
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -122,20 +123,31 @@ def load_assumptions(data):
     """
     assump_dict = {}
 
+    # TODO :Replace with loaded dict in load_data
+    dict_fueltype = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'bioenergy_waste':5,
+        'hydrogen': 6,
+        'future_fuel': 7
+    }
+
     # ============================================================
-    # Weather Assumptions
+    # Weather Assumptions (Checked)
     # ============================================================
     assump_dict['t_base'] = {
-        'base_year': 15.5, 
+        'base_year': 15.5,
         'end_yr': 15.5
     }
 
     # ============================================================
     # DRIVER ASSUMPTIONS (FROM BUILDING STOCK)
     # ============================================================
-
     assump_dict['resid_scen_driver_assumptions'] = {
-        'heating': ['pop', 'floorarea', 'hdd', 'hlc'],
+        'heating': ['floorarea', 'hdd', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop
         'water_heating': ['pop'],
         'lighting': ['pop', 'floorarea'],
         'cooking': ['pop'],
@@ -145,9 +157,9 @@ def load_assumptions(data):
         'home_computing': ['pop'],
     }
 
-
     # ============================================================
-    # Elasticities (Long-term resid_elasticities) # #TODO: Elasticties over time change? Not implemented so far
+    # Demand elasticities (Long-term resid_elasticities) # #TODO: Elasticties over time change? Not implemented so far ()
+    # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
     # ============================================================
     resid_elasticities = {
         'heating': 0.0,
@@ -171,9 +183,12 @@ def load_assumptions(data):
 
     ## --Efficiencies residential, base year
     eff_by = {
-        # -- water
-        'boiler_A' : 0.4,
-        'boiler_B' : 0.3,
+        # -- heating boiler ECUK Table 3.19
+        'back_boiler' : 0.0,
+        'combination_boiler' : 0.0,
+        'condensing_boiler' : 0.0,
+        'condensing_combination_boiler' : 0.0,
+        'combination_boiler' : 0.0,
 
         # -- cooking
         'new_tech_A': 0.05,
@@ -213,9 +228,12 @@ def load_assumptions(data):
 
     ## Efficiencies residential, end year
     eff_ey = {
-        # -- water
-        'boiler_A' : 0.4,
-        'boiler_B' : 0.3,
+        # -- heating boiler ECUK Table 3.19
+        'back_boiler' : 0.0,
+        'combination_boiler' : 0.0,
+        'condensing_boiler' : 0.0,
+        'condensing_combination_boiler' : 0.0,
+        'combination_boiler' : 0.0,
 
         # -- cooking
         'new_tech_A': 0.05,
@@ -255,6 +273,12 @@ def load_assumptions(data):
 
     ## How much of efficiency potential is achieved
     eff_achieved = {
+        # -- heating boiler ECUK Table 3.19
+        'back_boiler' : 0.0,
+        'combination_boiler' : 0.0,
+        'condensing_boiler' : 0.0,
+        'condensing_combination_boiler' : 0.0,
+        'combination_boiler' : 0.0,
         'boiler_A' : 0.5,
         'boiler_B' : 0.3,
         'new_tech_A': 0.1,
@@ -282,14 +306,17 @@ def load_assumptions(data):
         'energy_saving_lighting_bulb': 0.5,
         'LED' : 0.6
     }
-
     assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
 
     # Define fueltype of each technology
     technology_fueltype = {
-        'LED': 1
-        }
-
+        'LED': dict_fueltype['electricity'],
+        'halogen_elec': dict_fueltype['electricity'],
+        'standard_lighting_bulb': dict_fueltype['electricity'],
+        'fluorescent_strip_lightinging': dict_fueltype['electricity'],
+        'energy_saving_lighting_bulb': dict_fueltype['electricity'],
+        'LED' : dict_fueltype['electricity']
+    }
     assump_dict['technology_fueltype'] = technology_fueltype
 
     # Helper function eff_achieved
@@ -348,7 +375,7 @@ def load_assumptions(data):
 
     print("end ear")
     print(assump_dict['fuel_type_p_ey']['lighting'])
-    #prnt(":..")
+
 
     # ----------------------------------------------------------------------------------
     # -- Share of technologies within each fueltype and for each enduse
@@ -389,26 +416,33 @@ def load_assumptions(data):
     technologies_enduse_by = {}
     fuel_data = data['data_residential_by_fuel_end_uses']
 
-    for enduse in fuel_data:
+    for enduse in fuel_data: #TODFO ITERATE ENDUSE NOT UFEL DATA
         technologies_enduse_by[enduse] = {}
 
         for fueltype in range(len(data['fuel_type_lu'])):
             technologies_enduse_by[enduse][fueltype] = {}
 
     # Add technological split where known
-    technologies_enduse_by['lighting'][2] = {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
-
-    # add to dict
-    assump_dict['technologies_enduse_by'] = technologies_enduse_by
+    technologies_enduse_by['lighting'][2] = {
+        'LED': 0.01,
+        'halogen_elec': 0.37,
+        'standard_lighting_bulb': 0.35,
+        'fluorescent_strip_lightinging': 0.09,
+        'energy_saving_lighting_bulb': 0.18
+    }
+    assump_dict['technologies_enduse_by'] = technologies_enduse_by # add to dict
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
-    technologies_enduse_ey = technologies_enduse_by.copy()
-
-    technologies_enduse_ey['lighting'][2] = {'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
-    #technologies_enduse_ey['lighting'][2] = {'halogen_elec': 0.00, 'standard_lighting_bulb': 0.72, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18} #As in old model
-
+    technologies_enduse_ey = copy.deepcopy(technologies_enduse_by)
+    technologies_enduse_ey['lighting'][2] = {
+        'LED': 0.01,
+        'halogen_elec': 0.37,
+        'standard_lighting_bulb': 0.35,
+        'fluorescent_strip_lightinging': 0.09,
+        'energy_saving_lighting_bulb': 0.18
+    }
     assump_dict['technologies_enduse_ey'] = technologies_enduse_ey
-    #assump_dict['technologies_enduse_cy'] = technologies_enduse_cy
+
 
 
 
@@ -418,7 +452,7 @@ def load_assumptions(data):
     # ============================================================
 
     # Building stock related, assumption of change in floor area up to end_yr
-    assump_dict['assump_diff_floorarea_pp'] = -0.5 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
+    assump_dict['assump_diff_floorarea_pp'] = -0.2 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
 
     # Dwelling type distribution
     assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
@@ -426,7 +460,6 @@ def load_assumptions(data):
 
     # Floor area per dwelling type
     assump_dict['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77}             #TODO MAYBE IMPELEMENT THAT DIFFERENT FOR EVERY YEAR                                               # Average floor area per dwelling type (loaded from CSV)
-
 
     # Add assumptions to data dict
     data['assumptions'] = assump_dict

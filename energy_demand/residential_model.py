@@ -34,8 +34,9 @@ def residential_model_main_function(data, data_ext):
     print("TEST MAIN START:" + str(fuel_in))
 
     # Generate technological stock
-    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for current year
     data['tech_stock_by'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_year']) # Generate technological stock for base year
+    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['current_yr']) # Generate technological stock for current year
+
 
     # Add all region instances as an attribute (region name) into a Country class
     resid_object = Country_residential_model(data['reg_lu'], data, data_ext)
@@ -104,18 +105,20 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day)
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
+        print("INITIAL FUEL " + str(enduse))
+        print(self.reg_fuel)
         # --Yearly fuel data (Check if always function below takes result from function above)
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
-        #print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
+        print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
 
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
-        #print("reg_fuel_after_switch: " + str(np.sum(self.reg_fuel_after_switch)))
+        #print("reg_fuel_after_switch: " + str(self.reg_fuel_after_switch))
 
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        #print("reg_fuel_after_elasticity: " + str(np.sum(self.reg_fuel_after_elasticity)))
+        #print("reg_fuel_after_elasticity: " + str(self.reg_fuel_after_elasticity))
 
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
-        #print("reg_fuelscen_driver: " + str(np.sum(self.reg_fuelscen_driver)))
+        #print("reg_fuelscen_driver: " + str(self.reg_fuelscen_driver))
         #print(self.reg_fuelscen_driver)
 
         # --Daily fuel data
@@ -147,7 +150,6 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         Every enduse can only have on shape independently of the fueltype
 
         """
-
         if self.current_yr == self.base_year:
             return self.reg_fuel_after_switch
         else:
@@ -203,32 +205,42 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Will maybe be on household level
         """
         if self.current_yr != self.base_year:
-            print("calc")
+            #print("calc ulate efficiencies")
             out_dict = np.zeros((self.reg_fuel.shape[0], 1))
 
             # Get technologies and share of technologies for each fueltype and enduse
-            tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_cy')
-            tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_by')
+            tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
+            tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
+            #print("tech_frac_by: " + str(tech_frac_by))
+            #print("tech_frac_cy: " + str(tech_frac_cy))
+            #print(self.enduse)
 
             # Iterate fuels
             for fueltype, fueldata in enumerate(self.reg_fuel):
+                #print("tech_frac_by[self.enduse][fueltype]")
+                #print(tech_frac_by[self.enduse][fueltype])
+                #print("--")
+                #print(tech_frac_cy[self.enduse][fueltype])
 
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
                 for technology in tech_frac_by[self.enduse][fueltype]:
-
+                    #print("Technology: " + str(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)))
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
 
-                # Iterate technologies and average efficiencies relative to distribution for curren
+                # Iterate technologies and average efficiencies relative to distribution for current year
                 overall_eff_cy = 0
                 for technology in tech_frac_cy[self.enduse][fueltype]:
-
+                    #print("Technology: " + str(technology) + str("   ") + str(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)))
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     overall_eff_cy += tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)
 
                 # Calc new demand considering efficiency change
                 if overall_eff_cy != 0: # Do not copy any values
+                    #print("overall_eff_by: " + str(overall_eff_by))
+                    #print("overall_eff_cy: " + str(overall_eff_cy))
+                    #print("WWW: " + str(overall_eff_by / overall_eff_cy))
                     out_dict[fueltype] = fueldata * (overall_eff_by / overall_eff_cy) # FROZEN old tech eff / new tech eff
                 else:
                     out_dict[fueltype] = fueldata
@@ -354,16 +366,10 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         if hasattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) and self.current_yr != self.base_year:
 
             # Scenariodriver of building stock base year and new stock
-            #by_driver = getattr(self.data['reg_dw_stock_by'][self.reg_id], self.enduse) # Base year building stock
-            #cy_driver = getattr(self.data['reg_dw_stock_cy'][self.reg_id], self.enduse) # Current building stock
             by_driver = getattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) # Base year building stock
             cy_driver = getattr(self.data['dw_stock'][self.reg_id][self.current_yr], self.enduse) # Current building stock
 
             factor_driver =  cy_driver / by_driver # FROZEN Here not effecieicny but scenario parameters!   base year / current (checked) (as in chapter 3.1.2 EQ E-2)
-            print(by_driver)
-            print(cy_driver)
-            print("factor: " + str(self.enduse + "   " + str(factor_driver)))
-
             return self.reg_fuel_after_elasticity * factor_driver
 
         else: # This fuel is not changed by building related scenario driver

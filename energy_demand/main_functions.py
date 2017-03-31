@@ -622,6 +622,9 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     Reformulating to calculate current demand:
 
         Q_curr = -1 * ((elasticity * ((P_base - P_curr) / P_base)) * Q_base)  - Q_base)
+    
+    The function prevents demand becoming negative as in extreme cases this
+    would otherwise be possibe.
 
     """
     pricediff_p = (price_base - price_curr) / price_base
@@ -629,7 +632,11 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     # New current demand
     current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
 
-    return current_demand
+    if current_demand < 0:
+        #TODO: CHECK IF REALLY POSSIBLE
+        return 0
+    else:
+        return current_demand
 
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration

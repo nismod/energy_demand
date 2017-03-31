@@ -113,7 +113,6 @@ def energy_demand_model(data, data_ext):
     # pf.plot_x_days(result_dict[2], 0, 2)
     return result_dict, resid_object_country
 
-
 # Run
 if __name__ == "__main__":
     # ------------------------------------------------------------------
@@ -132,9 +131,8 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2020 #always includes this year
-
-    sim_years =  range(by, ey + 1) 
+    ey = 2017 #always includes this year
+    sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
     a = {'Wales': 3000000} #'Scotland': 5300000
@@ -150,7 +148,7 @@ if __name__ == "__main__":
     for i in sim_years:
         y_data = {}
         for reg in a:
-            y_data[reg] = a[reg] *1.0
+            y_data[reg] = a[reg] + a[reg] * 1.1
         fuel_price_dummy[i] = y_data
         a = y_data
 
@@ -173,11 +171,10 @@ if __name__ == "__main__":
         }
     }
     data_external['glob_var']['end_yr'] = ey
-
+    data_external['glob_var']['sim_period'] = range(by, ey + 1, 1)
     data_external['glob_var']['base_year'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
-
-    print("DUMMY DATA:" + str(data_external))
+    #print("DUMMY DATA:" + str(data_external))
 
 
 
@@ -208,7 +205,6 @@ if __name__ == "__main__":
         print("-------------------------- ")
 
         results, resid_object_country = energy_demand_model(base_data, data_external)
-
 
         results_every_year.append(resid_object_country)
 

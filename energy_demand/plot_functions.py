@@ -67,8 +67,6 @@ def plot_FUNCTIONSE():
 
         # y-values
         y_values = list(yearly_averaged_load_curve[daytype].values())
-        print("y_values")
-        print(y_values)
         plt.plot(x_values, y_values, label = 'daytype %s'%daytype)
 
     plt.xlabel("hours")

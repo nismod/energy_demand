@@ -29,7 +29,6 @@ def load_data(path_main, data_ext):
         Returns a list where storing all data
 
     """
-
     # Data container
     data = {}
     data['path_main'] = path_main
@@ -127,7 +126,7 @@ def load_data(path_main, data_ext):
     data['resid_enduses'] = {}
     for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
         data['resid_enduses'][ext_enduse] = ext_enduse
-    
+
     for enduse in data_residential_by_fuel_end_uses: # Add resid enduses
         data['resid_enduses'][enduse] = enduse
 
@@ -154,10 +153,6 @@ def load_data(path_main, data_ext):
 
     # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
     data = collect_shapes_from_txts(data)
-
-
-    print("TEST A")
-    print(data['dict_shp_enduse_d_resid']['heating']['shape_d_peak'])
 
     # ---TESTS----------------------
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
@@ -263,7 +258,7 @@ def generate_data(data):
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
 
-    
+
     # ENDUSE XY
     #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
     #out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)

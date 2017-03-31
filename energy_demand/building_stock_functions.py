@@ -207,7 +207,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
     """
     # initialisation
     data_floorarea_pp = {}
-    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1, 1) #base year, current year, iteration step
+    sim_period = glob_var['sim_period']
 
     # Iterate regions
     for reg_id in reg_pop_by:
@@ -261,7 +261,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     """
     dwtype_distr = {}
 
-    sim_period = range(glob_var['base_year'], glob_var['end_yr'] + 1) 
+    sim_period = glob_var['sim_period'] 
 
     # Iterate years
     for sim_yr in sim_period:

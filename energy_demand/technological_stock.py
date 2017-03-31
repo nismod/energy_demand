@@ -71,7 +71,7 @@ class ResidTechStock(object):
 
             # Actual efficiency potential
             cy_eff = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
-
+            
             ResidTechStock.__setattr__(self, technology, cy_eff)
 
     def get_sigmoid_tech_diff(self):
