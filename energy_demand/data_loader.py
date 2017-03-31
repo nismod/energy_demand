@@ -125,8 +125,9 @@ def load_data(path_main, data_ext):
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data['resid_enduses'] = {}
-    for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
-        data['resid_enduses'][ext_enduse] = ext_enduse
+    if 'external_enduses_resid' in data_ext:
+        for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
+            data['resid_enduses'][ext_enduse] = ext_enduse
 
     for enduse in data_residential_by_fuel_end_uses: # Add resid enduses
         data['resid_enduses'][enduse] = enduse

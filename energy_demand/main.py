@@ -102,11 +102,10 @@ def energy_demand_model(data, data_ext):
     result_dict = mf.convert_out_format_es(data, data_ext, resid_object_country)
 
     # --- Write to csv and YAML
-    mf.write_final_result(data, result_dict, data['reg_lu'], False)
+    # mf.write_final_result(data, result_dict, data['reg_lu'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
-    print("FINAL region:    " + str(len(result_dict[1])))
-    print("FINAL timesteps: " + str(len(result_dict[1]['Wales'])))
+    print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
     print("Finished energy demand model")
 
     # Plot Region 0 for half a year

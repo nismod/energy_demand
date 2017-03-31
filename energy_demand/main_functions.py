@@ -11,12 +11,12 @@ import yaml
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def get_temp_region(dw_reg_id, coordinates):
-    """ 
+    """
     #TODO Reallocation any region input with wheater region (mabe also coordinate inputs)
 
     """
     coordinates = coordinates
-    
+
     temperature_region_relocated = 'Midlands'
 
     return temperature_region_relocated
@@ -82,51 +82,28 @@ def convert_out_format_es(data, data_ext, resid_object_country):
 
     Returns
     -------
-    out_dict : dict
-        Returns a dict for energy supply model with fueltype, region, hour"""
+    results : dict
+        Returns a list for energy supply model with fueltype, region, hour"""
 
     # Create timesteps for full year (wrapper-timesteps)
-    out_dict = init_energy_supply_dict(len(data['fuel_type_lu']), data['reg_lu'], data_ext['glob_var']['base_year'])
+    results = {}
 
-    for reg_id in data['reg_lu']:
-        reg = getattr(resid_object_country, str(reg_id))
-        region_name = reg.reg_id # Get object region name
-        hourly_all_fuels = reg.tot_all_enduses_h()  # Get total fuel
+    for fueltype_id, fueltype in data['fuel_type_lu'].items():
+        results[fueltype] = []
+        print(fueltype)
 
-        # Iterate fueltypes
-        for fueltype in data['fuel_type_lu']:
-            out_dict[fueltype][region_name] = dict(enumerate(hourly_all_fuels[fueltype])) # Convert array into dict for out_read
+        for reg_id in data['reg_lu']:
+            reg = getattr(resid_object_country, str(reg_id))
+            region_name = reg.reg_id  # Get object region name
+            hourly_all_fuels = reg.tot_all_enduses_h()  # Get total fuel
 
-    return out_dict
+            for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
+                for hour_in_day, demand in enumerate(hourly_demand):
+                    hour_in_year = "{}_{}".format(day, hour_in_day)
+                    result = (region_name, hour_in_year, float(demand), "units")
+                    results[fueltype].append(result)
 
-def init_energy_supply_dict(number_fuel_types, reg_dict, base_year):
-    """Generates nested dictionary for providing results to smif
-
-    Parameters
-    ----------
-    number_fuel_types : int
-        Number of fuel types
-    reg_dict : dict
-        Dictionary with number of regions
-    base_year : int
-        Base year of simulation
-
-    Returns
-    -------
-    result_dict : dict
-        Returns a nested dictionary for energy supply model (fueltype/region/timeID)
-    """
-    # Create timesteps for full year (wrapper-timesteps)
-    timesteps = timesteps_full_year(base_year)
-
-    result_dict = {}
-    for i in range(number_fuel_types):
-        result_dict[i] = {}
-        for j in reg_dict:
-            result_dict[i][j] = {}
-            for k in timesteps:
-                result_dict[i][j][k] = {}
-    return result_dict
+    return results
 
 def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -511,13 +488,13 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
             # Iterate fueltypes
             for reg in result_dict[fueltype]:
 
-                for _day in result_dict[fueltype][reg]:
-                    for _hour in range(24):
-                        start_id = "P{}H".format(str(_day * 24) + str(_hour))
-                        end_id = "P{}H".format(str(_day * 24) + str(_hour + 1))
-                        data.append([reg_lu[reg], start_id, end_id, result_dict[fueltype][reg][_day][_hour]])
+                for reg, hour, obs_value, units in result_dict[fueltype]:
+                        start_id = "P{}H".format(hour)
+                        end_id = "P{}H".format(hour + 1)
 
-                        yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(result_dict[fueltype][reg][_day][_hour]), 'units': 'CHECK GWH', 'year': 'XXXX'})
+                        data.append((reg_lu[reg], start_id, end_id, obs_value))
+
+                        yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
 
             csv_writer.writerows(data)
 
@@ -781,7 +758,7 @@ def get_t_base(curr_y, assumptions, base_yr, end_yr):
         tbd
     """
 
-    # Base temperature of end year minus base temp of base year 
+    # Base temperature of end year minus base temp of base year
     t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_year']
 
     # Sigmoid diffusion
@@ -915,8 +892,8 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
 
     Infos
     -------
-        sig_midpoint:    can be used to shift curve to the left or right (standard value: 0) 
-        sig_steeppness:    The steepness of the sigmoid curve (standard value: 1) 
+        sig_midpoint:    can be used to shift curve to the left or right (standard value: 0)
+        sig_steeppness:    The steepness of the sigmoid curve (standard value: 1)
     # INFOS
 
     # What also could be impleneted is a technology specific diffusion (parameters for diffusion)
