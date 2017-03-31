@@ -106,17 +106,17 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         print("INITIAL FUEL " + str(enduse))
-        print(np.sum(self.reg_fuel))
+        print(self.reg_fuel)
 
         # --Yearly fuel data (Check if always function below takes result from function above)
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
-        print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
+        print("reg_fuel_eff_gains: " + str(self.reg_fuel_eff_gains))
 
         self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
         #print("reg_fuel_after_switch: " + str(self.reg_fuel_after_switch))
 
         self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        #print("reg_fuel_after_elasticity: " + str(self.reg_fuel_after_elasticity))
+        print("reg_fuel_after_elasticity: " + str(self.reg_fuel_after_elasticity))
 
         self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         #print("reg_fuelscen_driver: " + str(self.reg_fuelscen_driver))
@@ -232,7 +232,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
                 for technology in tech_frac_by[self.enduse][fueltype]:
-                    #print("Technology: " + str(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)))
+                    print("Technology: " + str(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)))
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
 

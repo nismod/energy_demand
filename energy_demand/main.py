@@ -139,7 +139,7 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2030 #always includes this year
+    ey = 2016 #always includes this year
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
@@ -152,13 +152,15 @@ if __name__ == "__main__":
         #a = y_data
 
     fuel_price_dummy = {}
-    a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 7: 10.0}
+    a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0}
     for i in sim_years:
         y_data = {}
         for reg in a:
-            y_data[reg] = a[reg] + a[reg] * 1.1
+            y_data[reg] = a[reg] + 0.3
         fuel_price_dummy[i] = y_data
         a = y_data
+    print(fuel_price_dummy)
+
 
     # Reg Floor Area? Reg lookup?
     data_external = {

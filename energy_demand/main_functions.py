@@ -16,11 +16,9 @@ def get_temp_region(dw_reg_id, coordinates):
 
     """
     coordinates = coordinates
-    
     temperature_region_relocated = 'Midlands'
 
     return temperature_region_relocated
-
 
 def read_txt_t_base_by(path_temp_txt, base_yr):
     """Read out mean temperatures for all regions and store in dict
@@ -44,7 +42,6 @@ def read_txt_t_base_by(path_temp_txt, base_yr):
     #
 
     """
-
     # get all files in folder
     all_txt_files = os.listdir(path_temp_txt)
     out_dict = {}
@@ -226,14 +223,9 @@ def read_csv_base_data_resid(path_to_csv):
         for i in _headings[1:]: # skip first
             end_uses_dict[i] = np.zeros((len(lines), 1)) # len fuel_ids
 
-
         for cnt_fueltype, row in enumerate(lines):
             cnt = 1 #skip first
             for i in row[1:]:
-
-                #if type(i) == str:
-                #    print("Error: All fuel input varaibles must be a int or float value (not empty excel row)")
-
                 end_use = _headings[cnt]
                 end_uses_dict[end_use][cnt_fueltype] = i
                 cnt += 1
@@ -470,10 +462,9 @@ def write_YAML(crit_write, path_YAML, yaml_list):
 
     """
     if crit_write:
-        #print("Write YAML file with length: " + str(len(yaml_list)))
-        #_, yaml_list = timesteps_full_year(base_year)  # Create timesteps for full year (wrapper-timesteps)
         with open(path_YAML, 'w') as outfile:
             yaml.dump(yaml_list, outfile, default_flow_style=False)
+
     return
 
 def write_final_result(data, result_dict, reg_lu, crit_YAML):
@@ -545,11 +536,10 @@ def convert_to_array(in_dict):
     """
     copy_dict = {}
     for i in in_dict:
-        a = list(in_dict[i].items())
-        copy_dict[i] = np.array(a, dtype=float)
+        copy_dict[i] = np.array(list(in_dict[i].items()), dtype=float)
     return copy_dict
 
-def convert_to_array_technologies(in_dict, tech_lu):
+def convert_to_tech_array(in_dict, tech_lu):
     """Convert dictionary to array
 
     The input array of efficiency is replaced and technologies are replaced with technology IDs
@@ -629,11 +619,7 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
      # New current demand
     current_demand = base_demand * (1 - elasticity * ((price_base - price_curr) / price_base))
 
-
     if current_demand < 0:
-        # Print Attention: Demand is minus....(elasticity might be unrealistic?)
-        #TODO: CHECK IF REALLY POSSIBLE
-        print(current_demand)
         return 0
     else:
         return current_demand
@@ -847,14 +833,9 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
     fract_cy : float
         Share of fuel switch in simluation year
     """
-    # Fuel share of total ED in base year
-    fract_by = assumptions['fuel_type_p_by'][fuel_enduse_switch]
-
-    # Fuel share af total ED in end year
-    fract_ey = assumptions['fuel_type_p_ey'][fuel_enduse_switch]
-
-    sig_midpoint = assumptions['sig_midpoint']
-    sig_steeppness = assumptions['sig_steeppness']
+    
+    fract_by = assumptions['fuel_type_p_by'][fuel_enduse_switch] # Fuel share of total ED in base year
+    fract_ey = assumptions['fuel_type_p_ey'][fuel_enduse_switch] # Fuel share af total ED in end year
 
     # Difference
     if fract_by > fract_ey:
@@ -863,7 +844,7 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
+    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, assumptions['sig_midpoint'], assumptions['sig_steeppness']), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)

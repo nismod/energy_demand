@@ -18,7 +18,6 @@ class ResidTechStock(object):
         tbd
     current_yr : int
         Current year
-
     """
     def __init__(self, data, data_ext, current_yr):
         """Constructor of technologies for residential sector"""
@@ -33,7 +32,7 @@ class ResidTechStock(object):
         self.create_iteration_efficiency()
 
         # get share of technologies
-        self.tech_frac_by = data['assumptions']['technologies_enduse_by'] #base year
+        self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
         self.tech_frac_ey = data['assumptions']['technologies_enduse_ey'] #end year
         self.tech_frac_cy = self.get_sigmoid_tech_diff() #current year
 
@@ -111,8 +110,8 @@ class ResidTechStock(object):
             tech_frac_cy[enduse] = {}
 
             # Convert to array and replace fuels with strings
-            by_enduse_array = mf.convert_to_array_technologies(tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
-            ey_enduse_array = mf.convert_to_array_technologies(tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
+            by_enduse_array = mf.convert_to_tech_array(tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
+            ey_enduse_array = mf.convert_to_tech_array(tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
 
             # If no technolgies are in this enduse
             if ey_enduse_array == []:
