@@ -2,6 +2,7 @@
 """
 import os
 
+from smif import SpaceTimeValue
 from smif.sector_model import SectorModel
 from energy_demand.main import energy_demand_model
 from energy_demand.data_loader import load_data
@@ -51,7 +52,7 @@ class EDWrapper(SectorModel):
             'glob_var': {
                 'base_year': timestep,
                 'current_yr': timestep,
-                'end_year': timestep
+                'end_yr': timestep
             },
             'fuel_price': price
         }
@@ -75,7 +76,15 @@ class EDWrapper(SectorModel):
         results = energy_demand_model(base_data, data_external)
 
         # results will be written to results.yaml by default
-        return results
+        output = {}
+        for parameter, results_list in results.items():
+            if parameter in ['electricity', 'gas']:
+                output[parameter + '_demand'] = [
+                    SpaceTimeValue(region_name, hour, demand, units)
+                    for region_name, hour, demand, units in results_list
+                ]
+
+        return output
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function

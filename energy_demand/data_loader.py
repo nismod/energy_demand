@@ -124,8 +124,14 @@ def load_data(path_main, data_ext):
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data['resid_enduses'] = {}
+
     for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
         data['resid_enduses'][ext_enduse] = ext_enduse
+
+    #if 'external_enduses_resid' in data_ext:
+    #    for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
+    #        data['resid_enduses'][ext_enduse] = ext_enduse
+
 
     for enduse in data_residential_by_fuel_end_uses: # Add resid enduses
         data['resid_enduses'][enduse] = enduse
@@ -264,13 +270,13 @@ def generate_data(data):
     #out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)
 
     '''
-    
+
     # Percentages for every day:
     jan_yearday = range(0, 30)
     jul_yearday = range(181, 212)
     jan = {k: [] for k in range(24)}
     jul = {k: [] for k in range(24)}
-    
+
     # Read out for the whole months of jan and ful
     for day in main_dict_dayyear_absolute:
         for h in main_dict_dayyear_absolute[day]:
@@ -308,7 +314,7 @@ def generate_data(data):
     #print("  --  ")
     #print(jul)
     #print("---hh--")
-    
+
     #--- if JAn = 100%
     jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
     for h ,i in enumerate(jul_percent_of_jan):
@@ -318,11 +324,11 @@ def generate_data(data):
     print("TEST: " + str(jan-jul))
 
     # Read in CWV for non-residential
-    
+
     # Get yearly profiles
     enduse = 'WHATEVERENDUSE'
     year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data) #TODO: out_dict_av is percentages of day sum up to one
-    
+
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
     '''
     # ENDUSE XY
