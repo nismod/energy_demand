@@ -37,7 +37,6 @@ The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
-
 import os
 import sys
 import energy_demand.main_functions as mf
@@ -49,6 +48,7 @@ import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
+import logging
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -75,11 +75,19 @@ def energy_demand_model(data, data_ext):
     # Initialisation
 
     # SCENARIO UNCERTAINTY
-    # TODO: Implement weather generator (multiply fuel with different scenarios)
-    # data = wheater_generator(data) # Read in CWV data and calcul difference
-    # between average and min and max of year 2015
+    # TODO: Implement weather generator (multiply fuel with different scenarios)     # between average and min and max of year 2015
+    data = mf.wheater_generator(data) # Read in CWV data and calcul difference
+
 
     # Change demand depending on climate variables
+
+
+    #log_path = os.path.join(data['path_dict']['path_main'][:-5], 'model_output/run_model_log.log')
+    #print(log_path)
+    #logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
+    #logging.debug('This message should go to the log file')
+    #logging.info('So should this')
+    #logging.warning('And this, too')
 
     # --------------------------
     # Residential model
@@ -131,11 +139,11 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2017 #always includes this year
+    ey = 2030 #always includes this year
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000} #'Scotland': 5300000
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -174,9 +182,8 @@ if __name__ == "__main__":
     data_external['glob_var']['sim_period'] = range(by, ey + 1, 1)
     data_external['glob_var']['base_year'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
-    #print("DUMMY DATA:" + str(data_external))
 
-
+   
 
     # Model calculations outside main function
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -203,7 +210,6 @@ if __name__ == "__main__":
         print("SIM RUN:  " + str(sim_y))
         print(data_external['glob_var']['current_yr'])
         print("-------------------------- ")
-
         results, resid_object_country = energy_demand_model(base_data, data_external)
 
         results_every_year.append(resid_object_country)

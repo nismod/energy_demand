@@ -49,7 +49,7 @@ def load_data(path_main, data_ext):
         #'path_dwtype_dist': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_distribution.csv'),
         'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
         'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
-        'path_reg_floorarea': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
+        'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
         'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
         'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
@@ -68,6 +68,7 @@ def load_data(path_main, data_ext):
     # RESIDENTIAL SECTOR
     # ------------------------------------------
 
+    # LOAD FLOOR AREA OF REGIONS
     # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
     # TODO: Will change if data externally loaded---------------------------
     reg_lu_dict = {}
@@ -79,8 +80,7 @@ def load_data(path_main, data_ext):
     reg_floor_area = {}
     for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
         reg_lu_dict[reg_name] = 100000
-    data['reg_floorarea'] = reg_lu_dict
-
+    data['reg_floorarea_resid'] = reg_lu_dict
 
     # Read in wheater data for different reiongs TODO #(days_per_month, 0.71, t_base, t_mean)
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
@@ -100,7 +100,7 @@ def load_data(path_main, data_ext):
     #data['dwtype_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_dist'])      # dISTRIBUTION of dwelligns base year #TODO: REMOVE AND ONLY LOAD YEAR 2015
     data['dwtype_age_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_age'])
     #= mf.read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
-    #data['reg_floorarea'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea'])
+    #data['reg_floorarea_resid'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea_resid'])
     data['reg_dw_nr'] = mf.read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
     # load shapes
@@ -145,7 +145,7 @@ def load_data(path_main, data_ext):
     # Fuel residential
     for enduse in data_residential_by_fuel_end_uses:
         data_residential_by_fuel_end_uses[enduse] = mf.conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse])
-
+    print("ENDUSES: " + str(data_residential_by_fuel_end_uses))
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
 
     # --- Generate load_shapes ##TODO

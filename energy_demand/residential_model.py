@@ -7,7 +7,7 @@ import matplotlib as mpl
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
-
+import logging
 
 def residential_model_main_function(data, data_ext):
     """Main function of residential model
@@ -106,7 +106,8 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
 
         print("INITIAL FUEL " + str(enduse))
-        print(self.reg_fuel)
+        print(np.sum(self.reg_fuel))
+
         # --Yearly fuel data (Check if always function below takes result from function above)
         self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
         print("reg_fuel_eff_gains: " + str(np.sum(self.reg_fuel_eff_gains)))
@@ -150,31 +151,37 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         Every enduse can only have on shape independently of the fueltype
 
         """
-        if self.current_yr == self.base_year:
-            return self.reg_fuel_after_switch
-        else:
-            new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
+        try:
+            if self.current_yr == self.base_year:
+                return self.reg_fuel_after_switch
+            else:
+                new_fuels = np.zeros((self.reg_fuel_after_switch.shape[0], 1)) #fueltypes, days, hours
 
-            # End use elasticity
-            elasticity_enduse = self.assumptions['resid_elasticities'][self.enduse]
-            #elasticity_enduse_cy = nonlinear_def...
+                # End use elasticity
+                elasticity_enduse = self.assumptions['resid_elasticities'][self.enduse]
+                #elasticity_enduse_cy = nonlinear_def...
 
-            for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
+                for fueltype, fuel in enumerate(self.reg_fuel_after_switch):
 
-                if fuel != 0: # if fuel exists
-                    fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype] # Fuel price by
-                    fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
+                    if fuel != 0: # if fuel exists
+                        fuelprice_by = self.data_ext['fuel_price'][self.base_year][fueltype] # Fuel price by
+                        fuelprice_cy = self.data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
 
-                    new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+                        new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+                    else:
+                        new_fuels[fueltype] = fuel
+                #print("enduse:  " + str(self.enduse))
+                ##print(elasticity_enduse)
+                #print(self.reg_fuel_after_switch)
+                #print("....")
+                #print(new_fuels)
+                return new_fuels
 
-                else:
-                    new_fuels[fueltype] = fuel
-            #print("enduse:  " + str(self.enduse))
-            ##print(elasticity_enduse)
-            #print(self.reg_fuel_after_switch)
-            #print("....")
-            #print(new_fuels)
-            return new_fuels
+        except Exception as err:
+            print("ERROR: " + str(err.args))
+            prnt("..")
+            #logging.info("--")
+            #logging.exception('I .Raised error in enduse_elasticity. Check if for every provided enduse an elasticity is provided')
 
     def enduse_eff_gains(self):
         """Adapts yearly fuel demand depending on technology mix within each fueltype (e.g. boiler_elcA to boiler_elecB)
@@ -205,22 +212,22 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Will maybe be on household level
         """
         if self.current_yr != self.base_year:
-            #print("calc ulate efficiencies")
+            print("calc ulate efficiencies")
             out_dict = np.zeros((self.reg_fuel.shape[0], 1))
 
             # Get technologies and share of technologies for each fueltype and enduse
             tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
             tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
-            #print("tech_frac_by: " + str(tech_frac_by))
-            #print("tech_frac_cy: " + str(tech_frac_cy))
-            #print(self.enduse)
+            print("tech_frac_by: " + str(tech_frac_by))
+            print("tech_frac_cy: " + str(tech_frac_cy))
+            print(self.enduse)
 
             # Iterate fuels
             for fueltype, fueldata in enumerate(self.reg_fuel):
-                #print("tech_frac_by[self.enduse][fueltype]")
-                #print(tech_frac_by[self.enduse][fueltype])
-                #print("--")
-                #print(tech_frac_cy[self.enduse][fueltype])
+                print("tech_frac_by[self.enduse][fueltype]")
+                print(tech_frac_by[self.enduse][fueltype])
+                print("--")
+                print(tech_frac_cy[self.enduse][fueltype])
 
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
@@ -238,9 +245,9 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
 
                 # Calc new demand considering efficiency change
                 if overall_eff_cy != 0: # Do not copy any values
-                    #print("overall_eff_by: " + str(overall_eff_by))
-                    #print("overall_eff_cy: " + str(overall_eff_cy))
-                    #print("WWW: " + str(overall_eff_by / overall_eff_cy))
+                    print("overall_eff_by: " + str(overall_eff_by))
+                    print("overall_eff_cy: " + str(overall_eff_cy))
+                    print("WWW: " + str(overall_eff_by / overall_eff_cy))
                     out_dict[fueltype] = fueldata * (overall_eff_by / overall_eff_cy) # FROZEN old tech eff / new tech eff
                 else:
                     out_dict[fueltype] = fueldata
@@ -368,7 +375,11 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             # Scenariodriver of building stock base year and new stock
             by_driver = getattr(self.data['dw_stock'][self.reg_id][self.base_year], self.enduse) # Base year building stock
             cy_driver = getattr(self.data['dw_stock'][self.reg_id][self.current_yr], self.enduse) # Current building stock
-
+            print("...")
+            print(self.enduse)
+            print(by_driver)
+            print(cy_driver)
+            print(self.reg_fuel_after_elasticity)
             factor_driver =  cy_driver / by_driver # FROZEN Here not effecieicny but scenario parameters!   base year / current (checked) (as in chapter 3.1.2 EQ E-2)
             return self.reg_fuel_after_elasticity * factor_driver
 
@@ -496,8 +507,8 @@ class Country_residential_model(object):
         n = 0
         for i in self.tot_country_fuel_enduse_specific:
             n += self.tot_country_fuel_enduse_specific[i]
-        print("============================ddddddddddd= " + str(self.tot_country_fuel))
-        print("===========================ddddddddddd== " + str(n))
+        #print("============================ddddddddddd= " + str(self.tot_country_fuel))
+        #print("===========================ddddddddddd== " + str(n))
         # TESTING
         test_sum = 0
         for enduse in self.tot_country_fuel_enduse_specific:

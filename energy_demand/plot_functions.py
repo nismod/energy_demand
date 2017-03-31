@@ -62,7 +62,7 @@ def plot_FUNCTIONSE():
     x_values = range(24)
 
     #-- plot yearly average
-    print("Yearly Average over all measurements")
+    #print("Yearly Average over all measurements")
     for daytype in yearly_averaged_load_curve:
 
         # y-values

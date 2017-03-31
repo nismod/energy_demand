@@ -470,7 +470,7 @@ def write_YAML(crit_write, path_YAML, yaml_list):
 
     """
     if crit_write:
-        print("Write YAML file with length: " + str(len(yaml_list)))
+        #print("Write YAML file with length: " + str(len(yaml_list)))
         #_, yaml_list = timesteps_full_year(base_year)  # Create timesteps for full year (wrapper-timesteps)
         with open(path_YAML, 'w') as outfile:
             yaml.dump(yaml_list, outfile, default_flow_style=False)
@@ -621,19 +621,19 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
 
     Reformulating to calculate current demand:
 
-        Q_curr = -1 * ((elasticity * ((P_base - P_curr) / P_base)) * Q_base)  - Q_base)
-    
+        Q_curr = Q_base * (1 - e * ((P_base - P_curr)/ P_base))
+
     The function prevents demand becoming negative as in extreme cases this
     would otherwise be possibe.
-
     """
-    pricediff_p = (price_base - price_curr) / price_base
+     # New current demand
+    current_demand = base_demand * (1 - elasticity * ((price_base - price_curr) / price_base))
 
-    # New current demand
-    current_demand = -1 * ((elasticity * pricediff_p * base_demand) - base_demand)
 
     if current_demand < 0:
+        # Print Attention: Demand is minus....(elasticity might be unrealistic?)
         #TODO: CHECK IF REALLY POSSIBLE
+        print(current_demand)
         return 0
     else:
         return current_demand
@@ -941,6 +941,11 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
     cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
 
     return cy_p
+
+
+def wheater_generator(data):
+    """ TODO """
+    return data
 
 '''def sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturate_year, year_invention):
     """This function assumes "S"-Curve fuel_enduse_switch diffusion (logistic function).

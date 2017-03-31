@@ -177,7 +177,7 @@ class DwStockRegion(object):
             totpop += dwelling.pop
         return round(totpop, 3)
 
-def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
+def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on assumptions on final change and base year data
 
     Assumption: Linear Change of floor area per person
@@ -185,7 +185,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
 
     Parameters
     ----------
-    reg_floorarea : dict
+    reg_floorarea_resid : dict
         Floor area base year for all region
 
     reg_pop_by : dict
@@ -212,7 +212,7 @@ def calc_floorarea_pp(reg_floorarea, reg_pop_by, glob_var, assump_final_diff_flo
     # Iterate regions
     for reg_id in reg_pop_by:
         sim_yrs = {}
-        floorarea_pp_by = reg_floorarea[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
+        floorarea_pp_by = reg_floorarea_resid[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
 
         # Iterate simulation years
         for sim_yr in sim_period:
