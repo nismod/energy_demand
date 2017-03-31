@@ -455,7 +455,7 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
     result_dict : dict
         Dictionary which is stored to txt
     reg_lu : dict
-        Look up dictionar for regions
+        Look up dict for regions
     crit_YAML : bool
         Criteria if YAML files are generated
 
@@ -481,12 +481,12 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
             for reg in result_dict[fueltype]:
 
                 for reg, hour, obs_value, units in result_dict[fueltype]:
-                        start_id = "P{}H".format(hour)
-                        end_id = "P{}H".format(hour + 1)
+                    start_id = "P{}H".format(hour)
+                    end_id = "P{}H".format(hour + 1)
 
-                        data.append((reg_lu[reg], start_id, end_id, obs_value))
+                    data.append((reg_lu[reg], start_id, end_id, obs_value))
 
-                        yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
+                    yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
 
             csv_writer.writerows(data)
 

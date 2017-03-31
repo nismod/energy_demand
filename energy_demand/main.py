@@ -118,7 +118,9 @@ def energy_demand_model(data, data_ext):
 
     # Plot Region 0 for half a year
     # pf.plot_x_days(result_dict[2], 0, 2)
-    return result_dict
+
+    #return result_dict
+    return result_dict, resid_object_country #MULTIPLE YEARS
 
 # Run
 if __name__ == "__main__":
