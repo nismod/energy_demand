@@ -58,7 +58,7 @@ def residential_model_main_function(data, data_ext):
 
     return resid_object
 
-class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
+class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
     """Class of an end use category of the residential sector
 
     End use class for residential model. For every region, a different
@@ -111,16 +111,21 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         print(self.reg_fuel)
 
         # --Yearly fuel data (Check if always function below takes result from function above)
-        self.reg_fuel_eff_gains = self.enduse_eff_gains()                # General efficiency gains of technology over time
+
+        # General efficiency gains of technology over time
+        self.reg_fuel_eff_gains = self.enduse_eff_gains()               
         print("reg_fuel_eff_gains: " + str(self.reg_fuel_eff_gains))
 
-        self.reg_fuel_after_switch = self.enduse_fuel_switches()         # Calculate fuel switches
+        # Calculate fuel switches
+        self.reg_fuel_after_switch = self.enduse_fuel_switches()         
         #print("reg_fuel_after_switch: " + str(self.reg_fuel_after_switch))
 
-        self.reg_fuel_after_elasticity = self.enduse_elasticity()        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
+        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
+        self.reg_fuel_after_elasticity = self.enduse_elasticity()        
         print("reg_fuel_after_elasticity: " + str(self.reg_fuel_after_elasticity))
 
-        self.reg_fuelscen_driver = self.enduse_scenario_driver()         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
+        # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
+        self.reg_fuelscen_driver = self.enduse_scenario_driver()         
         #print("reg_fuelscen_driver: " + str(self.reg_fuelscen_driver))
         #print(self.reg_fuelscen_driver)
 
@@ -216,7 +221,6 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Will maybe be on household level
         """
         if self.curr_yr != self.base_yr:
-            print("calculate efficiencies")
             out_dict = np.zeros((self.reg_fuel.shape[0], 1))
 
             # Get technologies and share of technologies for each fueltype and enduse
@@ -225,6 +229,7 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
             print("tech_frac_by: " + str(tech_frac_by))
             print("tech_frac_cy: " + str(tech_frac_cy))
             print(self.enduse)
+            # Ev for Heating pump only axis and not slope??
 
             # Iterate fuels
             for fueltype, fueldata in enumerate(self.reg_fuel):
@@ -236,9 +241,18 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
                 for technology in tech_frac_by[self.enduse][fueltype]:
+
+                    # if technology == HP: 
+                    # etattr(self.tech_stock_by --> Gets the SLOPE (m)  and (B) of linear eff function of of technology (which we assume could be change for )
+                    # sum_yearly_eff_temp_dependent = Iterate over every hour in year and multiply eff_temp_dependent * f
+                    # Share of technology * sum_yearly_eff_temp_dependent 
+
+
                     print("Technology: " + str(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)))
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)
+
+
 
                 # Iterate technologies and average efficiencies relative to distribution for current year
                 overall_eff_cy = 0
@@ -425,6 +439,9 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
         for k, fuel_type_data in enumerate(self.reg_fuel_d):
             for day in range(365):
+
+                #TODO: Differentiate between technologies as they might have different fuel shapes and different fuel shares
+
                 fuels_h[k][day] = self.enduse_shape_h[day] * fuel_type_data[day]
 
         return fuels_h
@@ -483,6 +500,9 @@ class EndUseClassResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
         for k, fuel_data in enumerate(self.enduse_fuel_peak_d):
             for day in range(1):
+                
+                #TODO: Differentiate between technologies as they might have different fuel shapes and different fuel shares
+
                 fuels_h_peak[k][day] = self.enduse_shape_peak_h * fuel_data[day]
 
         return fuels_h_peak
@@ -508,7 +528,6 @@ class Country_residential_model(object):
         self.sub_reg_names = sub_reg_names
 
         self.create_regions() #: create object for every region
-
 
         self.tot_country_fuel = self.get_overall_sum()
         self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse()
@@ -585,15 +604,18 @@ class Region(object):
         # All calculatiosn are basd on driver_fuel_fuel_data #TODO
         #TODO: ITERATE OVER RESID ENDUSE DICT AND NOT FUELS
         """
-        self.reg_id = reg_id                                        # ID of region
-        self.data = data                                            # data
-        self.data_ext = data_ext                                    # external data
+        self.reg_id = reg_id                                       
+        self.data = data                                          
+        self.data_ext = data_ext                                    
         self.assumptions = data['assumptions']
-        self.curr_yr = data_ext['glob_var']['curr_yr']        # Current year
-        self.reg_fuel = data['fueldata_disagg'][reg_id]             # Fuel array of region (used to extract all end_uses)
+        self.curr_yr = data_ext['glob_var']['curr_yr']        
+        self.reg_fuel = data['fueldata_disagg'][reg_id] # Fuel array of region
 
         # Set attributs of all enduses
-        self.create_enduse_objects()
+        self.create_enduses() # IMPRTANT FUNCTION
+
+
+
 
         # Sum final 'yearly' fuels (summarised over all enduses)
         self.fuels_new = self.tot_all_enduses_y()
@@ -639,13 +661,12 @@ class Region(object):
         np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
         # TODO: add some more
 
-    def create_enduse_objects(self):
-        """All enduses are initialised and inserted as an attribute of the Region Class"""
-
-        # Iterate enduses
+    def create_enduses(self):
+        """All enduses are initialised and inserted as an attribute of the Region Class
+        """
         for enduse in self.data['resid_enduses']:
-            enduse_obj = EndUseClassResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel) # Enduse object
-            Region.__setattr__(self, enduse, enduse_obj) # Set attribute
+            enduse_obj = EnduseResid(self.reg_id, self.data, self.data_ext, enduse, self.reg_fuel) # Enduse object
+            Region.__setattr__(self, enduse, enduse_obj)
 
     def tot_all_enduses_y(self):
         """Sum all fuel types over all end uses"""

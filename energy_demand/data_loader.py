@@ -50,14 +50,14 @@ def load_data(path_main, data_ext):
         'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
         'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
         'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
-        'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
+        #'path_reg_dw_nr': os.path.join(path_main, 'residential_model/data_residential_model_nr_dwellings.csv'),
         'path_data_residential_by_fuel_end_uses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
-        'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes')
+        'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
         # Service
         # -----------
-        #'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv')
+        'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv')
         }
 
     data['path_dict'] = path_dict
@@ -67,41 +67,38 @@ def load_data(path_main, data_ext):
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------
+    # Load Daily load shapes of different technologies (heating reg, CHP) #TODO
+    shape_d_HP = []
+    shape_d_HP_ground = []
 
+    data['technology_daily_shape_heating'] = {
+        'shape_d_HP': shape_d_HP,
+        'shape_d_HP_ground': shape_d_HP_ground,
+        }
+
+    
     # LOAD FLOOR AREA OF REGIONS
-    # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
-    # TODO: Will change if data externally loaded---------------------------
+    #TODO: REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
     reg_lu_dict = {}
     for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
         reg_lu_dict[reg_name] = reg_name
     data['reg_lu'] = reg_lu_dict
 
-    #FLOOR_AREA_LOOKUP:
+    #TODO: FLOOR_AREA_LOOKUP:
     reg_floor_area = {}
     for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
         reg_lu_dict[reg_name] = 100000
     data['reg_floorarea_resid'] = reg_lu_dict
 
-    # Read in wheater data for different reiongs TODO #(days_per_month, 0.71, t_base, t_mean)
-    data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
 
-    # Lookup data
-    #data['reg_lu'] = mf.read_csv_dict_no_header(path_dict['path_pop_reg_lu'])                # Region lookup table
+    data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
     data['dwtype_lu'] = mf.read_csv_dict_no_header(path_dict['path_dwtype_lu'])              # Dwelling types lookup table
     data['app_type_lu'] = mf.read_csv(path_dict['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(path_dict['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(path_dict['path_day_type_lu'])                         # Day type lookup
-
-    #fuel_bd_data = read_csv_float(path_dict['path_base_data_fuel'])               # All disaggregated fuels for different regions
-    data['path_temp_2015'] = mf.read_csv(path_dict['path_temp_2015'])                         # csv_temp_2015 #TODO: Delete because loaded in read_shp_heating_gas
+    data['temp_2015_resid'] = mf.read_csv(path_dict['path_temp_2015'])                         # Residential daily gas data
     data['hourly_gas_shape'] = mf.read_csv_float(path_dict['path_hourly_gas_shape_resid'])         # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
-
-    #path_dwtype_age = read_csv_float(['path_dwtype_age'])
-    #data['dwtype_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_dist'])      # dISTRIBUTION of dwelligns base year #TODO: REMOVE AND ONLY LOAD YEAR 2015
     data['dwtype_age_distr'] = mf.read_csv_nested_dict(path_dict['path_dwtype_age'])
-    #= mf.read_csv_dict(path_dict['path_dwtype_floorarea_dw_type'])
-    #data['reg_floorarea_resid'] = mf.read_csv_dict_no_header(path_dict['path_reg_floorarea_resid'])
-    data['reg_dw_nr'] = mf.read_csv_dict_no_header(path_dict['path_reg_dw_nr'])
 
     # load shapes
     data['dict_shp_enduse_h_resid'] = {}
@@ -110,13 +107,6 @@ def load_data(path_main, data_ext):
     # Data new approach
     data_residential_by_fuel_end_uses = mf.read_csv_base_data_resid(path_dict['path_data_residential_by_fuel_end_uses']) # Yearly end use data
 
-    scrap = 0
-    for enduse in data_residential_by_fuel_end_uses:
-        scrap += np.sum(data_residential_by_fuel_end_uses[enduse])
-    print("scrap FUELS READ IN FROM EXCEL: " + str(scrap))
-
-
-
 
     # Add the yearly fuel data of the external Wrapper to the enduses (RESIDENTIAL HERE) #TODO
     ###data = add_yearly_external_fuel_data(data, data_ext, data_residential_by_fuel_end_uses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
@@ -124,41 +114,63 @@ def load_data(path_main, data_ext):
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data['resid_enduses'] = {}
-
     for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
         data['resid_enduses'][ext_enduse] = ext_enduse
-
-    #if 'external_enduses_resid' in data_ext:
-    #    for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
-    #        data['resid_enduses'][ext_enduse] = ext_enduse
-
 
     for enduse in data_residential_by_fuel_end_uses: # Add resid enduses
         data['resid_enduses'][enduse] = enduse
 
     data['lu_appliances_HES_matched'] = mf.read_csv(path_dict['path_lu_appliances_HES_matched'])
 
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
-    # --------------
-    #data['csv_temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # csv_temp_2015 #TODO: Dele
+    # ----------------------------------------------------------------------------------------------------------------------------------------------------------
+    data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year          
+
+
+
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # ----------------------------------------
     # --Convert loaded data into correct units
     # ----------------------------------------
 
-    # Fuel residential
+    # Residential
     for enduse in data_residential_by_fuel_end_uses:
         data_residential_by_fuel_end_uses[enduse] = mf.conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse])
     print("ENDUSES: " + str(data_residential_by_fuel_end_uses))
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
+
+
+
 
     # --- Generate load_shapes ##TODO
     data = generate_data(data) # Otherwise already read out files are read in from txt files
 
     # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
     data = collect_shapes_from_txts(data)
+
+
+
+
+
+
+
 
     # ---TESTS----------------------
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
@@ -172,7 +184,7 @@ def load_data(path_main, data_ext):
 
     return data
 
-#run_data_collection = False #Scrap
+
 # ---------------------------------------------------
 # All pre-processed load shapes are read in from .txt files
 # ---------------------------------------------------
@@ -223,7 +235,7 @@ def generate_data(data):
     # ===========================================
     path_txt_shapes = data['path_dict']['path_txt_shapes_resid']
 
-    # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data [ % ]
+    # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
     hes_data, hes_y_peak, _ = df.read_hes_data(data)
     year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
 
@@ -244,7 +256,7 @@ def generate_data(data):
         shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
         df.create_txt_shapes('heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
 
-    # TODO:
+    # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
 
 
@@ -255,11 +267,11 @@ def generate_data(data):
     # ===========================================
 
     # ----------------------------
-    # Service Gas demand, Daily shapes taken from Robert Sansom, Yearly peak from CSWV
+    # Service Gas demand
     # ----------------------------
     #CSV Service
-    #shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'service', 'actual') # Composite Wheater Variable for residential gas heating
-    #df.create_txt_shapes('heating_service', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, _) # Write shapes to txt
+    #data['temp_2015_service']
+
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------

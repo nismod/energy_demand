@@ -664,6 +664,8 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
 def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
     """Calculate total number of heating degree days in a region
 
+    #TODO: Maybe calculate HDD For every day based on houlry data and not monthly! (don't use hitchens then but real calculation)
+
     Parameters
     ----------
     t_mean_reg_months : float
@@ -767,7 +769,6 @@ def get_t_base(curr_y, assumptions, base_yr, end_yr):
     return t_base_cy
 
 """ Functions for fuel_enduse_switch stock"""
-import math as m
 
 '''def eff_sy_lin(base_yr, curr_yr, year_end, assumptions, technology):
     """ Calculates lineare diffusion
@@ -901,7 +902,6 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     return cy_p
 
-
 def cdd_calculation():
     """Calculate cooling degree days 
     
@@ -937,7 +937,7 @@ def wheater_generator(data):
 
 
 def heat_pump_efficiency_y():
-    """Sum over every hour in a year the efficiency * temp
+    """Sum over every hour in a year the efficiency * temp¨"""
     return
 
 '''def sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturate_year, year_invention):
