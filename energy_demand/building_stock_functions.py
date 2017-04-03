@@ -94,7 +94,7 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, co
 
     """
     # Base temperature for current year (Diffusion of sigmoid internal temperature)
-    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext['glob_var']['base_year'], data_ext['glob_var']['end_yr'])
+    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
 
     # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
     temperature_region_relocated = mf.get_temp_region(dw_reg_id, coordinates)
@@ -216,13 +216,13 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
 
         # Iterate simulation years
         for sim_yr in sim_period:
-            curr_year = sim_yr - glob_var['base_year']
+            curr_year = sim_yr - glob_var['base_yr']
 
-            if sim_yr == glob_var['base_year']:
+            if sim_yr == glob_var['base_yr']:
                 sim_yrs[sim_yr] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
-                diff_cy = mf.linear_diff(glob_var['base_year'], sim_yr, 1, (1 + assump_final_diff_floorarea_pp), (len(sim_period)-1))
+                diff_cy = mf.linear_diff(glob_var['base_yr'], sim_yr, 1, (1 + assump_final_diff_floorarea_pp), (len(sim_period)-1))
 
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by * diff_cy # Floor area of simulation year
@@ -265,9 +265,9 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
 
     # Iterate years
     for sim_yr in sim_period:
-        sim_yr_nr = sim_yr - glob_var['base_year']
+        sim_yr_nr = sim_yr - glob_var['base_yr']
 
-        if sim_yr == glob_var['base_year']:
+        if sim_yr == glob_var['base_yr']:
             y_distr = dwtype_distr_by # If base year, base year distribution
         else:
             y_distr = {}

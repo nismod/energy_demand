@@ -1,11 +1,11 @@
 """ Functions for fuel_enduse_switch stock"""
 import math as m
 
-'''def eff_sy_lin(base_year, current_yr, year_end, assumptions, technology):
+'''def eff_sy_lin(base_yr, curr_yr, year_end, assumptions, technology):
     """ Calculates lineare diffusion
     Parameters
     ----------
-    base_year : float
+    base_yr : float
         Base year
 
     Returns
@@ -15,22 +15,22 @@ import math as m
     """
     eff_by = assumptions['eff_by'][technology]
     eff_ey = assumptions['eff_ey'][technology]
-    sim_years = year_end - base_year
+    sim_years = year_end - base_yr
 
 
     # How far the diffusion is
-    diffusion = round(linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years), 2)
+    diffusion = round(linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years), 2)
 
     return diffusion
 '''
 
-def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switch):
+def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     """ Calculate sigmoid diffusion of a fuel type share of a current year
     Parameters
     ----------
-    base_year : float
+    base_yr : float
         Base year
-    current_yr : float
+    curr_yr : float
         Base year
     year_end : float
         Base year
@@ -59,22 +59,22 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness), 2)
+    p_of_diffusion = round(sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
 
     return fract_cy
 
-def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
+def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
     All necessary data to run energy demand model is loaded.
     This data is loaded in the wrapper.
     Parameters
     ----------
-    current_yr : int
+    curr_yr : int
         The year of the current simulation.
-    base_year : int
+    base_yr : int
         The year of the current simulation.
     eff_by : float
         Fraction of population served with fuel_enduse_switch in base year
@@ -87,22 +87,22 @@ def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
     fract_sy : float
         The fraction of the fuel_enduse_switch in the simulation year
     """
-    if current_yr == base_year or sim_years == 0:
+    if curr_yr == base_yr or sim_years == 0:
         fract_sy = eff_by
     else:
-        fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (current_yr - base_year)
+        fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
 
     return fract_sy
 
-def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 
     Parameters
     ----------
-    base_year : int
+    base_yr : int
         Base year of simulation period
-    current_yr : int
+    curr_yr : int
         The year of the current simulation
     year_end : int
         The year a fuel_enduse_switch saturaes
@@ -128,29 +128,29 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
 
     """
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    if year_end == base_year:
+    if year_end == base_yr:
         y_trans = 6.0
     else:
-        y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_yr - base_year)
+        y_trans = -6.0 + (12.0 / (year_end - base_yr)) * (curr_yr - base_yr)
 
     # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
     cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
 
     return cy_p
 
-'''def sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturate_year, year_invention):
+'''def sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturate_year, year_invention):
     """This function assumes "S"-Curve fuel_enduse_switch diffusion (logistic function).
     The function reads in the following assumptions about the fuel_enduse_switch to calculate the
     current distribution of the simulated year:
     Parameters
     ----------
-    current_yr : int
+    curr_yr : int
         The year of the current simulation
     saturate_year : int
         The year a fuel_enduse_switch saturaes
     year_invention : int
         The year where a fuel_enduse_switch gets on the market
-    base_year : int
+    base_yr : int
         Base year of simulation period
     Returns
     -------
@@ -158,14 +158,14 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
         The fraction of the fuel_enduse_switch in the simulation year
     """
     # Check how many years fuel_enduse_switch in the market
-    if current_yr < year_invention:
+    if curr_yr < year_invention:
         val_yr = 0
         return val_yr
     else:
-        if current_yr >= saturate_year:
-            years_availalbe = saturate_year - base_year
+        if curr_yr >= saturate_year:
+            years_availalbe = saturate_year - base_yr
         else:
-            years_availalbe = current_yr - year_invention
+            years_availalbe = curr_yr - year_invention
 
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
     print("years_availalbe: " + str(years_availalbe))
@@ -181,13 +181,13 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
     return val_yr
 '''
 
-'''def frac_sy_sigm_new_fuel_enduse_switch(base_year, current_yr, year_end, assumptions, fuel_enduse_switch):
+'''def frac_sy_sigm_new_fuel_enduse_switch(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     """ Calculate share of a fuel_enduse_switch in a year based on assumptions
         Parameters
         ----------
-        base_year : float
+        base_yr : float
             Base year
-        current_yr : float
+        curr_yr : float
             Base year
         year_end : float
             Base year
@@ -204,7 +204,7 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
     # EV: MAX_SHARE POSSIBLE
     #max_possible
     # How far the fuel_enduse_switch has diffused
-    p_of_diffusion = round(sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturation_year, market_year), 2)
+    p_of_diffusion = round(sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturation_year, market_year), 2)
     print("p_of_diffusion: " + str(p_of_diffusion))
     #fract_cy = p_of_diffusion * max_possible
     return p_of_diffusion

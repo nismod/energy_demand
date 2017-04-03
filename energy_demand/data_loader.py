@@ -72,13 +72,13 @@ def load_data(path_main, data_ext):
     # REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
     # TODO: Will change if data externally loaded---------------------------
     reg_lu_dict = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
         reg_lu_dict[reg_name] = reg_name
     data['reg_lu'] = reg_lu_dict
 
     #FLOOR_AREA_LOOKUP:
     reg_floor_area = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_year']]:
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
         reg_lu_dict[reg_name] = 100000
     data['reg_floorarea_resid'] = reg_lu_dict
 
@@ -216,7 +216,7 @@ def collect_shapes_from_txts(data):
 def generate_data(data):
     """This function loads all that which does not neet to be run every time"""
 
-    base_year_load_data = 2015
+    base_yr_load_data = 2015
 
     # ===========================================-
     # RESIDENTIAL MODEL
@@ -225,7 +225,7 @@ def generate_data(data):
 
     # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data [ % ]
     hes_data, hes_y_peak, _ = df.read_hes_data(data)
-    year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_year_load_data)
+    year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
 
     # Load shape for all end_uses
     for end_use in data['data_residential_by_fuel_end_uses']:
@@ -327,7 +327,7 @@ def generate_data(data):
 
     # Get yearly profiles
     enduse = 'WHATEVERENDUSE'
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_year_load_data) #TODO: out_dict_av is percentages of day sum up to one
+    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
     '''

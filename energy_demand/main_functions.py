@@ -246,7 +246,7 @@ def conversion_ktoe_gwh(data_ktoe):
     data_gwh = data_ktoe * 11.6300000
     return data_gwh
 
-def timesteps_full_year(base_year):
+def timesteps_full_year(base_yr):
     """A list is generated from the first hour of the base year to the last hour of teh base year
 
     This function generates a single list from a list with
@@ -254,7 +254,7 @@ def timesteps_full_year(base_year):
 
     Parameters
     ----------
-    base_year : int
+    base_yr : int
         Year used to generate timesteps.
 
     Returns
@@ -268,7 +268,7 @@ def timesteps_full_year(base_year):
 
     """
     # List with all dates of the base year
-    list_dates = get_datetime_range(start=date(base_year, 1, 1), end=date(base_year, 12, 31)) # List with every date in a year
+    list_dates = get_datetime_range(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31)) # List with every date in a year
 
     timesteps = {}
 
@@ -608,9 +608,9 @@ def convert_date_to_yearday(year, month, day):
 
     Parameters
     ----------
-    date_base_year : int
+    date_base_yr : int
         Year
-    date_base_year : int
+    date_base_yr : int
         Month
     day : int
         Day
@@ -683,7 +683,7 @@ def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
 
     return hdd_tot
 
-def get_hdd_country(regions, data, base_year):
+def get_hdd_country(regions, data, base_yr):
     """Calculate total number of heating degree days in a region for the base year
 
     Parameters
@@ -697,7 +697,7 @@ def get_hdd_country(regions, data, base_year):
 
     hdd_country = 0
     hdd_regions = {}
-    t_base = data['assumptions']['t_base']['base_year']
+    t_base = data['assumptions']['t_base']['base_yr']
 
     for region in regions:
 
@@ -727,7 +727,7 @@ def get_hdd_individ_reg(region, data):
     temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
 
     t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
-    t_base = data['assumptions']['t_base']['base_year'] #t_base of base_year
+    t_base = data['assumptions']['t_base']['base_yr'] #t_base of base_yr
 
     hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months, t_base)
 
@@ -753,7 +753,7 @@ def get_t_base(curr_y, assumptions, base_yr, end_yr):
     """
 
     # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_year']
+    t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
@@ -762,18 +762,18 @@ def get_t_base(curr_y, assumptions, base_yr, end_yr):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = assumptions['t_base']['base_year'] + t_diff_cy
+    t_base_cy = assumptions['t_base']['base_yr'] + t_diff_cy
 
     return t_base_cy
 
 """ Functions for fuel_enduse_switch stock"""
 import math as m
 
-'''def eff_sy_lin(base_year, current_yr, year_end, assumptions, technology):
+'''def eff_sy_lin(base_yr, curr_yr, year_end, assumptions, technology):
     """ Calculates lineare diffusion
     Parameters
     ----------
-    base_year : float
+    base_yr : float
         Base year
 
     Returns
@@ -783,22 +783,22 @@ import math as m
     """
     eff_by = assumptions['eff_by'][technology]
     eff_ey = assumptions['eff_ey'][technology]
-    sim_years = year_end - base_year
+    sim_years = year_end - base_yr
 
 
     # How far the diffusion is
-    diffusion = round(linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years), 2)
+    diffusion = round(linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years), 2)
 
     return diffusion
 '''
 
-def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switch):
+def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     """ Calculate sigmoid diffusion of a fuel type share of a current year
     Parameters
     ----------
-    base_year : float
+    base_yr : float
         Base year
-    current_yr : float
+    curr_yr : float
         Base year
     year_end : float
         Base year
@@ -822,22 +822,22 @@ def frac_sy_sigm(base_year, current_yr, year_end, assumptions, fuel_enduse_switc
         diff_frac = fract_ey -fract_by
 
     # How far the diffusion has progressed
-    p_of_diffusion = round(sigmoid_diffusion(base_year, current_yr, year_end, assumptions['sig_midpoint'], assumptions['sig_steeppness']), 2)
+    p_of_diffusion = round(sigmoid_diffusion(base_yr, curr_yr, year_end, assumptions['sig_midpoint'], assumptions['sig_steeppness']), 2)
 
     # Fraction of current year
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
 
     return fract_cy
 
-def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
+def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
     All necessary data to run energy demand model is loaded.
     This data is loaded in the wrapper.
     Parameters
     ----------
-    current_yr : int
+    curr_yr : int
         The year of the current simulation.
-    base_year : int
+    base_yr : int
         The year of the current simulation.
     eff_by : float
         Fraction of population served with fuel_enduse_switch in base year
@@ -850,22 +850,22 @@ def linear_diff(base_year, current_yr, eff_by, eff_ey, sim_years):
     fract_sy : float
         The fraction of the fuel_enduse_switch in the simulation year
     """
-    if current_yr == base_year or sim_years == 0:
+    if curr_yr == base_yr or sim_years == 0:
         fract_sy = eff_by
     else:
-        fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (current_yr - base_year)
+        fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
 
     return fract_sy
 
-def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 
     Parameters
     ----------
-    base_year : int
+    base_yr : int
         Base year of simulation period
-    current_yr : int
+    curr_yr : int
         The year of the current simulation
     year_end : int
         The year a fuel_enduse_switch saturaes
@@ -891,10 +891,10 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
 
     """
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    if year_end == base_year:
+    if year_end == base_yr:
         y_trans = 6.0
     else:
-        y_trans = -6.0 + (12.0 / (year_end - base_year)) * (current_yr - base_year)
+        y_trans = -6.0 + (12.0 / (year_end - base_yr)) * (curr_yr - base_yr)
 
     # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
     cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
@@ -902,23 +902,57 @@ def sigmoid_diffusion(base_year, current_yr, year_end, sig_midpoint, sig_steeppn
     return cy_p
 
 
+def cdd_calculation():
+    """Calculate cooling degree days 
+    
+    #TODO: Improve
+    
+    """
+    #https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
+
+    # Formula 2.1 : Degree-days: theory and application
+
+    b_temp_cooling = 21 #Base temperature for cooling
+
+    m_temp
+
+    cdd_y = 0
+    temp_y_for_every_day = np.zeros((365, 24))
+
+    for temp_day in temp_y_for_every_day:
+
+        sum_d = 0
+        # Iterate daily temperatures
+        for temp_h in temp_day:
+            sum_d += b_temp_cooling - temp_h
+
+        cdd_y += sum_d / 24
+
+    return cdd_y
+
+
 def wheater_generator(data):
     """ TODO """
     return data
 
-'''def sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturate_year, year_invention):
+
+def heat_pump_efficiency_y():
+    """Sum over every hour in a year the efficiency * temp
+    return
+
+'''def sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturate_year, year_invention):
     """This function assumes "S"-Curve fuel_enduse_switch diffusion (logistic function).
     The function reads in the following assumptions about the fuel_enduse_switch to calculate the
     current distribution of the simulated year:
     Parameters
     ----------
-    current_yr : int
+    curr_yr : int
         The year of the current simulation
     saturate_year : int
         The year a fuel_enduse_switch saturaes
     year_invention : int
         The year where a fuel_enduse_switch gets on the market
-    base_year : int
+    base_yr : int
         Base year of simulation period
     Returns
     -------
@@ -926,14 +960,14 @@ def wheater_generator(data):
         The fraction of the fuel_enduse_switch in the simulation year
     """
     # Check how many years fuel_enduse_switch in the market
-    if current_yr < year_invention:
+    if curr_yr < year_invention:
         val_yr = 0
         return val_yr
     else:
-        if current_yr >= saturate_year:
-            years_availalbe = saturate_year - base_year
+        if curr_yr >= saturate_year:
+            years_availalbe = saturate_year - base_yr
         else:
-            years_availalbe = current_yr - year_invention
+            years_availalbe = curr_yr - year_invention
 
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
     print("years_availalbe: " + str(years_availalbe))
@@ -949,13 +983,13 @@ def wheater_generator(data):
     return val_yr
 '''
 
-'''def frac_sy_sigm_new_fuel_enduse_switch(base_year, current_yr, year_end, assumptions, fuel_enduse_switch):
+'''def frac_sy_sigm_new_fuel_enduse_switch(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     """ Calculate share of a fuel_enduse_switch in a year based on assumptions
         Parameters
         ----------
-        base_year : float
+        base_yr : float
             Base year
-        current_yr : float
+        curr_yr : float
             Base year
         year_end : float
             Base year
@@ -972,7 +1006,7 @@ def wheater_generator(data):
     # EV: MAX_SHARE POSSIBLE
     #max_possible
     # How far the fuel_enduse_switch has diffused
-    p_of_diffusion = round(sigmoidfuel_enduse_switchdiffusion(base_year, current_yr, saturation_year, market_year), 2)
+    p_of_diffusion = round(sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturation_year, market_year), 2)
     print("p_of_diffusion: " + str(p_of_diffusion))
     #fract_cy = p_of_diffusion * max_possible
     return p_of_diffusion

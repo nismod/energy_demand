@@ -58,7 +58,7 @@ def read_hes_data(data):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-def assign_hes_data_to_year(data, hes_data, base_year):
+def assign_hes_data_to_year(data, hes_data, base_yr):
     ''' Fill every base year day with correct data '''
 
     app_type_lu = data['app_type_lu']
@@ -66,7 +66,7 @@ def assign_hes_data_to_year(data, hes_data, base_year):
     year_raw_values = np.zeros((365, 24, len(app_type_lu)), dtype=float)
 
     # Create list with all dates of a whole year
-    start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
+    start_date, end_date = date(base_yr, 1, 1), date(base_yr, 12, 31)
     #list_dates = list(mf.datetime_range(start=start_date, end=end_date))
     list_dates = mf.get_datetime_range(start=start_date, end=end_date)
 
@@ -83,7 +83,7 @@ def assign_hes_data_to_year(data, hes_data, base_year):
 
     return year_raw_values
 
-def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year):
+def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     """Fill every base year day with correct data"""
 
     shape_h_non_peak = np.zeros((365, 24))
@@ -91,7 +91,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_year
     # -- Daily shape over full year (365,1)
 
     # Create list with all dates of a whole year
-    start_date, end_date = date(base_year, 1, 1), date(base_year, 12, 31)
+    start_date, end_date = date(base_yr, 1, 1), date(base_yr, 12, 31)
     #list_dates = list(mf.datetime_range(start=start_date, end=end_date))
     list_dates = mf.get_datetime_range(start=start_date, end=end_date)
 

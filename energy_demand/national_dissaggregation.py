@@ -47,7 +47,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
     # TODO: COOLING DG DAYS to disaggregate regionaly
 
     regions = data['reg_lu']
-    base_year = data_ext['glob_var']['base_year']
+    base_yr = data_ext['glob_var']['base_yr']
     national_fuel = data['data_residential_by_fuel_end_uses']
     data['fueldata_disagg'] = {} #Initialise to store aggregated fuels
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
@@ -56,18 +56,18 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
     test_sum_before = sum_fuels_before(national_fuel)
 
     # Calculate heating degree days in whole country for base year
-    hdd_individ_region = mf.get_hdd_country(regions, data, base_year)
+    hdd_individ_region = mf.get_hdd_country(regions, data, base_yr)
 
     # Total heated days for all person sum of
     tot_hdd_popreg = 0
     for region in regions:
-        reg_pop = data_ext['population'][base_year][region] # Regional popluation
+        reg_pop = data_ext['population'][base_yr][region] # Regional popluation
         tot_hdd_popreg += reg_pop * hdd_individ_region[region]
 
     # Iterate regions
     for region in regions:
-        reg_pop = data_ext['population'][base_year][region] # Regional popluation
-        total_pop = sum(data_ext['population'][base_year].values()) # Total population
+        reg_pop = data_ext['population'][base_yr][region] # Regional popluation
+        total_pop = sum(data_ext['population'][base_yr].values()) # Total population
         hdd_reg = hdd_individ_region[region] # Hdd of region
         inter_dict = {} # Disaggregate fuel depending on end_use
 

@@ -34,13 +34,13 @@ def resid_build_stock(data, assumptions, data_ext):
 
     """
     dw_stock_every_year = {}
-    base_year = data_ext['glob_var']['base_year'] # Base year
+    base_yr = data_ext['glob_var']['base_yr'] # Base year
 
     # Get distribution of dwelling types of all simulation years
     dwtype_distr_sim = bf.get_dwtype_dist(assumptions['assump_dwtype_distr_by'], assumptions['assump_dwtype_distr_ey'], data_ext['glob_var']) # Calculate distribution of dwelling types over simulation period
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data_ext['population'][base_year], data_ext['glob_var'], assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
+    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data_ext['population'][base_yr], data_ext['glob_var'], assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
@@ -48,7 +48,7 @@ def resid_build_stock(data, assumptions, data_ext):
     # Iterate regions
     for reg_id in data['reg_lu']:
         floorarea_by = data['reg_floorarea_resid'][reg_id]        # Read in floor area of base year
-        pop_by = data_ext['population'][base_year][reg_id]  # Read in population
+        pop_by = data_ext['population'][base_yr][reg_id]  # Read in population
         floorarea_pp_by = floorarea_by / pop_by             # Floor area per person [m2/person]
         dw_stock_every_year[reg_id] = {}
 
@@ -64,9 +64,9 @@ def resid_build_stock(data, assumptions, data_ext):
             new_floorarea_sy = tot_floorarea_sy - floorarea_by # tot new floor area - area base year
 
             # Only calculate changing
-            if sim_y == base_year:
+            if sim_y == base_yr:
                 
-                dw_stock_base = generate_dw_existing(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, data['dwtype_age_distr'][base_year], floorarea_pp_by, floorarea_by, pop_by, assumptions, data_ext)
+                dw_stock_base = generate_dw_existing(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_by, floorarea_by, pop_by, assumptions, data_ext)
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
@@ -86,7 +86,7 @@ def resid_build_stock(data, assumptions, data_ext):
                 print("demolished_area: " + str(demolished_area))
                 print("pop_in_exist_dw_new_floor_area_pp " + str(pop_in_exist_dw_new_floor_area_pp))
                 print("new_area_minus_demolished " + str(new_area_minus_demolished))
-                dw_stock_new_dw = generate_dw_existing(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[base_year], floorarea_by, data['dwtype_age_distr'][base_year], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
+                dw_stock_new_dw = generate_dw_existing(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
 
                 # - new dwellings
                 if new_floorarea_sy < 0:
@@ -104,7 +104,7 @@ def resid_build_stock(data, assumptions, data_ext):
                 dw_stock_every_year[reg_id][sim_y] = bf.DwStockRegion(reg_id, dw_stock_new_dw, data) # Add old and new buildings to stock
 
         # Add regional base year building stock
-        dw_stock_every_year[reg_id][base_year] = bf.DwStockRegion(reg_id, dw_stock_base, data) # Add base year stock
+        dw_stock_every_year[reg_id][base_yr] = bf.DwStockRegion(reg_id, dw_stock_base, data) # Add base year stock
 
         #print("BASE")
         #print(dw_stock_every_year[reg_id][2015].heating)

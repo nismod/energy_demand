@@ -139,8 +139,8 @@ def load_assumptions(data):
     # Weather Assumptions (Checked)
     # ============================================================
     assump_dict['t_base'] = {
-        'base_year': 15.5,
-        'end_yr': 15.5
+        'base_yr': 15.5,
+        'end_yr': 14.5
     }
 
     # ============================================================
@@ -448,7 +448,7 @@ def load_assumptions(data):
     # ============================================================
 
     # Building stock related, assumption of change in floor area up to end_yr (Checked)
-    assump_dict['assump_diff_floorarea_pp'] = 0.0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
+    assump_dict['assump_diff_floorarea_pp'] = 0.5 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
 
     # Dwelling type distribution
     assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year

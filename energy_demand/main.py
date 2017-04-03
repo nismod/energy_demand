@@ -140,12 +140,16 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2016 #always includes this year
+    ey = 2050 #always includes this year
 
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000,
+    
+    'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000
+    
+    }
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -170,8 +174,8 @@ if __name__ == "__main__":
         'population': pop_dummy,
         'glob_var' : {},
         #'glob_var': {
-        #    'base_year': 2015,
-        #    'current_yr': 2016,
+        #    'base_yr': 2015,
+        #    'curr_yr': 2016,
         #    'end_yr': 2017
         #},
         'fuel_price': fuel_price_dummy,
@@ -184,7 +188,7 @@ if __name__ == "__main__":
     }
     data_external['glob_var']['end_yr'] = ey
     data_external['glob_var']['sim_period'] = range(by, ey + 1, 1)
-    data_external['glob_var']['base_year'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
+    data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
    
@@ -208,11 +212,11 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
     for sim_y in sim_years:
-        data_external['glob_var']['current_yr'] = sim_y
+        data_external['glob_var']['curr_yr'] = sim_y
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_y))
-        print(data_external['glob_var']['current_yr'])
+        print(data_external['glob_var']['curr_yr'])
         print("-------------------------- ")
         results, resid_object_country = energy_demand_model(base_data, data_external)
 
