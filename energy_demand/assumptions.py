@@ -140,7 +140,7 @@ def load_assumptions(data):
     # ============================================================
     assump_dict['t_base'] = {
         'base_yr': 15.5,
-        'end_yr': 14.5
+        'end_yr': 15.5
     }
 
     # ============================================================
@@ -322,6 +322,7 @@ def load_assumptions(data):
 
         #test
         'tech_A' : dict_fueltype['hydrogen'],
+        'tech_B' : dict_fueltype['hydrogen'],
         'back_boiler' : dict_fueltype['electricity'],
         'condensing_boiler' : dict_fueltype['electricity']
     }
@@ -341,21 +342,21 @@ def load_assumptions(data):
 
     # -- Technology which is installed for the share of fueltype to be replaced
     assump_dict['tech_install'] = {
-        'lighting': 'LED',
+        'heating': 'tech_B',
         'water_heating': 'tech_A'
     }
 
     # --Technologies which are replaced within enduse and fueltype
     tech_replacement_dict = {
-        'lighting':{
-            0: '',
-            1: '',
-            2: 'halogen_elec', # Halogen_elec gets replaced by LED
-            3: '',
-            4: '',
-            5: '',
-            6: '',
-            7: ''
+        'heating':{
+            0: 'tech_A',
+            1: 'tech_A',
+            2: 'tech_A', # Tech A gets replaced by Tech B
+            3: 'tech_A',
+            4: 'tech_A',
+            5: 'tech_A',
+            6: 'tech_A',
+            7: 'tech_A'
         },
         'water_heating':{
             0: '',
@@ -377,10 +378,10 @@ def load_assumptions(data):
 
     # --Reduction fraction of each fuel in each enduse compared to base year. Always positive values (0.2 --> 20% reduction)
     assump_fuel_frac_ey ={
-        'lighting': {
+        'heating': {
             '0' : 0.0,
             '1' : 0.0,
-            '2' : 0.3, # electricity for lighting replaced
+            '2' : 0.0, # electricity for lighting replaced
             '3' : 0.0,
             '4' : 0.0,
             '5' : 0.0,
@@ -426,7 +427,7 @@ def load_assumptions(data):
         for fueltype in range(len(data['fuel_type_lu'])):
             tech_enduse_by[enduse][fueltype] = {}
 
-    # Add technological split where known
+    # Add technological split where known (only internally for each fuel enduse)
     tech_enduse_by['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     tech_enduse_by['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
     assump_dict['tech_enduse_by'] = tech_enduse_by # add to dict

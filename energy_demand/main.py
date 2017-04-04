@@ -14,6 +14,7 @@
 # lu = look up
 # h = hour
 # d = day
+# Add Cooling
 
 - Read out individal load shapes
 - HEating Degree DAys
@@ -43,12 +44,17 @@ import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
 import energy_demand.technological_stock as ts
-import energy_demand.residential_model as rm
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
 import logging
+
+# Sub modules
+import energy_demand.residential_model as rm
+import energy_demand.service_model as sm
+import energy_demand.industry_model as im
+import energy_demand.transport_model as tm
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -140,22 +146,20 @@ if __name__ == "__main__":
     # -------------------
     #Dummy
     by = 2015
-    ey = 2050 #always includes this year
+    ey = 2017 #always includes this year
 
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000,
-    
-    'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000,'Scotland': 5300000
-    
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000
     }
+
     for i in sim_years:
         y_data = {}
         for reg in a:
             y_data[reg] = a[reg] # + (a[reg] * 1.04)
         pop_dummy[i] = y_data
-        #a = y_data
+
 
     fuel_price_dummy = {}
     a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0}
@@ -165,13 +169,17 @@ if __name__ == "__main__":
             y_data[reg] = a[reg] + 0.3
         fuel_price_dummy[i] = y_data
         a = y_data
-    print(fuel_price_dummy)
-
+    # Scrap meteo
+    temp_h_y2015 = np.zeros((365,24))
+    for i, d in enumerate(temp_h_y2015):
+        temp_h_y2015[0] = i
+        temp_h_y2015[1] = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9, 10, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
 
     # Reg Floor Area? Reg lookup?
     data_external = {
 
         'population': pop_dummy,
+        'temp_base_year_2015': temp_h_y2015,
         'glob_var' : {},
         #'glob_var': {
         #    'base_yr': 2015,

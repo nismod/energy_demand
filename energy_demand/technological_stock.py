@@ -31,7 +31,7 @@ class ResidTechStock(object):
         # Execute function to add all technological efficiencies as self argument
         self.create_iteration_efficiency()
 
-        # get share of technologies
+        # Calculate share of technologies within each fueltype
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
         self.tech_frac_ey = data['assumptions']['technologies_enduse_ey'] #end year
         self.tech_frac_cy = self.get_sigmoid_tech_diff() #current year

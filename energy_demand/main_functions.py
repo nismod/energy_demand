@@ -88,7 +88,6 @@ def convert_out_format_es(data, data_ext, resid_object_country):
 
     for fueltype_id, fueltype in data['fuel_type_lu'].items():
         results[fueltype] = []
-        print(fueltype)
 
         for reg_id in data['reg_lu']:
             reg = getattr(resid_object_country, str(reg_id))

@@ -81,11 +81,11 @@ def resid_build_stock(data, assumptions, data_ext):
                 new_area_minus_demolished = floorarea_by - demolished_area
                 pop_in_exist_dw_new_floor_area_pp = floorarea_by / floorarea_pp_sy #In existing building stock fewer people are living
 
-                print("pop_by: " + str(pop_by))
-                print("floorarea_by: " + str(floorarea_by))
-                print("demolished_area: " + str(demolished_area))
-                print("pop_in_exist_dw_new_floor_area_pp " + str(pop_in_exist_dw_new_floor_area_pp))
-                print("new_area_minus_demolished " + str(new_area_minus_demolished))
+                #print("pop_by: " + str(pop_by))
+                #print("floorarea_by: " + str(floorarea_by))
+                ##print("demolished_area: " + str(demolished_area))
+                #print("pop_in_exist_dw_new_floor_area_pp " + str(pop_in_exist_dw_new_floor_area_pp))
+                #print("new_area_minus_demolished " + str(new_area_minus_demolished))
                 dw_stock_new_dw = generate_dw_existing(data, reg_id, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
 
                 # - new dwellings

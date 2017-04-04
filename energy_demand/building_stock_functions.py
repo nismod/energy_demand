@@ -160,8 +160,7 @@ class DwStockRegion(object):
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
         for enduse in data['resid_enduses']:
-            new_enduse_attr = self.get_scenario_driver_enduse(enduse)
-            DwStockRegion.__setattr__(self, enduse, new_enduse_attr)
+            DwStockRegion.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
 
     def get_scenario_driver_enduse(self, enduse):
         """Sum all scenario driver for space heating"""

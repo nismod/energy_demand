@@ -29,8 +29,7 @@ def load_data(path_main, data_ext):
         Returns a list where storing all data
 
     """
-    # Data container
-    data = {}
+    data = {} # Data container
     data['path_main'] = path_main
 
     path_dict = {
@@ -55,9 +54,11 @@ def load_data(path_main, data_ext):
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
         'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
+
         # Service
-        # -----------
-        'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv')
+        # -------
+        'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv'),
+        'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
         }
 
     data['path_dict'] = path_dict
@@ -153,7 +154,7 @@ def load_data(path_main, data_ext):
     # Residential
     for enduse in data_residential_by_fuel_end_uses:
         data_residential_by_fuel_end_uses[enduse] = mf.conversion_ktoe_gwh(data_residential_by_fuel_end_uses[enduse])
-    print("ENDUSES: " + str(data_residential_by_fuel_end_uses))
+    #print("ENDUSES: " + str(data_residential_by_fuel_end_uses))
     data['data_residential_by_fuel_end_uses'] = data_residential_by_fuel_end_uses
 
 
@@ -269,80 +270,38 @@ def generate_data(data):
     # ----------------------------
     # Service Gas demand
     # ----------------------------
+    
     #CSV Service
     #data['temp_2015_service']
 
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
-
+    #folder_path_elec = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
+    #folder_path_gas= r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
+    folder_path_elec= r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
 
     # ENDUSE XY
-    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
-    #out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path)
+    out_dict_av, _, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
 
-    '''
+    print(out_dict_av)
+    print(hourly_shape_of_maximum_days)
+    print(main_dict_dayyear_absolute)
 
-    # Percentages for every day:
-    jan_yearday = range(0, 30)
-    jul_yearday = range(181, 212)
-    jan = {k: [] for k in range(24)}
-    jul = {k: [] for k in range(24)}
+    path_txt_shapes_service = data['path_dict']['path_txt_shapes_service']
 
-    # Read out for the whole months of jan and ful
-    for day in main_dict_dayyear_absolute:
-        for h in main_dict_dayyear_absolute[day]:
-            if day in jan_yearday:
-                jan[h].append(main_dict_dayyear_absolute[day][h])
-            if day in jul_yearday:
-                jul[h].append(main_dict_dayyear_absolute[day][h])
-    #print(jan)
-    # Average the montly entries
-    for i in jan:
-        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
-        jan[i] = sum(jan[i]) / len(jan[i])
+    df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "scrap")
 
-    for i in jul:
-        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
-        jul[i] = sum(jul[i]) / len(jul[i])
+    # Compare Jan and Jul
+    #df.compare_jan_jul(main_dict_dayyear_absolute)
 
-    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
-    jan = np.array(list(jan.items())) #convert to array
-    jul = np.array(list(jul.items())) #convert to array
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-
-    x_values = range(24)
-    y_values = list(jan[:, 1]) # to get percentages
-    plt.plot(x_values, list(jan[:, 1]), label="Jan")
-    plt.plot(x_values, list(jul[:, 1]), label="Jul")
-    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
-    plt.legend()
-    plt.show()
-
-    print("ARRA")
-    print(np.sum(jan[:, 1]))
-    print(np.sum(jul[:, 1]))
-    #print(jan)
-    #print("  --  ")
-    #print(jul)
-    #print("---hh--")
-
-    #--- if JAn = 100%
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-    for h ,i in enumerate(jul_percent_of_jan):
-        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
-
-    pf.plot_load_shape_d_non_resid(jan)
-    print("TEST: " + str(jan-jul))
-
-    # Read in CWV for non-residential
 
     # Get yearly profiles
     enduse = 'WHATEVERENDUSE'
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
+    #year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
-    '''
+
     # ENDUSE XY
     #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 

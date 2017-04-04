@@ -7,6 +7,9 @@ import unittest
 import json
 from datetime import date
 import energy_demand.main_functions as mf
+import copy
+import matplotlib.pyplot as plt
+import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # HES-----------------------------------
@@ -285,22 +288,33 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
 
 # CARBON TRUST-----------------------------------
-def dict_init():
-    main_dict = {0: {}, 1: {}}
-    for i in main_dict:
+def initialise_out_dict_av():
+    out_dict_av = {0: {}, 1: {}}
+    for dtype in out_dict_av:
         month_dict = {}
-        for ff in range(12):
-            day_dict = {k: [] for k in range(24)}
-            month_dict[ff] = day_dict
-        main_dict[i] = month_dict
+        for month in range(12):
+            month_dict[month] = {k: 0 for k in range(24)}
+        out_dict_av[dtype] = month_dict
+    return out_dict_av
+
+def initialise_main_dict():
+    out_dict_av = {0: {}, 1: {}}
+    for dtype in out_dict_av:
+        month_dict = {}
+        for month in range(12):
+            month_dict[month] = {k: [] for k in range(24)}
+        out_dict_av[dtype] = month_dict
+    return out_dict_av
+
+def dict_init():
 
     # Initialise yearday dict
-    main_dict_dayyear_absolute = {}
+    carbon_trust_raw = {}
     for f in range(365):
         day_dict_h = {k: [] for k in range(24)}
-        main_dict_dayyear_absolute[f] = day_dict_h
+        carbon_trust_raw[f] = day_dict_h
 
-    return main_dict, main_dict_dayyear_absolute
+    return carbon_trust_raw
 
 def read_raw_carbon_trust_data(data, folder_path):
     """
@@ -311,32 +325,28 @@ def read_raw_carbon_trust_data(data, folder_path):
         II. Select those day with the maximum load
         III. Get the hourly shape of this day
 
+    #0. Find what day it is (with date function). Then define daytype and month
+    1. Calculate total demand of every day
+    2. Assign percentag of total daily demand to each hour
+
+     ut_dict_av: Every daily measurment is taken from all files and averaged
+    out_dict_not_average: Every measurment of of every file is plotted
+
     """
-    # Dictionary: month, daytype, hour
-    #
-    # 0. Find what day it is (with date function). Then define daytype and month
-    # 1. Calculate total demand of every day
-    # 2. Assign percentag of total daily demand to each hour
+    all_csv_in_folder = os.listdir(folder_path) # Get all files in folder
+    main_dict = initialise_main_dict()
+    carbon_trust_raw = dict_init() # Initialise dictionaries
 
-    # out_dict_av: Every daily measurment is taken from all files and averaged
-    # out_dict_not_average: Every measurment of of every file is plotted
-
-    # Get all files in folder
-    all_csv_in_folder = os.listdir(folder_path)
-
-    # Initialise dictionaries
-    main_dict, main_dict_dayyear_absolute = dict_init()
-    dict_result = {0: {}, 1: {}}
     nr_of_line_entries = 0
     hourly_shape_of_maximum_days = {}
 
     # Itreateu folder with csv files
     for path_csv_file in all_csv_in_folder:
         path_csv_file = os.path.join(folder_path, path_csv_file)
-        print("path: " + str(path_csv_file))
 
         # Read csv file
         with open(path_csv_file, 'r') as csv_file:            # Read CSV file
+            print("path_csv_file: " + str(path_csv_file))
             read_lines = csv.reader(csv_file, delimiter=',')  # Read line
             _headings = next(read_lines)                      # Skip first row
             maximum_dayly_demand = 0                          # Used for searching maximum
@@ -345,27 +355,27 @@ def read_raw_carbon_trust_data(data, folder_path):
             row_data = []
             for count_row, row in enumerate(read_lines):
                 row_data.append(row)
-            print("Number of lines in csv file: " + str(count_row))
+            #print("Number of lines in csv file: " + str(count_row))
 
             # Calc yearly demand
-            if count_row > 364: # if more than one year is recorded in csv file
-
-                # Iterate day
-                for row in row_data:
-                    #print("row: " + str(row))
-
-                    # Test if file has correct form and not more entries than 48 half-hourly entries
-                    if len(row) != 49: # Skip row
-                        #aprint("skip row")
+            if count_row > 365: # if more than one year is recorded in csv file TODO: All but then distored?
+                print("FILE covers a full year---------------------------")
+                cnt = 0
+                for row in row_data: # Iterate day
+                    if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries 
+                        continue # Skip row
+                    cnt += 1
+                    if cnt > 365: #ONLY TAKE ONE YEAR
                         continue
+                    
+                    hourly_load_shape = np.zeros((24, 1))
 
-                    row[1:] = map(float, row[1:])   # Convert all values except date into float values
-                    daily_sum = sum(row[1:])        # Total daily sum
-
+                    row[1:] = map(float, row[1:]) # Convert all values except date into float values
+                    daily_sum = sum(row[1:]) # Total daily sum
                     nr_of_line_entries += 1 # Nr of lines added
                     day, month, year  = int(row[0].split("/")[0]), int(row[0].split("/")[1]), int(row[0].split("/")[2])
 
-                    # Redifine yearday to another year and skip 28. of Feb.
+                    # Redefine yearday to another year and skip 28. of Feb.
                     if is_leap_year(int(year)) == True:
                         year = year + 1 # Shift whole dataset to another year
                         if month == 2 and day == 29:
@@ -377,7 +387,6 @@ def read_raw_carbon_trust_data(data, folder_path):
                     month_python = month - 1 # Month Python
 
                     cnt, h_day, control_sum = 0, 0, 0
-                    hourly_load_shape = np.zeros((24, 1))
 
                     # Iterate hours
                     for half_hour_val in row[1:]:  # Skip first date row in csv file
@@ -385,19 +394,16 @@ def read_raw_carbon_trust_data(data, folder_path):
                         if cnt == 2:
                             demand = first_half_hour + half_hour_val
                             control_sum += abs(demand)
+                            carbon_trust_raw[yearday_python][h_day].append(demand) # Calc percent of total daily demand
 
-                            if daily_sum == 0: # Skip row if no demand of the day
-                                #print("no demand")
-                                main_dict_dayyear_absolute[yearday_python][h_day].append(demand)
+                            # Dict for aggregated monthly values
+                            main_dict[daytype][month_python][h_day].append(demand)
+
+                            if daily_sum == 0: # Skip row if no demand of the day #print("no demand")
                                 hourly_load_shape[h_day] = 0
                                 continue
                             else:
-                                # Calc percent of total daily demand
-                                #main_dict[daytype][month_python][h_day].append(demand * (1.0 / daily_sum)) #Wrong only daily shape
-                                main_dict_dayyear_absolute[yearday_python][h_day].append(demand)
-
-                                # Load shape of this day
-                                hourly_load_shape[h_day] = demand * (1.0 / daily_sum)
+                                hourly_load_shape[h_day] = demand * (1.0 / daily_sum) # Load shape of this day
 
                                 cnt = 0
                                 h_day += 1
@@ -416,68 +422,45 @@ def read_raw_carbon_trust_data(data, folder_path):
                 # Add load shape of maximum day in csv file
                 hourly_shape_of_maximum_days[path_csv_file] = max_h_shape
 
-    #####YEARDAY VALUES
-    for yearday in main_dict_dayyear_absolute:
-        for h_day in main_dict_dayyear_absolute[yearday]:
-            main_dict_dayyear_absolute[yearday][h_day] = sum(main_dict_dayyear_absolute[yearday][h_day]) / len(main_dict_dayyear_absolute[yearday][h_day]) #average
+    # --YEARDAY VALUES
+    # Calculate average of all different entries from different excel files (sum of nr of entries / average)
+    for yearday in carbon_trust_raw:
+        for h_day in carbon_trust_raw[yearday]:
+            carbon_trust_raw[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
 
+    # Calculate yearly sum
     yearly_demand = 0
-    for day in main_dict_dayyear_absolute:
-        yearly_demand += sum(main_dict_dayyear_absolute[day].values())
+    for day in carbon_trust_raw:
+        yearly_demand += sum(carbon_trust_raw[day].values())
 
     # Get relative yearly demand
-    '''for yearday in main_dict_dayyear_absolute:
-        for h_day in main_dict_dayyear_absolute[yearday]:
+    '''for yearday in carbon_trust_raw:
+        for h_day in carbon_trust_raw[yearday]:
             #print("yearly_demand: " + str(yearly_demand))
             #print(yearday)
             #print(h_day)
-            #print(main_dict_dayyear_absolute[yearday][h_day])
-            main_dict_dayyear_absolute[yearday][h_day] = main_dict_dayyear_absolute[yearday][h_day] / yearly_demand #yearly demand in %
+            #print(carbon_trust_raw[yearday][h_day])
+            carbon_trust_raw[yearday][h_day] = carbon_trust_raw[yearday][h_day] / yearly_demand #yearly demand in %
     '''
 
-    #print("TESTSUM: " + str(np.sum(main_dict_dayyear_absolute)))
+    #print("TESTSUM: " + str(np.sum(carbon_trust_raw)))
 
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
 
-    # -- Calculate each value
-    out_dict_not_av = {0: {}, 1: {}}
-
-    # Initialise out_dict_not_av
-    for daytype in out_dict_not_av:
-        month_dict = {}
-        for f in range(12): # hours
-            day_dict = {k: [] for k in range(24)}   # Add all daily values into a list (not average)
-            month_dict[f] = day_dict
-        out_dict_not_av[daytype] = month_dict
-
-    # copy values from main_dict
-    for daytype in main_dict:
-        for month_python in main_dict[daytype]:
-            for h_day in main_dict[daytype][month_python]:
-                out_dict_not_av[daytype][month_python][h_day] = main_dict[daytype][month_python][h_day]
-
     # -- Average (initialise dict)
-    out_dict_av = {0: {}, 1: {}}
-    for dtype in out_dict_av:
-        month_dict = {}
-        for month in range(12):
-            month_dict[month] = {k: 0 for k in range(24)}
-        out_dict_av[dtype] = month_dict
+    out_dict_av = initialise_out_dict_av()
 
-    # Iterate daytype
+    # Calculate average for monthly dict
     for daytype in main_dict:
-
-        # Iterate month
-        for _month in main_dict[daytype]:
-
-            # Iterate hour
-            for _hr in main_dict[daytype][_month]:
-                nr_of_entries = len(main_dict[daytype][_month][_hr]) # nr of added entries
-
+        for month in main_dict[daytype]: # Iterate month
+            for hour in main_dict[daytype][month]: # Iterate hour
+                print(main_dict[daytype][month][hour])
+                nr_of_entries = len(main_dict[daytype][month][hour]) # nr of added entries
                 if nr_of_entries != 0: # Because may not contain data because not available in the csv files
-                    out_dict_av[daytype][_month][_hr] = sum(main_dict[daytype][_month][_hr]) / nr_of_entries
+                    out_dict_av[daytype][month][hour] = sum(main_dict[daytype][month][hour]) / nr_of_entries
+
 
     # Test to for summing
     for daytype in out_dict_av:
@@ -495,11 +478,8 @@ def read_raw_carbon_trust_data(data, folder_path):
     # Add to daily shape
     #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_d_peak_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak
     #prnt("..")
-
-    # Write out enduse load shape #TODO
-    #write_enduse_load_shape_to_csv()
-
-    return out_dict_av, out_dict_not_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute
+    _ = 0
+    return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw
 
 def is_leap_year(year):
     """Determine whether a year is a leap year."""
@@ -621,3 +601,59 @@ def read_txt_shape_d_non_peak(file_path):
     for day, row in enumerate(read_dict_list):
         out_dict[day] = np.array(row, dtype=float)
     return out_dict
+
+
+
+def compare_jan_jul(main_dict_dayyear_absolute):
+    """ COMPARE JAN AND JUL DATA"""
+    # Percentages for every day:
+    jan_yearday = range(0, 30)
+    jul_yearday = range(181, 212)
+    jan = {k: [] for k in range(24)}
+    jul = {k: [] for k in range(24)}
+
+    # Read out for the whole months of jan and ful
+    for day in main_dict_dayyear_absolute:
+        for h in main_dict_dayyear_absolute[day]:
+            if day in jan_yearday:
+                jan[h].append(main_dict_dayyear_absolute[day][h])
+            if day in jul_yearday:
+                jul[h].append(main_dict_dayyear_absolute[day][h])
+    #print(jan)
+    # Average the montly entries
+    for i in jan:
+        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
+        jan[i] = sum(jan[i]) / len(jan[i])
+
+    for i in jul:
+        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
+        jul[i] = sum(jul[i]) / len(jul[i])
+
+    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
+    jan = np.array(list(jan.items())) #convert to array
+    jul = np.array(list(jul.items())) #convert to array
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+
+    x_values = range(24)
+    y_values = list(jan[:, 1]) # to get percentages
+    plt.plot(x_values, list(jan[:, 1]), label="Jan")
+    plt.plot(x_values, list(jul[:, 1]), label="Jul")
+    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
+    plt.legend()
+    plt.show()
+
+    print("ARRA")
+    print(np.sum(jan[:, 1]))
+    print(np.sum(jul[:, 1]))
+    #print(jan)
+    #print("  --  ")
+    #print(jul)
+    #print("---hh--")
+
+    #--- if JAn = 100%
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+    for h ,i in enumerate(jul_percent_of_jan):
+        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
+
+    pf.plot_load_shape_d_non_resid(jan)
+    print("TEST: " + str(jan-jul))
