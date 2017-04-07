@@ -50,11 +50,13 @@ class EDWrapper(SectorModel):
         data_external = {
             'population': pop,
             'glob_var': {
-                'base_year': timestep,
-                'current_yr': timestep,
-                'end_yr': timestep
+                'base_yr': timestep,
+                'curr_yr': timestep,
+                'end_yr': timestep,
+                'sim_period': range(timestep, timestep + 1, 1)
             },
-            'fuel_price': price
+            'fuel_price': price,
+            'external_enduses_resid': []
         }
 
         # Load data needed for energy demand model
@@ -73,7 +75,7 @@ class EDWrapper(SectorModel):
             base_data, base_data['assumptions'], data_external)
 
         # Run Model
-        results = energy_demand_model(base_data, data_external)
+        results, area = energy_demand_model(base_data, data_external)
 
         # results will be written to results.yaml by default
         output = {}
