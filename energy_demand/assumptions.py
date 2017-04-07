@@ -108,7 +108,7 @@ Other (e,g) (Table 5.05)                            -->   Use overall electricit
 
 '''
 
-def load_assumptions(data):
+def load_assumptions(data, data_external):
     """All assumptions of the energy demand model are loaded and added to the data
 
     Returns
@@ -119,7 +119,7 @@ def load_assumptions(data):
     Notes
     -----
 
-    #TODO: Implement mock_technology for all sectors where not definied with eff of 1
+    #TODO: Implement mock_tech for all sectors where not definied with eff of 1
     """
     assump_dict = {}
 
@@ -219,7 +219,11 @@ def load_assumptions(data):
 
         # -- home_computing
         'micro_CHP_elec': 0.5,
-        'micro_CHP_thermal': 0.5
+        'micro_CHP_thermal': 0.5,
+
+        'gas_boiler': 0.3,
+        'elec_boiler': 0.5,
+        'heat_pump': get_heatpump_eff(data_external, 0.2, 4)
         }
     assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
 
@@ -264,54 +268,24 @@ def load_assumptions(data):
 
         # -- home_computing
         'micro_CHP_elec': 0.5,
-        'micro_CHP_thermal': 0.5
+        'micro_CHP_thermal': 0.5,
+
+        'gas_boiler': 0.3,
+        'elec_boiler': 0.5,
+        'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
     assump_dict['eff_ey'] = eff_ey # Add dictionaries to assumptions
 
     # --Efficiencies (achieved until end year)
-    eff_achieved = {
-        # -- water heating boiler ECUK Table 3.19
-        'back_boiler' : 0.0,
-        'combination_boiler' : 0.0,
-        'condensing_boiler' : 1.0,
-        'condensing_combination_boiler' : 0.0,
-        'combination_boiler' : 0.0,
-
-        'boiler_A' : 0.5,
-        'boiler_B' : 0.3,
-        'new_tech_A': 0.1,
-        'tech_A' : 0.5,
-        'tech_B' : 0.5,
-        'tech_C': 0.0,
-        'tech_D' : 0.5,
-        'tech_E' : 0.5,
-        'tech_F': 0.0,
-        'boiler_gas': 0.5,
-        'boiler_oil': 0.5,
-        'boiler_condensing': 0.5,
-        'boiler_biomass': 0.5,
-        'ASHP': 0.5,
-        'HP_ground_source': 0.5,
-        'HP_air_source': 0.5,
-        'HP_gas': 0.5,
-        'micro_CHP_elec': 0.5,
-        'micro_CHP_thermal': 0.5,
-
-        # -- lightinging
-        'halogen_elec': 0.5,
-        'standard_lighting_bulb': 0.5,
-        'fluorescent_strip_lightinging': 0.5,
-        'energy_saving_lighting_bulb': 0.5,
-        'LED' : 0.6
-    }
-    assump_dict['eff_achieved'] = eff_achieved # Add dictionaries to assumptions
+    assump_dict['eff_achieved'] = {} # Add dictionaries to assumptions
 
     # ---Helper function eff_achieved THIS can be used for scenarios to define how much of the fficiency was achieved
-    for i in assump_dict['eff_achieved']:
-        assump_dict['eff_achieved'][i] = 1.0
+    factor_efficiency_achieved = 0.5
+    for i in assump_dict['eff_ey']:
+        assump_dict['eff_achieved'][i] = assump_dict['eff_ey'][i] * factor_efficiency_achieved
 
-    # Define fueltype of each technology
-    technology_fueltype = {
+    # Define fueltype of each tech
+    tech_fueltype = {
         #Lighting
         'LED': dict_fueltype['electricity'],
         'halogen_elec': dict_fueltype['electricity'],
@@ -321,12 +295,16 @@ def load_assumptions(data):
         'LED' : dict_fueltype['electricity'],
 
         #test
-        'tech_A' : dict_fueltype['hydrogen'],
-        'tech_B' : dict_fueltype['hydrogen'],
+        'tech_A' : dict_fueltype['gas'],
+        'tech_B' : dict_fueltype['gas'],
         'back_boiler' : dict_fueltype['electricity'],
-        'condensing_boiler' : dict_fueltype['electricity']
+        'condensing_boiler' : dict_fueltype['electricity'],
+
+        'gas_boiler': dict_fueltype['gas'],
+        'elec_boiler': dict_fueltype['electricity'],
+        'heat_pump': dict_fueltype['electricity']
     }
-    assump_dict['technology_fueltype'] = technology_fueltype
+    assump_dict['tech_fueltype'] = tech_fueltype
 
 
 
@@ -340,7 +318,7 @@ def load_assumptions(data):
     # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
 
-    # -- Technology which is installed for the share of fueltype to be replaced
+    # -- tech which is installed for the share of fueltype to be replaced
     assump_dict['tech_install'] = {
         'heating': 'tech_B',
         'water_heating': 'tech_A'
@@ -406,15 +384,17 @@ def load_assumptions(data):
 
 
     # --------------------------------
-    # Technology diffusion assumptions
+    # tech diffusion assumptions
     # --------------------------------
     assump_dict['sig_midpoint'] = 0
     assump_dict['sig_steeppness'] = 1
 
+    #TODO: SCNEARIO TELLING STORY WITH TIMES??
+
     # ----------------------------------
     # Which technologies are used for which end_use and to which share
     # ----------------------------------
-    #Share of technology for every enduse and fueltype in base year [in %]
+    #Share of tech for every enduse and fueltype in base year [in %]
     # Only shares within each fueltype !!!!
 
     # Create technoogy empties for all enduses
@@ -428,6 +408,7 @@ def load_assumptions(data):
             tech_enduse_by[enduse][fueltype] = {}
 
     # Add technological split where known (only internally for each fuel enduse)
+
     tech_enduse_by['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     tech_enduse_by['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
     assump_dict['tech_enduse_by'] = tech_enduse_by # add to dict
@@ -458,6 +439,124 @@ def load_assumptions(data):
     # Floor area per dwelling type
     assump_dict['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77}             #TODO MAYBE IMPELEMENT THAT DIFFERENT FOR EVERY YEAR                                               # Average floor area per dwelling type (loaded from CSV)
 
+
+    # ---------------------------------------------------------------------------
+
+
+    def calc_enduse_fuel_tech_by(enduses, eff_by, fuels, tech_enduse):
+        """Assign correct fueltype to technologies and calculate share of technologies
+
+        Iterate enduses and calculate share of total enduse fuels for each technology
+
+        'enduse': {'tech_A': % of total enduse, } #Across all fuels and technologies
+        """
+        enduse_fuel_tech_by = {}
+
+        #TODO: Add all technologies of all fueltypes found in this enduse
+
+        # Itreate enduse
+        for enduse in enduses:
+            enduse_fuel_tech_by[enduse] = {}
+            tot_enduse_fuel = np.sum(fuels[enduse]) # total fuel enduse
+
+            for fueltype in range(len(fuels[enduse])):
+                fuels_fueltype = fuels[enduse][fueltype][0]
+
+                # Iterate tech in fueltype
+                overall_tech_share = 0
+                for tech in tech_enduse[enduse][fueltype]:
+                    overall_tech_share += tech_enduse[enduse][fueltype][tech] / eff_by[tech]
+
+                if tech_enduse[enduse][fueltype] != {}: # if no tech availbale
+                    for tech in tech_enduse[enduse][fueltype]: # Calculate fuel within tech in fueltype
+
+                        # Calculate share per fueltype
+                        share_tech_fueltype = (1.0 / overall_tech_share) * (tech_enduse[enduse][fueltype][tech] / eff_by[tech])
+
+                        # Convert to absolute fuels per fueltype
+                        fuel_fueltype_tech = share_tech_fueltype * fuels_fueltype #Fuels
+
+                        # Calculate relative compared to tot fuel of enduse
+                        enduse_fuel_tech_by[enduse][tech] = (1.0 / tot_enduse_fuel ) * fuel_fueltype_tech # Fraction of total fuel
+
+        #TODO: Assert that 100%
+
+        return enduse_fuel_tech_by
+
+    # Technolies for single enduse
+    tech_enduse_by['water_heating'][1] = {'gas_boiler': 0.9, 'tech_B': 0.1}
+    tech_enduse_by['water_heating'][2] = {'heat_pump': 0.5, 'condensing_boiler': 0.5}
+
+    #Calculate enduse fuel split per technology
+    enduse_fuel_tech_by = calc_enduse_fuel_tech_by(data['resid_enduses'], eff_by, data['data_residential_by_fuel_end_uses'], tech_enduse_by)
+
+
+    enduse_fuel_tech_ey = {'water_heating': {'heat_pump': 0.8, 'condensing_boiler': 0.1, 'gas_boiler': 0.1}} #Absolute enduse
+
+    # Apply fuel switches
+    #fuel = apply_fuel_switches(enduse_fuel_tech_by, enduse_fuel_tech_ey)
+    assump_fuel_frac_ey = {'water_heating': {dict_fueltype['gas']: -0.2}} #Assumptions to change enduse
+
+    # Change enduse_fuel_matrix_ey for fuel switches
+    #calc_enduse_fuel_tech_ey_fuel_switches
+
+
+    # DIFFUSION, Fuel Shares,
+
+
+    print(enduse_fuel_tech_by)
+    prnt(":.abs")
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     # Add assumptions to data dict
     data['assumptions'] = assump_dict
     return data
@@ -489,3 +588,22 @@ def generate_fuel_type_p_by(data):
             out_dict[enduse][fueltype] = float(fuels) # Convert to %
 
     return out_dict
+
+def get_heatpump_eff(data_external, m, b, t_base=15.5):
+        """ Calculate efficiency according to temperatur difference of base year """
+        temp_h_y2015 = data_external['temp_base_year_2015']
+
+        for day in temp_h_y2015: #TODO: do not take base year but meteorological year !!
+            for h_temp in day:
+
+                if t_base < h_temp:
+                    h_diff = 0
+                    return h_diff
+                else:
+                    if h_temp < 0: #below zero temp
+                        h_diff = t_base + abs(h_temp)
+                    else:
+                        h_diff = abs(t_base - h_temp)
+            eff_function = m * h_diff + b
+
+        return eff_function

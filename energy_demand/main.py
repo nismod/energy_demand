@@ -151,9 +151,7 @@ if __name__ == "__main__":
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000
-    }
-
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -169,11 +167,11 @@ if __name__ == "__main__":
             y_data[reg] = a[reg] + 0.3
         fuel_price_dummy[i] = y_data
         a = y_data
+
     # Scrap meteo
     temp_h_y2015 = np.zeros((365,24))
     for i, d in enumerate(temp_h_y2015):
-        temp_h_y2015[0] = i
-        temp_h_y2015[1] = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9, 10, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
+        temp_h_y2015[i] = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9, 10, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
 
     # Reg Floor Area? Reg lookup?
     data_external = {
@@ -208,7 +206,7 @@ if __name__ == "__main__":
     base_data = dl.load_data(path_main, data_external)
 
     # Load assumptions
-    base_data = assumpt.load_assumptions(base_data)
+    base_data = assumpt.load_assumptions(base_data, data_external)
 
     # Disaggregate national data into regional data
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)

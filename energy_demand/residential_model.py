@@ -102,7 +102,10 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
 
         print("aaaaa: " + str(self.enduse))
         print(self.enduse_fuel)
+        print("....")
+        print(data['tech_stock_by'])
 
+        prnt(":.")
         #self.enduse_technologies = 
 
 

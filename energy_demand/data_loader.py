@@ -127,7 +127,7 @@ def load_data(path_main, data_ext):
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------
-    data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year          
+    #data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year          
 
 
 
@@ -266,6 +266,7 @@ def generate_data(data):
     # ===========================================
     # SERVICE MODEL DATA GENERATION
     # ===========================================
+    
 
     # ----------------------------
     # Service Gas demand
@@ -282,15 +283,15 @@ def generate_data(data):
     folder_path_elec= r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
 
     # ENDUSE XY
-    out_dict_av, _, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
+    #out_dict_av, _, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
 
-    print(out_dict_av)
-    print(hourly_shape_of_maximum_days)
-    print(main_dict_dayyear_absolute)
+    #print(out_dict_av)
+    #print(hourly_shape_of_maximum_days)
+    #print(main_dict_dayyear_absolute)
 
-    path_txt_shapes_service = data['path_dict']['path_txt_shapes_service']
+    #path_txt_shapes_service = data['path_dict']['path_txt_shapes_service']
 
-    df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "scrap")
+    #df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "scrap")
 
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
@@ -304,5 +305,6 @@ def generate_data(data):
 
     # ENDUSE XY
     #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
+    
 
     return data
