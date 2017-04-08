@@ -105,7 +105,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
         print("....")
         print(data['tech_stock_by'])
 
-        prnt(":.")
+        #prnt(":.")
         #self.enduse_technologies = 
 
 
@@ -388,7 +388,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
 
             # Assumptions about which technology is installed and replaced
             tech_install = self.assumptions['tech_install'][self.enduse] # Technology which is installed (new technology for switched fuel share)
-            tech_install_fueltype = self.assumptions['technology_fueltype'][tech_install]
+            tech_install_fueltype = self.assumptions['tech_fueltype'][tech_install]
 
             #TODO: Either a specific technology in an enduse is defind which is replaced or the average of all technologies is taken?
             eff_install = getattr(self.tech_stock_cy, tech_install) # efficiency of installed technology in current year

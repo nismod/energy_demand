@@ -126,7 +126,8 @@ class ResidTechStock(object):
                 if by_enduse_array[fueltype] == []:
                     tech_frac_cy[enduse][fueltype] = {}
                     continue # Go to next fueltype
-
+                print(ey_enduse_array[fueltype][:, 1])
+                print(by_enduse_array[fueltype][:, 1])
                 diff = ey_enduse_array[fueltype][:, 1] - by_enduse_array[fueltype][:, 1] # Calculate difference in share of technologies between end and base year
                 diff_fract_sig = diff * sig_frac_tech_change # Multiply overall difference with achieved efficiency
                 diff_cy = by_enduse_array[fueltype][:, 1] + diff_fract_sig # Current year fraction (frac of base year plus changes up to current year)

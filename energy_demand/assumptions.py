@@ -222,8 +222,8 @@ def load_assumptions(data, data_external):
         'micro_CHP_thermal': 0.5,
 
         'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump': get_heatpump_eff(data_external, 0.2, 4)
+        'elec_boiler': 0.5
+        #'heat_pump': get_heatpump_eff(data_external, 0.2, 4)
         }
     assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
 
@@ -271,8 +271,8 @@ def load_assumptions(data, data_external):
         'micro_CHP_thermal': 0.5,
 
         'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
+        'elec_boiler': 0.5
+        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
     assump_dict['eff_ey'] = eff_ey # Add dictionaries to assumptions
 
@@ -441,7 +441,7 @@ def load_assumptions(data, data_external):
 
 
     # ---------------------------------------------------------------------------
-
+    # If from yearly fuel of heating tech to heatpumps --> Iterate daily fuel os of gas --> Calc efficiency of this day and multiply with fueltype
 
     def calc_enduse_fuel_tech_by(enduses, eff_by, fuels, tech_enduse):
         """Assign correct fueltype to technologies and calculate share of technologies
@@ -483,7 +483,7 @@ def load_assumptions(data, data_external):
 
         return enduse_fuel_tech_by
 
-    # Technolies for single enduse
+    '''# Technolies for single enduse
     tech_enduse_by['water_heating'][1] = {'gas_boiler': 0.9, 'tech_B': 0.1}
     tech_enduse_by['water_heating'][2] = {'heat_pump': 0.5, 'condensing_boiler': 0.5}
 
@@ -499,13 +499,14 @@ def load_assumptions(data, data_external):
 
     # Change enduse_fuel_matrix_ey for fuel switches
     #calc_enduse_fuel_tech_ey_fuel_switches
-
+    
 
     # DIFFUSION, Fuel Shares,
 
 
     print(enduse_fuel_tech_by)
-    prnt(":.abs")
+    '''
+    #prnt(":.abs")
    
     
     
@@ -598,12 +599,12 @@ def get_heatpump_eff(data_external, m, b, t_base=15.5):
 
                 if t_base < h_temp:
                     h_diff = 0
-                    return h_diff
                 else:
                     if h_temp < 0: #below zero temp
                         h_diff = t_base + abs(h_temp)
                     else:
                         h_diff = abs(t_base - h_temp)
+
             eff_function = m * h_diff + b
 
         return eff_function
