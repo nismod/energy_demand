@@ -660,6 +660,31 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
 
     return hdd_hitchens
 
+def calc_hdd_for_every_day(t_base, temp_every_h_year):
+    """Heating Degree Days for every day in a year
+
+    Parameters
+    ----------
+    t_base : int
+        Base temperature
+    temp_every_h_year : array
+        Array containing daily temperatures for each day (shape 365, 24)
+
+    Returns
+    -------
+    hdd_d : array
+        An array containing the Heating Degree Days for every day (shape 365, 1)
+    """
+    hdd_d = np.zeros((365, 1))
+
+    for i, day in enumerate(temp_every_h_year):
+        hdd = 0
+        for h_temp in day:
+            hdd += t_base - h_temp
+        hdd_d[i] = hdd / 24
+        
+    return hdd_d
+
 def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
     """Calculate total number of heating degree days in a region
 
@@ -935,6 +960,26 @@ def wheater_generator(data):
     return data
 
 
+def get_heatpump_eff(temp_h_y2015, m, b, t_base=15.5):
+        """ Calculate efficiency according to temperatur difference of base year """
+        
+        out = np.zeros((365,24))
+
+        for i, day in enumerate(temp_h_y2015): #TODO: do not take base year but meteorological year !!
+            for j, h_temp in enumerate(day):
+
+                if t_base < h_temp:
+                    h_diff = 0
+                else:
+                    if h_temp < 0: #below zero temp
+                        h_diff = t_base + abs(h_temp)
+                    else:
+                        h_diff = abs(t_base - h_temp)
+
+                out[i][j] = m * h_diff + b
+
+        return out
+        
 def heat_pump_efficiency_y():
     """Sum over every hour in a year the efficiency * temp¨"""
     return

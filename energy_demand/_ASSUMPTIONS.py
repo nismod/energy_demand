@@ -38,8 +38,8 @@ for i, d in enumerate(temp):
 tot_fuel = 1000 #tons of fouel
 
 #verbreitung
-gas = 0.5
-hp = 0.5
+gas_share = 0.5
+hp_share = 0.5
 
 
 
@@ -48,9 +48,7 @@ for i in shape:
     shape[i] = randint(0,1000)
 for i in shape_gas_d:
     shape[i] = shape[i] / np.sum(shape)
-print(shape)
-shape_gas = 
-shape_hp = 
+
 
 
 hp_eff = get_heatpump_eff(temp, -0.05, 2)
@@ -58,8 +56,8 @@ hp_eff = eff_h(0.5)
 
 gas_eff = eff_h(0.5)
 
-tot_f = (gas / np.sum(gas_eff)) + (hp / np.sum(hp_eff))
+tot_f = (gas_share / np.sum(gas_eff)) + (hp_share / np.sum(hp_eff))
 print(gas_eff[0])
 print(hp_eff[0])
-print("Anteil gas: " + str(tot_fuel * (1 / tot_f) * (gas / np.sum(gas_eff))))
-print("Anteil hp: " + str(tot_fuel *(1 / tot_f) * (hp / np.sum(hp_eff))))
+print("Anteil gas: " + str(tot_fuel * (1 / tot_f) * (gas_share / np.sum(gas_eff))))
+print("Anteil hp: " + str(tot_fuel *(1 / tot_f) * (hp_share / np.sum(hp_eff))))

@@ -9,7 +9,545 @@ import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 import logging
 import copy
+from datetime import date
 
+class Region(object):
+    """Class of a region for the residential model
+
+    The main class of the residential model. For every region, a Region object needs to be generated.
+
+    Parameters
+    ----------
+    reg_id : int
+        The ID of the region. The actual region name is stored in `reg_lu`
+    data : dict
+        Dictionary containing data
+    data_ext : dict
+        Dictionary containing all data provided specifically for scenario run and from wrapper.abs
+
+    # TODO: CHECK IF data could be reduced as input (e.g. only provide fuels and not data)
+
+    # All calculatiosn are basd on driver_fuel_fuel_data #TODO
+    """
+    def __init__(self, reg_id, data, data_ext):
+        """Constructor or Region
+        """
+        self.reg_id = reg_id
+        self.data = data
+        self.data_ext = data_ext
+        self.assumptions = data['assumptions']
+        self.curr_yr = data_ext['glob_var']['curr_yr']
+        self.base_yr = data_ext['glob_var']['base_yr']
+        self.enduse_fuel = data['fueldata_disagg'][reg_id] # Fuel array of region
+
+        self.temp_by = data_ext['temp_base_year_2015'] #TODO: READ IN SPECIFIC TEMP OF REGION
+        self.temp_cy = data_ext['temp_base_year_2015']
+
+        # Create technology stock for each Region #TODO: REGIONAL WITH TEMP
+        self.tech_stock_by = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_yr'], self.temp_by,  self.temp_cy) # technological stock for base year
+        self.tech_stock_cy = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['curr_yr'], self.temp_by,  self.temp_cy) # technological stock for current year
+
+        # Create heating shapes depending on temperatures
+        self.heat_demand_shape_y_hdd = self.get_heat_demand_shape()
+
+
+        self.heat_demand_shape_y_h_hdd_boilers = self.y_to_h_heat_boilers() # Shape of boilers (same efficiency over year)
+        self.heat_demand_shape_y_h_hdd_hp = self.y_to_h_heat_hp() #Shape of hp
+
+        #Scrap-------------------------------------------------
+        def eff_h(input):
+            out = np.zeros((365,24))
+            for i in range(365):
+                for j in range(24):
+                    out[i][j] = input
+            return out
+
+        temp = np.zeros((365,24))
+        for i, d in enumerate(temp):
+            temp[i] = [4, 10, -5, 4, 4, 5, 6, 6, 6, 7, 8, 9, 10, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
+
+        hp_eff = mf.get_heatpump_eff(temp, -0.05, 2)
+        boiler_eff = eff_h(0.5)
+
+        share_boiler = 0.0
+        share_hp = 1.0
+        tot_f = (share_boiler / np.sum(boiler_eff)) + (share_hp / np.sum(hp_eff))
+
+        tot_fuel = 555
+        fuel_boilers = tot_fuel * (1 / tot_f) * (share_boiler / np.sum(boiler_eff))
+        fuel_hp = tot_fuel *(1 / tot_f) * (share_hp / np.sum(hp_eff))
+        print("fuel_boilers " + str(fuel_boilers))
+        print("fuel_hp" + str(fuel_hp))
+
+        #plt.plot(range(24), self.heat_demand_shape_y_h_hdd_boilers[0] * fuel_boilers, 'red') #boiler shape
+        #plt.plot(range(24), self.heat_demand_shape_y_h_hdd_hp[0] * fuel_hp, 'green') #Gas shape
+        
+        plt.plot(range(24), self.heat_demand_shape_y_h_hdd_boilers[0], 'red') #boiler shape
+        plt.plot(range(24), self.heat_demand_shape_y_h_hdd_hp[0], 'green') #hp shape
+
+        plt.show()
+
+
+        print("..")
+        prnt("..")
+        # Set attributs of all enduses
+        self.create_enduses() # KEY FUNCTION
+
+
+        # Sum final 'yearly' fuels (summarised over all enduses)
+        self.fuels_new = self.tot_all_enduses_y()
+        self.fuels_new_enduse_specific = self.enduse_specific_y() #each enduse individually
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR: " + str(self.curr_yr) + "  data  " + str(np.sum(self.fuels_new)))
+        f = 0
+        for i in self.fuels_new_enduse_specific:
+            f += np.sum(self.fuels_new_enduse_specific[i])
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR22: " + str(self.curr_yr) + "  data  " + str(f))
+
+        # Get 'peak demand day' (summarised over all enduses)
+        self.fuels_peak_d = self.get_enduse_peak_d()
+
+        # Get 'peak demand h' (summarised over all enduses)
+        self.fuels_peak_h = self.get_enduse_peak_h()
+
+        # Sum 'daily' demand in region (summarised over all enduses)
+        self.fuels_tot_enduses_d = self.tot_all_enduses_d()
+
+        # Sum 'hourly' demand in region (summarised over all enduses)
+        self.fuels_tot_enduses_h = self.tot_all_enduses_h()
+
+        # Calculate load factors from peak values
+        self.reg_load_factor_d = self.load_factor_d()
+        self.reg_load_factor_h = self.load_factor_h()
+
+        # Calculate load factors from non peak values
+        self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak()
+        self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak()
+
+        # Plot stacked end_uses
+        #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
+        #fueltype_to_plot, nr_days_to_plot = 2, 1
+        #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
+
+        # Testing
+        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
+
+        test_sum = 0
+        for enduse in self.fuels_new_enduse_specific:
+            test_sum += np.sum(self.fuels_new_enduse_specific[enduse])
+        np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
+        # TODO: add some more
+
+    def create_enduses(self):
+        """All enduses are initialised and inserted as an attribute of the Region Class
+        """
+        for enduse in self.data['resid_enduses']:
+            Region.__setattr__(self, enduse, EnduseResid(self.reg_id, self.data, self.data_ext, enduse, self.enduse_fuel, self.tech_stock_by, self.tech_stock_cy))
+
+    def tot_all_enduses_y(self):
+        """Sum all fuel types over all end uses"""
+        sum_fuels = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise
+
+        for enduse in self.data['resid_enduses']:
+            sum_fuels += self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver') # Fuel of Enduse
+
+        return sum_fuels
+
+    def enduse_specific_y(self):
+        """Sum fuels for every fuel type for each enduse"""
+
+        # Initialise
+        sum_fuels_all_enduses = {}
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_all_enduses[enduse] = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        # Sum data
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver') # Fuel of Enduse
+        return sum_fuels_all_enduses
+
+    def tot_all_enduses_d(self):
+        """Calculate total daily fuel demand for each fueltype"""
+        sum_fuels_d = np.zeros((len(self.data['fuel_type_lu']), 365))  # Initialise
+
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_d += self.__getattr__subclass__(enduse, 'enduse_fuel_d')
+
+        return sum_fuels_d
+
+    def get_enduse_peak_d(self):
+        """Summarise absolute fuel of peak days over all end_uses"""
+        sum_enduse_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))  # Initialise
+
+        for enduse in self.data['resid_enduses']:
+            sum_enduse_peak_d += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_d') # Fuel of Enduse
+
+        return sum_enduse_peak_d
+
+    def get_enduse_peak_h(self):
+        """Summarise peak value of all end_uses"""
+        sum_enduse_peak_h = np.zeros((len(self.data['fuel_type_lu']), 1, 24)) # Initialise
+
+        for enduse in self.data['resid_enduses']:
+            sum_enduse_peak_h += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_h') # Fuel of Enduse
+
+        return sum_enduse_peak_h
+
+    def tot_all_enduses_h(self):
+        """Calculate total hourly fuel demand for each fueltype"""
+        sum_fuels_h = np.zeros((len(self.data['fuel_type_lu']), 365, 24)) # Initialise
+
+        for enduse in self.data['resid_enduses']:
+            sum_fuels_h += self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
+        # Read out more error information (e.g. RuntimeWarning)
+        #np.seterr(all='raise') # If not round, problem....np.around(fuel_end_use_h,10)
+        return sum_fuels_h
+
+    def load_factor_d(self):
+        """Calculate load factor of a day in a year from peak values
+
+        self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data) for full year
+
+        Return
+        ------
+        lf_d : array
+            Array with load factor for every fuel type in %
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+        """
+        lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        # Get day with maximum demand (in percentage of year)
+        peak_d_demand = self.fuels_peak_d
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
+            average_demand = np.sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
+
+            if average_demand != 0:
+                lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
+
+        lf_d = lf_d * 100 # Convert load factor to %
+        return lf_d
+
+    def load_factor_h(self):
+        """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
+
+        self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+
+        Return
+        ------
+        lf_h : array
+            Array with load factor for every fuel type [in %]
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+        """
+        lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
+
+            # Maximum fuel of an hour of the peak day
+            maximum_h_of_day = np.amax(self.fuels_peak_h[fueltype])
+
+            #Calculate average in full year
+            all_hours = []
+            for day_hours in self.fuels_tot_enduses_h[fueltype]:
+                for h in day_hours:
+                    all_hours.append(h)
+            average_demand_h = sum(all_hours) / (365 * 24) # Averae load = yearly demand / nr of days
+
+            # If there is a maximum day hour
+            if maximum_h_of_day != 0:
+                average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
+                lf_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
+
+        lf_h = lf_h * 100 # Convert load factor to %
+
+        return lf_h
+
+    def load_factor_d_non_peak(self):
+        """Calculate load factor of a day in a year from non-peak data
+
+        self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+
+        Return
+        ------
+        lf_d : array
+            Array with load factor for every fuel type in %
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+        """
+        lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
+
+            average_demand = sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
+            max_demand_d = max(fueldata)
+
+            if  max_demand_d != 0:
+                lf_d[k] = average_demand / max_demand_d # Calculate load factor
+
+        lf_d = lf_d * 100 # Convert load factor to %
+        return lf_d
+
+    def load_factor_h_non_peak(self):
+        """Calculate load factor of a h in a year from non-peak data
+
+        self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
+        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+
+        Return
+        ------
+        lf_h : array
+            Array with load factor for every fuel type [in %]
+
+        Info
+        -----
+        Load factor = average load / maximum load in given time period
+
+        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+        """
+        lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
+
+        # Iterate fueltypes to calculate load factors for each fueltype
+        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
+
+            all_hours = []
+            for day_hours in self.fuels_tot_enduses_h[fueltype]:
+                for h in day_hours:
+                    all_hours.append(h)
+            maximum_h_of_day_in_year = max(all_hours)
+
+            average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
+
+            # If there is a maximum day hour
+            if maximum_h_of_day_in_year != 0:
+                lf_h[fueltype] = average_demand_h / maximum_h_of_day_in_year # Calculate load factor
+
+        lf_h = lf_h * 100 # Convert load factor to %
+
+        return lf_h
+
+    def get_heat_demand_shape(self):
+        """Calculate daily shape of heating demand based on calculating HDD for every day
+        """
+        t_base = mf.get_t_base(self.curr_yr, self.data['assumptions'], self.data_ext['glob_var']['base_yr'], self.data_ext['glob_var']['end_yr'])
+
+        hdds = mf.calc_hdd_for_every_day(t_base, self.temp_by)
+        total_hdd_y = np.sum(hdds)
+
+        return hdds / total_hdd_y
+
+
+    def y_to_h_heat_hp(self):
+        """Convert daily shapes to houly based on robert sansom daily load for heatpump
+        
+        """
+        shape_y_hp = np.zeros((365, 24))
+
+        list_dates = mf.get_datetime_range(start=date(self.base_yr, 1, 1), end=date(self.base_yr, 12, 31))
+
+        for day, date_gasday in enumerate(list_dates):
+            weekday = date_gasday.timetuple()[6] # 0: Monday
+            if weekday == 5 or weekday == 6:
+                hourly_gas_shape_wkend = self.data['hourly_gas_shape_hp'][2] # Hourly gas shape. Robert Sansom boiler curve
+
+                shape_y_hp[day] = self.heat_demand_shape_y_hdd[day] * (hourly_gas_shape_wkend / np.sum(hourly_gas_shape_wkend))
+            else:
+                hourly_gas_shape_wkday = self.data['hourly_gas_shape_hp'][1] # Hourly gas shape. Robert Sansom boiler curve
+                shape_y_hp[day] = self.heat_demand_shape_y_hdd[day] * (hourly_gas_shape_wkday / np.sum(hourly_gas_shape_wkday))
+        
+        #TODO: ASSert if one
+        return shape_y_hp
+
+
+    def y_to_h_heat_boilers(self):
+        """ Convert daily shapes to hourly based on robert sansom daily load for boilers"""
+
+        shape_y_boilers = np.zeros((365, 24))
+
+        list_dates = mf.get_datetime_range(start=date(self.base_yr, 1, 1), end=date(self.base_yr, 12, 31))
+
+        for day, date_gasday in enumerate(list_dates):
+            weekday = date_gasday.timetuple()[6] # 0: Monday
+            if weekday == 5 or weekday == 6:
+                hourly_gas_shape_wkend = self.data['hourly_gas_shape'][2] # Hourly gas shape. Robert Sansom boiler curve
+                shape_y_boilers[day] = self.heat_demand_shape_y_hdd[day] * (hourly_gas_shape_wkend / np.sum(hourly_gas_shape_wkend))
+            else:
+                hourly_gas_shape_wkday = self.data['hourly_gas_shape'][1] # Hourly gas shape. Robert Sansom boiler curve
+                shape_y_boilers[day] = self.heat_demand_shape_y_hdd[day] * (hourly_gas_shape_wkday / np.sum(hourly_gas_shape_wkday))
+        
+        #TODO: ASSert if one
+        return shape_y_boilers
+
+
+    def __getattr__(self, attr):
+        """Get method of own object
+        """
+        return self.attr
+
+    def __getattr__subclass__(self, attr_main_class, attr_sub_class):
+        """Get the attribute of a subclass"""
+        object_class = getattr(self, attr_main_class)
+        object_subclass = getattr(object_class, attr_sub_class)
+        return object_subclass
+
+    def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
+        """Plots stacked end_use for a region
+
+        #TODO: Make that end_uses can be sorted, improve legend...
+
+        0: 0-1
+        1: 1-2
+        2:
+
+        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+        """
+
+        fig, ax = plt.subplots() #fig is needed
+        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
+
+        day_start_plot = yearday
+        day_end_plot = (yearday + nr_of_day_to_plot)
+
+        x = range(nr_hours_to_plot)
+
+        legend_entries = []
+
+        # Initialise (number of enduses, number of hours to plot)
+        Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
+
+        # Iterate enduse
+        for k, enduse in enumerate(self.enduse_fuel):
+            legend_entries.append(enduse)
+            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
+            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
+            list_all_h = []
+
+            #Get data of a fueltype
+            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+
+                for h in fuel_data:
+                    list_all_h.append(h)
+
+            Y_init[k] = list_all_h
+
+        #color_list = ["green", "red", "#6E5160"]
+
+        sp = ax.stackplot(x, Y_init)
+        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+
+        ax.legend(proxy, legend_entries)
+
+        #ticks x axis
+        ticks_x = range(24)
+        plt.xticks(ticks_x)
+
+        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
+        plt.axis('tight')
+
+        plt.xlabel("Hours")
+        plt.ylabel("Energy demand in GWh")
+        plt.title("Stacked energy demand for region{}".format(reg_name))
+
+        #from matplotlib.patches import Rectangle
+        #legend_boxes = []
+        #for i in color_list:
+        #    box = Rectangle((0, 0), 1, 1, fc=i)
+        #    legend_boxes.append(box)
+        #ax.legend(legend_boxes, legend_entries)
+
+        #ax.stackplot(x, Y_init)
+        plt.show()
+
+
+def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
+        """Plots stacked end_use for a region
+
+        #TODO: Make that end_uses can be sorted, improve legend...
+
+        0: 0-1
+        1: 1-2
+        2:
+
+        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+        """
+
+        fig, ax = plt.subplots() #fig is needed
+        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
+
+        day_start_plot = yearday
+        day_end_plot = (yearday + nr_of_day_to_plot)
+
+        x = range(nr_hours_to_plot)
+
+        legend_entries = []
+
+        # Initialise (number of enduses, number of hours to plot)
+        Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
+
+        # Iterate enduse
+        for k, enduse in enumerate(self.enduse_fuel):
+            legend_entries.append(enduse)
+            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+
+            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
+            list_all_h = []
+
+            #Get data of a fueltype
+            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+
+                for h in fuel_data:
+                    list_all_h.append(h)
+
+            Y_init[k] = list_all_h
+
+        #color_list = ["green", "red", "#6E5160"]
+
+        sp = ax.stackplot(x, Y_init)
+        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+
+        ax.legend(proxy, legend_entries)
+
+        #ticks x axis
+        ticks_x = range(24)
+        plt.xticks(ticks_x)
+
+        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
+        plt.axis('tight')
+
+        plt.xlabel("Hours")
+        plt.ylabel("Energy demand in GWh")
+        plt.title("Stacked energy demand for region{}".format(reg_name))
+
+        #from matplotlib.patches import Rectangle
+        #legend_boxes = []
+        #for i in color_list:
+        #    box = Rectangle((0, 0), 1, 1, fc=i)
+        #    legend_boxes.append(box)
+        #ax.legend(legend_boxes, legend_entries)
+
+        #ax.stackplot(x, Y_init)
+        plt.show()
+        
 def residential_model_main_function(data, data_ext):
     """Main function of residential model
 
@@ -34,9 +572,9 @@ def residential_model_main_function(data, data_ext):
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     print("TEST MAIN START:" + str(fuel_in))
 
-    # Generate technological stock
-    data['tech_stock_by'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_yr']) # technological stock for base year
-    data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['curr_yr']) # technological stock for current year
+    #TODO: SHIFT TO RETION
+    #data['tech_stock_by'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['base_yr']) # technological stock for base year
+    #data['tech_stock_cy'] = ts.ResidTechStock(data, data_ext, data_ext['glob_var']['curr_yr']) # technological stock for current year
 
     # Add all region instances as an attribute (region name) into a Country class
     resid_object = CountryResidentialModel(data['reg_lu'], data, data_ext)
@@ -54,7 +592,7 @@ def residential_model_main_function(data, data_ext):
 
     return resid_object
 
-class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
+class EnduseResid(Region): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
     """Class of an end use category of the residential sector
 
     End use class for residential model. For every region, a different
@@ -80,7 +618,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
 
     #TODO: The technology switch also needs to be done for peak!
     """
-    def __init__(self, reg_id, data, data_ext, enduse, enduse_fuel):
+    def __init__(self, reg_id, data, data_ext, enduse, enduse_fuel, tech_stock_by, tech_stock_cy):
 
         # Call parent data
         #super().__init__(reg_id, data, data_ext)
@@ -94,16 +632,19 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
         self.curr_yr = data_ext['glob_var']['curr_yr']              # from parent class
         self.base_yr = data_ext['glob_var']['base_yr']              # from parent class
         self.assumptions = data['assumptions']                      # Assumptions from regions
-        self.tech_stock_by = data['tech_stock_by']                  # Technological stock base_data['tech_stock_by']
-        self.tech_stock_cy = data['tech_stock_cy']                  # Technological stock base_data['tech_stock_by']
 
+        self.tech_stock_by = tech_stock_by #data['tech_stock_by']                  # Technological stock base_data['tech_stock_by']
+        self.tech_stock_cy = tech_stock_cy #data['tech_stock_cy']                  # Technological stock base_data['tech_stock_by']
+
+        #print("ABORT")
+        #prnt("..")
         #self.technologies_per_fueltype_by = self.assumptions[self.enduse] #NEW
         #self.enduse_fuels_of_tech_across_fuels = self.calc_frac_overall_fuels()
 
         print("aaaaa: " + str(self.enduse))
         print(self.enduse_fuel)
         print("....")
-        print(data['tech_stock_by'])
+        #print(data['tech_stock_by'])
 
         #prnt(":.")
         #self.enduse_technologies = 
@@ -672,435 +1213,3 @@ class CountryResidentialModel(object):
 
         return tot_sum_enduses
 
-class Region(object):
-    """Class of a region for the residential model
-
-    The main class of the residential model. For every region, a Region object needs to be generated.
-
-    Parameters
-    ----------
-    reg_id : int
-        The ID of the region. The actual region name is stored in `reg_lu`
-    data : dict
-        Dictionary containing data
-    data_ext : dict
-        Dictionary containing all data provided specifically for scenario run and from wrapper.abs
-
-    # TODO: CHECK IF data could be reduced as input (e.g. only provide fuels and not data)
-
-    # All calculatiosn are basd on driver_fuel_fuel_data #TODO
-    """
-    def __init__(self, reg_id, data, data_ext):
-        """Constructor or Region
-        """
-        self.reg_id = reg_id
-        self.data = data
-        self.data_ext = data_ext
-        self.assumptions = data['assumptions']
-        self.curr_yr = data_ext['glob_var']['curr_yr']
-        self.enduse_fuel = data['fueldata_disagg'][reg_id] # Fuel array of region
-
-        # Set attributs of all enduses
-        self.create_enduses() # KEY FUNCTION
-
-
-        # Sum final 'yearly' fuels (summarised over all enduses)
-        self.fuels_new = self.tot_all_enduses_y()
-        self.fuels_new_enduse_specific = self.enduse_specific_y() #each enduse individually
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR: " + str(self.curr_yr) + "  data  " + str(np.sum(self.fuels_new)))
-        f = 0
-        for i in self.fuels_new_enduse_specific:
-            f += np.sum(self.fuels_new_enduse_specific[i])
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%YEAR22: " + str(self.curr_yr) + "  data  " + str(f))
-
-        # Get 'peak demand day' (summarised over all enduses)
-        self.fuels_peak_d = self.get_enduse_peak_d()
-
-        # Get 'peak demand h' (summarised over all enduses)
-        self.fuels_peak_h = self.get_enduse_peak_h()
-
-        # Sum 'daily' demand in region (summarised over all enduses)
-        self.fuels_tot_enduses_d = self.tot_all_enduses_d()
-
-        # Sum 'hourly' demand in region (summarised over all enduses)
-        self.fuels_tot_enduses_h = self.tot_all_enduses_h()
-
-        # Calculate load factors from peak values
-        self.reg_load_factor_d = self.load_factor_d()
-        self.reg_load_factor_h = self.load_factor_h()
-
-        # Calculate load factors from non peak values
-        self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak()
-        self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak()
-
-        # Plot stacked end_uses
-        #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
-        #fueltype_to_plot, nr_days_to_plot = 2, 1
-        #self.plot_stacked_regional_end_use(nr_days_to_plot, fueltype_to_plot, start_plot, self.reg_id) #days, fueltype
-
-        # Testing
-        np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
-
-        test_sum = 0
-        for enduse in self.fuels_new_enduse_specific:
-            test_sum += np.sum(self.fuels_new_enduse_specific[enduse])
-        np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
-        # TODO: add some more
-
-    def create_enduses(self):
-        """All enduses are initialised and inserted as an attribute of the Region Class
-        """
-        for enduse in self.data['resid_enduses']:
-            Region.__setattr__(self, enduse, EnduseResid(self.reg_id, self.data, self.data_ext, enduse, self.enduse_fuel))
-
-    def tot_all_enduses_y(self):
-        """Sum all fuel types over all end uses"""
-        sum_fuels = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise
-
-        for enduse in self.data['resid_enduses']:
-            sum_fuels += self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver') # Fuel of Enduse
-
-        return sum_fuels
-
-    def enduse_specific_y(self):
-        """Sum fuels for every fuel type for each enduse"""
-
-        # Initialise
-        sum_fuels_all_enduses = {}
-        for enduse in self.data['resid_enduses']:
-            sum_fuels_all_enduses[enduse] = np.zeros((len(self.data['fuel_type_lu']), 1))
-
-        # Sum data
-        for enduse in self.data['resid_enduses']:
-            sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver') # Fuel of Enduse
-        return sum_fuels_all_enduses
-
-    def tot_all_enduses_d(self):
-        """Calculate total daily fuel demand for each fueltype"""
-        sum_fuels_d = np.zeros((len(self.data['fuel_type_lu']), 365))  # Initialise
-
-        for enduse in self.data['resid_enduses']:
-            sum_fuels_d += self.__getattr__subclass__(enduse, 'enduse_fuel_d')
-
-        return sum_fuels_d
-
-    def get_enduse_peak_d(self):
-        """Summarise absolute fuel of peak days over all end_uses"""
-        sum_enduse_peak_d = np.zeros((len(self.data['fuel_type_lu']), 1))  # Initialise
-
-        for enduse in self.data['resid_enduses']:
-            sum_enduse_peak_d += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_d') # Fuel of Enduse
-
-        return sum_enduse_peak_d
-
-    def get_enduse_peak_h(self):
-        """Summarise peak value of all end_uses"""
-        sum_enduse_peak_h = np.zeros((len(self.data['fuel_type_lu']), 1, 24)) # Initialise
-
-        for enduse in self.data['resid_enduses']:
-            sum_enduse_peak_h += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_h') # Fuel of Enduse
-
-        return sum_enduse_peak_h
-
-    def tot_all_enduses_h(self):
-        """Calculate total hourly fuel demand for each fueltype"""
-        sum_fuels_h = np.zeros((len(self.data['fuel_type_lu']), 365, 24)) # Initialise
-
-        for enduse in self.data['resid_enduses']:
-            sum_fuels_h += self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
-
-        # Read out more error information (e.g. RuntimeWarning)
-        #np.seterr(all='raise') # If not round, problem....np.around(fuel_end_use_h,10)
-        return sum_fuels_h
-
-    def load_factor_d(self):
-        """Calculate load factor of a day in a year from peak values
-
-        self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
-        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data) for full year
-
-        Return
-        ------
-        lf_d : array
-            Array with load factor for every fuel type in %
-
-        Info
-        -----
-        Load factor = average load / maximum load in given time period
-
-        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
-        """
-        lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
-
-        # Get day with maximum demand (in percentage of year)
-        peak_d_demand = self.fuels_peak_d
-
-        # Iterate fueltypes to calculate load factors for each fueltype
-        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
-            average_demand = np.sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
-
-            if average_demand != 0:
-                lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
-
-        lf_d = lf_d * 100 # Convert load factor to %
-        return lf_d
-
-    def load_factor_h(self):
-        """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
-
-        self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
-        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
-
-        Return
-        ------
-        lf_h : array
-            Array with load factor for every fuel type [in %]
-
-        Info
-        -----
-        Load factor = average load / maximum load in given time period
-
-        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
-        """
-        lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
-
-        # Iterate fueltypes to calculate load factors for each fueltype
-        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
-
-            # Maximum fuel of an hour of the peak day
-            maximum_h_of_day = np.amax(self.fuels_peak_h[fueltype])
-
-            #Calculate average in full year
-            all_hours = []
-            for day_hours in self.fuels_tot_enduses_h[fueltype]:
-                for h in day_hours:
-                    all_hours.append(h)
-            average_demand_h = sum(all_hours) / (365 * 24) # Averae load = yearly demand / nr of days
-
-            # If there is a maximum day hour
-            if maximum_h_of_day != 0:
-                average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
-                lf_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
-
-        lf_h = lf_h * 100 # Convert load factor to %
-
-        return lf_h
-
-    def load_factor_d_non_peak(self):
-        """Calculate load factor of a day in a year from non-peak data
-
-        self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
-        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
-
-        Return
-        ------
-        lf_d : array
-            Array with load factor for every fuel type in %
-
-        Info
-        -----
-        Load factor = average load / maximum load in given time period
-
-        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
-        """
-        lf_d = np.zeros((len(self.data['fuel_type_lu']), 1))
-
-        # Iterate fueltypes to calculate load factors for each fueltype
-        for k, fueldata in enumerate(self.fuels_tot_enduses_d):
-
-            average_demand = sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
-            max_demand_d = max(fueldata)
-
-            if  max_demand_d != 0:
-                lf_d[k] = average_demand / max_demand_d # Calculate load factor
-
-        lf_d = lf_d * 100 # Convert load factor to %
-        return lf_d
-
-    def load_factor_h_non_peak(self):
-        """Calculate load factor of a h in a year from non-peak data
-
-        self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
-        self.fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
-
-        Return
-        ------
-        lf_h : array
-            Array with load factor for every fuel type [in %]
-
-        Info
-        -----
-        Load factor = average load / maximum load in given time period
-
-        Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
-        """
-        lf_h = np.zeros((len(self.data['fuel_type_lu']), 1)) # Initialise array to store fuel
-
-        # Iterate fueltypes to calculate load factors for each fueltype
-        for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
-
-            all_hours = []
-            for day_hours in self.fuels_tot_enduses_h[fueltype]:
-                for h in day_hours:
-                    all_hours.append(h)
-            maximum_h_of_day_in_year = max(all_hours)
-
-            average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
-
-            # If there is a maximum day hour
-            if maximum_h_of_day_in_year != 0:
-                lf_h[fueltype] = average_demand_h / maximum_h_of_day_in_year # Calculate load factor
-
-        lf_h = lf_h * 100 # Convert load factor to %
-
-        return lf_h
-
-
-    def __getattr__(self, attr):
-        """Get method of own object"""
-        return self.attr
-
-    def __getattr__subclass__(self, attr_main_class, attr_sub_class):
-        """Get the attribute of a subclass"""
-        object_class = getattr(self, attr_main_class)
-        object_subclass = getattr(object_class, attr_sub_class)
-        return object_subclass
-
-    def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
-        """Plots stacked end_use for a region
-
-        #TODO: Make that end_uses can be sorted, improve legend...
-
-        0: 0-1
-        1: 1-2
-        2:
-
-        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
-        """
-
-        fig, ax = plt.subplots() #fig is needed
-        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
-
-        day_start_plot = yearday
-        day_end_plot = (yearday + nr_of_day_to_plot)
-
-        x = range(nr_hours_to_plot)
-
-        legend_entries = []
-
-        # Initialise (number of enduses, number of hours to plot)
-        Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
-
-        # Iterate enduse
-        for k, enduse in enumerate(self.enduse_fuel):
-            legend_entries.append(enduse)
-            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
-
-            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
-            list_all_h = []
-
-            #Get data of a fueltype
-            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
-
-                for h in fuel_data:
-                    list_all_h.append(h)
-
-            Y_init[k] = list_all_h
-
-        #color_list = ["green", "red", "#6E5160"]
-
-        sp = ax.stackplot(x, Y_init)
-        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
-
-        ax.legend(proxy, legend_entries)
-
-        #ticks x axis
-        ticks_x = range(24)
-        plt.xticks(ticks_x)
-
-        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
-        plt.axis('tight')
-
-        plt.xlabel("Hours")
-        plt.ylabel("Energy demand in GWh")
-        plt.title("Stacked energy demand for region{}".format(reg_name))
-
-        #from matplotlib.patches import Rectangle
-        #legend_boxes = []
-        #for i in color_list:
-        #    box = Rectangle((0, 0), 1, 1, fc=i)
-        #    legend_boxes.append(box)
-        #ax.legend(legend_boxes, legend_entries)
-
-        #ax.stackplot(x, Y_init)
-        plt.show()
-
-
-def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
-        """Plots stacked end_use for a region
-
-        #TODO: Make that end_uses can be sorted, improve legend...
-
-        0: 0-1
-        1: 1-2
-        2:
-
-        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
-        """
-
-        fig, ax = plt.subplots() #fig is needed
-        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
-
-        day_start_plot = yearday
-        day_end_plot = (yearday + nr_of_day_to_plot)
-
-        x = range(nr_hours_to_plot)
-
-        legend_entries = []
-
-        # Initialise (number of enduses, number of hours to plot)
-        Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
-
-        # Iterate enduse
-        for k, enduse in enumerate(self.enduse_fuel):
-            legend_entries.append(enduse)
-            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
-
-            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
-            list_all_h = []
-
-            #Get data of a fueltype
-            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
-
-                for h in fuel_data:
-                    list_all_h.append(h)
-
-            Y_init[k] = list_all_h
-
-        #color_list = ["green", "red", "#6E5160"]
-
-        sp = ax.stackplot(x, Y_init)
-        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
-
-        ax.legend(proxy, legend_entries)
-
-        #ticks x axis
-        ticks_x = range(24)
-        plt.xticks(ticks_x)
-
-        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
-        plt.axis('tight')
-
-        plt.xlabel("Hours")
-        plt.ylabel("Energy demand in GWh")
-        plt.title("Stacked energy demand for region{}".format(reg_name))
-
-        #from matplotlib.patches import Rectangle
-        #legend_boxes = []
-        #for i in color_list:
-        #    box = Rectangle((0, 0), 1, 1, fc=i)
-        #    legend_boxes.append(box)
-        #ax.legend(legend_boxes, legend_entries)
-
-        #ax.stackplot(x, Y_init)
-        plt.show()

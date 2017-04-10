@@ -5,8 +5,11 @@ import energy_demand.main_functions as mf
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
-    The main class of the residential model. For every region,
+    The main class of the residential model. For every HOUR IN EVERY REGION,
     a Region Object needs to be generated
+
+    #TODO: Efficiency for every hour
+    # USE TEMPERATURE TO ESTIMATE FFICIENCY OF SOME TECHNOLOGIES
 
     Parameters
     ----------
@@ -19,7 +22,7 @@ class ResidTechStock(object):
     curr_yr : int
         Current year
     """
-    def __init__(self, data, data_ext, curr_yr):
+    def __init__(self, data, data_ext, curr_yr, temp_by, temp_cy):
         """Constructor of technologies for residential sector"""
         self.base_yr = data_ext['glob_var']['base_yr']
         self.end_yr = data_ext['glob_var']['end_yr']
@@ -27,6 +30,9 @@ class ResidTechStock(object):
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
         self.fuel_types = data['fuel_type_lu']
+
+        self.temp_by = temp_by
+        self.temp_cy = temp_cy #TODO: USE for efficiency calcution
 
         # Execute function to add all technological efficiencies as self argument
         self.create_iteration_efficiency()

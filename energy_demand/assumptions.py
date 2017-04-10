@@ -4,109 +4,6 @@ import copy
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-'''
-----------------------
-# RESIDENTIAL END_USES
-----------------------
-
-The ECUK table serves as the most important national energy demand input.
-
-[y]   Yearly variation
-[h]   Shape of each hour in a day
-[d]   Shape of each day in a year
-[p_h] Peal Shape of heak day in hours
-[p_d] Relationship between demand of peak day and demand in a year
-
-ECUK TABLE FUEL DATA                              Shapes
-====================                              ==================
-                                                  [y] ?? Wheater Generator
-
-heating (Table 3.8)                 -->           [h,p_h] Sansom (2014) which is based on Carbon Trust field data:
-                                                  [d,p_d] National Grid (residential data based on CWW):
-
-Water_heating (Table 3.8)                 -->     [d,h,p_d,p_h] HES: Water heating (shapes for all fuels)
-
-Cooking (Table 3.8)                       -->     [d,h,p_d,p_h] HES: Cooking (shapes for all fuels)
-
-Lighting (Table 3.8)                      -->     [d,h,p_d,p_h] HES: Lighting
-
-Appliances (elec) (Table 3.02)
-  cold (table 3.8)                        -->     [d,h,p_d,p_h] HES: Cold appliances
-  wet (table 3.8)                         -->     [d,h,p_d,p_h] HES: Washing/drying
-  consumer_electronics (table 3.8)        -->     [d,h,p_d,p_h] HES: Audiovisual
-  home_computing (table 3.8)              -->     [d,h,p_d,p_h] HES: ICT
-
-----------------------
-# Service END_USES
-----------------------
-
-ECUK TABLE FUEL DATA                              Shapes
-====================                              ==================
-
-Carbon Trust data is for sectors and in electricity and gas
-
-For Elec, individual shapes are used to generate shape
-For gas, all gas data cross all sectors is used to generate shape
---> For enduse where both elec and gas are used, take shape of dominant fueltype and use same load shape for other fueltypes
-
-ENDUSE
-  Catering
-  Computing
-  Cooling and ventilation
-  Hot water
-  Heating
-  Lighting
-  Other
-
-SECTORS                                           SHAPES
-  Community, arts and leisure (individ)    -->    Carbon Trust: Community
-  Education (individ)                      -->    Carbon Trust: Education
-  Retail (individ)                         -->    Carbon Trust: Retail
-  Health (individ)                         -->    Carbon Trust: Health
-  Offices (individ)                        -->    Carbon Trust: Financial & Government
-
-  Emergency Services (aggr)                -->    Carbon Trust: Manufacturing, other Sectors ?? (or averaged of all?)
-  Hospitality (aggr)
-  Military (aggr)
-  Storage (aggr)
-
-  TODO: Exclude heating from electricity by contrasting winter/summer
-  (excl. heating with summer/winter comparison)
-  Select individual load shapes for different sectors where possible (only electricity) (excl. heating with summer/winter comparison)
-  For sectors where no carbon trail data relates,use aggregated load curves from carbon trust with: Financial, Government, Manufacturing, other Sectors
-
-SHAPES Elec
-Calculate electricity shapes for aggregated and individual sectors:
-    [h]    Carbon Trust Metering Trial: averaged daily profily for every month (daytype, month, h)
-    [p_h]  Carbon Trust Metering Trial: maximum peak day is selected and daily load shape exported
-    [d]    Carbon Trust Metering Trial: Use (daytype, month, h) to distribute over year
-    [p_d]  Carbon Trust Metering Trial: Select day with most enduse and compare how relateds to synthetically generated year
-
-SHAPES Gas
-Calculate gas shapes across all sectors:
-    [h]   Carbon Trust Metering Trial: averaged daily profily for every month
-    [p_h] Carbon Trust Metering Trial: the maximum peak day is selected and daily load shape exported
-    [p_d] National Grid (non-residential data based on CWW)
-    [d]   National Grid (non-residential data based on CWW) used to assign load for every day (then multiply with h shape)
-
-USED SHAPES FOR ENDUSES
-
-Catering (e,g) (Table 5.05)                         -->   Use electricity shape (disaggregate other fueltypes with this shape)
-
-Computing (e) (Table 5.05)                          -->   Use electricity shape
-
-Cooling and Ventilation (mainly e) (Table 5.05)     -->   Use electricity shapes and distribute other fueltypes with this shape
-                                                    -->   SHAPE?
-
-Hot Water (e,g) (Table 5.05)                        -->   More gas enduse --> Use gas shape across all sectors and distribute also with it elec.
-
-Heating (mainly g) (Table 5.05)                     -->   Use gas load shape accross all sectors and disaggregate other fuels with this load shape
-
-Lighting (e) (Table 5.05)                           -->   Use electricity shapes
-
-Other (e,g) (Table 5.05)                            -->   Use overall electricity and overall gas curve
-
-'''
 
 def load_assumptions(data, data_external):
     """All assumptions of the energy demand model are loaded and added to the data
@@ -165,18 +62,24 @@ def load_assumptions(data, data_external):
         'heating': 0,
         'water_heating' : 0,
         'water' : 0,
-        'cooking' : 0,
+        'cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
         'lighting': 0,
         'cold': 0,
-        'wet': 0,
-        'consumer_electronics': 0,
-        'home_computing': 0,
+        'wet': 0,                       
+        'consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
+        'home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
     }
     assump_dict['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
     # ============================================================
     # Technologies (Residential)
     # ============================================================
+
+    # Smart meter penetration 
+    # #TODO: Multiply appliances with smart meter penetration and potential savings...
+    assump_dict['smart_meter_p_by'] = 0.1
+    assump_dict['smart_meter_p_ey'] = 0.4
+    assump_dict['general_savings_smart_meter'] = 0.3 #Get lit for this
 
     # --Efficiencies (Base year)
     eff_by = {
@@ -224,6 +127,7 @@ def load_assumptions(data, data_external):
         'gas_boiler': 0.3,
         'elec_boiler': 0.5
         #'heat_pump': get_heatpump_eff(data_external, 0.2, 4)
+        #'heat_pump': get_heatpump_eff_NEU(data_external, 0.2, 4)
         }
     assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
 
@@ -440,7 +344,7 @@ def load_assumptions(data, data_external):
     assump_dict['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77}             #TODO MAYBE IMPELEMENT THAT DIFFERENT FOR EVERY YEAR                                               # Average floor area per dwelling type (loaded from CSV)
 
 
-    # ---------------------------------------------------------------------------
+    # *********************************************************************************
     # If from yearly fuel of heating tech to heatpumps --> Iterate daily fuel os of gas --> Calc efficiency of this day and multiply with fueltype
 
     def calc_enduse_fuel_tech_by(enduses, eff_by, fuels, tech_enduse):
@@ -590,21 +494,56 @@ def generate_fuel_type_p_by(data):
 
     return out_dict
 
-def get_heatpump_eff(data_external, m, b, t_base=15.5):
-        """ Calculate efficiency according to temperatur difference of base year """
-        temp_h_y2015 = data_external['temp_base_year_2015']
 
-        for day in temp_h_y2015: #TODO: do not take base year but meteorological year !!
-            for h_temp in day:
+# ----------- functions SSSSSSSSSSSSSSTUF
 
-                if t_base < h_temp:
-                    h_diff = 0
-                else:
-                    if h_temp < 0: #below zero temp
-                        h_diff = t_base + abs(h_temp)
-                    else:
-                        h_diff = abs(t_base - h_temp)
 
-            eff_function = m * h_diff + b
 
-        return eff_function
+def calc_share_of_tot_yearly_fuel_for_hp(): #data_external, 0.2, 4
+    """
+    Calculate efficiency for temperature dependent technology:
+
+    I. Get y_h shape in percentage of REGULAR BOILERS and calculate HEATFUEL for every day (or take percentages)
+    --> Problem dass heat pumps unterschiedliche Daily Shape
+    
+    II. Calculate heat demand factor (efficiency_heat):
+
+    SUM(HEATFUEL) / SUM_every_h(eff_h * HEATFUEL_h) = coeff_by #Also % can be taken becose does not matter if real fuel or percentages
+    (weighted coefficient)
+
+    III. Calculate total fuel for each technology
+
+    Fuel_frac_hp = frac_hp * (TOTFUEL * coeff_by) 
+    Fruel_fact_reg_boilers = frac_boilers * (TOTFUEL)
+
+    (Relationship between input tonn equivalents and output heat)
+
+
+
+
+    """
+
+
+    pass
+
+def generate_shape_reg_boilers():
+
+    pass
+
+def generate_shape_HP():
+    """Generate HP d shape for a year based on BY gasfuel
+    Assumption: BY: HP == 0%
+
+    1. Get daily gas demand for heat from daily averaged h_temperatures (and assume everything used for heating) based on correlation
+     1.b.) Calculate absolute fuels for every day
+     1.c.) Convert absolute fuels to % of y (generate daily shape)
+     1.d.) Take REGIONAL acualt Gas demand to calculate h gas demand
+    2. Take hourly gas shapes from Samson for gas technologs
+    3. Calculate hourly fuel demand
+    4. Iterate hours and calc: fuel demand h * (eff_gas tech / eff_hp_h)
+    5. Convert absolute fuel demand to %
+
+
+    @ Use same for electric heatiing
+    """
+    pass

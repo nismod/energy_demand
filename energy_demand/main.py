@@ -34,6 +34,8 @@ Open questions
 
 # TODO: technologies: when on market? (diffusion-advanced )
 
+# Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
+
 The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -78,11 +80,9 @@ def energy_demand_model(data, data_ext):
         [fuel_type : region : timestep]
 
     """
-    # Initialisation
-
     # SCENARIO UNCERTAINTY
-    # TODO: Implement weather generator (multiply fuel with different scenarios)     # between average and min and max of year 2015
-    data = mf.wheater_generator(data) # Read in CWV data and calcul difference
+    # TODO: Implement weather generator
+    data = mf.wheater_generator(data)
 
 
     # Change demand depending on climate variables
@@ -237,3 +237,5 @@ if __name__ == "__main__":
     results = energy_demand_model(base_data, data_external)
 
     print("Finished running Energy Demand Model")
+
+import plot
