@@ -238,4 +238,3 @@ if __name__ == "__main__":
 
     print("Finished running Energy Demand Model")
 
-import plot

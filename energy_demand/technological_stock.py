@@ -32,14 +32,14 @@ class ResidTechStock(object):
         self.fuel_types = data['fuel_type_lu']
 
         self.temp_by = temp_by
-        self.temp_cy = temp_cy #TODO: USE for efficiency calcution
+        self.temp_cy = temp_cy #TODO: USE for efficiency calcution (Maybe also not necessar if slope and m are seperatly calculated for heat pump)
 
         # Execute function to add all technological efficiencies as self argument
         self.create_iteration_efficiency()
 
-        # Calculate share of technologies within each fueltype
+        # Calculate share of technologies within each fueltype (e.g. fraction of households with each technology)
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
-        self.tech_frac_ey = data['assumptions']['technologies_enduse_ey'] #end year
+        self.tech_frac_ey = data['assumptions']['tech_enduse_ey'] #end year
         self.tech_frac_cy = self.get_sigmoid_tech_diff() #current year
 
     def create_iteration_efficiency(self):
@@ -61,7 +61,7 @@ class ResidTechStock(object):
         from 0.5 to a 1.00 efficiency. If however, the acutal efficiency gain
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
         """
-        technology_list = self.assumptions['eff_by']
+        technology_list = self.assumptions['eff_by'] #TODO: DO not iterate efficiciency but 
 
         for technology in technology_list:
             eff_by = self.assumptions['eff_by'][technology]
@@ -74,8 +74,20 @@ class ResidTechStock(object):
             # Get assmuption how much of efficiency potential is reaped
             achieved_eff = self.assumptions['eff_achieved'][technology]
 
-            # Actual efficiency potential
-            cy_eff = achieved_eff * theor_max_eff # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain
+            # Actual efficiency potential #TODO: Check if minus or plus number...TODO
+            if eff_by >= 0:
+                cy_eff = eff_by + (achieved_eff * (abs(theor_max_eff) - eff_by)) # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain #abs is introduced because if minus value otherwie would become plus
+            else:
+                cy_eff = eff_by - (achieved_eff * (abs(theor_max_eff) - abs(eff_by))) # Efficiency gain
+            #print("TECHNOLOGY: " + str(technology))
+            #print(self.curr_yr)
+            #print("sim_years: " + str(sim_years))
+            ##print("A: " + str(eff_by))
+            #print("B: " + str(eff_ey))
+            #print("theor_max_eff: " + str(theor_max_eff))
+            ###print("achieved_eff: " + str(achieved_eff))
+            #print("cy_eff: " + str(cy_eff))
+            #print(" ")
 
             ResidTechStock.__setattr__(self, technology, cy_eff)
 
@@ -106,18 +118,15 @@ class ResidTechStock(object):
         """
         tech_frac_cy = {}
 
-        tech_frac_by = self.tech_frac_by
-        tech_frac_ey = self.tech_frac_ey
-
         # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
         sig_frac_tech_change = mf.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
-        for enduse in tech_frac_by:
+        for enduse in self.tech_frac_by:
             tech_frac_cy[enduse] = {}
 
             # Convert to array and replace fuels with strings
-            by_enduse_array = mf.convert_to_tech_array(tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
-            ey_enduse_array = mf.convert_to_tech_array(tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
+            by_enduse_array = mf.convert_to_tech_array(self.tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
+            ey_enduse_array = mf.convert_to_tech_array(self.tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
 
             # If no technolgies are in this enduse
             if ey_enduse_array == []:
@@ -132,6 +141,7 @@ class ResidTechStock(object):
                 if by_enduse_array[fueltype] == []:
                     tech_frac_cy[enduse][fueltype] = {}
                     continue # Go to next fueltype
+                print("Enduse: " + str(enduse))
                 print(ey_enduse_array[fueltype][:, 1])
                 print(by_enduse_array[fueltype][:, 1])
                 diff = ey_enduse_array[fueltype][:, 1] - by_enduse_array[fueltype][:, 1] # Calculate difference in share of technologies between end and base year
@@ -139,7 +149,7 @@ class ResidTechStock(object):
                 diff_cy = by_enduse_array[fueltype][:, 1] + diff_fract_sig # Current year fraction (frac of base year plus changes up to current year)
 
                 # Convert the arrays back to dictionary and replace strings of technologies with str
-                technologey_of_enduse = tech_frac_by[enduse][fueltype].keys()
+                technologey_of_enduse = self.tech_frac_by[enduse][fueltype].keys()
                 tech_frac_cy[enduse][fueltype] = dict(zip(technologey_of_enduse, diff_cy.flatten()))
 
         return tech_frac_cy

@@ -456,7 +456,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     for daytype in main_dict:
         for month in main_dict[daytype]: # Iterate month
             for hour in main_dict[daytype][month]: # Iterate hour
-                print(main_dict[daytype][month][hour])
+                #print(main_dict[daytype][month][hour])
                 nr_of_entries = len(main_dict[daytype][month][hour]) # nr of added entries
                 if nr_of_entries != 0: # Because may not contain data because not available in the csv files
                     out_dict_av[daytype][month][hour] = sum(main_dict[daytype][month][hour]) / nr_of_entries

@@ -94,7 +94,7 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, co
 
     """
     # Base temperature for current year (Diffusion of sigmoid internal temperature)
-    t_base_cy = mf.get_t_base(curr_y, assumptions, data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
+    t_base_cy = mf.get_t_base_hdd(curr_y, assumptions, data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
 
     # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
     temperature_region_relocated = mf.get_temp_region(dw_reg_id, coordinates)

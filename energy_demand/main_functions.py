@@ -759,7 +759,7 @@ def get_hdd_individ_reg(region, data):
 
     return hdd_reg
 
-def get_t_base(curr_y, assumptions, base_yr, end_yr):
+def get_t_base_hdd(curr_y, assumptions, base_yr, end_yr):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year
@@ -780,6 +780,30 @@ def get_t_base(curr_y, assumptions, base_yr, end_yr):
 
     # Base temperature of end year minus base temp of base year
     t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_yr']
+
+    # Sigmoid diffusion
+    t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
+
+    # Temp diff until current year
+    t_diff_cy = t_base_diff * t_base_frac
+
+    # Add temp change to base year temp
+    t_base_cy = assumptions['t_base']['base_yr'] + t_diff_cy
+
+    return t_base_cy
+
+def get_t_base_cdd(curr_y, assumptions, base_yr, end_yr):
+    """Calculate base temperature depending on sigmoid diff and location
+
+    Depending on the base temperature in the base and end year
+    a sigmoid diffusion from the base temperature from the base year
+    to the end year is calculated
+
+    TODO: COOLING 
+    """
+
+    # Base temperature of end year minus base temp of base year
+    t_base_diff = assumptions['t_base_cooling']['end_yr'] - assumptions['t_base_cooling']['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
@@ -926,33 +950,25 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     return cy_p
 
-def cdd_calculation():
+def cdd_calculation(t_base_cooling, temp_every_h_year):
     """Calculate cooling degree days 
-    
+
+    Out: shape(365,1)
     #TODO: Improve
-    
-    """
+
     #https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
 
     # Formula 2.1 : Degree-days: theory and application
+    """
+    cdd_d = np.zeros((365, 1))
 
-    b_temp_cooling = 21 #Base temperature for cooling
-
-    m_temp
-
-    cdd_y = 0
-    temp_y_for_every_day = np.zeros((365, 24))
-
-    for temp_day in temp_y_for_every_day:
-
+    for i, day in enumerate(temp_every_h_year):
         sum_d = 0
-        # Iterate daily temperatures
-        for temp_h in temp_day:
-            sum_d += b_temp_cooling - temp_h
+        for h_temp in day:
+            sum_d += t_base_cooling - h_temp
+        cdd_d[i] = sum_d / 24
 
-        cdd_y += sum_d / 24
-
-    return cdd_y
+    return cdd_d
 
 
 def wheater_generator(data):
@@ -979,7 +995,7 @@ def get_heatpump_eff(temp_h_y2015, m, b, t_base=15.5):
                 out[i][j] = m * h_diff + b
 
         return out
-        
+
 def heat_pump_efficiency_y():
     """Sum over every hour in a year the efficiency * temp¨"""
     return
