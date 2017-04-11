@@ -65,6 +65,18 @@ def load_data(path_main, data_ext):
     data['path_dict'] = path_dict
 
 
+    # TODO: READ FROM FILE?
+    data['dict_fueltype'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'bioenergy_waste':5,
+        'hydrogen': 6,
+        'future_fuel': 7
+    }
+
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------

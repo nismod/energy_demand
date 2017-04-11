@@ -723,7 +723,7 @@ def get_hdd_country(regions, data, base_yr):
 
     hdd_country = 0
     hdd_regions = {}
-    t_base = data['assumptions']['t_base']['base_yr']
+    t_base = data['assumptions']['t_base_heating']['base_yr']
 
     for region in regions:
 
@@ -753,7 +753,7 @@ def get_hdd_individ_reg(region, data):
     temperature_region_relocated = 'Midlands' #mf.get_temp_region(region)
 
     t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
-    t_base = data['assumptions']['t_base']['base_yr'] #t_base of base_yr
+    t_base = data['assumptions']['t_base_heating']['base_yr'] #t_base of base_yr
 
     hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months, t_base)
 
@@ -779,7 +779,7 @@ def get_t_base_hdd(curr_y, assumptions, base_yr, end_yr):
     """
 
     # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions['t_base']['end_yr'] - assumptions['t_base']['base_yr']
+    t_base_diff = assumptions['t_base_heating']['end_yr'] - assumptions['t_base_heating']['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
@@ -788,7 +788,7 @@ def get_t_base_hdd(curr_y, assumptions, base_yr, end_yr):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = assumptions['t_base']['base_yr'] + t_diff_cy
+    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy
 
     return t_base_cy
 
@@ -812,7 +812,7 @@ def get_t_base_cdd(curr_y, assumptions, base_yr, end_yr):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = assumptions['t_base']['base_yr'] + t_diff_cy
+    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy
 
     return t_base_cy
 

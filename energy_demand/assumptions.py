@@ -16,40 +16,50 @@ def load_assumptions(data, data_external):
     -----
 
     #TODO: Implement mock_tech for all sectors where not definied with eff of 1
+        #TODO: SCNEARIO TELLING STORY WITH TIMES??
     """
-    assump_dict = {}
-
-    # TODO :Replace with loaded dict in load_data
-    dict_fueltype = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'heat_sold': 4,
-        'bioenergy_waste':5,
-        'hydrogen': 6,
-        'future_fuel': 7
-    }
+    assumptions = {}
 
     # ============================================================
-    # Weather Assumptions (Checked)
+    # Technology diffusion assumptions
+    # ============================================================
+    assumptions['sig_midpoint'] = 0
+    assumptions['sig_steeppness'] = 1
+
+    # ============================================================
+    # Residential dwelling stock assumptions
+    # ============================================================
+
+    # Building stock related, assumption of change in floor area up to end_yr (Checked)
+    assumptions['assump_diff_floorarea_pp'] = 0.0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
+
+    # Dwelling type distribution
+    assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
+    assumptions['assump_dwtype_distr_ey'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #end year
+
+    # Floor area per dwelling type
+    assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
+
+
+    # ============================================================
+    # Base temperature assumptions for heating and cooling demand
     # ============================================================
     # Heating base temperature
-    assump_dict['t_base'] = {
+    assumptions['t_base_heating'] = {
         'base_yr': 15.5,
         'end_yr': 15.5
     }
 
     # Heating base temperature
-    assump_dict['t_base_cooling'] = {
+    assumptions['t_base_cooling'] = {
         'base_yr': 21,
         'end_yr': 21
     }
 
     # ============================================================
-    # DRIVER ASSUMPTIONS FROM BUILDING STOCK
+    # Dwelling stock related scenario driver assumptions
     # ============================================================
-    assump_dict['resid_scen_driver_assumptions'] = {
+    assumptions['resid_scen_driver_assumptions'] = {
         'heating': ['floorarea', 'hdd', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop
         'water_heating': ['pop'],
         'lighting': ['pop', 'floorarea'],
@@ -75,32 +85,37 @@ def load_assumptions(data, data_external):
         'consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
         'home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
     }
-    assump_dict['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
+    assumptions['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
     # ============================================================
-    # Technologies (Residential)
+    # Smart meter assumptions (Residential)
     # ============================================================
+    assumptions['smart_meter_p_by'] = 0.1   # Smart meters % in base year
+    assumptions['smart_meter_p_ey'] = 0.1   # Smart meters % in end year
+    assumptions['general_savings_smart_meter'] = 0.1                            # Long term general saving through behaviour & smart meter (not shifting) Get lit for this
+    assumptions['smart_meter_affected_enduses'] = ['cold', 'cooking', 'lighting', 'cold', 'wet', 'consumer_electronics', 'home_computing']    # Enduses affec
 
-    # Smart meter penetration  # #TODO: Multiply appliances with smart meter penetration and potential savings...
-    assump_dict['smart_meter_p_by'] = 0.1
-    assump_dict['smart_meter_p_ey'] = 1.0
-    assump_dict['general_savings_smart_meter'] = 1.0                    # Long term general saving through behaviour & smart meter (not shifting) Get lit for this
-    assump_dict['smart_meter_affected_enduses'] = ['cold', 'wet', 'heating']       # Enduses affec
+    # ============================================================
+    # Technologies and their efficiencies over time
+    # ============================================================
+    assumptions['eff_achieved'] = {}
+
+    # Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
+    factor_efficiency_achieved = 0.5
 
     # --Efficiencies (Base year)
-    eff_by = {
+    assumptions['eff_by'] = {
         # -- heating boiler ECUK Table 3.19
         'back_boiler' : 0.01,
-        'combination_boiler' : 0.0,
+        #'combination_boiler' : 0.0,
         'condensing_boiler' : 0.5,
-        'condensing_combination_boiler' : 0.0,
-        'combination_boiler' : 0.0,
+        #'condensing_combination_boiler' : 0.0,
 
         # -- cooking
-        'new_tech_A': 0.75,
-        'tech_A' : 0.5,
-        'tech_B' : 0.9,
-        'tech_C': 0.0,
+        #'new_tech_A': 0.75,
+        #'tech_A' : 0.5,
+        #'tech_B' : 0.9,
+        #'tech_C': 0.0,
 
         # -- lighting
         'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
@@ -112,69 +127,20 @@ def load_assumptions(data, data_external):
         # -- cold
 
         # -- wet
-        'boiler_gas': 0.5,
-        'boiler_oil': 0.5,
-        'boiler_condensing': 0.5,
-        'boiler_biomass': 0.5,
+        #'boiler_gas': 0.5,
+        #'boiler_oil': 0.5,
+        #'boiler_condensing': 0.5,
+        #'boiler_biomass': 0.5,
 
         # -- consumer electronics
-        'ASHP': 0.5,
-        'HP_ground_source': 0.5,
-        'HP_air_source': 0.5,
-        'HP_gas': 0.5,
+        #'ASHP': 0.5,
+        #'HP_ground_source': 0.5,
+        #'HP_air_source': 0.5,
+        #'HP_gas': 0.5,
 
         # -- home_computing
-        'micro_CHP_elec': 0.5,
-        'micro_CHP_thermal': 0.5,
-
-        'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump_m': -0.1,
-        'heat_pump_b': 6.0
-        #'heat_pump': get_heatpump_eff(data_external, 0.2, 4)
-        #'heat_pump': get_heatpump_eff_NEU(data_external, 0.2, 4)
-        }
-    assump_dict['eff_by'] = eff_by      # Add dictionaries to assumptions
-
-    # --Efficiencies (End year)
-    eff_ey = {
-        # -- heating boiler ECUK Table 3.19
-        'back_boiler' : 0.01,
-        'combination_boiler' : 0.0,
-        'condensing_boiler' : 0.5,
-        'condensing_combination_boiler' : 0.0,
-        'combination_boiler' : 0.0,
-
-        # -- cooking
-        'new_tech_A': 0.75,
-        'tech_A' : 0.5,
-        'tech_B' : 0.9,
-        'tech_C': 0.0,
-
-        # -- lighting
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
-        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-
-        # -- cold
-
-        # -- wet
-        'boiler_gas': 0.5,
-        'boiler_oil': 0.5,
-        'boiler_condensing': 0.5,
-        'boiler_biomass': 0.5,
-
-        # -- consumer electronics
-        'ASHP': 0.5,
-        'HP_ground_source': 0.5,
-        'HP_air_source': 0.5,
-        'HP_gas': 0.5,
-
-        # -- home_computing
-        'micro_CHP_elec': 0.5,
-        'micro_CHP_thermal': 0.5,
+        #'micro_CHP_elec': 0.5,
+        #'micro_CHP_thermal': 0.5,
 
         'gas_boiler': 0.3,
         'elec_boiler': 0.5,
@@ -182,50 +148,89 @@ def load_assumptions(data, data_external):
         'heat_pump_b': 6.0
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
-    assump_dict['eff_ey'] = eff_ey # Add dictionaries to assumptions
 
-    # --Efficiencies (achieved until end year)
-    assump_dict['eff_achieved'] = {} # Add dictionaries to assumptions
+    # --Efficiencies (End year)
+    assumptions['eff_ey'] = {
+        # -- heating boiler ECUK Table 3.19
+        'back_boiler' : 0.01,
+        #'combination_boiler' : 0.0,
+        'condensing_boiler' : 0.5,
+        #'condensing_combination_boiler' : 0.0,
 
-    # ---Helper function eff_achieved THIS can be used for scenarios to define how much of the fficiency was achieved
-    factor_efficiency_achieved = 0.5
-    for i in assump_dict['eff_ey']:
-        assump_dict['eff_achieved'][i] = factor_efficiency_achieved # 1 / because if value is not between 0 and 1
+        # -- cooking
+        #'new_tech_A': 0.75,
+        #'tech_A' : 0.5,
+        #'tech_B' : 0.9,
+        #'tech_C': 0.0,
+
+        # -- lighting
+        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
+        'standard_lighting_bulb': 0.02,          # Found on wikipedia
+        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
+        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
+        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
+
+        # -- cold
+
+        # -- wet
+        #'boiler_gas': 0.5,
+        #'boiler_oil': 0.5,
+        #'boiler_condensing': 0.5,
+        #'boiler_biomass': 0.5,
+
+        # -- consumer electronics
+        #'ASHP': 0.5,
+        #'HP_ground_source': 0.5,
+        #'HP_air_source': 0.5,
+        #'HP_gas': 0.5,
+
+        # -- home_computing
+        #'micro_CHP_elec': 0.5,
+        #'micro_CHP_thermal': 0.5,
+
+        'gas_boiler': 0.3,
+        'elec_boiler': 0.5,
+        'heat_pump_m': -0.1,
+        'heat_pump_b': 6.0
+        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
+        }
+
+    # --Helper function
+    for i in assumptions['eff_ey']:
+        assumptions['eff_achieved'][i] = factor_efficiency_achieved
 
     # Define fueltype of each tech
-    tech_fueltype = {
+    assumptions['tech_fueltype'] = {
         #Lighting
-        'LED': dict_fueltype['electricity'],
-        'halogen_elec': dict_fueltype['electricity'],
-        'standard_lighting_bulb': dict_fueltype['electricity'],
-        'fluorescent_strip_lightinging': dict_fueltype['electricity'],
-        'energy_saving_lighting_bulb': dict_fueltype['electricity'],
-        'LED' : dict_fueltype['electricity'],
+        'LED': data['dict_fueltype']['electricity'],
+        'halogen_elec': data['dict_fueltype']['electricity'],
+        'standard_lighting_bulb': data['dict_fueltype']['electricity'],
+        'fluorescent_strip_lightinging': data['dict_fueltype']['electricity'],
+        'energy_saving_lighting_bulb': data['dict_fueltype']['electricity'],
+        'LED' : data['dict_fueltype']['electricity'],
 
         #test
-        'tech_A' : dict_fueltype['gas'],
-        'tech_B' : dict_fueltype['gas'],
-        'back_boiler' : dict_fueltype['electricity'],
-        'condensing_boiler' : dict_fueltype['electricity'],
+        'tech_A' : data['dict_fueltype']['gas'],
+        'tech_B' : data['dict_fueltype']['gas'],
+        'back_boiler' : data['dict_fueltype']['electricity'],
+        'condensing_boiler' : data['dict_fueltype']['electricity'],
 
-        'gas_boiler': dict_fueltype['gas'],
-        'elec_boiler': dict_fueltype['electricity'],
-        'heat_pump': dict_fueltype['electricity']
+        'gas_boiler': data['dict_fueltype']['gas'],
+        'elec_boiler': data['dict_fueltype']['electricity'],
+        'heat_pump': data['dict_fueltype']['electricity']
     }
-    assump_dict['tech_fueltype'] = tech_fueltype
 
     # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
     data['tech_lu'] = {}
-    for tech_id, tech in enumerate(eff_by, 1000):
+    for tech_id, tech in enumerate(assumptions['tech_fueltype'], 1000):
         data['tech_lu'][tech] = tech_id
-    data['tech_lu']['heat_pump'] = 999 # TODO: Create own dictionary witout reading out from efficiencies
 
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
 
     # -- tech which is installed for the share of fueltype to be replaced
-    assump_dict['tech_install'] = {
+    assumptions['tech_install'] = {
         'heating': 'tech_B',
         'water_heating': 'tech_A'
     }
@@ -255,25 +260,26 @@ def load_assumptions(data, data_external):
         },
     }
     '''
-    assump_dict['tech_replacement_dict'] = tech_replacement_dict
+    assumptions['tech_replacement_dict'] = tech_replacement_dict
 
     # --Share of fuel types for each enduse
-    fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use 
-    assump_dict['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
+    fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use # Total ED for service for each fueltype
+    assumptions['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
-
+    print("fuel_type_p_by:" + str(fuel_type_p_by))
+    #prnt("..")
     # --Reduction fraction of each fuel in each enduse compared to base year. Always positive values (0.2 --> 20% reduction)
-    assump_fuel_frac_ey ={}
+    assump_fuel_frac_ey = {}
     '''
         'heating': {
-            '0' : 0.0,
-            '1' : 0.0,
-            '2' : 0.0, # electricity for lighting replaced
-            '3' : 0.0,
-            '4' : 0.0,
-            '5' : 0.0,
-            '6' : 0.0,
-            '7':  0.0
+            '0' : 0.2,
+            '1' : 0.2,
+            '2' : 0.2, # electricity replaced
+            '3' : 0.2,
+            '4' : 0.2,
+            '5' : 0.2,
+            '6' : 0.2,
+            '7':  0.2
             }
     }
     '''
@@ -285,21 +291,16 @@ def load_assumptions(data, data_external):
             fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
         else:
             fuel_type_p_ey[enduse] = assump_fuel_frac_ey[enduse]
-    assump_dict['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey) # Convert to array
+    assumptions['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey) # Convert to array
 
     # TODO: Write function to insert fuel switches  
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     #print("end ear")
-    #print(assump_dict['fuel_type_p_ey']['lighting'])
+    #print(assumptions['fuel_type_p_ey']['lighting'])
 
 
-    # --------------------------------
-    # tech diffusion assumptions
-    # --------------------------------
-    assump_dict['sig_midpoint'] = 0
-    assump_dict['sig_steeppness'] = 1
 
-    #TODO: SCNEARIO TELLING STORY WITH TIMES??
+
 
     # ----------------------------------
     # Which technologies are used for which end_use and to which share
@@ -323,7 +324,7 @@ def load_assumptions(data, data_external):
     #tech_enduse_by['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
     #tech_enduse_by['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
 
-    assump_dict['tech_enduse_by'] = tech_enduse_by # add to dict
+    assumptions['tech_enduse_by'] = tech_enduse_by # add to dict
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     tech_enduse_ey = copy.deepcopy(tech_enduse_by)
@@ -332,27 +333,13 @@ def load_assumptions(data, data_external):
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
     #tech_enduse_ey['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
 
-    assump_dict['tech_enduse_ey'] = tech_enduse_ey
+    assumptions['tech_enduse_ey'] = tech_enduse_ey
 
 
 
 
 
-    # ============================================================
-    # Assumptions Residential Dwelling Stock
-    # ============================================================
-
-    # Building stock related, assumption of change in floor area up to end_yr (Checked)
-    assump_dict['assump_diff_floorarea_pp'] = 0.0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
-
-    # Dwelling type distribution
-    assump_dict['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
-    assump_dict['assump_dwtype_distr_ey'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #end year
-
-    # Floor area per dwelling type
-    assump_dict['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77}             #TODO MAYBE IMPELEMENT THAT DIFFERENT FOR EVERY YEAR                                               # Average floor area per dwelling type (loaded from CSV)
-
-
+    
     # *********************************************************************************
     # If from yearly fuel of heating tech to heatpumps --> Iterate daily fuel os of gas --> Calc efficiency of this day and multiply with fueltype
 
@@ -408,7 +395,7 @@ def load_assumptions(data, data_external):
 
     # Apply fuel switches
     #fuel = apply_fuel_switches(enduse_fuel_tech_by, enduse_fuel_tech_ey)
-    assump_fuel_frac_ey = {'water_heating': {dict_fueltype['gas']: -0.2}} #Assumptions to change enduse
+    assump_fuel_frac_ey = {'water_heating': {data['dict_fueltype']['gas']: -0.2}} #Assumptions to change enduse
 
     # Change enduse_fuel_matrix_ey for fuel switches
     #calc_enduse_fuel_tech_ey_fuel_switches
@@ -472,7 +459,7 @@ def load_assumptions(data, data_external):
     
     
     # Add assumptions to data dict
-    data['assumptions'] = assump_dict
+    data['assumptions'] = assumptions
     return data
 
 
@@ -498,9 +485,7 @@ def generate_fuel_type_p_by(data):
 
     for enduse in fuel_data:
         out_dict[enduse] = {}
-
-        # sum fueltype
-        sum_fueltype = np.sum(fuel_data[enduse])
+        sum_fueltype = np.sum(fuel_data[enduse]) # sum fueltype
         if sum_fueltype != 0:
             fuels_in_p = fuel_data[enduse] / sum_fueltype
         else:
