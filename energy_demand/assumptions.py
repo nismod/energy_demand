@@ -231,7 +231,7 @@ def load_assumptions(data, data_external):
 
     # --Installed current technology to be replaced
     assumptions['tech_install'] = {
-        'heating': 'gas_boiler',
+        'heating': 'heat_pump',
         'water_heating': 'tech_A'
     }
 
@@ -255,23 +255,24 @@ def load_assumptions(data, data_external):
         }
     }
 
-    # --Share of fuel types for each enduse
+    # --Share of fuel types for each enduse (across all fueltypes??) TODO IMPRTANT
     fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use # Total ED for service for each fueltype
     assumptions['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
-    print("fuel_type_p_by:" + str(fuel_type_p_by))
-    prnt("..")
-    # --Reduction fraction of each fuel in each enduse compared to base year. Always positive values (0.2 --> 20% reduction)
+
+    print("TEST  sssdsf: " + str(np.sum(assumptions['fuel_type_p_by']['heating'][:, 1])))
+
+    # --Reduction fraction of each fuel in each enduse compared to base year.( -0.2 --> Minus share)
     assump_fuel_frac_ey = {
         'heating': {
-            '0' : 0.2,
-            '1' : 0.2,
-            '2' : 0.2, # electricity replaced
-            '3' : 0.2,
-            '4' : 0.2,
-            '5' : 0.2,
-            '6' : 0.2,
-            '7':  0.2
+            '0' : 0,
+            '1' : 0,
+            '2' : 0.2, # electricity replaced ( - 20%)
+            '3' : 0,
+            '4' : 0,
+            '5' : 0,
+            '6' : 0,
+            '7':  0
             }
     }
 
@@ -280,11 +281,21 @@ def load_assumptions(data, data_external):
     fuel_type_p_ey = {}
     for enduse in fuel_type_p_by:
         if enduse not in assump_fuel_frac_ey:
-            fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
+            #fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
+            fuel_type_p_ey[enduse] = np.array(list(fuel_type_p_by[enduse].items()), dtype=float)
         else:
-            fuel_type_p_ey[enduse] = assump_fuel_frac_ey[enduse]
-    assumptions['fuel_type_p_ey'] = mf.convert_to_array(fuel_type_p_ey) # Convert to array
+            array_fuel_switch_assumptions = np.array(list(assump_fuel_frac_ey[enduse].items()), dtype=float)
+            factor_to_multiply_fuel_p = abs(array_fuel_switch_assumptions - 1)
 
+            # Multiply fuel percentage with share in fueltype
+            fuel_type_p_ey[enduse] = assumptions['fuel_type_p_by'][enduse] * factor_to_multiply_fuel_p
+            fuel_type_p_ey[enduse][:,0] = fuel_type_p_ey[enduse][:,0] #Copy fuel indices
+
+    assumptions['fuel_type_p_ey'] = fuel_type_p_ey
+
+    print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['heating']))
+    print("---------------------")
+    print(fuel_type_p_ey['heating'])
     # TODO: Write function to insert fuel switches  
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     #print(assumptions['fuel_type_p_ey']['lighting'])
