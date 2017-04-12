@@ -66,7 +66,7 @@ def load_data(path_main, data_ext):
 
 
     # TODO: READ FROM FILE?
-    data['dict_fueltype'] = {
+    data['lu_fueltype'] = {
         'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,

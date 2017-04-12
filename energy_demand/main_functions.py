@@ -775,20 +775,19 @@ def get_t_base_hdd(curr_y, assumptions, base_yr, end_yr):
     assumptions : dict
         Dictionary with assumptions
     base_yr : float
-        tbd
-    """
+        Base year
+    end_yr : float
+        Simulation End year
 
-    # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions['t_base_heating']['end_yr'] - assumptions['t_base_heating']['base_yr']
-
-    # Sigmoid diffusion
-    t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
-
-    # Temp diff until current year
-    t_diff_cy = t_base_diff * t_base_frac
-
-    # Add temp change to base year temp
-    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy
+    Return
+    ------
+    t_base_cy : float
+        Base temperature of current year
+    """    
+    t_base_diff = assumptions['t_base_heating']['end_yr'] - assumptions['t_base_heating']['base_yr'] # Base temperature of end year minus base temp of base year
+    t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness']) # Sigmoid diffusion
+    t_diff_cy = t_base_diff * t_base_frac # Temp diff until current year
+    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy  # Add temp change to base year temp
 
     return t_base_cy
 
@@ -841,18 +840,19 @@ def get_t_base_cdd(curr_y, assumptions, base_yr, end_yr):
     return diffusion
 '''
 
-def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
-    """ Calculate sigmoid diffusion of a fuel type share of a current year
+'''def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
+    """ Calculate sigmoid diffusion of a share in fuels of a current year
+
     Parameters
     ----------
     base_yr : float
         Base year
     curr_yr : float
-        Base year
+        Current year
     year_end : float
-        Base year
-    assumptions : float
-        Base year
+        Simulation End year
+    assumptions : dictionary
+        Assumptions
     fuel_enduse_switch : float
         Base year
     Returns
@@ -860,7 +860,6 @@ def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     fract_cy : float
         Share of fuel switch in simluation year
     """
-    
     fract_by = assumptions['fuel_type_p_by'][fuel_enduse_switch] # Fuel share of total ED in base year
     fract_ey = assumptions['fuel_type_p_ey'][fuel_enduse_switch] # Fuel share af total ED in end year
 
@@ -877,6 +876,7 @@ def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     fract_cy = fract_by + (diff_frac * p_of_diffusion)
 
     return fract_cy
+'''
 
 def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
@@ -975,26 +975,27 @@ def wheater_generator(data):
     """ TODO """
     return data
 
+def get_heatpump_eff(temp_yr, m_slope, b, t_base):
+    """ Calculate efficiency according to temperatur difference of base year
 
-def get_heatpump_eff(temp_h_y2015, m, b, t_base=15.5):
-        """ Calculate efficiency according to temperatur difference of base year """
-        
-        out = np.zeros((365,24))
-
-        for i, day in enumerate(temp_h_y2015): #TODO: do not take base year but meteorological year !!
-            for j, h_temp in enumerate(day):
-
-                if t_base < h_temp:
-                    h_diff = 0
+    For every hour the temperature difference is calculated and the efficiency of the heat pump calculated
+    based on efficiency assumptions
+    return (365,24)
+    """
+    out = np.zeros((365, 24))
+    for day_nr, day_temp in enumerate(temp_yr):
+        for h_nr, h_temp in enumerate(day_temp):
+            if t_base < h_temp:
+                h_diff = 0
+            else:
+                if h_temp < 0: #below zero temp
+                    h_diff = t_base + abs(h_temp)
                 else:
-                    if h_temp < 0: #below zero temp
-                        h_diff = t_base + abs(h_temp)
-                    else:
-                        h_diff = abs(t_base - h_temp)
+                    h_diff = abs(t_base - h_temp)
 
-                out[i][j] = m * h_diff + b
+            out[day_nr][h_nr] = m_slope * h_diff + b
 
-        return out
+    return out
 
 def heat_pump_efficiency_y():
     """Sum over every hour in a year the efficiency * temp¨"""

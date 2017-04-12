@@ -5,7 +5,7 @@ import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_assumptions(data, data_external):
-    """All assumptions of the energy demand model are loaded and added to the data
+    """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
     -------
@@ -23,8 +23,8 @@ def load_assumptions(data, data_external):
     # ============================================================
     # Technology diffusion assumptions
     # ============================================================
-    assumptions['sig_midpoint'] = 0
-    assumptions['sig_steeppness'] = 1
+    assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
+    assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -52,8 +52,8 @@ def load_assumptions(data, data_external):
 
     # Heating base temperature
     assumptions['t_base_cooling'] = {
-        'base_yr': 21,
-        'end_yr': 21
+        'base_yr': 21.0,
+        'end_yr': 21.0
     }
 
     # ============================================================
@@ -90,10 +90,10 @@ def load_assumptions(data, data_external):
     # ============================================================
     # Smart meter assumptions (Residential)
     # ============================================================
-    assumptions['smart_meter_p_by'] = 0.1   # Smart meters % in base year
-    assumptions['smart_meter_p_ey'] = 0.1   # Smart meters % in end year
-    assumptions['general_savings_smart_meter'] = 0.1                            # Long term general saving through behaviour & smart meter (not shifting) Get lit for this
-    assumptions['smart_meter_affected_enduses'] = ['cold', 'cooking', 'lighting', 'cold', 'wet', 'consumer_electronics', 'home_computing']    # Enduses affec
+    assumptions['smart_meter_p_by'] = 0.1 # Fraction of population with smart meters in base year
+    assumptions['smart_meter_p_ey'] = 0.1 # Fraction of population with smart meters in end year
+    assumptions['general_savings_smart_meter'] = 0.1 # Long term smart meter induced general savings (not shifting) TODO: LIT
+    assumptions['smart_meter_affected_enduses'] = ['cold', 'cooking', 'lighting', 'cold', 'wet', 'consumer_electronics', 'home_computing'] # Affected enduses of smart meter induced savings
 
     # ============================================================
     # Technologies and their efficiencies over time
@@ -101,7 +101,7 @@ def load_assumptions(data, data_external):
     assumptions['eff_achieved'] = {}
 
     # Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
-    factor_efficiency_achieved = 0.5
+    factor_efficiency_achieved = 1.0
 
     # --Efficiencies (Base year)
     assumptions['eff_by'] = {
@@ -199,25 +199,25 @@ def load_assumptions(data, data_external):
     for i in assumptions['eff_ey']:
         assumptions['eff_achieved'][i] = factor_efficiency_achieved
 
-    # Define fueltype of each tech
+    # Define fueltype of each tech (Also used to define all Technologies)
     assumptions['tech_fueltype'] = {
         #Lighting
-        'LED': data['dict_fueltype']['electricity'],
-        'halogen_elec': data['dict_fueltype']['electricity'],
-        'standard_lighting_bulb': data['dict_fueltype']['electricity'],
-        'fluorescent_strip_lightinging': data['dict_fueltype']['electricity'],
-        'energy_saving_lighting_bulb': data['dict_fueltype']['electricity'],
-        'LED' : data['dict_fueltype']['electricity'],
+        'LED': data['lu_fueltype']['electricity'],
+        'halogen_elec': data['lu_fueltype']['electricity'],
+        'standard_lighting_bulb': data['lu_fueltype']['electricity'],
+        'fluorescent_strip_lightinging': data['lu_fueltype']['electricity'],
+        'energy_saving_lighting_bulb': data['lu_fueltype']['electricity'],
+        'LED' : data['lu_fueltype']['electricity'],
 
         #test
-        'tech_A' : data['dict_fueltype']['gas'],
-        'tech_B' : data['dict_fueltype']['gas'],
-        'back_boiler' : data['dict_fueltype']['electricity'],
-        'condensing_boiler' : data['dict_fueltype']['electricity'],
+        'tech_A' : data['lu_fueltype']['gas'],
+        'tech_B' : data['lu_fueltype']['gas'],
+        'back_boiler' : data['lu_fueltype']['electricity'],
+        'condensing_boiler' : data['lu_fueltype']['electricity'],
 
-        'gas_boiler': data['dict_fueltype']['gas'],
-        'elec_boiler': data['dict_fueltype']['electricity'],
-        'heat_pump': data['dict_fueltype']['electricity']
+        'gas_boiler': data['lu_fueltype']['gas'],
+        'elec_boiler': data['lu_fueltype']['electricity'],
+        'heat_pump': data['lu_fueltype']['electricity']
     }
 
     # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
@@ -229,48 +229,40 @@ def load_assumptions(data, data_external):
     # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
 
-    # -- tech which is installed for the share of fueltype to be replaced
+    # --Installed current technology to be replaced
     assumptions['tech_install'] = {
-        'heating': 'tech_B',
+        'heating': 'gas_boiler',
         'water_heating': 'tech_A'
     }
 
-    # --Technologies which are replaced within enduse and fueltype
-    tech_replacement_dict = {}
-    '''
+    # --Technologies which are replaced within an enduse and fueltype
+
+    # Possible switches:
+    #  e.g. 20% of fueltype Gas in Enduse Heating to Technology A
+    #
+    #
+    # Only one technology can be assigned (# If more than one necs)
+    assumptions['tech_replacement_dict'] = {
         'heating':{
-            0: 'tech_A',
-            1: 'tech_A',
-            2: 'tech_A', # Tech A gets replaced by Tech B
-            3: 'tech_A',
-            4: 'tech_A',
-            5: 'tech_A',
-            6: 'tech_A',
-            7: 'tech_A'
-        },
-        'water_heating':{
-            0: '',
-            1: '',
-            2: '', #'back_boiler', # back boiler elec is replaced with fuel
-            3: '',
-            4: '',
-            5: '',
-            6: '',
-            7: ''
-        },
+            0: 'heat_pump',
+            1: 'heat_pump',
+            2: 'heat_pump', # Tech A gets replaced by Tech B
+            3: 'heat_pump',
+            4: 'heat_pump',
+            5: 'heat_pump',
+            6: 'heat_pump',
+            7: 'heat_pump'
+        }
     }
-    '''
-    assumptions['tech_replacement_dict'] = tech_replacement_dict
 
     # --Share of fuel types for each enduse
     fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use # Total ED for service for each fueltype
     assumptions['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
     print("fuel_type_p_by:" + str(fuel_type_p_by))
-    #prnt("..")
+    prnt("..")
     # --Reduction fraction of each fuel in each enduse compared to base year. Always positive values (0.2 --> 20% reduction)
-    assump_fuel_frac_ey = {}
-    '''
+    assump_fuel_frac_ey = {
         'heating': {
             '0' : 0.2,
             '1' : 0.2,
@@ -282,7 +274,7 @@ def load_assumptions(data, data_external):
             '7':  0.2
             }
     }
-    '''
+
 
     # Helper function - Replace all enduse from assump_fuel_frac_ey
     fuel_type_p_ey = {}
@@ -295,12 +287,7 @@ def load_assumptions(data, data_external):
 
     # TODO: Write function to insert fuel switches  
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
-    #print("end ear")
     #print(assumptions['fuel_type_p_ey']['lighting'])
-
-
-
-
 
     # ----------------------------------
     # Which technologies are used for which end_use and to which share
@@ -322,7 +309,7 @@ def load_assumptions(data, data_external):
 
     tech_enduse_by['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     #tech_enduse_by['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
-    #tech_enduse_by['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
+    tech_enduse_by['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
 
     assumptions['tech_enduse_by'] = tech_enduse_by # add to dict
 
@@ -331,15 +318,14 @@ def load_assumptions(data, data_external):
 
     tech_enduse_ey['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
-    #tech_enduse_ey['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
+
+    tech_enduse_ey['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
 
     assumptions['tech_enduse_ey'] = tech_enduse_ey
 
 
 
 
-
-    
     # *********************************************************************************
     # If from yearly fuel of heating tech to heatpumps --> Iterate daily fuel os of gas --> Calc efficiency of this day and multiply with fueltype
 
@@ -395,7 +381,7 @@ def load_assumptions(data, data_external):
 
     # Apply fuel switches
     #fuel = apply_fuel_switches(enduse_fuel_tech_by, enduse_fuel_tech_ey)
-    assump_fuel_frac_ey = {'water_heating': {data['dict_fueltype']['gas']: -0.2}} #Assumptions to change enduse
+    assump_fuel_frac_ey = {'water_heating': {data['lu_fueltype']['gas']: -0.2}} #Assumptions to change enduse
 
     # Change enduse_fuel_matrix_ey for fuel switches
     #calc_enduse_fuel_tech_ey_fuel_switches
@@ -485,14 +471,14 @@ def generate_fuel_type_p_by(data):
 
     for enduse in fuel_data:
         out_dict[enduse] = {}
-        sum_fueltype = np.sum(fuel_data[enduse]) # sum fueltype
+        sum_fueltype = np.sum(fuel_data[enduse]) # Total fuel of enduse
         if sum_fueltype != 0:
             fuels_in_p = fuel_data[enduse] / sum_fueltype
         else:
             fuels_in_p = fuel_data[enduse] # all zeros
 
-        for fueltype, fuels in enumerate(fuels_in_p):
-            out_dict[enduse][fueltype] = float(fuels) # Convert to %
+        for fueltype, fuel in enumerate(fuels_in_p):
+            out_dict[enduse][fueltype] = float(fuel) # Convert to %
 
     return out_dict
 

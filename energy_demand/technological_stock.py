@@ -26,6 +26,7 @@ class ResidTechStock(object):
         """Constructor of technologies for residential sector"""
         self.base_yr = data_ext['glob_var']['base_yr']
         self.end_yr = data_ext['glob_var']['end_yr']
+        self.sim_yrs = data_ext['glob_var']['sim_period']
         self.curr_yr = curr_yr
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
@@ -61,15 +62,14 @@ class ResidTechStock(object):
         from 0.5 to a 1.00 efficiency. If however, the acutal efficiency gain
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
         """
-        technology_list = self.assumptions['eff_by'] #TODO: DO not iterate efficiciency but 
+        technology_list = self.assumptions['tech_fueltype']
 
         for technology in technology_list:
             eff_by = self.assumptions['eff_by'][technology]
             eff_ey = self.assumptions['eff_ey'][technology]
-            sim_years = self.end_yr - self.base_yr
 
             # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
-            theor_max_eff = tf.linear_diff(self.base_yr, self.curr_yr, eff_by, eff_ey, sim_years)
+            theor_max_eff = tf.linear_diff(self.base_yr, self.curr_yr, eff_by, eff_ey, self.sim_yrs)
 
             # Get assmuption how much of efficiency potential is reaped
             achieved_eff = self.assumptions['eff_achieved'][technology]
