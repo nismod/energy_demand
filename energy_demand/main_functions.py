@@ -992,9 +992,16 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base):
                     h_diff = t_base + abs(h_temp)
                 else:
                     h_diff = abs(t_base - h_temp)
-
             out[day_nr][h_nr] = m_slope * h_diff + b
 
+    return out
+
+def create_efficiency_array(input_eff):
+    """Create array with same efficiency for boiler technology for every hour in a year"""
+    out = np.zeros((365,24))
+    for i in range(365):
+        for j in range(24):
+            out[i][j] = input_eff
     return out
 
 def heat_pump_efficiency_y():

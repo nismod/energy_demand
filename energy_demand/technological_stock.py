@@ -55,7 +55,11 @@ class ResidTechStock(object):
         The attributes self.heat_pump_m and self.heat_pump_b are created in self.create_iteration_efficiency()
         and reflect current year efficiency parameters for the heat pump technology.
         """
-        ResidTechStock.__setattr__(self, 'heat_pump', mf.get_heatpump_eff(self.temp_cy, self.heat_pump_m, self.heat_pump_b, self.assumptions['t_base_heating']['base_yr']))
+        ResidTechStock.__setattr__(
+            self,
+            'heat_pump',
+            mf.get_heatpump_eff(self.temp_cy, self.heat_pump_m[0][0], self.heat_pump_b[0][0], self.assumptions['t_base_heating']['base_yr'])
+            )
 
     def create_iteration_efficiency(self):
         """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)
@@ -92,9 +96,13 @@ class ResidTechStock(object):
             # Actual efficiency potential #TODO: Check if minus or plus number...TODO
             if eff_by >= 0:
                 cy_eff = eff_by + (achieved_eff * (abs(theor_max_eff) - eff_by)) # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain #abs is introduced because if minus value otherwie would become plus
+            
+                cy_eff = mf.create_efficiency_array(cy_eff)
             else:
                 cy_eff = eff_by - (achieved_eff * (abs(theor_max_eff) - abs(eff_by))) # Efficiency gain
-            
+                
+                cy_eff = mf.create_efficiency_array(cy_eff)
+
             # If boiler efficiency
 
             # CONVERT EFFICIENCIES TO HOULRY EFFICIENCY IN YEAR! TODO

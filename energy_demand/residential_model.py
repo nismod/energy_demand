@@ -229,7 +229,8 @@ class Region(object):
         Compare boielr and hp fuel demand and calculate factor. Then factor the demand and calculate new shape
 
         """
-        boiler_eff = self.create_efficiency_array(input_eff=1.0) # SEVERAL BOILERS? self.tech_stock_cy[''] # of base year or current year?
+        #boiler_eff = self.create_efficiency_array(input_eff=1.0) # SEVERAL BOILERS? self.tech_stock_cy[''] # of base year or current year?
+        boiler_eff = mf.create_efficiency_array(input_eff=1.0) # SEVERAL BOILERS? self.tech_stock_cy[''] # of base year or current year?
         fuel_day_factor = np.zeros((365, 1))
 
         for day, fuel_d in enumerate(self.fuel_shape_y_h_hdd_boilers):
@@ -536,13 +537,7 @@ class Region(object):
         object_subclass = getattr(object_class, attr_sub_class)
         return object_subclass
 
-    def create_efficiency_array(self, input_eff):
-        """Create array with same efficiency for boiler technology for every hour in a year"""
-        out = np.zeros((365,24))
-        for i in range(365):
-            for j in range(24):
-                out[i][j] = input_eff
-        return out
+
     
     def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
         """Plots stacked end_use for a region
@@ -979,7 +974,9 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
                         overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology))
                     else:
                         # Overall efficiency: Share of technology * efficiency of base year technology
-                        overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology) #Only within FUELTYPE
+                        # IF EFFICIENCY OF ALL IS MADE HOURLY; NEEDAS LOS np.sum
+                        #overall_eff_by += tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology) #Only within FUELTYPE
+                        overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)) #Only within FUELTYPE
 
                 # Iterate technologies and average efficiencies relative to distribution for current year
                 overall_eff_cy = 0
@@ -990,7 +987,9 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
                     else:
                         #print("Technology: " + str(technology) + str("   ") + str(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)))
                         # Overall efficiency: Share of technology * efficiency of base year technology
-                        overall_eff_cy += tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)
+                        # IF EFFICIENCY OF ALL IS MADE HOURLY; NEEDAS LOS np.sum
+                        #overall_eff_cy += tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology)
+                        overall_eff_cy += np.sum(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology))
 
                 # Calc new demand considering efficiency change
                 if overall_eff_cy != 0: # Do not copy any values
@@ -1076,6 +1075,9 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
                 eff_install = np.sum(self.fuel_shape_y_h_hdd_hp * getattr(self.tech_stock_cy, tech_install)) / (365 * 24)  # Efficiency considering hourly efficiency
             else:
                 eff_install = getattr(self.tech_stock_cy, tech_install) # efficiency of installed technology in current year
+            
+            # NEW: BECAUSE 8700 efficiency and with shape mitliplied for installed and replaced technology, one can do in one
+            ###eff_install = np.sum(self.fuel_shape_y_h_hdd_hp * getattr(self.tech_stock_cy, tech_install)) / (365 * 24)  # Efficiency considering hourly efficiency
 
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
             factor_sigm = mf.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
@@ -1113,10 +1115,10 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
                     if tech_replace == 'heat_pump':
                         #TODO: WHAT IT HEATPUMPS GET REPLACED??
                         #eff_tech_remove = np.sum(self.fuel_shape_y_h_hdd_boilers * self.boiler_eff) / (365 * 24) # Efficiency of heat pump
-                        eff_tech_remove = np.sum(self.fuel_shape_y_h_hdd_hp * getattr(self.tech_stock_cy, tech_replace)) / (365 * 24) 
+                        eff_tech_remove = np.sum(self.fuel_shape_y_h_hdd_hp * getattr(self.tech_stock_cy, tech_replace)) / (365 * 24)
                     else:
-                        if tech_replace == 'gas_boiler' or tech_replace == 'elec_boiler': #MORE BOILERS
-                            eff_tech_remove = np.sum(self.fuel_shape_y_h_hdd_boilers * self.boiler_eff) / (365 * 24) # Efficiency of heat pump
+                        if tech_replace == 'gas_boiler' or tech_replace == 'elec_boiler': # BOILER TECHNOLOGY
+                            eff_tech_remove = np.sum(self.fuel_shape_y_h_hdd_boilers * getattr(self.tech_stock_cy, tech_replace)) / (365 * 24) # TODO :or np.average(Efficiency of heat pump
                         else:
                             eff_tech_remove = getattr(self.tech_stock_cy, tech_replace) # Efficiency of technology to be replaced
 

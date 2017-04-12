@@ -245,7 +245,7 @@ def load_assumptions(data, data_external):
     assumptions['tech_replacement_dict'] = {
         'heating':{
             0: 'heat_pump',
-            1: 'heat_pump',
+            1: 'gas_boiler',
             2: 'heat_pump', # Tech A gets replaced by Tech B
             3: 'heat_pump',
             4: 'heat_pump',
@@ -266,7 +266,7 @@ def load_assumptions(data, data_external):
     assump_fuel_frac_ey = {
         'heating': {
             '0' : 0,
-            '1' : 0,
+            '1' : 0.5,
             '2' : 0.2, # electricity replaced ( - 20%)
             '3' : 0,
             '4' : 0,
