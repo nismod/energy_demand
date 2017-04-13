@@ -22,19 +22,17 @@ class ResidTechStock(object):
     curr_yr : int
         Current year
     """
-    def __init__(self, data, data_ext, curr_yr, temp_cy):
+    def __init__(self, data, data_ext, temp_cy):
         """Constructor of technologies for residential sector"""
-        self.curr_yr = curr_yr
+
         self.temp_cy = temp_cy
-        self.base_yr = data_ext['glob_var']['base_yr']
-        self.end_yr = data_ext['glob_var']['end_yr']
         self.sim_yrs = data_ext['glob_var']['sim_period']
         self.assumptions = data['assumptions']
         self.tech_lu = data['tech_lu']
         self.fuel_types = data['fuel_type_lu']
 
         # Execute function to add all parameters of all technologies which define efficienes to technological stock
-        self.create_iteration_efficiency()
+        self.create_iteration_efficiency(data_ext)
 
         # Add Heat pump to technological stock (two efficiency parameters) (Efficiency for every hour and not only one value over year)
         self.create_hp_efficiency()
@@ -42,7 +40,7 @@ class ResidTechStock(object):
         # Calculate share of technologies within each fueltype (e.g. fraction of households with each technology)
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
         self.tech_frac_ey = data['assumptions']['tech_enduse_ey'] #end year
-        self.tech_frac_cy = self.get_sigmoid_tech_diff() #current year
+        self.tech_frac_cy = self.get_sigmoid_tech_diff(data_ext) #current year
 
     def create_hp_efficiency(self):
         """Calculate efficiency of heat pumps
@@ -61,7 +59,7 @@ class ResidTechStock(object):
             mf.get_heatpump_eff(self.temp_cy, self.heat_pump_m[0][0], self.heat_pump_b[0][0], self.assumptions['t_base_heating']['base_yr'])
             )
 
-    def create_iteration_efficiency(self):
+    def create_iteration_efficiency(self, data_ext):
         """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)
 
         The efficiency of each technology is added as `self` attribute.
@@ -88,7 +86,7 @@ class ResidTechStock(object):
             eff_ey = self.assumptions['eff_ey'][technology_param]
 
             # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
-            theor_max_eff = tf.linear_diff(self.base_yr, self.curr_yr, eff_by, eff_ey, len(self.sim_yrs))
+            theor_max_eff = tf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], eff_by, eff_ey, len(self.sim_yrs))
 
             # Get assmuption how much of efficiency potential is reaped
             achieved_eff = self.assumptions['eff_achieved'][technology_param]
@@ -119,7 +117,7 @@ class ResidTechStock(object):
 
             ResidTechStock.__setattr__(self, technology_param, cy_eff)
 
-    def get_sigmoid_tech_diff(self):
+    def get_sigmoid_tech_diff(self, data_ext):
         """Calculate change in fuel demand based on sigmoid diffusion of fraction of technologies for each enduse
 
         I. With help of assumptions on the fraction of technologies for each
@@ -147,7 +145,7 @@ class ResidTechStock(object):
         tech_frac_cy = {}
 
         # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
-        sig_frac_tech_change = mf.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+        sig_frac_tech_change = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
 
         for enduse in self.tech_frac_by:
             tech_frac_cy[enduse] = {}

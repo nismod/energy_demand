@@ -94,7 +94,7 @@ def energy_demand_model(data, data_ext):
     data = mf.wheater_generator(data)
 
 
-
+    print("OSTER +: " + str(data_ext['glob_var']['curr_yr']))
 
 
     # --------------------------

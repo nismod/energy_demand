@@ -759,7 +759,7 @@ def get_hdd_individ_reg(region, data):
 
     return hdd_reg
 
-def get_t_base_hdd(curr_y, assumptions, base_yr, end_yr):
+def get_t_base_heating(curr_y, assumptions, base_yr, end_yr):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year
