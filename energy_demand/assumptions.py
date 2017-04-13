@@ -147,7 +147,7 @@ def load_assumptions(data, data_external):
         'gas_boiler': 0.3,
         'elec_boiler': 0.5,
         'heat_pump_m': -0.1,
-        'heat_pump_b': 6.0
+        'heat_pump_b': 22.0
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
 
@@ -246,14 +246,14 @@ def load_assumptions(data, data_external):
     # Only one technology can be assigned (# If more than one necs)
     assumptions['tech_remove_dict'] = {
         'heating':{
-            0: 'heat_pump',
+            0: 'gas_boiler',
             1: 'gas_boiler',
-            2: 'heat_pump', # Tech A gets replaced by Tech B
-            3: 'heat_pump',
-            4: 'heat_pump',
-            5: 'heat_pump',
-            6: 'heat_pump',
-            7: 'heat_pump'
+            2: 'gas_boiler', # Tech A gets replaced by Tech B
+            3: 'gas_boiler',
+            4: 'gas_boiler',
+            5: 'gas_boiler',
+            6: 'gas_boiler',
+            7: 'gas_boiler'
         }
     }
 
@@ -261,15 +261,12 @@ def load_assumptions(data, data_external):
     fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use # Total ED for service for each fueltype
     assumptions['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
 
-
-    print("TEST  sssdsf: " + str(np.sum(assumptions['fuel_type_p_by']['heating'][:, 1])))
-
     # --Reduction fraction of each fuel in each enduse compared to base year.( -0.2 --> Minus share)
     assump_fuel_frac_ey = {
         'heating': {
             '0' : 0,
-            '1' : 0.5,
-            '2' : 0.2, # electricity replaced ( - 20%)
+            '1' : 0,
+            '2' : .4, # electricity replaced ( - 20%)
             '3' : 0,
             '4' : 0,
             '5' : 0,
@@ -278,12 +275,10 @@ def load_assumptions(data, data_external):
             }
     }
 
-
     # Helper function - Replace all enduse from assump_fuel_frac_ey
     fuel_type_p_ey = {}
     for enduse in fuel_type_p_by:
         if enduse not in assump_fuel_frac_ey:
-            #fuel_type_p_ey[enduse] = fuel_type_p_by[enduse]
             fuel_type_p_ey[enduse] = np.array(list(fuel_type_p_by[enduse].items()), dtype=float)
         else:
             array_fuel_switch_assumptions = np.array(list(assump_fuel_frac_ey[enduse].items()), dtype=float)
@@ -309,32 +304,29 @@ def load_assumptions(data, data_external):
     # Only shares within each fueltype !!!!
 
     # Create technoogy empties for all enduses
-    tech_enduse_by = {}
+    assumptions['tech_enduse_by'] = {}
     fuel_data = data['fuel_raw_data_resid_enduses']
 
     for enduse in fuel_data: #TODFO ITERATE ENDUSE NOT UFEL DATA
-        tech_enduse_by[enduse] = {}
+        assumptions['tech_enduse_by'][enduse] = {}
 
         for fueltype in range(len(data['fuel_type_lu'])):
-            tech_enduse_by[enduse][fueltype] = {}
+            assumptions['tech_enduse_by'][enduse][fueltype] = {}
 
     # Add technological split where known (only internally for each fuel enduse)
 
-    tech_enduse_by['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
-    #tech_enduse_by['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
-    tech_enduse_by['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
-
-    assumptions['tech_enduse_by'] = tech_enduse_by # add to dict
+    assumptions['tech_enduse_by']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
+    #assumptions['tech_enduse_by']['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
+    assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
-    tech_enduse_ey = copy.deepcopy(tech_enduse_by)
+    assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
 
-    tech_enduse_ey['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
+    assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
 
-    tech_enduse_ey['heating'][2] = {'back_boiler': 0.9, 'heat_pump': 0.1}
+    assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
-    assumptions['tech_enduse_ey'] = tech_enduse_ey
 
 
 

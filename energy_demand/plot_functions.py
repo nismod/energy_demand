@@ -138,7 +138,7 @@ def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fuel
 
         Y_init[k] = data_over_years
 
-    print("Y_init:" + str(Y_init))
+    #print("Y_init:" + str(Y_init))
     #color_list = ["green", "red", "#6E5160"]
 
     sp = ax.stackplot(x, Y_init)

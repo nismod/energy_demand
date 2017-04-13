@@ -44,8 +44,6 @@ Open questions
 
 The docs can be found here: http://ed.readthedocs.io
 """
-
-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
 import os
@@ -94,10 +92,7 @@ def energy_demand_model(data, data_ext):
     data = mf.wheater_generator(data)
 
 
-    print("OSTER +: " + str(data_ext['glob_var']['curr_yr']))
-
-
-    # --------------------------
+    # -------------------------
     # Residential model
     # --------------------------
     resid_object_country = rm.residential_model_main_function(data, data_ext)
@@ -146,11 +141,11 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     by = 2015
-    ey = 2017 #always includes this year
+    ey = 2018 #always includes this year
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
+    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'BERN': 5300000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -175,12 +170,13 @@ if __name__ == "__main__":
     for rise_fac, y in enumerate(sim_years, 1):
         new_year_value = []
         for ff in a: # New year value
-            new_year_value.append(ff + ff * (rise_fac/10))
+            #new_year_value.append(ff + ff * (rise_fac/10)) #BECOME HOTTER
+            new_year_value.append(ff) #Constant
         temp_y = np.zeros((365, 24))
         for i, d in enumerate(temp_y):
             b = []
             for ff in new_year_value:
-                new_year_value_d = ff + ((1/365)*ff)
+                new_year_value_d = ff + ((i/365)*ff)
                 b.append(new_year_value_d)
             temp_y[i] = b
         meteo[y] = temp_y

@@ -680,7 +680,9 @@ def calc_hdd(t_base, temp_every_h_year):
     for i, day in enumerate(temp_every_h_year):
         hdd = 0
         for h_temp in day:
-            hdd += t_base - h_temp
+            diff = t_base - h_temp 
+            if diff > 0:
+                hdd += t_base - h_temp
         hdd_d[i] = hdd / 24
         
     return hdd_d
