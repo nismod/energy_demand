@@ -13,15 +13,21 @@
 # g  = gas
 # lu = look up
 # h = hour
+# hp = heat pump
 # d = day
+
+
 # Add Cooling
 
 - Read out individal load shapes
-- HEating Degree DAys
-- efficiencies
-- assumptions
-- Overall total for every region...own class?
 
+# LOGGING?
+    #log_path = os.path.join(data['path_dict']['path_main'][:-5], 'model_output/run_model_log.log')
+    #print(log_path)
+    #logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
+    #logging.debug('This message should go to the log file')
+    #logging.info('So should this')
+    #logging.warning('And this, too')
 
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
@@ -29,7 +35,7 @@ Down the line
 Open questions
 - PEAK to ED
 - Other Enduses from external wrapper?
--
+
 # TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
 
 # TODO: technologies: when on market? (diffusion-advanced )
@@ -38,6 +44,8 @@ Open questions
 
 The docs can be found here: http://ed.readthedocs.io
 """
+
+
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
 import os
@@ -51,14 +59,13 @@ import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
 import logging
+print("Start Energy Demand Model with python version: " + str(sys.version))
 
 # Sub modules
 import energy_demand.residential_model as rm
 import energy_demand.service_model as sm
 import energy_demand.industry_model as im
 import energy_demand.transport_model as tm
-
-print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data, data_ext):
     """Main function of energy demand model to calculate yearly demand
@@ -80,20 +87,15 @@ def energy_demand_model(data, data_ext):
         [fuel_type : region : timestep]
 
     """
+
     # SCENARIO UNCERTAINTY
     # TODO: Implement weather generator
+    # Change demand depending on climate variables
     data = mf.wheater_generator(data)
 
 
-    # Change demand depending on climate variables
 
 
-    #log_path = os.path.join(data['path_dict']['path_main'][:-5], 'model_output/run_model_log.log')
-    #print(log_path)
-    #logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
-    #logging.debug('This message should go to the log file')
-    #logging.info('So should this')
-    #logging.warning('And this, too')
 
     # --------------------------
     # Residential model
@@ -141,13 +143,10 @@ if __name__ == "__main__":
     # obs.units == 'count'
     # External data provided from wrapper
 
-    # -------------------
-    # GENERATE DUMMY DATA
-    # -------------------
-    #Dummy
+
+    # DUMMY DATA GENERATION----------------------
     by = 2015
     ey = 2017 #always includes this year
-
     sim_years =  range(by, ey + 1)
 
     pop_dummy = {}
@@ -179,7 +178,10 @@ if __name__ == "__main__":
         temp_h_y2015[i] = b
         '''temp_h_y2015[i] = [random.uniform(8.3, 3.7)]*24
         '''
-    print(temp_h_y2015)
+    
+
+    # DUMMY DATA GENERATION----------------------
+
 
     # Reg Floor Area? Reg lookup?
     data_external = {
@@ -205,7 +207,7 @@ if __name__ == "__main__":
     data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
-   
+
 
     # Model calculations outside main function
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')

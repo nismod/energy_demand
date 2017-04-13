@@ -10,7 +10,7 @@ import numpy as np
 import yaml
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def get_temp_region(dw_reg_id, coordinates):
+def get_temp_region(dw_reg_name, coordinates):
     """
     #TODO Reallocation any region input with wheater region (mabe also coordinate inputs)
 
@@ -89,10 +89,10 @@ def convert_out_format_es(data, data_ext, resid_object_country):
     for fueltype_id, fueltype in data['fuel_type_lu'].items():
         results[fueltype] = []
 
-        for reg_id in data['reg_lu']:
-            reg = getattr(resid_object_country, str(reg_id))
-            region_name = reg.reg_id  # Get object region name
-            hourly_all_fuels = reg.tot_all_enduses_h()  # Get total fuel
+        for reg_name in data['reg_lu']:
+            reg = getattr(resid_object_country, str(reg_name))
+            region_name = reg.reg_name  # Get object region name
+            hourly_all_fuels = reg.tot_all_enduses_h(data)  # Get total fuel
 
             for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour_in_day, demand in enumerate(hourly_demand):
@@ -973,6 +973,13 @@ def cdd_calculation(t_base_cooling, temp_every_h_year):
 
 def wheater_generator(data):
     """ TODO """
+    
+    # ----------------------------------------------------------
+    # Read in temperatures for every year for every region
+    # ----------------------------------------------------------
+
+    # Check how the input data of the year 2015 compare to other years? (e.g. with heating days?) Wheater correction?
+
     return data
 
 def get_heatpump_eff(temp_yr, m_slope, b, t_base):

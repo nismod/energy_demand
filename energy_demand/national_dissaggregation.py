@@ -48,7 +48,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext):
 
     regions = data['reg_lu']
     base_yr = data_ext['glob_var']['base_yr']
-    national_fuel = data['data_residential_by_fuel_end_uses']
+    national_fuel = data['fuel_raw_data_resid_enduses']
     data['fueldata_disagg'] = {} #Initialise to store aggregated fuels
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
 

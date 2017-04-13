@@ -30,7 +30,7 @@ class Dwelling(object):
     assumptions : dict
         Modelling assumptions stored in dictionary
     """
-    def __init__(self, curr_y, reg_id, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
+    def __init__(self, curr_y, reg_name, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.driver_assumptions = data['assumptions']['resid_scen_driver_assumptions']
@@ -40,10 +40,10 @@ class Dwelling(object):
         self.age = age
         self.pop = pop
         self.floorarea = floorarea
-        self.dw_reg_id = reg_id
+        self.dw_reg_name = reg_name
         #self.HOUSEHOLDINCOME?
         #self.otherattribute
-        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_id, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
+        self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_name, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
         self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
 
         # Generate attribute for each enduse containing calculated scenario driver value
@@ -66,7 +66,7 @@ class Dwelling(object):
             # Set attribute
             Dwelling.__setattr__(self, enduse, driver_value)
 
-def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, coordinates):
+def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_name, coordinates):
     """Calculate heating degree days depending on temperatures and base temperature
 
     The mean temperatures are loaded for the closest wheater station (TODO)
@@ -79,7 +79,7 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, co
         Current year
     assumptions : int
         tbd
-    dw_reg_id : string
+    dw_reg_name : string
         Region of the created `Dwelling` object
 
     Returns
@@ -97,7 +97,7 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_id, co
     t_base_cy = mf.get_t_base_hdd(curr_y, assumptions, data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
 
     # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
-    temperature_region_relocated = mf.get_temp_region(dw_reg_id, coordinates)
+    temperature_region_relocated = mf.get_temp_region(dw_reg_name, coordinates)
 
      # Read temperature of closest region TODO
     t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
@@ -209,9 +209,9 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
     sim_period = glob_var['sim_period']
 
     # Iterate regions
-    for reg_id in reg_pop_by:
+    for reg_name in reg_pop_by:
         sim_yrs = {}
-        floorarea_pp_by = reg_floorarea_resid[reg_id] / reg_pop_by[reg_id] # Floor area per person of base year
+        floorarea_pp_by = reg_floorarea_resid[reg_name] / reg_pop_by[reg_name] # Floor area per person of base year
 
         # Iterate simulation years
         for sim_yr in sim_period:
@@ -225,7 +225,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
 
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by * diff_cy # Floor area of simulation year
-        data_floorarea_pp[reg_id] = sim_yrs  # Values for every simulation year
+        data_floorarea_pp[reg_name] = sim_yrs  # Values for every simulation year
 
     return data_floorarea_pp
 

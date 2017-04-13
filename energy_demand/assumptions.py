@@ -308,7 +308,7 @@ def load_assumptions(data, data_external):
 
     # Create technoogy empties for all enduses
     tech_enduse_by = {}
-    fuel_data = data['data_residential_by_fuel_end_uses']
+    fuel_data = data['fuel_raw_data_resid_enduses']
 
     for enduse in fuel_data: #TODFO ITERATE ENDUSE NOT UFEL DATA
         tech_enduse_by[enduse] = {}
@@ -385,7 +385,7 @@ def load_assumptions(data, data_external):
     tech_enduse_by['water_heating'][2] = {'heat_pump': 0.5, 'condensing_boiler': 0.5}
 
     #Calculate enduse fuel split per technology
-    enduse_fuel_tech_by = calc_enduse_fuel_tech_by(data['resid_enduses'], eff_by, data['data_residential_by_fuel_end_uses'], tech_enduse_by)
+    enduse_fuel_tech_by = calc_enduse_fuel_tech_by(data['resid_enduses'], eff_by, data['fuel_raw_data_resid_enduses'], tech_enduse_by)
 
 
     enduse_fuel_tech_ey = {'water_heating': {'heat_pump': 0.8, 'condensing_boiler': 0.1, 'gas_boiler': 0.1}} #Absolute enduse
@@ -477,7 +477,7 @@ def load_assumptions(data, data_external):
 def generate_fuel_type_p_by(data):
     """Assumption helper function to generate percentage fuel distribution for every enduse of base year"""
 
-    fuel_data = data['data_residential_by_fuel_end_uses']
+    fuel_data = data['fuel_raw_data_resid_enduses']
     out_dict = {}
 
     for enduse in fuel_data:
