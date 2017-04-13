@@ -5,11 +5,8 @@ import energy_demand.main_functions as mf
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
-    The main class of the residential model. For every HOUR IN EVERY REGION,
+    The main class of the residential model. For every HOUR IN EVERY REGION, #TODO?
     a Region Object needs to be generated
-
-    #TODO: Efficiency for every hour
-    # USE TEMPERATURE TO ESTIMATE FFICIENCY OF SOME TECHNOLOGIES
 
     Parameters
     ----------
@@ -23,8 +20,8 @@ class ResidTechStock(object):
         Current year
     """
     def __init__(self, data, data_ext, temp_cy):
-        """Constructor of technologies for residential sector"""
-
+        """Constructor of technologies for residential sector
+        """
         self.temp_cy = temp_cy
         self.sim_yrs = data_ext['glob_var']['sim_period']
         self.assumptions = data['assumptions']
@@ -79,7 +76,7 @@ class ResidTechStock(object):
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
         """
         # Take Efficiency assumptions and not technology list because some technologies have more than one efficiency assumption
-        technology_eff_assumptions = self.assumptions['eff_by'] 
+        technology_eff_assumptions = self.assumptions['eff_by']
 
         for technology_param in technology_eff_assumptions:
             eff_by = self.assumptions['eff_by'][technology_param]
@@ -94,26 +91,10 @@ class ResidTechStock(object):
             # Actual efficiency potential #TODO: Check if minus or plus number...TODO
             if eff_by >= 0:
                 cy_eff = eff_by + (achieved_eff * (abs(theor_max_eff) - eff_by)) # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain #abs is introduced because if minus value otherwie would become plus
-            
                 cy_eff = mf.create_efficiency_array(cy_eff)
             else:
                 cy_eff = eff_by - (achieved_eff * (abs(theor_max_eff) - abs(eff_by))) # Efficiency gain
-                
                 cy_eff = mf.create_efficiency_array(cy_eff)
-
-            # If boiler efficiency
-
-            # CONVERT EFFICIENCIES TO HOULRY EFFICIENCY IN YEAR! TODO
-            #cy_eff = boiler_eff
-            #print("TECHNOLOGY: " + str(technology_param))
-            #print(self.curr_yr)
-            #print("sim_years: " + str(sim_years))
-            ##print("A: " + str(eff_by))
-            #print("B: " + str(eff_ey))
-            #print("theor_max_eff: " + str(theor_max_eff))
-            ###print("achieved_eff: " + str(achieved_eff))
-            #print("cy_eff: " + str(cy_eff))
-            #print(" ")
 
             ResidTechStock.__setattr__(self, technology_param, cy_eff)
 

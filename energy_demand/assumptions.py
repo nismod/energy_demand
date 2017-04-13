@@ -265,7 +265,7 @@ def load_assumptions(data, data_external):
     assump_fuel_frac_ey = {
         'heating': {
             '0' : 0,
-            '1' : 0,
+            '1' : 0.3,
             '2' : .4, # electricity replaced ( - 20%)
             '3' : 0,
             '4' : 0,
@@ -286,7 +286,7 @@ def load_assumptions(data, data_external):
 
             # Multiply fuel percentage with share in fueltype
             fuel_type_p_ey[enduse] = assumptions['fuel_type_p_by'][enduse] * factor_to_multiply_fuel_p
-            fuel_type_p_ey[enduse][:,0] = fuel_type_p_ey[enduse][:,0] #Copy fuel indices
+            fuel_type_p_ey[enduse][:, 0] = fuel_type_p_ey[enduse][:, 0] #Copy fuel indices
 
     assumptions['fuel_type_p_ey'] = fuel_type_p_ey
 
@@ -299,8 +299,7 @@ def load_assumptions(data, data_external):
 
     # ----------------------------------
     # Which technologies are used for which end_use and to which share
-    # ----------------------------------
-    #Share of tech for every enduse and fueltype in base year [in %]
+    # ---------------------------------
     # Only shares within each fueltype !!!!
 
     # Create technoogy empties for all enduses
@@ -398,57 +397,7 @@ def load_assumptions(data, data_external):
     print(enduse_fuel_tech_by)
     '''
     #prnt(":.abs")
-   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     # Add assumptions to data dict
     data['assumptions'] = assumptions
     return data
@@ -498,7 +447,7 @@ def calc_share_of_tot_yearly_fuel_for_hp(): #data_external, 0.2, 4
 
     I. Get y_h shape in percentage of REGULAR BOILERS and calculate HEATFUEL for every day (or take percentages)
     --> Problem dass heat pumps unterschiedliche Daily Shape
-    
+
     II. Calculate heat demand factor (efficiency_heat):
 
     SUM(HEATFUEL) / SUM_every_h(eff_h * HEATFUEL_h) = coeff_by #Also % can be taken becose does not matter if real fuel or percentages
@@ -506,7 +455,7 @@ def calc_share_of_tot_yearly_fuel_for_hp(): #data_external, 0.2, 4
 
     III. Calculate total fuel for each technology
 
-    Fuel_frac_hp = frac_hp * (TOTFUEL * coeff_by) 
+    Fuel_frac_hp = frac_hp * (TOTFUEL * coeff_by)
     Fruel_fact_reg_boilers = frac_boilers * (TOTFUEL)
 
     (Relationship between input tonn equivalents and output heat)

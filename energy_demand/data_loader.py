@@ -81,7 +81,7 @@ def load_data(path_main, data_ext):
         'shape_d_HP': shape_d_HP,
         'shape_d_HP_ground': shape_d_HP_ground,
         }
-    
+
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
     # -----------------------------
@@ -125,7 +125,7 @@ def load_data(path_main, data_ext):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    #data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year          
+    #data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year
 
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
@@ -260,12 +260,12 @@ def generate_data(data):
     # ===========================================
     # SERVICE MODEL DATA GENERATION
     # ===========================================
-    
+
 
     # ----------------------------
     # Service Gas demand
     # ----------------------------
-    
+
     #CSV Service
     #data['temp_2015_service']
 

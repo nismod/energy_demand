@@ -711,7 +711,8 @@ def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
 
     return hdd_tot
 
-def get_hdd_country(regions, data, base_yr):
+
+def get_hdd_country(regions, data):
     """Calculate total number of heating degree days in a region for the base year
 
     Parameters
@@ -741,7 +742,7 @@ def get_hdd_country(regions, data, base_yr):
 
     return hdd_regions
 
-def get_hdd_individ_reg(region, data):
+'''def get_hdd_individ_reg(region, data):
     """Calculate total number of heating degree days in a region for the base year
 
     Parameters
@@ -760,6 +761,7 @@ def get_hdd_individ_reg(region, data):
     hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months, t_base)
 
     return hdd_reg
+'''
 
 def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
     """Calculate base temperature depending on sigmoid diff and location
@@ -923,7 +925,6 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
     # What also could be impleneted is a technology specific diffusion (parameters for diffusion)
         year_invention : int
         The year where a fuel_enduse_switch gets on the market
-
     """
     # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
     if year_end == base_yr:
@@ -936,19 +937,33 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     return cy_p
 
-def calc_cdd(t_base_cooling, temp_every_h_year):
+def calc_cdd(t_base_cooling, temperatures):
     """Calculate cooling degree days 
 
-    Out: shape(365,1)
-    #TODO: Improve
+    The Cooling Degree Days are calculated based on
+    cooling degree hours with temperatures of a full year
 
-    #https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
+    Parameters
+    ----------
+    t_base_cooling : float
+        Base temperature for cooling
+    temperatures : array
+        Temperatures for every hour in a year
 
-    # Formula 2.1 : Degree-days: theory and application
+    Return
+    ------
+    cdd_d : array
+        Contains all CDD for every day in a year (365, 1)
+
+    Info
+    -----
+    For more info see Formual 2.1: Degree-days: theory and application
+    
+    https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
     cdd_d = np.zeros((365, 1))
 
-    for day_nr, day in enumerate(temp_every_h_year):
+    for day_nr, day in enumerate(temperatures):
         sum_d = 0
         for h_temp in day:
             diff_t = h_temp - t_base_cooling
@@ -973,11 +988,32 @@ def wheater_generator(data):
     return data
 
 def get_heatpump_eff(temp_yr, m_slope, b, t_base):
-    """ Calculate efficiency according to temperatur difference of base year
+    """Calculate efficiency according to temperatur difference of base year
 
     For every hour the temperature difference is calculated and the efficiency of the heat pump calculated
     based on efficiency assumptions
     return (365,24)
+
+    Parameters
+    ----------
+    temp_yr : array
+        Temperatures for every hour in a year (365, 24)
+    m_slope : float
+        Slope of efficiency of heat pump
+    b : float
+        Intercept
+    t_base : float
+        Base temperature for heating
+
+    Return
+    ------
+    out : array
+        Efficiency for every hour in a year
+
+    Info
+    -----
+
+    The efficiency of the heat pump is taken from x.x.x TODO:
     """
     out = np.zeros((365, 24))
     for day_nr, day_temp in enumerate(temp_yr):
@@ -994,8 +1030,19 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base):
     return out
 
 def create_efficiency_array(input_eff):
-    """Create array with same efficiency for boiler technology for every hour in a year"""
-    out = np.zeros((365,24))
+    """Assing a constante efficiency to every hour in a year
+
+    Parameters
+    ----------
+    input_eff : float
+        Efficiency of a technology
+
+    Return
+    ------
+    out : array
+        Array with efficency for every hour in a year (365,24)
+    """
+    out = np.zeros((365, 24))
     for i in range(365):
         for j in range(24):
             out[i][j] = input_eff
