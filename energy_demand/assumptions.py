@@ -17,6 +17,8 @@ def load_assumptions(data, data_external):
 
     #TODO: Implement mock_tech for all sectors where not definied with eff of 1
         #TODO: SCNEARIO TELLING STORY WITH TIMES??
+
+    # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
     """
     assumptions = {}
 
@@ -60,7 +62,7 @@ def load_assumptions(data, data_external):
     # Dwelling stock related scenario driver assumptions
     # ============================================================
     assumptions['resid_scen_driver_assumptions'] = {
-        'heating': ['floorarea', 'hdd', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop
+        'heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
         'water_heating': ['pop'],
         'lighting': ['pop', 'floorarea'],
         'cooking': ['pop'],
@@ -242,7 +244,7 @@ def load_assumptions(data, data_external):
     #
     #
     # Only one technology can be assigned (# If more than one necs)
-    assumptions['tech_replacement_dict'] = {
+    assumptions['tech_remove_dict'] = {
         'heating':{
             0: 'heat_pump',
             1: 'gas_boiler',

@@ -660,7 +660,7 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
 
     return hdd_hitchens
 
-def calc_hdd_for_every_day(t_base, temp_every_h_year):
+def calc_hdd(t_base, temp_every_h_year):
     """Heating Degree Days for every day in a year
 
     Parameters
@@ -759,7 +759,7 @@ def get_hdd_individ_reg(region, data):
 
     return hdd_reg
 
-def get_t_base_heating(curr_y, assumptions, base_yr, end_yr):
+def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year
@@ -783,26 +783,9 @@ def get_t_base_heating(curr_y, assumptions, base_yr, end_yr):
     ------
     t_base_cy : float
         Base temperature of current year
-    """    
-    t_base_diff = assumptions['t_base_heating']['end_yr'] - assumptions['t_base_heating']['base_yr'] # Base temperature of end year minus base temp of base year
-    t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness']) # Sigmoid diffusion
-    t_diff_cy = t_base_diff * t_base_frac # Temp diff until current year
-    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy  # Add temp change to base year temp
-
-    return t_base_cy
-
-def get_t_base_cdd(curr_y, assumptions, base_yr, end_yr):
-    """Calculate base temperature depending on sigmoid diff and location
-
-    Depending on the base temperature in the base and end year
-    a sigmoid diffusion from the base temperature from the base year
-    to the end year is calculated
-
-    TODO: COOLING 
     """
-
     # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions['t_base_cooling']['end_yr'] - assumptions['t_base_cooling']['base_yr']
+    t_base_diff = assumptions[t_base_str]['end_yr'] - assumptions[t_base_str]['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
@@ -811,9 +794,10 @@ def get_t_base_cdd(curr_y, assumptions, base_yr, end_yr):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = assumptions['t_base_heating']['base_yr'] + t_diff_cy
+    t_base_cy = t_diff_cy + assumptions[t_base_str]['base_yr']
 
     return t_base_cy
+
 
 """ Functions for fuel_enduse_switch stock"""
 
@@ -950,7 +934,7 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     return cy_p
 
-def cdd_calculation(t_base_cooling, temp_every_h_year):
+def calc_cdd(t_base_cooling, temp_every_h_year):
     """Calculate cooling degree days 
 
     Out: shape(365,1)
@@ -962,11 +946,15 @@ def cdd_calculation(t_base_cooling, temp_every_h_year):
     """
     cdd_d = np.zeros((365, 1))
 
-    for i, day in enumerate(temp_every_h_year):
+    for day_nr, day in enumerate(temp_every_h_year):
         sum_d = 0
         for h_temp in day:
-            sum_d += t_base_cooling - h_temp
-        cdd_d[i] = sum_d / 24
+            diff_t = h_temp - t_base_cooling
+
+            if diff_t > 0: # Only if cooling is necessary
+                sum_d +=  diff_t
+
+        cdd_d[day_nr] = sum_d / 24
 
     return cdd_d
 

@@ -5,7 +5,9 @@ import energy_demand.main_functions as mf
 import numpy as np
 
 def resid_build_stock(data, assumptions, data_ext):
-    """Creates a virtual building stock based on base year data and assumptions
+    """Creates a virtual building stock based on base year data and assumptions for every region
+
+    Because the heating degree days are calculated for every region,
 
     Parameters
     ----------
@@ -58,21 +60,18 @@ def resid_build_stock(data, assumptions, data_ext):
             # Calculate new necessary floor area of simulation year
             floorarea_pp_sy = data_floorarea_pp[reg_name][sim_y] # Get floor area per person of sim_yr
 
-
             # Floor area per person simulation year * population of simulation year in region
             tot_floorarea_sy = floorarea_pp_sy * data_ext['population'][sim_y][reg_name] # TODO: WHy not + 1?
             new_floorarea_sy = tot_floorarea_sy - floorarea_by # tot new floor area - area base year
 
             # Only calculate changing
             if sim_y == base_yr:
-                
                 dw_stock_base = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_by, floorarea_by, pop_by, assumptions, data_ext)
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
                 # The number of people in the existing dwelling stock may change. Therfore calculate alos except for base year. Total floor number is assumed to be identical Here age of buildings could be changed
                 # if smaler floor area pp, the same mount of people will be living in too large houses --> No. We demolish floor area...
-
                 if pop_by * floorarea_pp_sy > floorarea_by:
                     demolished_area = 0
                 else:

@@ -168,17 +168,24 @@ if __name__ == "__main__":
         a = y_data
 
     # Scrap meteo
-    temp_h_y2015 = np.zeros((365,24))
     import random
-    for i, d in enumerate(temp_h_y2015):
-        a = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9, 10, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
-        b = []
-        for ff in a:
-            b.append(ff * (1 + ((1/365) * i)))
-        temp_h_y2015[i] = b
+    meteo = {}
+    a = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 20, 22, 24, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
+
+    for rise_fac, y in enumerate(sim_years, 1):
+        new_year_value = []
+        for ff in a: # New year value
+            new_year_value.append(ff + ff * (rise_fac/10))
+        temp_y = np.zeros((365, 24))
+        for i, d in enumerate(temp_y):
+            b = []
+            for ff in new_year_value:
+                new_year_value_d = ff + ((1/365)*ff)
+                b.append(new_year_value_d)
+            temp_y[i] = b
+        meteo[y] = temp_y
         '''temp_h_y2015[i] = [random.uniform(8.3, 3.7)]*24
         '''
-    
 
     # DUMMY DATA GENERATION----------------------
 
@@ -187,7 +194,7 @@ if __name__ == "__main__":
     data_external = {
 
         'population': pop_dummy,
-        'temp_base_year_2015': temp_h_y2015,
+        'temperature_data': meteo,
         'glob_var' : {},
         #'glob_var': {
         #    'base_yr': 2015,
