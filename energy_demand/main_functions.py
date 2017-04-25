@@ -89,7 +89,7 @@ def convert_out_format_es(data, data_ext, resid_object_country):
     for fueltype_id, fueltype in data['fuel_type_lu'].items():
         results[fueltype] = []
 
-        for reg_name in data['reg_lu']:
+        for reg_name in data['lu_reg']:
             reg = getattr(resid_object_country, str(reg_name))
             region_name = reg.reg_name  # Get object region name
             hourly_all_fuels = reg.tot_all_enduses_h(data)  # Get total fuel
@@ -444,7 +444,7 @@ def write_YAML(crit_write, path_YAML, yaml_list):
 
     return
 
-def write_final_result(data, result_dict, reg_lu, crit_YAML):
+def write_final_result(data, result_dict, lu_reg, crit_YAML):
     """Write reults for energy supply model
 
     Parameters
@@ -453,7 +453,7 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
         Whether a yaml file should be written or not (1 or 0)
     result_dict : dict
         Dictionary which is stored to txt
-    reg_lu : dict
+    lu_reg : dict
         Look up dict for regions
     crit_YAML : bool
         Criteria if YAML files are generated
@@ -483,9 +483,9 @@ def write_final_result(data, result_dict, reg_lu, crit_YAML):
                     start_id = "P{}H".format(hour)
                     end_id = "P{}H".format(hour + 1)
 
-                    data.append((reg_lu[reg], start_id, end_id, obs_value))
+                    data.append((lu_reg[reg], start_id, end_id, obs_value))
 
-                    yaml_list_fuel_type.append({'region':  reg_lu[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
+                    yaml_list_fuel_type.append({'region':  lu_reg[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
 
             csv_writer.writerows(data)
 
@@ -977,8 +977,12 @@ def calc_cdd(t_base_cooling, temperatures):
 
 
 def wheater_generator(data):
-    """ TODO """
+    """Load weather data
     
+    
+    
+    """
+
     # ----------------------------------------------------------
     # Read in temperatures for every year for every region
     # ----------------------------------------------------------

@@ -2,6 +2,11 @@
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
+
+# TODO: Create technology class
+
+
+
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
@@ -54,7 +59,7 @@ class ResidTechStock(object):
             self,
             'heat_pump',
             mf.get_heatpump_eff(self.temp_cy, self.heat_pump_m[0][0], self.heat_pump_b[0][0], self.assumptions['t_base_heating']['base_yr'])
-            )
+        )
 
     def create_iteration_efficiency(self, data_ext):
         """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)

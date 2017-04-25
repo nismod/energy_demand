@@ -1,17 +1,36 @@
+    
+    # CONSUMPTION REPLACED
+    switch_list = []
+    switch_list.append(
+        {
+            'enduse': 'heating',
+            'fueltype': 1,
+            'tech_remove': 'gas_tech',  # 'average_mode', 'lowest_mode', 'average_all_except_to_be_replaced?
+            'tech_install': 'heat_pump',
+            'fuel_share': 0.5
+            }
+        )
 
-# Dummy data GeneratorExit
+    switch_list.append( # Replacing 60% of electricity with fluorescent_strip_lightinging
+        {
+            'enduse': 'lighting',
+            'fueltype': 2,
+            'tech_remove': 'lowest_mode', # 'average_mode', 'lowest_mode',
+            switches: [
+                {
+                    'tech_install': 'fluorescent_strip_lightinging',
+                    'fuel_share': 0.6
+                },
+                {
+                    'tech_install': 'othertech',
+                    'fuel_share': 0.4
+                },
 
-pop = {}
-a = {'Wales': 3000000, 'Scotland': 5300000}
-
-for i in range(2015, 2020):
-    y_data = {}
-    for reg in a:
-        y_data[reg] = a[reg] *1.05
-    pop[i] = y_data
-    a = y_data
-
-
+                ]
+            
+            'fuel_share': 0.6
+            }
+        )
 
 
 

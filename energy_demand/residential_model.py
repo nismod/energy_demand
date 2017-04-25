@@ -1,6 +1,5 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -25,8 +24,6 @@ class Region(object):
     data_ext : dict
         Dictionary containing all data provided specifically for scenario run and from wrapper.abs
 
-    # TODO: CHECK IF data could be reduced as input (e.g. only provide fuels and not data)
-
     # TODO: All calculatiosn are basd on driver_fuel_fuel_data
     """
     def __init__(self, reg_name, data, data_ext):
@@ -39,11 +36,11 @@ class Region(object):
 
         #get_peak_temp() #TODO: Get peak day gemperatures (day with hottest temperature and day with coolest temperature)
 
-        # Create region specific ResidTechStock
-        self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by) #technological stock for base year
-        self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy) #technological stock for current year
+        # Create region specific technological stock
+        self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by)
+        self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy)
 
-        # Calculate HDD and CDD scenario driver (to multiply fuel for heating and cooling)
+        # Calculate HDD and CDD scenario driver for heating and cooling
         self.hdd_by = self.get_heating_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.cdd_by = self.get_cooling_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
 
@@ -51,9 +48,9 @@ class Region(object):
         self.hdd_cy = self.get_heating_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
         self.heating_shape_d_hdd_cy = (1.0 / np.sum(self.hdd_cy)) * self.hdd_cy # Shape of heating demand
 
-        self.cdd_cy = self.get_cooling_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
+        self.cdd_cy = self.get_cooling_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
         #self.heating_shape_d_hdd_cy = (1.0 / self.hdd_cy) * self.hdd_cy #Cooling technology? # Shape ofcooling demand
-        
+
         self.heat_diff_factor = (1.0 / self.hdd_by) * self.hdd_cy #shape (365,1)
         self.cooling_diff_factor = (1.0 / self.cdd_by) * self.cdd_cy #shape (365,1)
 
@@ -79,6 +76,8 @@ class Region(object):
 
         # Set attributs of all enduses
         self.create_enduses(data, data_ext)
+
+
 
 
         # -- summing functions
@@ -154,28 +153,35 @@ class Region(object):
 
     def create_enduses(self, data, data_ext):
         """All enduses are initialised and inserted as an attribute of the Region Class
+
+        All attributes from the Region Class are passed on to each enduse
         """
+        # Iterate all enduses
         for enduse in data['resid_enduses']:
             Region.__setattr__(
                 self,
-                enduse,
+                enduse, # Name of enduse
                 EnduseResid(
                     self.reg_name,
                     data,
                     data_ext,
                     enduse,
-                    self.enduses_fuel,
+                    self.enduses_fuel, #Masbe do weater correction not in region?
                     self.tech_stock_by,
                     self.tech_stock_cy,
 
-                    self.heat_diff_factor, self.cooling_diff_factor, self.hdd_by, self.cdd_by,
+                    self.heat_diff_factor,
+                    self.cooling_diff_factor,
+                    self.hdd_by,
+                    self.cdd_by,
                     self.fuel_shape_y_h_hdd_hp_cy,
                     self.fuel_shape_y_h_hdd_boilers_cy
                     )
                 )
 
     def tot_all_enduses_y(self, data):
-        """Sum all fuel types over all end uses"""
+        """Sum all fuel types over all end uses
+        """
         sum_fuels = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
 
         for enduse in data['resid_enduses']:
@@ -184,9 +190,8 @@ class Region(object):
         return sum_fuels
 
     def enduse_specific_y(self, data):
-        """Sum fuels for every fuel type for each enduse"""
-
-        # Initialise
+        """Sum fuels for every fuel type for each enduse
+        """
         sum_fuels_all_enduses = {}
         for enduse in data['resid_enduses']:
             sum_fuels_all_enduses[enduse] = np.zeros((len(data['fuel_type_lu']), 1))
@@ -197,7 +202,8 @@ class Region(object):
         return sum_fuels_all_enduses
 
     def tot_all_enduses_d(self, data):
-        """Calculate total daily fuel demand for each fueltype"""
+        """Calculate total daily fuel demand for each fueltype
+        """
         sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365))  # Initialise
 
         for enduse in data['resid_enduses']:
@@ -206,7 +212,8 @@ class Region(object):
         return sum_fuels_d
 
     def get_enduse_peak_d(self, data):
-        """Summarise absolute fuel of peak days over all end_uses"""
+        """Summarise absolute fuel of peak days over all end_uses
+        """
         sum_enduse_peak_d = np.zeros((len(data['fuel_type_lu']), 1))  # Initialise
 
         for enduse in data['resid_enduses']:
@@ -215,7 +222,8 @@ class Region(object):
         return sum_enduse_peak_d
 
     def get_enduse_peak_h(self, data):
-        """Summarise peak value of all end_uses"""
+        """Summarise peak value of all end_uses
+        """
         sum_enduse_peak_h = np.zeros((len(data['fuel_type_lu']), 1, 24)) # Initialise
 
         for enduse in data['resid_enduses']:
@@ -224,7 +232,8 @@ class Region(object):
         return sum_enduse_peak_h
 
     def tot_all_enduses_h(self, data):
-        """Calculate total hourly fuel demand for each fueltype"""
+        """Calculate total hourly fuel demand for each fueltype
+        """
         sum_fuels_h = np.zeros((len(data['fuel_type_lu']), 365, 24)) # Initialise
 
         for enduse in data['resid_enduses']:
@@ -672,9 +681,10 @@ def residential_model_main_function(data, data_ext):
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into a Country class
-    resid_object = CountryResidentialModel(data['reg_lu'], data, data_ext)
+    resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext)
 
 
+    # ----------------------------
     # Attributes of whole country
     # ----------------------------
     fueltot = resid_object.tot_country_fuel # Total fuel of country
@@ -694,8 +704,8 @@ def residential_model_main_function(data, data_ext):
 
 
 
-class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is loaded from parent class
-    """Class of an end use category of the residential sector
+class EnduseResid(object):
+    """Class of an end use of the residential sector
 
     End use class for residential model. For every region, a different
     instance is generated.
@@ -703,7 +713,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
     Parameters
     ----------
     reg_name : int
-        The ID of the region. The actual region name is stored in `reg_lu`
+        The ID of the region. The actual region name is stored in `lu_reg`
     data : dict
         Dictionary containing data
     data_ext : dict
@@ -717,7 +727,6 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
     ----------
     Every enduse can only have on shape independently of the fueltype
 
-
     #TODO: The technology switch also needs to be done for peak!
     """
     def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock_by, tech_stock_cy, heat_diff_factor, cooling_diff_factor, hdd_by, cdd_by, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
@@ -726,7 +735,6 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
         self.enduse_fuel = enduse_fuel[enduse] # Regional base fuel data
         self.tech_stock_by = tech_stock_by
         self.tech_stock_cy = tech_stock_cy
-
         #print("--------------------" + str(self.enduse) + "   " + str(data_ext['glob_var']['curr_yr']))
 
 
@@ -757,7 +765,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
         self.techologies_cy_after_switch = self.read_techologies_cy_after_switch()
         #print("G: " + str(np.sum(self.techologies_cy_after_switch)))
 
-
+        #
         # TODO: CALCULATE FUEL SHARES OF HEATING TECHNOLOGY AND ASSING TO SPECIFIC CURVES
         # TODO: Calculate Shape for heating
         # fuel_shape_y_h_hdd_hp_cy,  --> fuel shape of hp
@@ -1039,7 +1047,10 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
 
             # Difference in percentages of total fuel for enduse in current year
             difference_in_fuel_p = fuel_p_diff * factor_sigm
-            fuel_p_cy = fuel_p_by[:, 1] + difference_in_fuel_p
+            fuel_p_cy = fuel_p_by[:, 1] + difference_in_fuel_p #TODO: NOT USED?
+
+            print("factor_sigm:             " + str(factor_sigm))
+            print("fuel_p_cy:               " + str(fuel_p_cy))
 
             # Calculate differences in percentage within fueltype
             diff_in_p_of_fuel = np.divide(1, fuel_p_by[:, 1]) * fuel_p_ey[:, 1] # np.divide because otherwise RuntimeWarning: divide by zero
@@ -1047,11 +1058,14 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
             diff_in_p_of_fuel[np.isnan(diff_in_p_of_fuel)] = 1 # replace NaN by 1
 
             factor_diff_in_p_of_fuel = diff_in_p_of_fuel - 1 # Make factor out of changes
-            #print("diff_in_p_of_fuel: " + str(factor_diff_in_p_of_fuel))
+            print("diff_in_p_of_fuel: " + str(factor_diff_in_p_of_fuel))
 
-            absolute_fuel_diff = self.enduse_fuel_eff_gains[:, 0] * factor_diff_in_p_of_fuel # Multiply fuel demands by percentage changes
-            #print("absolute_fuel_diff" + str(absolute_fuel_diff))
+            factor_diff_in_p_of_fuel_cy = factor_sigm * factor_diff_in_p_of_fuel
+            print("factor_diff_in_p_of_fuel_cy" + str(factor_diff_in_p_of_fuel_cy))
 
+            absolute_fuel_diff = self.enduse_fuel_eff_gains[:, 0] * factor_diff_in_p_of_fuel_cy # Multiply fuel demands by percentage changes
+            print("absolute_fuel_diff" + str(absolute_fuel_diff))
+            #prnt("..")
             for fuel_type, fuel_diff_abs in enumerate(absolute_fuel_diff):
                 if fuel_diff_abs != 0: # Only if there is a positive fuel difference
 
@@ -1118,8 +1132,8 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
 
             return self.enduse_fuel_smart_meter_eff_gains * factor_driver
 
-        else: # This fuel is not changed by building related scenario driver
-            #print("this enduse has not driver or is base year: " + str(self.enduse))
+        else:
+            #print("Enduse has not driver or is base year: " + str(self.enduse))
             return self.enduse_fuel_smart_meter_eff_gains
 
     #def get_enduse_y_to_h():
@@ -1188,7 +1202,7 @@ class EnduseResid(object): #OBJECT OR REGION? --> MAKE REGION IS e.g. data is lo
         """
         fuels_d_peak = np.zeros((len(self.enduse_fuel), 1))
 
-        # Iterate yearday and
+
         for k, fueltype_year_data in enumerate(self.enduse_fuelscen_driver):
             fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0]
 
@@ -1240,7 +1254,8 @@ class CountryResidentialModel(object):
     this class has as many attributes as regions (for evry rgion an attribute)
     """
     def __init__(self, reg_names, data, data_ext):
-        """Constructor of the class which holds all regions of a country"""
+        """Constructor of the class which holds all regions of a country
+        """
 
         # Create object for every region
         self.create_regions(reg_names, data, data_ext)
@@ -1248,13 +1263,17 @@ class CountryResidentialModel(object):
         # Functions to summarise data for all Regions in the CountryResidentialModel class
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse(data, reg_names)
-           
+
+
+
+
+
         # ----- Testing
         n = 0
         for i in self.tot_country_fuel_enduse_specific:
             n += self.tot_country_fuel_enduse_specific[i]
         #print("============================ddddddddddd= " + str(self.tot_country_fuel))
-        #print("===========================ddddddddddd== " + str(n))
+
         # TESTING
         test_sum = 0
         for enduse in self.tot_country_fuel_enduse_specific:

@@ -107,9 +107,9 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
     year_end : int
         The year a fuel_enduse_switch saturaes
     sig_midpoint : float
-        Mid point of sigmoid diffusion function
+        Mid point of sigmoid diffusion function (standard value: 0) 
     sig_steeppness : float
-        Steepness of sigmoid diffusion function
+        Steepness of sigmoid diffusion function (standard value: 1) 
 
     Returns
     -------
@@ -118,8 +118,6 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     Infos
     -------
-        sig_midpoint:    can be used to shift curve to the left or right (standard value: 0) 
-        sig_steeppness:    The steepness of the sigmoid curve (standard value: 1) 
     # INFOS
 
     # What also could be impleneted is a technology specific diffusion (parameters for diffusion)

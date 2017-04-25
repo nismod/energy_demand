@@ -36,8 +36,6 @@ Open questions
 - PEAK to ED
 - Other Enduses from external wrapper?
 
-# TODO: Write function to convert array to list and dump it into txt file / or yaml file (np.asarray(a.tolist()))
-
 # TODO: technologies: when on market? (diffusion-advanced )
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
@@ -56,7 +54,7 @@ import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
-import logging
+#import logging
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 # Sub modules
@@ -83,37 +81,32 @@ def energy_demand_model(data, data_ext):
         A nested dictionary containing all data for energy supply model with
         timesteps for every hour in a year.
         [fuel_type : region : timestep]
-
     """
-
-    # SCENARIO UNCERTAINTY
-    # TODO: Implement weather generator
-    # Change demand depending on climate variables
-    data = mf.wheater_generator(data)
-
 
     # -------------------------
     # Residential model
     # --------------------------
     resid_object_country = rm.residential_model_main_function(data, data_ext)
 
+    # Convert to dict for energy_supply_model
+    result_dict = mf.convert_out_format_es(data, data_ext, resid_object_country)
+
     # --------------------------
     # Service Model
     # --------------------------
+    #service_object_country = sm.service_model_main_function(data, data_ext)
 
     # --------------------------
     # Industry Model
     # --------------------------
+    #industry_object_country = im.service_model_main_function(data, data_ext)
 
     # --------------------------
     # Transportation Model
     # --------------------------
 
-    # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, data_ext, resid_object_country)
-
     # --- Write to csv and YAML
-    # mf.write_final_result(data, result_dict, data['reg_lu'], False)
+    # mf.write_final_result(data, result_dict, data['lu_reg'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
@@ -141,8 +134,8 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     by = 2015
-    ey = 2018 #always includes this year
-    sim_years =  range(by, ey + 1)
+    ey = 2020 #always includes this year
+    sim_years = range(by, ey + 1)
 
     pop_dummy = {}
     a = {'Wales': 3000000} #, 'Scotland': 5300000, 'BERN': 5300000}
@@ -213,10 +206,14 @@ if __name__ == "__main__":
 
 
     # Model calculations outside main function
+    # ----------------------------------------
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-    # Load and generate data
+    # Load and generate general data
     base_data = dl.load_data(path_main, data_external)
+
+    # Load weather data
+    base_data = mf.wheater_generator(base_data)
 
     # Load assumptions
     base_data = assumpt.load_assumptions(base_data, data_external)

@@ -2,6 +2,8 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 import numpy as np
 import energy_demand.main_functions as mf
+import energy_demand.assumptions as assumpt
+
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling
 
@@ -48,7 +50,7 @@ class Dwelling(object):
         #t_base_heating_cy = mf.t_base_sigm(data_ext['glob_var']['curr_yr'], data['assumptions'], data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
         #hdd_d = mf.calc_hdd(t_base_heating_cy, temperatures)
 
-        self.hlc = get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
+        self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
 
         # Generate attribute for each enduse containing calculated scenario driver value
         self.calc_scenario_driver()
@@ -111,37 +113,7 @@ def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_name, 
 
     return hdd
 
-def get_hlc(dw_type, age):
-    """Calculates the linearly derived hlc depending on age and dwelling type
 
-    Parameters
-    ----------
-    dw_type : int
-        Dwelling type
-    age : int
-        Age of dwelling
-
-    Returns
-    -------
-    hls : Heat loss coefficient [W/m2 * K]
-
-    Notes
-    -----
-    Source: Linear trends derived from Table 3.17 ECUK Tables
-    https://www.gov.uk/government/collections/energy-consumption-in-the-uk
-    """
-    # Dict with linear fits for all different dwelling types { dw_type: [slope, constant]}
-    linear_fits_hlc = {
-        0: [-0.0223, 48.292],       # Detached
-        1: [-0.0223, 48.251],       # Semi-Detached
-        2: [-0.0223, 48.063],       # Terraced Average
-        3: [-0.0223, 47.02],        # Flats
-        4: [-0.0223, 48.261],       # Bungalow
-        }
-
-    # Get linearly fitted value
-    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
-    return hlc
 
 class DwStockRegion(object):
     """Class of the building stock in a region"""

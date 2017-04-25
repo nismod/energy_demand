@@ -42,6 +42,7 @@ def load_assumptions(data, data_external):
     # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
 
+    # TODO: Get assumptions for heat loss coefficient
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
@@ -57,6 +58,13 @@ def load_assumptions(data, data_external):
         'base_yr': 21.0,
         'end_yr': 21.0
     }
+
+    # Penetration of cooling devices
+    # COLING_OENETRATION ()
+    # Or Assumkp Peneetration curve in relation to HDD from PAPER #RESIDENTIAL
+
+
+    # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
     # Dwelling stock related scenario driver assumptions
@@ -92,10 +100,24 @@ def load_assumptions(data, data_external):
     # ============================================================
     # Smart meter assumptions (Residential)
     # ============================================================
-    assumptions['smart_meter_p_by'] = 0.1 # Fraction of population with smart meters in base year
-    assumptions['smart_meter_p_ey'] = 0.1 # Fraction of population with smart meters in end year
-    assumptions['general_savings_smart_meter'] = 0.1 # Long term smart meter induced general savings (not shifting) TODO: LIT
-    assumptions['smart_meter_affected_enduses'] = ['cold', 'cooking', 'lighting', 'cold', 'wet', 'consumer_electronics', 'home_computing'] # Affected enduses of smart meter induced savings
+
+    # Fraction of population with smart meters
+    assumptions['smart_meter_p_by'] = 0.1
+    assumptions['smart_meter_p_ey'] = 0.1
+
+    # Long term smart meter induced general savings (not shifting) TODO: LIT
+    assumptions['general_savings_smart_meter'] = 0.1
+
+    # Affected enduses of smart meter induced savings
+    assumptions['smart_meter_affected_enduses'] = [
+        'cold',
+        'cooking',
+        'lighting',
+        'cold',
+        'wet',
+        'consumer_electronics',
+        'home_computing'
+        ]
 
     # ============================================================
     # Technologies and their efficiencies over time
@@ -193,7 +215,7 @@ def load_assumptions(data, data_external):
         'gas_boiler': 0.3,
         'elec_boiler': 0.5,
         'heat_pump_m': -0.1,
-        'heat_pump_b': 6.0
+        'heat_pump_b': 22.0
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
 
@@ -229,9 +251,35 @@ def load_assumptions(data, data_external):
 
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
-    # ---------------------------------------------------------------------------------------------------------------------
+    # --------------------- ------------------------------------------------------------------------------------------------
 
-    # --Installed current technology to be replaced
+    # TODO IMPORTANT: Implement that multiple switches are possibel for one fueltype
+    # e.g. 1. Switch 20% of elec of heating to tech X, 2. switch 30% of elec heating to tech XY
+    #simple_entry = ('heating', 1, gas_tech,)
+
+    # Input for a single switch
+    switch_list = []
+    switch_list.append(
+        {
+            'enduse': 'heating',
+            'fueltype': 1,
+            'tech_remove': 'gas_tech',  # 'average_mode', 'lowest_mode', 'average_all_except_to_be_replaced?
+            'tech_install': 'heat_pump',
+            'fuel_share': 0.5
+            }
+        )
+
+    switch_list.append( # Replacing 60% of electricity with fluorescent_strip_lightinging
+        {
+            'enduse': 'lighting',
+            'fueltype': 2,
+            'tech_remove': 'lowest_mode', # 'average_mode', 'lowest_mode',
+            'tech_install': 'fluorescent_strip_lightinging',
+            'fuel_share': 0.6
+            }
+        )
+
+    # Installed current technology to be replaced
     assumptions['tech_install'] = {
         'heating': 'heat_pump',
         'water_heating': 'tech_A'
@@ -265,8 +313,8 @@ def load_assumptions(data, data_external):
     assump_fuel_frac_ey = {
         'heating': {
             '0' : 0,
-            '1' : 0.3,
-            '2' : .4, # electricity replaced ( - 20%)
+            '1' : 0.0,
+            '2' : 0.0, # replaced ( - 20%)
             '3' : 0,
             '4' : 0,
             '5' : 0,
@@ -314,7 +362,14 @@ def load_assumptions(data, data_external):
 
     # Add technological split where known (only internally for each fuel enduse)
 
-    assumptions['tech_enduse_by']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
+    assumptions['tech_enduse_by']['lighting'][2] = {
+        'LED': 0.01,
+        'halogen_elec': 0.37,
+        'standard_lighting_bulb': 0.35,
+        'fluorescent_strip_lightinging': 0.09,
+        'energy_saving_lighting_bulb': 0.18
+        }
+
     #assumptions['tech_enduse_by']['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
     assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
@@ -409,7 +464,38 @@ def load_assumptions(data, data_external):
 
 
 
+def get_hlc(dw_type, age):
+    """Calculates the linearly derived hlc depending on age and dwelling type
 
+    Parameters
+    ----------
+    dw_type : int
+        Dwelling type
+    age : int
+        Age of dwelling
+
+    Returns
+    -------
+    hls : Heat loss coefficient [W/m2 * K]
+
+    Notes
+    -----
+    Source: Linear trends derived from Table 3.17 ECUK Tables
+    https://www.gov.uk/government/collections/energy-consumption-in-the-uk
+    """
+    # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
+    linear_fits_hlc = {
+        0: [-0.0223, 48.292],       # Detached
+        1: [-0.0223, 48.251],       # Semi-Detached
+        2: [-0.0223, 48.063],       # Terraced Average
+        3: [-0.0223, 47.02],        # Flats
+        4: [-0.0223, 48.261],       # Bungalow
+        }
+
+    # Get linearly fitted value
+    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
+
+    return hlc
 
 
 

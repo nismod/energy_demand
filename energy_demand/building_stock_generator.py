@@ -48,7 +48,7 @@ def resid_build_stock(data, assumptions, data_ext):
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
 
     # Iterate regions
-    for reg_name in data['reg_lu']:
+    for reg_name in data['lu_reg']:
         floorarea_by = data['reg_floorarea_resid'][reg_name]        # Read in floor area of base year
         pop_by = data_ext['population'][base_yr][reg_name]  # Read in population
         floorarea_pp_by = floorarea_by / pop_by             # Floor area per person [m2/person]

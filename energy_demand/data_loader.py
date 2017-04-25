@@ -29,14 +29,40 @@ def load_data(path_main, data_ext):
 
     """
     data = {} # Data container
-    data['path_main'] = path_main
 
+    # Fuel look-up table
+    data['lu_fueltype'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'bioenergy_waste':5,
+        'hydrogen': 6,
+        'future_fuel': 7
+    }
+
+    # -----------------------------
+    # Read in floor area of all regions and store in dict: TODO
+    # -----------------------------
+    #TODO: REGION LOOKUP: Generate region_lookup from input data (MAybe read in region_lookup from shape?)
+    data['lu_reg'] = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
+        data['lu_reg'][reg_name] = reg_name
+
+    #TODO: FLOOR_AREA_LOOKUP:
+    data['reg_floorarea_resid'] = {}
+    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
+        data['reg_floorarea_resid'][reg_name] = 100000
+
+    # Paths
     data['path_dict'] = {
+
         # Residential
         # -----------
         'path_main': path_main,
         'path_temp_txt': os.path.join(path_main, 'scenario_and_base_data/mean_temp_data'),
-        'path_pop_reg_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
+        'path_pop_lu_reg': os.path.join(path_main, 'scenario_and_base_data/lookup_nr_regions.csv'),
         'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
         'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
         'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
@@ -52,50 +78,24 @@ def load_data(path_main, data_ext):
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
         'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
-
         # Service
         # -------
         'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv'),
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
         }
 
-    #TODO: Read externally?
-    data['lu_fueltype'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'heat_sold': 4,
-        'bioenergy_waste':5,
-        'hydrogen': 6,
-        'future_fuel': 7
-    }
-
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------
-    # Load Daily load shapes of different technologies (heating reg, CHP) #TODO
+    '''# Load Daily load shapes of different technologies (heating reg, CHP) #TODO
     shape_d_HP = []
     shape_d_HP_ground = []
     data['technology_daily_shape_heating'] = {
         'shape_d_HP': shape_d_HP,
         'shape_d_HP_ground': shape_d_HP_ground,
         }
+    '''
 
-    # -----------------------------
-    # Read in floor area of all regions and store in dict: TODO
-    # -----------------------------
-    #TODO: REGION LOOKUP: Generate region_lookup from input data #TODO: how to store data? (MAybe read in region_lookup from shape?)
-    reg_lu_dict = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
-        reg_lu_dict[reg_name] = reg_name
-    data['reg_lu'] = reg_lu_dict
-
-    #TODO: FLOOR_AREA_LOOKUP:
-    reg_floor_area = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
-        reg_lu_dict[reg_name] = 100000
-    data['reg_floorarea_resid'] = reg_lu_dict
 
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
     data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])              # Dwelling types lookup table
