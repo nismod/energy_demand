@@ -245,6 +245,26 @@ def conversion_ktoe_gwh(data_ktoe):
     data_gwh = data_ktoe * 11.6300000
     return data_gwh
 
+def conversion_ktoe_TWh(data_ktoe):
+    """Conversion of ktoe to TWh
+
+    Parameters
+    ----------
+    data_ktoe : float
+        Energy demand in ktoe
+
+    Returns
+    -------
+    data_gwh : float
+        Energy demand in TWh
+
+    Notes
+    -----
+    https://www.iea.org/statistics/resources/unitconverter/
+    """
+    data_gwh = data_ktoe * 0.0116300000
+    return data_gwh
+
 def timesteps_full_year(base_yr):
     """A list is generated from the first hour of the base year to the last hour of teh base year
 
@@ -803,6 +823,30 @@ def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
     return t_base_cy
 
 
+def sigmoid_diffusion_saturation_year_invention_year(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness, saturation_yr, invention_yr):
+    """Saturation level needs to be defined
+    Always return 1 if saturated --> but satured may be any share of the technology or fuel enduse"""
+    # Year invention can't be before base year --> if technology existist, put invention year as model base year
+
+    if curr_yr < invention_yr or curr_yr == base_yr:
+        return 0 #Technology has not been invented, 0 penetration
+
+    if curr_yr >= saturation_yr: #Technology is saturated
+        return 1
+    else:
+        if curr_yr >= saturation_yr: # After saturation
+            #years_availalbe = saturation_yr - base_yr # Number of years --> saturation point - base year --> Saturation == 100*
+            return 1
+        else:
+            years_availalbe = curr_yr - invention_yr
+
+            y_trans = -6.0 + (12.0 / (saturation_yr - invention_yr)) * years_availalbe
+
+            # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
+            cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
+
+            return cy_p
+
 """ Functions for fuel_enduse_switch stock"""
 
 '''def eff_sy_lin(base_yr, curr_yr, year_end, assumptions, technology):
@@ -894,7 +938,7 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
 
     return fract_sy
 
-def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
+def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value
     (saturation is assumed at the endyear)
 
@@ -904,12 +948,12 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
         Base year of simulation period
     curr_yr : int
         The year of the current simulation
-    year_end : int
+    end_yr : int
         The year a fuel_enduse_switch saturaes
     sig_midpoint : float
-        Mid point of sigmoid diffusion function
+        Mid point of sigmoid diffusion function can be used to shift curve to the left or right (standard value: 0)
     sig_steeppness : float
-        Steepness of sigmoid diffusion function
+        Steepness of sigmoid diffusion function The steepness of the sigmoid curve (standard value: 1)
 
     Returns
     -------
@@ -918,24 +962,35 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness):
 
     Infos
     -------
-        sig_midpoint:    can be used to shift curve to the left or right (standard value: 0)
-        sig_steeppness:    The steepness of the sigmoid curve (standard value: 1)
+
+    It is always assuemed that for the simulation year the share is 
+    replaced with technologies having the efficencis of the current year. For technologies
+    which get replaced fast (e.g. lightbulb) this is corret assumption, for longer lsting
+    technologies, thie is more problematic (in this case, over every year would need to be iterated
+    and calculate share replaced with efficiency of technology in each year).
+
     # INFOS
 
     # What also could be impleneted is a technology specific diffusion (parameters for diffusion)
         year_invention : int
         The year where a fuel_enduse_switch gets on the market
+
+    # Always return positive value. Needs to be considered for changes in negative 
     """
-    # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
-    if year_end == base_yr:
-        y_trans = 6.0
+    if curr_yr == end_yr:
+        return 1 # 100 % diffusion
+
     else:
-        y_trans = -6.0 + (12.0 / (year_end - base_yr)) * (curr_yr - base_yr)
+        # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
+        if end_yr == base_yr:
+            y_trans = 6.0
+        else:
+            y_trans = -6.0 + (12.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
-    # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
-    cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
+        # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
+        cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
 
-    return cy_p
+        return cy_p
 
 def calc_cdd(t_base_cooling, temperatures):
     """Calculate cooling degree days 

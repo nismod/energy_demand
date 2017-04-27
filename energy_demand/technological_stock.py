@@ -28,23 +28,19 @@ class ResidTechStock(object):
         """Constructor of technologies for residential sector
         """
         self.temp_cy = temp_cy
-        self.sim_yrs = data_ext['glob_var']['sim_period']
-        self.assumptions = data['assumptions']
-        self.tech_lu = data['tech_lu']
-        self.fuel_types = data['fuel_type_lu']
 
         # Execute function to add all parameters of all technologies which define efficienes to technological stock
-        self.create_iteration_efficiency(data_ext)
+        self.create_iteration_efficiency(data, data_ext)
 
         # Add Heat pump to technological stock (two efficiency parameters) (Efficiency for every hour and not only one value over year)
-        self.create_hp_efficiency()
+        self.create_hp_efficiency(data)
 
         # Calculate share of technologies within each fueltype (e.g. fraction of households with each technology)
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
         self.tech_frac_ey = data['assumptions']['tech_enduse_ey'] #end year
-        self.tech_frac_cy = self.get_sigmoid_tech_diff(data_ext) #current year
+        self.tech_frac_cy = self.get_sigmoid_tech_diff(data, data_ext) #current year
 
-    def create_hp_efficiency(self):
+    def create_hp_efficiency(self, data):
         """Calculate efficiency of heat pumps
 
         Because the heat pump efficiency is different every hour depending on the temperature,
@@ -58,10 +54,15 @@ class ResidTechStock(object):
         ResidTechStock.__setattr__(
             self,
             'heat_pump',
-            mf.get_heatpump_eff(self.temp_cy, self.heat_pump_m[0][0], self.heat_pump_b[0][0], self.assumptions['t_base_heating']['base_yr'])
+            mf.get_heatpump_eff(
+                self.temp_cy,
+                self.heat_pump_m[0][0],
+                self.heat_pump_b[0][0],
+                data['assumptions']['t_base_heating']['base_yr']
+                )
         )
 
-    def create_iteration_efficiency(self, data_ext):
+    def create_iteration_efficiency(self, data, data_ext):
         """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)
 
         The efficiency of each technology is added as `self` attribute.
@@ -79,19 +80,21 @@ class ResidTechStock(object):
         Technology X is projected to have maximum potential efficiency increase
         from 0.5 to a 1.00 efficiency. If however, the acutal efficiency gain
         is only 50%, then after the simulation, an efficiency of 0.75 is reached
+
+        #TODO: Assumption of lineare efficiency improvement
         """
         # Take Efficiency assumptions and not technology list because some technologies have more than one efficiency assumption
-        technology_eff_assumptions = self.assumptions['eff_by']
+        technology_eff_assumptions = data['assumptions']['eff_by']
 
         for technology_param in technology_eff_assumptions:
-            eff_by = self.assumptions['eff_by'][technology_param]
-            eff_ey = self.assumptions['eff_ey'][technology_param]
+            eff_by = data['assumptions']['eff_by'][technology_param]
+            eff_ey = data['assumptions']['eff_ey'][technology_param]
 
             # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
-            theor_max_eff = tf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], eff_by, eff_ey, len(self.sim_yrs))
+            theor_max_eff = tf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], eff_by, eff_ey, len(data_ext['glob_var']['sim_period']))
 
             # Get assmuption how much of efficiency potential is reaped
-            achieved_eff = self.assumptions['eff_achieved'][technology_param]
+            achieved_eff = data['assumptions']['eff_achieved'][technology_param]
 
             # Actual efficiency potential #TODO: Check if minus or plus number...TODO
             if eff_by >= 0:
@@ -103,7 +106,7 @@ class ResidTechStock(object):
 
             ResidTechStock.__setattr__(self, technology_param, cy_eff)
 
-    def get_sigmoid_tech_diff(self, data_ext):
+    def get_sigmoid_tech_diff(self, data, data_ext):
         """Calculate change in fuel demand based on sigmoid diffusion of fraction of technologies for each enduse
 
         I. With help of assumptions on the fraction of technologies for each
@@ -131,23 +134,23 @@ class ResidTechStock(object):
         tech_frac_cy = {}
 
         # Sigmoid efficiency which is achieved up to cy (so far for all technologies)
-        sig_frac_tech_change = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], self.assumptions['sig_midpoint'], self.assumptions['sig_steeppness'])
+        sig_frac_tech_change = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         for enduse in self.tech_frac_by:
             tech_frac_cy[enduse] = {}
 
             # Convert to array and replace fuels with strings
-            by_enduse_array = mf.convert_to_tech_array(self.tech_frac_by[enduse], self.tech_lu)  # Base year fraction of technolgies for the enduse
-            ey_enduse_array = mf.convert_to_tech_array(self.tech_frac_ey[enduse], self.tech_lu)  # End year fraction of technolgies for the enduse
+            by_enduse_array = mf.convert_to_tech_array(self.tech_frac_by[enduse], data['tech_lu'])  # Base year fraction of technolgies for the enduse
+            ey_enduse_array = mf.convert_to_tech_array(self.tech_frac_ey[enduse], data['tech_lu'])  # End year fraction of technolgies for the enduse
 
             # If no technolgies are in this enduse
             if ey_enduse_array == []:
-                for fueltype in range(len(self.fuel_types)):
+                for fueltype in range(len(data['fuel_type_lu'])):
                     tech_frac_cy[enduse][fueltype] = {}
                 continue # Go to next enduse
 
             # iterate fuel type and the technologies
-            for fueltype in range(len(self.fuel_types)):
+            for fueltype in range(len(data['fuel_type_lu'])):
 
                 # No technologies are within this fuel type
                 if by_enduse_array[fueltype] == []:

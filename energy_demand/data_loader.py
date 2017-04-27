@@ -306,6 +306,8 @@ def generate_data(data):
 def create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses):
     """Create dictionary with all residential enduses and store in data dict
 
+    For residential model
+    
     Parameters
     ----------
     data : dict

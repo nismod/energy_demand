@@ -3,6 +3,21 @@ import numpy as np
 import copy
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+# 
+# Input: Share of fuel consumption to be replaced by EndYear
+# The share which needs to be replaced (e.g. 20%) shrinks because of gain in efficencies --> In every sy share is relevant
+# 
+# 1. Define technological composition in base year (technologies and fractions)
+#   - if not known, assumpe dummy technology with efficiency 1
+# 
+# 2. Calculate fuel change with constant technology mix but increase in efficiencies of these technologies
+#   - if dummy technology, no change is made
+#
+# 3. 
+
+# Eff: Iterate years: SUM_sy(efficiency of technology in year * share in year * fuel_share_20%_tech_eff_considered)
+# --> Or make assumption that share of replaced consumption is always replaced in every year with newest technology (problem for long-lasting technologies)
+#
 
 def load_assumptions(data, data_external):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
@@ -98,15 +113,32 @@ def load_assumptions(data, data_external):
     assumptions['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
     # ============================================================
+    # Assumptions about future technologies
+    # ============================================================
+    # # Fuel consumption per person
+    # # Inifital efficiency
+    # # Final efficiency
+    # # Market entry
+    # # Enduse
+    # # Saturation year
+    # # Penetration (linar/sigmoid)
+    # # Percentage of diffusion in population
+
+
+    # ============================================================
     # Smart meter assumptions (Residential)
+    # 
+    # DECC 2015: Smart Metering Early Learning Project: Synthesis report
+    # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
     # ============================================================
 
-    # Fraction of population with smart meters
+    # Fraction of population with smart meters #TODO: Make possibie to provide saturation year
     assumptions['smart_meter_p_by'] = 0.1
-    assumptions['smart_meter_p_ey'] = 0.1
+    assumptions['smart_meter_p_ey'] = 0.9
+    assumptions['smart_meter_saturation_year'] = 2020 # Year the penetration rated id to be achieved
 
-    # Long term smart meter induced general savings (not shifting) TODO: LIT
-    assumptions['general_savings_smart_meter'] = 0.1
+    # Long term smart meter induced general savings (not shifting)
+    assumptions['general_savings_smart_meter'] = 0.03 # Reasonable assumption is between 3 and 10 % (DECC 2015)
 
     # Affected enduses of smart meter induced savings
     assumptions['smart_meter_affected_enduses'] = [
@@ -122,12 +154,14 @@ def load_assumptions(data, data_external):
     # ============================================================
     # Technologies and their efficiencies over time
     # ============================================================
+    
+    # ---Residential
     assumptions['eff_achieved'] = {}
 
     # Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
     factor_efficiency_achieved = 1.0
 
-    # --Efficiencies (Base year)
+    # Efficiencies in base year
     assumptions['eff_by'] = {
         # -- heating boiler ECUK Table 3.19
         'back_boiler' : 0.01,
@@ -173,7 +207,7 @@ def load_assumptions(data, data_external):
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
 
-    # --Efficiencies (End year)
+    # --Efficiencies in end year
     assumptions['eff_ey'] = {
         # -- heating boiler ECUK Table 3.19
         'back_boiler' : 0.01,
@@ -191,7 +225,7 @@ def load_assumptions(data, data_external):
         'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
         'standard_lighting_bulb': 0.02,          # Found on wikipedia
         'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
+        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
         'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
 
         # -- cold
@@ -223,7 +257,7 @@ def load_assumptions(data, data_external):
     for i in assumptions['eff_ey']:
         assumptions['eff_achieved'][i] = factor_efficiency_achieved
 
-    # Define fueltype of each tech (Also used to define all Technologies)
+    # Define fueltype of each technology
     assumptions['tech_fueltype'] = {
         #Lighting
         'LED': data['lu_fueltype']['electricity'],
@@ -250,22 +284,52 @@ def load_assumptions(data, data_external):
         data['tech_lu'][tech] = tech_id
 
     # ---------------------------------------------------------------------------------------------------------------------
+    # General change in fuel consumption for specific enduses
+    #
+    # With these assumptions, general efficiency gain (across all fueltypes) can be defined
+    # for specific enduses. This may be e.g. due to general efficiency gains or anticipated increases in demand.
+    # ---------------------------------------------------------------------------------------------------------------------
+
+    # Change in fuel until the simulation end year ( if no change : 1, if e.g. 10% decrease change to 0.9)
+    assumptions['other_enduse_specific_change_ey'] = {
+        'heating': 1, #  Changes
+        'water_heating': 1,
+        'lighting': 1,
+        'cooking': 1,
+        'cold': 1,
+        'wet': 1,
+        'consumer_electronics': 1,
+        'home_computing': 1,
+    }
+
+    # Choice of diffusion
+    assumptions['other_enduse_mode_choice'] = 'linear' # sigmoid or linear
+
+    # Specifid diffusion information
+    assumptions['other_enduse_mode_info'] = {
+        'linear': 'possible_parameters_could_be_passed',
+        'sigmoid': {
+            'sig_midpoint': 0,
+            'sig_steeppness': 1
+            }}
+
+
+    # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # --------------------- ------------------------------------------------------------------------------------------------
+    switch_list = []
 
-    # TODO IMPORTANT: Implement that multiple switches are possibel for one fueltype
-    # e.g. 1. Switch 20% of elec of heating to tech X, 2. switch 30% of elec heating to tech XY
-    #simple_entry = ('heating', 1, gas_tech,)
+    # Modes to calculate efficiencies to be replaced
+    # 
 
     # Input for a single switch
-    switch_list = []
     switch_list.append(
         {
             'enduse': 'heating',
             'fueltype': 1,
             'tech_remove': 'gas_tech',  # 'average_mode', 'lowest_mode', 'average_all_except_to_be_replaced?
             'tech_install': 'heat_pump',
-            'fuel_share': 0.5
+            'fuel_share_till_ey': 0.5
             }
         )
 
@@ -275,7 +339,9 @@ def load_assumptions(data, data_external):
             'fueltype': 2,
             'tech_remove': 'lowest_mode', # 'average_mode', 'lowest_mode',
             'tech_install': 'fluorescent_strip_lightinging',
-            'fuel_share': 0.6
+            'fuel_share_ey': 0.6
+            #'state_2010':
+            #'state_2030':
             }
         )
 
@@ -345,32 +411,36 @@ def load_assumptions(data, data_external):
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     #print(assumptions['fuel_type_p_ey']['lighting'])
 
+
+
     # ----------------------------------
-    # Which technologies are used for which end_use and to which share
+    # Technology Stock Definition
+    #
+    # Provide the share of total end-use fuel by technology within fueltype
     # ---------------------------------
-    # Only shares within each fueltype !!!!
-
-    # Create technoogy empties for all enduses
     assumptions['tech_enduse_by'] = {}
-    fuel_data = data['fuel_raw_data_resid_enduses']
-
-    for enduse in fuel_data: #TODFO ITERATE ENDUSE NOT UFEL DATA
+    # Iterate enduses
+    for enduse in data['resid_enduses']:
         assumptions['tech_enduse_by'][enduse] = {}
-
         for fueltype in range(len(data['fuel_type_lu'])):
             assumptions['tech_enduse_by'][enduse][fueltype] = {}
+        
 
-    # Add technological split where known (only internally for each fuel enduse)
 
-    assumptions['tech_enduse_by']['lighting'][2] = {
+    # -- Lighting, Residential (enduse_fuel_split) Base Year
+    assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {
         'LED': 0.01,
         'halogen_elec': 0.37,
         'standard_lighting_bulb': 0.35,
         'fluorescent_strip_lightinging': 0.09,
         'energy_saving_lighting_bulb': 0.18
         }
+    
+    # Technology assumptions ()
+    # Share of total fuel of one technology (e.g. standard_lighting_bulb)
 
-    #assumptions['tech_enduse_by']['water_heating'][2] = {'back_boiler': 0.9, 'condensing_boiler': 0.1}
+
+    #assumptions['tech_enduse_by']['heating'][1] = {'back_boiler': 1.0, 'heat_pump': 0.0}
     assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
@@ -380,6 +450,11 @@ def load_assumptions(data, data_external):
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
 
     assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
+
+
+
+
+
 
 
 
@@ -463,6 +538,8 @@ def load_assumptions(data, data_external):
 
 
 
+#TODO: Make that HLC can be improved
+# Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type

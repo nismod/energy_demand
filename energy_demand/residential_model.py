@@ -6,7 +6,7 @@ import matplotlib as mpl
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
-import logging
+#import logging
 import copy
 from datetime import date
 
@@ -188,6 +188,11 @@ class Region(object):
             sum_fuels += self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver') # Fuel of Enduse
 
         return sum_fuels
+    
+    def get_fuels_enduse_requested(self, enduse):
+        """ TEST: READ ENDSE SPECIFID FROM"""
+        fuels = self.__getattr__subclass__(enduse, 'enduse_fuelscen_driver')
+        return fuels
 
     def enduse_specific_y(self, data):
         """Sum fuels for every fuel type for each enduse
@@ -683,6 +688,9 @@ def residential_model_main_function(data, data_ext):
     # Add all region instances as an attribute (region name) into a Country class
     resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext)
 
+    print("READ OUT SPECIFIC ENDUSE FOR A REGION")
+    #print(resid_object.get_specific_enduse_region('Wales', 'heating'))
+
 
     # ----------------------------
     # Attributes of whole country
@@ -741,6 +749,9 @@ class EnduseResid(object):
         # --Yearly fuel data (Check if always function below takes result from function above)
         self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
         #print("A: " + str(np.sum(self.enduse_fuel_after_weater_correction)))
+
+        # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
+        self.enduse_fuel_specific_overall_cousmpt_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
 
         # General efficiency gains of technology over time and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
         self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext)
@@ -814,6 +825,44 @@ class EnduseResid(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
+
+    def enduse_specifid_consumption_change(self, data_ext, assumptions):
+        """Calculate enduse_specific consumption change for every enduse (across all fueltypes)
+
+        This function calculates general changs in overall consumption changes for an enduse
+
+        """
+
+        # Percent in end year
+        percent_ey = assumptions['other_enduse_specific_change_ey'][self.enduse]
+        percent_by = 1.0 #: always 100 % per definition
+
+        # Get change in enduse fuel consumption
+        change_enduse_fuel_consumption = percent_ey - percent_by
+
+        if change_enduse_fuel_consumption == 0:# No change
+            return self.enduse_fuel_after_weater_correction
+        else:
+            new_fuels = np.zeros((self.enduse_fuel_after_weater_correction.shape[0], 1)) #fueltypes, days, hours
+
+            if assumptions['other_enduse_mode_choice'] == 'linear':
+                #infos = assumptions['other_enduse_mode_info']['linear']
+                # Lineare diffusion up to cy
+                change_cy = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], percent_by, percent_ey, len(data_ext['glob_var']['sim_period']))
+                
+            if assumptions['other_enduse_mode_choice'] == 'sigmoid':
+                sig_midpoint = assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint']
+                sig_steeppness = assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
+
+                # Sigmoid diffusion up to cy
+                sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], sig_midpoint, sig_steeppness)
+                change_cy = change_enduse_fuel_consumption * sig_diff_factor
+
+            # Calculate new fuel demand
+            for fueltype, fuel in enumerate(self.enduse_fuel_after_weater_correction):
+                new_fuels[fueltype] = fuel * (1 + change_cy)
+
+            return new_fuels
 
     def weather_correction_hdd_cdd(self, cooling_diff_factor, heat_diff_factor):
         """Change fuel demand for heat and cooling service depending on
@@ -921,14 +970,14 @@ class EnduseResid(object):
         # Will maybe be on household level
         """
         if data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']:
-            out_dict = np.zeros((self.enduse_fuel_after_weater_correction.shape[0], 1))
+            out_dict = np.zeros((self.enduse_fuel_specific_overall_cousmpt_change.shape[0], 1))
 
             # Get technologies and share of technologies for each fueltype and enduse
             tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
             tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
 
             # Iterate fuels
-            for fueltype, fueldata in enumerate(self.enduse_fuel_after_weater_correction):
+            for fueltype, fueldata in enumerate(self.enduse_fuel_specific_overall_cousmpt_change):
 
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
@@ -953,7 +1002,7 @@ class EnduseResid(object):
 
             return out_dict
         else:
-            return self.enduse_fuel_after_weater_correction
+            return self.enduse_fuel_specific_overall_cousmpt_change
 
     def smart_meter_eff_gain(self, data_ext, assumptions):
         """Calculate fuel savings depending on smart meter penetration
@@ -978,7 +1027,9 @@ class EnduseResid(object):
         if self.enduse in assumptions['smart_meter_affected_enduses']:
             new_fuels = np.zeros((self.enduse_fuel_after_elasticity.shape[0], 1)) #fueltypes, fuel
 
+            # Sigmoid diffusion till end year
             sigm_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['sig_midpoint'], assumptions['sig_steeppness'])
+
 
             # Smart Meter diffusion (diffusion_cy * difference in diffusion)
             diffusion_cy = sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by'])
@@ -1023,7 +1074,7 @@ class EnduseResid(object):
         fuel_p_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # Fuel percentages of current year (leave away fuel ids)
 
         # Check if there is a change in fuel use
-        if np.array_equal(fuel_p_by, fuel_p_ey) or data_ext['glob_var']['curr_yr']== data_ext['glob_var']['base_yr']:
+        if np.array_equal(fuel_p_by, fuel_p_ey) or data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']:
             return self.enduse_fuel_eff_gains # no fuel switches
         else:
             fuel_switch_array = copy.deepcopy(self.enduse_fuel_eff_gains) # copy fuels
@@ -1264,8 +1315,8 @@ class CountryResidentialModel(object):
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse(data, reg_names)
 
-
-
+        # TESTER: READ OUT Specific ENDUSE for a REGION
+        print("AA: " + str(self.get_specific_enduse_region('Wales', 'heating')))
 
 
         # ----- Testing
@@ -1294,6 +1345,11 @@ class CountryResidentialModel(object):
                 str(reg_name), # Region identifiyer is converted into a string
                 Region(reg_name, data, data_ext) #: Create a Region
                 )
+    
+    def get_specific_enduse_region(self, spec_region, spec_enduse):
+        _a = getattr(self, spec_region)
+        enduse_fuels = _a.get_fuels_enduse_requested(spec_enduse)
+        return enduse_fuels
 
     def get_overall_sum(self, reg_names):
         """Collect hourly data from all regions and sum across all fuel types and enduses

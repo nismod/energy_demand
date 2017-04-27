@@ -57,7 +57,7 @@ import numpy as np
 #import logging
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
-# Sub modules
+# Import sub modules
 import energy_demand.residential_model as rm
 import energy_demand.service_model as sm
 import energy_demand.industry_model as im
