@@ -829,18 +829,13 @@ class EnduseResid(object):
     def enduse_specifid_consumption_change(self, data_ext, assumptions):
         """Calculate enduse_specific consumption change for every enduse (across all fueltypes)
 
-        This function calculates general changs in overall consumption changes for an enduse
-
+        This function calculates general changs in overall consumption changes for an enduse across all fueltypes
         """
+        percent_ey = assumptions['other_enduse_specific_change_ey'][self.enduse] # Percent of fuel consumption in end year
+        percent_by = 1.0 # Percent of fuel consumption in base year (always 100 % per definition)
+        diff_fuel_consump = percent_ey - percent_by # Get change in enduse fuel consumption
 
-        # Percent in end year
-        percent_ey = assumptions['other_enduse_specific_change_ey'][self.enduse]
-        percent_by = 1.0 #: always 100 % per definition
-
-        # Get change in enduse fuel consumption
-        change_enduse_fuel_consumption = percent_ey - percent_by
-
-        if change_enduse_fuel_consumption == 0:# No change
+        if diff_fuel_consump == 0:# No change
             return self.enduse_fuel_after_weater_correction
         else:
             new_fuels = np.zeros((self.enduse_fuel_after_weater_correction.shape[0], 1)) #fueltypes, days, hours
@@ -849,16 +844,15 @@ class EnduseResid(object):
                 #infos = assumptions['other_enduse_mode_info']['linear']
                 # Lineare diffusion up to cy
                 change_cy = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], percent_by, percent_ey, len(data_ext['glob_var']['sim_period']))
-                
+
             if assumptions['other_enduse_mode_choice'] == 'sigmoid':
-                sig_midpoint = assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint']
-                sig_steeppness = assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
 
                 # Sigmoid diffusion up to cy
-                sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], sig_midpoint, sig_steeppness)
-                change_cy = change_enduse_fuel_consumption * sig_diff_factor
+                sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
-            # Calculate new fuel demand
+                change_cy = diff_fuel_consump * sig_diff_factor
+
+            # Calculate new fuel consumption percentage
             for fueltype, fuel in enumerate(self.enduse_fuel_after_weater_correction):
                 new_fuels[fueltype] = fuel * (1 + change_cy)
 
@@ -1024,21 +1018,24 @@ class EnduseResid(object):
         new_fuels : array
             Fuels which are adapted according to smart meter penetration
         """
-        if self.enduse in assumptions['smart_meter_affected_enduses']:
+        if self.enduse in assumptions['general_savings_smart_meter']:
             new_fuels = np.zeros((self.enduse_fuel_after_elasticity.shape[0], 1)) #fueltypes, fuel
 
-            # Sigmoid diffusion till end year
+            # Sigmoid diffusion up to current year
             sigm_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
-
-            # Smart Meter diffusion (diffusion_cy * difference in diffusion)
-            diffusion_cy = sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by'])
-
-            # Calculate saving potential
-            saving_potential_factor = 1 - (diffusion_cy * assumptions['general_savings_smart_meter'])
+            # Smart Meter penetration (percentage of people having smart meters)
+            penetration_cy = assumptions['smart_meter_p_by'] + (sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
 
             for fueltype, fuel in enumerate(self.enduse_fuel_after_elasticity):
-                new_fuels[fueltype] = fuel * saving_potential_factor
+
+                # Saved fuel
+                saved_fuel = fuel * penetration_cy * assumptions['general_savings_smart_meter'][self.enduse]
+                print("saved fuel----------------" + str(np.sum(saved_fuel)))
+
+                # New fuel
+                new_fuels[fueltype] = fuel - saved_fuel
+
             return new_fuels
         else:
             return self.enduse_fuel_after_elasticity

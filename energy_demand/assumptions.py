@@ -29,19 +29,17 @@ def load_assumptions(data, data_external):
 
     Notes
     -----
-
-    #TODO: Implement mock_tech for all sectors where not definied with eff of 1
-        #TODO: SCNEARIO TELLING STORY WITH TIMES??
-
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
     """
     assumptions = {}
 
     # ============================================================
-    # Technology diffusion assumptions
+    # Technology diffusion assumptions (same parameters are used for all the cases where a sigmoid diffusion is assumed)
     # ============================================================
     assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
     assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
+
+
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -73,6 +71,8 @@ def load_assumptions(data, data_external):
         'base_yr': 21.0,
         'end_yr': 21.0
     }
+
+    # TODO: Climate scneario data (mutage temperature data from this)
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -125,80 +125,78 @@ def load_assumptions(data, data_external):
     # # Percentage of diffusion in population
 
 
+
+
     # ============================================================
     # Smart meter assumptions (Residential)
-    # 
+    #
     # DECC 2015: Smart Metering Early Learning Project: Synthesis report
     # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
+    # Reasonable assumption is between 3 and 10 % (DECC 2015)
     # ============================================================
 
     # Fraction of population with smart meters #TODO: Make possibie to provide saturation year
-    assumptions['smart_meter_p_by'] = 0.1
-    assumptions['smart_meter_p_ey'] = 0.9
-    assumptions['smart_meter_saturation_year'] = 2020 # Year the penetration rated id to be achieved
+    assumptions['smart_meter_p_by'] = 0.9
+    assumptions['smart_meter_p_ey'] = 1.0
+    #assumptions['smart_meter_saturation_year'] = 2020 # TODO: Year the penetration rated id to be achieved
 
-    # Long term smart meter induced general savings (not shifting)
-    assumptions['general_savings_smart_meter'] = 0.03 # Reasonable assumption is between 3 and 10 % (DECC 2015)
-
-    # Affected enduses of smart meter induced savings
-    assumptions['smart_meter_affected_enduses'] = [
-        'cold',
-        'cooking',
-        'lighting',
-        'cold',
-        'wet',
-        'consumer_electronics',
-        'home_computing'
-        ]
+    # Long term smart meter induced general savings (purley as a result of having a smart meter)
+    assumptions['general_savings_smart_meter'] = {
+        'cold': 0.03,
+        'cooking': 0.03,
+        'lighting': 0.03,
+        'wet': 0.03,
+        'consumer_electronics': 0.03,
+        'home_computing': 0.03,
+        'heating':0.03
+    }
 
     # ============================================================
     # Technologies and their efficiencies over time
     # ============================================================
-    
-    # ---Residential
-    assumptions['eff_achieved'] = {}
 
-    # Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
-    factor_efficiency_achieved = 1.0
+    assumptions['heat_pump_slope_assumption'] = -.08
+
+    assumptions['technologies'] = {
+        'heat_pump': {
+            'eff_by': 5.5, # At a temp diff of 20
+            'eff_ey': 8,
+            'eff_achieved': 0.5,
+            'saturation_yr': 2050,
+            'diff_method': 'sigmoid', # sigmoid
+            'diff_param': {
+                'linear': 'possible_parameters_could_be_passed',
+                'sigmoid': {
+                    'sig_midpoint': 0,
+                    'sig_steeppness': 1
+                    }}
+
+            },
+        'back_boiler': {
+            'eff_by': 0.7, # At a temp diff of 20
+            'eff_ey': 0.9,
+            'eff_achieved': 1.0,
+            'saturation_yr': 2050,
+            'diff_method': 'linear', # sigmoid
+            'diff_param': {
+                'linear': 'possible_parameters_could_be_passed',
+                'sigmoid': {
+                    'sig_midpoint': 0,
+                    'sig_steeppness': 1
+                    }}
+
+            }
+
+    }
 
     # Efficiencies in base year
     assumptions['eff_by'] = {
-        # -- heating boiler ECUK Table 3.19
         'back_boiler' : 0.01,
-        #'combination_boiler' : 0.0,
-        'condensing_boiler' : 0.5,
-        #'condensing_combination_boiler' : 0.0,
-
-        # -- cooking
-        #'new_tech_A': 0.75,
-        #'tech_A' : 0.5,
-        #'tech_B' : 0.9,
-        #'tech_C': 0.0,
-
-        # -- lighting
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
+        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gain to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
         'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
+        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
         'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
         'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-
-        # -- cold
-
-        # -- wet
-        #'boiler_gas': 0.5,
-        #'boiler_oil': 0.5,
-        #'boiler_condensing': 0.5,
-        #'boiler_biomass': 0.5,
-
-        # -- consumer electronics
-        #'ASHP': 0.5,
-        #'HP_ground_source': 0.5,
-        #'HP_air_source': 0.5,
-        #'HP_gas': 0.5,
-
-        # -- home_computing
-        #'micro_CHP_elec': 0.5,
-        #'micro_CHP_thermal': 0.5,
 
         'gas_boiler': 0.3,
         'elec_boiler': 0.5,
@@ -209,57 +207,37 @@ def load_assumptions(data, data_external):
 
     # --Efficiencies in end year
     assumptions['eff_ey'] = {
-        # -- heating boiler ECUK Table 3.19
         'back_boiler' : 0.01,
-        #'combination_boiler' : 0.0,
         'condensing_boiler' : 0.5,
-        #'condensing_combination_boiler' : 0.0,
 
-        # -- cooking
-        #'new_tech_A': 0.75,
-        #'tech_A' : 0.5,
-        #'tech_B' : 0.9,
-        #'tech_C': 0.0,
-
-        # -- lighting
         'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
         'standard_lighting_bulb': 0.02,          # Found on wikipedia
         'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
         'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
         'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
 
-        # -- cold
-
-        # -- wet
-        #'boiler_gas': 0.5,
-        #'boiler_oil': 0.5,
-        #'boiler_condensing': 0.5,
-        #'boiler_biomass': 0.5,
-
-        # -- consumer electronics
-        #'ASHP': 0.5,
-        #'HP_ground_source': 0.5,
-        #'HP_air_source': 0.5,
-        #'HP_gas': 0.5,
-
-        # -- home_computing
-        #'micro_CHP_elec': 0.5,
-        #'micro_CHP_thermal': 0.5,
-
         'gas_boiler': 0.3,
         'elec_boiler': 0.5,
-        'heat_pump_m': -0.1,
+        'heat_pump_m': -0.1, # TODO Derive heat pump curve from lit
         'heat_pump_b': 22.0
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
 
-    # --Helper function
+
+    # --Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
+    factor_efficiency_achieved = 1.0
+
+    assumptions['eff_achieved_resid'] = {}
     for i in assumptions['eff_ey']:
-        assumptions['eff_achieved'][i] = factor_efficiency_achieved
+        assumptions['eff_achieved_resid'][i] = factor_efficiency_achieved
 
     # Define fueltype of each technology
     assumptions['tech_fueltype'] = {
         #Lighting
+        'heat_pump': data['lu_fueltype']['electricity'],
+        'back_boiler' : data['lu_fueltype']['electricity']
+    }
+    '''
         'LED': data['lu_fueltype']['electricity'],
         'halogen_elec': data['lu_fueltype']['electricity'],
         'standard_lighting_bulb': data['lu_fueltype']['electricity'],
@@ -270,29 +248,32 @@ def load_assumptions(data, data_external):
         #test
         'tech_A' : data['lu_fueltype']['gas'],
         'tech_B' : data['lu_fueltype']['gas'],
-        'back_boiler' : data['lu_fueltype']['electricity'],
+        
         'condensing_boiler' : data['lu_fueltype']['electricity'],
 
         'gas_boiler': data['lu_fueltype']['gas'],
-        'elec_boiler': data['lu_fueltype']['electricity'],
-        'heat_pump': data['lu_fueltype']['electricity']
+        'elec_boiler': data['lu_fueltype']['electricity']
     }
+    '''
 
     # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
     data['tech_lu'] = {}
     for tech_id, tech in enumerate(assumptions['tech_fueltype'], 1000):
         data['tech_lu'][tech] = tech_id
 
+
+
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
     #
     # With these assumptions, general efficiency gain (across all fueltypes) can be defined
     # for specific enduses. This may be e.g. due to general efficiency gains or anticipated increases in demand.
+    # NTH: Specific hanges per fueltype (not across al fueltesp)
     # ---------------------------------------------------------------------------------------------------------------------
 
     # Change in fuel until the simulation end year ( if no change : 1, if e.g. 10% decrease change to 0.9)
     assumptions['other_enduse_specific_change_ey'] = {
-        'heating': 1, #  Changes
+        'heating': 1,
         'water_heating': 1,
         'lighting': 1,
         'cooking': 1,
@@ -313,14 +294,12 @@ def load_assumptions(data, data_external):
             'sig_steeppness': 1
             }}
 
-
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # --------------------- ------------------------------------------------------------------------------------------------
     switch_list = []
 
     # Modes to calculate efficiencies to be replaced
-    # 
 
     # Input for a single switch
     switch_list.append(
@@ -428,28 +407,29 @@ def load_assumptions(data, data_external):
 
 
     # -- Lighting, Residential (enduse_fuel_split) Base Year
-    assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {
+    '''assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {
         'LED': 0.01,
         'halogen_elec': 0.37,
         'standard_lighting_bulb': 0.35,
         'fluorescent_strip_lightinging': 0.09,
         'energy_saving_lighting_bulb': 0.18
         }
-    
+    '''
     # Technology assumptions ()
     # Share of total fuel of one technology (e.g. standard_lighting_bulb)
 
 
     #assumptions['tech_enduse_by']['heating'][1] = {'back_boiler': 1.0, 'heat_pump': 0.0}
+    assumptions['tech_enduse_by']['heating'][1] = {'heat_pump': 1.0}
     assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
 
-    assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
+    #assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
 
-    assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
+    #assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
 
 
 
@@ -652,3 +632,49 @@ def generate_shape_HP():
     @ Use same for electric heatiing
     """
     pass
+
+
+'''
+
+    assumptions['eff_ey'] = {
+        # -- heating boiler ECUK Table 3.19
+        'back_boiler' : 0.01,
+        #'combination_boiler' : 0.0,
+        'condensing_boiler' : 0.5,
+        #'condensing_combination_boiler' : 0.0,
+
+
+
+        # -- lighting
+        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
+        'standard_lighting_bulb': 0.02,          # Found on wikipedia
+        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
+        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
+        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
+
+        # -- cold
+
+        # -- wet
+        #'boiler_gas': 0.5,
+        #'boiler_oil': 0.5,
+        #'boiler_condensing': 0.5,
+        #'boiler_biomass': 0.5,
+
+        # -- consumer electronics
+        #'ASHP': 0.5,
+        #'HP_ground_source': 0.5,
+        #'HP_air_source': 0.5,
+        #'HP_gas': 0.5,
+
+        # -- home_computing
+        #'micro_CHP_elec': 0.5,
+        #'micro_CHP_thermal': 0.5,
+
+        'gas_boiler': 0.3,
+        'elec_boiler': 0.5,
+        'heat_pump_m': -0.1,
+        'heat_pump_b': 22.0
+        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
+        }
+
+'''
