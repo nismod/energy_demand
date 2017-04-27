@@ -932,7 +932,7 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
         The fraction of the fuel_enduse_switch in the simulation year
     """
     if curr_yr == base_yr or sim_years == 0:
-        fract_sy = eff_by
+        fract_sy = 0 #return zero
     else:
         fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
 
@@ -977,9 +977,11 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
 
     # Always return positive value. Needs to be considered for changes in negative 
     """
+    if curr_yr == base_yr:
+        return 0
+
     if curr_yr == end_yr:
         return 1 # 100 % diffusion
-
     else:
         # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
         if end_yr == base_yr:

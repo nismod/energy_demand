@@ -37,8 +37,16 @@ class Region(object):
         #get_peak_temp() #TODO: Get peak day gemperatures (day with hottest temperature and day with coolest temperature)
 
         # Create region specific technological stock
-        self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by)
-        self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy)
+        self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
+        self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
+
+        #print("OKO=====================" + str(self.tech_stock_by.__dict__))
+
+        #print("OK: " + str(getattr(self.tech_stock_cy, 'heat_pump')))
+        #print("OKO=====================" + str(self.tech_stock_cy['heat_pump'].eff_cy))
+
+
+
 
         # Calculate HDD and CDD scenario driver for heating and cooling
         self.hdd_by = self.get_heating_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
@@ -74,7 +82,7 @@ class Region(object):
         plt.show()
         '''
 
-        # Set attributs of all enduses
+        # Set attributs of all enduses to the Region Class
         self.create_enduses(data, data_ext)
 
 
@@ -476,7 +484,13 @@ class Region(object):
         for day, heat_d in enumerate(hdd_cy):
             d_factor = 0
             for hour, heat_share_h in enumerate(heat_d):
-                d_factor += heat_share_h / getattr(technological_stock, 'heat_pump')[day][hour] # Hourly heat demand / heat pump efficiency
+
+                # CIRECTPAOORACH efficiency from fuel stoc ktech
+                tech_object = getattr(technological_stock, 'heat_pump')
+
+                #d_factor += heat_share_h / getattr(technological_stock, 'heat_pump')[day][hour] # Hourly heat demand / heat pump efficiency
+                d_factor += heat_share_h / getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand / heat pump efficiency
+
             hp_heat_factor[day][0] = np.sum(heat_share_h) / d_factor # New percentage of day
         hdd_cy_hp = hdd_cy * hp_heat_factor
 
@@ -741,10 +755,12 @@ class EnduseResid(object):
         self.reg_name = reg_name
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel[enduse] # Regional base fuel data
-        self.tech_stock_by = tech_stock_by
-        self.tech_stock_cy = tech_stock_cy
+        #self.tech_stock_by = tech_stock_by
+        #self.tech_stock_cy = tech_stock_cy
         #print("--------------------" + str(self.enduse) + "   " + str(data_ext['glob_var']['curr_yr']))
 
+        # 3 NEW: Add technology mix of enduse here (and not in technology stock)
+        #self.tech_frac_cy = self.get_sigmoid_tech_diff(data, data_ext) #current year
 
         # --Yearly fuel data (Check if always function below takes result from function above)
         self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
@@ -753,12 +769,12 @@ class EnduseResid(object):
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
         self.enduse_fuel_specific_overall_cousmpt_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
 
-        # General efficiency gains of technology over time and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
-        self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext)
+        # General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
+        self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext, data['assumptions']['tech_enduse_by'], tech_stock_by, tech_stock_cy)
         #print("B: " + str(np.sum(self.enduse_fuel_eff_gains)))
 
         # Calculate fuel switches
-        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy)
+        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy, tech_stock_cy)
         #print("C: " + str(np.sum(self.enduse_fuel_after_switch)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
@@ -935,7 +951,7 @@ class EnduseResid(object):
             #logging.info("--")
             #logging.exception('I .Raised error in enduse_elasticity. Check if for every provided enduse an elasticity is provided')
 
-    def enduse_eff_gains(self, data_ext):
+    def enduse_eff_gains(self, data_ext, tech_frac_by, tech_stock_by, tech_stock_cy):
         """Adapts yearly fuel demand depending on technology mix within each fueltype (e.g. boiler_elcA to boiler_elecB)
 
         This function implements technology switch within each enduse
@@ -966,30 +982,59 @@ class EnduseResid(object):
         if data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']:
             out_dict = np.zeros((self.enduse_fuel_specific_overall_cousmpt_change.shape[0], 1))
 
+            
+            #ALTERNATIVE: ITERATE ALL EFFICIENCY ASSUMPTIONS OF ENDUSE AND FUELTYPE
+            # E.g. replace share of energy consuption of lighting bulb with  (todays fuel consumption share == 100%)
+            # 1. Get share of base year of this technology and fuel --> Calculate
+            
+            #return out_dict
+            
+            
+            
+            
+            
+            
             # Get technologies and share of technologies for each fueltype and enduse
-            tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
-            tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
+            ##tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
+            ##tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
+            tech_frac_by = tech_frac_by
+
+            # Assume no change in compostion of technologies
+            tech_frac_cy = tech_frac_by # self.get_sigmoid_tech_diff(data, data_ext) #current year
 
             # Iterate fuels
             for fueltype, fueldata in enumerate(self.enduse_fuel_specific_overall_cousmpt_change):
 
+                
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
                 for technology in tech_frac_by[self.enduse][fueltype]:
 
+                    # DIRECTAPROACH efficiency from fuel stoc ktech
+                    tech_object_by= getattr(tech_stock_by, technology)
+
                     # Overall efficiency: Share of technology * efficiency of base year technology
-                    overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)) #Only within FUELTYPE
+                    #overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)) #Only within FUELTYPE
+                    overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(tech_object_by, 'eff_cy')) #Only within FUELTYPE
 
                 # Iterate technologies and average efficiencies relative to distribution for current year
                 overall_eff_cy = 0
                 for technology in tech_frac_cy[self.enduse][fueltype]:
 
+                    # DIRECTAPROACH efficiency from fuel stoc ktech
+                    tech_object_cy= getattr(tech_stock_cy, technology)
+
                     # Overall efficiency: Share of technology * efficiency of base year technology
-                    overall_eff_cy += np.sum(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology))
+                    #overall_eff_cy += np.sum(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology))
+                    overall_eff_cy += np.sum(tech_frac_cy[self.enduse][fueltype][technology] * getattr(tech_object_cy, 'eff_cy'))
 
                 # Calc new demand considering efficiency change
                 if overall_eff_cy != 0: # Do not copy any values
-                    #print("EFFICIENCY GAINS: " + str(self.enduse) + "  " + str(fueldata * (overall_eff_by / overall_eff_cy)))
+                    print("yy:  " + str(technology) + str("  ") + str(data_ext['glob_var']['curr_yr']))
+
+                    print("by: " + str(getattr(tech_object_by, 'eff_cy')[0][0]))
+                    print("cy: " + str(getattr(tech_object_cy, 'eff_cy')[0][0]))
+                    print("EFFICIENCY GAINS: " + str(self.enduse) + "  " + str((overall_eff_by / overall_eff_cy)))
                     out_dict[fueltype] = fueldata * (overall_eff_by / overall_eff_cy) # FROZEN old tech eff / new tech eff
                 else:
                     out_dict[fueltype] = fueldata
@@ -1025,13 +1070,14 @@ class EnduseResid(object):
             sigm_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
             # Smart Meter penetration (percentage of people having smart meters)
+            penetration_by = assumptions['smart_meter_p_by']
             penetration_cy = assumptions['smart_meter_p_by'] + (sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
 
             for fueltype, fuel in enumerate(self.enduse_fuel_after_elasticity):
 
                 # Saved fuel
-                saved_fuel = fuel * penetration_cy * assumptions['general_savings_smart_meter'][self.enduse]
-                print("saved fuel----------------" + str(np.sum(saved_fuel)))
+                saved_fuel = fuel * (penetration_by - penetration_cy) * assumptions['general_savings_smart_meter'][self.enduse]
+                #print("saved fuel--" + str(penetration_cy) + "-------" + str(self.enduse) + "------" + str(sigm_factor) + "--------" + str(np.sum(saved_fuel)))
 
                 # New fuel
                 new_fuels[fueltype] = fuel - saved_fuel
@@ -1040,7 +1086,7 @@ class EnduseResid(object):
         else:
             return self.enduse_fuel_after_elasticity
 
-    def enduse_fuel_switches(self, data_ext, assumptions, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
+    def enduse_fuel_switches(self, data_ext, assumptions, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy, tech_stock_cy):
         """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
 
         It also considers technological efficiency changes of replaced and old technologies.
@@ -1086,10 +1132,18 @@ class EnduseResid(object):
 
             # Efficiency of installed technology
             if tech_install == 'heat_pump':
-                eff_install = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(self.tech_stock_cy, tech_install)) / (365 * 24)  # Efficiency considering hourly efficiency
-            else:
-                eff_install = np.average(getattr(self.tech_stock_cy, tech_install)) # efficiency of installed technology in current year
+                # DIRECTAPPROACH
+                tech_object = getattr(tech_stock_cy, tech_install)
 
+                #eff_install = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(tech_stock_cy, tech_install)) / (365 * 24)  # Efficiency considering hourly efficiency
+                eff_install = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(tech_object, 'eff_cy')) / (365 * 24)  # Efficiency considering hourly efficiency
+            else:
+                # DIRECTAPPROACH
+                tech_object = getattr(tech_stock_cy, tech_install)
+
+                #eff_install = np.average(getattr(tech_stock_cy, tech_install)) # efficiency of installed technology in current year
+                eff_install = np.average(getattr(tech_object, 'eff_by')) # efficiency of installed technology in current year
+                
             # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
             factor_sigm = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
@@ -1397,6 +1451,16 @@ def test_function_fuel_sum(data):
         for enduse in data['fueldata_disagg'][reg]:
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     return fuel_in
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -136,8 +136,9 @@ def load_assumptions(data, data_external):
     # ============================================================
 
     # Fraction of population with smart meters #TODO: Make possibie to provide saturation year
-    assumptions['smart_meter_p_by'] = 0.9
-    assumptions['smart_meter_p_ey'] = 1.0
+    assumptions['smart_meter_p_by'] = 0.1
+    assumptions['smart_meter_p_ey'] = 0.1
+
     #assumptions['smart_meter_saturation_year'] = 2020 # TODO: Year the penetration rated id to be achieved
 
     # Long term smart meter induced general savings (purley as a result of having a smart meter)
@@ -159,8 +160,9 @@ def load_assumptions(data, data_external):
 
     assumptions['technologies'] = {
         'heat_pump': {
-            'eff_by': 5.5, # At a temp diff of 20
-            'eff_ey': 8,
+            'fuel_type': data['lu_fueltype']['electricity'],
+            'eff_by': 5.5, # At a temp diff of 20 (hourly dependent)
+            'eff_ey': 28,
             'eff_achieved': 0.5,
             'saturation_yr': 2050,
             'diff_method': 'sigmoid', # sigmoid
@@ -173,7 +175,40 @@ def load_assumptions(data, data_external):
 
             },
         'back_boiler': {
-            'eff_by': 0.7, # At a temp diff of 20
+            'fuel_type': data['lu_fueltype']['gas'],
+            'eff_by': 0.01, # At a temp diff of 20
+            'eff_ey': 0.9,
+            'eff_achieved': 1.0,
+            'saturation_yr': 2050,
+            'diff_method': 'linear', # sigmoid
+            'diff_param': {
+                'linear': 'possible_parameters_could_be_passed',
+                'sigmoid': {
+                    'sig_midpoint': 0,
+                    'sig_steeppness': 1
+                    }}
+
+            },
+
+        'LED': {
+            'fuel_type': data['lu_fueltype']['electricity'],
+            'eff_by': 0.3, # At a temp diff of 20
+            'eff_ey': 0.9,
+            'eff_achieved': 1.0,
+            'saturation_yr': 2050,
+            'diff_method': 'linear', # sigmoid
+            'diff_param': {
+                'linear': 'possible_parameters_could_be_passed',
+                'sigmoid': {
+                    'sig_midpoint': 0,
+                    'sig_steeppness': 1
+                    }}
+
+            },
+
+        'halogen_elec': {
+            'fuel_type': data['lu_fueltype']['electricity'],
+            'eff_by': 0.3, # At a temp diff of 20
             'eff_ey': 0.9,
             'eff_achieved': 1.0,
             'saturation_yr': 2050,
@@ -186,7 +221,6 @@ def load_assumptions(data, data_external):
                     }}
 
             }
-
     }
 
     # Efficiencies in base year
@@ -220,7 +254,6 @@ def load_assumptions(data, data_external):
         'elec_boiler': 0.5,
         'heat_pump_m': -0.1, # TODO Derive heat pump curve from lit
         'heat_pump_b': 22.0
-        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
 
 
@@ -235,11 +268,13 @@ def load_assumptions(data, data_external):
     assumptions['tech_fueltype'] = {
         #Lighting
         'heat_pump': data['lu_fueltype']['electricity'],
-        'back_boiler' : data['lu_fueltype']['electricity']
+        'back_boiler' : data['lu_fueltype']['electricity'],
+        'LED': data['lu_fueltype']['electricity'],
+        'halogen_elec': data['lu_fueltype']['electricity'],
     }
     '''
         'LED': data['lu_fueltype']['electricity'],
-        'halogen_elec': data['lu_fueltype']['electricity'],
+        
         'standard_lighting_bulb': data['lu_fueltype']['electricity'],
         'fluorescent_strip_lightinging': data['lu_fueltype']['electricity'],
         'energy_saving_lighting_bulb': data['lu_fueltype']['electricity'],
@@ -419,14 +454,17 @@ def load_assumptions(data, data_external):
     # Share of total fuel of one technology (e.g. standard_lighting_bulb)
 
 
-    #assumptions['tech_enduse_by']['heating'][1] = {'back_boiler': 1.0, 'heat_pump': 0.0}
-    assumptions['tech_enduse_by']['heating'][1] = {'heat_pump': 1.0}
-    assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
+    assumptions['tech_enduse_by']['heating'][1] = {'back_boiler': 0.5, 'heat_pump': 0.5}
+    assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 0.5, 'heat_pump': 0.5}
+
+    assumptions['tech_enduse_by']['lighting'][2] = {'LED': 0.5, 'halogen_elec': 0.5}
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
 
     #assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
+    #assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.5, 'halogen_elec': 0.5}
+
     #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
 
     #assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
@@ -518,6 +556,26 @@ def load_assumptions(data, data_external):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
@@ -553,6 +611,21 @@ def get_hlc(dw_type, age):
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
 
     return hlc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -7,12 +7,13 @@ import energy_demand.main_functions as mf
 
 class Technology(object):
 
-    def __init__(self, tech_name, data, data_ext, temp_cy):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
-
+        self.curr_yr = year
         self.tech_name = tech_name
+        self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type'] #TOD: USE IT
         self.eff_by = data['assumptions']['technologies'][self.tech_name]['eff_by']
         self.eff_ey = data['assumptions']['technologies'][self.tech_name]['eff_ey']
         self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
@@ -22,49 +23,43 @@ class Technology(object):
         self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         # Calculate effiicnecy in current year
-        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.eff_by, self.eff_ey, self.diff_method, self.diff_param, self.eff_achieved)
+        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.diff_param, self.eff_achieved)
 
 
 
     # Calculate efficiency in current year
-    def calc_efficiency_cy(self, data, data_ext, temp_cy, eff_by, eff_ey, diff_method, diff_param, eff_achieved):
+    def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, diff_param, eff_achieved):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
         FUNCTION
         """
-        base_yr = data_ext['glob_var']['base_yr']
-        curr_yr = data_ext['glob_var']['curr_yr']
-        end_yr = data_ext['glob_var']['end_yr']
+        if diff_method == 'linear':
+            theor_max_eff = mf.linear_diff(data_ext['glob_var']['base_yr'], curr_yr, eff_by, eff_ey, len(data_ext['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
+            #TODO: Check if only factor or already absolute with eff_by Nd eff_ey
+        if diff_method == 'sigmoid':
+            theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], diff_param['sigmoid']['sig_midpoint'], diff_param['sigmoid']['sig_steeppness'])
 
-        if curr_yr == base_yr: # Return efficiency of base year
-            return self.eff_by
+        #print("theor_max_eff: " + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
+
+        # Consider actual achived efficiency
+        actual_eff = theor_max_eff * eff_achieved
+
+        # Actual efficiency potential
+        eff_cy = eff_by + actual_eff
+
+        # Temperature dependent efficiency
+        if self.tech_name in ['heat_pump']:
+            eff_cy_hourly = mf.get_heatpump_eff(
+                temp_cy,
+                data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
+                eff_cy,
+                data['assumptions']['t_base_heating']['base_yr']
+            )
         else:
-            if diff_method == 'linear':
-                theor_max_eff = mf.linear_diff(base_yr, curr_yr, eff_by, eff_ey, len(data_ext['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
+            # Non temperature dependent efficiencies
+            eff_cy_hourly = mf.create_efficiency_array(eff_cy) # Create efficiency for every hour
 
-            if diff_method == 'sigmoid':
-                theor_max_eff = mf.sigmoid_diffusion(base_yr, curr_yr, end_yr, diff_param['sigmoid']['sig_midpoint'], diff_param['sigmoid']['sig_steeppness'])
-
-            # Consider actual achived efficiency
-            actual_eff = theor_max_eff * eff_achieved
-
-            # Actual efficiency potential
-            eff_cy = eff_by + (actual_eff * (abs(actual_eff) - eff_by)) #abs is introduced because if minus value otherwie would become plus
-
-            # Temperature dependent efficiency
-            if self.tech_name in ['heat_pump']:
-                eff_cy_hourly = mf.get_heatpump_eff(
-                    temp_cy,
-                    data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
-                    eff_cy,
-                    data['assumptions']['t_base_heating']['base_yr']
-                )
-
-            else:
-                # Non temperature dependent efficiencies
-                eff_cy_hourly = mf.create_efficiency_array(eff_cy) # Create efficiency for every hour
-
-            return eff_cy_hourly
+        return eff_cy_hourly
 
 
 class ResidTechStock(object):
@@ -72,6 +67,8 @@ class ResidTechStock(object):
 
     The main class of the residential model. For every HOUR IN EVERY REGION, #TODO?
     a Region Object needs to be generated
+
+    Technology stock for every enduse
 
     Parameters
     ----------
@@ -84,30 +81,31 @@ class ResidTechStock(object):
     curr_yr : int
         Current year
     """
-    def __init__(self, data, data_ext, temp_cy):
+    def __init__(self, data, data_ext, temp_cy, year):
         """Constructor of technologies for residential sector
         """
         #self.temp_cy = temp_cy
 
-        # Crate all technologies and add as attribute
+        # Crate all technologies and add as attribute (NEW)
         for technology_name in data['tech_lu']:
-            print("TTTECHNOLOGY :" + str(technology_name))
-            technology_object = Technology(technology_name, data, data_ext, temp_cy)
+            
+            # Technology object
+            technology_object = Technology(technology_name, data, data_ext, temp_cy, year)
 
+            # Set technology object as attribute
             ResidTechStock.__setattr__(
                 self,
                 technology_name,
                 technology_object
             )
-
-            break #remove
-        #prnt("DDDLK")
+            print("carte obje" + str(technology_name))
+            print(technology_object.__dict__)
 
         # Execute function to add all parameters of all technologies which define efficienes to technological stock
-        self.create_iteration_efficiency(data, data_ext)
+        ###self.create_iteration_efficiency(data, data_ext)
 
         # Add Heat pump to technological stock (two efficiency parameters) (Efficiency for every hour and not only one value over year)
-        self.create_hp_efficiency(data, temp_cy)
+        #self.create_hp_efficiency(data, temp_cy)
 
         # Calculate share of technologies within each fueltype (e.g. fraction of households with each technology)
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
