@@ -209,6 +209,54 @@ def read_csv_base_data_resid(path_to_csv):
 
     return end_uses_dict
 
+
+def read_csv_assumptions_technologies(path_to_csv, data):
+    """This function reads in CSV files and skips header row.
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+
+    Notes
+    -----
+
+    """
+    list_elements = []
+
+    dict_with_technologies = {}
+
+    # Read CSV file
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        _headings = next(read_lines) # Skip first row
+        
+        # Iterate rows
+        for row in read_lines:
+            technology = row[0]
+            dict_with_technologies[technology] = {
+
+                'fuel_type': data['lu_fueltype'][str(row[1])],
+                'eff_by': float(row[2]),
+                'eff_ey': float(row[3]),
+                'eff_achieved': float(row[4]),
+                'saturation_yr': int(row[5]),
+                'diff_method': str(row[6]),
+                'diff_param': {
+                    'linear': str(row[7]),
+                    'sigmoid': {
+                        'sig_midpoint': float(row[8]),
+                        'sig_steeppness': float(row[9])
+                        }
+                }
+            }
+
+    return dict_with_technologies
+
+
 def get_datetime_range(start=None, end=None):
     """Calculates all dates between a star and end date.
     TESTED_PYTEST
@@ -934,7 +982,8 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0 #return zero
     else:
-        fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
+        #fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
+        fract_sy = ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
 
     return fract_sy
 

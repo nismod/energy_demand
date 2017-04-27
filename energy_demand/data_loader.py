@@ -58,6 +58,7 @@ def load_data(path_main, data_ext):
     # Paths
     data['path_dict'] = {
 
+
         # Residential
         # -----------
         'path_main': path_main,
@@ -78,10 +79,17 @@ def load_data(path_main, data_ext):
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
         'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
+        # Technologies
+        'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
+
         # Service
         # -------
         'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv'),
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
+
+
+
+
         }
 
     # ------------------------------------------

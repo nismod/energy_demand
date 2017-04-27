@@ -859,7 +859,9 @@ class EnduseResid(object):
             if assumptions['other_enduse_mode_choice'] == 'linear':
                 #infos = assumptions['other_enduse_mode_info']['linear']
                 # Lineare diffusion up to cy
-                change_cy = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], percent_by, percent_ey, len(data_ext['glob_var']['sim_period']))
+                lin_diff_factor = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], percent_by, percent_ey, len(data_ext['glob_var']['sim_period']))
+
+                change_cy = diff_fuel_consump * lin_diff_factor #NEW
 
             if assumptions['other_enduse_mode_choice'] == 'sigmoid':
 
@@ -997,7 +999,6 @@ class EnduseResid(object):
             # Get technologies and share of technologies for each fueltype and enduse
             ##tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
             ##tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')
-            tech_frac_by = tech_frac_by
 
             # Assume no change in compostion of technologies
             tech_frac_cy = tech_frac_by # self.get_sigmoid_tech_diff(data, data_ext) #current year
@@ -1009,9 +1010,10 @@ class EnduseResid(object):
                 # Iterate technologies and average efficiencies relative to distribution for base year
                 overall_eff_by = 0
                 for technology in tech_frac_by[self.enduse][fueltype]:
-
+                    
                     # DIRECTAPROACH efficiency from fuel stoc ktech
                     tech_object_by= getattr(tech_stock_by, technology)
+                    print("Ass " + str(tech_frac_by[self.enduse][fueltype][technology]) + str("  ") + str(np.average(getattr(tech_object_by, 'eff_cy'))))
 
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     #overall_eff_by += np.sum(tech_frac_by[self.enduse][fueltype][technology] * getattr(self.tech_stock_by, technology)) #Only within FUELTYPE
@@ -1019,10 +1021,12 @@ class EnduseResid(object):
 
                 # Iterate technologies and average efficiencies relative to distribution for current year
                 overall_eff_cy = 0
-                for technology in tech_frac_cy[self.enduse][fueltype]:
 
+                for technology in tech_frac_cy[self.enduse][fueltype]:
+                    
                     # DIRECTAPROACH efficiency from fuel stoc ktech
                     tech_object_cy= getattr(tech_stock_cy, technology)
+                    print("Bsss " + str(tech_frac_cy[self.enduse][fueltype][technology]) + str("  ") + str(np.average(getattr(tech_object_cy, 'eff_cy'))))
 
                     # Overall efficiency: Share of technology * efficiency of base year technology
                     #overall_eff_cy += np.sum(tech_frac_cy[self.enduse][fueltype][technology] * getattr(self.tech_stock_cy, technology))
