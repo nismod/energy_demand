@@ -1,7 +1,39 @@
-    
-    # Replacing methods
 
-    'lowest' : Select 
+
+
+
+
+
+'''
+
+
+def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness, saturation_yr, invention_yr):
+    """ Saturation level needs to be defined
+    Always return 1 if saturated --> but satured may be any share of the technology or fuel enduse"""
+    # Year invention can't be before base year --> if technology existist, put invention year as model base year
+
+    if curr_yr < invention_yr or curr_yr == base_yr:
+        return 0 #Technology has not been invented, 0 penetration
+
+    if curr_yr >= saturation_yr: #Technology is saturated
+        return 1
+    else:
+        
+        
+        if curr_yr >= saturation_yr: # After saturation
+            #years_availalbe = saturation_yr - base_yr # Number of years --> saturation point - base year --> Saturation == 100*
+            return 1
+        else:
+            years_availalbe = curr_yr - invention_yr
+            
+            y_trans = -6.0 + (12.0 / (saturation_yr - invention_yr)) * years_availalbe
+
+            # Get a value between 0 and 1 (sigmoid curve ranging vrom 0 to 1)
+            cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
+
+            return cy_p
+
+
 
 
     # CONSUMPTION REPLACED
@@ -37,7 +69,7 @@
             }
         )
 
-
+'''
 
 
 
@@ -158,7 +190,7 @@ fig, ax = plt.subplots()
 ax.stackplot(x, y)
 plt.show()
 
-    """A one-line summary that does not use variable names or the
+"""A one-line summary that does not use variable names or the
     function name.
     Several sentences providing an extended description. Refer to
     variables using back-ticks, e.g. `var`.

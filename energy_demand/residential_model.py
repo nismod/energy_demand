@@ -699,7 +699,7 @@ def residential_model_main_function(data, data_ext):
     """
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
-    # Add all region instances as an attribute (region name) into a Country class
+    # Add all region instances as an attribute (region name) into the class `CountryResidentialModel`
     resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext)
 
     print("READ OUT SPECIFIC ENDUSE FOR A REGION")
@@ -720,11 +720,6 @@ def residential_model_main_function(data, data_ext):
     print("DIFF: " + str(fueltot - fuel_in))
 
     return resid_object
-
-
-
-
-
 
 class EnduseResid(object):
     """Class of an end use of the residential sector
@@ -843,31 +838,57 @@ class EnduseResid(object):
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_specifid_consumption_change(self, data_ext, assumptions):
-        """Calculate enduse_specific consumption change for every enduse (across all fueltypes)
+        """Calculates fuel based on assumed overall enduse specific fuel consumption changes 
 
-        This function calculates general changs in overall consumption changes for an enduse across all fueltypes
+        Either a sigmoid standard difufsion or linear diffusion can be implemented.
+
+        Because for enduses where no technology stock is defined (and may consist of many different)
+        technologies, a linear diffusion is suggested to best represent multiple
+        sigmoid efficiency improvements of individual technologies.
+
+        The changes are assumed across all fueltypes.
+        
+        Parameters
+        ----------
+        data_ext : dict
+            Data
+        
+        assumptions : dict
+            assumptions
+        
+        Returns
+        -------
+        out_dict : dict
+            Dictionary containing new fuel demands for `enduse`
+
+        Notes
+        -----
+
         """
-        percent_ey = assumptions['other_enduse_specific_change_ey'][self.enduse] # Percent of fuel consumption in end year
-        percent_by = 1.0 # Percent of fuel consumption in base year (always 100 % per definition)
-        diff_fuel_consump = percent_ey - percent_by # Get change in enduse fuel consumption
+        percent_ey = assumptions['enduse_overall_change_ey'][self.enduse]  # Percent of fuel consumption in end year
+        percent_by = 1.0                                                   # Percent of fuel consumption in base year (always 100 % per definition)
+        diff_fuel_consump = percent_ey - percent_by                        # Percent of fuel consumption difference
+        diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
 
         if diff_fuel_consump == 0:# No change
             return self.enduse_fuel_after_weater_correction
         else:
             new_fuels = np.zeros((self.enduse_fuel_after_weater_correction.shape[0], 1)) #fueltypes, days, hours
 
-            if assumptions['other_enduse_mode_choice'] == 'linear':
-                #infos = assumptions['other_enduse_mode_info']['linear']
-                # Lineare diffusion up to cy
-                lin_diff_factor = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], percent_by, percent_ey, len(data_ext['glob_var']['sim_period']))
+            # Lineare diffusion up to cy
+            if diffusion_choice == 'linear': #TODO: CHECK DIFF
+                lin_diff_factor = mf.linear_diff(
+                    data_ext['glob_var']['base_yr'],
+                    data_ext['glob_var']['curr_yr'],
+                    percent_by,
+                    percent_ey,
+                    len(data_ext['glob_var']['sim_period'])
+                )
+                change_cy = diff_fuel_consump * abs(lin_diff_factor) #NEW
 
-                change_cy = diff_fuel_consump * lin_diff_factor #NEW
-
-            if assumptions['other_enduse_mode_choice'] == 'sigmoid':
-
-                # Sigmoid diffusion up to cy
+            # Sigmoid diffusion up to cy
+            if diffusion_choice == 'sigmoid':
                 sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
-
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage
@@ -954,16 +975,13 @@ class EnduseResid(object):
             #logging.exception('I .Raised error in enduse_elasticity. Check if for every provided enduse an elasticity is provided')
 
     def enduse_eff_gains(self, data_ext, tech_frac_by, tech_stock_by, tech_stock_cy):
-        """Adapts yearly fuel demand depending on technology mix within each fueltype (e.g. boiler_elcA to boiler_elecB)
+        """
 
-        This function implements technology switch within each enduse
+        SPECIFIC EFF GAINS??
+        
+        Parameters
+        ----------
 
-        (Does not consider share of fuel which is switched)
-
-        Steps:
-            1. Get technological fraction of each enduse
-            2. Get efficiencies of base and current year
-            3. Overall efficiency of all technologies is used
 
         Returns
         -------
@@ -972,30 +990,11 @@ class EnduseResid(object):
 
         Notes
         -----
-        In this function the change in fuel is calculated for the enduse
-        only based on the change in the fraction of technology (technology stock)
-        composition.
 
-        It does not consider fuel switches (e.g. % of fuel which is replaced) for
-        an enduse but only calculated within each fuel type.
-
-        # Will maybe be on household level
         """
         if data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']:
             out_dict = np.zeros((self.enduse_fuel_specific_overall_cousmpt_change.shape[0], 1))
 
-            
-            #ALTERNATIVE: ITERATE ALL EFFICIENCY ASSUMPTIONS OF ENDUSE AND FUELTYPE
-            # E.g. replace share of energy consuption of lighting bulb with  (todays fuel consumption share == 100%)
-            # 1. Get share of base year of this technology and fuel --> Calculate
-            
-            #return out_dict
-            
-            
-            
-            
-            
-            
             # Get technologies and share of technologies for each fueltype and enduse
             ##tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
             ##tech_frac_cy = getattr(self.tech_stock_cy, 'tech_frac_cy')

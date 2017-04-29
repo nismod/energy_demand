@@ -49,9 +49,9 @@ def resid_build_stock(data, assumptions, data_ext):
 
     # Iterate regions
     for reg_name in data['lu_reg']:
-        floorarea_by = data['reg_floorarea_resid'][reg_name]        # Read in floor area of base year
-        pop_by = data_ext['population'][base_yr][reg_name]  # Read in population
-        floorarea_pp_by = floorarea_by / pop_by             # Floor area per person [m2/person]
+        floorarea_by = data['reg_floorarea_resid'][reg_name] # Read in floor area of base year
+        pop_by = data_ext['population'][base_yr][reg_name] # Read in population
+        floorarea_pp_by = floorarea_by / pop_by # Floor area per person [m2/person]
         dw_stock_every_year[reg_name] = {}
 
         # Iterate simulation year
@@ -66,7 +66,7 @@ def resid_build_stock(data, assumptions, data_ext):
 
             # Only calculate changing
             if sim_y == base_yr:
-                dw_stock_base = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_by, floorarea_by, pop_by, assumptions, data_ext)
+                dw_stock_base = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_by, floorarea_by, pop_by, assumptions, data_ext)
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
@@ -85,7 +85,8 @@ def resid_build_stock(data, assumptions, data_ext):
                 ##print("demolished_area: " + str(demolished_area))
                 #print("pop_in_exist_dw_new_floor_area_pp " + str(pop_in_exist_dw_new_floor_area_pp))
                 #print("new_area_minus_demolished " + str(new_area_minus_demolished))
-                dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, data['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
+                #dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
+                dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
 
                 # - new dwellings
                 if new_floorarea_sy < 0:

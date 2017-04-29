@@ -113,7 +113,7 @@ def load_data(path_main, data_ext):
     data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
     data['hourly_gas_shape'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
     data['hourly_gas_shape_hp'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
-    data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age'])
+    #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age'])
 
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
 

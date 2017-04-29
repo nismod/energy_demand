@@ -15,6 +15,29 @@ import energy_demand.main_functions as mf
 #
 # 3. 
 
+
+# I. Efficiency of technologies (e.g. heat pumps)
+#    ----------------------------------------------
+#    (technologies which are specifically replaced)  
+#       Lineare inrease over time (by eff, max_eff_achievable, year the efficiency is developed, year technology comes onto the market
+# 
+# II. Overall sector efficiency increase (base year always 0%)
+#     --------------------------------------------------------------
+#     (do not specify technologies)
+#     
+#       Lineare increase over time (because many intersecting sigmoid curves)
+#        - Potential fuel reduction: Maximum percentage of sector which can be improved
+#        - Saturation year: Year where the maxium potential could be reached
+#           --> From saturation year and max potential, a lineare % change can be calculated
+#        - Achieved savings
+# 
+# III. Specific replacement of fuel share
+#      -------------------------------------
+#      - Efficiencies of technology which is replaced
+#      - Potential fuel reduction share (of current stock):
+#      - 
+#
+#
 # Eff: Iterate years: SUM_sy(efficiency of technology in year * share in year * fuel_share_20%_tech_eff_considered)
 # --> Or make assumption that share of replaced consumption is always replaced in every year with newest technology (problem for long-lasting technologies)
 #
@@ -29,7 +52,7 @@ def load_assumptions(data, data_external):
 
     Notes
     -----
-    # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
+    
     """
     assumptions = {}
 
@@ -56,6 +79,17 @@ def load_assumptions(data, data_external):
     assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
 
     # TODO: Get assumptions for heat loss coefficient
+    # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
+    #assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
+    #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
+    #assumptions['dwtype_age_distr'] = mf.calc_age_distribution()
+    assumptions['dwtype_age_distr'] = {
+        2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
+
+    #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age']) #TODO!
+    #2015: 	20.8	36.3	29.5	8	5.4
+
+    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
@@ -72,7 +106,7 @@ def load_assumptions(data, data_external):
         'end_yr': 21.0
     }
 
-    # TODO: Climate scneario data (mutage temperature data from this)
+    # Generate different future weater based on assumpitons #TODO
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -149,157 +183,31 @@ def load_assumptions(data, data_external):
         'wet': 0.03,
         'consumer_electronics': 0.03,
         'home_computing': 0.03,
-        'heating':0.03
+        'heating': 0.03
     }
 
     # ============================================================
     # Technologies and their efficiencies over time
     # ============================================================
 
-    assumptions['heat_pump_slope_assumption'] = -.08 #Derived from SOURCE
+    # Fixed assumptions of technologies (not changed)
+    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from SOURCE #GROUND SOURCE HP
 
-
+    # Load all technologies, their efficiencies etc.
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
-    '''
-    assumptions['technologies'] = {
-        'heat_pump': {
-            'fuel_type': data['lu_fueltype']['electricity'],
-            'eff_by': 5.5, # At a temp diff of 20 (hourly dependent)
-            'eff_ey': 5.5,
-            'eff_achieved': 1.0,
-            'saturation_yr': 2050,
-            'diff_method': 'sigmoid', # sigmoid
-            'diff_param': {
-                'linear': 'possible_parameters_could_be_passed',
-                'sigmoid': {
-                    'sig_midpoint': 0,
-                    'sig_steeppness': 1
-                    }}
 
-            },
-        'back_boiler': {
-            'fuel_type': data['lu_fueltype']['gas'],
-            'eff_by': 0.01, # At a temp diff of 20
-            'eff_ey': 0.01,
-            'eff_achieved': 1.0,
-            'saturation_yr': 2050,
-            'diff_method': 'sigmoid', # sigmoid
-            'diff_param': {
-                'linear': 'possible_parameters_could_be_passed',
-                'sigmoid': {
-                    'sig_midpoint': 0,
-                    'sig_steeppness': 1
-                    }}
-
-            },
-
-        'LED': {
-            'fuel_type': data['lu_fueltype']['electricity'],
-            'eff_by': 0.3, # At a temp diff of 20
-            'eff_ey': 0.3,
-            'eff_achieved': 1.0,
-            'saturation_yr': 2050,
-            'diff_method': 'sigmoid', # sigmoid
-            'diff_param': {
-                'linear': 'possible_parameters_could_be_passed',
-                'sigmoid': {
-                    'sig_midpoint': 0,
-                    'sig_steeppness': 1
-                    }}
-            },
-
-        'halogen_elec': {
-            'fuel_type': data['lu_fueltype']['electricity'],
-            'eff_by': 0.3, # At a temp diff of 20
-            'eff_ey': 0.3,
-            'eff_achieved': 1.0,
-            'saturation_yr': 2050,
-            'diff_method': 'sigmoid', # sigmoid
-            'diff_param': {
-                'linear': 'possible_parameters_could_be_passed',
-                'sigmoid': {
-                    'sig_midpoint': 0,
-                    'sig_steeppness': 1
-                    }}
-            }
-    }
-    '''
-
-    # Efficiencies in base year
-    '''assumptions['eff_by'] = {
-        'back_boiler' : 0.01,
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gain to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
-        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-
-        'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump_m': -0.1,
-        'heat_pump_b': 22.0
-        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
-        }
-    
-    # --Efficiencies in end year
-    assumptions['eff_ey'] = {
-        'back_boiler' : 0.01,
-        'condensing_boiler' : 0.5,
-
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
-        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-
-        'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump_m': -0.1, # TODO Derive heat pump curve from lit
-        'heat_pump_b': 22.0
-        }
-    '''
-
-    # --Factor to change the actual achieved efficiency improvements of technologies (same for all technologies)
-    '''factor_efficiency_achieved = 1.0
-
+    # --Helper Function to write same achieved efficiency for all technologies
+    factor_efficiency_achieved = 1.0
     assumptions['eff_achieved_resid'] = {}
-    for i in assumptions['eff_ey']:
-        assumptions['eff_achieved_resid'][i] = factor_efficiency_achieved
-    '''
+    for technology in assumptions['technologies']:
+        assumptions['technologies'][technology]['eff_achieved'] = factor_efficiency_achieved
 
-    # Define fueltype of each technology
-    assumptions['tech_fueltype'] = {
-        #Lighting
-        'heat_pump': data['lu_fueltype']['electricity'],
-        'back_boiler' : data['lu_fueltype']['electricity'],
-        'LED': data['lu_fueltype']['electricity'],
-        'halogen_elec': data['lu_fueltype']['electricity'],
-    }
-    '''
-        'LED': data['lu_fueltype']['electricity'],
-        
-        'standard_lighting_bulb': data['lu_fueltype']['electricity'],
-        'fluorescent_strip_lightinging': data['lu_fueltype']['electricity'],
-        'energy_saving_lighting_bulb': data['lu_fueltype']['electricity'],
-        'LED' : data['lu_fueltype']['electricity'],
 
-        #test
-        'tech_A' : data['lu_fueltype']['gas'],
-        'tech_B' : data['lu_fueltype']['gas'],
-        
-        'condensing_boiler' : data['lu_fueltype']['electricity'],
 
-        'gas_boiler': data['lu_fueltype']['gas'],
-        'elec_boiler': data['lu_fueltype']['electricity']
-    }
-    '''
-
-    # Create lookup for technologies (That technologies can be replaced for calculating with arrays) Helper function
-    data['tech_lu'] = {}
-    for tech_id, tech in enumerate(assumptions['tech_fueltype'], 1000):
-        data['tech_lu'][tech] = tech_id
-
+    # Other functions
+    data = create_lu_technologies(assumptions, data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
+    assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
 
 
     # ---------------------------------------------------------------------------------------------------------------------
@@ -310,8 +218,8 @@ def load_assumptions(data, data_external):
     # NTH: Specific hanges per fueltype (not across al fueltesp)
     # ---------------------------------------------------------------------------------------------------------------------
 
-    # Change in fuel until the simulation end year ( if no change : 1, if e.g. 10% decrease change to 0.9)
-    assumptions['other_enduse_specific_change_ey'] = {
+    # Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    assumptions['enduse_overall_change_ey'] = {
         'heating': 1,
         'water_heating': 1,
         'lighting': 1,
@@ -322,11 +230,9 @@ def load_assumptions(data, data_external):
         'home_computing': 1,
     }
 
-    # Choice of diffusion
-    assumptions['other_enduse_mode_choice'] = 'linear' # sigmoid or linear
-
     # Specifid diffusion information
     assumptions['other_enduse_mode_info'] = {
+        'diff_method': 'linear', # sigmoid or linear
         'linear': 'possible_parameters_could_be_passed',
         'sigmoid': {
             'sig_midpoint': 0,
@@ -710,6 +616,16 @@ def generate_shape_HP():
     pass
 
 
+
+'''
+
+        'back_boiler' : 0.01,
+        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gain to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
+        'standard_lighting_bulb': 0.02,          # Found on wikipedia
+        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
+        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
+        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
+'''
 '''
 
     assumptions['eff_ey'] = {
@@ -755,3 +671,20 @@ def generate_shape_HP():
 
 '''
 
+def create_lu_technologies(assumptions, data):
+    """Create lookup-table for technologies
+    """
+    data['tech_lu'] = {}
+    for tech_id, technology in enumerate(assumptions['technologies'], 1000):
+        data['tech_lu'][technology] = tech_id
+
+    return data
+
+def create_lu_fueltypes(assumptions):
+    """Create lookup-table for fueltypes
+    """
+    assumptions['tech_fueltype'] = {}
+    for technology in assumptions['technologies']:
+        assumptions['tech_fueltype'][technology] = assumptions['technologies'][technology]['fuel_type']
+
+    return assumptions

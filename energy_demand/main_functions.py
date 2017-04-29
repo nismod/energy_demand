@@ -223,7 +223,7 @@ def read_csv_assumptions_technologies(path_to_csv, data):
 
     Notes
     -----
-
+    #TODO: DESCRIBE FORMAT
     """
     list_elements = []
 
@@ -897,29 +897,6 @@ def sigmoid_diffusion_saturation_year_invention_year(base_yr, curr_yr, year_end,
 
 """ Functions for fuel_enduse_switch stock"""
 
-'''def eff_sy_lin(base_yr, curr_yr, year_end, assumptions, technology):
-    """ Calculates lineare diffusion
-    Parameters
-    ----------
-    base_yr : float
-        Base year
-
-    Returns
-    -------
-    diffusion : float
-        Share of fuel switch in simluation year
-    """
-    eff_by = assumptions['eff_by'][technology]
-    eff_ey = assumptions['eff_ey'][technology]
-    sim_years = year_end - base_yr
-
-
-    # How far the diffusion is
-    diffusion = round(linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years), 2)
-
-    return diffusion
-'''
-
 '''def frac_sy_sigm(base_yr, curr_yr, year_end, assumptions, fuel_enduse_switch):
     """ Calculate sigmoid diffusion of a share in fuels of a current year
 
@@ -982,7 +959,6 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0 #return zero
     else:
-        #fract_sy = eff_by + ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
         fract_sy = ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
 
     return fract_sy
@@ -1160,6 +1136,16 @@ def create_efficiency_array(input_eff):
 
 def heat_pump_efficiency_y():
     """Sum over every hour in a year the efficiency * temp¨"""
+    return
+
+def calc_age_distribution(age_distr_by, age_distr_ey):
+    """ CAlculate share of age distribution of buildings
+    DEMOLISHRN RATE?
+    """
+    # Calculate difference between base yeare and ey
+    # --> Add 
+    assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
+    assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     return
 
 '''def sigmoidfuel_enduse_switchdiffusion(base_yr, curr_yr, saturate_year, year_invention):
