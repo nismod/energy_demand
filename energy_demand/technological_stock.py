@@ -19,7 +19,7 @@ class Technology(object):
         self.eff_ey = data['assumptions']['technologies'][self.tech_name]['eff_ey']
         self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
-
+        self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
         # Calculate effiicnecy in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved)

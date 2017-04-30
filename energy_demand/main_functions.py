@@ -8,6 +8,10 @@ import math as m
 import unittest
 import numpy as np
 import yaml
+
+from scipy.optimize import curve_fit
+
+
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def get_temp_region(dw_reg_name, coordinates):
@@ -243,7 +247,8 @@ def read_csv_assumptions_technologies(path_to_csv, data):
                 'eff_by': float(row[2]),
                 'eff_ey': float(row[3]),
                 'eff_achieved': float(row[4]),
-                'diff_method': str(row[5])
+                'diff_method': str(row[5]),
+                'market_entry': str(row[6])
                 
             }
 
@@ -1359,6 +1364,9 @@ def fuel_switches_per_fueltype(fuel_switches, tech_stock_by, service_demands_fue
         fuel_switch_technology_install = fuel_switch['technology_install']
 
         if fuel_switch_technology_install in technologies_in_fuelswitch: # hceck if installed technology is considered for fuelswitch
+
+            print("Exectued fuelswitch: " + str(fuel_switch))
+            
             # Fuel switch
             fuel_switch_enduse = fuel_switch['enduse']
             fuel_switch_replace_fueltype = fuel_switch['enduse_fueltype_replace']
@@ -1422,11 +1430,84 @@ def fuel_switches_per_fueltype(fuel_switches, tech_stock_by, service_demands_fue
     #return energy_service_after_switches
 
 
+def calc_technology_sigmoid_curve(enduse, tech_stock_by, data_ext, installed_tech, L_values, base_year_service_demand, set_service_demand, fuel_switches_assumptions):
+    """Based on energy service demand in base year and profjected future energy demand in a given year sigmoid
+    diffusion curve is generated
+
+    """
+    sigmoid_parameters = {}
+
+    # Year until swictheds (must be identical for all switches) (read out from frist switch)
+    for switch in fuel_switches_assumptions:
+        if switch['enduse'] == enduse:
+            year_until_switched = switch['year_fuel_consumption_switched']
+            break
+
+    for technology in installed_tech:
+        print("Technology: " + str(technology))
+        
+        sigmoid_parameters[technology] = {}
+
+
+        # Test wheter technology has the market engry before base year or afterds. If wafterwards --> set very small number in market entry year
+        # If market entry before, set to 2015
+        technology_object = getattr(tech_stock_by, technology)
+        market_entry = getattr(technology_object, 'market_entry')
+        print("market_entry: " + str(market_entry))
+        if market_entry > data_ext['glob_var']['base_yr']:
+            sig_point_by_X = market_entry
+            sig_point_by_Y = 0.0001
+        else:
+            sig_point_by_X = data_ext['glob_var']['base_yr']
+            sig_point_by_Y = base_year_service_demand[enduse][technology]
+
+        # If sig_point_by_Y is 0 --> inserver very small number
+        sig_point_projected_y_X = year_until_switched
+        sig_point_projected_y_Y = set_service_demand[enduse][technology]
+
+        xdata = np.array([sig_point_by_X, sig_point_projected_y_X])
+        ydata = np.array([sig_point_by_Y, sig_point_projected_y_Y])
+        #print("-------------")
+        #print(L_values[technology][enduse])
+        #print(xdata)
+        #print(ydata)
+        fit_parameter = fit_sigmoid_diffusion(L_values[technology][enduse][technology], xdata, ydata)
+        #print("fit_parameter: " + str(fit_parameter))
+        sigmoid_parameters[technology]['midpoint'] = fit_parameter[0] #midpoint
+        sigmoid_parameters[technology]['steepness'] = fit_parameter[1] #Steepnes
+        sigmoid_parameters[technology]['l_parameter'] = L_values[technology][enduse][technology]
+
+    return sigmoid_parameters
 
 
 
+def fit_sigmoid_diffusion(L, xdata, ydata):
+    """Fit sigmoid curve based on two points on the diffusion curve
 
+    Parameters
+    ----------
+    L : float
+        The sigmoids curve maximum value (max consumption )
+    """
+    def sigmoid(x, x0, k):
+        y = L/ (1 + np.exp(-k*(x-x0)))
+        return y
 
+    popt, pcov = curve_fit(sigmoid, xdata, ydata, p0=[2030, 0.5])
+
+    '''x = np.linspace(2000, 2100, 50)
+    y = sigmoid(x, *popt)
+
+    fig = plt.figure()
+    fig.set_size_inches(12,8)
+    pylab.plot(xdata, ydata, 'o', label='data')
+    pylab.plot(x,y, label='fit')
+    pylab.ylim(0, 1.05)
+    pylab.legend(loc='best')
+    pylab.show()
+    '''
+
+    return popt
 
 
 

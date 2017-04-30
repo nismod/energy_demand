@@ -19,6 +19,7 @@ def svenplot(L, xdata, ydata):
     ----------
     L : float
         The sigmoids curve maximum value (max consumption )
+    """
 
     def sigmoid(x, x0, k):
         y = L/ (1 + np.exp(-k*(x-x0)))

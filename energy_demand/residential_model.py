@@ -761,7 +761,7 @@ class EnduseResid(object):
 
 
         #VERSION BESPROCHEN 
-        self.enduse_fuel_after_switch = self.FUNCTION_SWITCHES(data, data['assumptions'], tech_stock_by)
+        self.enduse_fuel_after_switch = self.FUNCTION_SWITCHES(data, data_ext, data['assumptions'], tech_stock_by)
 
 
 
@@ -838,7 +838,7 @@ class EnduseResid(object):
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
-    def FUNCTION_SWITCHES(self, data, assumptions, tech_stock_by):
+    def FUNCTION_SWITCHES(self, data, data_ext, assumptions, tech_stock_by):
         """ function steps to claculate fuel switches
 
         """
@@ -849,7 +849,8 @@ class EnduseResid(object):
 
         # Step 1: Convert to service for each technology (1. Sigmoid)
         service_demands_p = mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['tech_enduse_by'], assumptions['technologies'], data['fuel_raw_data_resid_enduses'], tech_stock_by)
-
+        print("service_demands_p: " + str(service_demands_p))
+        print(service_demands_p)
 
         # Step 2: Calculate energy service per fueltpe
         service_demands_fueltypes = mf.get_energy_service_per_fueltype(service_demands_p, tech_stock_by, data['fuel_raw_data_resid_enduses'])
@@ -863,30 +864,29 @@ class EnduseResid(object):
             if switch['technology_install'] not in installed_tech:
                 installed_tech.append(switch['technology_install'])
 
+        #print("Technologien with switch considered: " + str(installed_tech))
         service_demands_after_fuelswitch = mf.fuel_switches_per_fueltype(assumptions['resid_fuel_switches'], tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'], installed_tech, False)
-        print("service_demands_after_fuelswitch: " + str(service_demands_after_fuelswitch))
+        #print("service_demands_after_fuelswitch: " + str(service_demands_after_fuelswitch))
 
 
         # Step 4: Calculate L
         L_values = {}
         print("installed_tech: " + str(installed_tech))
         for technology in installed_tech:
+
             # Repeate step 3 with maximum valules
             l_tech = mf.fuel_switches_per_fueltype(assumptions['resid_fuel_switches'], tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'], [technology], True)
             L_values[technology] = l_tech
-        print("DDDDDDDDD")
-        print("ERSTER SWITCH")
-        print(service_demands_after_fuelswitch
-        )
-        for i in L_values:
-            print("Technolgoy swiwtch: " + str(i))
-            print(i)
+  
+        print("ERSTER SWITCH: " + str(service_demands_after_fuelswitch))
+        print("Individual switches: " + str(L_values))
+        #prnt("..")
 
-        print(L_values)
-        prnt("..")
-        service_demands_after_fuelswitch = mf.calculateL(assumptions['resid_fuel_switches'],tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'])
+        # Step 5: Calculate sigmoid curves
+        sigmoid_curve_parameters_of_technologies = mf.calc_technology_sigmoid_curve('space_heating', tech_stock_by, data_ext, installed_tech,L_values, service_demands_p, service_demands_after_fuelswitch, assumptions['resid_fuel_switches'])
 
-        #fuels_after_fuelswitch = mf.fuel_switches_fuel_changes()
+        # Step 6: 
+
         prnt("..abs")
         new_fuels = np.zeros((self.enduse_fuel_specific_overall_cousmpt_change.shape[0], 1)) #fueltypes, days, hours
 

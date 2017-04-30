@@ -1,7 +1,7 @@
-technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method
-heat_pump,electricity,2,2,1,linear
-gas_boiler,gas,0.7,0.7,1,linear
-elec_boiler,electricity,0.5,0.5,1,linear
-hydrogen_boiler,hydrogen,0.9,0.9,1,linear
-oil_boiler,oil,0.7,0.7,1,linear
-elec_boiler2,electricity,0.8,0.8,1,linear
+technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry
+heat_pump,electricity,2,2,1,linear,2015
+gas_boiler,gas,0.7,0.7,1,linear,2015
+elec_boiler,electricity,0.5,0.5,1,linear,2015
+hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2020
+oil_boiler,oil,0.7,0.7,1,linear,2015
+elec_boiler2,electricity,0.8,0.8,1,linear,2015
