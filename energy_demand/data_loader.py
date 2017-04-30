@@ -81,6 +81,7 @@ def load_data(path_main, data_ext):
 
         # Technologies
         'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
+        'path_FUELSWITCHES': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
 
         # Service
         # -------
@@ -257,7 +258,7 @@ def generate_data(data):
     # Iterate wheater scenarios
     for wheater_scen in wheater_scenarios:
         shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
-        df.create_txt_shapes('heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
+        df.create_txt_shapes('space_heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
 
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )

@@ -18,22 +18,20 @@ class Technology(object):
         self.eff_by = data['assumptions']['technologies'][self.tech_name]['eff_by']
         self.eff_ey = data['assumptions']['technologies'][self.tech_name]['eff_ey']
         self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
-        self.saturation_yr = data['assumptions']['technologies'][self.tech_name]['saturation_yr']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
-        self.diff_param = data['assumptions']['technologies'][self.tech_name]['diff_param']
-        self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
+
 
         # Calculate effiicnecy in current year
-        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.diff_param, self.eff_achieved)
+        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved)
 
     
         print("EFFICIENCY CY: " + str(tech_name) + str(np.average(self.eff_cy)))
 
 
     # Calculate efficiency in current year
-    def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, diff_param, eff_achieved):
+    def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
-
+        # per default linear diffusion assumed
         FUNCTION
         """
         # NEW
@@ -43,7 +41,7 @@ class Technology(object):
             theor_max_eff = mf.linear_diff(data_ext['glob_var']['base_yr'], curr_yr, eff_by, eff_ey, len(data_ext['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
             #TODO: Check if only factor or already absolute with eff_by Nd eff_ey
         if diff_method == 'sigmoid':
-            theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], diff_param['sigmoid']['sig_midpoint'], diff_param['sigmoid']['sig_steeppness'])
+            theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
 

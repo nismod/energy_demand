@@ -119,7 +119,7 @@ def load_assumptions(data, data_external):
     # Dwelling stock related scenario driver assumptions
     # ============================================================
     assumptions['resid_scen_driver_assumptions'] = {
-        'heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
         'water_heating': ['pop'],
         'lighting': ['pop', 'floorarea'],
         'cooking': ['pop'],
@@ -134,7 +134,7 @@ def load_assumptions(data, data_external):
     # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
     # ============================================================
     resid_elasticities = {
-        'heating': 0,
+        'space_heating': 0,
         'water_heating' : 0,
         'water' : 0,
         'cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
@@ -183,7 +183,7 @@ def load_assumptions(data, data_external):
         'wet': 0.03,
         'consumer_electronics': 0.03,
         'home_computing': 0.03,
-        'heating': 0.03
+        'space_heating': 0.03
     }
 
     # ============================================================
@@ -196,6 +196,9 @@ def load_assumptions(data, data_external):
     # Load all technologies, their efficiencies etc.
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
+    print("*****************************")
+    print(assumptions['technologies'])
+    #prnt("...")
 
     # --Helper Function to write same achieved efficiency for all technologies
     factor_efficiency_achieved = 1.0
@@ -209,6 +212,12 @@ def load_assumptions(data, data_external):
     data = create_lu_technologies(assumptions, data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
     assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
 
+    # ---------------------------
+    # FUEL SWITCHES ASSUMPTIONS
+    # ---------------------------
+    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
+
+
 
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
@@ -220,7 +229,7 @@ def load_assumptions(data, data_external):
 
     # Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     assumptions['enduse_overall_change_ey'] = {
-        'heating': 1,
+        'space_heating': 1,
         'water_heating': 1,
         'lighting': 1,
         'cooking': 1,
@@ -239,39 +248,13 @@ def load_assumptions(data, data_external):
             'sig_steeppness': 1
             }}
 
-    # ---------------------------------------------------------------------------------------------------------------------
-    # Fuel Switches assumptions
-    # --------------------- ------------------------------------------------------------------------------------------------
-    switch_list = []
 
-    # Modes to calculate efficiencies to be replaced
+    #-------------
 
-    # Input for a single switch
-    switch_list.append(
-        {
-            'enduse': 'heating',
-            'fueltype': 1,
-            'tech_remove': 'gas_tech',  # 'average_mode', 'lowest_mode', 'average_all_except_to_be_replaced?
-            'tech_install': 'heat_pump',
-            'fuel_share_till_ey': 0.5
-            }
-        )
-
-    switch_list.append( # Replacing 60% of electricity with fluorescent_strip_lightinging
-        {
-            'enduse': 'lighting',
-            'fueltype': 2,
-            'tech_remove': 'lowest_mode', # 'average_mode', 'lowest_mode',
-            'tech_install': 'fluorescent_strip_lightinging',
-            'fuel_share_ey': 0.6
-            #'state_2010':
-            #'state_2030':
-            }
-        )
 
     # Installed current technology to be replaced
     assumptions['tech_install'] = {
-        'heating': 'heat_pump',
+        'space_heating': 'heat_pump',
         'water_heating': 'tech_A'
     }
 
@@ -283,7 +266,7 @@ def load_assumptions(data, data_external):
     #
     # Only one technology can be assigned (# If more than one necs)
     assumptions['tech_remove_dict'] = {
-        'heating':{
+        'space_heating':{
             0: 'gas_boiler',
             1: 'gas_boiler',
             2: 'gas_boiler', # Tech A gets replaced by Tech B
@@ -301,7 +284,7 @@ def load_assumptions(data, data_external):
 
     # --Reduction fraction of each fuel in each enduse compared to base year.( -0.2 --> Minus share)
     assump_fuel_frac_ey = {
-        'heating': {
+        'space_heating': {
             '0' : 0,
             '1' : 0.0,
             '2' : 0.0, # replaced ( - 20%)
@@ -328,56 +311,56 @@ def load_assumptions(data, data_external):
 
     assumptions['fuel_type_p_ey'] = fuel_type_p_ey
 
-    print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['heating']))
+    print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['space_heating']))
     print("---------------------")
-    print(fuel_type_p_ey['heating'])
+    print(fuel_type_p_ey['space_heating'])
     # TODO: Write function to insert fuel switches  
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     #print(assumptions['fuel_type_p_ey']['lighting'])
 
 
 
-    # ----------------------------------
-    # Technology Stock Definition
+
+
+    # ---------------------------------------------------------------------------------------------------------------------
+    # Fuel Switches assumptions (NEW APPROACH)
+    # ---------------------------------------------------------------------------------------------------------------------
+
+
+    #--Technology stock in base year
     #
-    # Provide the share of total end-use fuel by technology within fueltype
+    # Provide for every fueltype of an enduse the share of fuel which is used by technologies
+    # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
     assumptions['tech_enduse_by'] = {}
-    # Iterate enduses
+
+    # Iterate enduses and write
     for enduse in data['resid_enduses']:
         assumptions['tech_enduse_by'][enduse] = {}
         for fueltype in range(len(data['fuel_type_lu'])):
             assumptions['tech_enduse_by'][enduse][fueltype] = {}
 
+    # 1. Space Heating fuel share within fueltype
+    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
+    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.10, 'elec_boiler': 0.90}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
+    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
+    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0}
 
-    # -- Lighting, Residential (enduse_fuel_split) Base Year
-    '''assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {
-        'LED': 0.01,
-        'halogen_elec': 0.37,
-        'standard_lighting_bulb': 0.35,
-        'fluorescent_strip_lightinging': 0.09,
-        'energy_saving_lighting_bulb': 0.18
-        }
-    '''
-    # Technology assumptions ()
-    # Share of total fuel of one technology (e.g. standard_lighting_bulb)
+    print("TTT:")
+    print(assumptions['tech_enduse_by'])
+
+    # 1. Convert to heat demand (energy services)
+    #mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['technologies'], data['fuel_raw_data_resid_enduses'], assumptions['tech_enduse_by'])
 
 
-    assumptions['tech_enduse_by']['heating'][1] = {'back_boiler': 1.0} #, 'heat_pump': 0.5}
-    #assumptions['tech_enduse_by']['heating'][2] = {'back_boiler': 0.5, 'heat_pump': 0.5}
 
-    #assumptions['tech_enduse_by']['lighting'][2] = {'LED': 0.5, 'halogen_elec': 0.5}
+
+    # Calculate shares of total fuel (market share )
+    #calc_enduse_fuel_tech_by
+
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
-
-    #assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.01, 'halogen_elec': 0.37, 'standard_lighting_bulb': 0.35, 'fluorescent_strip_lightinging': 0.09, 'energy_saving_lighting_bulb': 0.18}
-    #assumptions['tech_enduse_ey']['lighting'][2] = {'LED': 0.5, 'halogen_elec': 0.5}
-
-    #tech_enduse_ey['water_heating'][2] = {'back_boiler': 0.1, 'condensing_boiler': 0.9}
-
-    #assumptions['tech_enduse_ey']['heating'][2] = {'back_boiler': 1.0, 'heat_pump': 0.0}
-
 
 
 
@@ -543,7 +526,10 @@ def get_hlc(dw_type, age):
 
 # ------------- Helper functions
 def generate_fuel_type_p_by(data):
-    """Assumption helper function to generate percentage fuel distribution for every enduse of base year"""
+    """Assumption helper function to generate percentage fuel distribution for every enduse of base year
+
+    This function calculateds ..
+    """
 
     fuel_data = data['fuel_raw_data_resid_enduses']
     out_dict = {}

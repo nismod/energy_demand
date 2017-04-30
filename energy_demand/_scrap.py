@@ -40,7 +40,7 @@ def sigmoid_diffusion(base_yr, curr_yr, year_end, sig_midpoint, sig_steeppness, 
     switch_list = []
     switch_list.append(
         {
-            'enduse': 'heating',
+            'enduse': 'space_heating',
             'fueltype': 1,
             'tech_remove': 'gas_tech',  # 'average_mode', 'lowest_mode', 'average_all_except_to_be_replaced?
             'tech_install': 'heat_pump',

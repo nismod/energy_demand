@@ -1,5 +1,7 @@
-technology, fueltype, eff_by, eff_ey, eff_achieved, saturation_sr, diff_method, diff_param_linear, sig_midpoint, sig_steeppness
-heat_pump,gas,0.01,0.01,1,2050,sigmoid,"""possible_param""",0,1
-back_boiler,electricity,0.01,0.01,1,2050,sigmoid,"""possible_param""",0,1
-LED,electricity,0.01,0.01,1,2050,sigmoid,"""possible_param""",0,1
-halogen_elec,electricity,0.01,0.01,1,2050,sigmoid,"""possible_param""",0,1
+technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method
+heat_pump,electricity,2,2,1,linear
+gas_boiler,gas,0.7,0.7,1,linear
+elec_boiler,electricity,0.5,0.5,1,linear
+hydrogen_boiler,hydrogen,0.9,0.9,1,linear
+oil_boiler,oil,0.7,0.7,1,linear
+elec_boiler2,electricity,0.8,0.8,1,linear
