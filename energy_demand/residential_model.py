@@ -842,32 +842,29 @@ class EnduseResid(object):
         """ function steps to claculate fuel switches
 
         """
-        bbb = "false"
-        if bbb == 'true':
+        if 'false' == 'true':
             return self.enduse_fuel_specific_overall_cousmpt_change
-        #TODO: NOT HERE BUT IN ASSUMPTION FILE
 
         # Step 1: Convert to service for each technology (1. Sigmoid)
-        service_demands_p = mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['tech_enduse_by'], assumptions['technologies'], data['fuel_raw_data_resid_enduses'], tech_stock_by)
-        print("service_demands_p: " + str(service_demands_p))
-        print(service_demands_p)
+        #service_demands_p = mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], tech_stock_by)
+        #print("service_demands_p: " + str(service_demands_p))
+        #print(service_demands_p)
 
         # Step 2: Calculate energy service per fueltpe
-        service_demands_fueltypes = mf.get_energy_service_per_fueltype(service_demands_p, tech_stock_by, data['fuel_raw_data_resid_enduses'])
-        print("service_demands_fueltypes: " + str(service_demands_fueltypes))
+        #service_demands_fueltypes = mf.get_energy_service_per_fueltype(service_demands_p, tech_stock_by, data['fuel_raw_data_resid_enduses'])
+        #print("service_demands_fueltypes: " + str(service_demands_fueltypes))
 
         # Step 3: Calculate energy service demand after switch (2. Sigmoid point) for each technology
 
         # Read out all technologies which are switched to
-        installed_tech = []
-        for switch in assumptions['resid_fuel_switches']:
-            if switch['technology_install'] not in installed_tech:
-                installed_tech.append(switch['technology_install'])
+        #installed_tech = []
+        #for switch in assumptions['resid_fuel_switches']:
+        #    if switch['technology_install'] not in installed_tech:
+        #        installed_tech.append(switch['technology_install'])
 
         #print("Technologien with switch considered: " + str(installed_tech))
-        service_demands_after_fuelswitch = mf.fuel_switches_per_fueltype(assumptions['resid_fuel_switches'], tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'], installed_tech, False)
+        #service_demands_after_fuelswitch = mf.fuel_switches_per_fueltype(assumptions['resid_fuel_switches'], tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'], installed_tech, False)
         #print("service_demands_after_fuelswitch: " + str(service_demands_after_fuelswitch))
-
 
         # Step 4: Calculate L
         L_values = {}
@@ -877,7 +874,7 @@ class EnduseResid(object):
             # Repeate step 3 with maximum valules
             l_tech = mf.fuel_switches_per_fueltype(assumptions['resid_fuel_switches'], tech_stock_by, service_demands_fueltypes, service_demands_p, assumptions['tech_enduse_by'], [technology], True)
             L_values[technology] = l_tech
-  
+
         print("ERSTER SWITCH: " + str(service_demands_after_fuelswitch))
         print("Individual switches: " + str(L_values))
         #prnt("..")
@@ -1419,6 +1416,8 @@ class CountryResidentialModel(object):
         # Create object for every region
         self.create_regions(reg_names, data, data_ext)
 
+
+
         # Functions to summarise data for all Regions in the CountryResidentialModel class
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific = self.get_sum_for_each_enduse(data, reg_names)
@@ -1453,7 +1452,7 @@ class CountryResidentialModel(object):
                 str(reg_name), # Region identifiyer is converted into a string
                 Region(reg_name, data, data_ext) #: Create a Region
                 )
-    
+
     def get_specific_enduse_region(self, spec_region, spec_enduse):
         _a = getattr(self, spec_region)
         enduse_fuels = _a.get_fuels_enduse_requested(spec_enduse)

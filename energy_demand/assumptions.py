@@ -342,6 +342,8 @@ def load_assumptions(data, data_external):
 
     # 1. Space Heating fuel share within fueltype
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
+
+    # Provides not fuel share but share of technology
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.10, 'elec_boiler': 0.90}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0}
@@ -349,12 +351,24 @@ def load_assumptions(data, data_external):
     print("TTT:")
     print(assumptions['tech_enduse_by'])
 
+    # SIGMOID CALCULATIONS
+
     # 1. Convert to heat demand (energy services)
-    #mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['technologies'], data['fuel_raw_data_resid_enduses'], assumptions['tech_enduse_by'])
+    service_demands_p = mf.convert_to_energy_service_demand(data['resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], assumptions['technologies'])
+    print("STEP 1: Service_demands_p:" + str(service_demands_p))
 
+    # Step 2: Calculate energy service per fueltpe (Maybe not needed)
+    ##service_demands_fueltypes = mf.get_energy_service_per_fueltype(service_demands_p, assumptions['technologies'], data['fuel_raw_data_resid_enduses'])
+    #print("STEP 2: service_demands_fueltypes: " + str(service_demands_fueltypes))
 
+    # Read out all technologies which are switched to
+    installed_tech = mf.get_technologies_which_are_switched_to(assumptions['resid_fuel_switches'])
+    print("installed_techs: " + str(installed_tech))
 
-
+    service_demands_after_fuelswitch = mf.fuel_switches_per_fueltype(data['resid_enduses'], assumptions['resid_fuel_switches'], assumptions['technologies'], service_demands_p, assumptions['tech_enduse_by'], installed_tech, False)
+    print("service_demands_after_fuelswitch")
+    print(service_demands_after_fuelswitch)
+    prnt("..")
     # Calculate shares of total fuel (market share )
     #calc_enduse_fuel_tech_by
 

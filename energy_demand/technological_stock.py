@@ -21,12 +21,9 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
-        # Calculate effiicnecy in current year
+        # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved)
-
-    
         print("EFFICIENCY CY: " + str(tech_name) + str(np.average(self.eff_cy)))
-
 
     # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
@@ -67,8 +64,7 @@ class Technology(object):
             eff_cy_hourly = mf.create_efficiency_array(eff_cy) # Create efficiency for every hour
 
         return eff_cy_hourly
-
-
+    
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
@@ -97,7 +93,13 @@ class ResidTechStock(object):
         for technology_name in data['tech_lu']:
 
             # Technology object
-            technology_object = Technology(technology_name, data, data_ext, temp_cy, year)
+            technology_object = Technology(
+                technology_name,
+                data,
+                data_ext,
+                temp_cy,
+                year
+            )
 
             # Set technology object as attribute
             ResidTechStock.__setattr__(
@@ -118,6 +120,14 @@ class ResidTechStock(object):
         self.tech_frac_by = data['assumptions']['tech_enduse_by'] #base year
         self.tech_frac_ey = data['assumptions']['tech_enduse_ey'] #end year
         self.tech_frac_cy = self.get_sigmoid_tech_diff(data, data_ext) #current year
+
+    def get_technology_attribute(self, technology, attribute_to_get):
+        """Read an attrribute from a technology in the technology stock
+        """
+        tech_object = getattr(self, str(technology))
+        tech_attribute = getattr(tech_object, str(attribute_to_get))
+
+        return tech_attribute
 
     def create_hp_efficiency(self, data, temp_cy):
         """Calculate efficiency of heat pumps
