@@ -23,7 +23,7 @@ class Technology(object):
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved)
-        print("EFFICIENCY CY: " + str(tech_name) + str(np.average(self.eff_cy)))
+        #print("EFFICIENCY CY: " + str(tech_name) + str(np.average(self.eff_cy)))
 
     # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
@@ -40,7 +40,7 @@ class Technology(object):
         if diff_method == 'sigmoid':
             theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
-        print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
+        #print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
 
         # Consider actual achived efficiency
         actual_eff = theor_max_eff * eff_achieved

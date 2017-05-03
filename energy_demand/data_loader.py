@@ -125,11 +125,14 @@ def load_data(path_main, data_ext):
     # Read in raw fuel data of residential model
     fuel_raw_data_resid_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_fuel_raw_data_resid_enduses']) # Yearly end use data
 
+    
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
     ###data = add_yearly_external_fuel_data(data, data_ext, fuel_raw_data_resid_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data = create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses)
+
+    
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
@@ -154,10 +157,12 @@ def load_data(path_main, data_ext):
     # ----------------------------------------
     # TODO: Check in what units external fuel data is provided
 
-    # Residential
-    for enduse in fuel_raw_data_resid_enduses:
+    # Residential #TODO: DO CONVERSION
+    '''for enduse in fuel_raw_data_resid_enduses:
         fuel_raw_data_resid_enduses[enduse] = mf.conversion_ktoe_gwh(fuel_raw_data_resid_enduses[enduse])
     #print("ENDUSES: " + str(fuel_raw_data_resid_enduses))
+    '''
+
     data['fuel_raw_data_resid_enduses'] = fuel_raw_data_resid_enduses
 
 

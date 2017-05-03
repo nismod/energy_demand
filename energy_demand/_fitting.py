@@ -67,7 +67,7 @@ def svenplot(L, xdata, ydata):
         return y
 
 
-    popt, pcov = curve_fit(sigmoid, xdata, ydata,p0=[2030, 0.5])
+    popt, pcov = curve_fit(sigmoid, xdata, ydata, p0=[2030, 0.5])
     print (popt)
 
     x = np.linspace(2000, 2100, 50)
