@@ -867,7 +867,7 @@ class EnduseResid(object):
             technology_installed_efficiency_cy = tech_stock_by.get_technology_attribute(technology_installed, 'eff_cy')
 
             # Read out diffusion of service demand of this technology (sigmoid)
-            diffusion_energy_service_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigmoid_curve_parameters_of_technologies'][self.enduse][technology_installed]['l_parameter'], assumptions['sigmoid_curve_parameters_of_technologies'][self.enduse][technology_installed]['midpoint'], assumptions['sigmoid_curve_parameters_of_technologies'][self.enduse][technology_installed]['steepness'])
+            diffusion_energy_service_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][technology_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][technology_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][technology_installed]['steepness'])
 
             print("Dissuion of share of energy service: " + str(diffusion_energy_service_cy))
 
