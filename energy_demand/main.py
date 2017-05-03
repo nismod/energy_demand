@@ -219,7 +219,7 @@ if __name__ == "__main__":
     base_data = assumpt.load_assumptions(base_data, data_external)
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
-    #base_data = mf.generate_sig_diffusion(base_data, data_external)
+    base_data = mf.generate_sig_diffusion(base_data, data_external)
 
     # Disaggregate national data into regional data
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)

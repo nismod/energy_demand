@@ -234,46 +234,9 @@ def load_assumptions(data, data_external):
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
-
-    # ------------------
-    # Calculations to get sigmoid diffusion of switched technologies
-    # ------------------
-
-    # Step 1. Convert fuel to energy service demand per enduse and technology (For whole UK as technology diffusion is assumed to be the same)
-    assumptions['service_demand_p'], assumptions['energy_service_p_fueltype'] = mf.calc_service_demand(data['lu_fueltype'], data['resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], assumptions['technologies'])
-    print("STEP 1: Service_demands_p:" + str(assumptions['service_demand_p']))
-    print("energy_service_p_fueltype: " + str(assumptions['energy_service_p_fueltype']))
-
-    # Step 2: Calculate energy service per enduse and fueltype
-    assumptions['service_demands_fueltypes'] = mf.service_demand_fueltype(data['lu_fueltype'], assumptions['service_demand_p'], assumptions['technologies'], data['fuel_raw_data_resid_enduses'])
-
-    # Step 3: Read out all technologies which are switched to
-    assumptions['installed_tech_switch'] = mf.get_installed_technologies(assumptions['resid_fuel_switches'])
-
-    # Step 4: Calculate energy service demand after fuel switches per enduse and technology
-    service_demands_after_fuelswitch = mf.calc_service_demand_fuel_switched(data['resid_enduses'], assumptions['resid_fuel_switches'], assumptions['service_demands_fueltypes'], assumptions['technologies'], assumptions['service_demand_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
-    print(service_demands_after_fuelswitch)
-
-    # Step 5: Calculate L for every technology for sigmod diffusion
-    l_values_sig = mf.calculate_L_for_sigmoid(data['resid_enduses'], assumptions['installed_tech_switch'], data, assumptions, assumptions['service_demands_fueltypes'], assumptions['service_demand_p'])
-
-    # Step 6: Calclulate sigmoid parameters
-    assumptions['sigm_parameters_tech'] = mf.calc_technology_sigmoid_curve(data['resid_enduses'], assumptions['technologies'], data_external, assumptions['installed_tech_switch'], l_values_sig, assumptions['service_demand_p'], service_demands_after_fuelswitch, assumptions['resid_fuel_switches'])
-    print("sigm_parameters_tech:" + str(assumptions['sigm_parameters_tech']))
-
-    # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
-    assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
-
-
     # Add assumptions to data dict
     data['assumptions'] = assumptions
     return data
-
-
-
-
-
-
 
 
 
