@@ -848,7 +848,7 @@ class EnduseResid(object):
         new_fuels = copy.deepcopy(self.enduse_fuel_specific_overall_cousmpt_change) #fueltypes, days, hours
 
         # A: Calculate in total regional energy service demand in a REGION (across all fueltypes, not hourly considered) #TODO: SHARES OF HETPUMP NOT HOURLY
-        total_service_demand_technologies_region, tot_service_demand, tot_service_demand_h = mf.service_demand_p_tech_REGION(fuel_shape_y_h_hdd_boilers_cy, assumptions['tech_enduse_by'][self.enduse], self.enduse_fuel_specific_overall_cousmpt_change, assumptions['technologies'])
+        total_service_demand_technologies_region, tot_service_demand, tot_service_demand_h = mf.calc_service_demand_REGION(data, fuel_shape_y_h_hdd_boilers_cy, assumptions['tech_enduse_by'][self.enduse], self.enduse_fuel_specific_overall_cousmpt_change, assumptions['technologies'])
         #print("total_service_demand_technologies_region: " + str(total_service_demand_technologies_region))
         print("TOTAL DEMAND: " + str(tot_service_demand))
         print("TOTAL DEMAND_h: " + str(np.sum(tot_service_demand_h)))
@@ -928,7 +928,7 @@ class EnduseResid(object):
                 fueltype_technologies = assumptions['tech_enduse_by'][self.enduse][fueltype_replaced].keys()
 
                 # Get fraction of heat demand within fueltype 
-                frac_service_demand_fueltype_tech = assumptions['energy_service_p_within_fueltype'][self.enduse][fueltype_replaced]
+                frac_service_demand_fueltype_tech = assumptions['energy_service_p_fueltype'][self.enduse][fueltype_replaced]
                 print("frac_service_demand_fueltype_tech: " + str(frac_service_demand_fueltype_tech))
 
                 for technology_replaced in fueltype_technologies:
