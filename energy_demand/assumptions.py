@@ -210,87 +210,14 @@ def load_assumptions(data, data_external):
             'sig_steeppness': 1
             }}
 
-
-    #-------------
-
-
-    # Installed current technology to be replaced
-    assumptions['tech_install'] = {
-        'space_heating': 'heat_pump',
-        'water_heating': 'tech_A'
-    }
-
-    # --Technologies which are replaced within an enduse and fueltype
-
-    # Possible switches:
-    #  e.g. 20% of fueltype Gas in Enduse Heating to Technology A
-    #
-    #
-    # Only one technology can be assigned (# If more than one necs)
-    assumptions['tech_remove_dict'] = {
-        'space_heating':{
-            0: 'gas_boiler',
-            1: 'gas_boiler',
-            2: 'gas_boiler', # Tech A gets replaced by Tech B
-            3: 'gas_boiler',
-            4: 'gas_boiler',
-            5: 'gas_boiler',
-            6: 'gas_boiler',
-            7: 'gas_boiler'
-        }
-    }
-
-    # --Share of fuel types for each enduse (across all fueltypes??) TODO IMPRTANT
-    fuel_type_p_by = generate_fuel_type_p_by(data) # Generate fuel distribution of base year for every end_use # Total ED for service for each fueltype
-    assumptions['fuel_type_p_by'] = mf.convert_to_array(fuel_type_p_by)
-
-    # --Reduction fraction of each fuel in each enduse compared to base year.( -0.2 --> Minus share)
-    assump_fuel_frac_ey = {
-        'space_heating': {
-            '0' : 0,
-            '1' : 0.0,
-            '2' : 0.0, # replaced ( - 20%)
-            '3' : 0,
-            '4' : 0,
-            '5' : 0,
-            '6' : 0,
-            '7':  0
-            }
-    }
-
-    # Helper function - Replace all enduse from assump_fuel_frac_ey
-    fuel_type_p_ey = {}
-    for enduse in fuel_type_p_by:
-        if enduse not in assump_fuel_frac_ey:
-            fuel_type_p_ey[enduse] = np.array(list(fuel_type_p_by[enduse].items()), dtype=float)
-        else:
-            array_fuel_switch_assumptions = np.array(list(assump_fuel_frac_ey[enduse].items()), dtype=float)
-            factor_to_multiply_fuel_p = abs(array_fuel_switch_assumptions - 1)
-
-            # Multiply fuel percentage with share in fueltype
-            fuel_type_p_ey[enduse] = assumptions['fuel_type_p_by'][enduse] * factor_to_multiply_fuel_p
-            fuel_type_p_ey[enduse][:, 0] = fuel_type_p_ey[enduse][:, 0] #Copy fuel indices
-
-    assumptions['fuel_type_p_ey'] = fuel_type_p_ey
-
-    #print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['space_heating']))
-    #print("---------------------")
-    #print(fuel_type_p_ey['space_heating'])
-    # TODO: Write function to insert fuel switches  
-    # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
-    #print(assumptions['fuel_type_p_ey']['lighting'])
-
-
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions (NEW APPROACH)
     # ---------------------------------------------------------------------------------------------------------------------
-
-
-    #--Technology stock in base year
-    #
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
+    # Assert: - if market enntry is not before base year, wheater always 100 % etc..
+
     assumptions['tech_enduse_by'] = {}
 
     # Iterate enduses and write
@@ -307,8 +234,7 @@ def load_assumptions(data, data_external):
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
-    # TODO: Insert all technologies for a fueltype (if not defined, set diffusion to 0)
-    #ASsert: - if market enntry is not before base year, wheater always 100 % etc..
+
     # ------------------
     # Calculations to get sigmoid diffusion of switched technologies
     # ------------------
@@ -325,7 +251,7 @@ def load_assumptions(data, data_external):
     assumptions['installed_tech_switch'] = mf.get_installed_technologies(assumptions['resid_fuel_switches'])
 
     # Step 4: Calculate energy service demand after fuel switches per enduse and technology
-    service_demands_after_fuelswitch = mf.calc_service_demand_fuel_switched(data['resid_enduses'], assumptions['resid_fuel_switches'], assumptions['service_demands_fueltypes'], assumptions['technologies'], assumptions['service_demand_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], False)
+    service_demands_after_fuelswitch = mf.calc_service_demand_fuel_switched(data['resid_enduses'], assumptions['resid_fuel_switches'], assumptions['service_demands_fueltypes'], assumptions['technologies'], assumptions['service_demand_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
     print(service_demands_after_fuelswitch)
 
     # Step 5: Calculate L for every technology for sigmod diffusion
@@ -333,105 +259,15 @@ def load_assumptions(data, data_external):
 
     # Step 6: Calclulate sigmoid parameters
     assumptions['sigm_parameters_tech'] = mf.calc_technology_sigmoid_curve(data['resid_enduses'], assumptions['technologies'], data_external, assumptions['installed_tech_switch'], l_values_sig, assumptions['service_demand_p'], service_demands_after_fuelswitch, assumptions['resid_fuel_switches'])
-    print("sigm_parameters_tech:")
-    print(assumptions['sigm_parameters_tech'])
+    print("sigm_parameters_tech:" + str(assumptions['sigm_parameters_tech']))
 
     # --Technological split in end_yr  # FOR END YEAR ALWAYS SAME NR OF TECHNOLOGIES AS INITIAL YEAR (TODO: ASSERT IF ALWAYS 100%)
     assumptions['tech_enduse_ey'] = copy.deepcopy(assumptions['tech_enduse_by'])
 
 
-
-
-
-
-
-
-
-    # *********************************************************************************
-    # If from yearly fuel of heating tech to heatpumps --> Iterate daily fuel os of gas --> Calc efficiency of this day and multiply with fueltype
-
-    def calc_enduse_fuel_tech_by(enduses, eff_by, fuels, tech_enduse):
-        """Assign correct fueltype to technologies and calculate share of technologies
-
-        Iterate enduses and calculate share of total enduse fuels for each technology
-
-        'enduse': {'tech_A': % of total enduse, } #Across all fuels and technologies
-        """
-        enduse_fuel_tech_by = {}
-
-        #TODO: Add all technologies of all fueltypes found in this enduse
-
-        # Itreate enduse
-        for enduse in enduses:
-            enduse_fuel_tech_by[enduse] = {}
-            tot_enduse_fuel = np.sum(fuels[enduse]) # total fuel enduse
-
-            for fueltype in range(len(fuels[enduse])):
-                fuels_fueltype = fuels[enduse][fueltype][0]
-
-                # Iterate tech in fueltype
-                overall_tech_share = 0
-                for tech in tech_enduse[enduse][fueltype]:
-                    overall_tech_share += tech_enduse[enduse][fueltype][tech] / eff_by[tech]
-
-                if tech_enduse[enduse][fueltype] != {}: # if no tech availbale
-                    for tech in tech_enduse[enduse][fueltype]: # Calculate fuel within tech in fueltype
-
-                        # Calculate share per fueltype
-                        share_tech_fueltype = (1.0 / overall_tech_share) * (tech_enduse[enduse][fueltype][tech] / eff_by[tech])
-
-                        # Convert to absolute fuels per fueltype
-                        fuel_fueltype_tech = share_tech_fueltype * fuels_fueltype #Fuels
-
-                        # Calculate relative compared to tot fuel of enduse
-                        enduse_fuel_tech_by[enduse][tech] = (1.0 / tot_enduse_fuel ) * fuel_fueltype_tech # Fraction of total fuel
-
-        #TODO: Assert that 100%
-
-        return enduse_fuel_tech_by
-
-    '''# Technolies for single enduse
-    tech_enduse_by['water_heating'][1] = {'gas_boiler': 0.9, 'tech_B': 0.1}
-    tech_enduse_by['water_heating'][2] = {'heat_pump': 0.5, 'condensing_boiler': 0.5}
-
-    #Calculate enduse fuel split per technology
-    enduse_fuel_tech_by = calc_enduse_fuel_tech_by(data['resid_enduses'], eff_by, data['fuel_raw_data_resid_enduses'], tech_enduse_by)
-
-
-    enduse_fuel_tech_ey = {'water_heating': {'heat_pump': 0.8, 'condensing_boiler': 0.1, 'gas_boiler': 0.1}} #Absolute enduse
-
-    # Apply fuel switches
-    #fuel = apply_fuel_switches(enduse_fuel_tech_by, enduse_fuel_tech_ey)
-    assump_fuel_frac_ey = {'water_heating': {data['lu_fueltype']['gas']: -0.2}} #Assumptions to change enduse
-
-    # Change enduse_fuel_matrix_ey for fuel switches
-    #calc_enduse_fuel_tech_ey_fuel_switches
-    
-
-    # DIFFUSION, Fuel Shares,
-
-
-    print(enduse_fuel_tech_by)
-    '''
-    #prnt(":.abs")
-
     # Add assumptions to data dict
     data['assumptions'] = assumptions
     return data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -480,104 +316,6 @@ def get_hlc(dw_type, age):
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
 
     return hlc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ------------- Helper functions
-def generate_fuel_type_p_by(data):
-    """Assumption helper function to generate percentage fuel distribution for every enduse of base year
-
-    This function calculateds ..
-    """
-
-    fuel_data = data['fuel_raw_data_resid_enduses']
-    out_dict = {}
-
-    for enduse in fuel_data:
-        out_dict[enduse] = {}
-        sum_fueltype = np.sum(fuel_data[enduse]) # Total fuel of enduse
-        if sum_fueltype != 0:
-            fuels_in_p = fuel_data[enduse] / sum_fueltype
-        else:
-            fuels_in_p = fuel_data[enduse] # all zeros
-
-        for fueltype, fuel in enumerate(fuels_in_p):
-            out_dict[enduse][fueltype] = float(fuel) # Convert to %
-
-    return out_dict
-
-
-# ----------- functions SSSSSSSSSSSSSSTUF
-
-
-
-def calc_share_of_tot_yearly_fuel_for_hp(): #data_external, 0.2, 4
-    """
-    Calculate efficiency for temperature dependent technology:
-
-    I. Get y_h shape in percentage of REGULAR BOILERS and calculate HEATFUEL for every day (or take percentages)
-    --> Problem dass heat pumps unterschiedliche Daily Shape
-
-    II. Calculate heat demand factor (efficiency_heat):
-
-    SUM(HEATFUEL) / SUM_every_h(eff_h * HEATFUEL_h) = coeff_by #Also % can be taken becose does not matter if real fuel or percentages
-    (weighted coefficient)
-
-    III. Calculate total fuel for each technology
-
-    Fuel_frac_hp = frac_hp * (TOTFUEL * coeff_by)
-    Fruel_fact_reg_boilers = frac_boilers * (TOTFUEL)
-
-    (Relationship between input tonn equivalents and output heat)
-
-
-
-
-    """
-
-
-    pass
-
-def generate_shape_reg_boilers():
-
-    pass
-
-def generate_shape_HP():
-    """Generate HP d shape for a year based on BY gasfuel
-    Assumption: BY: HP == 0%
-
-    1. Get daily gas demand for heat from daily averaged h_temperatures (and assume everything used for heating) based on correlation
-     1.b.) Calculate absolute fuels for every day
-     1.c.) Convert absolute fuels to % of y (generate daily shape)
-     1.d.) Take REGIONAL acualt Gas demand to calculate h gas demand
-    2. Take hourly gas shapes from Samson for gas technologs
-    3. Calculate hourly fuel demand
-    4. Iterate hours and calc: fuel demand h * (eff_gas tech / eff_hp_h)
-    5. Convert absolute fuel demand to %
-
-
-    @ Use same for electric heatiing
-    """
-    pass
-
 
 
 '''

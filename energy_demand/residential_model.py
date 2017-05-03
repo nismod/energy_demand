@@ -765,10 +765,6 @@ class EnduseResid(object):
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
         self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext, data['assumptions']['tech_enduse_by'], tech_stock_by, tech_stock_cy)
         #print("B: " + str(np.sum(self.enduse_fuel_eff_gains)))
-
-        # Calculate fuel switches
-        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy, tech_stock_cy)
-        #print("C: " + str(np.sum(self.enduse_fuel_after_switch)))
         '''
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.enduse_fuel_after_elasticity = self.enduse_elasticity(data_ext, data['assumptions'])
@@ -777,7 +773,7 @@ class EnduseResid(object):
         # Calcualte smart meter induced general savings
         self.enduse_fuel_smart_meter_eff_gains = self.smart_meter_eff_gain(data_ext, data['assumptions'])
         #print("E: " + str(np.sum(self.enduse_fuel_smart_meter_eff_gains)))
-        
+
         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
         self.enduse_fuelscen_driver = self.enduse_scenario_driver(data, data_ext)
         #print("F: " + str(np.sum(self.enduse_fuelscen_driver)))
@@ -1209,122 +1205,6 @@ class EnduseResid(object):
             return new_fuels
         else:
             return self.enduse_fuel_after_elasticity
-
-    def enduse_fuel_switches(self, data_ext, assumptions, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy, tech_stock_cy):
-        """Calculates absolute fuel changes from assumptions about switches in changes of fuel percentages
-
-        It also considers technological efficiency changes of replaced and old technologies.
-
-        Replace fuel percentages (sigmoid fasion) with a technology
-
-        Parameters
-        ----------
-        self : self
-            Data from constructor
-
-        Returns
-        -------
-        fuel_switch_array : array
-            tbd
-
-        Notes
-        -----
-        Take as fuel input fuels after efficincy gains
-
-        Possible Switches:
-
-        % of enduse (e.g. cooking) to hydrogen
-        """
-        # Share of fuels witin each fueltype for the enduse
-        fuel_p_by = assumptions['fuel_type_p_by'][self.enduse] # Base year distribution
-        fuel_p_ey = assumptions['fuel_type_p_ey'][self.enduse] # Maximum change in % of fueltype up to endyear
-        fuel_p_diff = fuel_p_ey[:, 1] - fuel_p_by[:, 1] # Fuel percentages of current year (leave away fuel ids)
-
-        # Check if there is a change in fuel use
-        if np.array_equal(fuel_p_by, fuel_p_ey) or data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']:
-            return self.enduse_fuel_eff_gains # no fuel switches
-        else:
-            fuel_switch_array = copy.deepcopy(self.enduse_fuel_eff_gains) # copy fuels
-            print("Fuel Switch: " + str(self.enduse))
-            print("fuel_p_by: "+ str(fuel_p_by))
-            print("fuel_p_ey  " + str(fuel_p_ey))
-            print("fuel_p_diff" + str(fuel_p_diff))
-
-            tech_install = assumptions['tech_install'][self.enduse] # Technology which is installed and used for switched fuel share
-            tech_install_fueltype = assumptions['tech_fueltype'][tech_install] # Fueltype of installed technology
-            print("tech_install_fueltype: " + str(tech_install) + "  " + str(tech_install_fueltype))
-
-            # Efficiency of installed technology
-            if tech_install == 'heat_pump':
-                # DIRECTAPPROACH
-                tech_object = getattr(tech_stock_cy, tech_install)
-
-                #eff_install = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(tech_stock_cy, tech_install)) / (365 * 24)  # Efficiency considering hourly efficiency
-                eff_install = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(tech_object, 'eff_cy')) / (365 * 24)  # Efficiency considering hourly efficiency
-            else:
-                # DIRECTAPPROACH
-                tech_object = getattr(tech_stock_cy, tech_install)
-
-                #eff_install = np.average(getattr(tech_stock_cy, tech_install)) # efficiency of installed technology in current year
-                eff_install = np.average(getattr(tech_object, 'eff_by')) # efficiency of installed technology in current year
-                
-            # Calculate fraction of share of fuels which is switched until current year (sigmoid diffusion)
-            factor_sigm = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['sig_midpoint'], assumptions['sig_steeppness'])
-
-            # Difference in percentages of total fuel for enduse in current year
-            difference_in_fuel_p = fuel_p_diff * factor_sigm
-            fuel_p_cy = fuel_p_by[:, 1] + difference_in_fuel_p #TODO: NOT USED?
-
-            print("factor_sigm:             " + str(factor_sigm))
-            print("fuel_p_cy:               " + str(fuel_p_cy))
-
-            # Calculate differences in percentage within fueltype
-            diff_in_p_of_fuel = np.divide(1, fuel_p_by[:, 1]) * fuel_p_ey[:, 1] # np.divide because otherwise RuntimeWarning: divide by zero
-
-            diff_in_p_of_fuel[np.isnan(diff_in_p_of_fuel)] = 1 # replace NaN by 1
-
-            factor_diff_in_p_of_fuel = diff_in_p_of_fuel - 1 # Make factor out of changes
-            print("diff_in_p_of_fuel: " + str(factor_diff_in_p_of_fuel))
-
-            factor_diff_in_p_of_fuel_cy = factor_sigm * factor_diff_in_p_of_fuel
-            print("factor_diff_in_p_of_fuel_cy" + str(factor_diff_in_p_of_fuel_cy))
-
-            absolute_fuel_diff = self.enduse_fuel_eff_gains[:, 0] * factor_diff_in_p_of_fuel_cy # Multiply fuel demands by percentage changes
-            print("absolute_fuel_diff" + str(absolute_fuel_diff))
-            #prnt("..")
-            for fuel_type, fuel_diff_abs in enumerate(absolute_fuel_diff):
-                if fuel_diff_abs != 0: # Only if there is a positive fuel difference
-
-                    # TODO: So far only one technology
-                    tech_remove = assumptions['tech_remove_dict'][self.enduse][fuel_type] # Technology which is removed (read from technology replacement dict)
-
-                    # Get efficiency of technology
-                    if tech_remove == 'heat_pump': #TODO: WHAT IT HEATPUMPS GET removed??
-                        eff_tech_remove = np.sum(fuel_shape_y_h_hdd_hp_cy * getattr(self.tech_stock_cy, tech_remove)) / (365 * 24) # TODO :or np.average()
-                    else:
-                        if tech_remove == 'gas_boiler' or tech_remove == 'elec_boiler': #MORE BOILERS
-                            print("Remove boiler")
-                            eff_tech_remove = np.sum(fuel_shape_y_h_hdd_boilers_cy * getattr(self.tech_stock_cy, tech_remove)) / (365 * 24) # TODO :or np.average()
-                        else:
-                            print("Techremove: " + str(tech_remove))
-                            eff_tech_remove = np.average(getattr(self.tech_stock_cy, tech_remove)) # Efficiency of technology to be replaced
-
-                    # Key Process:d New Fuel: Amount of switched fuel * (efficiency of new technology / efficiency of old technology))
-                    new_fuel = abs(fuel_diff_abs) * (eff_tech_remove / eff_install) #FROZEN
-                    print("Technology fuel factor difference: " + str(abs(fuel_diff_abs)) + "  " + str(new_fuel) + "   "  + str(eff_tech_remove) + "   " + str(eff_install) + "  " + str(eff_install / eff_tech_remove))
-
-                    # Substract replaced fuel
-                    fuel_switch_array[fuel_type] = fuel_switch_array[fuel_type] - abs(fuel_diff_abs)
-
-                    # Add new fuel
-                    fuel_switch_array[tech_install_fueltype] += new_fuel
-
-            print("Old Fuel: " + str(self.enduse_fuel_eff_gains))
-            print("New Fuel: " + str(fuel_switch_array))
-            # TODO:
-            # Calculate new share of heat pump fuel and then distribute this share th the according shape
-            # TODO AFTER EASTER
-            return fuel_switch_array
 
     def enduse_scenario_driver(self, data, data_ext):
         """The fuel data for every end use are multiplied with respective scenario driver

@@ -1297,6 +1297,13 @@ def sum_1_level_dict(two_level_dict):
 
     return tot_sum
 
+def generate_sig_diffusion(base_data, data_external):
+    """ CALCULATE DIFFUSION CURVES"""
+
+    pass
+
+    #return
+
 def calc_service_demand(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock_by):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
@@ -1519,8 +1526,7 @@ def get_installed_technologies(fuel_switches):
 
     return installed_tech
 
-
-def calc_service_demand_fuel_switched(enduses, fuel_switches, service_demands_fueltypes, tech_stock_by, calc_service_demand, fuel_enduse_tech_p, technologies_in_fuelswitch, maximum_switch):
+def calc_service_demand_fuel_switched(enduses, fuel_switches, service_demands_fueltypes, tech_stock_by, calc_service_demand, fuel_enduse_tech_p, technologies_in_fuelswitch, switch_type):
     """Calculate energy service demand percentages after fuel switches
 
     Parameters
@@ -1573,9 +1579,10 @@ def calc_service_demand_fuel_switched(enduses, fuel_switches, service_demands_fu
                     orig_service_p = service_demands_fueltypes[enduse][replaced_fueltype]
 
                     # Calculate change in energy service demand
-                    if maximum_switch:
+                    if switch_type == 'max_switch':
                         change_service_p = orig_service_p * fuel_switch['max_theoretical_switch'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                    else:
+
+                    if switch_type == 'actual_switch':
                         change_service_p = orig_service_p * fuel_switch['share_fuel_consumption_switched'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
 
                     # Calculate fraction of energy service which is replaced for a fueltype by iterating all technologies with this fueltype
@@ -1597,21 +1604,38 @@ def calc_service_demand_fuel_switched(enduses, fuel_switches, service_demands_fu
     return service_demand_switched
 
 def calculate_L_for_sigmoid(enduses, installed_tech, data, assumptions, service_demands_fueltypes, service_demands_p):
-    """Repeat step 3 for each technology which is replacedwith maximum switchable fuel shares
+    """Calculate L value for every installed technology with maximum theoretical replacement value
 
     Parameters
     ----------
     enduses : list
         List with enduses where fuel switches are defined
+    installed_tech : list
+        All technologies to which a fuelswtich is implemented
+    data : dict
+        Data
+    assumptions : dict
+        Assumptions
+    service_demands_fueltypes : dict
+        Service demand for enduses and fueltypes
+    service_demands_p : dict
+        Percentage of service demands for every technology
+
+    Returns
+    -------
+    l_values_sig : dict
+        L value for sigmoid diffusion of all technologies for which a switch is implemented
+
+    Notes
+    -----
     Gets second sigmoid point
     """
+    l_values_sig = initialise_2_level_dict(enduses, installed_tech, 'brackets')
 
-    l_values_sig = {}
     for enduse in enduses:
-        l_values_sig[enduse] = {}
-        for technology_installed in installed_tech:
+        for technology in installed_tech:
 
-            # Repeate step 3 with maximum valules
+            # Calculate service demand
             tech_install_p = calc_service_demand_fuel_switched(
                 data['resid_enduses'],
                 assumptions['resid_fuel_switches'],
@@ -1619,12 +1643,12 @@ def calculate_L_for_sigmoid(enduses, installed_tech, data, assumptions, service_
                 assumptions['technologies'],
                 service_demands_p,
                 assumptions['tech_enduse_by'],
-                [technology_installed],
-                True
+                [technology],
+                'max_switch'
                 )
 
             # Read out L-values with calculating sigmoid diffusion with maximum theoretical replacement
-            l_values_sig[enduse][technology_installed] = tech_install_p[enduse][technology_installed]
+            l_values_sig[enduse][technology] = tech_install_p[enduse][technology]
 
     return l_values_sig
 
@@ -1660,48 +1684,43 @@ def calc_technology_sigmoid_curve(enduses, tech_stock_by, data_ext, installed_te
     diffusion curve is generated
 
     """
-    sigmoid_parameters = {}
+    sigmoid_parameters = initialise_2_level_dict(enduses, installed_tech, 'brackets')
 
     for enduse in enduses:
-        sigmoid_parameters[enduse] = {}
 
-        # Year until swictheds (must be identical for all switches) (read out from frist switch) #TODO
+        # Year until swictheds (must be identical for all switches) (read out from frist switch)
+        # #TODO
         for switch in fuel_switches:
             if switch['enduse'] == enduse:
                 year_until_switched = switch['year_fuel_consumption_switched']
                 break
 
         for technology in installed_tech:
-            sigmoid_parameters[enduse][technology] = {}
 
-            # Test wheter technology has the market engry before base year or afterds. If wafterwards --> set very small number in market entry year
-            market_entry = tech_stock_by[technology]['market_entry']
-
-            if market_entry > data_ext['glob_var']['base_yr']:
-                sig_point_by_X = market_entry
-                sig_point_by_Y = 0.001 # if market entry in a future year
+            # Test wheter technology has the market entry before or after base year. If wafterwards --> set very small number in market entry year
+            if tech_stock_by[technology]['market_entry'] > data_ext['glob_var']['base_yr']:
+                point_x_by = tech_stock_by[technology]['market_entry']
+                point_y_by = 0.001 # if market entry in a future year
             else: # If market entry before, set to 2015
-                sig_point_by_X = data_ext['glob_var']['base_yr']
-                sig_point_by_Y = base_year_service_demand[enduse][technology]
+                point_x_by = data_ext['glob_var']['base_yr']
+                point_y_by = base_year_service_demand[enduse][technology]
 
-                if sig_point_by_Y == 0:
-                    sig_point_by_Y = 0.001 #IF the base year is the market entry year use a very small number (as otherwise the fit does not work)
+                if point_y_by == 0:
+                    point_y_by = 0.001 #IF the base year is the market entry year use a very small number (as otherwise the fit does not work)
 
-            # If sig_point_by_Y is 0 --> insert very small number
-            sig_point_projected_y_X = year_until_switched
-            sig_point_projected_y_Y = set_service_demand[enduse][technology]
+            # If point_y_by is 0 --> insert very small number
+            point_x_projected = year_until_switched
+            point_y_projected = set_service_demand[enduse][technology]
 
-            xdata = np.array([sig_point_by_X, sig_point_projected_y_X])
-            ydata = np.array([sig_point_by_Y, sig_point_projected_y_Y])
-
-            print("xdata: " + str(xdata))
-            print("ydata: " + str(ydata))
-
-            # Fit sigmoid diffusion curve based on assumptions until when technologies are replaced
-            year_middle_simulation_period = data_ext['glob_var']['base_yr'] + 0.5 * (data_ext['glob_var']['end_yr'] - data_ext['glob_var']['base_yr'])
+            xdata = np.array([point_x_by, point_x_projected])
+            ydata = np.array([point_y_by, point_y_projected])
+            #print("xdata: " + str(xdata))
+            #print("ydata: " + str(ydata))
 
             # Start paramters for fitting
-            start_parameters = [year_middle_simulation_period, 1]
+            start_parameters = [data_ext['glob_var']['base_yr'] + 0.5 * (data_ext['glob_var']['end_yr'] - data_ext['glob_var']['base_yr']), 1]
+
+            # Fit sigmoid diffusion curve based on assumptions until when technologies are replaced
             fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
             '''
             try:
@@ -1717,8 +1736,7 @@ def calc_technology_sigmoid_curve(enduses, tech_stock_by, data_ext, installed_te
             except:
                 print("COULD NO DO THE FIT")
             '''
-            
-
+            # Insert parameters
             sigmoid_parameters[enduse][technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
             sigmoid_parameters[enduse][technology]['steepness'] = fit_parameter[1] #Steepnes (k)
             sigmoid_parameters[enduse][technology]['l_parameter'] = L_values[enduse][technology]
