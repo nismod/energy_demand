@@ -311,9 +311,9 @@ def load_assumptions(data, data_external):
 
     assumptions['fuel_type_p_ey'] = fuel_type_p_ey
 
-    print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['space_heating']))
-    print("---------------------")
-    print(fuel_type_p_ey['space_heating'])
+    #print("fuel_type_p_by:" + str(assumptions['fuel_type_p_by']['space_heating']))
+    #print("---------------------")
+    #print(fuel_type_p_ey['space_heating'])
     # TODO: Write function to insert fuel switches  
     # TODO: Assert if always 100% #assert p_tech_by['boiler_A'] + p_tech_by['boiler_B'] == 1.0
     #print(assumptions['fuel_type_p_ey']['lighting'])
@@ -354,6 +354,7 @@ def load_assumptions(data, data_external):
     # Step 1. Convert fuel to energy service demand per enduse and technology (For whole UK as technology diffusion is assumed to be the same)
     service_demand_p, energy_service_p_fueltype = mf.calc_service_demand(data['lu_fueltype'], data['resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], assumptions['technologies'])
     print("STEP 1: Service_demands_p:" + str(service_demand_p))
+    print("energy_service_p_fueltype: " + str(energy_service_p_fueltype))
 
     # Step 2: Calculate energy service per enduse and fueltype
     service_demands_fueltypes = mf.service_demand_fueltype(data['lu_fueltype'], service_demand_p, assumptions['technologies'], data['fuel_raw_data_resid_enduses'])
