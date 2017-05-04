@@ -61,7 +61,7 @@ class Technology(object):
             )
         else:
             # Non temperature dependent efficiencies
-            eff_cy_hourly = eff_cy #mf.const_eff_y_to_h(eff_cy) # Create efficiency for every hour
+            eff_cy_hourly = eff_cy # # Create efficiency for every hour
 
         return eff_cy_hourly
     
