@@ -39,7 +39,7 @@ Open questions
 # TODO: technologies: when on market? (diffusion-advanced )
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
-cleaning
+cleaning ttt
 The docs can be found here: http://ed.readthedocs.io
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
