@@ -1245,33 +1245,44 @@ def generate_sig_diffusion(data, data_external):
     data : dict
         Data dictionary containing all calculated parameters
     """
-    # All endueses with provided fuels
-    enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys()
+    assumptions = data['assumptions']
+    assumptions['installed_tech_switch'] = get_installed_technologies(assumptions['resid_fuel_switches']) # Read out all technologies which are installed in fuel switches
+    enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
+    # --------
     # Step 1. Convert fuel to energy service demand per enduse and technology (For whole UK as technology diffusion is assumed to be the same)
-    data['assumptions']['service_demand_p'], data['assumptions']['energy_service_p_fueltype'] = calc_service_demand(data['lu_fueltype'], enduses_with_fuels, data['assumptions']['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], data['assumptions']['technologies'])
-    print("STEP 1: Service_demands_p:" + str(data['assumptions']['service_demand_p']))
+    # 
+    # --------
+    assumptions['service_demand_p'], assumptions['energy_service_p_fueltype'] = service_demand_technologies(data['lu_fueltype'], data['fuel_raw_data_resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], assumptions['technologies'])
+    print("STEP 1: Service_demands_p:" + str(assumptions['service_demand_p']))
 
+    # --------
     # Step 2: Calculate energy service per enduse and fueltype
-    data['assumptions']['service_demands_fueltypes'] = service_demand_fueltype(data['lu_fueltype'], data['assumptions']['service_demand_p'], data['assumptions']['technologies'])
+    # --------
+    assumptions['service_demands_fueltypes'] = service_demand_fueltype(data['lu_fueltype'], assumptions['service_demand_p'], assumptions['technologies'])
 
-    # Step 3: Read out all technologies which are switched to
-    data['assumptions']['installed_tech_switch'] = get_installed_technologies(data['assumptions']['resid_fuel_switches'])
-
-    # Step 4: Calculate energy service demand after fuel switches per enduse and technology
-    service_demands_after_fuelswitch = calc_service_demand_fuel_switched(enduses_with_fuels, data['assumptions']['resid_fuel_switches'], data['assumptions']['service_demands_fueltypes'], data['assumptions']['technologies'], data['assumptions']['service_demand_p'], data['assumptions']['tech_enduse_by'], data['assumptions']['installed_tech_switch'], 'actual_switch')
+    # --------
+    # Step 4: Calculate energy service demand after fuel switches to future year for each technology
+    # --------
+    service_demands_after_fuelswitch = calc_service_demand_fuel_switched(enduses_with_fuels, assumptions['resid_fuel_switches'], assumptions['service_demands_fueltypes'], assumptions['technologies'], assumptions['service_demand_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
     print("service_demands_after_fuelswitch")
     print(service_demands_after_fuelswitch)
 
-    # Step 5: Calculate L for every technology for sigmod diffusion
-    l_values_sig = calculate_L_for_sigmoid(enduses_with_fuels, data, data['assumptions'])
+    # --------
+    # Step 5: Calculate L for every technology for sigmod diffusion (cleaned)
+    # --------
+    l_values_sig = calculate_L_for_sigmoid(enduses_with_fuels, data, assumptions)
 
-    # Step 6: Calclulate sigmoid parameters
-    data['assumptions']['sigm_parameters_tech'] = calc_technology_sigmoid_curve(data['assumptions']['installed_tech_switch'], enduses_with_fuels, data['assumptions']['technologies'], data_external, data['assumptions']['installed_tech_switch'], l_values_sig, data['assumptions']['service_demand_p'], service_demands_after_fuelswitch, data['assumptions']['resid_fuel_switches'])
+    # --------
+    # Step 6: Calclulate sigmoid parameters (cleaned)
+    # --------
+    assumptions['sigm_parameters_tech'] = calc_technology_sigmoid_curve(assumptions['installed_tech_switch'], enduses_with_fuels, assumptions['technologies'], data_external, assumptions['installed_tech_switch'], l_values_sig, assumptions['service_demand_p'], service_demands_after_fuelswitch, assumptions['resid_fuel_switches'])
 
+
+    data['assumptions'] = assumptions
     return data
 
-def calc_service_demand(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock_by):
+def service_demand_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock_by):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -1554,8 +1565,7 @@ def get_installed_technologies(fuel_switches):
     # Add technology list for every enduse with affected switches
     installed_tech = {}
     for switch in fuel_switches:
-        enduse_fuelswitch = switch['enduse']
-        installed_tech[enduse_fuelswitch] = []
+        installed_tech[switch['enduse']] = []
 
     #installed_tech = []
     for switch in fuel_switches:
@@ -1648,16 +1658,10 @@ def calc_technology_sigmoid_curve(technologies_in_switches, enduses, tech_stock_
     # IDENTIAL FUEL SWITCH YEAR
     in a given year sigmoid
     diffusion curve is generated
-
     """
     sigmoid_parameters = initialise_2_level_dict(enduses, installed_tech, 'brackets')
 
     for enduse in enduses:
-        print("enduse-----------------: " + str(enduse))
-        print("installed_tech")
-        print(installed_tech)
-        print("technologies_in_switches")
-        print(technologies_in_switches)
         if enduse not in technologies_in_switches:
             print("No switch to calculate....")
         else:
@@ -1687,18 +1691,13 @@ def calc_technology_sigmoid_curve(technologies_in_switches, enduses, tech_stock_
                 # If point_y_by is 0 --> insert very small number
                 point_x_projected = year_until_switched
                 point_y_projected = service_demands_after_fuelswitch[enduse][technology]
-                print("set_service_demand")
-                print(service_demands_after_fuelswitch)
+
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])
-                print("xdata: " + str(xdata))
-                print("ydata: " + str(ydata))
+                #print("xdata: " + str(xdata))
+                #print("ydata: " + str(ydata))
 
-                # Start paramters for fitting
-                '''start_parameters = [data_ext['glob_var']['base_yr'] + 0.5 * (data_ext['glob_var']['end_yr'] - data_ext['glob_var']['base_yr']), 0.1]
-                # Fit sigmoid diffusion curve based on assumptions until when technologies are replaced
-                fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
-                '''
+                # Parameter fitting
                 possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10]
                 cnt = 0
                 successfull = 'false'
