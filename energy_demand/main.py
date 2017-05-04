@@ -54,7 +54,7 @@ import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
-#import logging
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 # Import sub modules

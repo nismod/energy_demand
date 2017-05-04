@@ -58,7 +58,6 @@ def load_data(path_main, data_ext):
     # Paths
     data['path_dict'] = {
 
-
         # Residential
         # -----------
         'path_main': path_main,
@@ -104,7 +103,6 @@ def load_data(path_main, data_ext):
         'shape_d_HP_ground': shape_d_HP_ground,
         }
     '''
-
 
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
     data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])              # Dwelling types lookup table

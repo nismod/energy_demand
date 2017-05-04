@@ -2,7 +2,12 @@ technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry
 heat_pump,electricity,2,2,1,linear,2015
 gas_boiler,gas,0.4,0.4,1,linear,2015
 elec_boiler,electricity,0.1,0.2,1,linear,2000
-hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2000
+hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2015
 oil_boiler,oil,0.7,0.7,1,linear,2015
 elec_boiler2,electricity,0.4,0.5,1,linear,2015
-hydrogen_boiler2,hydrogen,0.5,0.9,1,linear,2018
+hydrogen_boiler2,hydrogen,0.5,0.9,1,linear,2015
+halogen_elec,electricity,0.036,0.036,1,linear,2000
+standard_lighting_bulb,electricity,0.02,0.02,1,linear,2000
+fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2000
+energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2000
+LED,electricity,0.048,0.048,1,linear,2000

@@ -15,15 +15,15 @@ class Technology(object):
         self.curr_yr = year
         self.tech_name = tech_name
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type'] #TOD: USE IT
-        self.eff_by = data['assumptions']['technologies'][self.tech_name]['eff_by']
-        self.eff_ey = data['assumptions']['technologies'][self.tech_name]['eff_ey']
-        self.eff_achieved = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
+        self.eff_by = mf.const_eff_y_to_h(data['assumptions']['technologies'][self.tech_name]['eff_by'])
+        self.eff_ey = mf.const_eff_y_to_h(data['assumptions']['technologies'][self.tech_name]['eff_ey'])
+        self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
         # Calculate efficiency in current year
-        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved)
-        #print("EFFICIENCY CY: " + str(tech_name) + str(np.average(self.eff_cy)))
+        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
+
 
     # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
@@ -61,7 +61,7 @@ class Technology(object):
             )
         else:
             # Non temperature dependent efficiencies
-            eff_cy_hourly = mf.create_efficiency_array(eff_cy) # Create efficiency for every hour
+            eff_cy_hourly = eff_cy #mf.const_eff_y_to_h(eff_cy) # Create efficiency for every hour
 
         return eff_cy_hourly
     
@@ -188,9 +188,9 @@ class ResidTechStock(object):
             # Actual efficiency potential #TODO: Check if minus or plus number...TODO
             if eff_by >= 0:
                 cy_eff = eff_by + (achieved_eff * (abs(theor_max_eff) - eff_by)) # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain #abs is introduced because if minus value otherwie would become plus
-                cy_eff = mf.create_efficiency_array(cy_eff)
+                cy_eff = mf.const_eff_y_to_h(cy_eff)
             else:
                 cy_eff = eff_by - (achieved_eff * (abs(theor_max_eff) - abs(eff_by))) # Efficiency gain
-                cy_eff = mf.create_efficiency_array(cy_eff)
+                cy_eff = mf.const_eff_y_to_h(cy_eff)
 
             ResidTechStock.__setattr__(self, technology_param, cy_eff)

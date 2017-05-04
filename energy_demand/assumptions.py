@@ -158,9 +158,6 @@ def load_assumptions(data, data_external):
     # Load all technologies, their efficiencies etc.
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
-    print("*****************************")
-    print(assumptions['technologies'])
-    #prnt("...")
 
     # --Helper Function to write same achieved efficiency for all technologies
     factor_efficiency_achieved = 1.0
@@ -168,18 +165,16 @@ def load_assumptions(data, data_external):
     for technology in assumptions['technologies']:
         assumptions['technologies'][technology]['eff_achieved'] = factor_efficiency_achieved
 
-
-
-    # Other functions
+    # Other function
     data = create_lu_technologies(assumptions, data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
     assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
 
     # ---------------------------
     # FUEL SWITCHES ASSUMPTIONS
     # ---------------------------
+
+    # Load defined switches
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
-
-
 
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
@@ -211,22 +206,24 @@ def load_assumptions(data, data_external):
             }}
 
     # ---------------------------------------------------------------------------------------------------------------------
-    # Fuel Switches assumptions (NEW APPROACH)
+    # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
+    # TODO: Implement that in stocks where no fuel swtich is implemented (anod enduse ist not specifically made with savings, lower fuels just ecause of eficienes)
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
     # Assert: - if market enntry is not before base year, wheater always 100 % etc..
+    print(data['fuel_raw_data_resid_enduses'])
 
+    all_enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys()
+    # Iterate enduses and write #TODO: insert all, not only if switch
     assumptions['tech_enduse_by'] = {}
-
-    # Iterate enduses and write
-    for enduse in data['resid_enduses']:
+    for enduse in all_enduses_with_fuels: #data['resid_enduses']:
         assumptions['tech_enduse_by'][enduse] = {}
         for fueltype in range(len(data['fuel_type_lu'])):
             assumptions['tech_enduse_by'][enduse][fueltype] = {}
 
-    # 1. Space Heating fuel share within fueltype
+    # ---Space Heating
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
 
     # Provides not fuel share but share of technology
@@ -234,13 +231,14 @@ def load_assumptions(data, data_external):
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
+    # ---Lighting
+    #assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
+
+
     # Add assumptions to data dict
     data['assumptions'] = assumptions
+
     return data
-
-
-
-
 
 
 
@@ -282,7 +280,6 @@ def get_hlc(dw_type, age):
 
 
 '''
-
         'back_boiler' : 0.01,
         'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gain to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
         'standard_lighting_bulb': 0.02,          # Found on wikipedia
