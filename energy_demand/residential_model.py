@@ -828,7 +828,7 @@ class EnduseResid(object):
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_fuel_switches(self, data_ext, assumptions, tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy):
-        """ function steps to claculate fuel switches
+        """function steps to claculate fuel switches
 
         Step 1: Calculate service demand
 
@@ -881,14 +881,14 @@ class EnduseResid(object):
                     fueltypes_replaced.append(fuelswitch['enduse_fueltype_replace'])
 
                     # Share of service demand per fueltype * fraction of fuel switched (CAN BE DONE BECAUSE HEAT DEMAND RELATIVE TO FUEL??)
-                    tot_heat_demand_switched_tech += assumptions['service_demands_fueltypes'][self.enduse][fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
+                    tot_heat_demand_switched_tech += assumptions['service_fueltype_p'][self.enduse][fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
 
             #print("dd")
-            #print(assumptions['service_demands_fueltypes'])
+            #print(assumptions['service_fueltype_p'])
             #print("tot_heat_demand_switched_tech")
             #print(tot_heat_demand_switched_tech)
             #print("......")
-            #print(assumptions['service_demand_p'])
+            #print(assumptions['service_tech_p'])
             print("Heat demand which is switched to this technology: " + str(tot_heat_demand_switched_tech))
 
             # Iterate all fueltypes which are affected in the technology installed
@@ -900,7 +900,7 @@ class EnduseResid(object):
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype_replaced:
 
                         # share of total service of fueltype * share of replaced fuel (CAN BE DONE BECAUSE HEAT DEMAND IS PROPORTIONAL??)
-                        relative_share = assumptions['service_demands_fueltypes'][self.enduse][fueltype_replaced] * fuelswitch['share_fuel_consumption_switched']
+                        relative_share = assumptions['service_fueltype_p'][self.enduse][fueltype_replaced] * fuelswitch['share_fuel_consumption_switched']
                         break
 
                 # Service demand reduced for this fueltype (service technology cy (sigmoid diff) *  % of heat demand within fueltype)
@@ -915,7 +915,7 @@ class EnduseResid(object):
                     print("-------------heat demand within fueltype of technology: " + str(technology_replaced))
 
                     # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
-                    service_demand_tech = assumptions['energy_service_p_fueltype'][self.enduse][fueltype_replaced][technology_replaced] * reduction_service_demand
+                    service_demand_tech = assumptions['service_fueltype_tech_p'][self.enduse][fueltype_replaced][technology_replaced] * reduction_service_demand
 
                     # Convert service demand to fuel (service demand / eff of current year)
                     fuel_tech = service_demand_tech / tech_stock_cy.get_technology_attribute(technology_replaced, 'eff_cy')

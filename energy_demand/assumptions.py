@@ -1,6 +1,7 @@
 """ This file contains all assumptions of the energy demand model"""
-import numpy as np
 import copy
+import numpy as np
+
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 

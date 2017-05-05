@@ -54,6 +54,7 @@ import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 import numpy as np
+import random
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -156,7 +157,7 @@ if __name__ == "__main__":
         a = y_data
 
     # Scrap meteo
-    import random
+    
     meteo = {}
     a = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 20, 22, 24, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
 
@@ -250,4 +251,3 @@ if __name__ == "__main__":
     results = energy_demand_model(base_data, data_external)
 
     print("Finished running Energy Demand Model")
-

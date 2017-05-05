@@ -191,7 +191,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
 
         # Iterate simulation years
         for sim_yr in sim_period:
-            curr_year = sim_yr - glob_var['base_yr']
+            #curr_year = sim_yr - glob_var['base_yr']
 
             if sim_yr == glob_var['base_yr']:
                 sim_yrs[sim_yr] = floorarea_pp_by # base year value
@@ -199,7 +199,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
                 # Change up to current year (linear)
                 lin_diff_factor = mf.linear_diff(glob_var['base_yr'], sim_yr, 1, (1 + assump_final_diff_floorarea_pp), (len(sim_period)-1))
                 diff_cy = (1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
-                
+
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by * diff_cy # Floor area of simulation year
         data_floorarea_pp[reg_name] = sim_yrs  # Values for every simulation year
@@ -237,7 +237,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     """
     dwtype_distr = {}
 
-    sim_period = glob_var['sim_period'] 
+    sim_period = glob_var['sim_period']
 
     # Iterate years
     for sim_yr in sim_period:
