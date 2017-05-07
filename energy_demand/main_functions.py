@@ -1195,9 +1195,9 @@ def generate_sig_diffusion(data, data_external):
 
     # --------
     # Step 2: Calculate energy service demand after fuel switches to future year for each technology
-    service_demands_after_fuelswitch = service_fuel_switched(enduses_with_fuels, assumptions['resid_fuel_switches'], assumptions['service_fueltype_p'], assumptions['service_tech_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
-    print("service_demands_after_fuelswitch")
-    print(service_demands_after_fuelswitch)
+    service_tech_switched_p = service_fuel_switched(enduses_with_fuels, assumptions['service_fueltype_tech_p'], assumptions['resid_fuel_switches'], assumptions['service_fueltype_p'], assumptions['service_tech_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
+    print("service_tech_switched_p")
+    print(service_tech_switched_p)
 
     # --------
     # Step 3: Calculate L for every technology for sigmod diffusion (cleaned)
@@ -1205,7 +1205,7 @@ def generate_sig_diffusion(data, data_external):
 
     # --------
     # Step 4: Calclulate sigmoid parameters (cleaned)
-    assumptions['sigm_parameters_tech'] = calc_sigmoid_curve_tech(assumptions['installed_tech_switch'], enduses_with_fuels, assumptions['technologies'], data_external, l_values_sig, assumptions['service_tech_p'], service_demands_after_fuelswitch, assumptions['resid_fuel_switches'])
+    assumptions['sigm_parameters_tech'] = calc_sigmoid_curve_tech(assumptions['installed_tech_switch'], enduses_with_fuels, assumptions['technologies'], data_external, l_values_sig, assumptions['service_tech_p'], service_tech_switched_p, assumptions['resid_fuel_switches'])
 
 
     data['assumptions'] = assumptions
@@ -1299,7 +1299,7 @@ def service_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stoc
 
     return service_tech_p, service_fueltype_tech_p
 
-def service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_p, tech_enduse_by, installed_tech_switch, switch_type):
+def service_fuel_switched(enduses, service_fueltype_tech_p, fuel_switches, service_fueltype_p, service_tech_p, tech_enduse_by, installed_tech_switch, switch_type):
     """Calculate energy service demand percentages after fuel switches
 
     Parameters
@@ -1327,15 +1327,15 @@ def service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_te
 
     Return
     ------
-    service_demand_switched : dict
-        Service demand with added and substracted service demand for every technology
+    service_tech_switched_p : dict
+        Service in future year with added and substracted service demand for every technology
 
     Notes
     -----
     Implement changes in heat demand (all technolgies within a fueltypes are replaced proportionally)
     # Substract percentages and add percentages of service demand
     """
-    service_demand_switched = copy.deepcopy(service_tech_p)
+    service_tech_switched_p = copy.deepcopy(service_tech_p)
 
     for enduse in enduses: # Iterate enduse
         for fuel_switch in fuel_switches: # Iterate fuel switches
@@ -1344,37 +1344,64 @@ def service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_te
                 # Fuel switch parameters
                 installed_tech = fuel_switch['technology_install']
                 replaced_fueltype = fuel_switch['enduse_fueltype_replace']
+                # year RPLACEMENT
 
                 # Check if installed technology is considered for fuelswitch
                 if installed_tech in installed_tech_switch[enduse]:
+                    print("installed_tech: " + str(installed_tech))
 
                     # Share of energy service before switch
                     orig_service_p = service_fueltype_p[enduse][replaced_fueltype]
 
-                    # Calculate change in energy service demand
-                    if switch_type == 'max_switch': #CAN DO BECUASE LINARE??
-                        change_service_p = orig_service_p * fuel_switch['max_theoretical_switch'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                    # Service demand per fueltype that will be switched
+                    if switch_type == 'max_switch':
+                        change_service_fueltype_p = orig_service_p * fuel_switch['max_theoretical_switch'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                     elif switch_type == 'actual_switch':
-                        change_service_p = orig_service_p * fuel_switch['share_fuel_consumption_switched'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                    print("change_service_p: " + str(change_service_p))
+                        change_service_fueltype_p = orig_service_p * fuel_switch['share_fuel_consumption_switched'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                    print("change_service_fueltype_p: " + str(change_service_fueltype_p))
 
+                    # ---
+                    # Add service demand for installed technologies
+                    # ---
+                    service_tech_switched_p[enduse][installed_tech] += change_service_fueltype_p
+
+                    # ---
+                    # Minus
+                    # ---
                     # Calculate fraction of energy service which is replaced for a fueltype by iterating all technologies with this fueltype
                     replaced_tech_fueltype = tech_enduse_by[enduse][replaced_fueltype].keys() # get all technologies which are replaced related to this fueltype
+                    print("replaced_tech_fueltype: " + str(replaced_tech_fueltype))
 
                     # Calculate total energy service in this fueltype
-                    tot_service_fueltype_p = 0
-                    for tech in replaced_tech_fueltype:
-                        tot_service_fueltype_p += service_tech_p[enduse][tech]
+                    #tot_service_fueltype_p = 0
+                    #for tech in replaced_tech_fueltype:
+                    #    tot_service_fueltype_p += service_tech_p[enduse][tech]
+
+                    print("service_fueltype_tech_p")
+                    print(service_fueltype_tech_p)
+                    print("----")
+                    print(service_fueltype_p)
+                    print("---")
+                    print(orig_service_p)
 
                     # Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
-                        relative_service_p = (1 / tot_service_fueltype_p) * service_tech_p[enduse][tech] # Relative service demand within fueltype
-                        service_demand_switched[enduse][tech] -= change_service_p * relative_service_p
+                        print("tech: " + str(tech))
+                        #elative_service_p = (1 / tot_service_fueltype_p) * service_tech_p[enduse][tech] # Relative service demand within fueltype
+                        #relative_service_p = (1 / orig_service_p) * service_tech_p[enduse][tech] # Relative service demand within fueltype
+                        #relative_service_p = service_fueltype_tech_p[enduse][replaced_fueltype][tech] # Relative service demand within fueltype
+                        #print("relative_service_p"+ str(relative_service_p))
+                        #print("service_fueltype_tech_p" + str(service_fueltype_tech_p))
 
-                    # Add service demand for installed technologies
-                    service_demand_switched[enduse][installed_tech] += change_service_p
+                        #service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * relative_service_p
+                        # service_tech_p
+                        #service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_fueltype_tech_p[enduse][replaced_fueltype][tech]
+                        print("service_tech_p" + str(service_tech_p))
+                        print(service_fueltype_tech_p)
+                        service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_p[enduse][tech]
 
-    return service_demand_switched
+
+    return service_tech_switched_p
 
 def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_stock_by):
     """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
@@ -1437,7 +1464,7 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
     return total_service_h
 
 def service_demand_fueltype(lu_fueltype, service_tech_p, tech_stock):
-    """Calculate energy service per fueltype
+    """Calculate service per fueltype in percentage of total service
 
     Parameters
     ----------
@@ -1449,15 +1476,14 @@ def service_demand_fueltype(lu_fueltype, service_tech_p, tech_stock):
     Return
     ------
     energy_service_fueltype : dict
-        Percentage of total energy service per fueltype
-        (e.g. 0.5 gas, 0.5 electricity)
-
+        Percentage of total (iterate over all technologis with this fueltype) service per fueltype
+        
     Example
     -----
-
+    (e.g. 0.5 gas, 0.5 electricity)
 
     """
-    energy_service_fueltype = initialise_2_level_dict(service_tech_p.keys(), range(len(lu_fueltype)), 'zero') # Energy service per technology for base year (e.g. heat demand in joules)
+    service_fueltype = initialise_2_level_dict(service_tech_p.keys(), range(len(lu_fueltype)), 'zero') # Energy service per technology for base year (e.g. heat demand in joules)
 
     # Iterate technologies for each enduse and their percentage of total service demand
     for enduse in service_tech_p:
@@ -1466,9 +1492,9 @@ def service_demand_fueltype(lu_fueltype, service_tech_p, tech_stock):
         for technology in service_tech_p[enduse]:
 
             # Add percentage of total enduse to fueltype
-            energy_service_fueltype[enduse][tech_stock[technology]['fuel_type']] += service_tech_p[enduse][technology]
+            service_fueltype[enduse][tech_stock[technology]['fuel_type']] += service_tech_p[enduse][technology]
 
-    return energy_service_fueltype
+    return service_fueltype
 
 def get_installed_technologies(fuel_switches):
     """Read out all technologies which are specifically switched to
@@ -1532,6 +1558,7 @@ def cal_L_for_sigmoid(enduses, data, assumptions):
                 # Calculate service demand for specific tech
                 tech_install_p = service_fuel_switched(
                     data['resid_enduses'],
+                    assumptions['service_fueltype_tech_p'], #NEW
                     assumptions['resid_fuel_switches'],
                     assumptions['service_fueltype_p'], # Service demand for enduses and fueltypes
                     assumptions['service_tech_p'], # Percentage of service demands for every technology
@@ -1545,7 +1572,7 @@ def cal_L_for_sigmoid(enduses, data, assumptions):
 
     return l_values_sig
 
-def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_ext, L_values, service_tech_p, service_demands_after_fuelswitch, resid_fuel_switches):
+def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_ext, L_values, service_tech_p, service_tech_switched_p, resid_fuel_switches):
     """Based on energy service demand in base year and projected future energy service demand because of fuel switched the a sigmoid difufsion curve is fitted
 
     Parameters
@@ -1564,7 +1591,7 @@ def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_
         L values for maximum possible diffusion of technologies
     service_tech_p : dict
         Energy service demand for base year (1.sigmoid point)
-    service_demands_after_fuelswitch : dict
+    service_tech_switched_p : dict
         Service demand after fuelswitch
     resid_fuel_switches : dict
         Fuel switch information
@@ -1611,7 +1638,7 @@ def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_
 
                 # If point_y_by is 0 --> insert very small number
                 point_x_projected = year_until_switched
-                point_y_projected = service_demands_after_fuelswitch[enduse][technology]
+                point_y_projected = service_tech_switched_p[enduse][technology]
 
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])
