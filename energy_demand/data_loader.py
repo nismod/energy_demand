@@ -42,6 +42,8 @@ def load_data(path_main, data_ext):
         'future_fuel': 7
     }
 
+
+
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
     # -----------------------------
@@ -82,6 +84,8 @@ def load_data(path_main, data_ext):
         'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_FUELSWITCHES': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
 
+        # Weather
+
         # Service
         # -------
         'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv'),
@@ -91,6 +95,17 @@ def load_data(path_main, data_ext):
 
 
         }
+
+    # -----------------------------
+    # Read in weather data
+    # -----------------------------
+    # TODO: LOCAL DATA
+    #folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    #folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+
+    #data['weather_data'] = df.read_weater_data(folder_path_weater_data)
+    #data['weather_stations'] = df.read_weater_stations(folder_path_weater_stations)
+    
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR

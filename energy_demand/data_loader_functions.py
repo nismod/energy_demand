@@ -2,9 +2,11 @@
 #import energy_demand.main_functions as mf
 import os
 import csv
+import re #cookies
 import numpy as np
 import unittest
 import json
+import datetime
 from datetime import date
 import energy_demand.main_functions as mf
 import copy
@@ -657,3 +659,87 @@ def compare_jan_jul(main_dict_dayyear_absolute):
 
     pf.plot_load_shape_d_non_resid(jan)
     print("TEST: " + str(jan-jul))
+
+
+
+#from datetime import date
+
+
+def read_weater_data(path_to_csv):
+    """
+    """
+    lines = []
+    end_uses_dict = {}
+
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+        #_headings = next(read_lines)                      # Skip first row
+
+
+        # Iterate rows
+        for row in read_lines: # select row
+            date = row[0].split(" ")
+            date_yr = date[0].split("-")[0]
+            date_month = date[0].split("-")[1]
+            date_day = date[0].split("-")[2]
+            date_hr = int(date[1][:2])
+
+            # Weather station
+            weater_station_id = row[5]
+            print("Weater station: " + str(weater_station_id))
+
+            # Air temperature in Degrees Celcius
+            air_temp = row[35]
+            print("AIR TEMP: " + str(air_temp))
+
+            datetime_object = datetime(date_yr, date_month, date_day, date_hr, 0, 0)
+
+            lines
+            print("ddd")
+            print(date_yr)
+            print(date_month)
+            print(date_day)
+            print(date_hr)
+            print("hour")
+            print(row)
+            print("..")
+            print(row.split())
+            p = row[0].split(",")
+            print(p)
+            print(row.split(','))
+            #row_split = re.split('\s+', row)
+            print("row:")
+            print(row_split)
+            prnt("..")
+            lines.append(row)
+
+    #data = {}
+
+
+    return data
+
+def read_weater_stations(path_to_csv):
+    """
+    """
+    weather_stations = {}
+
+
+    lines = []
+    end_uses_dict = {}
+
+    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+        read_lines = csv.reader(csvfile, delimiter='\t')   # Read line
+
+        print("read_lines")
+        print(read_lines)
+        for row in read_lines: # select row
+            print("row")
+            print(row)
+            #row_split = re.split('\s+', row)
+            #print("row: " + str(row_split))
+            #prnt("..")
+
+
+
+    return weather_stations
+
