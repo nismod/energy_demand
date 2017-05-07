@@ -1207,7 +1207,6 @@ def generate_sig_diffusion(data, data_external):
     # Step 4: Calclulate sigmoid parameters (cleaned)
     assumptions['sigm_parameters_tech'] = calc_sigmoid_curve_tech(assumptions['installed_tech_switch'], enduses_with_fuels, assumptions['technologies'], data_external, l_values_sig, assumptions['service_tech_p'], service_tech_switched_p, assumptions['resid_fuel_switches'])
 
-
     data['assumptions'] = assumptions
     return data
 
@@ -1447,13 +1446,13 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
         for tech in fuel_p_tech_by[fueltype]:
 
             # Fuel share based on defined fuel fraction within fueltype (share of fuel of technology * tot fuel)
-            fuel_of_tech = fuel_p_tech_by[fueltype][tech] * fuel_enduse[0]
+            fuel_tech = fuel_p_tech_by[fueltype][tech] * fuel_enduse[0]
 
             # Distribute fuel into every hour based on shape how the fuel is distributed over the year
-            fuel_of_tech_h = fuel_shape_y_h * fuel_of_tech
+            fuel_tech_h = fuel_shape_y_h * fuel_tech
 
             # Convert to energy service (Energy service = fuel * efficiency)
-            service[fueltype][tech] = fuel_of_tech_h * tech_stock_by[tech]['eff_by']
+            service[fueltype][tech] = fuel_tech_h * tech_stock_by[tech]['eff_by']
 
     # Calculate energy service demand over the full year and for every hour
     total_service_h = np.zeros((365, 24))
