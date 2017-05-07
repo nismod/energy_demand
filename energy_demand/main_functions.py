@@ -1185,8 +1185,9 @@ def generate_sig_diffusion(data, data_external):
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys()
 
     # --------
-    # Step 1. Convert fuel to energy service demand per enduse and technology (For whole UK as technology diffusion is assumed to be the same)
+    # Step 1. Convert fuel to energy service per enduse and technology (For whole UK as technology diffusion is assumed to be the same)
     assumptions['service_tech_p'], assumptions['service_fueltype_tech_p'] = service_technologies(data['lu_fueltype'], data['fuel_raw_data_resid_enduses'], assumptions['tech_enduse_by'], data['fuel_raw_data_resid_enduses'], assumptions['technologies'])
+
     assumptions['service_fueltype_p'] = service_demand_fueltype(data['lu_fueltype'], assumptions['service_tech_p'], assumptions['technologies'])
     print("STEP 1: service_tech_p:" + str(assumptions['service_tech_p']))
     print("STEP 1: service_fueltype_p:" + str(assumptions['service_fueltype_tech_p']))
@@ -1234,9 +1235,9 @@ def service_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stoc
 
     Return
     ------
-    service_p : dict
+    service_tech_p : dict
         Percentage of total energy service per technology for base year
-    service_p_fueltype : dict
+    service_fueltype_tech_p : dict
         Percentage of energy service witin a fueltype for all technologies with this fueltype for base year
 
     Notes
@@ -1246,8 +1247,8 @@ def service_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stoc
     Therfore a constant technology efficiency of the full year needs to be assumed for all technologies.
     """
     service = initialise_2_level_dict(enduses, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year (e.g. heat demand in joules)
-    service_p = initialise_1_level_dict(enduses) # Percentage of total energy service per technology for base year
-    service_p_fueltype = initialise_2_level_dict(enduses, fueltypes_lu.values(), 'brackets') # Percentage of energy service for technologies within the fueltypes
+    service_tech_p = initialise_1_level_dict(enduses) # Percentage of total energy service per technology for base year
+    service_fueltype_tech_p = initialise_2_level_dict(enduses, fueltypes_lu.values(), 'brackets') # Percentage of energy service for technologies within the fueltypes
 
     for enduse in enduses: # Iterate enduse
         for fueltype, fuel_fueltype in enumerate(fuels[enduse]): # Iterate fueltype
@@ -1260,17 +1261,17 @@ def service_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stoc
                 fuel_tech = fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0]
 
                 # Energy service of end use: Fuel of technoloy * efficiency == Service (e.g.heat demand in Joules)
-                service__fueltype_tech = fuel_tech * tech_stock_by[tech]['eff_by']
+                service_fueltype_tech = fuel_tech * tech_stock_by[tech]['eff_by']
 
-                service[enduse][fueltype][tech] = service__fueltype_tech # Add energy service demand to dict
-                tot_service_fueltype += service__fueltype_tech # Total energy service demand within a fueltype
+                service[enduse][fueltype][tech] = service_fueltype_tech # Add energy service demand to dict
+                tot_service_fueltype += service_fueltype_tech # Total energy service demand within a fueltype
 
             # Calculate percentage of service enduse within fueltype
             for tech in fuel_p_tech_by[enduse][fueltype]: # Iterate technologis in defined tech stock
                 if tot_service_fueltype == 0: # No fuel in this fueltype
-                    service_p_fueltype[enduse][fueltype][tech] = 0
-                else: 
-                    service_p_fueltype[enduse][fueltype][tech] = (1 / tot_service_fueltype) * (fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0] * tech_stock_by[tech]['eff_by'])
+                    service_fueltype_tech_p[enduse][fueltype][tech] = 0
+                else:
+                    service_fueltype_tech_p[enduse][fueltype][tech] = (1 / tot_service_fueltype) * service[enduse][fueltype][tech] #* (fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0] * tech_stock_by[tech]['eff_by'])
 
         # Calculate percentage of service of all technologies
         total_service = sum_1_level_dict(service[enduse]) #Total service demand
@@ -1278,25 +1279,25 @@ def service_technologies(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stoc
         # Percentage of energy service per technology
         for fueltype in service[enduse]:
             for technology in service[enduse][fueltype]:
-                service_p[enduse][technology] = (1 / total_service) * service[enduse][fueltype][technology]
+                service_tech_p[enduse][technology] = (1 / total_service) * service[enduse][fueltype][technology]
 
     # Assert
     # --------
     print("TEST ASSERTIONS")
-    for enduse in service_p:
-        print(service_p[enduse].values())
-        sum_p_service = sum(service_p[enduse].values())
+    for enduse in service_tech_p:
+        print(service_tech_p[enduse].values())
+        sum_p_service = sum(service_tech_p[enduse].values())
         print("Enduse: " + str(sum_p_service))
         #assert sum_p_service == 1.0, "The energy service for all technologies is not 100% (1.0)"
 
     # Test if within fueltype always 100 energy service
-    for enduse in service_p_fueltype:
-        for fueltype in service_p_fueltype[enduse]:
-            sum_p_service_fueltype = sum(service_p_fueltype[enduse][fueltype].values())
+    for enduse in service_fueltype_tech_p:
+        for fueltype in service_fueltype_tech_p[enduse]:
+            sum_p_service_fueltype = sum(service_fueltype_tech_p[enduse][fueltype].values())
             #print("sum_p_service_fueltype: " + str(sum_p_service_fueltype))
             assert sum_p_service_fueltype == 1.0 or sum_p_service_fueltype == 0.0, "The energy service for all technologies within a fueltype is not 100% (1.0)"
 
-    return service_p, service_p_fueltype
+    return service_tech_p, service_fueltype_tech_p
 
 def service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_p, tech_enduse_by, installed_tech_switch, switch_type):
     """Calculate energy service demand percentages after fuel switches
@@ -1435,12 +1436,12 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
 
     return total_service_h
 
-def service_demand_fueltype(lu_fueltype, service_demand_p, tech_stock):
+def service_demand_fueltype(lu_fueltype, service_tech_p, tech_stock):
     """Calculate energy service per fueltype
 
     Parameters
     ----------
-    service_demand_p : dict
+    service_tech_p : dict
         Service demand per technology
     tech_stock : dict
         Technologies with all attributes
@@ -1456,19 +1457,16 @@ def service_demand_fueltype(lu_fueltype, service_demand_p, tech_stock):
 
 
     """
-    energy_service_fueltype = initialise_2_level_dict(service_demand_p.keys(), range(len(lu_fueltype)), 'zero') # Energy service per technology for base year (e.g. heat demand in joules)
+    energy_service_fueltype = initialise_2_level_dict(service_tech_p.keys(), range(len(lu_fueltype)), 'zero') # Energy service per technology for base year (e.g. heat demand in joules)
 
     # Iterate technologies for each enduse and their percentage of total service demand
-    for enduse in service_demand_p:
+    for enduse in service_tech_p:
 
         # Iterate technologies in enduse
-        for technology in service_demand_p[enduse]:
-
-            # Read fuel type of technology
-            fueltype_technology = tech_stock[technology]['fuel_type']
+        for technology in service_tech_p[enduse]:
 
             # Add percentage of total enduse to fueltype
-            energy_service_fueltype[enduse][fueltype_technology] += service_demand_p[enduse][technology]
+            energy_service_fueltype[enduse][tech_stock[technology]['fuel_type']] += service_tech_p[enduse][technology]
 
     return energy_service_fueltype
 
