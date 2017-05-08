@@ -30,11 +30,14 @@ class Region(object):
         """Constructor of Region Class
         """
         self.reg_name = reg_name
+        self.longitude = data_ext['region_coordinates']['longitude'] # Of centroid of region
+        self.latitude = data_ext['region_coordinates']['latitude'] # Of centroid of region
+
+        # Get closest weater station
+        
         self.enduses_fuel = data['fueldata_disagg'][reg_name] # Fuel array of region
         self.temp_by = data_ext['temperature_data'][data_ext['glob_var']['base_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
         self.temp_cy = data_ext['temperature_data'][data_ext['glob_var']['curr_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
-
-        #get_peak_temp() #TODO: Get peak day gemperatures (day with hottest temperature and day with coolest temperature)
 
         # Create region specific technological stock
         self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
@@ -606,73 +609,73 @@ class Region(object):
 
 
 def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
-        """Plots stacked end_use for a region
+    """Plots stacked end_use for a region
 
-        #TODO: Make that end_uses can be sorted, improve legend...
+    #TODO: Make that end_uses can be sorted, improve legend...
 
-        0: 0-1
-        1: 1-2
-        2:
+    0: 0-1
+    1: 1-2
+    2:
 
-        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
-        """
+    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+    """
 
-        fig, ax = plt.subplots() #fig is needed
-        nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
+    fig, ax = plt.subplots() #fig is needed
+    nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
 
-        day_start_plot = yearday
-        day_end_plot = (yearday + nr_of_day_to_plot)
+    day_start_plot = yearday
+    day_end_plot = (yearday + nr_of_day_to_plot)
 
-        x = range(nr_hours_to_plot)
+    x = range(nr_hours_to_plot)
 
-        legend_entries = []
+    legend_entries = []
 
-        # Initialise (number of enduses, number of hours to plot)
-        Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
+    # Initialise (number of enduses, number of hours to plot)
+    Y_init = np.zeros((len(self.enduse_fuel), nr_hours_to_plot))
 
-        # Iterate enduse
-        for k, enduse in enumerate(self.enduse_fuel):
-            legend_entries.append(enduse)
-            sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
+    # Iterate enduse
+    for k, enduse in enumerate(self.enduse_fuel):
+        legend_entries.append(enduse)
+        sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_h') #np.around(fuel_end_use_h,10)
 
-            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
-            list_all_h = []
+        #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
+        list_all_h = []
 
-            #Get data of a fueltype
-            for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
+        #Get data of a fueltype
+        for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
 
-                for h in fuel_data:
-                    list_all_h.append(h)
+            for h in fuel_data:
+                list_all_h.append(h)
 
-            Y_init[k] = list_all_h
+        Y_init[k] = list_all_h
 
-        #color_list = ["green", "red", "#6E5160"]
+    #color_list = ["green", "red", "#6E5160"]
 
-        sp = ax.stackplot(x, Y_init)
-        proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
+    sp = ax.stackplot(x, Y_init)
+    proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
 
-        ax.legend(proxy, legend_entries)
+    ax.legend(proxy, legend_entries)
 
-        #ticks x axis
-        ticks_x = range(24)
-        plt.xticks(ticks_x)
+    #ticks x axis
+    ticks_x = range(24)
+    plt.xticks(ticks_x)
 
-        #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
-        plt.axis('tight')
+    #plt.xticks(range(3), ['A', 'Big', 'Cat'], color='red')
+    plt.axis('tight')
 
-        plt.xlabel("Hours")
-        plt.ylabel("Energy demand in GWh")
-        plt.title("Stacked energy demand for region{}".format(reg_name))
+    plt.xlabel("Hours")
+    plt.ylabel("Energy demand in GWh")
+    plt.title("Stacked energy demand for region{}".format(reg_name))
 
-        #from matplotlib.patches import Rectangle
-        #legend_boxes = []
-        #for i in color_list:
-        #    box = Rectangle((0, 0), 1, 1, fc=i)
-        #    legend_boxes.append(box)
-        #ax.legend(legend_boxes, legend_entries)
+    #from matplotlib.patches import Rectangle
+    #legend_boxes = []
+    #for i in color_list:
+    #    box = Rectangle((0, 0), 1, 1, fc=i)
+    #    legend_boxes.append(box)
+    #ax.legend(legend_boxes, legend_entries)
 
-        #ax.stackplot(x, Y_init)
-        plt.show()
+    #ax.stackplot(x, Y_init)
+    plt.show()
 
 def residential_model_main_function(data, data_ext):
     """Main function of residential model
@@ -694,7 +697,7 @@ def residential_model_main_function(data, data_ext):
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `CountryResidentialModel`
-    resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext)
+    resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext) #Add Coordinates
 
     print("READ OUT SPECIFIC ENDUSE FOR A REGION")
     #print(resid_object.get_specific_enduse_region('Wales', 'space_heating'))
@@ -850,7 +853,8 @@ class EnduseResid(object):
         for tech_installed in assumptions['installed_tech_switch'][self.enduse]:
 
             print("--tech_installed: " + str(tech_installed))
-            tech_installed_eff_cy = tech_stock_by.get_technology_attribute(tech_installed, 'eff_cy')
+            #tech_installed_eff_cy = tech_stock_by.get_technology_attribute(tech_installed, 'eff_cy')
+            tech_installed_eff_cy = tech_stock_cy.get_technology_attribute(tech_installed, 'eff_cy') #CY or BY?
             tech_installed_fueltype = tech_stock_by.get_technology_attribute(tech_installed, 'fuel_type')
 
             # -----------------------------------------------------------------------------------------
@@ -894,6 +898,7 @@ class EnduseResid(object):
             for fueltype in fueltypes_replaced:
 
                 # Find fuel switch where this fueltype is replaced --> WRITE AS SEPERATE FUNCTION get_fuelswitch()
+                #fuelswitch_specific = get_fuelswitch()
                 for fuelswitch in assumptions['resid_fuel_switches']:
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype:
 
@@ -1369,8 +1374,12 @@ class CountryResidentialModel(object):
             CountryResidentialModel.__setattr__(
                 self,
                 str(reg_name), # Region identifiyer is converted into a string
-                Region(reg_name, data, data_ext) #: Create a Region
-                )
+                Region(
+                    reg_name,
+                    data,
+                    data_ext
+                ) #: Create a Region
+            )
 
     def get_specific_enduse_region(self, spec_region, spec_enduse):
         _a = getattr(self, spec_region)

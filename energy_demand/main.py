@@ -139,13 +139,18 @@ if __name__ == "__main__":
     sim_years = range(by, ey + 1)
 
     pop_dummy = {}
-    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'BERN': 5300000}
+    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
     for i in sim_years:
         y_data = {}
         for reg in a:
             y_data[reg] = a[reg] # + (a[reg] * 1.04)
         pop_dummy[i] = y_data
-
+    
+    # dummy coordinates
+    coord_dummy = {}
+    coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
+    coord_dummy['Scotland'] = {'longitude': 56.483100, 'latitude': -4.027093}
+    coord_dummy['England'] = {'longitude': 52.874205, 'latitude': -0.871205}
 
     fuel_price_dummy = {}
     a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0}
@@ -183,6 +188,7 @@ if __name__ == "__main__":
     data_external = {
 
         'population': pop_dummy,
+        'region_coordinates': coord_dummy,
         'temperature_data': meteo,
         'glob_var' : {},
         #'glob_var': {

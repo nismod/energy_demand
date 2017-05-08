@@ -43,6 +43,8 @@ def load_data(path_main, data_ext):
     }
 
 
+ 
+
 
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
@@ -101,24 +103,42 @@ def load_data(path_main, data_ext):
     # -----------------------------
     # TODO: LOCAL DATA
     folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    #folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512_SHORT.csv'
     folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
 
-    data['weather_data'] = df.read_weater_data(folder_path_weater_data)
+    # Read weaher stations
     data['weather_stations'] = df.read_weater_stations(folder_path_weater_stations)
-    
+    print("BIRMINGHAM WEATER STATION" + str(data['weather_stations'][56950]))
+
+
+    # Weather data
+    empty_data_substitute = 9999
+
+    # Read in raw
+    data['weather_data'] = df.read_weater_data(folder_path_weater_data, empty_data_substitute)
+
+    #for day, tempers in enumerate(data['weather_data'][56950]):
+    #    print("BIRMINHAM DAY " + str(day) +"  " + str(tempers))
+    #print()
+
+    # Clean weather data
+    data['weather_data'] = df.clean_weater_data(data['weather_data'], empty_data_substitute)
+
+    for weaterstation in data['weather_data']:
+        print("Weater station: " + str(weaterstation))
+        print("  ")
+        for i, dat in enumerate(data['weather_data'][weaterstation]):
+            print(str(i) + "   " + str(dat))
+        print("------")
+
+    print("key")
+    print(data['weather_data'] .keys())
+    print(len(data['weather_data'] .keys()))
+    prnt(":.")
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------
-    '''# Load Daily load shapes of different technologies (heating reg, CHP) #TODO
-    shape_d_HP = []
-    shape_d_HP_ground = []
-    data['technology_daily_shape_heating'] = {
-        'shape_d_HP': shape_d_HP,
-        'shape_d_HP_ground': shape_d_HP_ground,
-        }
-    '''
-
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
     data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])              # Dwelling types lookup table
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
@@ -154,11 +174,6 @@ def load_data(path_main, data_ext):
 
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
-
-
-
-
-
 
 
 
