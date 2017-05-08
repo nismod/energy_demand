@@ -829,3 +829,18 @@ def read_weater_stations(path_to_csv):
 
     return weather_stations
 
+def get_all_weaterstations_with_data(ids_of_statsion_with_data, weather_stations):
+    print("---------")
+    print(ids_of_statsion_with_data)
+    print("  ")
+    #print(weather_stations.keys())
+    weather_stations_with_data = {}
+
+    for id_station in ids_of_statsion_with_data:
+        print("ID STATION: " + str(id_station))
+        try:
+            weather_stations_with_data[id_station] = weather_stations[id_station]
+        except:
+            print("Weater station is not in weater sattion dict: " + str(id_station))
+
+    return weather_stations_with_data

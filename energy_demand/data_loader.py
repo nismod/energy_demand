@@ -106,9 +106,9 @@ def load_data(path_main, data_ext):
     #folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512_SHORT.csv'
     folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
 
-    # Read weaher stations
-    data['weather_stations'] = df.read_weater_stations(folder_path_weater_stations)
-    print("BIRMINGHAM WEATER STATION" + str(data['weather_stations'][56950]))
+    # Read all weater stations
+    data['weather_stations_raw'] = df.read_weater_stations(folder_path_weater_stations)
+    print("BIRMINGHAM WEATER STATION" + str(data['weather_stations_raw'][56950]))
 
 
     # Weather data
@@ -121,20 +121,20 @@ def load_data(path_main, data_ext):
     #    print("BIRMINHAM DAY " + str(day) +"  " + str(tempers))
     #print()
 
-    # Clean weather data
+    # Clean weather data (recued to 100 stations)
     data['weather_data'] = df.clean_weater_data(data['weather_data'], empty_data_substitute)
 
-    for weaterstation in data['weather_data']:
-        print("Weater station: " + str(weaterstation))
-        print("  ")
-        for i, dat in enumerate(data['weather_data'][weaterstation]):
-            print(str(i) + "   " + str(dat))
-        print("------")
+    # Read out only those wetaer stations for which there is data
+    data['weather_stations'] = df.get_all_weaterstations_with_data(data['weather_data'].keys(), data['weather_stations_raw'])
 
-    print("key")
-    print(data['weather_data'] .keys())
-    print(len(data['weather_data'] .keys()))
-    prnt(":.")
+    print(data['weather_stations'].keys())
+    print(len(data['weather_stations'].keys()))
+    
+    print("BBIRMIN STATION")
+    try:
+        print(data['weather_stations'][56950])
+    except:
+        print("not data for birmingham")
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR

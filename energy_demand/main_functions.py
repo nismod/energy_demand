@@ -1729,3 +1729,23 @@ def calc_distance_to_weater_station(longitude_weater_station, latitute_weater_st
     distance = haversine(from_pnt, to_pnt, miles=False)
 
     return distance
+
+
+def search_cosest_weater_station(longitude_reg, latitue_reg, data_ext, weather_stations):
+    """Search ID of closest weater station
+    """
+    closest_dist = 99999999999
+
+    for weather_station_id in weather_stations:
+
+        station_latitude = weather_stations[weather_station_id]['station_latitude']
+        station_longitude = weather_stations[weather_station_id]['station_longitude']
+
+        dist_to_station = calc_distance_to_weater_station(longitude_reg, latitue_reg, station_latitude, station_longitude)
+
+        if dist_to_station < closest_dist:
+            closest_dist = dist_to_station
+
+            closest_ID = weather_station_id
+
+    return closest_ID

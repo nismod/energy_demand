@@ -30,20 +30,23 @@ class Region(object):
         """Constructor of Region Class
         """
         self.reg_name = reg_name
-        self.longitude = data_ext['region_coordinates']['longitude'] # Of centroid of region
-        self.latitude = data_ext['region_coordinates']['latitude'] # Of centroid of region
+        self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude'] # Of centroid of region
+        self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude'] # Of centroid of region
 
         # Get closest weater station
+        closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data_ext, data['weather_stations'])
+        print("closest_weater_station_id: " + str(closest_weater_station_id))
         
         self.enduses_fuel = data['fueldata_disagg'][reg_name] # Fuel array of region
-        self.temp_by = data_ext['temperature_data'][data_ext['glob_var']['base_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
-        self.temp_cy = data_ext['temperature_data'][data_ext['glob_var']['curr_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
-
+        #self.temp_by = data_ext['temperature_data'][data_ext['glob_var']['base_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
+        #self.temp_cy = data_ext['temperature_data'][data_ext['glob_var']['curr_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
+        self.temp_by = data['weather_data'][closest_weater_station_id] #TODO: STORE TEMPERATURE FOR SPECIFIC YEAR
+        self.temp_cy = data['weather_data'][closest_weater_station_id] #TODO: READ IN SPECIFIC TEMP OF REGION
         # Create region specific technological stock
         self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
         #print("OKO=====================" + str(self.tech_stock_by.__dict__))
-
+        #prnt("..")
         #print("OK: " + str(getattr(self.tech_stock_cy, 'heat_pump')))
         #print("OKO=====================" + str(self.tech_stock_cy['heat_pump'].eff_cy))
 
