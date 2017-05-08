@@ -1385,7 +1385,7 @@ def service_fuel_switched(enduses, service_fueltype_tech_p, fuel_switches, servi
 
                     # Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
-                        print("tech: " + str(tech))
+                        print("REPLACED MINUS TECHNOLOGY: " + str(tech))
                         #elative_service_p = (1 / tot_service_fueltype_p) * service_tech_p[enduse][tech] # Relative service demand within fueltype
                         #relative_service_p = (1 / orig_service_p) * service_tech_p[enduse][tech] # Relative service demand within fueltype
                         #relative_service_p = service_fueltype_tech_p[enduse][replaced_fueltype][tech] # Relative service demand within fueltype
@@ -1612,14 +1612,21 @@ def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_
         if enduse not in installed_tech_switch:
             print("No switch to calculate....")
         else:
-            # Year until swictheds (must be identical for all switches) (read out from frist switch)
-            # #TODO
-            for switch in resid_fuel_switches:
-                if switch['enduse'] == enduse:
-                    year_until_switched = switch['year_fuel_consumption_switched']
-                    break
+
+
 
             for technology in installed_tech_switch[enduse]:
+                
+                # Year until swictheds (must be identical for all switches) (read out from frist switch)
+                # #TODO
+                # Get year which is furtherst away of all switch to installed technology
+                year_until_switched = 0
+                for switch in resid_fuel_switches:
+                    if switch['enduse'] == enduse and switch['technology_install'] == technology:
+                        if year_until_switched < switch['year_fuel_consumption_switched']:
+                            year_until_switched = switch['year_fuel_consumption_switched']
+
+
                 sigmoid_parameters[enduse][technology] = {}
 
                 # Test wheter technology has the market entry before or after base year. If wafterwards --> set very small number in market entry year
@@ -1638,6 +1645,7 @@ def calc_sigmoid_curve_tech(installed_tech_switch, enduses, tech_stock_by, data_
                 # If point_y_by is 0 --> insert very small number
                 point_x_projected = year_until_switched
                 point_y_projected = service_tech_switched_p[enduse][technology]
+                print("L CALCCULATION TECHNOLOGY: " + str(technology))
 
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])

@@ -100,11 +100,11 @@ def load_data(path_main, data_ext):
     # Read in weather data
     # -----------------------------
     # TODO: LOCAL DATA
-    #folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
-    #folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+    folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
 
-    #data['weather_data'] = df.read_weater_data(folder_path_weater_data)
-    #data['weather_stations'] = df.read_weater_stations(folder_path_weater_stations)
+    data['weather_data'] = df.read_weater_data(folder_path_weater_data)
+    data['weather_stations'] = df.read_weater_stations(folder_path_weater_stations)
     
 
     # ------------------------------------------

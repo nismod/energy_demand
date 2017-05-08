@@ -899,7 +899,6 @@ class EnduseResid(object):
 
                         # share of total service of fueltype * share of replaced fuel (CAN BE DONE BECAUSE HEAT DEMAND IS PROPORTIONAL??)
                         relative_share = assumptions['service_fueltype_p'][self.enduse][fueltype] * fuelswitch['share_fuel_consumption_switched']
-                        
 
                         # Service reduced for this fueltype (service technology cy (sigmoid diff) *  % of heat demand within fueltype)
                         reduction_service_fueltype = service_tech_installed_cy * ((1 / tot_service_switched_tech_installed) * relative_share)

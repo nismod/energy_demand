@@ -662,7 +662,7 @@ def compare_jan_jul(main_dict_dayyear_absolute):
 
 
 
-#from datetime import date
+#
 
 
 def read_weater_data(path_to_csv):
@@ -679,44 +679,35 @@ def read_weater_data(path_to_csv):
         # Iterate rows
         for row in read_lines: # select row
             date = row[0].split(" ")
-            date_yr = date[0].split("-")[0]
-            date_month = date[0].split("-")[1]
-            date_day = date[0].split("-")[2]
+            date_yr = int(date[0].split("-")[0])
+            date_month = int(date[0].split("-")[1])
+            date_day = int(date[0].split("-")[2])
             date_hr = int(date[1][:2])
 
             # Weather station
-            weater_station_id = row[5]
-            print("Weater station: " + str(weater_station_id))
+            weater_station_id = int(row[5])
+            #print("Weater station: " + str(weater_station_id))
 
             # Air temperature in Degrees Celcius
             air_temp = row[35]
-            print("AIR TEMP: " + str(air_temp))
+            #print("AIR TEMP: " + str(air_temp))
+            #print("date_yr: " + str(date_yr))
+            ##print("date_month: " + str(date_month))
+            #print("date_day: " + str(date_day))
+            ##print("date_hr: " + str(date_hr))
 
-            datetime_object = datetime(date_yr, date_month, date_day, date_hr, 0, 0)
+            datetime_object = datetime.datetime(date_yr, date_month, date_day, date_hr, 0, 0)
 
-            lines
-            print("ddd")
-            print(date_yr)
-            print(date_month)
-            print(date_day)
-            print(date_hr)
-            print("hour")
-            print(row)
-            print("..")
-            print(row.split())
-            p = row[0].split(",")
-            print(p)
-            print(row.split(','))
-            #row_split = re.split('\s+', row)
-            print("row:")
-            print(row_split)
-            prnt("..")
-            lines.append(row)
+            lines.append([datetime_object, weater_station_id, air_temp])
+            #print("----")
+            #print(lines)
+
+
 
     #data = {}
 
 
-    return data
+    return lines
 
 def read_weater_stations(path_to_csv):
     """
@@ -737,7 +728,7 @@ def read_weater_stations(path_to_csv):
             print(row)
             #row_split = re.split('\s+', row)
             #print("row: " + str(row_split))
-            #prnt("..")
+            prnt("..")
 
 
 
