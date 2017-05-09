@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # DUMMY DATA GENERATION----------------------
     by = 2015
     ey = 2020 #always includes this year
-    sim_years = range(by, ey + 1)
+    sim_years = range(by, ey + 1) #TODO: TEST Everyhwere wher len(sim_years) is used
 
     pop_dummy = {}
     a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
@@ -160,27 +160,6 @@ if __name__ == "__main__":
             y_data[reg] = a[reg] + 0.3
         fuel_price_dummy[i] = y_data
         a = y_data
-
-    # Scrap meteo
-    meteo = {}
-    a = [4, 4, 3, 4, 4, 5, 6, 6, 6, 7, 20, 22, 24, 9, 8, 7, 7, 7, 6, 5, 4, 3, 2, 1]
-
-    for rise_fac, y in enumerate(sim_years, 1):
-        new_year_value = []
-        for ff in a: # New year value
-            #new_year_value.append(ff + ff * (rise_fac/10)) #BECOME HOTTER
-            new_year_value.append(ff) #Constant
-        temp_y = np.zeros((365, 24))
-        for i, d in enumerate(temp_y):
-            b = []
-            for ff in new_year_value:
-                new_year_value_d = ff + ((i/365)*ff)
-                b.append(new_year_value_d)
-            temp_y[i] = b
-        meteo[y] = temp_y
-        '''temp_h_y2015[i] = [random.uniform(8.3, 3.7)]*24
-        '''
-
     # DUMMY DATA GENERATION----------------------
 
 
@@ -189,7 +168,6 @@ if __name__ == "__main__":
 
         'population': pop_dummy,
         'region_coordinates': coord_dummy,
-        'temperature_data': meteo,
         'glob_var' : {},
         #'glob_var': {
         #    'base_yr': 2015,
@@ -205,7 +183,7 @@ if __name__ == "__main__":
         }
     }
     data_external['glob_var']['end_yr'] = ey
-    data_external['glob_var']['sim_period'] = range(by, ey + 1, 1)
+    data_external['glob_var']['sim_period'] = range(by, ey + 1, 1) # Alywas including last simulation year
     data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
@@ -218,12 +196,12 @@ if __name__ == "__main__":
     # Load and generate general data
     base_data = dl.load_data(path_main, data_external)
 
-    # Load weather data
-    base_data = mf.wheater_generator(base_data)
-
     # Load assumptions
     base_data = assumpt.load_assumptions(base_data, data_external)
 
+    # Change temperature data according to simple assumptions about climate change
+    base_data = mf.change_temp_data_climate_change(base_data, data_external)
+    print("--Calculated climate change data")
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data = mf.generate_sig_diffusion(base_data, data_external)
 
@@ -232,7 +210,6 @@ if __name__ == "__main__":
 
     # Generate virtual building stock over whole simulatin period
     base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
-
 
     # If several years are run:
     results_every_year = []

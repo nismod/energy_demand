@@ -33,26 +33,28 @@ class Region(object):
         self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude'] # Of centroid of region
         self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude'] # Of centroid of region
 
-        # Get closest weater station
-        closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data_ext, data['weather_stations'])
-        print("closest_weater_station_id: " + str(closest_weater_station_id))
-        
+        # Fuel
         self.enduses_fuel = data['fueldata_disagg'][reg_name] # Fuel array of region
-        #self.temp_by = data_ext['temperature_data'][data_ext['glob_var']['base_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
-        #self.temp_cy = data_ext['temperature_data'][data_ext['glob_var']['curr_yr']] #TODO: READ IN SPECIFIC TEMP OF REGION
-        self.temp_by = data['weather_data'][closest_weater_station_id] #TODO: STORE TEMPERATURE FOR SPECIFIC YEAR
-        self.temp_cy = data['weather_data'][closest_weater_station_id] #TODO: READ IN SPECIFIC TEMP OF REGION
+
+        # Get closest weather station and temperatures
+        closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data['weather_stations'])
+        print("closest_weater_station_id: " + str(closest_weater_station_id))
+        self.temp_by = data['temperature_data'][closest_weater_station_id][data_ext['glob_var']['base_yr']]
+        self.temp_cy = data['temperature_data'][closest_weater_station_id][data_ext['glob_var']['curr_yr']]
+        #print("closest_weater_station_id:  " + str(closest_weater_station_id))
+        print("temp_by")
+        print(np.sum(self.temp_by))
+        #print("---")
+        print(np.sum(self.temp_cy))
+
         # Create region specific technological stock
         self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        #print("OKO=====================" + str(self.tech_stock_by.__dict__))
-        #prnt("..")
-        #print("OK: " + str(getattr(self.tech_stock_cy, 'heat_pump')))
-        #print("OKO=====================" + str(self.tech_stock_cy['heat_pump'].eff_cy))
 
         # Calculate HDD and CDD scenario driver for heating and cooling
         self.hdd_by = self.get_heating_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.cdd_by = self.get_cooling_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
+
 
         # Calculate fuel factors for heating and cooling
         self.hdd_cy = self.get_heating_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
@@ -61,8 +63,20 @@ class Region(object):
         self.cdd_cy = self.get_cooling_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
         #self.heating_shape_d_hdd_cy = (1.0 / self.hdd_cy) * self.hdd_cy #Cooling technology? # Shape ofcooling demand
 
-        self.heat_diff_factor = (1.0 / self.hdd_by) * self.hdd_cy #shape (365,1)
-        self.cooling_diff_factor = (1.0 / self.cdd_by) * self.cdd_cy #shape (365,1)
+        #print("self.hdd_by: " + str(np.sum(self.hdd_by)))
+        #print("self.cdd_by: " + str(np.sum(self.cdd_by)))
+        #print("self.hdd_cy: " + str(np.sum(self.hdd_cy)))
+        #print("self.cdd_cy: " + str(np.sum(self.cdd_cy)))
+
+        # Calculate fractions related to weater cahnges
+        self.heat_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.hdd_by)) * self.hdd_cy #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
+        self.cooling_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.cdd_by)) * self.cdd_cy #shape (365,1) #problem: Divide by zero!
+        #print("self.heat_diff_factor")
+        #print(self.heat_diff_factor)
+        #print("----")
+        #print(self.cooling_diff_factor)
+        #self.heat_diff_factor = np.ones((365,1))
+        #self.cooling_diff_factor = np.ones((365,1))
 
         # Create BOILER shape based on daily gas profiles
         self.fuel_shape_y_h_hdd_boilers_cy = self.y_to_h_heat_gas_boilers(data, data_ext, self.heating_shape_d_hdd_cy) # Shape of boilers (same efficiency over year)
@@ -485,7 +499,7 @@ class Region(object):
         list_dates = mf.get_datetime_range(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
-            weekday = date_gasday.timetuple()[6] # 0: Monday
+            weekday = date_gasday.timetuple().tm_wday # 0: Monday
             if weekday == 5 or weekday == 6:
                 daily_fuel_profile = (data['hourly_gas_shape_hp'][2] / np.sum(data['hourly_gas_shape_hp'][2])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
@@ -521,7 +535,7 @@ class Region(object):
         list_dates = mf.get_datetime_range(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
-            weekday = date_gasday.timetuple()[6] # 0: Monday
+            weekday = date_gasday.timetuple().tm_wday # 0: Monday
             if weekday == 5 or weekday == 6:
                 shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][2] / np.sum(data['hourly_gas_shape'][2])) # Wkend Hourly gas shape. Robert Sansom boiler curve
             else:
@@ -748,20 +762,26 @@ class EnduseResid(object):
     """
     def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock_by, tech_stock_cy, heat_diff_factor, cooling_diff_factor, hdd_by, cdd_by, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
         print("--Enduse: " + str(enduse))
+        #TODO: (Check if always function below takes result from function above)
         self.reg_name = reg_name
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel[enduse] # Regional base fuel data
+        print("FUEL " + str(self.enduse_fuel))
+        print(np.sum(cooling_diff_factor))
+        print(np.sum(heat_diff_factor))
 
-        # --Yearly fuel data (Check if always function below takes result from function above)
-        self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
-        #print("A: " + str(np.sum(self.enduse_fuel_after_weater_correction)))
+        # -- Change fuel consumption based on differences in temperatures #TODO: REALLY?
+        self.enduse_fuel_after_weater_correction = self.enduse_fuel
+        #self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
+        print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
         self.enduse_fuel_after_specific_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
         print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
 
         # Calculate changes in fuel based on fuel switches
-        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
+        #self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
+        self.enduse_fuel_after_switch = self.enduse_fuel_after_specific_change
         print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
@@ -1012,8 +1032,11 @@ class EnduseResid(object):
         new_fuels = np.zeros((self.enduse_fuel.shape[0], 1)) #fueltypes, days, hours
 
         if self.enduse == 'space_heating':
+            print("SPAC HEATING CORRECTION: ")
+            print(self.enduse_fuel)
             for fueltype, fuel in enumerate(self.enduse_fuel):
                 new_fuels[fueltype] = fuel * np.average(heat_diff_factor)
+            print(new_fuels)
             return new_fuels
 
         elif self.enduse == 'cooling':

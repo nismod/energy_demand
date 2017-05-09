@@ -28,6 +28,13 @@ def load_data(path_main, data_ext):
         Returns a list where storing all data
 
     """
+
+    # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
+    folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+
+
+
     data = {} # Data container
 
     # Fuel look-up table
@@ -41,9 +48,6 @@ def load_data(path_main, data_ext):
         'hydrogen': 6,
         'future_fuel': 7
     }
-
-
- 
 
 
     # -----------------------------
@@ -71,8 +75,8 @@ def load_data(path_main, data_ext):
         'path_lookup_appliances':os.path.join(path_main, 'residential_model/lookup_appliances_HES.csv'),
         'path_fuel_type_lu': os.path.join(path_main, 'scenario_and_base_data/lookup_fuel_types.csv'),
         'path_day_type_lu': os.path.join(path_main, 'residential_model/lookup_day_type.csv'),
-        'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/HES_base_appliances_eletricity_load_profiles.csv'),
         'path_temp_2015': os.path.join(path_main, 'residential_model/SNCWV_YEAR_2015.csv'),
+        'path_bd_e_load_profiles': os.path.join(path_main, 'residential_model/HES_base_appliances_eletricity_load_profiles.csv'),
         'path_hourly_gas_shape_resid': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
         'path_hourly_gas_shape_hp': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape_hp.csv'),
         'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
@@ -86,11 +90,8 @@ def load_data(path_main, data_ext):
         'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_FUELSWITCHES': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
 
-        # Weather
-
         # Service
         # -------
-        'path_temp_2015_service': os.path.join(path_main, 'service_model/CSV_YEAR_2015_service.csv'),
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
 
 
@@ -98,43 +99,31 @@ def load_data(path_main, data_ext):
 
         }
 
-    # -----------------------------
-    # Read in weather data
-    # -----------------------------
-    # TODO: LOCAL DATA
-    folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
-    #folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512_SHORT.csv'
-    folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+    # ----------------------------------------------------------
+    # Read in weather data and clean data
+    # ----------------------------------------------------------
+    data['weather_stations_raw'] = df.read_weather_stations_raw(folder_path_weater_stations) # Read all weater stations properties
+    '''data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
 
-    # Read all weater stations
-    data['weather_stations_raw'] = df.read_weater_stations(folder_path_weater_stations)
-    print("BIRMINGHAM WEATER STATION" + str(data['weather_stations_raw'][56950]))
+    data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
+    data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
+    print("Number of weater stations with cleaned data: " + str(len(data['weather_stations'].keys())))
 
+    del data['weather_stations_raw'] # Delete raw data from data
+    del data['temperature_data_raw'] # Delete raw data from data
+    '''
 
-    # Weather data
-    empty_data_substitute = 9999
+    #'''
 
-    # Read in raw
-    data['weather_data'] = df.read_weater_data(folder_path_weater_data, empty_data_substitute)
-
-    #for day, tempers in enumerate(data['weather_data'][56950]):
-    #    print("BIRMINHAM DAY " + str(day) +"  " + str(tempers))
-    #print()
-
-    # Clean weather data (recued to 100 stations)
-    data['weather_data'] = df.clean_weater_data(data['weather_data'], empty_data_substitute)
-
-    # Read out only those wetaer stations for which there is data
-    data['weather_stations'] = df.get_all_weaterstations_with_data(data['weather_data'].keys(), data['weather_stations_raw'])
-
-    print(data['weather_stations'].keys())
-    print(len(data['weather_stations'].keys()))
-    
-    print("BBIRMIN STATION")
-    try:
-        print(data['weather_stations'][56950])
-    except:
-        print("not data for birmingham")
+    # SCRAP DUMMY DATA FOR FAST CALCULATION
+    # -----------
+    #print(data['weather_stations'].keys())
+    data['temperature_data'] = {}
+    data['temperature_data'][9] = np.zeros((365,24)) + 14 #must not be higher than zeros for hdd
+    data['weather_stations'] = {}
+    data['weather_stations'][9] = data['weather_stations_raw'][9]
+    # -----------
+    #'''
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR
@@ -144,10 +133,10 @@ def load_data(path_main, data_ext):
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(data['path_dict']['path_day_type_lu'])                         # Day type lookup
-    data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
     data['hourly_gas_shape'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
     data['hourly_gas_shape_hp'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
     #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age'])
+    data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
 
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
 
@@ -170,8 +159,6 @@ def load_data(path_main, data_ext):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    #data['temp_2015_service'] = mf.read_csv(path_dict['path_temp_2015_service']) # Load daily temperature of base year
-
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
 
@@ -308,9 +295,6 @@ def generate_data(data):
     # Service Gas demand
     # ----------------------------
 
-    #CSV Service
-    #data['temp_2015_service']
-
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
@@ -349,7 +333,7 @@ def create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses):
     """Create dictionary with all residential enduses and store in data dict
 
     For residential model
-    
+
     Parameters
     ----------
     data : dict

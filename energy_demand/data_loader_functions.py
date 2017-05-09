@@ -73,8 +73,8 @@ def assign_hes_data_to_year(data, hes_data, base_yr):
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
-        month_python = yearday.timetuple()[1] - 1 # - 1 because in _info: Month 1 = Jan
-        yearday_python = yearday.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+        month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
+        yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = mf.get_weekday_type(yearday)
 
         # Add values to yearly array
@@ -96,8 +96,8 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
-        month_python = yearday.timetuple()[1] - 1 # - 1 because in _info: Month 1 = Jan
-        yearday_python = yearday.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+        month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
+        yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = mf.get_weekday_type(yearday)
         _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
 
@@ -218,8 +218,8 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
         row_split = row[0].split("/")
         date_gas_day = date(int(row_split[2]), int(row_split[1]), int(row_split[0])) # year, month, day
 
-        yearday_python = date_gas_day.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
-        weekday = date_gas_day.timetuple()[6] # 0: Monday
+        yearday_python = date_gas_day.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
+        weekday = date_gas_day.timetuple().tm_wday # 0: Monday
 
         # Calculate demand based on correlation Source: Correlation taken from CWV: Linear Correlation between SNCWV and Total NDM (RESIDENTIAL)
         if model_type == 'service':
@@ -385,7 +385,7 @@ def read_raw_carbon_trust_data(data, folder_path):
 
                     date_row = date(year, month, day) #Date
                     daytype = mf.get_weekday_type(date_row) # Daytype
-                    yearday_python = date_row.timetuple()[7] - 1 # - 1 because in _info: 1.Jan = 1
+                    yearday_python = date_row.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
                     month_python = month - 1 # Month Python
 
                     cnt, h_day, control_sum = 0, 0, 0
@@ -644,13 +644,6 @@ def compare_jan_jul(main_dict_dayyear_absolute):
     plt.legend()
     plt.show()
 
-    print("ARRA")
-    print(np.sum(jan[:, 1]))
-    print(np.sum(jul[:, 1]))
-    #print(jan)
-    #print("  --  ")
-    #print(jul)
-    #print("---hh--")
 
     #--- if JAn = 100%
     jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
@@ -665,7 +658,7 @@ def compare_jan_jul(main_dict_dayyear_absolute):
 #
 
 
-def read_weater_data(path_to_csv, empty_data_substitute):
+def read_weather_data_raw(path_to_csv, empty_data_substitute):
     """Read in raw weather data
 
     Parameters
@@ -707,7 +700,7 @@ def read_weater_data(path_to_csv, empty_data_substitute):
             datetime_object = datetime.datetime(year, month, day, hour, 0, 0)
 
             # Get yearday
-            yearday = int(datetime_object.timetuple()[7]) - 1
+            yearday = datetime_object.timetuple().tm_yday - 1
 
             # Add weather station if not already exists
             if weater_station_id not in weather_stations_data:
@@ -718,14 +711,14 @@ def read_weater_data(path_to_csv, empty_data_substitute):
 
     return weather_stations_data
 
-def clean_weater_data(weather_stations_data, empty_data_substitute):
+def clean_weather_data_raw(weather_stations_data, empty_data_substitute):
     """Relace missing data measurement points and remove weater stations with no data
 
     Notes
     -----
     - Delete all those weater stations which have fautly days (meaning more than one missing measruement in a day anytime in the year)
     - Delete all those weater stations which have a day with no measurements
-    - If in a day more than 10 hours with 0 (probably not measuring)
+    - If in a day more than 10 hours with 0 (probably not measuring) (zeros_day_crit)
     BIRMINGHAM CODE: 56950
     """
     text_file = open(r"C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\_CORR_OUTPUT.txt", "w")
@@ -741,13 +734,13 @@ def clean_weater_data(weather_stations_data, empty_data_substitute):
         for day_nr, day in enumerate(weather_stations_data[weater_station_id]):
             if np.sum(day) == 0:
                 copy_weater_station_data = False
-            
+
             # Count number of zeros in a day
             cnt_zeros = 0
             for h in day:
                 if h == 0:
                     cnt_zeros += 1
-            
+
             if cnt_zeros > zeros_day_crit:
                 copy_weater_station_data = False
 
@@ -789,7 +782,7 @@ def clean_weater_data(weather_stations_data, empty_data_substitute):
 
     return weather_stations_data_cleaned
 
-def read_weater_stations(path_to_csv):
+def read_weather_stations_raw(path_to_csv):
     """Read all weater stations
 
     Parameter
@@ -829,18 +822,33 @@ def read_weater_stations(path_to_csv):
 
     return weather_stations
 
-def get_all_weaterstations_with_data(ids_of_statsion_with_data, weather_stations):
-    print("---------")
-    print(ids_of_statsion_with_data)
-    print("  ")
-    #print(weather_stations.keys())
-    weather_stations_with_data = {}
+def reduce_weather_stations(station_ids, weather_stations):
+    """Get only those weather station information for which there is cleaned data
 
-    for id_station in ids_of_statsion_with_data:
-        print("ID STATION: " + str(id_station))
+    Parameters
+    ----------
+    station_ids : list
+        Weather station ids with data
+    weather_stations : dict
+        Weather station information
+
+    Return
+    ------
+    stations_with_data : dict
+        Weather station information
+
+
+    """
+    stations_with_data = {}
+
+    # Iterate all stations containing data
+    for id_station in station_ids:
+
+        # Try if there is data 
         try:
-            weather_stations_with_data[id_station] = weather_stations[id_station]
+            stations_with_data[id_station] = weather_stations[id_station]
         except:
-            print("Weater station is not in weater sattion dict: " + str(id_station))
+            _ = 0
+            #print("Weater station is not in weater sattion dict: " + str(id_station))
 
-    return weather_stations_with_data
+    return stations_with_data

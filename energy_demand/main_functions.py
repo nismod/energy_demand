@@ -381,7 +381,7 @@ def timesteps_full_year(base_yr):
 
     #Add to list
     for day_date in list_dates:
-        yearday = day_date.timetuple()[7] - 1 # -1 because in _info yearday 1: 1. Jan    ((tm_year=2015, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=-1))
+        yearday = day_date.timetuple().tm_yday - 1 # -1 because in _info yearday 1: 1. Jan    ((tm_year=2015, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=-1))
 
         # Iterate hours
         for h_id in range(24):
@@ -411,7 +411,7 @@ def get_weekday_type(date_from_yearday):
     -----
     notes
     """
-    weekday = date_from_yearday.timetuple()[6] # (tm_year=2015, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=-1)
+    weekday = date_from_yearday.timetuple().tm_wday # (tm_year=2015, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=-1)
 
     if weekday == 5 or weekday == 6:
         return 1 # Holiday
@@ -727,8 +727,28 @@ def convert_date_to_yearday(year, month, day):
     5. January 2015 --> Day nr 5 in year --> -1 because of python --> Out: 4
     """
     date_y = date(year, month, day)
-    yearday = date_y.timetuple()[7] - 1 #: correct because of python iterations
+    yearday = date_y.timetuple().tm_yday - 1 #: correct because of python iterations
     return yearday
+
+def convert_yearday_to_date(year, yearday_python):
+    """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
+    TESTED_PYTEST
+
+    Parameters
+    ----------
+    year : int
+        Year
+    yearday_python : int
+        Yearday - 1 
+
+    Example
+    -------
+    
+    """
+    date_first_jan = date(year, 1, 1)
+
+    date_new = date_first_jan + td(yearday_python)
+    return date_new
 
 def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data):
     """This data check what enduses are provided by wrapper
@@ -1032,17 +1052,50 @@ def calc_cdd(t_base_cooling, temperatures):
 
     return cdd_d
 
+def change_temp_data_climate_change(data, data_external):
+    """Change temperature data for every year depending on simple climate change assumptions
 
-def wheater_generator(data):
-    """Load weather data
+    Parameters
+    ---------
+    data : dict
+        Data
+
+    Returns
+    -------
+
 
     """
+    temperature_data_climate_change = {}
 
-    # ----------------------------------------------------------
-    # Read in temperatures for every year for every region
-    # ----------------------------------------------------------
+    # Change weather for all weater stations
+    for weather_station_id in data['temperature_data']:
+        temperature_data_climate_change[weather_station_id] = {}
 
-    # Check how the input data of the year 2015 compare to other years? (e.g. with heating days?) Wheater correction?
+        # Iterate over simulation period
+        for current_year in data_external['glob_var']['sim_period']:
+
+            # Copy values
+            temperature_data_climate_change[weather_station_id][current_year] = data['temperature_data'][weather_station_id]
+
+            # Iterate every month and substract
+            for yearday in (range(365)):
+
+                # Create datetime object
+                date_object = convert_yearday_to_date(data_external['glob_var']['base_yr'], yearday)
+
+                # Get month of yearday
+                month_yearday = int(date_object.timetuple().tm_mon) - 1
+
+                # Get linear diffusion of current year
+                temp_by = 0
+                temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
+
+                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period']))
+
+                # Add temperature change
+                temperature_data_climate_change[weather_station_id][current_year][yearday] += lin_diff_current_year
+
+    data['temperature_data'] = temperature_data_climate_change
 
     return data
 
@@ -1197,13 +1250,10 @@ def generate_sig_diffusion(data, data_external):
 
     # Step 2: Calculate energy service demand after fuel switches to future year for each technology
     service_tech_switched_p = service_fuel_switched(enduses_with_fuels, assumptions['resid_fuel_switches'], assumptions['service_fueltype_p'], assumptions['service_tech_p'], assumptions['tech_enduse_by'], assumptions['installed_tech_switch'], 'actual_switch')
-    print("service_tech_switched_p")
-    print(service_tech_switched_p)
 
 
     # Calculate L for every technology for sigmod diffusion
     l_values_sig = cal_L_for_sigmoid(enduses_with_fuels, data, assumptions)
-
 
     # Calclulate sigmoid parameters
     assumptions['sigm_parameters_tech'] = calc_sigmoid_curve_tech(assumptions['installed_tech_switch'], enduses_with_fuels, assumptions['technologies'], data_external, l_values_sig, assumptions['service_tech_p'], service_tech_switched_p, assumptions['resid_fuel_switches'])
@@ -1731,7 +1781,7 @@ def calc_distance_to_weater_station(longitude_weater_station, latitute_weater_st
     return distance
 
 
-def search_cosest_weater_station(longitude_reg, latitue_reg, data_ext, weather_stations):
+def search_cosest_weater_station(longitude_reg, latitue_reg, weather_stations):
     """Search ID of closest weater station
     """
     closest_dist = 99999999999
