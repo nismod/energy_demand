@@ -197,19 +197,19 @@ if __name__ == "__main__":
     base_data = dl.load_data(path_main, data_external)
 
     # Load assumptions
-    base_data = assumpt.load_assumptions(base_data, data_external)
+    base_data['assumptions'] = assumpt.load_assumptions(base_data, data_external)
 
     # Change temperature data according to simple assumptions about climate change
-    base_data = mf.change_temp_data_climate_change(base_data, data_external)
-    print("--Calculated climate change data")
+    base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data, data_external)
+
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
-    base_data = mf.generate_sig_diffusion(base_data, data_external)
+    base_data['assumptions'] = mf.generate_sig_diffusion(base_data, data_external)
 
     # Disaggregate national data into regional data
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)
 
     # Generate virtual building stock over whole simulatin period
-    base_data = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
+    base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
 
     # If several years are run:
     results_every_year = []

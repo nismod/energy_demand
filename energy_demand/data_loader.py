@@ -28,14 +28,12 @@ def load_data(path_main, data_ext):
         Returns a list where storing all data
 
     """
+    data = {} # Data container
+
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
     folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
-
-
-
-    data = {} # Data container
 
     # Fuel look-up table
     data['lu_fueltype'] = {
@@ -48,7 +46,6 @@ def load_data(path_main, data_ext):
         'hydrogen': 6,
         'future_fuel': 7
     }
-
 
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
@@ -95,15 +92,13 @@ def load_data(path_main, data_ext):
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
 
 
-
-
         }
 
     # ----------------------------------------------------------
     # Read in weather data and clean data
     # ----------------------------------------------------------
     data['weather_stations_raw'] = df.read_weather_stations_raw(folder_path_weater_stations) # Read all weater stations properties
-    '''data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
+    data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
     data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
@@ -111,9 +106,8 @@ def load_data(path_main, data_ext):
 
     del data['weather_stations_raw'] # Delete raw data from data
     del data['temperature_data_raw'] # Delete raw data from data
-    '''
 
-    #'''
+    '''
 
     # SCRAP DUMMY DATA FOR FAST CALCULATION
     # -----------
@@ -123,7 +117,7 @@ def load_data(path_main, data_ext):
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
     # -----------
-    #'''
+    '''
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR

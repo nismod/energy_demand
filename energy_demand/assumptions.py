@@ -52,13 +52,28 @@ def load_assumptions(data, data_external):
 
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
-    # ============================================================
-    # Climate Change assumptions
-    # 
-    # ============================================================
 
-    # Temperature changes for every month until end year (from jan to dec)
-    assumptions['climate_change_temp_diff_month'] = [1] * 12 #
+    # ========================================================================================================================
+    # Climate Change assumptions
+    #     Temperature changes for every month until end year for every month
+    # ========================================================================================================================
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
+
+    '''# Hotter winter, cooler summers
+    assumptions['climate_change_temp_diff_month'] = [
+        1, # January
+        1, # February
+        1, # March
+        1, # April
+        1, # May
+        1, # June
+        -1, # July
+        -1, # August
+        -1, # September
+        -1, # October
+        -1, # November
+        -1 # December
+    ]'''
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
@@ -69,13 +84,13 @@ def load_assumptions(data, data_external):
         'end_yr': 15.5
     }
 
-    # Heating base temperature
+    # Cooling base temperature
     assumptions['t_base_cooling'] = {
         'base_yr': 21.0,
         'end_yr': 21.0
     }
 
-    # Generate different future weater based on assumpitons #TODO
+
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -115,20 +130,6 @@ def load_assumptions(data, data_external):
     }
     assumptions['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
 
-    # ============================================================
-    # Assumptions about future technologies
-    # ============================================================
-    # # Fuel consumption per person
-    # # Inifital efficiency
-    # # Final efficiency
-    # # Market entry
-    # # Enduse
-    # # Saturation year
-    # # Penetration (linar/sigmoid)
-    # # Percentage of diffusion in population
-
-
-
 
     # ============================================================
     # Smart meter assumptions (Residential)
@@ -141,8 +142,6 @@ def load_assumptions(data, data_external):
     # Fraction of population with smart meters #TODO: Make possibie to provide saturation year
     assumptions['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_p_ey'] = 0.1
-
-    #assumptions['smart_meter_saturation_year'] = 2020 # TODO: Year the penetration rated id to be achieved
 
     # Long term smart meter induced general savings (purley as a result of having a smart meter)
     assumptions['general_savings_smart_meter'] = {
@@ -159,12 +158,11 @@ def load_assumptions(data, data_external):
     # Technologies and their efficiencies over time
     # ============================================================
 
-    # Fixed assumptions of technologies (not changed)
+    # Fixed assumptions of technologies (do not change for scenario)
     assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from SOURCE #GROUND SOURCE HP
 
-    # Load all technologies, their efficiencies etc.
+    # Load all technologies and their efficiencies from csv file
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
-
 
     # --Helper Function to write same achieved efficiency for all technologies
     factor_efficiency_achieved = 1.0
@@ -177,21 +175,21 @@ def load_assumptions(data, data_external):
     assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
 
     # ---------------------------
-    # FUEL SWITCHES ASSUMPTIONS
+    # Fuel switches residential sector
     # ---------------------------
 
-    # Load defined switches
+    # Read in switches from csv file
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
 
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
-    #
-    # With these assumptions, general efficiency gain (across all fueltypes) can be defined
-    # for specific enduses. This may be e.g. due to general efficiency gains or anticipated increases in demand.
-    # NTH: Specific hanges per fueltype (not across al fueltesp)
     # ---------------------------------------------------------------------------------------------------------------------
-
-    # Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    #   With these assumptions, general efficiency gain (across all fueltypes) can be defined
+    #   for specific enduses. This may be e.g. due to general efficiency gains or anticipated increases in demand.
+    #   NTH: Specific hanges per fueltype (not across al fueltesp)
+    #
+    #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
         'space_heating': 1,
         'water_heating': 1,
@@ -206,7 +204,6 @@ def load_assumptions(data, data_external):
     # Specifid diffusion information
     assumptions['other_enduse_mode_info'] = {
         'diff_method': 'linear', # sigmoid or linear
-        'linear': 'possible_parameters_could_be_passed',
         'sigmoid': {
             'sig_midpoint': 0,
             'sig_steeppness': 1
@@ -215,20 +212,13 @@ def load_assumptions(data, data_external):
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
-    # TODO: Implement that in stocks where no fuel swtich is implemented (anod enduse ist not specifically made with savings, lower fuels just ecause of eficienes)
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
     # Assert: - if market enntry is not before base year, wheater always 100 % etc..
-    print(data['fuel_raw_data_resid_enduses'])
 
-    all_enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys()
-    # Iterate enduses and write #TODO: insert all, not only if switch
-    assumptions['tech_enduse_by'] = {}
-    for enduse in all_enduses_with_fuels: #data['resid_enduses']:
-        assumptions['tech_enduse_by'][enduse] = {}
-        for fueltype in range(len(data['fuel_type_lu'])):
-            assumptions['tech_enduse_by'][enduse][fueltype] = {}
+    # Initiate: Iterate enduses and write
+    assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
     # ---Space Heating
     assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
@@ -242,10 +232,7 @@ def load_assumptions(data, data_external):
     #assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
 
-    # Add assumptions to data dict
-    data['assumptions'] = assumptions
-
-    return data
+    return assumptions
 
 
 
@@ -336,7 +323,6 @@ def get_hlc(dw_type, age):
         'heat_pump_b': 22.0
         #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
         }
-
 '''
 
 def create_lu_technologies(assumptions, data):
@@ -355,4 +341,15 @@ def create_lu_fueltypes(assumptions):
     for technology in assumptions['technologies']:
         assumptions['tech_fueltype'][technology] = assumptions['technologies'][technology]['fuel_type']
 
+    return assumptions
+
+def helper_create_stock(assumptions, fuel_raw_data_resid_enduses, nr_of_fueltypes):
+    """Helper function to define stocks for all enduse and fueltypes
+    """
+    all_enduses_with_fuels = fuel_raw_data_resid_enduses.keys()
+    assumptions['tech_enduse_by'] = {}
+    for enduse in all_enduses_with_fuels: #data['resid_enduses']:
+        assumptions['tech_enduse_by'][enduse] = {}
+        for fueltype in range(nr_of_fueltypes):
+            assumptions['tech_enduse_by'][enduse][fueltype] = {}
     return assumptions

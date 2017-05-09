@@ -106,18 +106,7 @@ def resid_build_stock(data, assumptions, data_ext):
         # Add regional base year building stock
         dw_stock_every_year[reg_name][base_yr] = bf.DwStockRegion(reg_name, dw_stock_base, data) # Add base year stock
 
-        #print("BASE")
-        #print(dw_stock_every_year[reg_name][2015].heating)
-        #print(dw_stock_every_year[reg_name][2016].heating)
-        ###print(dw_stock_every_year[reg_name][2017].heating)
-        #prnt("..")
-        #prnt("..")
-
-    # If only generated for current and base year
-    #data['reg_dw_stock_by'] = reg_dw_stock_by # Add to data
-    #data['reg_dw_stock_cy'] = reg_dw_stock_cy # Add to data
-    data['dw_stock'] = dw_stock_every_year
-    return data
+    return dw_stock_every_year
 
 def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
     """Calculates the percentage of the total floor area belonging to each dwelling type

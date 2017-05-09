@@ -1079,7 +1079,6 @@ class EnduseResid(object):
         ----------
         Every enduse can only have on shape independently of the fueltype
         """
-        #try:
         if data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']:
             return self.enduse_fuel_after_switch
         else:
@@ -1098,12 +1097,6 @@ class EnduseResid(object):
                 else:
                     new_fuels[fueltype] = fuel
         return new_fuels
-
-       # except Exception as err:
-       #     print("ERROR: " + str(err.args))
-       #     prnt("..")
-       #     #logging.info("--")
-       #     #logging.exception('I .Raised error in enduse_elasticity. Check if for every provided enduse an elasticity is provided')
 
     def enduse_eff_gains(self, data_ext, tech_frac_by, tech_stock_by, tech_stock_cy):
         """
