@@ -51,15 +51,13 @@ class Region(object):
 
         # Calculate fuel factors for heating and cooling
         self.hdd_cy = self.get_reg_hdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        self.cdd_cy = self.get_reg_cdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
-
-
+        self.cdd_cy = self.get_reg_cdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
 
         # Heating demand for every day based on daily HDD
         self.heating_shape_d_hdd_cy = np.divide(1.0, np.sum(self.hdd_cy)) * self.hdd_cy
 
-        # Cooling demand for every day based on dails CDD
-        self.cooling_shape_d_cdd_cy = np.divide(1.0, np.sum(self.cdd_cy)) * self.cdd_cy #Cooling technology? # Shape ofcooling demand
+        # Cooling demand for every day based on daily CDD
+        self.cooling_shape_d_cdd_cy = np.divide(1.0, np.sum(self.cdd_cy)) * self.cdd_cy
 
         # Heat and cooling weather factor (Assumption: Demand for heat correlates directly with fuel)
         self.heat_diff_factor = np.nan_to_num(np.divide(1, np.sum(self.hdd_by))) * np.sum(self.hdd_cy) #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
@@ -71,6 +69,7 @@ class Region(object):
         # Create HEATPUMP shape based on daily gas profiles (non-peak gas profiles)
         self.fuel_shape_y_h_hdd_hp_cy = self.y_to_h_heat_hp(data, data_ext, self.hdd_cy, self.tech_stock_cy) # Shape of hp (efficiency in dependency of temp diff)
 
+        # DAILY SHAPE OF COOLING DEVICES?
         '''
         plot_a = np.zeros((365, 1))
         for nr, i in enumerate(self.fuel_shape_y_h_hdd_boilers_cy):
@@ -84,7 +83,6 @@ class Region(object):
         plt.plot(range(365), plot_b, 'green') #hp shape
         plt.show()
         '''
-
 
 
         # Set attributs of all enduses to the Region Class
@@ -751,21 +749,22 @@ class EnduseResid(object):
     Every enduse can only have on shape independently of the fueltype
 
     #TODO: The technology switch also needs to be done for peak!
+    #TODO: (Check if always function below takes result from function above)
     """
     def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock_by, tech_stock_cy, heat_diff_factor, cooling_diff_factor, hdd_by, cdd_by, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
         print("--Enduse: " + str(enduse))
-        #TODO: (Check if always function below takes result from function above)
+
         self.reg_name = reg_name
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel[enduse] # Regional base fuel data
         print("FUEL " + str(self.enduse_fuel))
 
-        # -- Change fuel consumption based on differences in temperatures #TODO: REALLY?
+        # Change fuel consumption based on climate change induced temperature differences
         self.enduse_fuel_after_weater_correction = self.temp_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
         #print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_fuel_after_specific_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
+        self.enduse_fuel_after_specific_change = self.enduse_specific_change(data_ext, data['assumptions'])
         #print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
         #print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
 
@@ -942,10 +941,8 @@ class EnduseResid(object):
 
         return new_fuels
 
-    def enduse_specifid_consumption_change(self, data_ext, assumptions):
+    def enduse_specific_change(self, data_ext, assumptions):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
-
-        Either a sigmoid standard difufsion or linear diffusion can be implemented.
 
         Because for enduses where no technology stock is defined (and may consist of many different)
         technologies, a linear diffusion is suggested to best represent multiple
@@ -968,7 +965,7 @@ class EnduseResid(object):
 
         Notes
         -----
-
+        Either a sigmoid standard diffusion or linear diffusion can be implemented. Linear is suggested.
         """
         percent_ey = assumptions['enduse_overall_change_ey'][self.enduse]  # Percent of fuel consumption in end year
         percent_by = 1.0                                                   # Percent of fuel consumption in base year (always 100 % per definition)
@@ -989,10 +986,10 @@ class EnduseResid(object):
                     percent_ey,
                     len(data_ext['glob_var']['sim_period'])
                 )
-                change_cy = diff_fuel_consump * abs(lin_diff_factor) #NEW
+                change_cy = diff_fuel_consump * abs(lin_diff_factor)
 
             # Sigmoid diffusion up to cy
-            if diffusion_choice == 'sigmoid':
+            elif diffusion_choice == 'sigmoid': 
                 sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
                 change_cy = diff_fuel_consump * sig_diff_factor
 

@@ -908,7 +908,7 @@ def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
 
     return t_base_cy
 
-def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
+def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
 
     All necessary data to run energy demand model is loaded.
@@ -919,9 +919,9 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
         The year of the current simulation.
     base_yr : int
         The year of the current simulation.
-    eff_by : float
+    value_start : float
         Fraction of population served with fuel_enduse_switch in base year
-    eff_ey : float
+    value_end : float
         Fraction of population served with fuel_enduse_switch in end year
     sim_years : str
         Total number of simulated years.
@@ -933,7 +933,7 @@ def linear_diff(base_yr, curr_yr, eff_by, eff_ey, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0 #return zero
     else:
-        fract_sy = ((eff_ey - eff_by) / sim_years) * (curr_yr - base_yr)
+        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
 
     return fract_sy
 
@@ -1066,7 +1066,7 @@ def change_temp_data_climate_change(data, data_external):
                 # Get linear diffusion of current year
                 temp_by = 0
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
-                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period'])-1) # -1 because in base year no temp change
+                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period']))
 
                 # Iterate hours of base year
                 for h, temp_old in enumerate(data['temperature_data'][weather_station_id][yearday]):

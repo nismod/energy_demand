@@ -30,7 +30,7 @@ def load_assumptions(data, data_external):
     # ============================================================
 
     # Building stock related, assumption of change in floor area up to end_yr (Checked)
-    assumptions['assump_diff_floorarea_pp'] = 0.0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
+    assumptions['assump_diff_floorarea_pp'] = 0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
 
     # Dwelling type distribution
     assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
@@ -192,7 +192,7 @@ def load_assumptions(data, data_external):
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
-        'space_heating': 1,
+        'space_heating': 2,
         'water_heating': 1,
         'lighting': 1,
         'cooking': 1,

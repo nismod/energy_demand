@@ -66,10 +66,6 @@ class Dwelling(object):
             # Set attribute
             Dwelling.__setattr__(self, enduse, driver_value)
 
-
-
-
-
 class DwStockRegion(object):
     """Class of the building stock in a region"""
 
@@ -146,17 +142,22 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
 
         # Iterate simulation years
         for sim_yr in sim_period:
-            #curr_year = sim_yr - glob_var['base_yr']
 
             if sim_yr == glob_var['base_yr']:
                 sim_yrs[sim_yr] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
-                lin_diff_factor = mf.linear_diff(glob_var['base_yr'], sim_yr, 1, (1 + assump_final_diff_floorarea_pp), (len(sim_period)-1))
-                diff_cy = (1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
+                #print("sim_yr" + str(sim_yr))
+                #print(assump_final_diff_floorarea_pp)
+                #print(sim_period)
+                #print(len(sim_period))
+                lin_diff_factor = mf.linear_diff(glob_var['base_yr'], sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
+                #print("lin_diff_factor: " + str(lin_diff_factor))
+                #diff_cy = lin_diff_factor #(1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
+                #print("diff_cy: " + str(diff_cy))
 
                 # Floor area per person of simulation year
-                sim_yrs[sim_yr] = floorarea_pp_by * diff_cy # Floor area of simulation year
+                sim_yrs[sim_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
         data_floorarea_pp[reg_name] = sim_yrs  # Values for every simulation year
 
     return data_floorarea_pp
