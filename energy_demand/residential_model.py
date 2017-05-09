@@ -30,64 +30,40 @@ class Region(object):
         """Constructor of Region Class
         """
         self.reg_name = reg_name
-        self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude'] # Of centroid of region
-        self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude'] # Of centroid of region
+        self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude']
+        self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude']
 
         # Fuel
         self.enduses_fuel = data['fueldata_disagg'][reg_name] # Fuel array of region
 
         # Get closest weather station and temperatures
-        closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data['weather_stations'])
-        print("closest_weater_station_id: " + str(closest_weater_station_id))
-        self.temp_by = data['temperature_data'][closest_weater_station_id][data_ext['glob_var']['base_yr']]
-        self.temp_cy = data['temperature_data'][closest_weater_station_id][data_ext['glob_var']['curr_yr']]
-        #print("closest_weater_station_id:  " + str(closest_weater_station_id))
-        print("temp_by")
-        print(np.sum(self.temp_by))
-        #print("---")
-        print(np.sum(self.temp_cy))
+        _closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data['weather_stations'])
+        self.temp_by = data['temperature_data'][_closest_weater_station_id][data_ext['glob_var']['base_yr']]
+        self.temp_cy = data['temperature_data'][_closest_weater_station_id][data_ext['glob_var']['curr_yr']]
 
         # Create region specific technological stock
         self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
 
         # Calculate HDD and CDD scenario driver for heating and cooling
-        self.hdd_by = self.get_heating_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
-        self.cdd_by = self.get_cooling_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
+        self.hdd_by = self.get_reg_hdd(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
+        self.cdd_by = self.get_reg_cdd(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
 
         # Calculate fuel factors for heating and cooling
-        self.hdd_cy = self.get_heating_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        self.cdd_cy = self.get_cooling_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
+        self.hdd_cy = self.get_reg_hdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
+        self.cdd_cy = self.get_reg_cdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
 
-        if np.sum(self.hdd_cy) == 0:
-            print("ERROR: NO HEATING DAYS")
-            prnt(":.")
+
 
         # Heating demand for every day based on daily HDD
         self.heating_shape_d_hdd_cy = np.divide(1.0, np.sum(self.hdd_cy)) * self.hdd_cy
 
         # Cooling demand for every day based on dails CDD
-        #self.cooling_shape_d_cdd_cy = np.divide(1.0, np.sum(self.cdd_cy)) * self.cdd_cy #Cooling technology? # Shape ofcooling demand
+        self.cooling_shape_d_cdd_cy = np.divide(1.0, np.sum(self.cdd_cy)) * self.cdd_cy #Cooling technology? # Shape ofcooling demand
 
-        #print("self.hdd_by: " + str(np.sum(self.hdd_by)))
-        #print("self.cdd_by: " + str(np.sum(self.cdd_by)))
-        #print("self.hdd_cy: " + str(np.sum(self.hdd_cy)))
-        #print("self.cdd_cy: " + str(np.sum(self.cdd_cy)))
-
-        # Calculate fractions related to weater cahnges
-        #self.heat_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.hdd_by)) * self.hdd_cy #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
-        #self.cooling_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.cdd_by)) * self.cdd_cy #shape (365,1) #problem: Divide by zero!
-
-        # NOT WITH AVERAGE --> CHECK THAT HEATING DEMAND AND NOT FUEL IS CHANGED ACCORDINGLY
-        self.heat_diff_factor = np.nan_to_num(np.divide(1, np.average(self.hdd_by))) * np.average(self.hdd_cy) #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
-        self.cooling_diff_factor = np.nan_to_num(np.divide(1, np.average(self.cdd_by))) * np.average(self.cdd_cy) #shape (365,1) #problem: Divide by zero!
-
-        #print("self.heat_diff_factor")
-        #print(self.heat_diff_factor)
-        #print("----")
-        #print(self.cooling_diff_factor)
-        #self.heat_diff_factor = np.ones((365,1))
-        #self.cooling_diff_factor = np.ones((365,1))
+        # Heat and cooling weather factor (Assumption: Demand for heat correlates directly with fuel)
+        self.heat_diff_factor = np.nan_to_num(np.divide(1, np.sum(self.hdd_by))) * np.sum(self.hdd_cy) #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
+        self.cooling_diff_factor = np.nan_to_num(np.divide(1, np.sum(self.cdd_by))) * np.sum(self.cdd_cy) #shape (365,1) #problem: Divide by zero!
 
         # Create BOILER shape based on daily gas profiles
         self.fuel_shape_y_h_hdd_boilers_cy = self.y_to_h_heat_gas_boilers(data, data_ext, self.heating_shape_d_hdd_cy) # Shape of boilers (same efficiency over year)
@@ -109,10 +85,10 @@ class Region(object):
         plt.show()
         '''
 
+
+
         # Set attributs of all enduses to the Region Class
         self.create_enduses(data, data_ext)
-
-
 
 
         # -- summing functions
@@ -425,7 +401,7 @@ class Region(object):
 
         return lf_h
 
-    def get_heating_demand_shape(self, data, data_ext, temperatures, year):
+    def get_reg_hdd(self, data, data_ext, temperatures, year):
         """Calculate daily shape of heating demand based on calculating HDD for every day
 
         Based on temperatures of a year, the HDD are calculated for every
@@ -451,18 +427,23 @@ class Region(object):
         -----
         The shape_d can be calcuated as follows: 1/ np.sum(hdd_d) * hdd_d
 
-        #TODO: TEST
-        # TODO: Linear or sigmoid diffusion of base temperature?
+        The diffusion is assumed to be sigmoid
         """
-        # Calculate base temperature for heating of current year #TODO: MAKE LINEAR
+        # Calculate base temperature for heating of current year
         t_base_heating_cy = mf.t_base_sigm(year, data['assumptions'], data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'], 't_base_heating')
 
         # Calculate hdd for every day (365,1)
         hdd_d = mf.calc_hdd(t_base_heating_cy, temperatures)
 
+        # Error testing
+        #if np.sum(hdd_d) == 0:
+        #    print("No heating degree days means no fuel for heating is necessary")
+        #    import sys
+        #    sys.exit()
+
         return hdd_d
 
-    def get_cooling_demand_shape(self, data, data_ext, temperatures, year):
+    def get_reg_cdd(self, data, data_ext, temperatures, year):
         """Calculate daily shape of cooling demand based on calculating CDD for every day
 
         Based on temperatures of a year, the CDD are calculated for every
@@ -778,27 +759,25 @@ class EnduseResid(object):
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel[enduse] # Regional base fuel data
         print("FUEL " + str(self.enduse_fuel))
-        print(np.sum(cooling_diff_factor))
-        print(np.sum(heat_diff_factor))
 
         # -- Change fuel consumption based on differences in temperatures #TODO: REALLY?
-        #self.enduse_fuel_after_weater_correction = self.enduse_fuel
-        self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
-        print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
+        self.enduse_fuel_after_weater_correction = self.temp_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
+        #print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
         self.enduse_fuel_after_specific_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
-        print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
-        print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
+        #print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
+        #print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
 
         # Calculate changes in fuel based on fuel switches
         self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
-        print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
+        #print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
         self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext, data['assumptions']['fuel_enduse_tech_p_by'], tech_stock_by, tech_stock_cy)
         #print("B: " + str(np.sum(self.enduse_fuel_eff_gains)))
         '''
+
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.enduse_fuel_after_elasticity = self.enduse_elasticity(data_ext, data['assumptions'])
         #print("D: " + str(np.sum(self.enduse_fuel_after_elasticity)))
@@ -1023,7 +1002,7 @@ class EnduseResid(object):
 
             return new_fuels
 
-    def weather_correction_hdd_cdd(self, cooling_diff_factor, heat_diff_factor):
+    def temp_correction_hdd_cdd(self, cooling_diff_factor, heat_diff_factor):
         """Change fuel demand for heat and cooling service depending on
         changes in HDD and CDD within a region
 
@@ -1039,22 +1018,19 @@ class EnduseResid(object):
             Dictionary containing new fuel demands for `enduse`
 
         Notes
-        ---
-
+        ----
+        `cooling_diff_factor` and `heat_diff_factor` are based on the sum over the year. Therfore
+        it is assumed that fuel correlates directly with HDD or CDD
         """
-        new_fuels = np.zeros((self.enduse_fuel.shape[0], 1)) #fueltypes, days, hours
+        new_fuels = np.zeros((self.enduse_fuel.shape[0], 1))
 
         if self.enduse == 'space_heating':
             for fueltype, fuel in enumerate(self.enduse_fuel):
-                #new_fuels[fueltype] = fuel * np.average(heat_diff_factor)
-                print("heat_diff_factor")
-                print(heat_diff_factor)
                 new_fuels[fueltype] = fuel * heat_diff_factor
             return new_fuels
 
         elif self.enduse == 'cooling':
             for fueltype, fuel in enumerate(self.enduse_fuel):
-                #new_fuels[fueltype] = fuel * np.average(cooling_diff_factor)
                 new_fuels[fueltype] = fuel * cooling_diff_factor
             return new_fuels
         else:

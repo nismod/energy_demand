@@ -21,14 +21,6 @@
 
 - Read out individal load shapes
 
-# LOGGING?
-    #log_path = os.path.join(data['path_dict']['path_main'][:-5], 'model_output/run_model_log.log')
-    #print(log_path)
-    #logging.basicConfig(filename=log_path, level=logging.DEBUG, filemode='w')
-    #logging.debug('This message should go to the log file')
-    #logging.info('So should this')
-    #logging.warning('And this, too')
-
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
@@ -205,7 +197,7 @@ if __name__ == "__main__":
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data, data_external)
 
-    # Disaggregate national data into regional data
+    # Disaggregate national data into regional data #TODO
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)
 
     # Generate virtual building stock over whole simulatin period

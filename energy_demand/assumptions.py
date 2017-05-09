@@ -57,7 +57,7 @@ def load_assumptions(data, data_external):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [2] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
@@ -77,6 +77,7 @@ def load_assumptions(data, data_external):
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
+    # (so far the diffusion is asumed to be sigmoid (can be made linear with minor adaptions))
     # ============================================================
     # Heating base temperature
     assumptions['t_base_heating'] = {

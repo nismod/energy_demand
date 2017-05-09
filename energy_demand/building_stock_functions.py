@@ -43,12 +43,6 @@ class Dwelling(object):
         self.pop = pop
         self.floorarea = floorarea
         self.dw_reg_name = reg_name
-        # HDD HITCHENS CALCULATIONS (DO NOT USE HDD IN SCENARIO DRIVER OF BUILDINGS)
-        #self.hdd = get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, self.dw_reg_name, self.coordinates) #: Get internal temperature depending on assumptions of sim_yr
-        # HDD REAL DATA CALCULATIONS (TODO: INSTEAD OF HITCHENS CALC WITH REAL DATA)
-        #calc_hdd
-        #t_base_heating_cy = mf.t_base_sigm(data_ext['glob_var']['curr_yr'], data['assumptions'], data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
-        #hdd_d = mf.calc_hdd(t_base_heating_cy, temperatures)
 
         self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
 
@@ -72,46 +66,7 @@ class Dwelling(object):
             # Set attribute
             Dwelling.__setattr__(self, enduse, driver_value)
 
-def get_hdd_based_on_int_temp(curr_y, assumptions, data, data_ext, dw_reg_name, coordinates):
-    """Calculate heating degree days depending on temperatures and base temperature
 
-    The mean temperatures are loaded for the closest wheater station (TODO)
-    and the base temperature is calculated for the given year, depending on
-    assumptions on change in t_base (sigmoid diffusion)
-
-    Parameters
-    ----------
-    curr_y : float
-        Current year
-    assumptions : int
-        tbd
-    dw_reg_name : string
-        Region of the created `Dwelling` object
-
-    Returns
-    -------
-    hdd : int
-        Heating Degree Days
-
-    Notes
-    -----
-    The closest weather region to the region in which the `Dwelling` object is created needs
-    to be found with the function `get_temp_region`
-
-    """
-    # Base temperature for current year (Diffusion of sigmoid internal temperature)
-    t_base_cy = mf.t_base_sigm(curr_y, assumptions, data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'])
-
-    # Regional hdd #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
-    temperature_region_relocated = mf.get_temp_region(dw_reg_name, coordinates)
-
-     # Read temperature of closest region TODO
-    t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
-
-    # Calculate heating degree days based, including change in intermal temp change
-    hdd = mf.get_tot_y_hdd_reg(t_mean_reg_months, t_base_cy)
-
-    return hdd
 
 
 
