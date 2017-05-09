@@ -119,7 +119,7 @@ def load_data(path_main, data_ext):
     # -----------
     #print(data['weather_stations'].keys())
     data['temperature_data'] = {}
-    data['temperature_data'][9] = np.zeros((365,24)) + 14 #must not be higher than zeros for hdd
+    data['temperature_data'][9] = np.zeros((365,24)) + 10 #must not be higher than zeros for hdd
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
     # -----------

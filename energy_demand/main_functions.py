@@ -1070,12 +1070,13 @@ def change_temp_data_climate_change(data, data_external):
     # Change weather for all weater stations
     for weather_station_id in data['temperature_data']:
         temperature_data_climate_change[weather_station_id] = {}
-
+        print("Weaterh station:  " + str(weather_station_id))
+        
         # Iterate over simulation period
         for current_year in data_external['glob_var']['sim_period']:
 
             # Copy values
-            temperature_data_climate_change[weather_station_id][current_year] = data['temperature_data'][weather_station_id]
+            temperature_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24))
 
             # Iterate every month and substract
             for yearday in (range(365)):
@@ -1090,10 +1091,12 @@ def change_temp_data_climate_change(data, data_external):
                 temp_by = 0
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
-                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period']))
+                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period'])-1) # -1 because in base year no temp change
+                #print("--------lin_diff_current_year: " + str(current_year) + "  " + str(lin_diff_current_year))
 
-                # Add temperature change
-                temperature_data_climate_change[weather_station_id][current_year][yearday] += lin_diff_current_year
+                # Iterate hours of base year
+                for h, temp_old in enumerate(data['temperature_data'][weather_station_id][yearday]):
+                    temperature_data_climate_change[weather_station_id][current_year][yearday][h] = temp_old + lin_diff_current_year
 
     data['temperature_data'] = temperature_data_climate_change
 

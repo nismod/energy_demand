@@ -25,8 +25,6 @@ def load_assumptions(data, data_external):
     assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
     assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
 
-
-
     # ============================================================
     # Residential dwelling stock assumptions
     # ============================================================
@@ -56,11 +54,12 @@ def load_assumptions(data, data_external):
 
     # ============================================================
     # Climate Change assumptions
+    # 
     # ============================================================
 
     # Temperature changes for every month until end year (from jan to dec)
     assumptions['climate_change_temp_diff_month'] = [1] * 12 #
-    
+
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
     # ============================================================

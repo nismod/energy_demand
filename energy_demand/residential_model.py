@@ -55,13 +55,19 @@ class Region(object):
         self.hdd_by = self.get_heating_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.cdd_by = self.get_cooling_demand_shape(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
 
-
         # Calculate fuel factors for heating and cooling
         self.hdd_cy = self.get_heating_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        self.heating_shape_d_hdd_cy = (1.0 / np.sum(self.hdd_cy)) * self.hdd_cy # Shape of heating demand 
-
         self.cdd_cy = self.get_cooling_demand_shape(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr']) #TODO
-        #self.heating_shape_d_hdd_cy = (1.0 / self.hdd_cy) * self.hdd_cy #Cooling technology? # Shape ofcooling demand
+
+        if np.sum(self.hdd_cy) == 0:
+            print("ERROR: NO HEATING DAYS")
+            prnt(":.")
+
+        # Heating demand for every day based on daily HDD
+        self.heating_shape_d_hdd_cy = np.divide(1.0, np.sum(self.hdd_cy)) * self.hdd_cy
+
+        # Cooling demand for every day based on dails CDD
+        #self.cooling_shape_d_cdd_cy = np.divide(1.0, np.sum(self.cdd_cy)) * self.cdd_cy #Cooling technology? # Shape ofcooling demand
 
         #print("self.hdd_by: " + str(np.sum(self.hdd_by)))
         #print("self.cdd_by: " + str(np.sum(self.cdd_by)))
@@ -69,8 +75,13 @@ class Region(object):
         #print("self.cdd_cy: " + str(np.sum(self.cdd_cy)))
 
         # Calculate fractions related to weater cahnges
-        self.heat_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.hdd_by)) * self.hdd_cy #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
-        self.cooling_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.cdd_by)) * self.cdd_cy #shape (365,1) #problem: Divide by zero!
+        #self.heat_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.hdd_by)) * self.hdd_cy #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
+        #self.cooling_diff_factor = np.nan_to_num(np.divide(np.ones((365, 1)), self.cdd_by)) * self.cdd_cy #shape (365,1) #problem: Divide by zero!
+
+        # NOT WITH AVERAGE --> CHECK THAT HEATING DEMAND AND NOT FUEL IS CHANGED ACCORDINGLY
+        self.heat_diff_factor = np.nan_to_num(np.divide(1, np.average(self.hdd_by))) * np.average(self.hdd_cy) #shape (365,1) #nan_to_num --> converts nan to zeros, np.divide to perevent zerodivisionerror
+        self.cooling_diff_factor = np.nan_to_num(np.divide(1, np.average(self.cdd_by))) * np.average(self.cdd_cy) #shape (365,1) #problem: Divide by zero!
+
         #print("self.heat_diff_factor")
         #print(self.heat_diff_factor)
         #print("----")
@@ -521,7 +532,7 @@ class Region(object):
             shape_y_hp[day] = hp_daily_fuel * daily_fuel_profile
 
         # ----Convert relative daily demand to hourly based on samson data
-        hp_shape = (1/np.sum(shape_y_hp)) * shape_y_hp
+        hp_shape = (1/np.sum(shape_y_hp)) * shape_y_hp #TODO: divide by zero encountered in true_divide
 
         return hp_shape
 
@@ -771,17 +782,17 @@ class EnduseResid(object):
         print(np.sum(heat_diff_factor))
 
         # -- Change fuel consumption based on differences in temperatures #TODO: REALLY?
-        self.enduse_fuel_after_weater_correction = self.enduse_fuel
-        #self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
+        #self.enduse_fuel_after_weater_correction = self.enduse_fuel
+        self.enduse_fuel_after_weater_correction = self.weather_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
         print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
         self.enduse_fuel_after_specific_change = self.enduse_specifid_consumption_change(data_ext, data['assumptions'])
         print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
+        print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
 
         # Calculate changes in fuel based on fuel switches
-        #self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
-        self.enduse_fuel_after_switch = self.enduse_fuel_after_specific_change
+        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
         print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
@@ -1020,6 +1031,8 @@ class EnduseResid(object):
         changes in HDD or CDD. This is plausible as today's share of heatpumps
         is only marginal.
 
+        Ignore technology mix and efficiencies. This will be taken into consideration with other steps
+
         Returns
         -------
         out_dict : dict
@@ -1032,16 +1045,17 @@ class EnduseResid(object):
         new_fuels = np.zeros((self.enduse_fuel.shape[0], 1)) #fueltypes, days, hours
 
         if self.enduse == 'space_heating':
-            print("SPAC HEATING CORRECTION: ")
-            print(self.enduse_fuel)
             for fueltype, fuel in enumerate(self.enduse_fuel):
-                new_fuels[fueltype] = fuel * np.average(heat_diff_factor)
-            print(new_fuels)
+                #new_fuels[fueltype] = fuel * np.average(heat_diff_factor)
+                print("heat_diff_factor")
+                print(heat_diff_factor)
+                new_fuels[fueltype] = fuel * heat_diff_factor
             return new_fuels
 
         elif self.enduse == 'cooling':
             for fueltype, fuel in enumerate(self.enduse_fuel):
-                new_fuels[fueltype] = fuel * np.average(cooling_diff_factor)
+                #new_fuels[fueltype] = fuel * np.average(cooling_diff_factor)
+                new_fuels[fueltype] = fuel * cooling_diff_factor
             return new_fuels
         else:
             return self.enduse_fuel
@@ -1461,95 +1475,3 @@ def test_function_fuel_sum(data):
         for enduse in data['fueldata_disagg'][reg]:
             fuel_in += np.sum(data['fueldata_disagg'][reg][enduse])
     return fuel_in
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''#Scrap-------------------------------------------------
-        #Scrap-------------------------------------------------
-        #Scrap-------------------------------------------------
-        boiler_efficiency_BY = 0.5
-
-        hp_eff = mf.get_heatpump_eff(self.temp_by, -0.05, 2)
-        boiler_eff = self.const_eff_y_to_h(boiler_efficiency_BY)
-
-        # Share of final FUEL demand for each technology?
-        tot_fuel = 555
-        tot_heat = boiler_eff * (self.fuel_shape_y_h_hdd_boilers_cy * tot_fuel) #Boiler eff & fuel demand of each day
-
-        # Fraction of 
-        share_heat_wished_hp = 0.5
-        share_heat_wished_boilers = 0.5
-
-        share_heat_hp = tot_heat * share_heat_wished_hp
-        share_heat_boiler = tot_heat * share_heat_wished_boilers
-
-        # Calculate absolute fuel depending on wished end use share in heat
-        abs_fuel_hp = np.sum(share_heat_hp / hp_eff)
-        abs_fuel_boilers = np.sum(share_heat_boiler / boiler_eff)
-        print("dd: " + str(np.sum(tot_heat / boiler_eff)))
-        print("abs_fuel_hp: " + str(abs_fuel_hp))
-        print("abs_fuel_boilers: " + str(abs_fuel_boilers))
-
-        # Distribute fuel according to shape 
-
-        prnt(":.")
-        hp_heat = tot_fuel * share_heat_wished_hp
-        boiler_heat = tot_fuel * share_heat_wished_boilers
-
-        # FUEL NEEDED if jeweils 100% der technology
-        print("SHAPES")
-        print(np.sum(self.fuel_shape_y_h_hdd_boilers_cy))
-        print(np.sum(self.fuel_shape_y_h_hdd_hp))
-
-        total_heat_if_100_boiler = np.sum(boiler_eff * (self.fuel_shape_y_h_hdd_boilers_cy * tot_fuel))
-        total_heat_if_100_hpp = np.sum(hp_eff * (self.fuel_shape_y_h_hdd_hp * tot_fuel))
-
-        print("TOTAL HEAT NEEDED if 100 BOILER " + str(total_heat_if_100_boiler))
-        print("EFF: " + str(total_heat_if_100_boiler / tot_fuel))
-        print("TOTAL HEAT NEEDED if 100 HP " + str(total_heat_if_100_hpp))
-        print("EFF: " + str(total_heat_if_100_hpp / tot_fuel))
-
-        #print("FUEL BOILER: " + str(hp_heat * ))
-        print("FUEL hp: " + str())
-
-        print("---")
-        print("HEAT NEEDED FOR 100% BOILER: " + str(boiler_eff * (self.fuel_shape_y_h_hdd_boilers_cy * tot_fuel)))
-        print("FUEL NEEDED FOR 100% HP:     " + str(hp_eff * (self.fuel_shape_y_h_hdd_hp * tot_fuel)))
-
-        share_boiler = 0.5
-        share_hp = 0.5
-        tot_f = (share_boiler / np.sum(boiler_eff)) + (share_hp / np.sum(hp_eff))
-        fuel_boilers = tot_fuel * (1 / tot_f) * (share_boiler / np.sum(boiler_eff))
-        fuel_hp = tot_fuel *(1 / tot_f) * (share_hp / np.sum(hp_eff))
-        print("fuel_boilers " + str(fuel_boilers))
-        print("fuel_hp      " + str(fuel_hp))
-
-        # Plot HP and Gas shape for 
-        plt.plot(range(24), self.fuel_shape_y_h_hdd_boilers_cy[100], 'red') #boiler shape
-        plt.plot(range(24), self.fuel_shape_y_h_hdd_hp[100], 'green') #hp shape
-        plt.show()
-        
-        # plot with fuels
-        plt.plot(range(24), self.fuel_shape_y_h_hdd_boilers_cy[0] * fuel_boilers, 'red') #boiler shape
-        plt.plot(range(24), self.fuel_shape_y_h_hdd_hp[0] * fuel_hp, 'green') #Gas shape
-
-        plt.show()
-
-
-        print("..")
-        prnt("..")
-
-        #Scrap-------------------------------------------------
-        #Scrap-------------------------------------------------
-    #Scrap-------------------------------------------------
-    '''
