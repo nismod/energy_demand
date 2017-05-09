@@ -148,7 +148,6 @@ def load_data(path_main, data_ext):
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data = create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses)
 
-    
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR

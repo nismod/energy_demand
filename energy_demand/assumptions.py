@@ -221,15 +221,15 @@ def load_assumptions(data, data_external):
     assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
     # ---Space Heating
-    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
 
     # Provides not fuel share but share of technology
-    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.10, 'elec_boiler': 0.90}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
-    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
-    assumptions['tech_enduse_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.10, 'elec_boiler': 0.90}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
     # ---Lighting
-    #assumptions['tech_enduse_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
+    #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
 
     return assumptions
@@ -347,9 +347,9 @@ def helper_create_stock(assumptions, fuel_raw_data_resid_enduses, nr_of_fueltype
     """Helper function to define stocks for all enduse and fueltypes
     """
     all_enduses_with_fuels = fuel_raw_data_resid_enduses.keys()
-    assumptions['tech_enduse_by'] = {}
+    assumptions['fuel_enduse_tech_p_by'] = {}
     for enduse in all_enduses_with_fuels: #data['resid_enduses']:
-        assumptions['tech_enduse_by'][enduse] = {}
+        assumptions['fuel_enduse_tech_p_by'][enduse] = {}
         for fueltype in range(nr_of_fueltypes):
-            assumptions['tech_enduse_by'][enduse][fueltype] = {}
+            assumptions['fuel_enduse_tech_p_by'][enduse][fueltype] = {}
     return assumptions

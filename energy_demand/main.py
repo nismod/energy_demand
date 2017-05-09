@@ -145,7 +145,7 @@ if __name__ == "__main__":
         for reg in a:
             y_data[reg] = a[reg] # + (a[reg] * 1.04)
         pop_dummy[i] = y_data
-    
+
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}

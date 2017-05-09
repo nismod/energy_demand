@@ -14,6 +14,83 @@ import matplotlib.pyplot as plt
 import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+'''
+def compare_jan_jul(main_dict_dayyear_absolute):
+    """ COMPARE JAN AND JUL DATA"""
+    # Percentages for every day:
+    jan_yearday = range(0, 30)
+    jul_yearday = range(181, 212)
+    jan = {k: [] for k in range(24)}
+    jul = {k: [] for k in range(24)}
+
+    # Read out for the whole months of jan and ful
+    for day in main_dict_dayyear_absolute:
+        for h in main_dict_dayyear_absolute[day]:
+            if day in jan_yearday:
+                jan[h].append(main_dict_dayyear_absolute[day][h])
+            if day in jul_yearday:
+                jul[h].append(main_dict_dayyear_absolute[day][h])
+    #print(jan)
+    # Average the montly entries
+    for i in jan:
+        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
+        jan[i] = sum(jan[i]) / len(jan[i])
+
+    for i in jul:
+        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
+        jul[i] = sum(jul[i]) / len(jul[i])
+
+    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
+    jan = np.array(list(jan.items())) #convert to array
+    jul = np.array(list(jul.items())) #convert to array
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+
+    x_values = range(24)
+    y_values = list(jan[:, 1]) # to get percentages
+    plt.plot(x_values, list(jan[:, 1]), label="Jan")
+    plt.plot(x_values, list(jul[:, 1]), label="Jul")
+    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
+    plt.legend()
+    plt.show()
+
+
+    #--- if JAn = 100%
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+    for h ,i in enumerate(jul_percent_of_jan):
+        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
+
+    pf.plot_load_shape_d_non_resid(jan)
+    print("TEST: " + str(jan-jul))
+'''
+
+'''def followup_processing(out_dict_average, out_dict_not_average):
+
+    # --------------------------------------------------------
+    # Calculate average daily load shape for all mongth (averaged)
+    # --------------------------------------------------------
+    # Initiate
+    yearly_averaged_load_curve = {0: {}, 1: {}}
+    for daytype in yearly_averaged_load_curve:
+        yearly_averaged_load_curve[daytype] = {k: 0 for k in range(24)}
+
+    for daytype in out_dict_average:
+
+        # iterate month
+        for hour in range(24):
+            h_average_y = 0
+
+            # Get every hour of all months
+            for month in range(12):
+                h_average_y += out_dict_average[daytype][month][hour]
+
+            h_average_y = h_average_y / 12
+            yearly_averaged_load_curve[daytype][hour] = h_average_y
+
+    print("Result yearly averaged:")
+    print(yearly_averaged_load_curve)
+    return
+'''
+
 # HES-----------------------------------
 def read_hes_data(data):
     '''
@@ -505,33 +582,7 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     #pf.plot_load_shape_d(maxday_h_shape)
     return maxday_h_shape
 
-'''def followup_processing(out_dict_average, out_dict_not_average):
 
-    # --------------------------------------------------------
-    # Calculate average daily load shape for all mongth (averaged)
-    # --------------------------------------------------------
-    # Initiate
-    yearly_averaged_load_curve = {0: {}, 1: {}}
-    for daytype in yearly_averaged_load_curve:
-        yearly_averaged_load_curve[daytype] = {k: 0 for k in range(24)}
-
-    for daytype in out_dict_average:
-
-        # iterate month
-        for hour in range(24):
-            h_average_y = 0
-
-            # Get every hour of all months
-            for month in range(12):
-                h_average_y += out_dict_average[daytype][month][hour]
-
-            h_average_y = h_average_y / 12
-            yearly_averaged_load_curve[daytype][hour] = h_average_y
-
-    print("Result yearly averaged:")
-    print(yearly_averaged_load_curve)
-    return
-'''
 
 def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, other_string_info):
     """ Function collecting functions to write out txt files"""
@@ -548,13 +599,15 @@ def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d
     #jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
     #jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
 def jason_to_txt_shape_h_peak(input_array, outfile_path):
-    """Wrte to txt. Array with shape: (24,)"""
+    """Wrte to txt. Array with shape: (24,)
+    """
     np_dict = dict(enumerate(input_array))
     with open(outfile_path, 'w') as outfile:
         json.dump(np_dict, outfile)
 
 def jason_to_txt_shape_h_non_peak(input_array, outfile_path):
-    """Wrte to txt. Array with shape: (365, 24)"""
+    """Wrte to txt. Array with shape: (365, 24)
+    """
     out_dict = {}
     for k, row in enumerate(input_array):
         out_dict[k] = dict(enumerate(row))
@@ -562,12 +615,14 @@ def jason_to_txt_shape_h_non_peak(input_array, outfile_path):
         json.dump(out_dict, outfile)
 
 def jason_to_txt_shape_d_peak(input_array, outfile_path):
-    """Wrte to txt. Array with shape: ()"""
+    """Wrte to txt. Array with shape: ()
+    """
     with open(outfile_path, 'w') as outfile:
         json.dump(input_array, outfile)
 
 def jason_to_txt_shape_d_non_peak(input_array, outfile_path):
-    """Wrte to txt. Array with shape: (365, 1)"""
+    """Wrte to txt. Array with shape: (365, 1
+    )"""
     out_dict = {}
     for k, row in enumerate(input_array):
         out_dict[k] = row[0]
@@ -575,7 +630,8 @@ def jason_to_txt_shape_d_non_peak(input_array, outfile_path):
         json.dump(out_dict, outfile)
 
 def read_txt_shape_h_peak(file_path):
-    """Read to txt. Array with shape: (24,)"""
+    """Read to txt. Array with shape: (24,)
+    """
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     out_dict = np.array(read_dict_list, dtype=float)
@@ -591,67 +647,20 @@ def read_txt_shape_h_non_peak(file_path):
     return out_dict
 
 def read_txt_shape_d_peak(file_path):
-    """Read to txt. Array with shape: (365, 24)"""
+    """Read to txt. Array with shape: (365, 24)
+    """
     out_dict = json.load(open(file_path))
     return out_dict
 
 def read_txt_shape_d_non_peak(file_path):
-    """Read to txt. Array with shape: (365, 1)"""
+    """Read to txt. Array with shape: (365, 1)
+    """
     out_dict = np.zeros((365, 1))
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     for day, row in enumerate(read_dict_list):
         out_dict[day] = np.array(row, dtype=float)
     return out_dict
-
-
-
-def compare_jan_jul(main_dict_dayyear_absolute):
-    """ COMPARE JAN AND JUL DATA"""
-    # Percentages for every day:
-    jan_yearday = range(0, 30)
-    jul_yearday = range(181, 212)
-    jan = {k: [] for k in range(24)}
-    jul = {k: [] for k in range(24)}
-
-    # Read out for the whole months of jan and ful
-    for day in main_dict_dayyear_absolute:
-        for h in main_dict_dayyear_absolute[day]:
-            if day in jan_yearday:
-                jan[h].append(main_dict_dayyear_absolute[day][h])
-            if day in jul_yearday:
-                jul[h].append(main_dict_dayyear_absolute[day][h])
-    #print(jan)
-    # Average the montly entries
-    for i in jan:
-        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
-        jan[i] = sum(jan[i]) / len(jan[i])
-
-    for i in jul:
-        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
-        jul[i] = sum(jul[i]) / len(jul[i])
-
-    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
-    jan = np.array(list(jan.items())) #convert to array
-    jul = np.array(list(jul.items())) #convert to array
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-
-    x_values = range(24)
-    y_values = list(jan[:, 1]) # to get percentages
-    plt.plot(x_values, list(jan[:, 1]), label="Jan")
-    plt.plot(x_values, list(jul[:, 1]), label="Jul")
-    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
-    plt.legend()
-    plt.show()
-
-
-    #--- if JAn = 100%
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-    for h ,i in enumerate(jul_percent_of_jan):
-        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
-
-    pf.plot_load_shape_d_non_resid(jan)
-    print("TEST: " + str(jan-jul))
 
 def read_weather_data_raw(path_to_csv, placeholder_value):
     """Read in raw weather data
@@ -667,7 +676,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value):
     Returns
     -------
     temp_stations : dict
-        Contains temperature data (e.g. {'weater_station_id: np.array((yeardays, 24))})
+        Contains temperature data (e.g. {'station_id: np.array((yeardays, 24))})
 
     Info
     ----
@@ -691,7 +700,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value):
             hour = int(date_measurement[1][:2])
 
             # Weather station id
-            weater_station_id = int(row[5])
+            station_id = int(row[5])
 
             # Air temperature in Degrees Celcius
             if row[35] == ' ': # If no data point
@@ -703,11 +712,11 @@ def read_weather_data_raw(path_to_csv, placeholder_value):
             yearday = mf.convert_date_to_yearday(year, month, day)
 
             # Add weather station if not already added to dict
-            if weater_station_id not in temp_stations:
-                temp_stations[weater_station_id] = np.zeros((365, 24))
+            if station_id not in temp_stations:
+                temp_stations[station_id] = np.zeros((365, 24))
 
             # Add data
-            temp_stations[weater_station_id][yearday][hour] = air_temp
+            temp_stations[station_id][yearday][hour] = air_temp
 
     return temp_stations
 
@@ -736,17 +745,15 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
         - There is a day in a year with more than one missing measurement point
 
     In case only one measurement point is missing, this point gets interpolated.
-
-    TODO: BIRMINGHAM CODE: 56950
     """
     zeros_day_crit = 10 # How many 0 values there must be in a day in order to ignore weater station
     temp_stations_cleaned = {}
 
-    for weater_station_id in temp_stations:
+    for station_id in temp_stations:
 
         # Iterate to see if data can be copyied or not
         copy_weater_station_data = True
-        for day_nr, day in enumerate(temp_stations[weater_station_id]):
+        for day_nr, day in enumerate(temp_stations[station_id]):
             if np.sum(day) == 0:
                 copy_weater_station_data = False
 
@@ -760,12 +767,12 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
                 copy_weater_station_data = False
 
         if copy_weater_station_data:
-            temp_stations_cleaned[weater_station_id] = temp_stations[weater_station_id] # Remove this weather station
-        else:
+            temp_stations_cleaned[station_id] = temp_stations[station_id]
+        else: # Do not add data
             continue # Continue iteration
 
-        # Check if missing single temp measurement
-        for day_nr, day in enumerate(temp_stations[weater_station_id]):
+        # Check if missing single temp measurements
+        for day_nr, day in enumerate(temp_stations[station_id]):
             if placeholder_value in day: # If day with missing data point
 
                 # check number of missing values
@@ -782,16 +789,16 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
                         if temp == placeholder_value:
                             if h == 0 or h == 23:
                                 if h == 0: #If value of hours hour in day is missing
-                                    temp_stations_cleaned[weater_station_id][day_nr][h] = day[h + 1] #Replace with temperature of next hour
+                                    temp_stations_cleaned[station_id][day_nr][h] = day[h + 1] #Replace with temperature of next hour
                                 if h == 23:
-                                    temp_stations_cleaned[weater_station_id][day_nr][h] = day[h - 1] # Replace with temperature of previos hour
+                                    temp_stations_cleaned[station_id][day_nr][h] = day[h - 1] # Replace with temperature of previos hour
                             else:
-                                temp_stations_cleaned[weater_station_id][day_nr][h] = (day[h - 1] + day[h + 1]) / 2 # Interpolate
+                                temp_stations_cleaned[station_id][day_nr][h] = (day[h - 1] + day[h + 1]) / 2 # Interpolate
 
                 # if more than one temperture data point is missing in a day, remove weather station
                 if nr_of_missing_values > 1:
-                    del temp_stations_cleaned[weater_station_id]
-                    continue
+                    del temp_stations_cleaned[station_id]
+                    break
 
     return temp_stations_cleaned
 

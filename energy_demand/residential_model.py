@@ -796,7 +796,7 @@ class EnduseResid(object):
         print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
-        self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext, data['assumptions']['tech_enduse_by'], tech_stock_by, tech_stock_cy)
+        self.enduse_fuel_eff_gains = self.enduse_eff_gains(data_ext, data['assumptions']['fuel_enduse_tech_p_by'], tech_stock_by, tech_stock_cy)
         #print("B: " + str(np.sum(self.enduse_fuel_eff_gains)))
         '''
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
@@ -872,7 +872,7 @@ class EnduseResid(object):
         """
         if data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']: # If base year
             return self.enduse_fuel_after_specific_change
-        elif self.enduse not in assumptions['installed_tech_switch']: # If no fuel switches for this enduse
+        elif self.enduse not in assumptions['installed_tech']: # If no fuel switches for this enduse
             return self.enduse_fuel_after_specific_change
 
         new_fuels = copy.deepcopy(self.enduse_fuel_after_specific_change)
@@ -880,11 +880,11 @@ class EnduseResid(object):
         # -----------------------------------------------------------------------------------------
         # Step 1: Calculate total regional service demand (across all fueltypes)
         # -----------------------------------------------------------------------------------------
-        tot_service_h_by = mf.calc_regional_service_demand(fuel_shape_y_h_hdd_boilers_cy, assumptions['tech_enduse_by'][self.enduse], self.enduse_fuel_after_specific_change, assumptions['technologies'])
+        tot_service_h_by = mf.calc_regional_service_demand(fuel_shape_y_h_hdd_boilers_cy, assumptions['fuel_enduse_tech_p_by'][self.enduse], self.enduse_fuel_after_specific_change, assumptions['technologies'])
         print("tot_service_h_by: " + str(np.sum(tot_service_h_by)))
 
         # Iterate all technologies which are installed in fuel switches
-        for tech_installed in assumptions['installed_tech_switch'][self.enduse]:
+        for tech_installed in assumptions['installed_tech'][self.enduse]:
 
             print("--tech_installed: " + str(tech_installed))
             #tech_installed_eff_cy = tech_stock_by.get_technology_attribute(tech_installed, 'eff_cy')
@@ -946,7 +946,7 @@ class EnduseResid(object):
                         break #MAKE NICER
 
                 # Get all technologies which are installed
-                technologies_in_fueltype = assumptions['tech_enduse_by'][self.enduse][fueltype].keys()
+                technologies_in_fueltype = assumptions['fuel_enduse_tech_p_by'][self.enduse][fueltype].keys()
 
                 # Iterate all technologies in within the fueltype and calculate reduction per technology
                 for technology_replaced in technologies_in_fueltype:
