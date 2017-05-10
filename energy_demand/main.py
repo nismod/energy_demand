@@ -30,6 +30,9 @@ Open questions
 
 # TODO: technologies: when on market? (diffusion-advanced )
 
+#TODO: technology stock --> Do not differentiate between eff_by and eff_cy --> Should be obvious from selected technology stock
+
+
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 cleaning ttt
 The docs can be found here: http://ed.readthedocs.io

@@ -760,12 +760,12 @@ class EnduseResid(object):
         print("FUEL " + str(self.enduse_fuel))
 
         # Change fuel consumption based on climate change induced temperature differences
-        self.enduse_fuel_after_weater_correction = self.temp_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
-        #print("FUEL TRAIN 0: " + str(self.enduse_fuel_after_weater_correction))
+        self.enduse_fuel_temp_corr = self.temp_correction_hdd_cdd(cooling_diff_factor, heat_diff_factor)
+        #print("FUEL TRAIN 0: " + str(self.enduse_fuel_temp_corr))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_fuel_after_specific_change = self.enduse_specific_change(data_ext, data['assumptions'])
-        #print("FUEL TRAIN 1: " + str(self.enduse_fuel_after_specific_change))
+        self.enduse_fuel_spec_change = self.enduse_specific_change(data_ext, data['assumptions'])
+        #print("FUEL TRAIN 1: " + str(self.enduse_fuel_spec_change))
         #print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
 
         # Calculate changes in fuel based on fuel switches
@@ -786,19 +786,10 @@ class EnduseResid(object):
         #print("E: " + str(np.sum(self.enduse_fuel_smart_meter_eff_gains)))
 
         # Calculate new fuel demands after scenario drivers TODO: THIS IS LAST MUTATION IN PROCESS... (all disaggreagtion function refer to this)
-        self.enduse_fuelscen_driver = self.enduse_scenario_driver(data, data_ext)
+        self.enduse_fuelscen_driver = self.enduse_building_stock_driver(data, data_ext)
         #print("F: " + str(np.sum(self.enduse_fuelscen_driver)))
-        
-        self.techologies_cy_after_switch = self.read_techologies_cy_after_switch()
-        #print("G: " + str(np.sum(self.techologies_cy_after_switch)))
 
-        #
-        # TODO: CALCULATE FUEL SHARES OF HEATING TECHNOLOGY AND ASSING TO SPECIFIC CURVES
-        # TODO: Calculate Shape for heating
-        # fuel_shape_y_h_hdd_hp_cy,  --> fuel shape of hp
-        # fuel_shape_y_h_hdd_boilers_cy --> fuel shape of boilers
         # Cooling specific shapes
-
         ##self.shape_cdd_by = cdd_by / np.sum(cdd_by) # shape fraction cooling base year
         ##self.shape_cdd_cy = (cdd_by * cooling_diff_factor) / np.sum(cdd_by) # calc fraction
 
@@ -806,8 +797,12 @@ class EnduseResid(object):
         ##self.shape_hdd_by = hdd_by / np.sum(hdd_by) # shape fraction heating base year
         ##self.shape_hdd_cy = (hdd_by * heat_diff_factor) / np.sum(hdd_by) # calc fraction (365,1)
 
+        # 1. Get share of fuel for every technology
 
-        # --Current Year load shapes (adapt because of technology switch) (Shapes are identical for all fuel types)
+        # 2. Iterate technology and assign shape
+
+
+        # --Current Year load shapes (Shapes are identical for all fuel types)
         # Alter after technology_switch and fuel switch shapes depending on technology
         # --Base year load shapes (same load shape for all fuel types but not necessarily for all technologies within one enduse fuel)
         self.enduse_shape_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_non_peak']  # shape_d (365,1)
@@ -843,44 +838,56 @@ class EnduseResid(object):
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
     def enduse_fuel_switches(self, data_ext, assumptions, tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy):
-        """function steps to claculate fuel switches
+        """Calculate fuel after fuel switches
 
-        Step 1: Calculate service demand
+        The switching is divided in three steps
+
+        1. Convert to service demand
+        2. Add fuel for service demand
+        3. Substract fuel for service demand
+
+        #TODO: fuel_shape_y_h_hdd_boilers_cy only for heating so far!
 
         """
         if data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']: # If base year
-            return self.enduse_fuel_after_specific_change
+            return self.enduse_fuel_spec_change
         elif self.enduse not in assumptions['installed_tech']: # If no fuel switches for this enduse
-            return self.enduse_fuel_after_specific_change
+            return self.enduse_fuel_spec_change
 
-        new_fuels = copy.deepcopy(self.enduse_fuel_after_specific_change)
+        new_fuels = copy.deepcopy(self.enduse_fuel_spec_change)
 
         # -----------------------------------------------------------------------------------------
         # Step 1: Calculate total regional service demand (across all fueltypes)
         # -----------------------------------------------------------------------------------------
-        tot_service_h_by = mf.calc_regional_service_demand(fuel_shape_y_h_hdd_boilers_cy, assumptions['fuel_enduse_tech_p_by'][self.enduse], self.enduse_fuel_after_specific_change, assumptions['technologies'])
+        tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(
+            fuel_shape_y_h_hdd_boilers_cy,
+            assumptions['fuel_enduse_tech_p_by'][self.enduse],
+            self.enduse_fuel_spec_change,
+            tech_stock_cy
+        )
         print("tot_service_h_by: " + str(np.sum(tot_service_h_by)))
+
+        service_fueltype_tech_after_switch = copy.deepcopy(service_fueltype_tech) #NEW
 
         # Iterate all technologies which are installed in fuel switches
         for tech_installed in assumptions['installed_tech'][self.enduse]:
-
-            print("--tech_installed: " + str(tech_installed))
-            #tech_installed_eff_cy = tech_stock_by.get_technology_attribute(tech_installed, 'eff_cy')
-            tech_installed_eff_cy = tech_stock_cy.get_technology_attribute(tech_installed, 'eff_cy') #CY or BY?
-            tech_installed_fueltype = tech_stock_by.get_technology_attribute(tech_installed, 'fuel_type')
+            #print("--tech_installed: " + str(tech_installed))
+            tech_installed_eff_cy = tech_stock_cy.get_technology_attribute(tech_installed, 'eff_cy')
+            tech_installed_fueltype = tech_stock_cy.get_technology_attribute(tech_installed, 'fuel_type')
 
             # -----------------------------------------------------------------------------------------
-            # 2. Calculate and add fuel of newly installed technologies to fueltype of installed technology
+            # 2. Add fuel of newly installed technologies to fueltype of installed technology
             # -----------------------------------------------------------------------------------------
-
             # Read out sigmoid diffusion of energy service demand of this technology for the current year
             diffusion_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
 
             # Get service demands for current year based on diffusion
             service_tech_installed_cy = diffusion_cy * tot_service_h_by # Share of service demand & total service demand
-            print("service_tech_installed_cy: " + str(service_tech_installed_cy))
+            #print("service_tech_installed_cy: " + str(service_tech_installed_cy))
 
-            # Convert energy service demand to fuel (service demand / efficiency cy )
+            service_fueltype_tech_after_switch[tech_installed_fueltype][tech_installed] += service_tech_installed_cy # NEW
+
+            # Convert energy service demand to fuel (service / efficiency cy )
             fuel_tech_installed_cy = np.sum(service_tech_installed_cy / tech_installed_eff_cy)
 
             # Add fuels of installed technologies to existing fuel depending on fueltype of installed technology
@@ -902,36 +909,33 @@ class EnduseResid(object):
                     # Share of service demand per fueltype * fraction of fuel switched
                     tot_service_switched_tech_installed += assumptions['service_fueltype_p'][self.enduse][fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
 
-            #assumptions['service_fueltype_tech_p']
-            print("Service demand which is switched with this technology: " + str(tot_service_switched_tech_installed))
-            print("------------------------")
+            #print("Service demand which is switched with this technology: " + str(tot_service_switched_tech_installed))
 
             # Iterate all fueltypes which are affected in the technology installed
             for fueltype in fueltypes_replaced:
 
-                # Find fuel switch where this fueltype is replaced --> WRITE AS SEPERATE FUNCTION get_fuelswitch()
-                #fuelswitch_specific = get_fuelswitch()
+                # Find fuel switch where this fueltype is replaced
                 for fuelswitch in assumptions['resid_fuel_switches']:
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype:
 
-                        # share of total service of fueltype * share of replaced fuel (CAN BE DONE BECAUSE HEAT DEMAND IS PROPORTIONAL??)
+                        # share of total service of fueltype * share of replaced fuel
                         relative_share = assumptions['service_fueltype_p'][self.enduse][fueltype] * fuelswitch['share_fuel_consumption_switched']
 
-                        # Service reduced for this fueltype (service technology cy (sigmoid diff) *  % of heat demand within fueltype)
+                        # Service reduced for this fueltype (service technology cy sigmoid diff *  % of heat demand within fueltype)
                         reduction_service_fueltype = service_tech_installed_cy * ((1 / tot_service_switched_tech_installed) * relative_share)
-                        print("reduction_service_fueltype: " + str(np.sum(reduction_service_fueltype)))
-
-                        break #MAKE NICER
+                        break # switch is found
 
                 # Get all technologies which are installed
                 technologies_in_fueltype = assumptions['fuel_enduse_tech_p_by'][self.enduse][fueltype].keys()
 
                 # Iterate all technologies in within the fueltype and calculate reduction per technology
                 for technology_replaced in technologies_in_fueltype:
-                    print("-------------heat demand within fueltype of technology: " + str(technology_replaced))
+                    #print("-------------heat demand within fueltype of technology: " + str(technology_replaced))
 
                     # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
                     service_demand_tech = assumptions['service_fueltype_tech_p'][self.enduse][fueltype][technology_replaced] * reduction_service_fueltype
+
+                    service_fueltype_tech_after_switch[fueltype][technology_replaced] -= service_demand_tech #NEW
 
                     # Convert service demand to fuel (service demand / eff of current year)
                     fuel_tech = service_demand_tech / tech_stock_cy.get_technology_attribute(technology_replaced, 'eff_cy')
@@ -939,6 +943,12 @@ class EnduseResid(object):
                     # Substract fuel
                     new_fuels[fueltype][0] -= np.sum(fuel_tech)
 
+        # Convert service to fuel for each technology
+        fuel_fueltype_tech_p = mf.convert_service_tech_to_fuel(service_fueltype_tech_after_switch, tech_stock_cy) #VORHERservice_fueltype_tech
+
+        print("EGON3    ")
+        print(fuel_fueltype_tech_p)
+        prnt(":.")
         return new_fuels
 
     def enduse_specific_change(self, data_ext, assumptions):
@@ -973,12 +983,12 @@ class EnduseResid(object):
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
 
         if diff_fuel_consump == 0:# No change
-            return self.enduse_fuel_after_weater_correction
+            return self.enduse_fuel_temp_corr
         else:
-            new_fuels = np.zeros((self.enduse_fuel_after_weater_correction.shape[0], 1)) #fueltypes, days, hours
+            new_fuels = np.zeros((self.enduse_fuel_temp_corr.shape[0], 1)) #fueltypes, days, hours
 
             # Lineare diffusion up to cy
-            if diffusion_choice == 'linear': #TODO: CHECK DIFF
+            if diffusion_choice == 'linear':
                 lin_diff_factor = mf.linear_diff(
                     data_ext['glob_var']['base_yr'],
                     data_ext['glob_var']['curr_yr'],
@@ -989,12 +999,12 @@ class EnduseResid(object):
                 change_cy = diff_fuel_consump * abs(lin_diff_factor)
 
             # Sigmoid diffusion up to cy
-            elif diffusion_choice == 'sigmoid': 
+            elif diffusion_choice == 'sigmoid':
                 sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage
-            for fueltype, fuel in enumerate(self.enduse_fuel_after_weater_correction):
+            for fueltype, fuel in enumerate(self.enduse_fuel_temp_corr):
                 new_fuels[fueltype] = fuel * (1 + change_cy)
 
             return new_fuels
@@ -1032,13 +1042,6 @@ class EnduseResid(object):
             return new_fuels
         else:
             return self.enduse_fuel
-
-    def read_techologies_cy_after_switch(self):
-        """Read the faction of TOTAL enduse demand for each technology
-        Assumption: Load shape is the same across all fueltypes
-        """
-        #for fuel in self.enduse_fuelscen_driver: #Iterate fuels
-        pass
 
     def enduse_elasticity(self, data_ext, assumptions):
         """Adapts yearls fuel use depending on elasticity
@@ -1090,7 +1093,7 @@ class EnduseResid(object):
 
         """
         if data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']:
-            out_dict = np.zeros((self.enduse_fuel_after_specific_change.shape[0], 1))
+            out_dict = np.zeros((self.enduse_fuel_spec_change.shape[0], 1))
 
             # Get technologies and share of technologies for each fueltype and enduse
             ##tech_frac_by = getattr(self.tech_stock_by, 'tech_frac_by')
@@ -1100,7 +1103,7 @@ class EnduseResid(object):
             tech_frac_cy = tech_frac_by # self.get_sigmoid_tech_diff(data, data_ext) #current year
 
             # Iterate fuels
-            for fueltype, fueldata in enumerate(self.enduse_fuel_after_specific_change):
+            for fueltype, fueldata in enumerate(self.enduse_fuel_spec_change):
 
                 
                 # Iterate technologies and average efficiencies relative to distribution for base year
@@ -1141,14 +1144,14 @@ class EnduseResid(object):
 
             return out_dict
         else:
-            return self.enduse_fuel_after_specific_change
+            return self.enduse_fuel_spec_change
 
     def smart_meter_eff_gain(self, data_ext, assumptions):
         """Calculate fuel savings depending on smart meter penetration
 
         The smart meter penetration is assumed with a sigmoid diffusion.
 
-        In the assumptions the maximum penetration and also the 
+        In the assumptions the maximum penetration and also the
         generally fuel savings for each enduse can be defined.
 
         Parameters
@@ -1186,7 +1189,7 @@ class EnduseResid(object):
         else:
             return self.enduse_fuel_after_elasticity
 
-    def enduse_scenario_driver(self, data, data_ext):
+    def enduse_building_stock_driver(self, data, data_ext):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         If no building specific scenario driver is found, the identical fuel is returned.
@@ -1214,7 +1217,8 @@ class EnduseResid(object):
             by_driver = getattr(data['dw_stock'][self.reg_name][data_ext['glob_var']['base_yr']], self.enduse) # Base year building stock
             cy_driver = getattr(data['dw_stock'][self.reg_name][data_ext['glob_var']['curr_yr']], self.enduse) # Current building stock
 
-            factor_driver =  cy_driver / by_driver # FROZEN Here not effecieicny but scenario parameters!   base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            factor_driver =  cy_driver / by_driver # TODO: FROZEN Here not effecieicny but scenario parameters
 
             return self.enduse_fuel_smart_meter_eff_gains * factor_driver
 

@@ -43,7 +43,6 @@ def resid_build_stock(data, assumptions, data_ext):
 
     # Get floor area per person for every simulation year
     data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data_ext['population'][base_yr], data_ext['glob_var'], assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
-    print("data_floorarea_pp: " + str(data_floorarea_pp))
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
@@ -81,13 +80,6 @@ def resid_build_stock(data, assumptions, data_ext):
                 new_area_minus_demolished = floorarea_by - demolished_area
                 pop_in_exist_dw_new_floor_area_pp = floorarea_by / floorarea_pp_sy #In existing building stock fewer people are living
 
-                #print("pop_by: " + str(pop_by))
-                print("floorarea_by: " + str(floorarea_by))
-                print("demolished_area: " + str(demolished_area))
-                #print("pop_in_exist_dw_new_floor_area_pp " + str(pop_in_exist_dw_new_floor_area_pp))
-                print("new_area_minus_demolished " + str(new_area_minus_demolished))
-                print(floorarea_p_sy[sim_y])
-                print(floorarea_p_sy[base_yr])
                 #dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
                 dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], new_area_minus_demolished, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
 

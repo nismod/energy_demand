@@ -166,10 +166,7 @@ def load_assumptions(data, data_external):
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
     # --Helper Function to write same achieved efficiency for all technologies
-    factor_efficiency_achieved = 1.0
-    assumptions['eff_achieved_resid'] = {}
-    for technology in assumptions['technologies']:
-        assumptions['technologies'][technology]['eff_achieved'] = factor_efficiency_achieved
+    assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'])
 
     # Other function
     data = create_lu_technologies(assumptions, data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
@@ -354,3 +351,9 @@ def helper_create_stock(assumptions, fuel_raw_data_resid_enduses, nr_of_fueltype
         for fueltype in range(nr_of_fueltypes):
             assumptions['fuel_enduse_tech_p_by'][enduse][fueltype] = {}
     return assumptions
+
+def helper_define_same_efficiencies_all_tech(tech_assump):
+    factor_efficiency_achieved = 1.0
+    for technology in tech_assump:
+        tech_assump[technology]['eff_achieved'] = factor_efficiency_achieved
+    return tech_assump

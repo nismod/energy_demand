@@ -149,7 +149,7 @@ class ResidTechStock(object):
                 )
         )
 
-    def create_iteration_efficiency(self, data, data_ext):
+    '''def create_iteration_efficiency(self, data, data_ext):
         """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)
 
         The efficiency of each technology is added as `self` attribute.
@@ -194,3 +194,5 @@ class ResidTechStock(object):
                 cy_eff = mf.const_eff_y_to_h(cy_eff)
 
             ResidTechStock.__setattr__(self, technology_param, cy_eff)
+        
+    '''
