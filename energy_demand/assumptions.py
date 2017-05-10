@@ -20,12 +20,6 @@ def load_assumptions(data, data_external):
     assumptions = {}
 
     # ============================================================
-    # Technology diffusion assumptions (same parameters are used for all the cases where a sigmoid diffusion is assumed)
-    # ============================================================
-    assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
-    assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
-
-    # ============================================================
     # Residential dwelling stock assumptions
     # ============================================================
 
@@ -45,19 +39,15 @@ def load_assumptions(data, data_external):
     #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr'] = mf.calc_age_distribution()
     assumptions['dwtype_age_distr'] = {
-        2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
-
-    #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age']) #TODO!
-    #2015: 	20.8	36.3	29.5	8	5.4
+        2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}} #TODO READ IN
 
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
-
 
     # ========================================================================================================================
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [2] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
@@ -140,11 +130,11 @@ def load_assumptions(data, data_external):
     # Reasonable assumption is between 3 and 10 % (DECC 2015)
     # ============================================================
 
-    # Fraction of population with smart meters #TODO: Make possibie to provide saturation year
-    assumptions['smart_meter_p_by'] = 0.1
-    assumptions['smart_meter_p_ey'] = 0.1
+    # Fraction of population with smart meters NTH: saturation year
+    assumptions['smart_meter_p_by'] = 0.1 #base year
+    assumptions['smart_meter_p_ey'] = 0.1 #end year
 
-    # Long term smart meter induced general savings (purley as a result of having a smart meter)
+    # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['general_savings_smart_meter'] = {
         'cold': 0.03,
         'cooking': 0.03,
@@ -188,8 +178,11 @@ def load_assumptions(data, data_external):
     #
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # ---------------------------------------------------------------------------------------------------------------------
+    assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
+    assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
+
     assumptions['enduse_overall_change_ey'] = {
-        'space_heating': 2,
+        'space_heating': 1,
         'water_heating': 1,
         'lighting': 1,
         'cooking': 1,
@@ -213,16 +206,14 @@ def load_assumptions(data, data_external):
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
-    # Assert: - if market enntry is not before base year, wheater always 100 % etc..
-
-    # Initiate: Iterate enduses and write
-    assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
+    # Assert: - if market enntry is not before base year, wheater always 100 % etc.. --> Check if fuel switch input makes sense
+    assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu'])) # Initiate
 
     # ---Space Heating
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
 
-    # Provides not fuel share but share of technology
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.10, 'elec_boiler': 0.90}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
+    # Provides shares of fuel within each fueltype
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
@@ -357,3 +348,4 @@ def helper_define_same_efficiencies_all_tech(tech_assump):
     for technology in tech_assump:
         tech_assump[technology]['eff_achieved'] = factor_efficiency_achieved
     return tech_assump
+    

@@ -42,7 +42,6 @@ class Region(object):
         self.temp_cy = data['temperature_data'][_closest_weater_station_id][data_ext['glob_var']['curr_yr']]
 
         # Create region specific technological stock
-        self.tech_stock_by = ts.ResidTechStock(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
         self.tech_stock_cy = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
 
         # Calculate HDD and CDD scenario driver for heating and cooling
@@ -175,10 +174,8 @@ class Region(object):
                     data,
                     data_ext,
                     enduse,
-                    self.enduses_fuel, #Masbe do weater correction not in region?
-                    self.tech_stock_by,
+                    self.enduses_fuel, #TODO: MAybe do weater correction on region level?
                     self.tech_stock_cy,
-
                     self.heat_diff_factor,
                     self.cooling_diff_factor,
                     self.hdd_by,
@@ -751,7 +748,7 @@ class EnduseResid(object):
     #TODO: The technology switch also needs to be done for peak!
     #TODO: (Check if always function below takes result from function above)
     """
-    def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock_by, tech_stock_cy, heat_diff_factor, cooling_diff_factor, hdd_by, cdd_by, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
+    def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock_cy, heat_diff_factor, cooling_diff_factor, hdd_by, cdd_by, fuel_shape_y_h_hdd_hp_cy, fuel_shape_y_h_hdd_boilers_cy):
         print("--Enduse: " + str(enduse))
 
         self.reg_name = reg_name
@@ -769,7 +766,7 @@ class EnduseResid(object):
         #print("fuel_shape_y_h_hdd_boilers_cy" + str(fuel_shape_y_h_hdd_boilers_cy))
 
         # Calculate changes in fuel based on fuel switches
-        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
+        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
         #print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
@@ -837,7 +834,7 @@ class EnduseResid(object):
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
-    def enduse_fuel_switches(self, data_ext, assumptions, tech_stock_by, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy):
+    def enduse_fuel_switches(self, data_ext, assumptions, tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy):
         """Calculate fuel after fuel switches
 
         The switching is divided in three steps
@@ -859,14 +856,9 @@ class EnduseResid(object):
         # -----------------------------------------------------------------------------------------
         # Step 1: Calculate total regional service demand (across all fueltypes)
         # -----------------------------------------------------------------------------------------
-        tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(
-            fuel_shape_y_h_hdd_boilers_cy,
-            assumptions['fuel_enduse_tech_p_by'][self.enduse],
-            self.enduse_fuel_spec_change,
-            tech_stock_cy
-        )
-        print("tot_service_h_by: " + str(np.sum(tot_service_h_by)))
+        tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(fuel_shape_y_h_hdd_boilers_cy, assumptions['fuel_enduse_tech_p_by'][self.enduse], self.enduse_fuel_spec_change, tech_stock_cy)
 
+        # Make copy to calculate fuel percentages within fueltype after switch
         service_fueltype_tech_after_switch = copy.deepcopy(service_fueltype_tech) #NEW
 
         # Iterate all technologies which are installed in fuel switches
@@ -943,12 +935,11 @@ class EnduseResid(object):
                     # Substract fuel
                     new_fuels[fueltype][0] -= np.sum(fuel_tech)
 
-        # Convert service to fuel for each technology
-        fuel_fueltype_tech_p = mf.convert_service_tech_to_fuel(service_fueltype_tech_after_switch, tech_stock_cy) #VORHERservice_fueltype_tech
+        # Convert service to fuel for each technology NEW
+        fuel_fueltype_tech_p = mf.convert_service_tech_to_fuel(service_fueltype_tech_after_switch, tech_stock_cy)
 
-        print("EGON3    ")
         print(fuel_fueltype_tech_p)
-        prnt(":.")
+
         return new_fuels
 
     def enduse_specific_change(self, data_ext, assumptions):
@@ -1074,7 +1065,7 @@ class EnduseResid(object):
                     new_fuels[fueltype] = fuel
         return new_fuels
 
-    def enduse_eff_gains(self, data_ext, tech_frac_by, tech_stock_by, tech_stock_cy):
+    '''def enduse_eff_gains(self, data_ext, tech_frac_by, tech_stock_by, tech_stock_cy):
         """
 
         SPECIFIC EFF GAINS??
@@ -1145,7 +1136,7 @@ class EnduseResid(object):
             return out_dict
         else:
             return self.enduse_fuel_spec_change
-
+    '''
     def smart_meter_eff_gain(self, data_ext, assumptions):
         """Calculate fuel savings depending on smart meter penetration
 

@@ -1235,7 +1235,7 @@ def generate_sig_diffusion(data, data_external):
 
     return assumptions
 
-def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock_by):
+def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -1285,7 +1285,7 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
                 fuel_tech = fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0]
 
                 # Energy service of end use: Fuel of technoloy * efficiency == Service (e.g.heat demand in Joules)
-                service_fueltype_tech = fuel_tech * tech_stock_by[tech]['eff_by']
+                service_fueltype_tech = fuel_tech * tech_stock[tech]['eff_by']
 
                 service[enduse][fueltype][tech] = service_fueltype_tech # Add energy service demand to dict
                 tot_service_fueltype += service_fueltype_tech # Total energy service demand within a fueltype
@@ -1459,6 +1459,9 @@ def convert_service_tech_to_fuel(service_fueltype_tech, tech_stock):
     for fueltype in service_fueltype_tech:
         fuel_fueltype_tech[fueltype] = {}
         for tech in service_fueltype_tech[fueltype]:
+            print("-------TECH: " + str(tech))
+            print(np.sum(service_fueltype_tech[fueltype][tech]))
+            print(np.sum(tech_stock.get_technology_attribute(tech, 'eff_cy')))
             service_tech_h = service_fueltype_tech[fueltype][tech]
             fuel_fueltype_tech[fueltype][tech] = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
 
@@ -1688,7 +1691,7 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock_by, data_ext, L_
                 sigmoid_parameters[enduse][technology]['steepness'] = fit_parameter[1] #Steepnes (k)
                 sigmoid_parameters[enduse][technology]['l_parameter'] = L_values[enduse][technology]
 
-                #plot
+                #plot sigmoid curve
                 plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
 
     return sigmoid_parameters
@@ -1730,10 +1733,14 @@ def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_pa
 
     fig = plt.figure()
     fig.set_size_inches(12, 8)
-    pylab.plot(xdata, ydata, 'o', label='data')
+    pylab.plot(xdata, ydata, 'o', label='base year and future market share')
     pylab.plot(x, y, label='fit')
     pylab.ylim(0, 1.05)
     pylab.legend(loc='best')
+    pylab.xlabel('Time')
+    pylab.ylabel('Market share of technology on energy service')
+    pylab.title("Sigmoid diffusion of technology  {}  in enduse {}".format(technology, enduse))
+
     pylab.show()
 
 def fit_sigmoid_diffusion(L, xdata, ydata, start_parameters):

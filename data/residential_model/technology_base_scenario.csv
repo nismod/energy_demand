@@ -1,7 +1,7 @@
 technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry
 heat_pump,electricity,2,2,1,linear,2015
 gas_boiler,gas,0.1,0.1,1,linear,2015
-elec_boiler,electricity,0.1,0.1,1,linear,2000
+elec_boiler,electricity,0.4,0.4,1,linear,2000
 hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2015
 oil_boiler,oil,0.7,0.7,1,linear,2015
 elec_boiler2,electricity,0.4,0.4,1,linear,2015
