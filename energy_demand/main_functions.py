@@ -1450,7 +1450,24 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
 
     return total_service_h, service
 
-def convert_service_tech_to_fuel(service_fueltype_tech, tech_stock):
+def convert_service_tech_to_fuel_fueltype(service_fueltype_tech, tech_stock, enduse_fuel_spec_change):
+    """Convert service per technology into fuel percent per technology
+    """
+    fuel_fueltype_tech = {}
+
+    # Initialise with all fuetlypes
+    fuel_fueltype_tech = np.zeros((len(enduse_fuel_spec_change), 1))
+
+    # Convert service to fuel
+    for fueltype in service_fueltype_tech:
+        for tech in service_fueltype_tech[fueltype]:
+            service_tech_h = service_fueltype_tech[fueltype][tech]
+            fuel = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
+            fuel_fueltype_tech[fueltype] += np.sum(fuel)
+
+    return fuel_fueltype_tech
+
+def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
     """ Convert service per technology into fuel percent per technology
     """
     fuel_fueltype_tech = {}
