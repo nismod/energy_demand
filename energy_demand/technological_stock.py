@@ -102,8 +102,6 @@ class ResidTechStock(object):
                 technology_name,
                 technology_object
             )
-            #print("carte obje  " + str(technology_name))
-            #print(technology_object.__dict__)
 
     def get_technology_attribute(self, technology, attribute_to_get):
         """Read an attrribute from a technology in the technology stock
