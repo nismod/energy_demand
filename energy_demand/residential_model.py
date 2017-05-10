@@ -770,9 +770,15 @@ class EnduseResid(object):
         if self.enduse == 'space_heating':
             service_y_h_shape = fuel_shape_y_h_hdd_boilers_cy
         '''
+        # Calculate service
+        service_fueltype_tech_after_switch = self.enduse_switches_service(data_ext, data['assumptions'], tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
+
         # Calculate changes in fuel based on fuel switches
-        self.enduse_fuel_after_switch = self.enduse_fuel_switches(data_ext, data['assumptions'], tech_stock_cy, fuel_shape_y_h_hdd_boilers_cy)
+        self.enduse_fuel_after_switch = self.enduse_switches_service_to_fuel(service_fueltype_tech_after_switch, tech_stock_cy, self.enduse_fuel_spec_change)
+
+        self.enduse_fuel_after_switch_p = self.enduse_switches_service_to_fuel_p(service_fueltype_tech_after_switch, tech_stock_cy, self.enduse_fuel_spec_change)
         print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch))
+        print("FUEL TRAIN 2: " + str(self.enduse_fuel_after_switch_p))
         #prnt(".")
 
         '''# General efficiency gains of technology over time              //and TECHNOLOGY Switches WITHIN (not considering switching technologies across fueltypes)
@@ -840,7 +846,7 @@ class EnduseResid(object):
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
 
-    def enduse_fuel_switches(self, data_ext, assumptions, tech_stock_cy, service_y_h_shape):
+    def enduse_switches_service(self, data_ext, assumptions, tech_stock_cy, service_y_h_shape):
         """Calculate fuel after fuel switches
 
         The switching is divided in three steps
@@ -852,12 +858,12 @@ class EnduseResid(object):
         #TODO: fuel_shape_y_h_hdd_boilers_cy only for heating so far! fuel_shape_y_h_hdd_boilers_cy --> service_SHAPE_Y_H
  
         """
-        if data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']: # If base year
+        '''if data_ext['glob_var']['curr_yr'] == data_ext['glob_var']['base_yr']: # If base year
             return self.enduse_fuel_spec_change
         elif self.enduse not in assumptions['installed_tech']: # If no fuel switches for this enduse
             return self.enduse_fuel_spec_change
-
-        new_fuels = copy.deepcopy(self.enduse_fuel_spec_change)
+        '''
+        #new_fuels = copy.deepcopy(self.enduse_fuel_spec_change)
 
         # -----------------------------------------------------------------------------------------
         # Step 1: Calculate total regional service demand (across all fueltypes)
@@ -866,11 +872,12 @@ class EnduseResid(object):
 
         # Make copy to calculate fuel percentages within fueltype after switch
         service_fueltype_tech_after_switch = copy.deepcopy(service_fueltype_tech) #NEW
-
+        print("AA: " + str(service_fueltype_tech_after_switch))
+    
         # Iterate all technologies which are installed in fuel switches
         for tech_installed in assumptions['installed_tech'][self.enduse]:
             #print("--tech_installed: " + str(tech_installed))
-            tech_installed_eff_cy = tech_stock_cy.get_technology_attribute(tech_installed, 'eff_cy')
+            #tech_installed_eff_cy = tech_stock_cy.get_technology_attribute(tech_installed, 'eff_cy')
             tech_installed_fueltype = tech_stock_cy.get_technology_attribute(tech_installed, 'fuel_type')
 
             # -----------------------------------------------------------------------------------------
@@ -886,10 +893,10 @@ class EnduseResid(object):
             service_fueltype_tech_after_switch[tech_installed_fueltype][tech_installed] += service_tech_installed_cy # NEW
 
             # Convert energy service demand to fuel (service / efficiency cy )
-            fuel_tech_installed_cy = np.sum(service_tech_installed_cy / tech_installed_eff_cy)
+            ###fuel_tech_installed_cy = np.sum(service_tech_installed_cy / tech_installed_eff_cy)
 
             # Add fuels of installed technologies to existing fuel depending on fueltype of installed technology
-            new_fuels[tech_installed_fueltype][0] += fuel_tech_installed_cy
+            ###new_fuels[tech_installed_fueltype][0] += fuel_tech_installed_cy
 
             # ---------------------------------------------------------------------------------------------------
             # 3. Remove fuel of replaced energy service demand proportinally to heat demand in base year
@@ -936,22 +943,26 @@ class EnduseResid(object):
                     service_fueltype_tech_after_switch[fueltype][technology_replaced] -= service_demand_tech #NEW
 
                     # Convert service demand to fuel (service demand / eff of current year)
-                    fuel_tech = service_demand_tech / tech_stock_cy.get_technology_attribute(technology_replaced, 'eff_cy')
+                    ###fuel_tech = service_demand_tech / tech_stock_cy.get_technology_attribute(technology_replaced, 'eff_cy')
 
                     # Substract fuel
-                    new_fuels[fueltype][0] -= np.sum(fuel_tech)
+                    ###new_fuels[fueltype][0] -= np.sum(fuel_tech)
+
+        return service_fueltype_tech_after_switch
+
+    def enduse_switches_service_to_fuel_p(self, service_fueltype_tech_after_switch, tech_stock_cy, enduse_fuel_spec_change):
 
         # Convert service to fuel for each technology NEW
         fuel_fueltype_tech_p = mf.convert_service_tech_to_fuel_p(service_fueltype_tech_after_switch, tech_stock_cy)
+        return fuel_fueltype_tech_p
 
-
-        print("NEW FUELS " + str(new_fuels))
+    def enduse_switches_service_to_fuel(self, service_fueltype_tech_after_switch, tech_stock_cy, enduse_fuel_spec_change):
 
         # SINGLE FUCTNION FOR FUEL ONLY WITH FUELSHARE
-        test_FUEL = mf.convert_service_tech_to_fuel_fueltype(service_fueltype_tech_after_switch, tech_stock_cy, self.enduse_fuel_spec_change)
-        print("NEW test_FUEL " + str(test_FUEL))
+        new_fuels = mf.convert_service_tech_to_fuel_fueltype(service_fueltype_tech_after_switch, tech_stock_cy, enduse_fuel_spec_change)
+        #print("NEW test_FUEL " + str(test_FUEL))
         #prnt(".")
-        
+
         return new_fuels
 
     def enduse_specific_change(self, data_ext, assumptions):

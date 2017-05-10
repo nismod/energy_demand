@@ -1456,12 +1456,16 @@ def convert_service_tech_to_fuel_fueltype(service_fueltype_tech, tech_stock, end
     fuel_fueltype_tech = {}
 
     # Initialise with all fuetlypes
-    fuel_fueltype_tech = np.zeros((len(enduse_fuel_spec_change), 1))
-
+    fuel_fueltype_tech = np.zeros((enduse_fuel_spec_change.shape))
+    print("fuel_fueltype_tech: " + str(fuel_fueltype_tech))
+    print("service_fueltype_tech:" + str(service_fueltype_tech))
     # Convert service to fuel
     for fueltype in service_fueltype_tech:
+        print("A: " + str(service_fueltype_tech[fueltype]))
         for tech in service_fueltype_tech[fueltype]:
             service_tech_h = service_fueltype_tech[fueltype][tech]
+            print("service_tech_h: " + str(service_tech_h))
+
             fuel = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
             fuel_fueltype_tech[fueltype] += np.sum(fuel)
 
@@ -1709,7 +1713,7 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock_by, data_ext, L_
                 sigmoid_parameters[enduse][technology]['l_parameter'] = L_values[enduse][technology]
 
                 #plot sigmoid curve
-                plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
+                #plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
 
     return sigmoid_parameters
 
