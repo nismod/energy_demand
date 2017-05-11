@@ -2,3 +2,4 @@ enduse,enduse_fueltype_replace,technology_install,year_fuel_consumption_switched
 space_heating,electricity,hydrogen_boiler,2020,0.4,0.8
 space_heating,gas,hydrogen_boiler2,2020,0.4,0.8
 space_heating,electricity,hydrogen_boiler2,2040,0.4,0.8
+space_heating,electricity,heat_pump,2040,0.2,0.8

@@ -29,21 +29,15 @@
 
 - Read out individal load shapes
 
-
-
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
-Open questions
-- PEAK to ED
-- Other Enduses from external wrapper?
 
-# TODO: technologies: when on market? (diffusion-advanced )
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
-cleaning ttt
+
 The docs can be found here: http://ed.readthedocs.io
-5"""
+"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 #!python3.6
 import os

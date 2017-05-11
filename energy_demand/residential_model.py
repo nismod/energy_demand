@@ -31,7 +31,6 @@ class Region(object):
         self.reg_name = reg_name
         self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude']
         self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude']
-
         self.enduses_fuel = data['fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
@@ -262,7 +261,6 @@ class Region(object):
     def tot_all_enduses_d(self, data):
         """Calculate total daily fuel demand for each fueltype
         """
-        #sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365))  # Initialise
         sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365, 1))  # Initialise
 
         for enduse in data['resid_enduses']:
@@ -885,7 +883,7 @@ class EnduseResid(object):
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.enduse_elasticity(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
         print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
-        print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
+
         # If enduse has technologies, distribute according to technologies
         if self.technologies_enduse != []:
 
@@ -918,7 +916,6 @@ class EnduseResid(object):
             self.enduse_fuel_yh = self.assign_shape_technologies_h(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             
             print("Fuel train enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yd)))
-
             print("Fuel train enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
 
             # PEAK
@@ -935,18 +932,21 @@ class EnduseResid(object):
             # --Hourly fuel data (% in h of day)
             self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd)
 
-        self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day, percentages within every day)
-        self.enduse_shape_peak_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
-
+        self.enduse_shape_peak_yd = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day, percentages within every day)
+        self.enduse_shape_peak_dh = data['dict_shp_enduse_h_resid'][enduse]['shape_h_peak'] # shape_h peak
+        #print("ddd")
+        #print(self.enduse_shape_peak_yd.shape)
+        #print(self.enduse_shape_peak_dh.shape)
+        #prnt(".")
         # --Peak data # Calculate peak day (peak day)
         self.enduse_fuel_peak_d = self.enduse_peak_d(self.enduse_fuel_new_fuel)
 
          # Calculate peak hour (peak hour)
         self.enduse_fuel_peak_h = self.enduse_peak_h(self.enduse_fuel_peak_d)
 
+
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=5, err_msg='', verbose=True)
-        #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_yd, self.enduse_fuel_yh, decimal=5, err_msg='', verbose=True)
 
     def get_technologies_in_enduse(self, data):
         """Iterate assumptions about technologes in enduses of base year for each enduse
@@ -1366,8 +1366,8 @@ class EnduseResid(object):
         """
         fuels_d_peak = np.zeros((len(self.enduse_fuel), 1))
 
-        for k, fueltype_year_data in enumerate(fuels):
-            fuels_d_peak[k] = self.enduse_shape_peak_d * fueltype_year_data[0]
+        for fueltype, fueltype_year_data in enumerate(fuels):
+            fuels_d_peak[fueltype] = self.enduse_shape_peak_yd * fueltype_year_data[0]
 
         return fuels_d_peak
 
@@ -1390,11 +1390,9 @@ class EnduseResid(object):
         fuels_h_peak = np.zeros((self.enduse_fuel_yd.shape[0], 1, 24)) #fueltypes  days, hours
 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
-        for k, fuel_data in enumerate(fuels):
+        for fueltype, fuel_data in enumerate(fuels):
             for day in range(1):
-                
-                #TODO: Differentiate between technologies as they might have different fuel shapes and different fuel shares
-                fuels_h_peak[k][day] = self.enduse_shape_peak_h * fuel_data[day]
+                fuels_h_peak[fueltype][day] = self.enduse_shape_peak_dh * fuel_data[day]
 
         return fuels_h_peak
 
