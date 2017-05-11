@@ -6,12 +6,11 @@ import matplotlib as mpl
 import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
-#import logging
 import copy
 from datetime import date
 
 class Region(object):
-    """Class of a region for the residential model
+    """Region Class for the residential model
 
     The main class of the residential model. For every region, a Region object needs to be generated.
 
@@ -25,8 +24,6 @@ class Region(object):
         Dictionary containing data
     data_ext : dict
         Dictionary containing all data provided specifically for scenario run and from wrapper.abs
-
-    # TODO: All calculatiosn are basd on driver_fuel_fuel_data
     """
     def __init__(self, reg_name, data, data_ext):
         """Constructor of Region Class
@@ -35,7 +32,6 @@ class Region(object):
         self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude']
         self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude']
 
-        # Base year fuel of region
         self.enduses_fuel = data['fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
@@ -60,12 +56,11 @@ class Region(object):
         self.heating_shape_d = np.nan_to_num(np.divide(1.0, np.sum(self.hdd_cy))) * self.hdd_cy
         self.cooling_shape_d = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
 
-        # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
-        #TODO: add all shapes into a dict
+        # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes         #TODO: add all shapes into a dict
         self.fuel_shape_boilers_h = self.shape_heating_boilers_h(data, data_ext, self.heating_shape_d) # Heating, boiler, non-peak
         self.fuel_shape_hp_h = self.shape_heating_hp_h(data, data_ext, self.hdd_cy, self.tech_stock) # Heating, heat pumps, non-peak
         # COOLING TECHNOLOGY?
-        
+
         # -- PEAK
         # DAILY SHAPE OF COOLING DEVICES?
 
@@ -616,10 +611,11 @@ class Region(object):
                 shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][1] / np.sum(data['hourly_gas_shape'][1]))
 
         # Testing
-        assert np.sum(shape_d_boilers) == 1, "Error in shape_heating_boilers_h: The sum of hourly shape is not 1"
+        #assert np.sum(shape_d_boilers) == 1, "Error in shape_heating_boilers_h: The sum of hourly shape is not 1: {}".format(np.sum(shape_d_boilers))
+        np.testing.assert_almost_equal(np.sum(shape_d_boilers), 1, err_msg=  "Error in shape_heating_boilers_h: The sum of hourly shape is not 1: {}".format(np.sum(shape_d_boilers)))
         return shape_d_boilers
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): #TODO: Maybe can be removed
         """Get method of own object
         """
         return self.attr
@@ -845,10 +841,12 @@ class EnduseResid(object):
         print("Fuel train Orig: " + str(self.enduse_fuel))
 
         # -- Yearly fuel changes
+        self.enduse_fuel_new_fuel = copy.deepcopy(self.enduse_fuel) #np.zeros((self.enduse_fuel.shape[0], 1))
 
         # Change fuel consumption based on climate change induced temperature differences
-        self.enduse_fuel_new_fuel = self.temp_correction_hdd_cdd(self.enduse_fuel, cooling_factor_y, heating_factor_y)
-        #print("Fuel train A: " + str(self.enduse_fuel_new_fuel))
+        self.temp_correction_hdd_cdd(self.enduse_fuel_new_fuel, cooling_factor_y, heating_factor_y)
+        #self.enduse_fuel_new_fuel = self.temp_correction_hdd_cdd(self.enduse_fuel, cooling_factor_y, heating_factor_y)
+        print("Fuel train A: " + str(self.enduse_fuel_new_fuel))
 
         # Calcualte smart meter induced general savings
         self.enduse_fuel_new_fuel = self.smart_meter_eff_gain(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
@@ -1166,9 +1164,12 @@ class EnduseResid(object):
         elif self.enduse == 'cooling':
             for fueltype, fuel in enumerate(old_fuels):
                 new_fuels[fueltype] = fuel * cooling_factor_y
-            return new_fuels
+            
+            setattr(self, 'enduse_fuel_new_fuel', new_fuels)
+            #return new_fuels
         else:
-            return old_fuels
+            setattr(self, 'enduse_fuel_new_fuel', old_fuels)
+            #return old_fuels
 
     def enduse_elasticity(self, old_fuels, data_ext, assumptions):
         """Adapts yearls fuel use depending on elasticity
