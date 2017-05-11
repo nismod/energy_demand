@@ -297,7 +297,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
 
 
-def get_datetime_range(start=None, end=None):
+def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
     TESTED_PYTEST
     Parameters
@@ -375,7 +375,7 @@ def timesteps_full_year(base_yr):
 
     """
     # List with all dates of the base year
-    list_dates = get_datetime_range(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31)) # List with every date in a year
+    list_dates = fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31)) # List with every date in a year
 
     timesteps = {}
 
