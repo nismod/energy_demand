@@ -1402,7 +1402,7 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
     Parameters
     ----------
     fuel_shape_y_h : array
-        Shape how the fuel is distributed over a year (y to h) (for heating e.g. 'fuel_shape_y_h_hdd_boilers_cy')
+        Shape how the fuel is distributed over a year (y to h) (for heating e.g. 'fuel_shape_boilers_h')
     fuel_p_tech_by : dict
         Fuel composition of base year for every fueltype for each enduse
     fuels : array
