@@ -916,7 +916,7 @@ class EnduseResid(object):
             self.enduse_fuel_h = self.assign_shape_technologies_h(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             self.enduse_fuel_d = self.assign_shape_technologies_d(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             print("Fuel train C: " + str(np.sum(self.enduse_fuel_h)))
-                        
+            print("SHAPE SPECI: " + str(self.enduse_fuel_d.shape))         
             # PEAK
             # Assing technologies peak shapes
 
@@ -932,8 +932,9 @@ class EnduseResid(object):
         self.enduse_shape_y_to_h = self.get_enduse_shape_y_to_h()                          # factor to calculate every hour demand from y demand
 
         # --Daily fuel data
-        self.enduse_fuel_d = self.enduse_y_to_d(self.enduse_fuel_new_fuel)
-
+        if self.technologies_enduse == []:
+            self.enduse_fuel_d = self.enduse_y_to_d(self.enduse_fuel_new_fuel)
+            print("SHAPE SPECI: " + str(self.enduse_fuel_d.shape))
         # --Hourly fuel data (% in h of day)
         if self.technologies_enduse == []:
             self.enduse_fuel_h = self.enduse_d_to_h(self.enduse_fuel_d)
@@ -961,13 +962,13 @@ class EnduseResid(object):
     def assign_shape_technologies_d(self, enduse_fuel_after_switch_per_tech, technologies_enduse, tech_stock):
         """ITerate fuels for each technology and assign shape d
         """
-        fuels_fueltype_d = np.zeros((len(self.enduse_fuel_new_fuel), 365, 1))
-
+        fuels_fueltype_d = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365)) #, 1 self.enduse_fuel_new_fuel.shape[0]
+        
         for tech in technologies_enduse:
             fuel_tech = enduse_fuel_after_switch_per_tech[tech] # Get fuel of technology
             fuel_tech_h = fuel_tech * tech_stock.get_technology_attribute(tech, 'shape_d') # Multiply fuel with shape_h
             fueltype_tech = tech_stock.get_technology_attribute(tech, 'fuel_type') # Get fueltype of tech
-            fuels_fueltype_d[fueltype_tech] += fuel_tech_h # Add fuel
+            fuels_fueltype_d[fueltype_tech] += np.sum(fuel_tech_h) # Add fuel of day
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_switches_service_to_fuel
         #np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(self.enduse_fuel_new_fuel), decimal=5, err_msg="Error: The y to h fuel did not work")
