@@ -47,7 +47,7 @@ def load_assumptions(data, data_external):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [3] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
@@ -136,13 +136,13 @@ def load_assumptions(data, data_external):
 
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['general_savings_smart_meter'] = {
-        'cold': 0.03,
-        'cooking': 0.03,
-        'lighting': 0.03,
-        'wet': 0.03,
-        'consumer_electronics': 0.03,
-        'home_computing': 0.03,
-        'space_heating': 0.03
+        'cold': -0.03,
+        'cooking': -0.03,
+        'lighting': -0.03,
+        'wet': -0.03,
+        'consumer_electronics': -0.03,
+        'home_computing': -0.03,
+        'space_heating': -0.03
     }
 
     # ============================================================

@@ -1487,7 +1487,7 @@ def convert_service_tech_to_fuel_per_tech(service_fueltype_tech, tech_stock):
 
     return fuel_fueltype_tech
 
-def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
+'''def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
     """ Convert service per technology into fuel percent per technology
     """
     fuel_fueltype_tech = {}
@@ -1517,7 +1517,7 @@ def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
                 fuel_fueltype_tech_p[fueltype][tech] = (1.0 / sum_fuel_fueltype) * np.sum(fuel_fueltype_tech[fueltype][tech])
 
     return fuel_fueltype_tech_p
-
+'''
 def calc_service_fueltype(lu_fueltype, service_tech_p, tech_stock):
     """Calculate service per fueltype in percentage of total service
 

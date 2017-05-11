@@ -133,7 +133,7 @@ def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fuel
         data_over_years = []
 
         for model_year_object in results_resid:
-            tot_fuel = model_year_object.tot_country_fuel_enduse_specific # FUEL DATA
+            tot_fuel = model_year_object.tot_country_fuel_enduse_specific_h # Hourly fuel data
             data_over_years.append(tot_fuel[enduse])
 
         Y_init[k] = data_over_years
