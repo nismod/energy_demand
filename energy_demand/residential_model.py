@@ -58,11 +58,14 @@ class Region(object):
         self.heating_shape_d_cy = np.nan_to_num(np.divide(1.0, np.sum(self.hdd_cy))) * self.hdd_cy
         self.cooling_shape_d_cy = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
 
-        # Create BOILER shape based on daily gas profiles
-        self.fuel_shape_y_h_hdd_boilers_cy = self.y_to_h_heat_gas_boilers(data, data_ext, self.heating_shape_d_cy) # Shape of boilers (same efficiency over year)
+        # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
+        # (assumption: same curve for all fueltypes)
+
+        # Heating, boiler, non-peak
+        self.fuel_shape_y_h_hdd_boilers_cy = self.shape_heating_boilers_h(data, data_ext, self.heating_shape_d_cy)
 
         # Create HEATPUMP shape based on daily gas profiles (non-peak gas profiles)
-        self.fuel_shape_y_h_hdd_hp_cy = self.y_to_h_heat_hp(data, data_ext, self.hdd_cy, self.tech_stock) # Shape of hp (efficiency in dependency of temp diff)
+        self.fuel_shape_y_h_hdd_hp_cy = self.shape_heating_hp_h(data, data_ext, self.hdd_cy, self.tech_stock) # Shape of hp (efficiency in dependency of temp diff)
 
         # DAILY SHAPE OF COOLING DEVICES?
         '''
@@ -127,7 +130,7 @@ class Region(object):
             test_sum += np.sum(self.fuels_new_enduse_specific[enduse])
         np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
 
-    def fuel_correction_hp(self, hdd_cy, technological_stock):
+    def fuel_correction_hp(self, hdd_cy, tech_stock):
         """Correct for different temperatures than base year. Also correct for different efficiencies
 
         hdd_cy : array
@@ -148,7 +151,7 @@ class Region(object):
         for day, heat_d in enumerate(hdd_cy):
             d_factor = 0
             for hour, heat_share_h in enumerate(heat_d):
-                d_factor += heat_share_h / getattr(technological_stock, 'heat_pump')[day][hour] # Hourly heat demand / heat pump efficiency
+                d_factor += heat_share_h / getattr(tech_stock, 'heat_pump')[day][hour] # Hourly heat demand / heat pump efficiency
             hp_heat_factor[day][0] = np.sum(heat_share_h) / d_factor # Averae fuel fa ctor over the 24h of the day
 
         hp_shape = (1/np.sum(hp_heat_factor)) * hp_heat_factor
@@ -467,49 +470,72 @@ class Region(object):
         #shape_d = cdd_d / np.sum(cdd_d)
         return cdd_d #shape_d, np.sum(cdd_d)
 
-    def y_to_h_heat_hp(self, data, data_ext, hdd_cy, technological_stock):
-        """Convert daily shapes to houly based on robert sansom daily load for heatpump (not peak load shape)
+    def shape_heating_hp_h(self, data, data_ext, hdd_cy, tech_stock):
+        """Convert daily shapes to houly based on robert sansom daily load for heatpump
 
-        Refactor with fuel and in the end calc shape again
-        # GREEN IS CORRECT
-        Notes
-        -----
-        The share of fuel is taken instead of absolute fuels. But does not matter because if fuel is distributed accordingly
-        #TODO: MAde after han
+        This is for non-peak.
+
+        Parameters
+        ---------
+        data : dict
+            data
+        data_ext : dict
+            External data
+        hdd_cy : array
+            ??
+        tech_stock : object
+            Technology stock
+
+        Returns
+        -------
+        hp_shape : array
+            Daily shape how yearly fuel can be distributed to hourly
+
+        Info
+        ----
+        The daily heat demand is converted to daily fuel depending on efficiency of heatpumps (assume if 100% heat pumps).
+        In a final step the hourly fuel is converted to percentage of yearly fuel demand.
+
+        The daily fuel demand curve for heat pumps taken from:
+
+        Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Dissertation, Imperial College London.
         """
-        # From Daily to hourly
         shape_y_hp = np.zeros((365, 24))
+
         list_dates = mf.fullyear_dates(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
-            weekday = date_gasday.timetuple().tm_wday # 0: Monday
+
+            # See wether day is weekday or weekend
+            weekday = date_gasday.timetuple().tm_wday
+
+            # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
             if weekday == 5 or weekday == 6:
                 daily_fuel_profile = (data['hourly_gas_shape_hp'][2] / np.sum(data['hourly_gas_shape_hp'][2])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
                 daily_fuel_profile = (data['hourly_gas_shape_hp'][1] / np.sum(data['hourly_gas_shape_hp'][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
 
             # Calculate weighted average daily efficiency of heat pump
-            av_daily_weig_eff = 0
+            average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
+                tech_object = getattr(tech_stock, 'heat_pump') #TODO: WHAT IF DIFFERENT HEAT PUMPS?
+                average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
-                # Efficiency of technology #TODO: Fration of different heat pumps?
-                tech_object = getattr(technological_stock, 'heat_pump')
-                av_daily_weig_eff += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
-                #print("d_factor: " + str(heat_share_h)  + "   "+ str(heat_share_h) + "   " + (str(getattr(tech_object, 'eff_cy')[day][hour])) )
+            # Convert daily service demand to fuel
+            hp_daily_fuel = hdd_cy[day] / average_eff_d # Heat demand / efficiency = fuel
 
-            # Recalculate fuel for day with heat pumps
-            hp_daily_fuel = hdd_cy[day] / av_daily_weig_eff # Heat demand / efficiency = fuel
-
-            # Distribute FUEL of day according to samson
+            # Distribute fuel of day according to fuel load curve by Robert Sansom
             shape_y_hp[day] = hp_daily_fuel * daily_fuel_profile
 
-        # ----Convert relative daily demand to hourly based on samson data
-        hp_shape = (1/np.sum(shape_y_hp)) * shape_y_hp #TODO: divide by zero encountered in true_divide
+        # Convert absolute hourly fuel demand to relative fuel demand within a year
+        hp_shape = np.divide(1, np.sum(shape_y_hp)) * shape_y_hp
 
         return hp_shape
 
-    def y_to_h_heat_gas_boilers(self, data, data_ext, heating_shape):
+    def shape_heating_boilers_h(self, data, data_ext, heating_shape):
         """Convert daily shape to hourly based on robert sansom daily load for boilers
+
+        This is for non-peak.
 
         Parameters
         ---------
@@ -518,21 +544,21 @@ class Region(object):
         data_ext : dict
             External data
         heating_shape : array
-            Daily service demand shape for heat
-        
+            Daily service demand shape for heat (percentage of yearly heat demand for every day)
+
         Returns
         -------
         shape_d_boilers : array
             Daily shape how yearly fuel can be distributed to hourly
-        
+
         Info
         ----
         The assumption is made that boilers have constant efficiency for every hour in a year.
         Therefore the fuel demand correlates directly with the heat service demand.
 
-        The daily heat demand (calculated with hdd) is distributed within the day 
+        The daily heat demand (calculated with hdd) is distributed within the day
         fuel demand curve for boilers from:
-        
+
         Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Dissertation, Imperial College London.
         """
         shape_d_boilers = np.zeros((365, 24))
@@ -540,19 +566,21 @@ class Region(object):
         list_dates = mf.fullyear_dates(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
-            
+
             # See wether day is weekday or weekend
             weekday = date_gasday.timetuple().tm_wday
 
             # Take respectve daily fuel curve depending on weekday or weekend
             if weekday == 5 or weekday == 6:
+
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][2] / np.sum(data['hourly_gas_shape'][2])) 
+                shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][2] / np.sum(data['hourly_gas_shape'][2]))
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve
-                shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][1] / np.sum(data['hourly_gas_shape'][1])) 
+                shape_d_boilers[day] = heating_shape[day] * (data['hourly_gas_shape'][1] / np.sum(data['hourly_gas_shape'][1]))
 
-        #TODO: ASSert if one
+        # Testing
+        assert np.sum(shape_d_boilers) == 1, "Error in shape_heating_boilers_h: The sum of hourly shape is not 1"
         return shape_d_boilers
 
     def __getattr__(self, attr):
