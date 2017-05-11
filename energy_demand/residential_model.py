@@ -53,7 +53,7 @@ class Region(object):
         self.cdd_cy = self.get_reg_cdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
 
         # Heating and cooling correction factors (Assumption: Demand for heat correlates directly with fuel)
-        self.heating_factor_y = np.nan_to_num(np.divide(1, np.sum(self.hdd_by))) * np.sum(self.hdd_cy)
+        self.heating_factor_y = np.nan_to_num(np.divide(1, np.sum(self.hdd_by))) * np.sum(self.hdd_cy) #Note: Does not work if no hdd
         self.cooling_factor_y = np.nan_to_num(np.divide(1, np.sum(self.cdd_by))) * np.sum(self.cdd_cy)
 
         # Heating and cooling demand for every day based on daily HDD and CDD (shape_d)
@@ -858,43 +858,41 @@ class EnduseResid(object):
         self.enduse_fuel_new_fuel = self.enduse_elasticity(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
         #print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
 
+        technologies_enduse = self.get_technologies_in_enduse(data)
+        # Get all technologies of enduse
 
+        # If enduse has technologies, distribute according to technologies
+        if technologies_enduse != []:
 
-        # IF ENDUSE WITH TECHNOLOGIES __> ITERATE 
-        # Get corret service shape of enduse (for every enduse fuel switch need to define one)
-        if self.enduse == 'space_heating':
-            service_y_h_shape = fuel_shape_boilers_h # y_h_service_distribution in base year
-        #elif self.enduse == 'cooling':
-        #    service_y_h_shape =
+            # Get corret service shape of enduse (for every enduse fuel switch need to define one)
+            if self.enduse == 'space_heating':
+                service_y_h_shape = fuel_shape_boilers_h # y_h_service_distribution in base year
+            #elif self.enduse == 'cooling':
+            #    service_y_h_shape =
 
-        # Calculate energy service for base year (NEEDS TO CALCULATE WITH BASE YEAR FUELS) TODO: CHECK
-        service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data_ext, data['assumptions'], tech_stock, service_y_h_shape)
-        print("SERVICE: " + str(service_fueltype_tech_after_switch))
-        
-        # Convert service to fuel for current year
-        self.enduse_fuel_new_fuel = self.enduse_switches_service_to_fuel(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel)
-        #print("FUEL TRAIN 2: " + str(self.enduse_fuel_new_fuel))
+            # Calculate energy service for base year (NEEDS TO CALCULATE WITH BASE YEAR FUELS) TODO: CHECK
+            service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data_ext, data['assumptions'], tech_stock, service_y_h_shape)
+            print("SERVICE: " + str(service_fueltype_tech_after_switch))
 
-        # Convert service to fuel within each fueltype and assign percentage of fuel (e.g. 0.2 gastech1, 0.8 gastech2)
-        enduse_fuel_after_switch_p = self.enduse_switches_service_to_fuel_p(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel)
-        #print("enduse_fuel_after_switch_p" + str(enduse_fuel_after_switch_p))
+            # Convert service to fuel for current year
+            self.enduse_fuel_new_fuel = self.enduse_switches_service_to_fuel(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel)
+            #print("FUEL TRAIN 2: " + str(self.enduse_fuel_new_fuel))
 
-        # Convert service to fuel for each technology
-        enduse_fuel_after_switch_per_tech = self.enduse_switches_service_to_fuel_per_tech(service_fueltype_tech_after_switch, tech_stock)
-        print("FUEL SWITHCES: " + str(np.sum(enduse_fuel_after_switch_per_tech.values())))
+            # Convert service to fuel within each fueltype and assign percentage of fuel (e.g. 0.2 gastech1, 0.8 gastech2)
+            enduse_fuel_after_switch_p = self.enduse_switches_service_to_fuel_p(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel)
+            #print("enduse_fuel_after_switch_p" + str(enduse_fuel_after_switch_p))
 
-        print("FUEL SWITHCES: " + str(enduse_fuel_after_switch_per_tech))
-        # 2. Iterate technology and assign shape
-        print("Technologes in enduse: " + str(enduse_fuel_after_switch_per_tech.keys())
-        #prnt(".")
-        # If technologies in enduse
-        #if 
+            # Convert service to fuel for each technology
+            enduse_fuel_after_switch_per_tech = self.enduse_switches_service_to_fuel_per_tech(service_fueltype_tech_after_switch, tech_stock)
+            print("FUEL SWITHCES: " + str(np.sum(enduse_fuel_after_switch_per_tech.values())))
 
-        # IF enduse has no technologies
+            print("FUEL SWITHCES: " + str(enduse_fuel_after_switch_per_tech))
+            # 2. Iterate technology and assign shape
+            print("Technologes in enduse: " + str(enduse_fuel_after_switch_per_tech.keys()))
+            #prnt(".")
+        #else: # Not technologies
 
-        # --Current Year load shapes (Shapes are identical for all fuel types)
-        # Alter after technology_switch and fuel switch shapes depending on technology
-        # --Base year load shapes (same load shape for all fuel types but not necessarily for all technologies within one enduse fuel)
+        # Enduse specific load shapes (Shapes are identical for all fuel types)
         self.enduse_shape_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_non_peak']  # shape_d (365,1)
         self.enduse_shape_h = data['dict_shp_enduse_h_resid'][enduse]['shape_h_non_peak']  # shape_h (365,24)
         self.enduse_shape_peak_d = data['dict_shp_enduse_d_resid'][enduse]['shape_d_peak'] # shape_d peak (Factor to calc one day, percentages within every day)
@@ -924,6 +922,16 @@ class EnduseResid(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_d), np.sum(self.enduse_fuel_h), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_d, self.enduse_fuel_h, decimal=5, err_msg='', verbose=True)
+
+    def get_technologies_in_enduse(self, data):
+        """Iterate assumptions about technologes in enduses of base year for each enduse
+        """
+        # Get all technologies of enduse
+        technologies_enduse = []
+        for fueltype in data['assumptions']['fuel_enduse_tech_p_by'][self.enduse]:
+            for tech in data['assumptions']['fuel_enduse_tech_p_by'][self.enduse][fueltype]:
+                technologies_enduse.append(tech)
+        return technologies_enduse
 
     def enduse_fuel_to_service(self, fuels, data_ext, assumptions, tech_stock, service_y_h_shape):
         """Convert fuels to services with efficiencies for base year

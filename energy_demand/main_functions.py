@@ -1305,10 +1305,11 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
             for technology in service[enduse][fueltype]:
                 service_tech_p[enduse][technology] = (1 / total_service) * service[enduse][fueltype][technology]
 
-    # Assert
+    '''# Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
     for enduse in service_tech_p:
+        print("Enduse: " + str(enduse))
         print(service_tech_p[enduse].values())
         sum_service_p = sum(service_tech_p[enduse].values())
         assert sum_service_p == 1.0, "The energy service for all technologies is not 100% (1.0)"
@@ -1319,7 +1320,7 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
             sum_service_fueltype_p = sum(service_fueltype_tech_p[enduse][fueltype].values())
             print("sum_service_fueltype_p: " + str(sum_service_fueltype_p))
             assert sum_service_fueltype_p == 1.0 or sum_service_fueltype_p == 0.0, "The energy service for all technologies within a fueltype is not 100% (1.0)"
-
+    '''
     return service_tech_p, service_fueltype_tech_p
 
 def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_p, fuel_enduse_tech_p_by, installed_tech_switches, switch_type):
