@@ -7,6 +7,7 @@
 # -------------
 # bd = Base demand
 # by = Base year
+# cy = Current year
 # dw = dwelling
 # p  = Percent
 # e  = electricitiy
@@ -15,6 +16,7 @@
 # h = hour
 # hp = heat pump
 # d = day
+# y = year
 
 
 # Add Cooling

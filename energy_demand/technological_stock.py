@@ -7,7 +7,7 @@ import energy_demand.main_functions as mf
 class Technology(object):
     """Technology class
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_d, reg_shape_h):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_d, reg_shape_h, reg_shape_d_peak, reg_shape_h_peak):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
@@ -20,8 +20,11 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
-        self.shape_d = reg_shape_d
-        self.shape_h = reg_shape_h
+        self.shape_d = reg_shape_d # Non_peak
+        self.shape_h = reg_shape_h # Non_peak
+
+        self.shape_d_peak = reg_shape_d_peak
+        self.shape_h_peak = reg_shape_h_peak
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
@@ -68,13 +71,12 @@ class Technology(object):
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
-    The main class of the residential model. For every HOUR IN EVERY REGION, #TODO?
+    The main class of the residential model.
+
     a Region Object needs to be generated
 
-    Technology stock for every enduse
-
     #TODO: Assert if all technologies were assigned shape
-    
+
     Parameters
     ----------
     data : dict
@@ -85,6 +87,12 @@ class ResidTechStock(object):
         tbd
     curr_yr : int
         Current year
+
+    Notes
+    -----
+    The daily and hourly shape of the fuel used by this Technology
+    is initiated with zeros. Within the `Region` Class these attributes
+    are filled with real values.
     """
     def __init__(self, data, data_ext, temp_cy, year):
         """Constructor of technologies for residential sector
@@ -92,8 +100,11 @@ class ResidTechStock(object):
 
         # Crate all technologies and add as attribute
         for technology_name in data['tech_lu']:
-            dummy_shape_d = np.ones((365, 24)) #TODO
+            dummy_shape_d = np.ones((365, 24))
             dummy_shape_h = np.ones((365, 24))
+
+            dummy_shape_d_peak = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
+            dummy_shape_h_peak = np.ones((365, 24))
 
             # Technology object
             technology_object = Technology(
@@ -103,7 +114,9 @@ class ResidTechStock(object):
                 temp_cy,
                 year,
                 dummy_shape_d,
-                dummy_shape_h
+                dummy_shape_h,
+                dummy_shape_d_peak,
+                dummy_shape_h_peak
             )
 
             # Set technology object as attribute

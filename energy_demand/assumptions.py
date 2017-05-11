@@ -209,6 +209,10 @@ def load_assumptions(data, data_external):
     # Assert: - if market enntry is not before base year, wheater always 100 % etc.. --> Check if fuel switch input makes sense
     assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu'])) # Initiate
 
+    # Technologies used
+    assumptions['list_tech_heating_const'] = ['gas_boiler', 'elec_boiler', 'gas_boiler2', 'elec_boiler2', 'oil_boiler', 'hydrogen_boiler', 'hydrogen_boiler2']
+    assumptions['list_tech_heating_temp_dep'] = ['heat_pump']
+
     # ---Space Heating
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
 
@@ -222,7 +226,9 @@ def load_assumptions(data, data_external):
 
 
     # TODO: ADD dummy technology for all enduses where no technologies are defined
+    # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
 
+    #IF new technologs is introduced: assign_shapes_to_tech_stock(), 
     return assumptions
 
 
@@ -282,7 +288,6 @@ def get_hlc(dw_type, age):
         #'condensing_combination_boiler' : 0.0,
 
 
-
         # -- lighting
         'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
         'standard_lighting_bulb': 0.02,          # Found on wikipedia
@@ -290,7 +295,6 @@ def get_hlc(dw_type, age):
         'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
         'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
 
-        # -- cold
 
         # -- wet
         #'boiler_gas': 0.5,
