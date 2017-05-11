@@ -18,6 +18,12 @@
 # d = day
 # y = year
 
+# Shapes
+# ------
+# yd = for every year the day
+# yh = for every hour in a year
+# dh = every hour in day
+
 
 # Add Cooling
 
