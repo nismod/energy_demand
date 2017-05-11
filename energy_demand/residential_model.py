@@ -262,7 +262,8 @@ class Region(object):
     def tot_all_enduses_d(self, data):
         """Calculate total daily fuel demand for each fueltype
         """
-        sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365))  # Initialise
+        #sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365))  # Initialise
+        sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365, 1))  # Initialise
 
         for enduse in data['resid_enduses']:
             sum_fuels_d += self.__getattr__subclass__(enduse, 'enduse_fuel_yd')
@@ -883,8 +884,8 @@ class EnduseResid(object):
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         self.enduse_elasticity(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
-        #print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
-
+        print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
+        print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
         # If enduse has technologies, distribute according to technologies
         if self.technologies_enduse != []:
 
@@ -908,16 +909,18 @@ class EnduseResid(object):
 
             # Convert service to fuel for each technology
             enduse_fuel_after_switch_per_tech = self.enduse_switches_service_to_fuel_per_tech(service_fueltype_tech_after_switch, tech_stock)
-            print("FUEL SWITHCES: " + str(np.sum(enduse_fuel_after_switch_per_tech.values())))
+            print("FUEL SWITHCES: " + str(sum(np.sum(enduse_fuel_after_switch_per_tech.values()))))
             print("FUEL SWITHCES: " + str(enduse_fuel_after_switch_per_tech))
 
             # -- HOURLY SHAPES
             # FUNCTION: Iterate technologies in enduse and assign technology specific shape for fuel shares
             self.enduse_fuel_yd = self.assign_shape_technologies_d(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             self.enduse_fuel_yh = self.assign_shape_technologies_h(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
+            
+            print("Fuel train enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yd)))
 
-            print("Fuel train C: " + str(np.sum(self.enduse_fuel_yh)))
-            print("SHAPE SPECI: " + str(self.enduse_fuel_yd.shape))
+            print("Fuel train enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+
             # PEAK
             # Assing technologies peak shapes
 
@@ -942,7 +945,7 @@ class EnduseResid(object):
         self.enduse_fuel_peak_h = self.enduse_peak_h(self.enduse_fuel_peak_d)
 
         # Testing
-        #np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=5, err_msg='', verbose=True)
+        np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=5, err_msg='', verbose=True)
         #np.testing.assert_almost_equal(a,b) #np.testing.assert_almost_equal(self.enduse_fuel_yd, self.enduse_fuel_yh, decimal=5, err_msg='', verbose=True)
 
     def get_technologies_in_enduse(self, data):
@@ -958,13 +961,19 @@ class EnduseResid(object):
     def assign_shape_technologies_d(self, enduse_fuel_after_switch_per_tech, technologies_enduse, tech_stock):
         """ITerate fuels for each technology and assign shape d
         """
-        fuels_fueltype_d = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365)) #, 1 self.enduse_fuel_new_fuel.shape[0]
-        
+        fuels_fueltype_d = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365, 1)) #, 1 self.enduse_fuel_new_fuel.shape[0]
+
         for tech in technologies_enduse:
             fuel_tech = enduse_fuel_after_switch_per_tech[tech] # Get fuel of technology
-            fuel_tech_h = fuel_tech * tech_stock.get_technology_attribute(tech, 'shape_d') # Multiply fuel with shape_h
+            
+            fuel_tech_d = fuel_tech * tech_stock.get_technology_attribute(tech, 'shape_d') # Multiply fuel with shape_h
             fueltype_tech = tech_stock.get_technology_attribute(tech, 'fuel_type') # Get fueltype of tech
-            fuels_fueltype_d[fueltype_tech] += np.sum(fuel_tech_h) # Add fuel of day
+            fuels_fueltype_d[fueltype_tech] += fuel_tech_d #np.sum(fuel_tech_d) # Add fuel of day
+            ##print("------------tech: " + str(tech))
+            #print(self.enduse_fuel_new_fuel.shape)
+            #print("FUELTECH: " + str(fuel_tech))
+            #print("FUELTECH: " + str(np.sum(fuel_tech_d)))
+            #print(fuels_fueltype_d[fueltype_tech])
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_switches_service_to_fuel
         #np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(self.enduse_fuel_new_fuel), decimal=5, err_msg="Error: The y to h fuel did not work")
@@ -1304,11 +1313,12 @@ class EnduseResid(object):
     def enduse_y_to_d(self, fuels):
         """Generate array with fuels for every day
         """
-        fuels_d = np.zeros((len(self.enduse_fuel), 365))
+        #fuels_d = np.zeros((len(self.enduse_fuel), 365))
+        fuels_d = np.zeros((fuels.shape[0], 365, 1))
 
         for k, fuels in enumerate(fuels):
-            fuels_d[k] = self.enduse_shape_d[:, 0] * fuels[0] # a two dim array with load shapes in first row
-
+            #fuels_d[k] = self.enduse_shape_d[:, 0] * fuels[0] # a two dim array with load shapes in first row
+            fuels_d[k] = self.enduse_shape_d * fuels # a two dim array with load shapes in first row
         return fuels_d
 
     def enduse_d_to_h(self, fuels):
