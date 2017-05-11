@@ -199,7 +199,7 @@ def load_assumptions(data, data_external):
             'sig_midpoint': 0,
             'sig_steeppness': 1
             }}
-
+    
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # ---------------------------------------------------------------------------------------------------------------------
@@ -220,6 +220,8 @@ def load_assumptions(data, data_external):
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
+
+    # TODO: ADD dummy technology for all enduses where no technologies are defined
 
     return assumptions
 

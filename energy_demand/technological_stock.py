@@ -7,7 +7,7 @@ import energy_demand.main_functions as mf
 class Technology(object):
     """Technology class
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_d, reg_shape_h):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
@@ -20,8 +20,12 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
+        self.shape_d = reg_shape_d
+        self.shape_h = reg_shape_h
+
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
+
 
     # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
@@ -69,6 +73,8 @@ class ResidTechStock(object):
 
     Technology stock for every enduse
 
+    #TODO: Assert if all technologies were assigned shape
+    
     Parameters
     ----------
     data : dict
@@ -84,8 +90,10 @@ class ResidTechStock(object):
         """Constructor of technologies for residential sector
         """
 
-        # Crate all technologies and add as attribute (NEW)
+        # Crate all technologies and add as attribute
         for technology_name in data['tech_lu']:
+            dummy_shape_d = np.ones((365, 24)) #TODO
+            dummy_shape_h = np.ones((365, 24))
 
             # Technology object
             technology_object = Technology(
@@ -93,7 +101,9 @@ class ResidTechStock(object):
                 data,
                 data_ext,
                 temp_cy,
-                year
+                year,
+                dummy_shape_d,
+                dummy_shape_h
             )
 
             # Set technology object as attribute
@@ -111,75 +121,8 @@ class ResidTechStock(object):
 
         return tech_attribute
 
-    '''def create_hp_efficiency(self, data, temp_cy):
-        """Calculate efficiency of heat pumps
-
-        Because the heat pump efficiency is different every hour depending on the temperature,
-        the efficiency needs to be calculated differently.
-
-        Note
-        ----
-        The attributes self.heat_pump_m and self.heat_pump_b are created in self.create_iteration_efficiency()
-        and reflect current year efficiency parameters for the heat pump technology.
+    def set_tech_attribute(self, technology, attribute_to_set, value_to_set):
+        """Read an attrribute from a technology in the technology stock
         """
-        heat_pump_slope_assumption = data['assumptions']['heat_pump_slope_assumption']
-
-        ResidTechStock.__setattr__(
-            self,
-            'heat_pump',
-            mf.get_heatpump_eff(
-                temp_cy,
-                heat_pump_slope_assumption, #self.heat_pump_m[0][0], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
-                self.heat_pump_b[0][0],
-                data['assumptions']['t_base_heating']['base_yr']
-                )
-        )
-    '''
-
-    '''def create_iteration_efficiency(self, data, data_ext):
-        """Iterate technologies of each enduse in 'base_yr' and add to technology_stock (linear diffusion)
-
-        The efficiency of each technology is added as `self` attribute.
-        Based on assumptions of theoretical maximum efficiency gains of
-        each technology and assumptions on the actual achieved efficiency,
-        the efficiency of the current year is calculated based
-        on a linear diffusion.
-
-        Returns
-        -------
-        Sets attributes with efficiency values for the current year
-
-        Example
-        -------
-        Technology X is projected to have maximum potential efficiency increase
-        from 0.5 to a 1.00 efficiency. If however, the acutal efficiency gain
-        is only 50%, then after the simulation, an efficiency of 0.75 is reached
-
-        #TODO: Assumption of lineare efficiency improvement
-        """
-        # Take Efficiency assumptions and not technology list because some technologies have more than one efficiency assumption
-        technology_eff_assumptions = data['assumptions']['eff_by']
-
-        # TODO: Alternatively iterate technology
-
-        for technology_param in technology_eff_assumptions:
-            eff_by = data['assumptions']['eff_by'][technology_param]
-            eff_ey = data['assumptions']['eff_ey'][technology_param]
-
-            # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
-            theor_max_eff = mf.linear_diff(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], eff_by, eff_ey, len(data_ext['glob_var']['sim_period']))
-
-            # Get assmuption how much of efficiency potential is reaped
-            achieved_eff = data['assumptions']['eff_achieved_resid'][technology_param]
-
-            # Actual efficiency potential #TODO: Check if minus or plus number...TODO
-            if eff_by >= 0:
-                cy_eff = eff_by + (achieved_eff * (abs(theor_max_eff) - eff_by)) # Efficiency gain assumption achieved * theoretically maximum achieveable efficiency gain #abs is introduced because if minus value otherwie would become plus
-                cy_eff = mf.const_eff_y_to_h(cy_eff)
-            else:
-                cy_eff = eff_by - (achieved_eff * (abs(theor_max_eff) - abs(eff_by))) # Efficiency gain
-                cy_eff = mf.const_eff_y_to_h(cy_eff)
-
-            ResidTechStock.__setattr__(self, technology_param, cy_eff)
-        
-    '''
+        tech_object = getattr(self, str(technology))
+        setattr(tech_object, str(attribute_to_set), value_to_set)

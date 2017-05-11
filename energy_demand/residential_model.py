@@ -71,6 +71,9 @@ class Region(object):
         # MAYBE ALSO IN ENDUSE
         # Iterate technologies in enduse and select fuel percentages and multiply with corresponding shape
 
+        # Assign shapes to technologies for enduses with technologies
+        self.tech_stock = self.assign_shapes_to_tech_stock(data['tech_lu'], self.tech_stock, self.fuel_shape_boilers_h, self.fuel_shape_hp_h)
+
         # Set attributs of all enduses to the Region Class
         self.create_enduses(data, data_ext)
 
@@ -129,6 +132,28 @@ class Region(object):
         for enduse in self.fuels_new_enduse_specific:
             test_sum += np.sum(self.fuels_new_enduse_specific[enduse])
         np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
+
+    def assign_shapes_to_tech_stock(self, technologies, tech_stock, fuel_shape_boilers_h, fuel_shape_hp_h):
+        """
+        Assign specific shapes depending on technologies
+
+        """
+        # Iterate all technologies and check if specific technology has a own shape
+        for technology in technologies:
+
+            # Heating boiler technologies #TODO --> Convert into assumptions['heating_boilers'] = ['gas_boiler', 'gas_boiler2']
+            if technology in ['gas_boiler', 'gas_boiler2']: #Set technologies
+                #tech_stock.set_tech_attribute(technology, 'shape_d', np.ones((3,3))* 1999)
+                tech_stock.set_tech_attribute(technology, 'shape_h', fuel_shape_boilers_h)
+
+            # Technologies with hourly efficiencies
+            elif technology in ['heat_pump']:
+                #tech_stock.set_tech_attribute(technology, 'shape_d', np.ones((3,3))* 1999)
+                tech_stock.set_tech_attribute(technology, 'shape_h', fuel_shape_hp_h)
+
+            #elif technolog in 
+
+        return tech_stock
 
     def fuel_correction_hp(self, hdd_cy, tech_stock):
         """Correct for different temperatures than base year. Also correct for different efficiencies
@@ -833,6 +858,8 @@ class EnduseResid(object):
         self.enduse_fuel_new_fuel = self.enduse_elasticity(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
         #print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
 
+
+
         # IF ENDUSE WITH TECHNOLOGIES __> ITERATE 
         # Get corret service shape of enduse (for every enduse fuel switch need to define one)
         if self.enduse == 'space_heating':
@@ -842,7 +869,8 @@ class EnduseResid(object):
 
         # Calculate energy service for base year (NEEDS TO CALCULATE WITH BASE YEAR FUELS) TODO: CHECK
         service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data_ext, data['assumptions'], tech_stock, service_y_h_shape)
-
+        print("SERVICE: " + str(service_fueltype_tech_after_switch))
+        
         # Convert service to fuel for current year
         self.enduse_fuel_new_fuel = self.enduse_switches_service_to_fuel(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel)
         #print("FUEL TRAIN 2: " + str(self.enduse_fuel_new_fuel))
@@ -857,7 +885,12 @@ class EnduseResid(object):
 
         print("FUEL SWITHCES: " + str(enduse_fuel_after_switch_per_tech))
         # 2. Iterate technology and assign shape
+        print("Technologes in enduse: " + str(enduse_fuel_after_switch_per_tech.keys())
+        #prnt(".")
+        # If technologies in enduse
+        #if 
 
+        # IF enduse has no technologies
 
         # --Current Year load shapes (Shapes are identical for all fuel types)
         # Alter after technology_switch and fuel switch shapes depending on technology
