@@ -7,7 +7,7 @@ import energy_demand.main_functions as mf
 class Technology(object):
     """Technology class
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_dh, reg_shape_peak_yd, reg_shape_peak_yh):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_dh, reg_shape_peak_yd_factor_factor, reg_shape_peak_dh):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
@@ -25,8 +25,8 @@ class Technology(object):
         self.shape_yh = reg_shape_yh
 
         # Peak
-        self.shape_peak_yd = reg_shape_peak_yd
-        self.shape_peak_yh = reg_shape_peak_yh
+        self.shape_peak_yd_factor_factor = reg_shape_peak_yd_factor_factor # Only factor from year to d
+        self.shape_peak_dh = reg_shape_peak_dh
 
         # Daily load shapes --> Do not provide daily shapes because may be different for month/weekday/weekend etc.
         #if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
@@ -111,7 +111,7 @@ class ResidTechStock(object):
             dummy_shape_dh = np.ones((24, 1))
             dummy_shape_yh = np.ones((365, 24))
 
-            dummy_shape_peak_yd = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
+            dummy_shape_peak_yd_factor = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
             dummy_shape_peak_yh = np.ones((365, 24))
 
             # Technology object
@@ -124,7 +124,7 @@ class ResidTechStock(object):
                 dummy_shape_yd,
                 dummy_shape_dh,
                 dummy_shape_yh,
-                dummy_shape_peak_yd,
+                dummy_shape_peak_yd_factor,
                 dummy_shape_peak_yh
             )
 
