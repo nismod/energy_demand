@@ -194,27 +194,29 @@ def read_csv_base_data_resid(path_to_csv):
     # Quick and dirty
     The fuel input dictionary must have a value for every fuel (0)
     """
-    lines = []
-    end_uses_dict = {}
+    try:
+        lines = []
+        end_uses_dict = {}
 
-    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines)                      # Skip first row
+        with open(path_to_csv, 'r') as csvfile:               # Read CSV file
+            read_lines = csv.reader(csvfile, delimiter=',')   # Read line
+            _headings = next(read_lines)                      # Skip first row
 
-        # Iterate rows
-        for row in read_lines: # select row
-            lines.append(row)
+            # Iterate rows
+            for row in read_lines: # select row
+                lines.append(row)
 
-        for i in _headings[1:]: # skip first
-            end_uses_dict[i] = np.zeros((len(lines), 1)) # len fuel_ids
+            for i in _headings[1:]: # skip first
+                end_uses_dict[i] = np.zeros((len(lines), 1)) # len fuel_ids
 
-        for cnt_fueltype, row in enumerate(lines):
-            cnt = 1 #skip first
-            for i in row[1:]:
-                end_use = _headings[cnt]
-                end_uses_dict[end_use][cnt_fueltype] = i
-                cnt += 1
-
+            for cnt_fueltype, row in enumerate(lines):
+                cnt = 1 #skip first
+                for i in row[1:]:
+                    end_use = _headings[cnt]
+                    end_uses_dict[end_use][cnt_fueltype] = i
+                    cnt += 1
+    except:
+        print("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0)")
     return end_uses_dict
 
 
@@ -590,9 +592,7 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
                 for reg, hour, obs_value, units in result_dict[fueltype]:
                     start_id = "P{}H".format(hour)
                     end_id = "P{}H".format(hour + 1)
-
                     data.append((lu_reg[reg], start_id, end_id, obs_value))
-
                     yaml_list_fuel_type.append({'region':  lu_reg[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
 
             csv_writer.writerows(data)

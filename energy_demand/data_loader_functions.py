@@ -186,7 +186,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     # -- Daily shape over full year (365,1)
 
     # Add to hourly shape
-    #data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
+    #data['shapes_resid_dh'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
 
     # Add to daily shape
     #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
@@ -247,9 +247,6 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     total_d_peak_demand = np.sum(peak_h_values)
     total_y_end_use_demand = np.sum(year_raw_values[:, :, hes_app_id]) # Calculate total yearly demand of end_use
 
-
-    ##print(total_y_end_use_demand)
-    #print(total_d_peak_demand)
     shape_peak_yd_factor = (1.0 / total_y_end_use_demand) * total_d_peak_demand # Factor to calculate daily peak demand from total
     shape_peak_yh = (1.0 / total_d_peak_demand) * peak_h_values # hourly values of peak day
 
@@ -552,7 +549,7 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Add SHAPES
     # Add to hourly non-residential shape
-    #data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
+    #data['shapes_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
 
     # Add to daily shape
     #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
@@ -582,7 +579,7 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     #pf.plot_load_shape_yd(maxday_h_shape)
     return maxday_h_shape
 
-def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor_factor, shape_non_peak_yd, other_string_info):
+def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, other_string_info):
     """ Function collecting functions to write out txt files"""
     #print(shape_peak_dh.shape)       # 24
     #print(shape_non_peak_h.shape)   # 365, 24
@@ -590,11 +587,11 @@ def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h,
     #print(shape_non_peak_yd.shape)   # 365, 1
     jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
     jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
-    jason_to_txt_shape_peak_yd_factor_factor(shape_peak_yd_factor_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor_factor') + str('.txt')))
+    jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
     jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
     #jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str(other_string_info) + str('.txt')))
     ##jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_h') + str(other_string_info) + str('.txt')))
-    #jason_to_txt_shape_peak_yd_factor_factor(shape_peak_yd_factor_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor_factor') + str(other_string_info) + str('.txt')))
+    #jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str(other_string_info) + str('.txt')))
     #jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 def jason_to_txt_shape_peak_dh(input_array, outfile_path):
     """Wrte to txt. Array with shape: (24,)
@@ -612,7 +609,7 @@ def jason_to_txt_shape_non_peak_h(input_array, outfile_path):
     with open(outfile_path, 'w') as outfile:
         json.dump(out_dict, outfile)
 
-def jason_to_txt_shape_peak_yd_factor_factor(input_array, outfile_path):
+def jason_to_txt_shape_peak_yd_factor(input_array, outfile_path):
     """Wrte to txt. Array with shape: ()
     """
     with open(outfile_path, 'w') as outfile:
