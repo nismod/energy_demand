@@ -135,8 +135,8 @@ def load_data(path_main, data_ext):
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
 
     # load shapes
-    data['dict_shp_enduse_h_resid'] = {}
-    data['dict_shp_enduse_d_resid'] = {}
+    data['dict_shp_enduse_resid_dh'] = {}
+    data['dict_shp_enduse_resid_yd'] = {}
 
     # Read in raw fuel data of residential model
     fuel_raw_data_resid_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_fuel_raw_data_resid_enduses']) # Yearly end use data
@@ -224,12 +224,12 @@ def collect_shapes_from_txts(data):
 
     # Read load shapes from txt files
     for end_use in enduses:
-        shape_peak_yh = df.read_txt_shape_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yh') + str('.txt')))
-        shape_non_peak_h = df.read_txt_shape_non_peak_h(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
+        shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
+        shape_non_peak_h = df.read_txt_shape_non_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
         shape_peak_yd = df.read_txt_shape_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd') + str('.txt')))
         shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
-        data['dict_shp_enduse_h_resid'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
-        data['dict_shp_enduse_d_resid'][end_use] = {'shape_peak_yd': shape_peak_yd, 'shape_non_peak_yd': shape_non_peak_yd}
+        data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_h': shape_non_peak_h}
+        data['dict_shp_enduse_resid_yd'][end_use] = {'shape_peak_yd': shape_peak_yd, 'shape_non_peak_yd': shape_non_peak_yd}
 
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files
@@ -262,16 +262,24 @@ def generate_data(data):
             continue
 
         # Get HES load shapes
-        shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
-        df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, "") # Write shapes to txt
+        shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
+
+        print("TEST:")
+        print(len(shape_peak_dh))
+        print(len(shape_non_peak_h))
+        print(shape_peak_yd_factor)
+        print(len(shape_non_peak_yd))
+        #prnt("..")
+
+        df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
     # Robert Sansom, Yearly peak from CSWV - Residential Gas demand, Daily shapes
     wheater_scenarios = ['actual'] #, 'max_cold', 'min_warm'# Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
 
     # Iterate wheater scenarios
     for wheater_scen in wheater_scenarios:
-        shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
-        df.create_txt_shapes('space_heating', path_txt_shapes, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, wheater_scen) # Write shapes to txt
+        shape_peak_dh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
+        df.create_txt_shapes('space_heating', path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, wheater_scen) # Write shapes to txt
 
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
