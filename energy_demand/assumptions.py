@@ -217,7 +217,7 @@ def load_assumptions(data, data_external):
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
 
     # Provides shares of fuel within each fueltype
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
+    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump': 0.02}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 

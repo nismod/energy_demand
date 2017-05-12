@@ -28,7 +28,7 @@ def plot_x_days(all_hours_year, region, days):
     plt.show()
 
 
-def plot_load_shape_d(daily_load_shape):
+def plot_load_shape_yd(daily_load_shape):
     """With input 2 dim array plot daily load"""
 
     x_values = range(24)
@@ -43,7 +43,7 @@ def plot_load_shape_d(daily_load_shape):
     plt.show()
 
 
-def plot_load_shape_d_non_resid(daily_load_shape):
+def plot_load_shape_yd_non_resid(daily_load_shape):
     """With input 2 dim array plot daily load"""
 
     x_values = range(24)

@@ -7,7 +7,7 @@ import energy_demand.main_functions as mf
 class Technology(object):
     """Technology class
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_d, reg_shape_h, reg_shape_d_peak, reg_shape_h_peak):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_peak_yd, reg_shape_peak_yh):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
@@ -20,11 +20,11 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
-        self.shape_d = reg_shape_d # Non_peak
-        self.shape_h = reg_shape_h # Non_peak
+        self.shape_yd = reg_shape_yd # Non_peak
+        self.shape_h = reg_shape_yh # Non_peak
 
-        self.shape_d_peak = reg_shape_d_peak
-        self.shape_h_peak = reg_shape_h_peak
+        self.shape_peak_yd = reg_shape_peak_yd
+        self.shape_peak_yh = reg_shape_peak_yh
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
@@ -100,11 +100,11 @@ class ResidTechStock(object):
 
         # Crate all technologies and add as attribute
         for technology_name in data['tech_lu']:
-            dummy_shape_d = np.ones((365, 24))
+            dummy_shape_yd = np.ones((365, 24))
             dummy_shape_h = np.ones((365, 24))
 
-            dummy_shape_d_peak = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
-            dummy_shape_h_peak = np.ones((365, 24))
+            dummy_shape_peak_yd = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
+            dummy_shape_peak_yh = np.ones((365, 24))
 
             # Technology object
             technology_object = Technology(
@@ -113,10 +113,10 @@ class ResidTechStock(object):
                 data_ext,
                 temp_cy,
                 year,
-                dummy_shape_d,
+                dummy_shape_yd,
                 dummy_shape_h,
-                dummy_shape_d_peak,
-                dummy_shape_h_peak
+                dummy_shape_peak_yd,
+                dummy_shape_peak_yh
             )
 
             # Set technology object as attribute

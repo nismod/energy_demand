@@ -224,12 +224,12 @@ def collect_shapes_from_txts(data):
 
     # Read load shapes from txt files
     for end_use in enduses:
-        shape_h_peak = df.read_txt_shape_h_peak(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
-        shape_h_non_peak = df.read_txt_shape_h_non_peak(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_h_non_peak') + str('.txt')))
-        shape_d_peak = df.read_txt_shape_d_peak(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_d_peak') + str('.txt')))
-        shape_d_non_peak = df.read_txt_shape_d_non_peak(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
-        data['dict_shp_enduse_h_resid'][end_use] = {'shape_h_peak': shape_h_peak, 'shape_h_non_peak': shape_h_non_peak}
-        data['dict_shp_enduse_d_resid'][end_use] = {'shape_d_peak': shape_d_peak, 'shape_d_non_peak': shape_d_non_peak}
+        shape_peak_yh = df.read_txt_shape_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yh') + str('.txt')))
+        shape_non_peak_h = df.read_txt_shape_non_peak_h(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
+        shape_peak_yd = df.read_txt_shape_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd') + str('.txt')))
+        shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+        data['dict_shp_enduse_h_resid'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
+        data['dict_shp_enduse_d_resid'][end_use] = {'shape_peak_yd': shape_peak_yd, 'shape_non_peak_yd': shape_non_peak_yd}
 
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files
@@ -262,16 +262,16 @@ def generate_data(data):
             continue
 
         # Get HES load shapes
-        shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
-        df.create_txt_shapes(end_use, path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "") # Write shapes to txt
+        shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
+        df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, "") # Write shapes to txt
 
     # Robert Sansom, Yearly peak from CSWV - Residential Gas demand, Daily shapes
     wheater_scenarios = ['actual'] #, 'max_cold', 'min_warm'# Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
 
     # Iterate wheater scenarios
     for wheater_scen in wheater_scenarios:
-        shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
-        df.create_txt_shapes('space_heating', path_txt_shapes, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, wheater_scen) # Write shapes to txt
+        shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
+        df.create_txt_shapes('space_heating', path_txt_shapes, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, wheater_scen) # Write shapes to txt
 
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
@@ -304,7 +304,7 @@ def generate_data(data):
 
     #path_txt_shapes_service = data['path_dict']['path_txt_shapes_service']
 
-    #df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, "scrap")
+    #df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, "scrap")
 
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)

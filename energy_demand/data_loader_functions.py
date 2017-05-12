@@ -59,7 +59,7 @@ def compare_jan_jul(main_dict_dayyear_absolute):
     for h ,i in enumerate(jul_percent_of_jan):
         print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
 
-    pf.plot_load_shape_d_non_resid(jan)
+    pf.plot_load_shape_yd_non_resid(jan)
     print("TEST: " + str(jan-jul))
 '''
 
@@ -162,7 +162,7 @@ def assign_hes_data_to_year(data, hes_data, base_yr):
 def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     """Fill every base year day with correct data"""
 
-    shape_h_non_peak = np.zeros((365, 24))
+    shape_non_peak_h = np.zeros((365, 24))
 
     # -- Daily shape over full year (365,1)
 
@@ -180,18 +180,18 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_h_non_peak[yearday_python] = np.array(_data[:,1], dtype=float)   # now [yearday][24 hours with relative shape]
+        shape_non_peak_h[yearday_python] = np.array(_data[:,1], dtype=float)   # now [yearday][24 hours with relative shape]
 
 
     # -- Daily shape over full year (365,1)
 
     # Add to hourly shape
-    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_h_peak': shape_h_peak, 'shape_h_non_peak': shape_h_non_peak}
+    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
 
     # Add to daily shape
-    #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_d_peak': shape_d_peak, 'shape_d_non_peak': shape_d_non_peak}
+    #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_peak_yd': shape_peak_yd, 'shape_non_peak_yd': shape_non_peak_yd}
 
-    return shape_h_non_peak
+    return shape_non_peak_h
 
 def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
     """Read in raw HES data and generate shapes
@@ -213,17 +213,17 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
 
     Returns
     -------
-    shape_d_peak : float
+    shape_peak_yd : float
         Peak day demand (Calculate factor which can be used to multiply yearly demand to generate peak demand)
-    shape_h_peak : float
+    shape_peak_yh : float
         Peak demand of each hours of peak day
 
     Notes
     -----
     #Todo: Warmest load shape is not used
 
-    shape_d_peak    To calculate actual energy demand, the yearly energy demand needs to be multiplied with this factor
-    shape_h_peak    Total sum is 1.0. To calculate actual energy demand, the peak day must be multiplied with this array
+    shape_peak_yd    To calculate actual energy demand, the yearly energy demand needs to be multiplied with this factor
+    shape_peak_yh    Total sum is 1.0. To calculate actual energy demand, the peak day must be multiplied with this array
 
     """
     # Calculate yearly total demand over all day years and all appliances
@@ -250,23 +250,23 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
 
     ##print(total_y_end_use_demand)
     #print(total_d_peak_demand)
-    shape_d_peak = (1.0 / total_y_end_use_demand) * total_d_peak_demand # Factor to calculate daily peak demand from total
-    shape_h_peak = (1.0 / total_d_peak_demand) * peak_h_values # hourly values of peak day
+    shape_peak_yd = (1.0 / total_y_end_use_demand) * total_d_peak_demand # Factor to calculate daily peak demand from total
+    shape_peak_yh = (1.0 / total_d_peak_demand) * peak_h_values # hourly values of peak day
 
     # -------------------------
     # Calculate non-peak shapes
     # -------------------------
-    shape_d_non_peak = np.zeros((365, 1))
-    shape_h_non_peak = np.zeros((365, 24))
+    shape_non_peak_yd = np.zeros((365, 1))
+    shape_non_peak_h = np.zeros((365, 24))
 
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
         d_sum = np.sum(day_values)
 
-        shape_d_non_peak[day] = (1.0 / total_y_end_use_demand) * d_sum
-        shape_h_non_peak[day] = (1.0 / d_sum) * day_values # daily shape
+        shape_non_peak_yd[day] = (1.0 / total_y_end_use_demand) * d_sum
+        shape_non_peak_h[day] = (1.0 / d_sum) * day_values # daily shape
 
-    return shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
+    return shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd
 
 # CWV WEATER GAS SAMSON-----------------------------------
 def read_shp_heating_gas(data, model_type, wheater_scenario):
@@ -287,7 +287,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
     # Get hourly distribution (Sansom Data)
     hourly_gas_shape_wkday = hourly_gas_shape[1] # Hourly gas shape
     hourly_gas_shape_wkend = hourly_gas_shape[2] # Hourly gas shape
-    shape_h_peak = hourly_gas_shape[3] # Manually derived peak from Robert Sansom
+    shape_peak_yh = hourly_gas_shape[3] # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in data['temp_2015_resid']:
@@ -330,20 +330,20 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
     # NON-PEAK Shape Calculations------------------------------------------------------------------------------
 
     # --hourly
-    shape_h_non_peak = np.zeros((365, 24), dtype=float)
+    shape_non_peak_h = np.zeros((365, 24), dtype=float)
 
     for i, day_in_h in enumerate(hd_data):
-        shape_h_non_peak[i] = (1.0 / np.sum(day_in_h)) * day_in_h
+        shape_non_peak_h[i] = (1.0 / np.sum(day_in_h)) * day_in_h
 
-    #print("shape_h_non_peak: " + str(shape_h_non_peak))
+    #print("shape_non_peak_h: " + str(shape_non_peak_h))
 
     # --day
-    shape_d_non_peak = np.zeros((365, 1)) #Two dimensional array with one row
+    shape_non_peak_yd = np.zeros((365, 1)) #Two dimensional array with one row
     tot_y_hd = np.sum(hd_data) # Total yearly heating demand
 
     # Percentage of total demand for every day
     for cnt, day_in_h in enumerate(hd_data):
-        shape_d_non_peak[cnt] = (1.0 / tot_y_hd) * np.sum(day_in_h) #calc daily demand in percent
+        shape_non_peak_yd[cnt] = (1.0 / tot_y_hd) * np.sum(day_in_h) #calc daily demand in percent
 
     # PEAK-----------------------------------------------------------------------------
 
@@ -354,12 +354,12 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
             max_day_demand = np.sum(day_fuels) #maximum demand
 
     # Factor from which max daily demand can be calculed from yeary demand data
-    shape_d_peak = max_day_demand / tot_y_hd
+    shape_peak_yd = max_day_demand / tot_y_hd
 
     #print("Daily load shape gas loading----" + str(wheater_scenario))
-    #print(shape_d_peak)
+    #print(shape_peak_yd)
 
-    return shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak
+    return shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd
 
 
 
@@ -552,10 +552,10 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Add SHAPES
     # Add to hourly non-residential shape
-    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_h_peak_non_resid': maxday_h_shape, 'shape_h_non_peak': }
+    #data['dict_shp_enduse_h_resid'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
 
     # Add to daily shape
-    #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_d_peak_non_resid': CCWDATA, 'shape_d_non_peak_non_resid': } # No peak
+    #data['dict_shp_enduse_d_resid'][end_use]  = {'shape_peak_yd_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
     #prnt("..")
     
     return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw
@@ -572,40 +572,40 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     # -----------------------------------------
     maxday_h_shape = np.zeros((24,1))
 
-    for shape_d in hourly_shape_of_maximum_days:
-        maxday_h_shape += hourly_shape_of_maximum_days[shape_d]
+    for shape_yd in hourly_shape_of_maximum_days:
+        maxday_h_shape += hourly_shape_of_maximum_days[shape_yd]
 
     # Calc average
     maxday_h_shape = maxday_h_shape / len(hourly_shape_of_maximum_days)
     #print("maxday_h_shape: " + str(maxday_h_shape))
     #print(len(hourly_shape_of_maximum_days))
-    #pf.plot_load_shape_d(maxday_h_shape)
+    #pf.plot_load_shape_yd(maxday_h_shape)
     return maxday_h_shape
 
 
 
-def create_txt_shapes(end_use, path_txt, shape_h_peak, shape_h_non_peak, shape_d_peak, shape_d_non_peak, other_string_info):
+def create_txt_shapes(end_use, path_txt, shape_peak_yh, shape_non_peak_h, shape_peak_yd, shape_non_peak_yd, other_string_info):
     """ Function collecting functions to write out txt files"""
-    #print(shape_h_peak.shape)       # 24
-    #print(shape_h_non_peak.shape)   # 365, 24
-    #print(shape_d_peak.shape)       # ()
-    #print(shape_d_non_peak.shape)   # 365, 1
-    jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str('.txt')))
-    jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str('.txt')))
-    jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str('.txt')))
-    jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
-    #jason_to_txt_shape_h_peak(shape_h_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_peak') + str(other_string_info) + str('.txt')))
-    ##jason_to_txt_shape_h_non_peak(shape_h_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_h_non_peak') + str(other_string_info) + str('.txt')))
-    #jason_to_txt_shape_d_peak(shape_d_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_peak') + str(other_string_info) + str('.txt')))
-    #jason_to_txt_shape_d_non_peak(shape_d_non_peak, os.path.join(path_txt, str(end_use) + str("__") + str('shape_d_non_peak') + str('.txt')))
-def jason_to_txt_shape_h_peak(input_array, outfile_path):
+    #print(shape_peak_yh.shape)       # 24
+    #print(shape_non_peak_h.shape)   # 365, 24
+    #print(shape_peak_yd.shape)       # ()
+    #print(shape_non_peak_yd.shape)   # 365, 1
+    jason_to_txt_shape_peak_yh(shape_peak_yh, os.path.join(path_txt, str(end_use) + str("__") + str('shape_peak_yh') + str('.txt')))
+    jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt, str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
+    jason_to_txt_shape_peak_yd(shape_peak_yd, os.path.join(path_txt, str(end_use) + str("__") + str('shape_peak_yd') + str('.txt')))
+    jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+    #jason_to_txt_shape_peak_yh(shape_peak_yh, os.path.join(path_txt, str(end_use) + str("__") + str('shape_peak_yh') + str(other_string_info) + str('.txt')))
+    ##jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt, str(end_use) + str("__") + str('shape_non_peak_h') + str(other_string_info) + str('.txt')))
+    #jason_to_txt_shape_peak_yd(shape_peak_yd, os.path.join(path_txt, str(end_use) + str("__") + str('shape_peak_yd') + str(other_string_info) + str('.txt')))
+    #jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+def jason_to_txt_shape_peak_yh(input_array, outfile_path):
     """Wrte to txt. Array with shape: (24,)
     """
     np_dict = dict(enumerate(input_array))
     with open(outfile_path, 'w') as outfile:
         json.dump(np_dict, outfile)
 
-def jason_to_txt_shape_h_non_peak(input_array, outfile_path):
+def jason_to_txt_shape_non_peak_h(input_array, outfile_path):
     """Wrte to txt. Array with shape: (365, 24)
     """
     out_dict = {}
@@ -614,13 +614,13 @@ def jason_to_txt_shape_h_non_peak(input_array, outfile_path):
     with open(outfile_path, 'w') as outfile:
         json.dump(out_dict, outfile)
 
-def jason_to_txt_shape_d_peak(input_array, outfile_path):
+def jason_to_txt_shape_peak_yd(input_array, outfile_path):
     """Wrte to txt. Array with shape: ()
     """
     with open(outfile_path, 'w') as outfile:
         json.dump(input_array, outfile)
 
-def jason_to_txt_shape_d_non_peak(input_array, outfile_path):
+def jason_to_txt_shape_non_peak_yd(input_array, outfile_path):
     """Wrte to txt. Array with shape: (365, 1
     )"""
     out_dict = {}
@@ -629,7 +629,7 @@ def jason_to_txt_shape_d_non_peak(input_array, outfile_path):
     with open(outfile_path, 'w') as outfile:
         json.dump(out_dict, outfile)
 
-def read_txt_shape_h_peak(file_path):
+def read_txt_shape_peak_yh(file_path):
     """Read to txt. Array with shape: (24,)
     """
     read_dict = json.load(open(file_path))
@@ -637,7 +637,7 @@ def read_txt_shape_h_peak(file_path):
     out_dict = np.array(read_dict_list, dtype=float)
     return out_dict
 
-def read_txt_shape_h_non_peak(file_path):
+def read_txt_shape_non_peak_h(file_path):
     """Read to txt. Array with shape: (365, 24)"""
     out_dict = np.zeros((365, 24))
     read_dict = json.load(open(file_path))
@@ -646,13 +646,13 @@ def read_txt_shape_h_non_peak(file_path):
         out_dict[day] = np.array(list(row.values()), dtype=float)
     return out_dict
 
-def read_txt_shape_d_peak(file_path):
+def read_txt_shape_peak_yd(file_path):
     """Read to txt. Array with shape: (365, 24)
     """
     out_dict = json.load(open(file_path))
     return out_dict
 
-def read_txt_shape_d_non_peak(file_path):
+def read_txt_shape_non_peak_yd(file_path):
     """Read to txt. Array with shape: (365, 1)
     """
     out_dict = np.zeros((365, 1))
