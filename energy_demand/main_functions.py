@@ -1837,3 +1837,17 @@ def search_cosest_weater_station(longitude_reg, latitue_reg, weather_stations):
             closest_ID = weather_station_id
 
     return closest_ID
+
+def get_max_fuel_day(fuels):
+    """The day with most fuel
+    """
+    max_fuel = 0
+    max_day = None
+    for day, fuels_day in enumerate(fuels):
+        sum_day_fuel = np.sum(fuels_day)
+
+        if sum_day_fuel > max_fuel:
+            max_fuel = sum_day_fuel
+            max_day = day
+
+    return max_fuel, max_day

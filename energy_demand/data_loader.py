@@ -136,7 +136,7 @@ def load_data(path_main, data_ext):
 
     # load shapes
     data['dict_shp_enduse_resid_dh'] = {}
-    data['dict_shp_enduse_resid_yd'] = {}
+    data['shapes_resid_yd'] = {}
 
     # Read in raw fuel data of residential model
     fuel_raw_data_resid_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_fuel_raw_data_resid_enduses']) # Yearly end use data
@@ -230,7 +230,7 @@ def collect_shapes_from_txts(data):
         shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
         
         data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_h': shape_non_peak_h}
-        data['dict_shp_enduse_resid_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        data['shapes_resid_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files

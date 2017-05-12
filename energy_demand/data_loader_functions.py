@@ -189,7 +189,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     #data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
 
     # Add to daily shape
-    #data['dict_shp_enduse_resid_yd'][end_use]  = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+    #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return shape_non_peak_h
 
@@ -555,7 +555,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     #data['dict_shp_enduse_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
 
     # Add to daily shape
-    #data['dict_shp_enduse_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
+    #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
     #prnt("..")
     
     return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw

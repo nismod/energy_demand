@@ -24,11 +24,7 @@
 # yh = for every hour in a year
 # dh = every hour in day
 
-# TODO: CONTROL SAMSON BOILER PEAK CURVE
-
 # Add Cooling
-
-- Read out individal load shapes
 
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
@@ -222,6 +218,9 @@ if __name__ == "__main__":
         results_every_year.append(resid_object_country)
 
 
+
+    # Plot peaks
+    pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
     pf.plot_stacked_Country_end_use(results_every_year, base_data)
