@@ -7,7 +7,7 @@ import energy_demand.main_functions as mf
 class Technology(object):
     """Technology class
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_dh, reg_shape_peak_yd_factor_factor, reg_shape_peak_dh):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_dh, reg_shape_peak_yd_factor_factor):
         """Contructor of technology
         # NTH: If regional diffusion, load into region and tehn into tech stock
         """
@@ -25,13 +25,21 @@ class Technology(object):
         self.shape_yh = reg_shape_yh
 
         # Peak
-        self.shape_peak_yd_factor_factor = reg_shape_peak_yd_factor_factor # Only factor from year to d
-        self.shape_peak_dh = reg_shape_peak_dh
+        self.shape_peak_yd_factor_factor = reg_shape_peak_yd_factor_factor # Only factor from year to d TODO: NOT IMPELEMENTED
+
+        #self.shape_peak_dh = reg_shape_peak_dh # TODO
 
         # Daily load shapes --> Do not provide daily shapes because may be different for month/weekday/weekend etc.
-        #if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
-        #self.shape_dh = reg_shape_dh # Non_peak
-        #self.shape_peak_dh = reg_shape_dh # Non_peak
+        # TODO: TEST ELIF
+        # See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
+        if self.tech_name in data['assumptions']['list_tech_heating_const']:
+            self.shape_peak_dh = (data['hourly_gas_shape'][3] / np.sum(data['hourly_gas_shape'][3])) # Peak curve robert sansom
+
+        elif self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
+            self.shape_peak_dh = (data['hourly_gas_shape_hp'][3] / np.sum(data['hourly_gas_shape_hp'][3])) # Peak curve robert sansom
+        else:
+            # Technology is not part of defined enduse (dummy data)
+            self.shape_peak_dh = np.ones((24, 1)) # dummy
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
@@ -112,7 +120,7 @@ class ResidTechStock(object):
             dummy_shape_yh = np.ones((365, 24))
 
             dummy_shape_peak_yd_factor = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
-            dummy_shape_peak_yh = np.ones((365, 24))
+            
 
             # Technology object
             technology_object = Technology(
@@ -125,7 +133,6 @@ class ResidTechStock(object):
                 dummy_shape_dh,
                 dummy_shape_yh,
                 dummy_shape_peak_yd_factor,
-                dummy_shape_peak_yh
             )
 
             # Set technology object as attribute

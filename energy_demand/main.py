@@ -24,6 +24,7 @@
 # yh = for every hour in a year
 # dh = every hour in day
 
+# TODO: CONTROL SAMSON BOILER PEAK CURVE
 
 # Add Cooling
 

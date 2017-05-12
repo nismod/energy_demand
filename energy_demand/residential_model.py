@@ -104,10 +104,10 @@ class Region(object):
         self.fuels_new_enduse_specific_h = self.enduse_specific_h(data) #each enduse individually and hourly data
 
         # Get 'peak demand day' (summarised over all enduses)
-        self.fuels_peak_d = self.get_enduse_peak_d(data)
+        ##self.fuels_peak_d = self.get_calc_enduse_fuel_peak_yd_factor(data)
 
-        # Get 'peak demand h' (summarised over all enduses)
-        self.fuels_peak_h = self.get_enduse_peak_h(data)
+        # Get 'peak demand h' (summarised over all enduses) TODO: Do after peak is calculted for every enduse
+        ##self.fuels_peak_h = self.get_calc_enduse_fuel_peak_yh(data)
 
         # Sum 'daily' demand in region (summarised over all enduses)
         self.fuels_tot_enduses_d = self.tot_all_enduses_d(data)
@@ -116,12 +116,12 @@ class Region(object):
         self.fuels_tot_enduses_h = self.tot_all_enduses_h(data)
 
         # Calculate load factors from peak values
-        self.reg_load_factor_d = self.load_factor_d(data)
-        self.reg_load_factor_h = self.load_factor_h(data)
+        ##self.reg_load_factor_d = self.load_factor_d(data)
+        ##self.reg_load_factor_h = self.load_factor_h(data)
 
         # Calculate load factors from non peak values
-        self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak(data)
-        self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak(data)
+        ##self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak(data)
+        ##self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak(data)
 
         # Plot stacked end_uses
         #start_plot = mf.convert_date_to_yearday(2015, 1, 1) #regular day
@@ -273,25 +273,25 @@ class Region(object):
 
         return sum_fuels_d
 
-    def get_enduse_peak_d(self, data):
+    def get_calc_enduse_fuel_peak_yd_factor(self, data):
         """Summarise absolute fuel of peak days over all end_uses
         """
-        sum_enduse_peak_d = np.zeros((len(data['fuel_type_lu']), 1))  # Initialise
+        sum_calc_enduse_fuel_peak_yd_factor = np.zeros((len(data['fuel_type_lu']), 1))  # Initialise
 
         for enduse in data['resid_enduses']:
-            sum_enduse_peak_d += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_d') # Fuel of Enduse
+            sum_calc_enduse_fuel_peak_yd_factor += self.__getattr__subclass__(enduse, 'enduse_peak_yd_factor') # Fuel of Enduse 
 
-        return sum_enduse_peak_d
+        return sum_calc_enduse_fuel_peak_yd_factor
 
-    def get_enduse_peak_h(self, data):
+    def get_calc_enduse_fuel_peak_yh(self, data):
         """Summarise peak value of all end_uses
         """
-        sum_enduse_peak_h = np.zeros((len(data['fuel_type_lu']), 1, 24)) # Initialise
+        sum_calc_enduse_fuel_peak_yh = np.zeros((len(data['fuel_type_lu']), 1, 24)) # Initialise
 
-        for enduse in data['resid_enduses']:
-            sum_enduse_peak_h += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_dh') # Fuel of Enduse
+        for enduse in data['resid_enduses']: 
+            sum_calc_enduse_fuel_peak_yh += self.__getattr__subclass__(enduse, 'enduse_fuel_peak_dh') # Fuel of Enduse
 
-        return sum_enduse_peak_h
+        return sum_calc_enduse_fuel_peak_yh
 
     def tot_all_enduses_h(self, data):
         """Calculate total hourly fuel demand for each fueltype
@@ -892,6 +892,10 @@ class EnduseResid(object):
         self.enduse_elasticity(self.enduse_fuel_new_fuel, data_ext, data['assumptions'])
         print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
 
+        # --Peak yd (peak day) (same for enduse for all technologies)
+        enduse_peak_yd_factor = data['dict_shp_enduse_resid_yd'][enduse]['shape_peak_yd_factor']
+        self.enduse_fuel_peak_yd_factor = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_new_fuel, enduse_peak_yd_factor)
+
         # If enduse has technologies, distribute according to technologies
         if self.technologies_enduse != []:
 
@@ -928,14 +932,11 @@ class EnduseResid(object):
 
             # PEAK
             # Assing technologies peak shapes
-            #self.enduse_shape_peak_yd_factor
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
+            #self.enduse_peak_yd_factor
+            # Iterate technologies and see wheter different peak
+            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
 
-            # over each technology --> 
-            #self.enduse_fuel_peak_d
-            #self.enduse_fuel_peak_dh
-            #self.enduse_fuel_peak_yd
-            #self.enduse_fuel_peak_yh
+            # --> TODO: self.enduse_shape_peak_dh To calculate peak of a day, iterate self.enduse_fuel_peak_yh and read out peak!!!
 
         else: # No technologies specified in enduse
             # Enduse specific load shapes (Shapes are identical for all fuel types)
@@ -948,38 +949,30 @@ class EnduseResid(object):
             # --Hourly fuel data (% in h of day)
             self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd)
 
-        # Enduse specific shapes (yd --> IS the same for all technologies)
-        self.enduse_shape_peak_yd_factor = data['dict_shp_enduse_resid_yd'][enduse]['shape_peak_yd_factor'] # shape_yd peak (Factor to calc one day, percentages within every day)
-        self.enduse_shape_peak_dh = data['dict_shp_enduse_resid_dh'][enduse]['shape_peak_dh'] #
+            # Calculate peak hour (peak hour)
+            # Peak shape for enduse (here not iteration is necessary as peak is always the same (however do this after load shifiting))
+            enduse_shape_peak_dh = data['dict_shp_enduse_resid_dh'][enduse]['shape_peak_dh'] # Former self. --> Peak
 
-        #print(self.enduse_shape_peak_yd_factor)
-        #print(self.enduse_shape_peak_dh.shape)
-        #prnt(".")
+            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd_factor, enduse_shape_peak_dh)
 
-        # --Peak data # Calculate peak day (peak day)
-        self.enduse_fuel_peak_d = self.enduse_peak_d(self.enduse_fuel_new_fuel, self.enduse_shape_peak_yd_factor)
+            # TODO: Read out peak from hourly fuel data
 
-         # Calculate peak hour (peak hour)
-        self.enduse_fuel_peak_dh = self.enduse_peak_h(self.enduse_fuel_peak_d, self.enduse_shape_peak_dh)
-        print(self.enduse_fuel_peak_d)
-        print(self.enduse_fuel_peak_dh.shape)
-        #prnt(".")
 
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=5, err_msg='', verbose=True)
-    
+
     def calc_enduse_fuel_peak_tech_yh(self, enduse_fuel_after_switch_per_tech, technologies_enduse, tech_stock):
         """Calculate peak demand. the daily peak is assumed to be the same in an enduse for all technologies
 
+        From daily to hourly with hourly specific peak shape
         """
         enduse_fuel_peak_yh = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365, 24)) #, 1 self.enduse_fuel_new_fuel.shape[0]
 
         for tech in technologies_enduse:
             fuel_tech = enduse_fuel_after_switch_per_tech[tech] # Get fuel of technology
-
             fuel_tech_peak_dh = fuel_tech * tech_stock.get_technology_attribute(tech, 'shape_peak_dh') # Multiply fuel with shape_h
             fueltype_tech = tech_stock.get_technology_attribute(tech, 'fuel_type') # Get fueltype of tech
-            enduse_fuel_peak_yh[fueltype_tech] += fuel_tech_peak_dh # # Add fuel of day
+            enduse_fuel_peak_yh[fueltype_tech] += fuel_tech_peak_dh # Add fuel of day
 
         return enduse_fuel_peak_yh
 
@@ -1380,7 +1373,7 @@ class EnduseResid(object):
 
         return fuels_h
 
-    def enduse_peak_d(self, fuels, factor_d):
+    def calc_enduse_fuel_peak_yd_factor(self, fuels, factor_d):
         """Disaggregate yearly absolute fuel data to the peak day.
 
         Parameters
@@ -1405,7 +1398,7 @@ class EnduseResid(object):
 
         return fuels_d_peak
 
-    def enduse_peak_h(self, fuels, shape_dh):
+    def calc_enduse_fuel_peak_yh(self, fuels, shape_dh):
         """Disaggregate daily peak day fuel data to the peak hours.
 
         Parameters
