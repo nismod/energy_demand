@@ -26,6 +26,7 @@
 
 # Add Cooling
 
+
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
@@ -83,7 +84,7 @@ def energy_demand_model(data, data_ext):
     resid_object_country = rm.residential_model_main_function(data, data_ext)
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, data_ext, resid_object_country)
+    result_dict = mf.convert_out_format_es(data, resid_object_country)
 
     # --------------------------
     # Service Model
@@ -190,7 +191,7 @@ if __name__ == "__main__":
     base_data = dl.load_data(path_main, data_external)
 
     # Load assumptions
-    base_data['assumptions'] = assumpt.load_assumptions(base_data, data_external)
+    base_data['assumptions'] = assumpt.load_assumptions(base_data)
 
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data, data_external)

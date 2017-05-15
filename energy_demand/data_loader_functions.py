@@ -465,10 +465,10 @@ def read_raw_carbon_trust_data(data, folder_path):
                     cnt, h_day, control_sum = 0, 0, 0
 
                     # Iterate hours
-                    for half_hour_val in row[1:]:  # Skip first date row in csv file
+                    for haload_factor_hour_val in row[1:]:  # Skip first date row in csv file
                         cnt += 1
                         if cnt == 2:
-                            demand = first_half_hour + half_hour_val
+                            demand = first_haload_factor_hour + haload_factor_hour_val
                             control_sum += abs(demand)
                             carbon_trust_raw[yearday_python][h_day].append(demand) # Calc percent of total daily demand
 
@@ -484,7 +484,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                                 cnt = 0
                                 h_day += 1
 
-                        first_half_hour = half_hour_val # must be at this position
+                        first_haload_factor_hour = haload_factor_hour_val # must be at this position
 
                     # Test if this is the day with maximum demand of this CSV file
                     if daily_sum >= maximum_dayly_demand:

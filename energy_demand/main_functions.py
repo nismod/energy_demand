@@ -74,15 +74,13 @@ def read_txt_t_base_by(path_temp_txt, base_yr):
 
     return out_dict
 
-def convert_out_format_es(data, data_ext, resid_object_country):
+def convert_out_format_es(data, resid_object_country):
     """Adds total hourly fuel data into nested dict
 
     Parameters
     ----------
     data : dict
         Dict with own data
-    data_ext : dict
-        External data
     resid_object_country : object
         Contains objects of the region
 
@@ -100,7 +98,7 @@ def convert_out_format_es(data, data_ext, resid_object_country):
         for reg_name in data['lu_reg']:
             reg = getattr(resid_object_country, str(reg_name))
             region_name = reg.reg_name  # Get object region name
-            hourly_all_fuels = reg.tot_all_enduses_h(data)  # Get total fuel
+            hourly_all_fuels = reg.tot_all_enduses_h(data, 'enduse_fuel_yh')  # Get total fuel
 
             for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour_in_day, demand in enumerate(hourly_demand):
@@ -853,7 +851,7 @@ def get_hdd_country(regions, data):
 
     hdd_country = 0
     hdd_regions = {}
-    t_base = data['assumptions']['t_base_heating']['base_yr']
+    t_base = data['assumptions']['t_base_heating_resid']['base_yr']
 
     for region in regions:
 
@@ -993,7 +991,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
 
         return cy_p
 
-def calc_cdd(t_base_cooling, temperatures):
+def calc_cdd(t_base_cooling_resid, temperatures):
     """Calculate cooling degree days
 
     The Cooling Degree Days are calculated based on
@@ -1001,7 +999,7 @@ def calc_cdd(t_base_cooling, temperatures):
 
     Parameters
     ----------
-    t_base_cooling : float
+    t_base_cooling_resid : float
         Base temperature for cooling
     temperatures : array
         Temperatures for every hour in a year
@@ -1022,7 +1020,7 @@ def calc_cdd(t_base_cooling, temperatures):
     for day_nr, day in enumerate(temperatures):
         sum_d = 0
         for h_temp in day:
-            diff_t = h_temp - t_base_cooling
+            diff_t = h_temp - t_base_cooling_resid
 
             if diff_t > 0: # Only if cooling is necessary
                 sum_d += diff_t
@@ -1449,43 +1447,7 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
 
     return total_service_h, service
 
-def convert_service_tech_to_fuel_fueltype(service_fueltype_tech, tech_stock, enduse_fuel_spec_change):
-    """Convert service per technology into fuel percent per technology
-    """
-    fuel_fueltype_tech = {}
 
-    # Initialise with all fuetlypes
-    fuel_fueltype_tech = np.zeros((enduse_fuel_spec_change.shape))
-
-    # Convert service to fuel
-    for fueltype in service_fueltype_tech:
-
-        for tech in service_fueltype_tech[fueltype]:
-            service_tech_h = service_fueltype_tech[fueltype][tech]
-
-            fuel = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
-            fuel_fueltype_tech[fueltype] += np.sum(fuel)
-
-    return fuel_fueltype_tech
-
-def convert_service_tech_to_fuel_per_tech(service_fueltype_tech, tech_stock):
-    """Convert service per technology into fuel percent per technology
-    """
-    fuel_fueltype_tech = {}
-
-    # Initialise with all fuetlypes
-    fuel_fueltype_tech = {}
-
-    # Convert service to fuel
-    for fueltype in service_fueltype_tech:
-
-        for tech in service_fueltype_tech[fueltype]:
-            service_tech_h = service_fueltype_tech[fueltype][tech]
-
-            fuel = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
-            fuel_fueltype_tech[tech] = np.sum(fuel)
-
-    return fuel_fueltype_tech
 
 '''def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
     """ Convert service per technology into fuel percent per technology

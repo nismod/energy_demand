@@ -191,9 +191,10 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
         # REad out fueltype specific max h load
         data_over_years = []
         for model_year_object in results_resid:
-            fueltype_load_max_h = model_year_object.tot_country_fuel_load_max_h # Max hourly load curve of fueltype
+            # Max hourly load curve of fueltype
+            fueltype_load_max_h = model_year_object.tot_country_fuel_load_max_h
             data_over_years.append(fueltype_load_max_h[fueltype][0])
-        print("data_over_years" + str(data_over_years))
+
         Y_init[fueltype] = data_over_years
 
     # Plot lines

@@ -111,13 +111,17 @@ def load_data(path_main, data_ext):
 
     # SCRAP DUMMY DATA FOR FAST CALCULATION
     # -----------
+    from random import randint
     #print(data['weather_stations'].keys())
     data['temperature_data'] = {}
-    data['temperature_data'][9] = np.zeros((365,24)) + 10 # DUMMY DATA WITH CONSTANT 10 DEGREES
+
+    temp_y = np.zeros((365, 24))
+    for day in range(365):
+        temp_y[day] += randint(5, 20)
+    data['temperature_data'][9] = temp_y #np.zeros((365, 24)) #10 # DUMMY DATA WITH CONSTANT 10 DEGREES
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
     # -----------
-
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR
@@ -222,8 +226,12 @@ def collect_shapes_from_txts(data):
         if enduse not in enduses:
             enduses.append(enduse)
 
-    # Read load shapes from txt files
+    # Read load shapes from txt files for enduses
     for end_use in enduses:
+        
+        #if enduse in ['space_heating']:
+        #    continue
+        
         shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
         shape_non_peak_h = df.read_txt_shape_non_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
         shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))

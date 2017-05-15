@@ -5,7 +5,7 @@ import numpy as np
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def load_assumptions(data, data_external):
+def load_assumptions(data):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -38,8 +38,7 @@ def load_assumptions(data, data_external):
     #assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr'] = mf.calc_age_distribution()
-    assumptions['dwtype_age_distr'] = {
-        2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}} #TODO READ IN
+    assumptions['dwtype_age_distr'] = {2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
 
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
@@ -47,7 +46,7 @@ def load_assumptions(data, data_external):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [-3] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
@@ -70,13 +69,13 @@ def load_assumptions(data, data_external):
     # (so far the diffusion is asumed to be sigmoid (can be made linear with minor adaptions))
     # ============================================================
     # Heating base temperature
-    assumptions['t_base_heating'] = {
+    assumptions['t_base_heating_resid'] = {
         'base_yr': 15.5,
         'end_yr': 15.5
     }
 
     # Cooling base temperature
-    assumptions['t_base_cooling'] = {
+    assumptions['t_base_cooling_resid'] = {
         'base_yr': 21.0,
         'end_yr': 21.0
     }
@@ -202,6 +201,7 @@ def load_assumptions(data, data_external):
     
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
+    # TODO: Space heating needs to be defined technology stock!
     # ---------------------------------------------------------------------------------------------------------------------
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
@@ -218,9 +218,9 @@ def load_assumptions(data, data_external):
 
     # Provides shares of fuel within each fueltype
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump': 0.02}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
+    #assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
-
+    
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 

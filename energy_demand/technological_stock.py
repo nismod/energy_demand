@@ -73,11 +73,11 @@ class Technology(object):
                 temp_cy,
                 data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
                 eff_cy,
-                data['assumptions']['t_base_heating']['base_yr']
+                data['assumptions']['t_base_heating_resid']['base_yr']
             )
         else:
             # Non temperature dependent efficiencies
-            eff_cy_hourly = eff_cy # # Create efficiency for every hour
+            eff_cy_hourly = eff_cy
 
         return eff_cy_hourly
 
@@ -118,7 +118,6 @@ class ResidTechStock(object):
             dummy_shape_yh = np.ones((365, 24))
 
             dummy_shape_peak_yd_factor = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
-            
 
             # Technology object
             technology_object = Technology(
