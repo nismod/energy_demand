@@ -1,5 +1,4 @@
 """ This file contains all assumptions of the energy demand model"""
-import copy
 import numpy as np
 
 import energy_demand.main_functions as mf
@@ -46,7 +45,7 @@ def load_assumptions(data):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [3] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
@@ -168,6 +167,7 @@ def load_assumptions(data):
     # Read in switches from csv file
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
 
+    # Write assertion that: share_fuel_consumption_switched !> max_theoretical_switch
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------------------------------------------------------------------
@@ -202,6 +202,7 @@ def load_assumptions(data):
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # TODO: Space heating needs to be defined technology stock!
+    # TODO: Assert that all technologies are defined 
     # ---------------------------------------------------------------------------------------------------------------------
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
@@ -209,7 +210,12 @@ def load_assumptions(data):
     # Assert: - if market enntry is not before base year, wheater always 100 % etc.. --> Check if fuel switch input makes sense
     assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu'])) # Initiate
 
+    # Enduse specific
+    assumptions['enduse_space_heating'] = ['space_heating']
+
     # Technologies used
+    assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
+
     assumptions['list_tech_heating_const'] = ['gas_boiler', 'elec_boiler', 'gas_boiler2', 'elec_boiler2', 'oil_boiler', 'hydrogen_boiler', 'hydrogen_boiler2']
     assumptions['list_tech_heating_temp_dep'] = ['heat_pump']
 

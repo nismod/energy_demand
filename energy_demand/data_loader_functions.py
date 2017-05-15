@@ -266,25 +266,25 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
 
 # CWV WEATER GAS SAMSON-----------------------------------
-def read_shp_heating_gas(data, model_type, wheater_scenario):
+'''def read_shp_heating_gas(data, model_type, wheater_scenario):
     """Creates the shape of the base year heating demand over the full year
 
     Depending wheter residential or service, a different correlation is used TODO:
     Input:
     -csv_temp_2015      SNCWV temperatures for every gas-year day
-    -hourly_gas_shape   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
+    -shapes_resid_heating_boilers   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
 
     #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
     """
     all_demand_values = [] # Store all calculated data to select maximum energy use for peak shape
     hd_data = np.zeros((365, 24), dtype=float) # Initilaise array to store all values for a year
 
-    hourly_gas_shape = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
+    shapes_resid_heating_boilers = mf.read_csv_float(data['path_dict']['path_shapes_resid_heating_boilers_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
 
     # Get hourly distribution (Sansom Data)
-    hourly_gas_shape_wkday = hourly_gas_shape[1] # Hourly gas shape
-    hourly_gas_shape_wkend = hourly_gas_shape[2] # Hourly gas shape
-    shape_peak_yh = hourly_gas_shape[3] # Manually derived peak from Robert Sansom
+    shapes_resid_heating_boilers_wkday = shapes_resid_heating_boilers[1] # Hourly gas shape
+    shapes_resid_heating_boilers_wkend = shapes_resid_heating_boilers[2] # Hourly gas shape
+    shape_peak_yh = shapes_resid_heating_boilers[3] # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in data['temp_2015_resid']:
@@ -318,11 +318,11 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
-            hd_data[yearday_python] = hourly_gas_shape_wkend * heating_demand_correlation
-            all_demand_values.append(hourly_gas_shape_wkend * heating_demand_correlation)
+            hd_data[yearday_python] = shapes_resid_heating_boilers_wkend * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_wkend * heating_demand_correlation)
         else:
-            hd_data[yearday_python] = hourly_gas_shape_wkday * heating_demand_correlation
-            all_demand_values.append(hourly_gas_shape_wkday * heating_demand_correlation)
+            hd_data[yearday_python] = shapes_resid_heating_boilers_wkday * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_wkday * heating_demand_correlation)
 
     # NON-PEAK Shape Calculations------------------------------------------------------------------------------
 
@@ -357,7 +357,7 @@ def read_shp_heating_gas(data, model_type, wheater_scenario):
 
 
     return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
-
+'''
 
 
 
@@ -558,7 +558,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw
 
 def is_leap_year(year):
-    """Determine whether a year is a leap year."""
+    """Determine whether a year is a leap year"""
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
 def non_residential_peak_h(hourly_shape_of_maximum_days):

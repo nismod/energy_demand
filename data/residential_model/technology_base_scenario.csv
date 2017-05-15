@@ -11,3 +11,4 @@ standard_lighting_bulb,electricity,0.02,0.02,1,linear,2000
 fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2000
 energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2000
 LED,electricity,0.048,0.048,1,linear,2000
+cooling_tech_lin,electricity,0.048,0.048,1,linear,2000

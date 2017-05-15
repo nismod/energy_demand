@@ -83,6 +83,8 @@ def load_data(path_main, data_ext):
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
         'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
 
+        'path_shape_resid_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
+
         # Technologies
         'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_FUELSWITCHES': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
@@ -117,7 +119,7 @@ def load_data(path_main, data_ext):
 
     temp_y = np.zeros((365, 24))
     for day in range(365):
-        temp_y[day] += randint(5, 20)
+        temp_y[day] += randint(12, 30)
     data['temperature_data'][9] = temp_y #np.zeros((365, 24)) #10 # DUMMY DATA WITH CONSTANT 10 DEGREES
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
@@ -131,12 +133,16 @@ def load_data(path_main, data_ext):
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(data['path_dict']['path_day_type_lu'])                         # Day type lookup
-    data['hourly_gas_shape'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
-    data['hourly_gas_shape_hp'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
+    data['shapes_resid_heating_boilers'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
+    data['shapes_resid_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
     #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age'])
-    data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
+    #data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
 
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
+
+    data['shapes_resid_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_resid_cooling'])
+
+
 
     # load shapes
     data['shapes_resid_dh'] = {}
@@ -286,11 +292,11 @@ def generate_data(data):
 
     # Iterate wheater scenarios
     # TODO: SHAPES ARE NOT TAKEN FROM HERE! REMOVE THIS
-    #'''
+    '''
     for wheater_scen in wheater_scenarios:
         shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
         df.create_txt_shapes('space_heating', path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, wheater_scen) # Write shapes to txt
-    #'''
+    '''
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
 

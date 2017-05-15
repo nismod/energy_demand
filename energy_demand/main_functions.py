@@ -1375,9 +1375,6 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
                     # ---SERVICE DEMAND ADDITION
                     service_tech_switched_p[enduse][fuel_switch['technology_install']] += change_service_fueltype_p
 
-                    # ---SERVICE DEMAND SUBSTRACTION
-                    # Calculate fraction of energy service which is replaced for a fueltype by iterating all technologies with this fueltype
-
                     # Get all technologies which are replaced related to this fueltype
                     replaced_tech_fueltype = fuel_enduse_tech_p_by[enduse][fuel_switch['enduse_fueltype_replace']].keys()
 
@@ -1437,6 +1434,8 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
             fuel_tech_h = fuel_shape_y_h * fuel_tech
 
             # Convert to energy service (Energy service = fuel * efficiency)
+            print("tech: " + str(tech))
+            print(tech_stock)
             service[fueltype][tech] = fuel_tech_h * tech_stock.get_technology_attribute(tech, 'eff_by')
 
     # Calculate energy service demand over the full year and for every hour
@@ -1679,13 +1678,17 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
                         print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1
 
+                        if cnt == len(possible_start_parameters):
+                            print("ERROR: CURVE FITTING DID NOT WORK")
+                            sys.exit()
+
                 # Insert parameters
                 sigmoid_parameters[enduse][technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
                 sigmoid_parameters[enduse][technology]['steepness'] = fit_parameter[1] #Steepnes (k)
                 sigmoid_parameters[enduse][technology]['l_parameter'] = L_values[enduse][technology]
 
                 #plot sigmoid curve
-                #plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
+                plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
 
     return sigmoid_parameters
 

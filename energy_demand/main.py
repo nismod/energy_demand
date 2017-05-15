@@ -24,9 +24,6 @@
 # yh = for every hour in a year
 # dh = every hour in day
 
-# Add Cooling
-
-
 Down the line
 - make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
@@ -219,9 +216,11 @@ if __name__ == "__main__":
         results_every_year.append(resid_object_country)
 
 
-
-    # Plot peaks
-    pf.plot_load_curves_fueltype(results_every_year, base_data)
+    # ------------------------------
+    # Plotting
+    # ------------------------------
+    # Plot load factors
+    ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
     pf.plot_stacked_Country_end_use(results_every_year, base_data)

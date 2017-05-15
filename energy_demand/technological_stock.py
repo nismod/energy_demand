@@ -32,16 +32,15 @@ class Technology(object):
         # Daily load shapes --> Do not provide daily shapes because may be different for month/weekday/weekend etc.
         # See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_name in data['assumptions']['list_tech_heating_const']:
-            self.shape_peak_dh = (data['hourly_gas_shape'][3] / np.sum(data['hourly_gas_shape'][3])) # Peak curve robert sansom
+            self.shape_peak_dh = (data['shapes_resid_heating_boilers'][3] / np.sum(data['shapes_resid_heating_boilers'][3])) # Peak curve robert sansom
         elif self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
-            self.shape_peak_dh = (data['hourly_gas_shape_hp'][3] / np.sum(data['hourly_gas_shape_hp'][3])) # Peak curve robert sansom
+            self.shape_peak_dh = (data['shapes_resid_heating_heat_pump_dh'][3] / np.sum(data['shapes_resid_heating_heat_pump_dh'][3])) # Peak curve robert sansom
         else:
             # Technology is not part of defined enduse (dummy data)
             self.shape_peak_dh = np.ones((24, 1)) # dummy
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
-
 
     # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
@@ -68,7 +67,7 @@ class Technology(object):
         eff_cy = eff_by + efficiency_change
 
         # Temperature dependent efficiency #TODO: READ IN FROME ASSUMPTIONS 
-        if self.tech_name in ['heat_pump']:
+        if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
             eff_cy_hourly = mf.get_heatpump_eff(
                 temp_cy,
                 data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
@@ -116,7 +115,6 @@ class ResidTechStock(object):
             dummy_shape_yd = np.ones((365, 24))
             dummy_shape_dh = np.ones((24, 1))
             dummy_shape_yh = np.ones((365, 24))
-
             dummy_shape_peak_yd_factor = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
 
             # Technology object
