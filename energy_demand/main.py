@@ -36,7 +36,7 @@ Down the line
 
 The docs can be found here: http://ed.readthedocs.io
 """
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
+# pylint: disable=I0011,C0321,C0301,C0103,C0325
 #!python3.6
 import os
 import sys
@@ -225,6 +225,10 @@ if __name__ == "__main__":
 
     # Plot results for every year
     pf.plot_stacked_Country_end_use(results_every_year, base_data)
+
+    # Plot peak demand for every fueltype
+    pf.plot_fuels_peak_hour(results_every_year, base_data)
+
 
     # Run main function
     results = energy_demand_model(base_data, data_external)

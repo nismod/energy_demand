@@ -193,6 +193,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
         for model_year_object in results_resid:
             # Max hourly load curve of fueltype
             fueltype_load_max_h = model_year_object.tot_country_fuel_load_max_h
+
             data_over_years.append(fueltype_load_max_h[fueltype][0])
 
         Y_init[fueltype] = data_over_years
@@ -212,6 +213,55 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
 
     plt.show()
 
+
+
+
+
+def plot_fuels_peak_hour(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+    """Plots stacked end_use for a region
+
+
+    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+    # INFO Cannot plot a single year?
+    """
+
+    fig, ax = plt.subplots() #fig is needed
+    nr_y_to_plot = len(results_resid) #number of simluated years
+    x = range(nr_y_to_plot)
+    legend_entries = []
+
+    # Initialise (number of enduses, number of hours to plot)
+    Y_init = np.zeros((len(data['lu_fueltype']), nr_y_to_plot))
+
+    for fueltype, _ in enumerate(data['lu_fueltype']):
+
+        # Legend
+        for fueltype_str in data['lu_fueltype']:
+            if data['lu_fueltype'][fueltype_str] == fueltype:
+                fueltype_in_string = fueltype_str
+        legend_entries.append(fueltype_in_string)
+
+        # REad out fueltype specific max h load
+        data_over_years = []
+        for model_year_object in results_resid:
+            fueltype_load_max_h = model_year_object.tot_country_fuel_max_allenduse_fueltyp
+            data_over_years.append(fueltype_load_max_h[fueltype][0])
+
+        Y_init[fueltype] = data_over_years
+
+    # Plot lines
+    for line, _ in enumerate(Y_init):
+        plt.plot(Y_init[line])
+
+    ax.legend(legend_entries)
+
+    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='green')
+    plt.axis('tight')
+
+    plt.ylabel("Fuel")
+    plt.xlabel("Simulation years")
+    plt.title("Fuels for peak hour in a year")
+    plt.show()
 
 '''
 def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):

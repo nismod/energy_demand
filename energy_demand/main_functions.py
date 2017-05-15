@@ -1629,9 +1629,6 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
         if enduse not in installed_tech:
             print("No switch to calculate....")
         else:
-
-
-
             for technology in installed_tech[enduse]:
                 
                 # Year until swictheds (must be identical for all switches) (read out from frist switch)

@@ -46,7 +46,7 @@ def load_assumptions(data):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [3] * 12 # No change
 
     '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [

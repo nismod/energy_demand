@@ -106,10 +106,19 @@ class Region(object):
         # -- summing functions
         # --------------------
         # Sum final 'yearly' fuels (summarised over all enduses)
-        self.fuels_new = self.tot_all_enduses_y(data)
-        #self.fuels_new_enduse_specific_y = self.enduse_specific_y(data)
+        self.fuels_new = self.tot_all_enduses_y(data, 'enduse_fuel_yh') #self.enduse_fuel_yh
+
+        #self.fuels_new_enduse_specific_y = self.enduse_specific_y(data, 'enduse_fuel_new_fuel')
         self.fuels_new_enduse_specific_h = self.enduse_specific_h(data)
 
+        # Get peak energy demand for all enduses for every fueltype
+        self.max_fuel_peak = self.max_fuel_fueltype_allenduses(data, 'enduse_fuel_peak_h')
+
+
+
+        #for fueltype, fuels in enumerate(self.fuels_new_enduse_specific_h):
+        #    print(np.sum(fuels)
+        #    print("fueltype: " + str(fueltype) + str(np.sum(fuels)))
         # ----
         # PEAK summaries
         # ----
@@ -130,8 +139,7 @@ class Region(object):
 
         # Calculate load factors from peak values
         ##self.reg_load_factor_d = self.load_factor_d(data)
-        self.reg_load_factor_h = self.calc_load_factor_h(data) #Across all enduses
-        print("self.reg_load_factor_h " + str(self.reg_load_factor_h))
+        self.reg_load_factor_h = self.calc_load_factor_h(data, self.fuels_tot_enduses_h, self.fuels_peak_h) #Across all enduses
 
         # Calculate load factors from non peak values (Does not make sense!)
         ##self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak(data)
@@ -271,13 +279,25 @@ class Region(object):
                     )
                 )
 
-    def tot_all_enduses_y(self, data):
+    def tot_all_enduses_y(self, data, attribute_to_get):
+        """Sum all fuel types over all end uses
+        """
+        #sum_fuels = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
+        sum_fuels = 0
+
+        for enduse in data['resid_enduses']:
+            sum_fuels += np.sum(self.__getattr__subclass__(enduse, attribute_to_get))
+
+        return sum_fuels
+
+    def max_fuel_fueltype_allenduses(self, data, attribute_to_get):
         """Sum all fuel types over all end uses
         """
         sum_fuels = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
 
         for enduse in data['resid_enduses']:
-            sum_fuels += self.__getattr__subclass__(enduse, 'enduse_fuel_new_fuel') # Fuel of Enduse
+            for fueltype in data['fuel_type_lu']:
+                sum_fuels[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
 
         return sum_fuels
 
@@ -286,7 +306,7 @@ class Region(object):
         fuels = self.__getattr__subclass__(enduse, 'enduse_fuel_new_fuel')
         return fuels
 
-    def enduse_specific_y(self, data):
+    def enduse_specific_y(self, data, attribute_to_get):
         """Sum fuels for every fuel type for each enduse
         """
         sum_fuels_all_enduses = {}
@@ -295,7 +315,7 @@ class Region(object):
 
         # Sum data
         for enduse in data['resid_enduses']:
-            sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuel_new_fuel') # Fuel of Enduse
+            sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, attribute_to_get) # Fuel of Enduse
         return sum_fuels_all_enduses
 
     def enduse_specific_h(self, data):
@@ -338,8 +358,13 @@ class Region(object):
         sum_calc_enduse_fuel_peak_yh = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
 
         for fueltype in data['fuel_type_lu']:
+            print("-------fueltype: " + str(fueltype))
             for enduse in data['resid_enduses']:
+                print("enduse: " + str(enduse))
+                print("data: " + str(self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]))
                 sum_calc_enduse_fuel_peak_yh[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype] # Fuel of Endus enduse_fuel_peak_dh
+        print("sum_calc_enduse_fuel_peak_yh")
+        print(sum_calc_enduse_fuel_peak_yh)
 
         return sum_calc_enduse_fuel_peak_yh
 
@@ -388,7 +413,7 @@ class Region(object):
         lf_d = lf_d * 100 # Convert load factor to %
         return lf_d
 
-    def calc_load_factor_h(self, data):
+    def calc_load_factor_h(self, data, fuels_tot_enduses_h, fuels_peak_h):
         """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
 
         self.fuels_peak_h     :   Fuels for peak day (fueltype, data)
@@ -408,10 +433,10 @@ class Region(object):
         load_factor_h = np.zeros((len(data['fuel_type_lu']), 1))
 
         # Iterate fueltypes to calculate load factors for each fueltype
-        for fueltype, fuels in enumerate(self.fuels_tot_enduses_h):  #self.enduse_fuel_yh
+        for fueltype, fuels in enumerate(fuels_tot_enduses_h):
 
             # Maximum fuel of an hour of the peak day
-            maximum_h_of_day = self.fuels_peak_h[fueltype][0]
+            maximum_h_of_day = fuels_peak_h[fueltype][0]
 
             #Calculate average in full year
             average_demand_h = np.average(fuels)
@@ -419,16 +444,15 @@ class Region(object):
             # If there is a maximum day hour
             if maximum_h_of_day != 0:
                 load_factor_h[fueltype] = average_demand_h / maximum_h_of_day # Calculate load factor
-
-            print("----------Fueltype: " + str(fueltype))
+            
+            print("ddddddd" + str(fueltype))
             print(maximum_h_of_day)
             print(average_demand_h)
-            print(maximum_h_of_day)
+            print(average_demand_h / maximum_h_of_day)
+
 
         # Convert load factor to %
         load_factor_h *= 100
-        print("load_factor_h")
-        print(load_factor_h)
 
         return load_factor_h
 
@@ -968,12 +992,11 @@ class EnduseResid(object):
 
             # Calculate energy service for base year (NEEDS TO CALCULATE WITH BASE YEAR FUELS) TODO: CHECK
             service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data_ext, data['assumptions'], tech_stock, service_y_h_shape)
-            print("SERVICE: " + str(service_fueltype_tech_after_switch))
-            print("---------")
+
             # If fuel switch is implemented
             if self.enduse_specific_fuel_switches_crit:
                 self.enduse_switches_service_to_fuel(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel) # Convert service to fuel for current year (y) #Update self.enduse_fuel_new_fuel (ACTUALY NOT NECESSARY BECAUSE FUEL IS DONE BELOW)
-                print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
+                #print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
                 ###enduse_fuel_after_switch_p = self.enduse_switches_service_to_fuel_p(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel) # Convert service to fuel within each fueltype and assign percentage of fuel (e.g. 0.2 gastech1, 0.8 gastech2)
             else:
                 print("NO switches implemented")
@@ -988,7 +1011,6 @@ class EnduseResid(object):
             self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_after_switch_per_tech, self.technologies_enduse, tech_stock)
             #self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
-
 
             print("2average:  +" + str(np.average(self.enduse_fuel_yh)))
             print("2max:  +" + str(np.average(self.enduse_fuel_yh)))
@@ -1570,13 +1592,20 @@ class CountryResidentialModel(object):
         # Create object for every region
         self.create_regions(reg_names, data, data_ext)
 
+
+
+
         # Functions to summarise data for all Regions in the CountryResidentialModel class
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data, reg_names) #yearly fuel
         self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'reg_load_factor_h')
-
+        
+        self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'max_fuel_peak')
         print("EEEEEEEEEEE")
         print(self.tot_country_fuel_load_max_h)
+        print("----")
+        print(self.tot_country_fuel_load_max_h)
+        #prnt("..")
 
         # TESTER: READ OUT Specific ENDUSE for a REGION
         #print("AA: " + str(self.get_specific_enduse_region('Wales', 'space_heating')))
@@ -1654,6 +1683,8 @@ class CountryResidentialModel(object):
             #    tot_h += enduse_fuels_reg[enduse]
         return tot_sum_enduses
         #return tot_h
+
+
 
     def peak_loads_per_fueltype(self, data, reg_names, attribute_to_get):
         """Get peak loads for fueltype per maximum h
