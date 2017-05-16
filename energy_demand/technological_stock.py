@@ -1,6 +1,6 @@
 """The technological stock for every simulation year"""
 import numpy as np
-import energy_demand.technological_stock_functions as tf
+#import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 
@@ -20,7 +20,7 @@ class Technology(object):
 
     """
     def __init__(self, tech_name, data, temp_cy, year): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
-        """Contructor of Technology Class
+        """Contructor of Technology
 
         Parameters
         ----------
@@ -48,11 +48,9 @@ class Technology(object):
         # Attributes generated
 
         #-- Specific shapes of technologes (filled with dummy data)
-        self.shape_yd = np.ones((365, 24)) # dummy
-        self.shape_yh = np.ones((365, 24)) # dummy
-
-        # --Peak factor yd
-        self.shape_peak_yd_factor = 1 # dummy
+        self.shape_yd = np.ones((365, 24))
+        self.shape_yh = np.ones((365, 24))
+        self.shape_peak_yd_factor = 1
 
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_name in data['assumptions']['list_tech_heating_const']:
@@ -64,7 +62,7 @@ class Technology(object):
             self.shape_peak_dh = np.divide(data['shapes_resid_heating_heat_pump_dh'][3], np.sum(data['shapes_resid_heating_heat_pump_dh'][3]))
 
             #elif self-tech_name in data['assumptions']['list_tech_cooling_const']:
-            #    self.shape_peak_dh = 
+            #    self.shape_peak_dh =
             # TODO: DEfine peak curve for cooling
 
         else:
@@ -74,7 +72,6 @@ class Technology(object):
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
 
-    # Calculate efficiency in current year
     def calc_efficiency_cy(self, data, temp_cy):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
@@ -93,7 +90,7 @@ class Technology(object):
         Notes
         -----
         The development of efficiency improvements over time is assumed to be linear
-        This can however be changed with the ´diff_method´ attribute.
+        This can however be changed with the `diff_method` attribute
         """
         # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
         if self.diff_method == 'linear':
@@ -135,21 +132,22 @@ class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
 
     The main class of the residential model.
-
-    Parameters
-    ----------
-    data : dict
-        All data
-    temp_cy : int
-        Temperatures of current year
-
     """
-    def __init__(self, data, temp_cy):
+    def __init__(self, data, technologies, temp_cy):
         """Constructor of technologies for residential sector
+
+        Parameters
+        ----------
+        data : dict
+            All data
+        technologies : list
+            Technologies of technology stock
+        temp_cy : int
+            Temperatures of current year
         """
 
         # Crate all technologies and add as attribute
-        for tech_name in data['tech_lu']:
+        for tech_name in technologies:
 
             # Technology object
             technology_object = Technology(

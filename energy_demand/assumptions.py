@@ -157,7 +157,7 @@ def load_assumptions(data):
     assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'])
 
     # Other function
-    data = create_lu_technologies(assumptions, data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
+    data['tech_lu_resid'] = create_lu_technologies(assumptions, assumptions['technologies'], data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
     assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
 
     # ---------------------------
@@ -328,14 +328,14 @@ def get_hlc(dw_type, age):
         }
 '''
 
-def create_lu_technologies(assumptions, data):
+def create_lu_technologies(assumptions, in_technologies, data):
     """Create lookup-table for technologies
     """
-    data['tech_lu'] = {}
-    for tech_id, technology in enumerate(assumptions['technologies'], 1000):
-        data['tech_lu'][technology] = tech_id
+    out_dict = {}
+    for tech_id, technology in enumerate(in_technologies, 1000):
+        out_dict[technology] = tech_id
 
-    return data
+    return out_dict
 
 def create_lu_fueltypes(assumptions):
     """Create lookup-table for fueltypes

@@ -32,14 +32,14 @@ class Region(object):
         self.enduses_fuel = data['fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
-        closest_weatherstation_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data['weather_stations'])
+        closest_weatherstation_id = mf.search_closest_weater_station(self.longitude, self.latitude, data['weather_stations'])
 
         # Weather data
         self.temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
         self.temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
 
         # Create region specific technological stock
-        self.tech_stock = ts.ResidTechStock(data, self.temp_cy)
+        self.tech_stock = ts.ResidTechStock(data, data['tech_lu_resid'], self.temp_cy)
 
         # Calculate HDD and CDD for calculating heating and cooling service demand
         self.hdd_by = self.get_reg_hdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
@@ -68,7 +68,7 @@ class Region(object):
 
         # Assign shapes to technologies in technological stock for enduses with technologies
         self.tech_stock = self.assign_shapes_to_tech_stock(
-            data['tech_lu'],
+            data['tech_lu_resid'],
             data['assumptions']
             )
 
@@ -1082,8 +1082,7 @@ class EnduseResid(object):
         #TODO: fuel_shape_boilers_yh only for heating so far! fuel_shape_boilers_yh --> service_SHAPE_Y_H
 
         """
-        print("techsss_")
-        print(tech_stock)
+
         # Calculate total regional service demand (across all fueltypes) (base year)
         tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(
             service_y_h_shape,

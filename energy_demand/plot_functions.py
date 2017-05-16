@@ -316,3 +316,4 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
 
     plt.show()
 '''
+
