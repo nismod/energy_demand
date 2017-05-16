@@ -16,8 +16,10 @@
 # h = hour
 # hp = heat pump
 # tech = technology
+# temp = temperature
 # d = day
 # y = year
+# yearday = Day in a year ranging from 0 to 364
 
 # Shapes
 # ------

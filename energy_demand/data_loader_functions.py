@@ -195,13 +195,13 @@ def initialise_main_dict():
         out_dict_av[dtype] = month_dict
     return out_dict_av
 
-def dict_init():
+def dict_init_carbon_trunst():
 
     # Initialise yearday dict
     carbon_trust_raw = {}
-    for f in range(365):
+    for day in range(365):
         day_dict_h = {k: [] for k in range(24)}
-        carbon_trust_raw[f] = day_dict_h
+        carbon_trust_raw[day] = day_dict_h
 
     return carbon_trust_raw
 
@@ -224,7 +224,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     """
     all_csv_in_folder = os.listdir(folder_path) # Get all files in folder
     main_dict = initialise_main_dict()
-    carbon_trust_raw = dict_init() # Initialise dictionaries
+    carbon_trust_raw = dict_init_carbon_trunst() # Initialise dictionaries
 
     nr_of_line_entries = 0
     hourly_shape_of_maximum_days = {}
@@ -256,7 +256,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                     cnt += 1
                     if cnt > 365: #ONLY TAKE ONE YEAR
                         continue
-                    
+
                     hourly_load_shape = np.zeros((24, 1))
 
                     row[1:] = map(float, row[1:]) # Convert all values except date into float values
@@ -380,7 +380,7 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     # Calculate daily peak of maximum day
     # If all_gas --> heating_gas demand peak
     # -----------------------------------------
-    maxday_h_shape = np.zeros((24,1))
+    maxday_h_shape = np.zeros((24, 1))
 
     for shape_yd in hourly_shape_of_maximum_days:
         maxday_h_shape += hourly_shape_of_maximum_days[shape_yd]
@@ -852,6 +852,3 @@ def compare_jan_jul(main_dict_dayyear_absolute):
     print(yearly_averaged_load_curve)
     return
 '''
-
-
-

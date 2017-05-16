@@ -149,7 +149,6 @@ def load_data(path_main, data):
     # Read in raw fuel data of residential model
     fuel_raw_data_resid_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_fuel_raw_data_resid_enduses']) # Yearly end use data
 
-    
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
     ###data = add_yearly_external_fuel_data(data, fuel_raw_data_resid_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 

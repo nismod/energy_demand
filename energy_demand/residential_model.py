@@ -168,7 +168,7 @@ class Region(object):
             # ---------------------------------------------
             # Enduse specific parameters #TODO: Add cooling
             # ---------------------------------------------
-            if enduse in data['assumptions']['enduse_space_heating']: # ['space_heating']:
+            if enduse in data['assumptions']['enduse_space_heating']:
                 enduse_peak_yd_factor = self.reg_peak_yd_heating_factor # Regional yd factor for heat
                 #enduse_shape_peak_dh = None # Because peak is taken from technology of endus
             elif enduse in data['assumptions']['enduse_space_cooling']:

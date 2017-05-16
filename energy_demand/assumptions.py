@@ -1,6 +1,5 @@
 """ This file contains all assumptions of the energy demand model"""
 import numpy as np
-
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -19,11 +18,12 @@ def load_assumptions(data):
     assumptions = {}
 
     # ============================================================
-    # Residential dwelling stock assumptions
+    # Residential building stock assumptions
     # ============================================================
 
-    # Building stock related, assumption of change in floor area up to end_yr (Checked)
-    assumptions['assump_diff_floorarea_pp'] = 0 # [%] If e.g. 0.4 --> 40% increase (the one is added in the model)  ASSUMPTION (if minus, check if new buildings are needed)
+    # Change in floor area per person up to end_yr (e.g. 0.4 --> 40% increase (the one is added in the model))
+    # ASSUMPTION (if minus, check if new buildings are needed)
+    assumptions['assump_diff_floorarea_pp'] = 0
 
     # Dwelling type distribution
     assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
@@ -32,14 +32,29 @@ def load_assumptions(data):
     # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
 
+    # Assumption about age distribution
+    assumptions['dwtype_age_distr'] = {2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
+
     # TODO: Get assumptions for heat loss coefficient
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
     #assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr'] = mf.calc_age_distribution()
-    assumptions['dwtype_age_distr'] = {2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
-
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
+
+    # ============================================================
+    # Dwelling stock related scenario driver assumptions
+    # ============================================================
+    assumptions['resid_scen_driver_assumptions'] = {
+        'space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'water_heating': ['pop'],
+        'lighting': ['pop', 'floorarea'],
+        'cooking': ['pop'],
+        'cold': ['pop'],
+        'wet': ['pop'],
+        'consumer_electronics': ['pop'],
+        'home_computing': ['pop'],
+    }
 
     # ========================================================================================================================
     # Climate Change assumptions
@@ -65,7 +80,7 @@ def load_assumptions(data):
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
-    # (so far the diffusion is asumed to be sigmoid (can be made linear with minor adaptions))
+    # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
     # ============================================================
     # Heating base temperature
     assumptions['t_base_heating_resid'] = {
@@ -80,33 +95,17 @@ def load_assumptions(data):
     }
 
 
-
     # Penetration of cooling devices
     # COLING_OENETRATION ()
-    # Or Assumkp Peneetration curve in relation to HDD from PAPER #RESIDENTIAL
-
+    # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
 
     # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
-    # Dwelling stock related scenario driver assumptions
-    # ============================================================
-    assumptions['resid_scen_driver_assumptions'] = {
-        'space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
-        'water_heating': ['pop'],
-        'lighting': ['pop', 'floorarea'],
-        'cooking': ['pop'],
-        'cold': ['pop'],
-        'wet': ['pop'],
-        'consumer_electronics': ['pop'],
-        'home_computing': ['pop'],
-    }
-
-    # ============================================================
-    # Demand elasticities (Long-term resid_elasticities) # #TODO: Elasticties over time change? Not implemented so far ()
+    # Demand elasticities (Long-term resid_elasticities)
     # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
     # ============================================================
-    resid_elasticities = {
+    assumptions['resid_elasticities'] = {
         'space_heating': 0,
         'water_heating' : 0,
         'water' : 0,
@@ -117,8 +116,6 @@ def load_assumptions(data):
         'consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
         'home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
     }
-    assumptions['resid_elasticities'] = resid_elasticities      # Add dictionaries to assumptions
-
 
     # ============================================================
     # Smart meter assumptions (Residential)
@@ -126,9 +123,10 @@ def load_assumptions(data):
     # DECC 2015: Smart Metering Early Learning Project: Synthesis report
     # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
     # Reasonable assumption is between 3 and 10 % (DECC 2015)
+    # NTH: saturation year
     # ============================================================
 
-    # Fraction of population with smart meters NTH: saturation year
+    # Fraction of population with smart meters 
     assumptions['smart_meter_p_by'] = 0.1 #base year
     assumptions['smart_meter_p_ey'] = 0.1 #end year
 
@@ -143,31 +141,6 @@ def load_assumptions(data):
         'space_heating': -0.03
     }
 
-    # ============================================================
-    # Technologies and their efficiencies over time
-    # ============================================================
-
-    # Fixed assumptions of technologies (do not change for scenario)
-    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from SOURCE #GROUND SOURCE HP
-
-    # Load all technologies and their efficiencies from csv file
-    assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
-
-    # --Helper Function to write same achieved efficiency for all technologies
-    assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'])
-
-    # Other function
-    data['tech_lu_resid'] = create_lu_technologies(assumptions, assumptions['technologies'], data) # - LU Function Create lookup for technologies (That technologies can be replaced for calculating with arrays)
-    assumptions = create_lu_fueltypes(assumptions) # - LU  Create lookup for fueltypes
-
-    # ---------------------------
-    # Fuel switches residential sector
-    # ---------------------------
-
-    # Read in switches from csv file
-    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
-
-    # Write assertion that: share_fuel_consumption_switched !> max_theoretical_switch
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------------------------------------------------------------------
@@ -198,19 +171,45 @@ def load_assumptions(data):
             'sig_midpoint': 0,
             'sig_steeppness': 1
             }}
-    
+
+    # ============================================================
+    # Technologies & Technology stock
+    # ============================================================
+
+    # Fixed tech assumptions (do not change for scenario)
+    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from Staffell et al. 2002
+
+    # Load all technologies and their efficiencies from csv file
+    assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
+
+    # --Helper Function to write same achieved efficiency for all technologies
+    assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=1)
+
+    # Other function
+    data['tech_lu_resid'] = create_lu_technologies(assumptions, assumptions['technologies'], data)
+    assumptions = create_lu_fueltypes(assumptions)
+
+    # ---------------------------
+    # Fuel switches residential sector
+    # ---------------------------
+
+    # Read in switches from csv file
+    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
+
+    # Write assertion that: share_fuel_consumption_switched !> max_theoretical_switch
+
     # ---------------------------------------------------------------------------------------------------------------------
     # Fuel Switches assumptions
     # TODO: Space heating needs to be defined technology stock!
-    # TODO: Assert that all technologies are defined 
+    # TODO: Assert that all technologies are defined
     # ---------------------------------------------------------------------------------------------------------------------
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
     # ---------------------------------
     # Assert: - if market enntry is not before base year, wheater always 100 % etc.. --> Check if fuel switch input makes sense
-    assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu'])) # Initiate
+    assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
-    # Enduse specific
+    # Lists with technologies used for model running
     assumptions['enduse_space_heating'] = ['space_heating']
     assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
@@ -228,7 +227,7 @@ def load_assumptions(data):
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump': 0.02}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
     #assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
     assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
-    
+
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
@@ -236,7 +235,7 @@ def load_assumptions(data):
     # TODO: ADD dummy technology for all enduses where no technologies are defined
     # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
 
-    #IF new technologs is introduced: assign_shapes_to_tech_stock(), 
+    #IF new technologs is introduced: assign_shapes_to_tech_stock()
     return assumptions
 
 
@@ -357,9 +356,10 @@ def helper_create_stock(assumptions, fuel_raw_data_resid_enduses, nr_of_fueltype
             assumptions['fuel_enduse_tech_p_by'][enduse][fueltype] = {}
     return assumptions
 
-def helper_define_same_efficiencies_all_tech(tech_assump):
-    factor_efficiency_achieved = 1.0
+def helper_define_same_efficiencies_all_tech(tech_assump, eff_achieved_factor=1):
+    """Helper function to assing same achieved efficiency
+    """
     for technology in tech_assump:
-        tech_assump[technology]['eff_achieved'] = factor_efficiency_achieved
+        tech_assump[technology]['eff_achieved'] = eff_achieved_factor
     return tech_assump
     

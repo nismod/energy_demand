@@ -14,8 +14,21 @@ import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
 import energy_demand.plot_functions as pf
-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+
+def add_yearly_external_fuel_data(data, dict_to_add_data):
+    """This data check what enduses are provided by wrapper
+    and then adds the yearls fule data to data
+
+    #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
+    """
+    for external_enduse in data['data_ext']['external_enduses_resid']:
+
+        new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
+        for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
+            new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
+        dict_to_add_data[external_enduse] = new_fuel_array
+    return data
 
 def get_temp_region(dw_reg_name, coordinates):
     """
@@ -216,7 +229,6 @@ def read_csv_base_data_resid(path_to_csv):
         print("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0)")
     return end_uses_dict
 
-
 def read_csv_assumptions_technologies(path_to_csv, data):
     """This function reads in CSV files and skips header row.
 
@@ -227,14 +239,10 @@ def read_csv_assumptions_technologies(path_to_csv, data):
 
     Returns
     -------
-
-    Notes
-    -----
-    #TODO: DESCRIBE FORMAT
+    dict_technologies : dict
+        All technologies and their assumptions provided as input
     """
-    list_elements = []
-
-    dict_with_technologies = {}
+    dict_technologies = {}
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -244,7 +252,7 @@ def read_csv_assumptions_technologies(path_to_csv, data):
         # Iterate rows
         for row in read_lines:
             technology = row[0]
-            dict_with_technologies[technology] = {
+            dict_technologies[technology] = {
                 'fuel_type': data['lu_fueltype'][str(row[1])],
                 'eff_by': float(row[2]),
                 'eff_ey': float(row[3]),
@@ -253,8 +261,7 @@ def read_csv_assumptions_technologies(path_to_csv, data):
                 'market_entry': float(row[6])
             }
 
-    return dict_with_technologies
-
+    return dict_technologies
 
 def read_csv_assumptions_fuel_switches(path_to_csv, data):
     """This function reads in CSV files and skips header row.
@@ -266,10 +273,8 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
     Returns
     -------
-
-    Notes
-    -----
-    #TODO: DESCRIBE FORMAT
+    dict_with_switches : dict
+        All assumptions about fuel switches provided as input
     """
     list_elements = []
     dict_with_switches = []
@@ -297,18 +302,24 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
     TESTED_PYTEST
+
     Parameters
     ----------
     start : date
         Start date
     end : date
         end date
+
+    Returns
+    -------
+    list_dates : list
+        A list with dates
     """
-    a = []
+    list_dates = []
     span = end - start
     for i in range(span.days + 1):
-        a.append(start + td(days=i))
-    return list(a)
+        list_dates.append(start + td(days=i))
+    return list(list_dates)
 
 def conversion_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
@@ -482,11 +493,8 @@ def read_csv_dict(path_to_csv):
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
 
-        # Iterate rows
-        for row in read_lines:
-
-            # Iterate row entries
-            for k, i in enumerate(row):
+        for row in read_lines: # Iterate rows
+            for k, i in enumerate(row): # Iterate row entries
                 try: # Test if float or string
                     out_dict[_headings[k]] = float(i)
                 except ValueError:
@@ -541,7 +549,6 @@ def write_YAML(crit_write, path_YAML, yaml_list):
         Path to write out YAML file
     yaml_list : list
         List containing YAML dictionaries for every region
-
     """
     if crit_write:
         with open(path_YAML, 'w') as outfile:
@@ -594,71 +601,6 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
 
             # Write YAML
             write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
-
-def convert_to_array(in_dict):
-    """Convert dictionary to array
-
-    As an input the base data is provided and price differences and elasticity
-
-    Parameters
-    ----------
-    in_dict : dict
-        One-level dictionary
-
-    Returns
-    -------
-    in_dict : array
-        Array with identical data of dict
-
-    Example
-    -------
-    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
-    """
-    copy_dict = {}
-    for i in in_dict:
-        copy_dict[i] = np.array(list(in_dict[i].items()), dtype=float)
-    return copy_dict
-
-def convert_to_tech_array(in_dict, tech_lu_resid):
-    """Convert dictionary to array
-
-    The input array of efficiency is replaced and technologies are replaced with technology IDs
-
-    # TODO: WRITE DOCUMENTATION
-    Parameters
-    ----------
-    in_dict : dict
-        One-level dictionary
-
-    Returns
-    -------
-    in_dict : array
-        Array with identical data of dict
-
-    Example
-    -------
-    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
-    """
-    out_dict = {}
-
-    for fueltype in in_dict:
-        a = list(in_dict[fueltype].items())
-
-        # REplace technologies with technology ID
-        replaced_tech_with_ID = []
-        for enduse_tech_eff in a:
-            technology = enduse_tech_eff[0]
-            tech_eff = enduse_tech_eff[1]
-            replaced_tech_with_ID.append((tech_lu_resid[technology], tech_eff))
-
-        # IF empty replace with 0.0, 0.0) to have an array with length 2
-        if replaced_tech_with_ID == []:
-            out_dict[fueltype] = []
-        else:
-            replaced_with_ID = np.array(replaced_tech_with_ID, dtype=float)
-            out_dict[fueltype] = replaced_with_ID
-
-    return out_dict
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
@@ -723,10 +665,11 @@ def convert_date_to_yearday(year, month, day):
     """
     date_y = date(year, month, day)
     yearday = date_y.timetuple().tm_yday - 1 #: correct because of python iterations
+
     return yearday
 
 def convert_yearday_to_date(year, yearday_python):
-    """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
+    """Gets the yearday of a year minus one to correct because of python iteration
     TESTED_PYTEST
 
     Parameters
@@ -734,30 +677,12 @@ def convert_yearday_to_date(year, yearday_python):
     year : int
         Year
     yearday_python : int
-        Yearday - 1 
-
-    Example
-    -------
-    
+        Yearday - 1
     """
     date_first_jan = date(year, 1, 1)
-
     date_new = date_first_jan + td(yearday_python)
+
     return date_new
-
-def add_yearly_external_fuel_data(data, dict_to_add_data):
-    """This data check what enduses are provided by wrapper
-    and then adds the yearls fule data to data
-
-    #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
-    """
-    for external_enduse in data['data_ext']['external_enduses_resid']:
-
-        new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
-        for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
-            new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
-        dict_to_add_data[external_enduse] = new_fuel_array
-    return data
 
 def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
     """Calculate the number of heating degree days based on Hitchens
@@ -783,14 +708,14 @@ def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
 
     return hdd_hitchens
 
-def calc_hdd(t_base, temp_every_h_year):
+def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
 
     Parameters
     ----------
     t_base : int
         Base temperature
-    temp_every_h_year : array
+    temp_yh : array
         Array containing daily temperatures for each day (shape 365, 24)
 
     Returns
@@ -800,13 +725,14 @@ def calc_hdd(t_base, temp_every_h_year):
     """
     hdd_d = np.zeros((365, 1))
 
-    for i, day in enumerate(temp_every_h_year):
+    for day, temp_day in enumerate(temp_yh):
         hdd = 0
-        for temp_h in day:
+        for temp_h in temp_day:
             diff = t_base - temp_h
             if diff > 0:
                 hdd += t_base - temp_h
-        hdd_d[i] = hdd / 24
+        hdd_d[day] = hdd / 24.0
+
     return hdd_d
 
 def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
@@ -832,7 +758,6 @@ def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
         hdd_tot += hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean_reg_months[month])
 
     return hdd_tot
-
 
 def get_hdd_country(regions, data):
     """Calculate total number of heating degree days in a region for the base year
@@ -891,7 +816,7 @@ def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
     """
     # Base temperature of end year minus base temp of base year
     t_base_diff = assumptions[t_base_str]['end_yr'] - assumptions[t_base_str]['base_yr']
-    
+
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
@@ -925,8 +850,9 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     fract_sy : float
         The fraction of the fuel_enduse_switch in the simulation year
     """
+    # If current year is base year, return zero
     if curr_yr == base_yr or sim_years == 0:
-        fract_sy = 0 #return zero
+        fract_sy = 0
     else:
         fract_sy = np.divide(value_end - value_start, sim_years - 1) * (curr_yr - base_yr) #-1 because in base year no change
 
@@ -1014,7 +940,7 @@ def calc_cdd(t_base_cooling_resid, temperatures):
             if diff_t > 0: # Only if cooling is necessary
                 sum_d += diff_t
 
-        cdd_d[day_nr] = sum_d / 24
+        cdd_d[day_nr] = np.divide(sum_d, 24)
 
     return cdd_d
 
@@ -1028,40 +954,45 @@ def change_temp_data_climate_change(data):
 
     Returns
     -------
-
-
+    temp_data_climate_change : dict
+        Adapted temperatures for all weather stations depending on climate change assumptions
     """
-    temperature_data_climate_change = {}
+    temp_data_climate_change = {}
 
     # Change weather for all weater stations
     for weather_station_id in data['temperature_data']:
-        temperature_data_climate_change[weather_station_id] = {}
-        
+        temp_data_climate_change[weather_station_id] = {}
+
         # Iterate over simulation period
         for current_year in data['data_ext']['glob_var']['sim_period']:
-            temperature_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
+            temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
 
             # Iterate every month and substract
-            for yearday in (range(365)):
+            for yearday in range(365):
 
                 # Create datetime object
                 date_object = convert_yearday_to_date(data['data_ext']['glob_var']['base_yr'], yearday)
 
                 # Get month of yearday
-                month_yearday = int(date_object.timetuple().tm_mon) - 1
+                month_yearday = date_object.timetuple().tm_mon - 1
 
                 # Get linear diffusion of current year
                 temp_by = 0
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
-                lin_diff_current_year = linear_diff(data['data_ext']['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data['data_ext']['glob_var']['sim_period']))
+
+                lin_diff_current_year = linear_diff(
+                    data['data_ext']['glob_var']['base_yr'],
+                    current_year,
+                    temp_by,
+                    temp_ey,
+                    len(data['data_ext']['glob_var']['sim_period'])
+                )
 
                 # Iterate hours of base year
                 for h, temp_old in enumerate(data['temperature_data'][weather_station_id][yearday]):
-                    temperature_data_climate_change[weather_station_id][current_year][yearday][h] = temp_old + lin_diff_current_year
+                    temp_data_climate_change[weather_station_id][current_year][yearday][h] = temp_old + lin_diff_current_year
 
-    #data['temperature_data'] = temperature_data_climate_change
-
-    return temperature_data_climate_change
+    return temp_data_climate_change
 
 def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
     """Calculate efficiency according to temperatur difference of base year
@@ -1109,8 +1040,8 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
 
     return eff_hp_yh
 
-def const_eff_y_to_h(input_eff):
-    """Assing a constante efficiency to every hour in a year
+def const_eff_yh(input_eff):
+    """Assing a constant efficiency to every hour in a year
 
     Parameters
     ----------
@@ -1119,42 +1050,41 @@ def const_eff_y_to_h(input_eff):
 
     Return
     ------
-    out : array
+    eff_yh : array
         Array with efficency for every hour in a year (365,24)
     """
-    out = np.zeros((365, 24))
-    for i in range(365):
-        for j in range(24):
-            out[i][j] = input_eff
-    return out
+    eff_yh = np.zeros((365, 24))
+    eff_yh += input_eff
+    return eff_yh
 
-def heat_pump_efficiency_y():
-    """Sum over every hour in a year the efficiency * temp¨"""
-    return
+def init_dict(first_level_keys, crit):
+    """Initialise a  dictionary with one level
 
-def calc_age_distribution(age_distr_by, age_distr_ey):
-    """ CAlculate share of age distribution of buildings
-    DEMOLISHRN RATE?
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+    crit : str
+        Criteria wheater initialised with `{}` or `0`
+
+    Returns
+    -------
+    one_level_dict : dict
+         dictionary
     """
-    # Calculate difference between base yeare and ey
-    # --> Add
-    assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    return
-
-def init_1_level_dict(first_level_data):
-    """Initialise a nested dictionary with two levels and insert curly brackets
-    """
-    init_dict = {}
+    one_level_dict = {}
 
     # Iterate first level
-    for first_level in first_level_data:
-        init_dict[first_level] = {}
+    for first_key in first_level_keys:
+        if crit == 'brackets':
+            one_level_dict[first_key] = {}
+        if crit == 'zero':
+            one_level_dict[first_key] = 0
 
-    return init_dict
+    return one_level_dict
 
 def init_nested_dict(first_level_keys, second_level_keys, crit):
-    """Initialise a nested dictionary with two levels and insert curly brackets
+    """Initialise a nested dictionary with two levels
 
     Parameters
     ----------
@@ -1163,7 +1093,7 @@ def init_nested_dict(first_level_keys, second_level_keys, crit):
     second_level_keys : list
         Data to add in nested dict
     crit : str
-        Criteria wheater initialised with ´{}´ or ´0´
+        Criteria wheater initialised with `{}` or `0`
 
     Returns
     -------
@@ -1172,10 +1102,8 @@ def init_nested_dict(first_level_keys, second_level_keys, crit):
     """
     nested_dict = {}
 
-    # Iterate first level
     for first_level_key in first_level_keys:
         nested_dict[first_level_key] = {}
-
         for second_level_key in second_level_keys:
             if crit == 'brackets':
                 nested_dict[first_level_key][second_level_key] = {}
@@ -1222,7 +1150,7 @@ def generate_sig_diffusion(data):
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
     # Calculate all technologies installed in fuel switches
-    data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches']) 
+    data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
 
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
@@ -1307,7 +1235,7 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
     Therfore a constant technology efficiency of the full year needs to be assumed for all technologies.
     """
     service = init_nested_dict(enduses, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year (e.g. heat demand in joules)
-    service_tech_p = init_1_level_dict(enduses) # Percentage of total energy service per technology for base year
+    service_tech_p = init_dict(enduses, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_p = init_nested_dict(enduses, fueltypes_lu.values(), 'brackets') # Percentage of energy service for technologies within the fueltypes
 
     for enduse in enduses: # Iterate enduse
@@ -1564,7 +1492,7 @@ def tech_L_sigmoid(enduses, data, assumptions):
     -----
     Gets second sigmoid point
     """
-    l_values_sig = init_1_level_dict(enduses)
+    l_values_sig = init_dict(enduses, 'brackets')
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
@@ -1680,6 +1608,7 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
 
                         if cnt == len(possible_start_parameters):
                             print("ERROR: CURVE FITTING DID NOT WORK")
+                            import sys
                             sys.exit()
 
                 # Insert parameters
@@ -1869,4 +1798,83 @@ def search_closest_weater_station(longitude_reg, latitue_reg, weather_stations):
                 fuel_fueltype_tech_p[fueltype][tech] = (1.0 / sum_fuel_fueltype) * np.sum(fuel_fueltype_tech[fueltype][tech])
 
     return fuel_fueltype_tech_p
+'''
+
+'''def calc_age_distribution(age_distr_by, age_distr_ey):
+    """ CAlculate share of age distribution of buildings
+    DEMOLISHRN RATE?
+    """
+    # Calculate difference between base yeare and ey
+    # --> Add
+    assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
+    assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
+    return
+'''
+
+'''
+def convert_to_tech_array(in_dict, tech_lu_resid):
+    """Convert dictionary to array
+
+    The input array of efficiency is replaced and technologies are replaced with technology IDs
+
+    # TODO: WRITE DOCUMENTATION
+    Parameters
+    ----------
+    in_dict : dict
+        One-level dictionary
+
+    Returns
+    -------
+    in_dict : array
+        Array with identical data of dict
+
+    Example
+    -------
+    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
+    """
+    out_dict = {}
+
+    for fueltype in in_dict:
+        a = list(in_dict[fueltype].items())
+
+        # REplace technologies with technology ID
+        replaced_tech_with_ID = []
+        for enduse_tech_eff in a:
+            technology = enduse_tech_eff[0]
+            tech_eff = enduse_tech_eff[1]
+            replaced_tech_with_ID.append((tech_lu_resid[technology], tech_eff))
+
+        # IF empty replace with 0.0, 0.0) to have an array with length 2
+        if replaced_tech_with_ID == []:
+            out_dict[fueltype] = []
+        else:
+            replaced_with_ID = np.array(replaced_tech_with_ID, dtype=float)
+            out_dict[fueltype] = replaced_with_ID
+
+    return out_dict
+'''
+
+'''def convert_to_array(in_dict):
+    """Convert dictionary to array
+
+    As an input the base data is provided and price differences and elasticity
+
+    Parameters
+    ----------
+    in_dict : dict
+        One-level dictionary
+
+    Returns
+    -------
+    in_dict : array
+        Array with identical data of dict
+
+    Example
+    -------
+    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
+    """
+    copy_dict = {}
+    for i in in_dict:
+        copy_dict[i] = np.array(list(in_dict[i].items()), dtype=float)
+    return copy_dict
 '''

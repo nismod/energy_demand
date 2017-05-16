@@ -39,8 +39,8 @@ class Technology(object):
 
         # Attributes from data
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
-        self.eff_by = mf.const_eff_y_to_h(data['assumptions']['technologies'][self.tech_name]['eff_by'])
-        self.eff_ey = mf.const_eff_y_to_h(data['assumptions']['technologies'][self.tech_name]['eff_ey'])
+        self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
+        self.eff_ey = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_ey'])
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
