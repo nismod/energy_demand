@@ -9,7 +9,7 @@ import energy_demand.main_functions as mf
 import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def load_data(path_main, data_ext):
+def load_data(path_main, data):
     """All base data no provided externally are loaded
 
     All necessary data to run energy demand model is loaded.
@@ -28,8 +28,6 @@ def load_data(path_main, data_ext):
         Returns a list where storing all data
 
     """
-    data = {} # Data container
-
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
@@ -52,12 +50,12 @@ def load_data(path_main, data_ext):
     # -----------------------------
     #TODO: REGION LOOKUP: Generate region_lookup from input data (MAybe read in region_lookup from shape?)
     data['lu_reg'] = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
+    for reg_name in data['data_ext']['population'][data['data_ext']['glob_var']['base_yr']]:
         data['lu_reg'][reg_name] = reg_name
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
-    for reg_name in data_ext['population'][data_ext['glob_var']['base_yr']]:
+    for reg_name in data['data_ext']['population'][data['data_ext']['glob_var']['base_yr']]:
         data['reg_floorarea_resid'][reg_name] = 100000
 
     # Paths
@@ -153,10 +151,10 @@ def load_data(path_main, data_ext):
 
     
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
-    ###data = add_yearly_external_fuel_data(data, data_ext, fuel_raw_data_resid_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
+    ###data = add_yearly_external_fuel_data(data, fuel_raw_data_resid_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
-    data = create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses)
+    data = create_enduse_dict(data, fuel_raw_data_resid_enduses)
 
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -346,7 +344,7 @@ def generate_data(data):
 
     return data
 
-def create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses):
+def create_enduse_dict(data, fuel_raw_data_resid_enduses):
     """Create dictionary with all residential enduses and store in data dict
 
     For residential model
@@ -355,9 +353,6 @@ def create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses):
     ----------
     data : dict
         Main data dictionary
-
-    data_ext : dict
-        Main external ditionary
 
     fuel_raw_data_resid_enduses : dict
         Raw fuel data from external enduses (e.g. other models)
@@ -368,7 +363,7 @@ def create_enduse_dict(data, data_ext, fuel_raw_data_resid_enduses):
         Main data dictionary with added enduse dictionary
     """
     data['resid_enduses'] = {}
-    for ext_enduse in data_ext['external_enduses_resid']: # Add external enduse
+    for ext_enduse in data['data_ext']['external_enduses_resid']: # Add external enduse
         data['resid_enduses'][ext_enduse] = ext_enduse
 
     for enduse in fuel_raw_data_resid_enduses: # Add resid enduses

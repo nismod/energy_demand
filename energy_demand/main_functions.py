@@ -743,17 +743,17 @@ def convert_yearday_to_date(year, yearday_python):
     date_new = date_first_jan + td(yearday_python)
     return date_new
 
-def add_yearly_external_fuel_data(data, data_ext, dict_to_add_data):
+def add_yearly_external_fuel_data(data, dict_to_add_data):
     """This data check what enduses are provided by wrapper
     and then adds the yearls fule data to data
 
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
-    for external_enduse in data_ext['external_enduses_resid']:
+    for external_enduse in data['data_ext']['external_enduses_resid']:
 
         new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
-        for fueltype in data_ext['external_enduses_resid'][external_enduse]:
-            new_fuel_array[fueltype] = data_ext['external_enduses_resid'][external_enduse][fueltype]
+        for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
+            new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
 
@@ -1024,7 +1024,7 @@ def calc_cdd(t_base_cooling_resid, temperatures):
 
     return cdd_d
 
-def change_temp_data_climate_change(data, data_external):
+def change_temp_data_climate_change(data):
     """Change temperature data for every year depending on simple climate change assumptions
 
     Parameters
@@ -1044,14 +1044,14 @@ def change_temp_data_climate_change(data, data_external):
         temperature_data_climate_change[weather_station_id] = {}
         
         # Iterate over simulation period
-        for current_year in data_external['glob_var']['sim_period']:
+        for current_year in data['data_ext']['glob_var']['sim_period']:
             temperature_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
 
             # Iterate every month and substract
             for yearday in (range(365)):
 
                 # Create datetime object
-                date_object = convert_yearday_to_date(data_external['glob_var']['base_yr'], yearday)
+                date_object = convert_yearday_to_date(data['data_ext']['glob_var']['base_yr'], yearday)
 
                 # Get month of yearday
                 month_yearday = int(date_object.timetuple().tm_mon) - 1
@@ -1059,7 +1059,7 @@ def change_temp_data_climate_change(data, data_external):
                 # Get linear diffusion of current year
                 temp_by = 0
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
-                lin_diff_current_year = linear_diff(data_external['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data_external['glob_var']['sim_period']))
+                lin_diff_current_year = linear_diff(data['data_ext']['glob_var']['base_yr'], current_year, temp_by, temp_ey, len(data['data_ext']['glob_var']['sim_period']))
 
                 # Iterate hours of base year
                 for h, temp_old in enumerate(data['temperature_data'][weather_station_id][yearday]):
@@ -1182,7 +1182,7 @@ def sum_1_level_dict(two_level_dict):
 
     return tot_sum
 
-def generate_sig_diffusion(data, data_external):
+def generate_sig_diffusion(data):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to (installed technologies)
 
 
@@ -1190,8 +1190,6 @@ def generate_sig_diffusion(data, data_external):
     ----------
     data : dict
         Data
-    data_external : dict
-        External data
 
     Return
     ------
@@ -1224,7 +1222,7 @@ def generate_sig_diffusion(data, data_external):
     l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, assumptions)
 
     # Calclulate sigmoid parameters for every installed technology
-    assumptions['sigm_parameters_tech'] = tech_sigmoid_parameters(assumptions['installed_tech'], enduses_with_fuels, assumptions['technologies'], data_external, l_values_sig, assumptions['service_tech_p'], service_tech_switched_p, assumptions['resid_fuel_switches'])
+    assumptions['sigm_parameters_tech'] = tech_sigmoid_parameters(assumptions['installed_tech'], enduses_with_fuels, assumptions['technologies'], data['data_ext'], l_values_sig, assumptions['service_tech_p'], service_tech_switched_p, assumptions['resid_fuel_switches'])
 
     return assumptions
 

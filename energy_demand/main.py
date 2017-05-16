@@ -55,7 +55,7 @@ import energy_demand.service_model as sm
 import energy_demand.industry_model as im
 import energy_demand.transport_model as tm
 
-def energy_demand_model(data, data_ext):
+def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 
     This function is executed in the wrapper.
@@ -64,8 +64,6 @@ def energy_demand_model(data, data_ext):
     ----------
     data : dict
         Contains all data not provided externally
-    data_ext : dict
-        All data provided externally
 
     Returns
     -------
@@ -78,7 +76,7 @@ def energy_demand_model(data, data_ext):
     # -------------------------
     # Residential model
     # --------------------------
-    resid_object_country = rm.residential_model_main_function(data, data_ext)
+    resid_object_country = rm.residential_model_main_function(data)
 
     # Convert to dict for energy_supply_model
     result_dict = mf.convert_out_format_es(data, resid_object_country)
@@ -86,12 +84,12 @@ def energy_demand_model(data, data_ext):
     # --------------------------
     # Service Model
     # --------------------------
-    #service_object_country = sm.service_model_main_function(data, data_ext)
+    #service_object_country = sm.service_model_main_function(data)
 
     # --------------------------
     # Industry Model
     # --------------------------
-    #industry_object_country = im.service_model_main_function(data, data_ext)
+    #industry_object_country = im.service_model_main_function(data)
 
     # --------------------------
     # Transportation Model
@@ -178,30 +176,34 @@ if __name__ == "__main__":
     data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
-    #TODO: REPLACE
-    #base_data['data_external'] = data_external
+
 
     # Model calculations outside main function
     # ----------------------------------------
+    base_data = {}
+
+    # Insert external data into base_data
+    base_data['data_ext'] = data_external
+
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
     # Load and generate general data
-    base_data = dl.load_data(path_main, data_external)
+    base_data = dl.load_data(path_main, base_data)
 
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
 
     # Change temperature data according to simple assumptions about climate change
-    base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data, data_external)
+    base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
-    base_data['assumptions'] = mf.generate_sig_diffusion(base_data, data_external)
+    base_data['assumptions'] = mf.generate_sig_diffusion(base_data)
 
     # Disaggregate national data into regional data #TODO
-    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1, data_external)
+    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1)
 
     # Generate virtual building stock over whole simulatin period
-    base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'], data_external)
+    base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'])
 
     # If several years are run:
     results_every_year = []
@@ -212,7 +214,7 @@ if __name__ == "__main__":
         print("SIM RUN:  " + str(sim_y))
         print(data_external['glob_var']['curr_yr'])
         print("-------------------------- ")
-        results, resid_object_country = energy_demand_model(base_data, data_external)
+        results, resid_object_country = energy_demand_model(base_data)
 
         results_every_year.append(resid_object_country)
 

@@ -22,32 +22,30 @@ class Region(object):
         Unique identifyer of region
     data : dict
         Dictionary containing data
-    data_ext : dict
-        Dictionary containing all data provided specifically for scenario run and from wrapper.abs
     """
-    def __init__(self, reg_name, data, data_ext):
+    def __init__(self, reg_name, data):
         """Constructor of Region Class
         """
         self.reg_name = reg_name
-        self.longitude = data_ext['region_coordinates'][self.reg_name]['longitude']
-        self.latitude = data_ext['region_coordinates'][self.reg_name]['latitude']
+        self.longitude = data['data_ext']['region_coordinates'][self.reg_name]['longitude']
+        self.latitude = data['data_ext']['region_coordinates'][self.reg_name]['latitude']
         self.enduses_fuel = data['fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
         _closest_weater_station_id = mf.search_cosest_weater_station(self.longitude, self.latitude, data['weather_stations'])
 
         # Weather data
-        self.temp_by = data['temperature_data'][_closest_weater_station_id][data_ext['glob_var']['base_yr']]
-        self.temp_cy = data['temperature_data'][_closest_weater_station_id][data_ext['glob_var']['curr_yr']]
+        self.temp_by = data['temperature_data'][_closest_weater_station_id][data['data_ext']['glob_var']['base_yr']]
+        self.temp_cy = data['temperature_data'][_closest_weater_station_id][data['data_ext']['glob_var']['curr_yr']]
 
         # Create region specific technological stock
-        self.tech_stock = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
+        self.tech_stock = ts.ResidTechStock(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
 
         # Calculate HDD and CDD for calculating heating and cooling service demand
-        self.hdd_by = self.get_reg_hdd(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
-        self.hdd_cy = self.get_reg_hdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        self.cdd_by = self.get_reg_cdd(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
-        self.cdd_cy = self.get_reg_cdd(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
+        self.hdd_by = self.get_reg_hdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
+        self.hdd_cy = self.get_reg_hdd(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
+        self.cdd_by = self.get_reg_cdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
+        self.cdd_cy = self.get_reg_cdd(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
 
         # YD Factors (factor to calculate max daily demand from yearly demand)
         self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(self.hdd_cy)
@@ -62,8 +60,8 @@ class Region(object):
         self.cooling_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
 
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
-        self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, data_ext, self.heating_shape_yd) # Heating, boiler, non-peak
-        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, data_ext, self.tech_stock, self.hdd_cy) # Heating, heat pumps, non-peak
+        self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd) # Heating, boiler, non-peak
+        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy) # Heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd) # Cooling, linear tech (such as boilers)
 
         # -- PEAK
@@ -75,7 +73,7 @@ class Region(object):
             )
 
         # Set attributs of all enduses to the Region Class
-        self.create_enduses(data['resid_enduses'], data, data_ext)
+        self.create_enduses(data['resid_enduses'], data)
 
         # --------------------
         # -- summing functions
@@ -161,7 +159,7 @@ class Region(object):
 
         return self.tech_stock
 
-    def create_enduses(self, enduses, data, data_ext):
+    def create_enduses(self, enduses, data):
         """All enduses are initialised and inserted as an attribute of the Region Class
         """
         # Iterate all enduses
@@ -191,7 +189,6 @@ class Region(object):
                 EnduseResid(
                     self.reg_name,
                     data,
-                    data_ext,
                     enduse,
                     self.enduses_fuel,
                     self.tech_stock,
@@ -203,7 +200,7 @@ class Region(object):
                     #enduse_shape_peak_dh #Daily shape of peak day
                     )
                 )
-            
+
             # ---------------------------------------
             # Add service enduses to region
             # ---------------------------------------
@@ -445,7 +442,7 @@ class Region(object):
 
         return load_factor_h
 
-    def get_reg_hdd(self, data, data_ext, temperatures, year):
+    def get_reg_hdd(self, data, temperatures, year):
         """Calculate daily shape of heating demand based on calculating HDD for every day
 
         Based on temperatures of a year, the HDD are calculated for every
@@ -459,8 +456,6 @@ class Region(object):
         ----------
         data : dict
             Base data dict
-        data_ext : dict
-            External data
 
         Return
         ------
@@ -474,7 +469,7 @@ class Region(object):
         The diffusion is assumed to be sigmoid
         """
         # Calculate base temperature for heating of current year
-        t_base_heating_resid_cy = mf.t_base_sigm(year, data['assumptions'], data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'], 't_base_heating_resid')
+        t_base_heating_resid_cy = mf.t_base_sigm(year, data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
 
         # Calculate hdd for every day (365,1)
         hdd_d = mf.calc_hdd(t_base_heating_resid_cy, temperatures)
@@ -487,7 +482,7 @@ class Region(object):
 
         return hdd_d
 
-    def get_reg_cdd(self, data, data_ext, temperatures, year):
+    def get_reg_cdd(self, data, temperatures, year):
         """Calculate daily shape of cooling demand based on calculating CDD for every day
 
         Based on temperatures of a year, the CDD are calculated for every
@@ -513,13 +508,13 @@ class Region(object):
         -----
         #TODO: TEST
         """
-        t_base_cooling_resid = mf.t_base_sigm(year, data['assumptions'], data_ext['glob_var']['base_yr'], data_ext['glob_var']['end_yr'], 't_base_cooling_resid')
+        t_base_cooling_resid = mf.t_base_sigm(year, data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_cooling_resid')
 
         cdd_d = mf.calc_cdd(t_base_cooling_resid, temperatures)
 
         return cdd_d
 
-    def shape_heating_hp_yh(self, data, data_ext, tech_stock, hdd_cy):
+    def shape_heating_hp_yh(self, data, tech_stock, hdd_cy):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump
 
         This is for non-peak.
@@ -528,8 +523,6 @@ class Region(object):
         ---------
         data : dict
             data
-        data_ext : dict
-            External data
         tech_stock : object
             Technology stock
         hdd_cy : array
@@ -553,7 +546,7 @@ class Region(object):
         """
         shape_y_hp = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
+        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -598,8 +591,6 @@ class Region(object):
         ---------
         data : dict
             data
-        data_ext : dict
-            External data
 
         Returns
         -------
@@ -624,7 +615,7 @@ class Region(object):
         return shape_yd_boilers
 
 
-    def shape_heating_boilers_yh(self, data, data_ext, heating_shape):
+    def shape_heating_boilers_yh(self, data, heating_shape):
         """Convert daily shape to hourly based on robert sansom daily load for boilers
 
         This is for non-peak.
@@ -633,8 +624,6 @@ class Region(object):
         ---------
         data : dict
             data
-        data_ext : dict
-            External data
         heating_shape : array
             Daily service demand shape for heat (percentage of yearly heat demand for every day)
 
@@ -657,7 +646,7 @@ class Region(object):
         """
         shape_yd_boilers = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data_ext['glob_var']['base_yr'], 1, 1), end=date(data_ext['glob_var']['base_yr'], 12, 31))
+        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -828,7 +817,7 @@ def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, re
     #ax.stackplot(x, Y_init)
     plt.show()
 
-def residential_model_main_function(data, data_ext):
+def residential_model_main_function(data):
     """Main function of residential model
 
     This function is executed in the wrapper.
@@ -837,8 +826,6 @@ def residential_model_main_function(data, data_ext):
     ----------
     data : dict
         Contains all data not provided externally
-    data_ext : dict
-        All data provided externally
 
     Returns
     -------
@@ -848,7 +835,7 @@ def residential_model_main_function(data, data_ext):
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `CountryResidentialModel`
-    resid_object = CountryResidentialModel(data['lu_reg'], data, data_ext) #Add Coordinates
+    resid_object = CountryResidentialModel(data['lu_reg'], data) #Add Coordinates
 
     print("READ OUT SPECIFIC ENDUSE FOR A REGION")
     #print(resid_object.get_specific_enduse_region('Wales', 'space_heating'))
@@ -880,8 +867,6 @@ class EnduseResid(object):
         The ID of the region. The actual region name is stored in `lu_reg`
     data : dict
         Dictionary containing data
-    data_ext : dict
-        Dictionary containing all data provided specifically for scenario run and from wrapper
     enduse : str
         Enduse given in a string
     enduse_fuel : array
@@ -900,7 +885,7 @@ class EnduseResid(object):
     #TODO: The technology switch also needs to be done for peak!
     #TODO: (Check if always function below takes result from function above)
     """
-    def __init__(self, reg_name, data, data_ext, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_shape_hp_yh, fuel_shape_boilers_yh, enduse_peak_yd_factor): #, enduse_shape_peak_dh):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_shape_hp_yh, fuel_shape_boilers_yh, enduse_peak_yd_factor): #, enduse_shape_peak_dh):
         self.reg_name = reg_name
         self.enduse = enduse
         self.technologies_enduse = self.get_technologies_in_enduse(data) # Get all technologies of enduse
@@ -917,16 +902,16 @@ class EnduseResid(object):
         self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
 
         # Calcualte smart meter induced general savings
-        self.smart_meter_eff_gain(data_ext, data['assumptions'])
+        self.smart_meter_eff_gain(data['data_ext'], data['assumptions'])
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_specific_change(data_ext, data['assumptions'])
+        self.enduse_specific_change(data['data_ext'], data['assumptions'])
 
         # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(data, data_ext)
+        self.enduse_building_stock_driver(data)
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        self.enduse_elasticity(data_ext, data['assumptions'])
+        self.enduse_elasticity(data['data_ext'], data['assumptions'])
 
         #print("Fuel train A: " + str(self.enduse_fuel_new_fuel))
 
@@ -945,7 +930,7 @@ class EnduseResid(object):
             # else:
 
             # Calculate energy service for base year (NEEDS TO CALCULATE WITH BASE YEAR FUELS) TODO: CHECK
-            service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data_ext, data['assumptions'], tech_stock, service_y_h_shape)
+            service_fueltype_tech_after_switch = self.enduse_fuel_to_service(self.enduse_fuel_new_fuel, data['data_ext'], data['assumptions'], tech_stock, service_y_h_shape)
 
             # If fuel switch is implemented
             if self.enduse_specific_fuel_switches_crit:
@@ -1384,7 +1369,7 @@ class EnduseResid(object):
             # Set attr
             setattr(self, 'enduse_fuel_new_fuel', new_fuels)
 
-    def enduse_building_stock_driver(self, data, data_ext):
+    def enduse_building_stock_driver(self, data):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         If no building specific scenario driver is found, the identical fuel is returned.
@@ -1408,17 +1393,17 @@ class EnduseResid(object):
         new_fuels = copy.deepcopy(self.enduse_fuel_new_fuel)
 
         # Test if enduse has a building related scenario driver
-        if hasattr(data['dw_stock'][self.reg_name][data_ext['glob_var']['base_yr']], self.enduse) and data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']:
+        if hasattr(data['dw_stock'][self.reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) and data['data_ext']['glob_var']['curr_yr'] != data['data_ext']['glob_var']['base_yr']:
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(data['dw_stock'][self.reg_name][data_ext['glob_var']['base_yr']], self.enduse) # Base year building stock
-            cy_driver = getattr(data['dw_stock'][self.reg_name][data_ext['glob_var']['curr_yr']], self.enduse) # Current building stock
+            by_driver = getattr(data['dw_stock'][self.reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) # Base year building stock
+            cy_driver = getattr(data['dw_stock'][self.reg_name][data['data_ext']['glob_var']['curr_yr']], self.enduse) # Current building stock
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
             factor_driver = cy_driver / by_driver # TODO: FROZEN Here not effecieicny but scenario parameters
 
             new_fuels = new_fuels * factor_driver
-            #return new_fuels * factor_driver
+
             setattr(self, 'enduse_fuel_new_fuel', new_fuels)
 
 
@@ -1519,18 +1504,16 @@ class CountryResidentialModel(object):
         Dictionary containign the name of the Region (unique identifier)
     data : dict
         Main data dictionary
-    data_ext : dict
-        Main external data
 
     Notes
     -----
     this class has as many attributes as regions (for evry rgion an attribute)
     """
-    def __init__(self, reg_names, data, data_ext):
+    def __init__(self, reg_names, data):
         """Constructor of the class which holds all regions of a country
         """
         # Create object for every region
-        self.create_regions(reg_names, data, data_ext)
+        self.create_regions(reg_names, data)
 
 
 
@@ -1559,7 +1542,7 @@ class CountryResidentialModel(object):
             test_sum += self.tot_country_fuel_enduse_specific_h[enduse]
         np.testing.assert_almost_equal(np.sum(self.tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
 
-    def create_regions(self, reg_names, data, data_ext):
+    def create_regions(self, reg_names, data):
         """Create all regions and add them as attributes based on region name to the CountryResidentialModel Class
 
         Parameters
@@ -1573,8 +1556,7 @@ class CountryResidentialModel(object):
                 str(reg_name),
                 Region(
                     reg_name,
-                    data,
-                    data_ext
+                    data
                 )
             )
 

@@ -12,7 +12,7 @@ class Technology(object):
     The attribute `shape_peak_yd_factor` is initiated with dummy data and only filled with real data
     in the `Region` Class. The reason is because this factor depends on regional temperatures
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, peak_yd_factor):
+    def __init__(self, tech_name, data, temp_cy, year, reg_shape_yd, reg_shape_yh, peak_yd_factor):
         """Contructor of technology
         """
         self.curr_yr = year
@@ -44,10 +44,10 @@ class Technology(object):
             self.shape_peak_dh = np.ones((24, 1)) # dummy
 
         # Calculate efficiency in current year
-        self.eff_cy = self.calc_efficiency_cy(data, data_ext, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
+        self.eff_cy = self.calc_efficiency_cy(data, temp_cy, self.curr_yr, self.eff_by, self.eff_ey, self.diff_method, self.eff_achieved_factor)
 
     # Calculate efficiency in current year
-    def calc_efficiency_cy(self, data, data_ext, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
+    def calc_efficiency_cy(self, data, temp_cy, curr_yr, eff_by, eff_ey, diff_method, eff_achieved):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
         # per default linear diffusion assumed
         FUNCTION
@@ -55,11 +55,11 @@ class Technology(object):
         efficiency_diff = eff_ey - eff_by
 
         if diff_method == 'linear':
-            theor_max_eff = mf.linear_diff(data_ext['glob_var']['base_yr'], curr_yr, eff_by, eff_ey, len(data_ext['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
+            theor_max_eff = mf.linear_diff(data['data_ext']['glob_var']['base_yr'], curr_yr, eff_by, eff_ey, len(data['data_ext']['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
         elif diff_method == 'sigmoid':
-            theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
+            theor_max_eff = mf.sigmoid_diffusion(data['data_ext']['glob_var']['base_yr'], curr_yr, data['data_ext']['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
-        #print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
+        #print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data['data_ext']['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
 
         # Consider actual achived efficiency
         actual_eff = theor_max_eff * eff_achieved
@@ -99,8 +99,6 @@ class ResidTechStock(object):
         tbd
     assumptions : dict
         tbd
-    data_ext : dict
-        tbd
     curr_yr : int
         Current year
 
@@ -110,7 +108,7 @@ class ResidTechStock(object):
     is initiated with zeros. Within the `Region` Class these attributes
     are filled with real values.
     """
-    def __init__(self, data, data_ext, temp_cy, year):
+    def __init__(self, data, temp_cy, year):
         """Constructor of technologies for residential sector
         """
 
@@ -124,7 +122,6 @@ class ResidTechStock(object):
             technology_object = Technology(
                 technology_name,
                 data,
-                data_ext,
                 temp_cy,
                 year,
                 dummy_shape_yd,
