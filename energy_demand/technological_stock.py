@@ -5,11 +5,15 @@ import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 
 class Technology(object):
-    """Technology class
+    """Technology Class for residential technologies #TODO
+
+    Notes
+    -----
+    The attribute `shape_peak_yd_factor` is initiated with dummy data and only filled with real data
+    in the `Region` Class. The reason is because this factor depends on regional temperatures
     """
-    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, reg_shape_dh, reg_shape_peak_yd_factor):
+    def __init__(self, tech_name, data, data_ext, temp_cy, year, reg_shape_yd, reg_shape_yh, peak_yd_factor):
         """Contructor of technology
-        # NTH: If regional diffusion, load into region and tehn into tech stock
         """
         self.curr_yr = year
         self.tech_name = tech_name
@@ -25,7 +29,7 @@ class Technology(object):
         self.shape_yh = reg_shape_yh
 
         # Peak
-        self.shape_peak_yd_factor = reg_shape_peak_yd_factor # Only factor from year to d TODO: NOT IMPELEMENTED
+        self.shape_peak_yd_factor = peak_yd_factor # Only factor from year to d TODO: NOT IMPELEMENTED
 
         #self.shape_peak_dh = reg_shape_peak_dh # TODO
 
@@ -52,7 +56,7 @@ class Technology(object):
 
         if diff_method == 'linear':
             theor_max_eff = mf.linear_diff(data_ext['glob_var']['base_yr'], curr_yr, eff_by, eff_ey, len(data_ext['glob_var']['sim_period'])) # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
-        if diff_method == 'sigmoid':
+        elif diff_method == 'sigmoid':
             theor_max_eff = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], curr_yr, data_ext['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         #print("theor_max_eff: " + str(efficiency_diff) + str("  ") + str(theor_max_eff) + str("  ") + str(data_ext['glob_var']['base_yr']) + str("   ") + str(data_ext['glob_var']['curr_yr']))
@@ -66,7 +70,7 @@ class Technology(object):
         # Actual efficiency potential
         eff_cy = eff_by + efficiency_change
 
-        # Temperature dependent efficiency #TODO: READ IN FROME ASSUMPTIONS 
+        # Temperature dependent efficiency
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
             eff_cy_hourly = mf.get_heatpump_eff(
                 temp_cy,
@@ -113,9 +117,8 @@ class ResidTechStock(object):
         # Crate all technologies and add as attribute
         for technology_name in data['tech_lu']:
             dummy_shape_yd = np.ones((365, 24))
-            dummy_shape_dh = np.ones((24, 1))
             dummy_shape_yh = np.ones((365, 24))
-            dummy_shape_peak_yd_factor = np.ones((365, 24)) # Cannot be only values because time of peak is crucial
+            dummy_shape_peak_yd_factor = np.ones((365, 24))
 
             # Technology object
             technology_object = Technology(
@@ -125,7 +128,6 @@ class ResidTechStock(object):
                 temp_cy,
                 year,
                 dummy_shape_yd,
-                dummy_shape_dh,
                 dummy_shape_yh,
                 dummy_shape_peak_yd_factor,
             )

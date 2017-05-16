@@ -178,7 +178,8 @@ if __name__ == "__main__":
     data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
     # ------------------- DUMMY END
 
-
+    #TODO: REPLACE
+    #base_data['data_external'] = data_external
 
     # Model calculations outside main function
     # ----------------------------------------

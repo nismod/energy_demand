@@ -212,6 +212,7 @@ def load_assumptions(data):
 
     # Enduse specific
     assumptions['enduse_space_heating'] = ['space_heating']
+    assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
     # Technologies used
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']

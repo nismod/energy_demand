@@ -42,7 +42,6 @@ class Region(object):
 
         # Create region specific technological stock
         self.tech_stock = ts.ResidTechStock(data, data_ext, self.temp_cy, data_ext['glob_var']['curr_yr'])
-        print("BBB: " + str(self.tech_stock))
 
         # Calculate HDD and CDD for calculating heating and cooling service demand
         self.hdd_by = self.get_reg_hdd(data, data_ext, self.temp_by, data_ext['glob_var']['base_yr'])
@@ -67,7 +66,7 @@ class Region(object):
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, data_ext, self.tech_stock, self.hdd_cy) # Heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd) # Cooling, linear tech (such as boilers)
 
-        # -- PEAK  # DAILY SHAPE OF COOLING DEVICES?
+        # -- PEAK
 
         # Assign shapes to technologies in technological stock for enduses with technologies
         self.tech_stock = self.assign_shapes_to_tech_stock(
@@ -155,40 +154,12 @@ class Region(object):
 
             elif technology in assumptions['list_tech_cooling_const']:
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_boilers_yh) # Non peak
-                
+
             elif technology in assumptions['list_tech_heating_temp_dep']: # Technologies with hourly efficiencies
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
 
         return self.tech_stock
-
-    def fuel_correction_hp(self, hdd_cy, tech_stock):
-        """Correct for different temperatures than base year. Also correct for different efficiencies
-
-        hdd_cy : array
-            Heating degree days for every day in current year
-
-        Take as input the fuel shape of the HDD and calculate demand for constant efficiency (as in the case of boilers)
-
-        Then calculate the demand in case of heat_pumps for the region and year
-
-        Compare boielr and hp fuel demand and calculate factor. Then factor the demand and calculate new shape
-        # Doest not consider real fuel changes
-
-        -- Only relative change to boiler !
-        """
-        hp_heat_factor = np.zeros((365, 1)) # Initialise array for correcting fuel of every day
-
-        # Calculate an array for a constant efficiency over every hour in a year
-        for day, heat_d in enumerate(hdd_cy):
-            d_factor = 0
-            for hour, heat_share_h in enumerate(heat_d):
-                d_factor += heat_share_h / getattr(tech_stock, 'heat_pump')[day][hour] # Hourly heat demand / heat pump efficiency
-            hp_heat_factor[day][0] = np.sum(heat_share_h) / d_factor # Averae fuel fa ctor over the 24h of the day
-
-        hp_shape = (1/np.sum(hp_heat_factor)) * hp_heat_factor
-
-        return hp_shape
 
     def create_enduses(self, enduses, data, data_ext):
         """All enduses are initialised and inserted as an attribute of the Region Class
@@ -202,12 +173,14 @@ class Region(object):
             if enduse in data['assumptions']['enduse_space_heating']: # ['space_heating']:
                 enduse_peak_yd_factor = self.reg_peak_yd_heating_factor # Regional yd factor for heat
                 #enduse_shape_peak_dh = None # Because peak is taken from technology of endus
-                #elif enduse == 'adsfasfd':
+            elif enduse in data['assumptions']['enduse_space_cooling']:
+                enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor
             else:
                 # Get parameter from loaded shape
                 enduse_peak_yd_factor = data['shapes_resid_yd'][enduse]['shape_peak_yd_factor']
 
                 #enduse_shape_peak_dh = data['shapes_resid_dh'][self.enduse]['shape_peak_dh'] # dh
+
 
             # ---------------------------------------
             # Add residential enduse to region

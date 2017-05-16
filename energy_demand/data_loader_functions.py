@@ -1,8 +1,6 @@
-
-#import energy_demand.main_functions as mf
 import os
 import csv
-import re #cookies
+import re
 import numpy as np
 import unittest
 import json
@@ -13,83 +11,6 @@ import copy
 import matplotlib.pyplot as plt
 import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
-
-'''
-def compare_jan_jul(main_dict_dayyear_absolute):
-    """ COMPARE JAN AND JUL DATA"""
-    # Percentages for every day:
-    jan_yearday = range(0, 30)
-    jul_yearday = range(181, 212)
-    jan = {k: [] for k in range(24)}
-    jul = {k: [] for k in range(24)}
-
-    # Read out for the whole months of jan and ful
-    for day in main_dict_dayyear_absolute:
-        for h in main_dict_dayyear_absolute[day]:
-            if day in jan_yearday:
-                jan[h].append(main_dict_dayyear_absolute[day][h])
-            if day in jul_yearday:
-                jul[h].append(main_dict_dayyear_absolute[day][h])
-    #print(jan)
-    # Average the montly entries
-    for i in jan:
-        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
-        jan[i] = sum(jan[i]) / len(jan[i])
-
-    for i in jul:
-        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
-        jul[i] = sum(jul[i]) / len(jul[i])
-
-    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
-    jan = np.array(list(jan.items())) #convert to array
-    jul = np.array(list(jul.items())) #convert to array
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-
-    x_values = range(24)
-    y_values = list(jan[:, 1]) # to get percentages
-    plt.plot(x_values, list(jan[:, 1]), label="Jan")
-    plt.plot(x_values, list(jul[:, 1]), label="Jul")
-    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
-    plt.legend()
-    plt.show()
-
-
-    #--- if JAn = 100%
-    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
-    for h ,i in enumerate(jul_percent_of_jan):
-        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
-
-    pf.plot_load_shape_yd_non_resid(jan)
-    print("TEST: " + str(jan-jul))
-'''
-
-'''def followup_processing(out_dict_average, out_dict_not_average):
-
-    # --------------------------------------------------------
-    # Calculate average daily load shape for all mongth (averaged)
-    # --------------------------------------------------------
-    # Initiate
-    yearly_averaged_load_curve = {0: {}, 1: {}}
-    for daytype in yearly_averaged_load_curve:
-        yearly_averaged_load_curve[daytype] = {k: 0 for k in range(24)}
-
-    for daytype in out_dict_average:
-
-        # iterate month
-        for hour in range(24):
-            h_average_y = 0
-
-            # Get every hour of all months
-            for month in range(12):
-                h_average_y += out_dict_average[daytype][month][hour]
-
-            h_average_y = h_average_y / 12
-            yearly_averaged_load_curve[daytype][hour] = h_average_y
-
-    print("Result yearly averaged:")
-    print(yearly_averaged_load_curve)
-    return
-'''
 
 # HES-----------------------------------
 def read_hes_data(data):
@@ -141,7 +62,7 @@ def read_hes_data(data):
     return hes_data, hes_y_coldest, hes_y_warmest
 
 def assign_hes_data_to_year(data, hes_data, base_yr):
-    ''' Fill every base year day with correct data '''
+    '''Fill every base year day with correct data'''
 
     year_raw_values = np.zeros((365, 24, len(data['app_type_lu'])), dtype=float)
 
@@ -153,8 +74,6 @@ def assign_hes_data_to_year(data, hes_data, base_yr):
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = mf.get_weekday_type(yearday)
-
-        # Add values to yearly array
         year_raw_values[yearday_python] = hes_data[daytype][month_python] # Get day from HES raw data array
 
     return year_raw_values
@@ -167,9 +86,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     # -- Daily shape over full year (365,1)
 
     # Create list with all dates of a whole year
-    start_date, end_date = date(base_yr, 1, 1), date(base_yr, 12, 31)
-    #list_dates = list(mf.datetime_range(start=start_date, end=end_date))
-    list_dates = mf.fullyear_dates(start=start_date, end=end_date)
+    list_dates = mf.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
@@ -180,16 +97,7 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_non_peak_h[yearday_python] = np.array(_data[:,1], dtype=float)   # now [yearday][24 hours with relative shape]
-
-
-    # -- Daily shape over full year (365,1)
-
-    # Add to hourly shape
-    #data['shapes_resid_dh'][end_use] = {'shape_peak_yh': shape_peak_yh, 'shape_non_peak_h': shape_non_peak_h}
-
-    # Add to daily shape
-    #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        shape_non_peak_h[yearday_python] = np.array(_data[:, 1], dtype=float)   # now [yearday][24 hours with relative shape]
 
     return shape_non_peak_h
 
@@ -264,101 +172,6 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
         shape_non_peak_h[day] = (1.0 / d_sum) * day_values # daily shape
 
     return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
-
-# CWV WEATER GAS SAMSON-----------------------------------
-'''def read_shp_heating_gas(data, model_type, wheater_scenario):
-    """Creates the shape of the base year heating demand over the full year
-
-    Depending wheter residential or service, a different correlation is used TODO:
-    Input:
-    -csv_temp_2015      SNCWV temperatures for every gas-year day
-    -shapes_resid_heating_boilers   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
-
-    #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
-    """
-    all_demand_values = [] # Store all calculated data to select maximum energy use for peak shape
-    hd_data = np.zeros((365, 24), dtype=float) # Initilaise array to store all values for a year
-
-    shapes_resid_heating_boilers = mf.read_csv_float(data['path_dict']['path_shapes_resid_heating_boilers_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
-
-    # Get hourly distribution (Sansom Data)
-    shapes_resid_heating_boilers_wkday = shapes_resid_heating_boilers[1] # Hourly gas shape
-    shapes_resid_heating_boilers_wkend = shapes_resid_heating_boilers[2] # Hourly gas shape
-    shape_peak_yh = shapes_resid_heating_boilers[3] # Manually derived peak from Robert Sansom
-
-    # Read in SNCWV and calculate heating demand for every yearday
-    for row in data['temp_2015_resid']:
-        sncwv = float(row[1])
-        row_split = row[0].split("/")
-        date_gas_day = date(int(row_split[2]), int(row_split[1]), int(row_split[0])) # year, month, day
-
-        yearday_python = date_gas_day.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        weekday = date_gas_day.timetuple().tm_wday # 0: Monday
-
-        # Calculate demand based on correlation Source: Correlation taken from CWV: Linear Correlation between SNCWV and Total NDM (RESIDENTIAL)
-        if model_type == 'service':
-            if wheater_scenario == 'max_cold':
-                heating_demand_correlation = -13.589 * sncwv + 1022.9
-
-            if wheater_scenario == 'min_warm':
-                heating_demand_correlation = -7.2134 * sncwv + 905.46
-
-            if wheater_scenario == 'actual':
-                heating_demand_correlation = -10.159 * sncwv + 958.79
-
-        if model_type == 'residential':
-            if wheater_scenario == 'max_cold':
-                heating_demand_correlation = -216.065 * sncwv + 4740.7
-
-            if wheater_scenario == 'min_warm':
-                heating_demand_correlation = -107.77 * sncwv + 2687.5
-
-            if wheater_scenario == 'actual':
-                heating_demand_correlation = -158.15 * sncwv + 3622.5
-
-        # Distribute daily deamd into hourly demand
-        if weekday == 5 or weekday == 6:
-            hd_data[yearday_python] = shapes_resid_heating_boilers_wkend * heating_demand_correlation
-            all_demand_values.append(shapes_resid_heating_boilers_wkend * heating_demand_correlation)
-        else:
-            hd_data[yearday_python] = shapes_resid_heating_boilers_wkday * heating_demand_correlation
-            all_demand_values.append(shapes_resid_heating_boilers_wkday * heating_demand_correlation)
-
-    # NON-PEAK Shape Calculations------------------------------------------------------------------------------
-
-    # --hourly
-    shape_non_peak_h = np.zeros((365, 24), dtype=float)
-
-    for i, day_in_h in enumerate(hd_data):
-        shape_non_peak_h[i] = (1.0 / np.sum(day_in_h)) * day_in_h
-
-    #print("shape_non_peak_h: " + str(shape_non_peak_h))
-
-    # --day
-    shape_non_peak_yd = np.zeros((365, 1)) #Two dimensional array with one row
-    tot_y_hd = np.sum(hd_data) # Total yearly heating demand
-
-    # Percentage of total demand for every day
-    for cnt, day_in_h in enumerate(hd_data):
-        shape_non_peak_yd[cnt] = (1.0 / tot_y_hd) * np.sum(day_in_h) #calc daily demand in percent
-
-    # PEAK-----------------------------------------------------------------------------
-
-    # ITerate all days and select day with most fuels (sum across all fueltypes) as peak day
-    max_day_demand = 0
-    for day_fuels in all_demand_values:
-        if np.sum(day_fuels) > np.sum(max_day_demand):
-            max_day_demand = np.sum(day_fuels) #maximum demand
-
-    # Factor from which max daily demand can be calculed from yeary demand data
-    shape_peak_yd_factor = max_day_demand / tot_y_hd
-
-    #print("Daily load shape gas loading----" + str(wheater_scenario))
-
-
-    return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
-'''
-
 
 
 
@@ -866,3 +679,179 @@ def reduce_weather_stations(station_ids, weather_stations):
             stations_with_data[id_station] = weather_stations[id_station]
 
     return stations_with_data
+
+
+# CWV WEATER GAS SAMSON-----------------------------------
+'''def read_shp_heating_gas(data, model_type, wheater_scenario):
+    """Creates the shape of the base year heating demand over the full year
+
+    Depending wheter residential or service, a different correlation is used TODO:
+    Input:
+    -csv_temp_2015      SNCWV temperatures for every gas-year day
+    -shapes_resid_heating_boilers   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
+
+    #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
+    """
+    all_demand_values = [] # Store all calculated data to select maximum energy use for peak shape
+    hd_data = np.zeros((365, 24), dtype=float) # Initilaise array to store all values for a year
+
+    shapes_resid_heating_boilers = mf.read_csv_float(data['path_dict']['path_shapes_resid_heating_boilers_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
+
+    # Get hourly distribution (Sansom Data)
+    shapes_resid_heating_boilers_wkday = shapes_resid_heating_boilers[1] # Hourly gas shape
+    shapes_resid_heating_boilers_wkend = shapes_resid_heating_boilers[2] # Hourly gas shape
+    shape_peak_yh = shapes_resid_heating_boilers[3] # Manually derived peak from Robert Sansom
+
+    # Read in SNCWV and calculate heating demand for every yearday
+    for row in data['temp_2015_resid']:
+        sncwv = float(row[1])
+        row_split = row[0].split("/")
+        date_gas_day = date(int(row_split[2]), int(row_split[1]), int(row_split[0])) # year, month, day
+
+        yearday_python = date_gas_day.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
+        weekday = date_gas_day.timetuple().tm_wday # 0: Monday
+
+        # Calculate demand based on correlation Source: Correlation taken from CWV: Linear Correlation between SNCWV and Total NDM (RESIDENTIAL)
+        if model_type == 'service':
+            if wheater_scenario == 'max_cold':
+                heating_demand_correlation = -13.589 * sncwv + 1022.9
+
+            if wheater_scenario == 'min_warm':
+                heating_demand_correlation = -7.2134 * sncwv + 905.46
+
+            if wheater_scenario == 'actual':
+                heating_demand_correlation = -10.159 * sncwv + 958.79
+
+        if model_type == 'residential':
+            if wheater_scenario == 'max_cold':
+                heating_demand_correlation = -216.065 * sncwv + 4740.7
+
+            if wheater_scenario == 'min_warm':
+                heating_demand_correlation = -107.77 * sncwv + 2687.5
+
+            if wheater_scenario == 'actual':
+                heating_demand_correlation = -158.15 * sncwv + 3622.5
+
+        # Distribute daily deamd into hourly demand
+        if weekday == 5 or weekday == 6:
+            hd_data[yearday_python] = shapes_resid_heating_boilers_wkend * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_wkend * heating_demand_correlation)
+        else:
+            hd_data[yearday_python] = shapes_resid_heating_boilers_wkday * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_wkday * heating_demand_correlation)
+
+    # NON-PEAK Shape Calculations------------------------------------------------------------------------------
+
+    # --hourly
+    shape_non_peak_h = np.zeros((365, 24), dtype=float)
+
+    for i, day_in_h in enumerate(hd_data):
+        shape_non_peak_h[i] = (1.0 / np.sum(day_in_h)) * day_in_h
+
+    #print("shape_non_peak_h: " + str(shape_non_peak_h))
+
+    # --day
+    shape_non_peak_yd = np.zeros((365, 1)) #Two dimensional array with one row
+    tot_y_hd = np.sum(hd_data) # Total yearly heating demand
+
+    # Percentage of total demand for every day
+    for cnt, day_in_h in enumerate(hd_data):
+        shape_non_peak_yd[cnt] = (1.0 / tot_y_hd) * np.sum(day_in_h) #calc daily demand in percent
+
+    # PEAK-----------------------------------------------------------------------------
+
+    # ITerate all days and select day with most fuels (sum across all fueltypes) as peak day
+    max_day_demand = 0
+    for day_fuels in all_demand_values:
+        if np.sum(day_fuels) > np.sum(max_day_demand):
+            max_day_demand = np.sum(day_fuels) #maximum demand
+
+    # Factor from which max daily demand can be calculed from yeary demand data
+    shape_peak_yd_factor = max_day_demand / tot_y_hd
+
+    #print("Daily load shape gas loading----" + str(wheater_scenario))
+
+
+    return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
+'''
+
+
+'''
+def compare_jan_jul(main_dict_dayyear_absolute):
+    """ COMPARE JAN AND JUL DATA"""
+    # Percentages for every day:
+    jan_yearday = range(0, 30)
+    jul_yearday = range(181, 212)
+    jan = {k: [] for k in range(24)}
+    jul = {k: [] for k in range(24)}
+
+    # Read out for the whole months of jan and ful
+    for day in main_dict_dayyear_absolute:
+        for h in main_dict_dayyear_absolute[day]:
+            if day in jan_yearday:
+                jan[h].append(main_dict_dayyear_absolute[day][h])
+            if day in jul_yearday:
+                jul[h].append(main_dict_dayyear_absolute[day][h])
+    #print(jan)
+    # Average the montly entries
+    for i in jan:
+        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
+        jan[i] = sum(jan[i]) / len(jan[i])
+
+    for i in jul:
+        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
+        jul[i] = sum(jul[i]) / len(jul[i])
+
+    # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
+    jan = np.array(list(jan.items())) #convert to array
+    jul = np.array(list(jul.items())) #convert to array
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+
+    x_values = range(24)
+    y_values = list(jan[:, 1]) # to get percentages
+    plt.plot(x_values, list(jan[:, 1]), label="Jan")
+    plt.plot(x_values, list(jul[:, 1]), label="Jul")
+    plt.plot(x_values, list(jul_percent_of_jan), label="% dif of Jan - Jul")
+    plt.legend()
+    plt.show()
+
+
+    #--- if JAn = 100%
+    jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
+    for h ,i in enumerate(jul_percent_of_jan):
+        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
+
+    pf.plot_load_shape_yd_non_resid(jan)
+    print("TEST: " + str(jan-jul))
+'''
+
+'''def followup_processing(out_dict_average, out_dict_not_average):
+
+    # --------------------------------------------------------
+    # Calculate average daily load shape for all mongth (averaged)
+    # --------------------------------------------------------
+    # Initiate
+    yearly_averaged_load_curve = {0: {}, 1: {}}
+    for daytype in yearly_averaged_load_curve:
+        yearly_averaged_load_curve[daytype] = {k: 0 for k in range(24)}
+
+    for daytype in out_dict_average:
+
+        # iterate month
+        for hour in range(24):
+            h_average_y = 0
+
+            # Get every hour of all months
+            for month in range(12):
+                h_average_y += out_dict_average[daytype][month][hour]
+
+            h_average_y = h_average_y / 12
+            yearly_averaged_load_curve[daytype][hour] = h_average_y
+
+    print("Result yearly averaged:")
+    print(yearly_averaged_load_curve)
+    return
+'''
+
+
+

@@ -9,12 +9,9 @@ import unittest
 import copy
 import numpy as np
 import yaml
-
 import pylab
 import matplotlib.pyplot as plt
-
 from haversine import haversine # PAckage to calculate distance between two long/lat points
-
 from scipy.optimize import curve_fit
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -294,8 +291,6 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
             )
 
     return dict_with_switches
-
-
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.

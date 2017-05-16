@@ -234,10 +234,10 @@ def collect_shapes_from_txts(data):
 
     # Read load shapes from txt files for enduses
     for end_use in enduses:
-        
+
         #if enduse in ['space_heating']:
         #    continue
-        
+
         shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
         shape_non_peak_h = df.read_txt_shape_non_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
         shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
