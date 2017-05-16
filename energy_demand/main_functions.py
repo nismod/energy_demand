@@ -908,9 +908,9 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     This data is loaded in the wrapper.
     Parameters
     ----------
-    curr_yr : int
-        The year of the current simulation.
     base_yr : int
+        The year of the current simulation.
+    curr_yr : int
         The year of the current simulation.
     value_start : float
         Fraction of population served with fuel_enduse_switch in base year
@@ -926,7 +926,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0 #return zero
     else:
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
+        fract_sy = np.divide(value_end - value_start, sim_years - 1) * (curr_yr - base_yr) #-1 because in base year no change
 
     return fract_sy
 
@@ -1429,7 +1429,7 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
             # Convert to energy service (Energy service = fuel * efficiency)
             print("tech: " + str(tech))
             print(tech_stock)
-            service[fueltype][tech] = fuel_tech_h * tech_stock.get_technology_attribute(tech, 'eff_by')
+            service[fueltype][tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
 
     # Calculate energy service demand over the full year and for every hour
     total_service_h = np.zeros((365, 24))
@@ -1451,7 +1451,7 @@ def calc_regional_service_demand(fuel_shape_y_h, fuel_p_tech_by, fuels, tech_sto
         fuel_fueltype_tech[fueltype] = {}
         for tech in service_fueltype_tech[fueltype]:
             service_tech_h = service_fueltype_tech[fueltype][tech]
-            fuel_fueltype_tech[fueltype][tech] = service_tech_h / tech_stock.get_technology_attribute(tech, 'eff_cy')
+            fuel_fueltype_tech[fueltype][tech] = service_tech_h / tech_stock.get_tech_attribute(tech, 'eff_cy')
 
     # Convert to percent within fueltype
     fuel_fueltype_tech_p = {}

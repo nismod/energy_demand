@@ -15,6 +15,7 @@
 # lu = look up
 # h = hour
 # hp = heat pump
+# tech = technology
 # d = day
 # y = year
 

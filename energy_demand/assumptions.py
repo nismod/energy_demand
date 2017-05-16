@@ -216,6 +216,7 @@ def load_assumptions(data):
 
     # Technologies used
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
+    assumptions['list_tech_cooling_temp_dep'] = []
 
     assumptions['list_tech_heating_const'] = ['gas_boiler', 'elec_boiler', 'gas_boiler2', 'elec_boiler2', 'oil_boiler', 'hydrogen_boiler', 'hydrogen_boiler2']
     assumptions['list_tech_heating_temp_dep'] = ['heat_pump']
