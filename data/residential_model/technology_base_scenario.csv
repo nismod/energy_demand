@@ -1,14 +1,32 @@
-technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry
-heat_pump,electricity,2,2,1,linear,2015
-gas_boiler,gas,0.1,0.1,1,linear,2015
-elec_boiler,electricity,0.4,0.4,1,linear,2000
-hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2015
-oil_boiler,oil,0.7,0.7,1,linear,2015
-elec_boiler2,electricity,0.4,0.4,1,linear,2015
-hydrogen_boiler2,hydrogen,0.5,0.5,1,linear,2015
-halogen_elec,electricity,0.036,0.036,1,linear,2000
-standard_lighting_bulb,electricity,0.02,0.02,1,linear,2000
-fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2000
-energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2000
-LED,electricity,0.048,0.048,1,linear,2000
-cooling_tech_lin,electricity,0.048,0.048,1,linear,2000
+technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry,NOTES
+elec_boiler,electricity,0.4,0.4,1,linear,2000,
+hydrogen_boiler,hydrogen,0.9,0.9,1,linear,2015,
+elec_boiler2,electricity,0.4,0.4,1,linear,2015,
+hydrogen_boiler2,hydrogen,0.5,0.5,1,linear,2015,
+halogen_elec,electricity,0.036,0.036,1,linear,2010,Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
+standard_lighting_bulb,electricity,0.02,0.02,1,linear,2010,Found on wikipedia
+fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2010,Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
+energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2010,Relative derived eff: 70% efficiency gain to standard lightingbulg
+LED,electricity,0.048,0.048,1,linear,2010,40% savings compared to energy saving lighting bulb
+cooling_tech_lin,electricity,0.048,0.048,1,linear,2010,
+boiler_coal,coal,0.6,0.7,1,linear,2015,
+boiler_gas,gas,0.7,0.9,1,linear,2015,
+boiler_elec,electricity,0.99,0.99,1,linear,2015,
+boiler_oil,oil,0.7,0.9,1,linear,2015,
+boiler_biomass,bioenergy_waste,0.7,0.9,5,linear,2015,
+boiler_hydrogen,hydrogen,0.7,0.9,1,linear,2015,
+boiler_condensing_gas,gas,0.85,0.95,1,linear,2015,
+boiler_condensing_oil,oil,0.85,0.95,1,linear,2015,
+heat_pump_ASHP_gas,gas,2,3,2,linear,2015,
+heat_pump_GSHP_gas,gas,2.5,4,3,linear,2015,
+heat_pump_ASHP_elec,electricity,2,3,2,linear,2015,
+heat_pump_GSHP_elec,electricity,2.5,4,3,linear,2015,
+heat_pump_ASHP_hydro,electricity,2,3,2,linear,2015,
+heat_pump_GSHP_hydro,electricity,2.5,4,3,linear,2015,
+Stirling_µCHP_elec,electricity,0.06,0.14,6,linear,2015,
+FC_µCHP_thermal,electricity,0.48,0.48,7,linear,2015,
+FC_µCHP_elec,electricity,0.37,0.45,8,linear,2015,
+Stirling_µCHP_thermal,electricity,0.72,0.8,9,linear,2015,
+cooking_hob_gas,gas,0.5,0.55,10,linear,2015,
+cooking_hob_elec,electricity,0.1,0.95,11,linear,2015,
+cooking_hob_hydro,hydrogen,0.1,0.95,11,linear,2015,

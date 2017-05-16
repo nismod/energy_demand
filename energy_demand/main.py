@@ -235,6 +235,6 @@ if __name__ == "__main__":
 
 
     # Run main function
-    results = energy_demand_model(base_data, data_external)
+    results = energy_demand_model(base_data)
 
     print("Finished running Energy Demand Model")

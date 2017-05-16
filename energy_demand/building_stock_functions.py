@@ -52,7 +52,7 @@ class Dwelling(object):
     def calc_scenario_driver(self):
         """ Summen driver values for dwellign depending on enduse and dfined assumptions and add as attribute
         IMPORTANT FUNCTION
-        e.g. assumptION. {'space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
+        e.g. assumptION. {'resid_space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
         """
         # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:

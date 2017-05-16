@@ -260,7 +260,7 @@ def read_csv_assumptions_technologies(path_to_csv, data):
                 'diff_method': str(row[5]),
                 'market_entry': float(row[6])
             }
-
+    #If this function does not work, check if in excel empty rows are loaded in
     return dict_technologies
 
 def read_csv_assumptions_fuel_switches(path_to_csv, data):
@@ -1408,6 +1408,8 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     total_service_yh = np.zeros((365, 24))
     for fueltype in service:
         for tech in service[fueltype]:
+            #print("shape a: " + str(service[fueltype][tech].shape))
+            #print("shape b: " + str(total_service_yh.shape))
             total_service_yh += service[fueltype][tech] # (365 * 365 shapes)
 
     return total_service_yh, service

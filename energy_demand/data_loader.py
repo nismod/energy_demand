@@ -35,7 +35,7 @@ def load_data(path_main, data):
 
     # Fuel look-up table
     data['lu_fueltype'] = {
-        'solid_fuel': 0,
+        'coal': 0,
         'gas': 1,
         'electricity': 2,
         'oil': 3,
@@ -85,7 +85,7 @@ def load_data(path_main, data):
 
         # Technologies
         'path_assumptions_STANDARD': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
-        'path_FUELSWITCHES': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
+        'path_fuel_switches': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
 
         # Service
         # -------
@@ -131,16 +131,10 @@ def load_data(path_main, data):
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(data['path_dict']['path_day_type_lu'])                         # Day type lookup
-    data['shapes_resid_heating_boilers'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
+    data['shapes_resid_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
     data['shapes_resid_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
-    #data['dwtype_age_distr'] = mf.read_csv_nested_dict(data['path_dict']['path_dwtype_age'])
-    #data['temp_2015_resid'] = mf.read_csv(data['path_dict']['path_temp_2015'])                       # Residential daily gas data
-
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
-
     data['shapes_resid_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_resid_cooling'])
-
-
 
     # load shapes
     data['shapes_resid_dh'] = {}
@@ -161,8 +155,6 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
-
-
 
 
 
@@ -188,8 +180,6 @@ def load_data(path_main, data):
 
     # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
     data = collect_shapes_from_txts(data)
-
-
 
 
 
@@ -232,7 +222,7 @@ def collect_shapes_from_txts(data):
     # Read load shapes from txt files for enduses
     for end_use in enduses:
 
-        #if enduse in ['space_heating']:
+        #if enduse in ['resid_space_heating']:
         #    continue
 
         shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
@@ -255,7 +245,8 @@ def collect_shapes_from_txts(data):
     return data
 
 def generate_data(data):
-    """This function loads all that which does not neet to be run every time"""
+    """This function loads all that which does not neet to be run every time
+    """
 
     base_yr_load_data = 2015
 
@@ -270,30 +261,16 @@ def generate_data(data):
 
     # Load shape for all end_uses
     for end_use in data['fuel_raw_data_resid_enduses']:
-        if end_use not in data['lu_appliances_HES_matched'][:, 1]: #Enduese not in HES data
+        if end_use not in data['lu_appliances_HES_matched'][:, 1]:
+            print("Warning: The enduse {} is not defined in lu_appliances_HES_matched".format(end_use))
             continue
 
         # Get HES load shapes
         shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
 
-        #print(len(shape_peak_dh))
-        #print(len(shape_non_peak_h))
-        #print(shape_peak_yd_factor)
-        #print(len(shape_non_peak_yd))
-        #prnt("..")
-
+        # Write .txt files
         df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
-    # Robert Sansom, Yearly peak from CSWV - Residential Gas demand, Daily shapes
-    wheater_scenarios = ['actual'] #, 'max_cold', 'min_warm'# Different wheater scenarios to iterate #TODO: MAybe not necessary to read in indivdual shapes for different wheater scneario
-
-    # Iterate wheater scenarios
-    # TODO: SHAPES ARE NOT TAKEN FROM HERE! REMOVE THIS
-    '''
-    for wheater_scen in wheater_scenarios:
-        shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd = df.read_shp_heating_gas(data, 'residential', wheater_scen) # Composite Wheater Variable for residential gas heating
-        df.create_txt_shapes('space_heating', path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, wheater_scen) # Write shapes to txt
-    '''
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
 
@@ -332,7 +309,7 @@ def generate_data(data):
 
 
     # Get yearly profiles
-    enduse = 'WHATEVERENDUSE'
+
     #year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles

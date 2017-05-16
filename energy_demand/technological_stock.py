@@ -55,7 +55,7 @@ class Technology(object):
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_name in data['assumptions']['list_tech_heating_const']:
              # Peak curve robert sansom
-            self.shape_peak_dh = np.divide(data['shapes_resid_heating_boilers'][3], np.sum(data['shapes_resid_heating_boilers'][3]))
+            self.shape_peak_dh = np.divide(data['shapes_resid_heating_boilers_dh'][3], np.sum(data['shapes_resid_heating_boilers_dh'][3]))
 
         elif self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
              # Peak curve robert sansom
@@ -67,7 +67,7 @@ class Technology(object):
 
         else:
             # Technology is not part of defined enduse initiate with dummy data
-            self.shape_peak_dh = np.ones((24, 1))
+            self.shape_peak_dh = np.ones((24, )) #1
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, temp_cy)

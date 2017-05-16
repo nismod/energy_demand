@@ -46,10 +46,10 @@ def load_assumptions(data):
     # Dwelling stock related scenario driver assumptions
     # ============================================================
     assumptions['resid_scen_driver_assumptions'] = {
-        'space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'resid_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
         'water_heating': ['pop'],
         'lighting': ['pop', 'floorarea'],
-        'cooking': ['pop'],
+        'resid_cooking': ['pop'],
         'cold': ['pop'],
         'wet': ['pop'],
         'consumer_electronics': ['pop'],
@@ -106,10 +106,10 @@ def load_assumptions(data):
     # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
     # ============================================================
     assumptions['resid_elasticities'] = {
-        'space_heating': 0,
+        'resid_space_heating': 0,
         'water_heating' : 0,
         'water' : 0,
-        'cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
+        'resid_cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
         'lighting': 0,
         'cold': 0,
         'wet': 0,
@@ -133,12 +133,12 @@ def load_assumptions(data):
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['general_savings_smart_meter'] = {
         'cold': -0.03,
-        'cooking': -0.03,
+        'resid_cooking': -0.03,
         'lighting': -0.03,
         'wet': -0.03,
         'consumer_electronics': -0.03,
         'home_computing': -0.03,
-        'space_heating': -0.03
+        'resid_space_heating': -0.03
     }
 
     # ---------------------------------------------------------------------------------------------------------------------
@@ -154,10 +154,10 @@ def load_assumptions(data):
     assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
 
     assumptions['enduse_overall_change_ey'] = {
-        'space_heating': 1,
+        'resid_space_heating': 1,
         'water_heating': 1,
         'lighting': 1,
-        'cooking': 1,
+        'resid_cooking': 1,
         'cold': 1,
         'wet': 1,
         'consumer_electronics': 1,
@@ -177,15 +177,18 @@ def load_assumptions(data):
     # ============================================================
 
     # Fixed tech assumptions (do not change for scenario)
-    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from Staffell et al. 2002
+    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from Staffell et al. (2012)
 
     # Load all technologies and their efficiencies from csv file
     assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
-    # --Helper Function to write same achieved efficiency for all technologies
-    assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=1)
+    # Assumption how much of technological efficiency is reached
+    efficiency_achieving_factor = 1
 
-    # Other function
+    # --Helper Function to write same achieved efficiency for all technologies
+    assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=efficiency_achieving_factor)
+
+    # Other functions
     data['tech_lu_resid'] = create_lu_technologies(assumptions, assumptions['technologies'], data)
     assumptions = create_lu_fueltypes(assumptions)
 
@@ -194,7 +197,7 @@ def load_assumptions(data):
     # ---------------------------
 
     # Read in switches from csv file
-    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_FUELSWITCHES'], data)
+    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data)
 
     # Write assertion that: share_fuel_consumption_switched !> max_theoretical_switch
 
@@ -210,32 +213,46 @@ def load_assumptions(data):
     assumptions = helper_create_stock(assumptions, data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
     # Lists with technologies used for model running
-    assumptions['enduse_space_heating'] = ['space_heating']
+    assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
     assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
     # Technologies used
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
 
-    assumptions['list_tech_heating_const'] = ['gas_boiler', 'elec_boiler', 'gas_boiler2', 'elec_boiler2', 'oil_boiler', 'hydrogen_boiler', 'hydrogen_boiler2']
-    assumptions['list_tech_heating_temp_dep'] = ['heat_pump']
+    assumptions['list_tech_heating_const'] = ['boiler_gas', 'elec_boiler', 'boiler_gas2', 'elec_boiler2', 'boiler_oil', 'hydrogen_boiler', 'hydrogen_boiler2']
+    assumptions['list_tech_heating_temp_dep'] = ['heat_pump_elec', 'heat_pump_ASHP_elec']
 
     # ---Space Heating
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['gas']] = {'gas_boiler': 1.0}
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
 
     # Provides shares of fuel within each fueltype
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump': 0.02}  # {'heat_pump': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
-    #assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['oil']] = {'oil_boiler': 1.0}
-    assumptions['fuel_enduse_tech_p_by']['space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump_ASHP_elec': 0.02}  # {'heat_pump_elec': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
+    #assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
 
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
+    # Share of installed heat pumps (ASHP to GSHP)
+    # TODO: MAKE IN FUEL SWITCHES THAT IF FUELTYPE == heat_pump_ the share is considered...
+    assumptions['heat_pump_stock_install'] = {'heat_pump_ASHP_elec': 0.5, 'heat_pump_GSHP_elec': 0.5}
+
+
+
+    # ---Residential cooking
+    assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
+    assumptions['enduse_resid_cooking'] = ['resid_cooking']
+    assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
+    assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
+    
+
+    #assumptions['heat_pump_technologies'] = ['heat_pump_ASHP_elec', 'heat_pump_GSHP_elec'] # Share of ASHP to GSHP
 
     # TODO: ADD dummy technology for all enduses where no technologies are defined
     # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
-
-    #IF new technologs is introduced: assign_shapes_to_tech_stock()
+    # TODO: Assert wheater any heat pump is added to assumptions['list_tech_heating_temp_dep']
+    #IF new technologs is introduced: assign_shapes_tech_stock()
     return assumptions
 
 
@@ -275,57 +292,6 @@ def get_hlc(dw_type, age):
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
 
     return hlc
-
-
-'''
-        'back_boiler' : 0.01,
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gain to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulg
-        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-'''
-'''
-
-    assumptions['eff_ey'] = {
-        # -- heating boiler ECUK Table 3.19
-        'back_boiler' : 0.01,
-        #'combination_boiler' : 0.0,
-        'condensing_boiler' : 0.5,
-        #'condensing_combination_boiler' : 0.0,
-
-
-        # -- lighting
-        'halogen_elec': 0.036,                   # Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
-        'standard_lighting_bulb': 0.02,          # Found on wikipedia
-        'fluorescent_strip_lightinging': 0.054,  # Relative derived eff: 50% efficiency gaint to halogen (0.036*150) / 100
-        'energy_saving_lighting_bulb': 0.034,    # Relative derived eff: 70% efficiency gain to standard lightingbulb
-        'LED' : 0.048,                           # 40% savings compared to energy saving lighting bulb
-
-
-        # -- wet
-        #'boiler_gas': 0.5,
-        #'boiler_oil': 0.5,
-        #'boiler_condensing': 0.5,
-        #'boiler_biomass': 0.5,
-
-        # -- consumer electronics
-        #'ASHP': 0.5,
-        #'HP_ground_source': 0.5,
-        #'HP_air_source': 0.5,
-        #'HP_gas': 0.5,
-
-        # -- home_computing
-        #'micro_CHP_elec': 0.5,
-        #'micro_CHP_thermal': 0.5,
-
-        'gas_boiler': 0.3,
-        'elec_boiler': 0.5,
-        'heat_pump_m': -0.1,
-        'heat_pump_b': 22.0
-        #'heat_pump': get_heatpump_eff(data_external, 0.1, 8)
-        }
-'''
 
 def create_lu_technologies(assumptions, in_technologies, data):
     """Create lookup-table for technologies

@@ -688,19 +688,19 @@ def reduce_weather_stations(station_ids, weather_stations):
     Depending wheter residential or service, a different correlation is used TODO:
     Input:
     -csv_temp_2015      SNCWV temperatures for every gas-year day
-    -shapes_resid_heating_boilers   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
+    -shapes_resid_heating_boilers_dh   Shape of hourly gas for Day, weekday, weekend (Data from Robert Sansom)
 
     #TODO: THIS CAN BE USED TO DERIVED temp_2015_non_residential_gas data
     """
     all_demand_values = [] # Store all calculated data to select maximum energy use for peak shape
     hd_data = np.zeros((365, 24), dtype=float) # Initilaise array to store all values for a year
 
-    shapes_resid_heating_boilers = mf.read_csv_float(data['path_dict']['path_shapes_resid_heating_boilers_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
+    shapes_resid_heating_boilers_dh = mf.read_csv_float(data['path_dict']['path_shapes_resid_heating_boilers_dh_resid']) / 100 # Because given in percentages (division no inlfuence on results as relative anyway)
 
     # Get hourly distribution (Sansom Data)
-    shapes_resid_heating_boilers_wkday = shapes_resid_heating_boilers[1] # Hourly gas shape
-    shapes_resid_heating_boilers_wkend = shapes_resid_heating_boilers[2] # Hourly gas shape
-    shape_peak_yh = shapes_resid_heating_boilers[3] # Manually derived peak from Robert Sansom
+    shapes_resid_heating_boilers_dh_wkday = shapes_resid_heating_boilers_dh[1] # Hourly gas shape
+    shapes_resid_heating_boilers_dh_wkend = shapes_resid_heating_boilers_dh[2] # Hourly gas shape
+    shape_peak_yh = shapes_resid_heating_boilers_dh[3] # Manually derived peak from Robert Sansom
 
     # Read in SNCWV and calculate heating demand for every yearday
     for row in data['temp_2015_resid']:
@@ -734,11 +734,11 @@ def reduce_weather_stations(station_ids, weather_stations):
 
         # Distribute daily deamd into hourly demand
         if weekday == 5 or weekday == 6:
-            hd_data[yearday_python] = shapes_resid_heating_boilers_wkend * heating_demand_correlation
-            all_demand_values.append(shapes_resid_heating_boilers_wkend * heating_demand_correlation)
+            hd_data[yearday_python] = shapes_resid_heating_boilers_dh_wkend * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_dh_wkend * heating_demand_correlation)
         else:
-            hd_data[yearday_python] = shapes_resid_heating_boilers_wkday * heating_demand_correlation
-            all_demand_values.append(shapes_resid_heating_boilers_wkday * heating_demand_correlation)
+            hd_data[yearday_python] = shapes_resid_heating_boilers_dh_wkday * heating_demand_correlation
+            all_demand_values.append(shapes_resid_heating_boilers_dh_wkday * heating_demand_correlation)
 
     # NON-PEAK Shape Calculations------------------------------------------------------------------------------
 

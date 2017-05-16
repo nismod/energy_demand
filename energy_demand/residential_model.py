@@ -60,26 +60,31 @@ class Region(object):
         self.cooling_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
 
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
-        self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd) # Heating, boiler, non-peak
-        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy) # Heating, heat pumps, non-peak
-        self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd) # Cooling, linear tech (such as boilers)
+        self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd, 'shapes_resid_heating_boilers_dh') # Heating, boiler, non-peak
+        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Heating, heat pumps, non-peak
+        self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Cooling, linear tech (such as boilers)
 
         # -- PEAK
 
         # Assign shapes to technologies in technological stock for enduses with technologies
-        self.tech_stock = self.assign_shapes_to_tech_stock(
+        self.tech_stock = self.assign_shapes_tech_stock(
             data['tech_lu_resid'],
-            data['assumptions']
+            data['assumptions'],
+            data
             )
 
         # Set attributs of all enduses to the Region Class
         self.create_enduses(data['resid_enduses'], data)
 
+
+
+
+
         # --------------------
         # -- summing functions
         # --------------------
         # Sum final 'yearly' fuels (summarised over all enduses)
-        self.fuels_new = self.tot_all_enduses_y(data, 'enduse_fuel_yh') #self.enduse_fuel_yh
+        self.fuels_new = self.tot_all_enduses_y(data['resid_enduses'], 'enduse_fuel_yh')
 
         #self.fuels_new_enduse_specific_y = self.enduse_specific_y(data, 'enduse_fuel_new_fuel')
         self.fuels_new_enduse_specific_h = self.enduse_specific_h(data)
@@ -103,44 +108,57 @@ class Region(object):
         self.fuels_tot_enduses_h = self.tot_all_enduses_h(data, 'enduse_fuel_yh')
 
         # Calculate load factors from peak values
-        ##self.reg_load_factor_d = self.load_factor_d(data)
         self.reg_load_factor_h = self.calc_load_factor_h(data, self.fuels_tot_enduses_h, self.fuels_peak_h) #Across all enduses
-
-        # Calculate load factors from non peak values (Does not make sense!)
-        ##self.reg_load_factor_d_non_peak = self.load_factor_d_non_peak(data)
-        ##self.reg_load_factor_h_non_peak = self.load_factor_h_non_peak(data)
 
         # Testing
         #np.testing.assert_almost_equal(np.sum(self.fuels_tot_enduses_d), np.sum(self.fuels_tot_enduses_h), err_msg='The Regional disaggregation from d to h is false')
-
         #test_sum = 0
         #for enduse in self.fuels_new_enduse_specific_y:
         #    test_sum += np.sum(self.fuels_new_enduse_specific_y[enduse])
         #np.testing.assert_almost_equal(np.sum(self.fuels_new), test_sum, err_msg='Summing end use specifid fuels went wrong')
 
     def get_shape_peak_yd_factor(self, demand_yd):
-        """Get percentage of yearly service demand which is provided in a day
+        """From yd shape calculate maximum relative yearly service demand which is provided in a day
 
-        Assumption: HDD & CDD are directly proportional to fuel usage
+        Parameters
+        ----------
+        demand_yd : shape
+            Demand for energy service for every day in year
+
+        Return
+        ------
+        max_factor_yd : float
+            yd maximum factor
+
+        Info
+        -----
+        If the shape is taken from heat and cooling demand the assumption is made that
+        HDD and CDD are directly proportional to fuel usage
         """
-        total_demand_y = np.sum(demand_yd) # Total year
-        max_demand_d = np.max(demand_yd) # Maximum day
+        tot_demand_y = np.sum(demand_yd) # Total yearly demand
+        max_demand_d = np.max(demand_yd) # Maximum daily demand
+        max_factor_yd = np.divide(1.0, tot_demand_y) * max_demand_d # Factor
 
-        factor_yd = np.divide(1, total_demand_y) * max_demand_d # Factor
-        #print("--")
-        #print("total_demand_y : " + str(total_demand_y))
-        #print("max_demand_d:    " + str(max_demand_d))
-        #print("factor_yd:       " + str(max_demand_d))
-        return factor_yd
+        return max_factor_yd
 
-    def assign_shapes_to_tech_stock(self, technologies, assumptions):
-        """
-        Assign shapes to technological stock for different heating technologies
+    def assign_shapes_tech_stock(self, technologies, assumptions, data):
+        """Assign shapes to technological stock to technologies
 
+        The technologies are iterated and checked wheter they are part of
+        a specified enduse. Depending on defined asspumptions different shape
+        curves for yd or yh are taken.
 
-        Daily shape & hourly shape
+        Parameters
+        ----------
+        technologies : list
+            List with technologies
+        assumptions : dict
+            Assumptions
 
-        # Assign peak shapes for technologies??
+        Return
+        ------
+        tech_stock : attribute
+            Updated attribute of `Region` class
         """
         # Iterate all technologies and check if specific technology has a own shape
         for technology in technologies:
@@ -156,33 +174,48 @@ class Region(object):
             elif technology in assumptions['list_tech_heating_temp_dep']: # Technologies with hourly efficiencies
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
+            
+            elif technology in assumptions['list_enduse_tech_cooking']: #SCRAP
+                print("SCRAP: COOKING ASSIGN ENDUSE SHAPE TO TECHNOLOGIES" + str(technology))
+                enduse_shape_from_HES_yd = data['shapes_resid_yd']['resid_cooking']['shape_non_peak_yd']
+                enduse_shape_from_HES_dh = data['shapes_resid_dh']['resid_cooking']['shape_non_peak_h']
+                print("enduse_shape_from_HES_yd " + str(enduse_shape_from_HES_yd.shape))
+                print("enduse_shape_from_HES_dh " + str(enduse_shape_from_HES_dh.shape))
+                enduse_shape_from_HES_yh = enduse_shape_from_HES_yd * enduse_shape_from_HES_dh
+                print("enduse_shape_from_HES_yh " + str(enduse_shape_from_HES_yh.shape))
+                print(np.sum(enduse_shape_from_HES_yh))
+
+                self.tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
+                self.tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
 
         return self.tech_stock
 
     def create_enduses(self, enduses, data):
-        """All enduses are initialised and inserted as an attribute of the Region Class
+        """All enduses are initialised and inserted as an attribute of the `Region` Class
+
+        It is checked wheter the enduse is a defined enduse where the enduse_peak_yd_factor
+        depends on regional characteristics (temp).
+
+        Parameters
+        ----------
+        enduses : list
+            Enduses
+        data : dict
+            Data
         """
         # Iterate all enduses
         for enduse in enduses:
 
-            # ---------------------------------------------
-            # Enduse specific parameters #TODO: Add cooling
-            # ---------------------------------------------
-            if enduse in data['assumptions']['enduse_space_heating']:
+            # Enduse specific parameters
+            if enduse in data['assumptions']['enduse_resid_space_heating']:
                 enduse_peak_yd_factor = self.reg_peak_yd_heating_factor # Regional yd factor for heat
-                #enduse_shape_peak_dh = None # Because peak is taken from technology of endus
             elif enduse in data['assumptions']['enduse_space_cooling']:
-                enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor
+                enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                # Get parameter from loaded shape
+                # Get parameters from loaded shapes for enduse
                 enduse_peak_yd_factor = data['shapes_resid_yd'][enduse]['shape_peak_yd_factor']
 
-                #enduse_shape_peak_dh = data['shapes_resid_dh'][self.enduse]['shape_peak_dh'] # dh
-
-
-            # ---------------------------------------
-            # Add residential enduse to region
-            # ---------------------------------------
+            # Add enduse to region
             Region.__setattr__(
                 self,
                 enduse, # Name of enduse
@@ -197,23 +230,15 @@ class Region(object):
                     self.fuel_shape_hp_yh,
                     self.fuel_shape_boilers_yh,
                     enduse_peak_yd_factor  # yd factor which is different depending on enduse
-                    #enduse_shape_peak_dh #Daily shape of peak day
                     )
                 )
 
-            # ---------------------------------------
-            # Add service enduses to region
-            # ---------------------------------------
-
-    def tot_all_enduses_y(self, data, attribute_to_get):
+    def tot_all_enduses_y(self, enduses, attribute_to_get):
         """Sum all fuel types over all end uses
         """
-        #sum_fuels = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
         sum_fuels = 0
-
-        for enduse in data['resid_enduses']:
+        for enduse in enduses:
             sum_fuels += np.sum(self.__getattr__subclass__(enduse, attribute_to_get))
-
         return sum_fuels
 
     def max_fuel_fueltype_allenduses(self, data, attribute_to_get):
@@ -255,7 +280,6 @@ class Region(object):
         for enduse in data['resid_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuel_yh') # Fuel of Enduse h
         return sum_fuels_all_enduses
-
 
     def tot_all_enduses_d(self, data, attribute_to_get):
         """Calculate total daily fuel demand for each fueltype
@@ -503,18 +527,15 @@ class Region(object):
         ------
         shape_yd : array
             Fraction of heat for every day. Array-shape: 365, 1
-
-        Info
-        -----
-        #TODO: TEST
         """
         t_base_cooling_resid = mf.t_base_sigm(year, data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_cooling_resid')
 
+        # Calculate cdd for every day (365, 1)
         cdd_d = mf.calc_cdd(t_base_cooling_resid, temperatures)
 
         return cdd_d
 
-    def shape_heating_hp_yh(self, data, tech_stock, hdd_cy):
+    def shape_heating_hp_yh(self, data, tech_stock, hdd_cy, tech_to_get_shape):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump
 
         This is for non-peak.
@@ -526,8 +547,7 @@ class Region(object):
         tech_stock : object
             Technology stock
         hdd_cy : array
-            ??
-
+            Heating Degree Days (365, 1)
 
         Returns
         -------
@@ -544,7 +564,7 @@ class Region(object):
         The daily fuel demand curve for heat pumps taken from:
         Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Dissertation, Imperial College London.
         """
-        shape_y_hp = np.zeros((365, 24))
+        shape_yh_hp = np.zeros((365, 24))
 
         list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
 
@@ -555,36 +575,51 @@ class Region(object):
 
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
             if weekday == 5 or weekday == 6:
-                daily_fuel_profile = (data['shapes_resid_heating_heat_pump_dh'][2] / np.sum(data['shapes_resid_heating_heat_pump_dh'][2])) # WkendHourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
-                daily_fuel_profile = (data['shapes_resid_heating_heat_pump_dh'][1] / np.sum(data['shapes_resid_heating_heat_pump_dh'][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
 
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_object = getattr(tech_stock, 'heat_pump') #TODO: WHAT IF DIFFERENT HEAT PUMPS?
-                average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
-            # Convert daily service demand to fuel
-            hp_daily_fuel = hdd_cy[day] / average_eff_d # Heat demand / efficiency = fuel
+                # Get fraction of different heat pump types
+                frac_heat_pump_types = data['assumptions']['heat_pump_stock_install']
 
-            # Distribute fuel of day according to fuel load curve by Robert Sansom
-            shape_y_hp[day] = hp_daily_fuel * daily_fuel_profile
+                # Get heat pump technologies TODO: Maybe fueltype speciic??
+                heat_pump_types = frac_heat_pump_types.keys()
+
+                average_eff_d_all_heat_pumps = 0
+                for tech_heat_pump in heat_pump_types:
+
+                    # Share of installed heat pumps
+                    share_hp_tech = frac_heat_pump_types[tech_heat_pump]
+
+                    tech_object = getattr(tech_stock, tech_heat_pump)
+                    average_eff_d_all_heat_pumps += share_hp_tech * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
+
+                average_eff_d = heat_share_h * average_eff_d_all_heat_pumps
+
+            # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
+            hp_daily_fuel = np.divide(hdd_cy[day], average_eff_d)
+
+            # Distribute fuel of day according to fuel load curve
+            shape_yh_hp[day] = hp_daily_fuel * daily_fuel_profile
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
-        hp_shape = np.divide(1, np.sum(shape_y_hp)) * shape_y_hp
+        hp_shape = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp
 
         return hp_shape
 
-    def shape_cooling_yh(self, data, cooling_shape):
+    def shape_cooling_yh(self, data, cooling_shape, tech_to_get_shape):
         """Convert daily shape to hourly based on robert sansom daily load for boilers
 
         This is for non-peak.
 
         Every the day same
 
-        Taken from Denholm, P., Ong, S., & Booten, C. (2012). Using Utility Load Data to 
-        Estimate Demand for Space Cooling and Potential for Shiftable Loads, 
+        Taken from Denholm, P., Ong, S., & Booten, C. (2012). Using Utility Load Data to
+        Estimate Demand for Space Cooling and Potential for Shiftable Loads,
         (May), 23. Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf
 
         Parameters
@@ -594,8 +629,8 @@ class Region(object):
 
         Returns
         -------
-         : array
-
+        shape_yd_cooling_tech : array
+            Shape of cooling devices
 
         Info
         ----
@@ -605,17 +640,16 @@ class Region(object):
         fuel demand curve for boilers from:
 
         """
-        shape_yd_boilers = np.zeros((365, 24))
+        shape_yd_cooling_tech = np.zeros((365, 24))
 
         for day in range(365):
 
-            # Shape of cooling * daily cooling demand
-            shape_yd_boilers[day] = data['shapes_resid_cooling_dh'] * cooling_shape[day]
+            # Shape of cooling (same for all days) * daily cooling demand
+            shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day]
 
-        return shape_yd_boilers
+        return shape_yd_cooling_tech
 
-
-    def shape_heating_boilers_yh(self, data, heating_shape):
+    def shape_heating_boilers_yh(self, data, heating_shape, tech_to_get_shape):
         """Convert daily shape to hourly based on robert sansom daily load for boilers
 
         This is for non-peak.
@@ -657,10 +691,10 @@ class Region(object):
             if weekday == 5 or weekday == 6:
 
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_yd_boilers[day] = heating_shape[day] * (data['shapes_resid_heating_boilers'][2] / np.sum(data['shapes_resid_heating_boilers'][2]))
+                shape_yd_boilers[day] = heating_shape[day] * (data[tech_to_get_shape][2] / np.sum(data[tech_to_get_shape][2]))
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve
-                shape_yd_boilers[day] = heating_shape[day] * (data['shapes_resid_heating_boilers'][1] / np.sum(data['shapes_resid_heating_boilers'][1]))
+                shape_yd_boilers[day] = heating_shape[day] * (data[tech_to_get_shape][1] / np.sum(data[tech_to_get_shape][1]))
 
         # Testing
         #assert np.sum(shape_yd_boilers) == 1, "Error in shape_heating_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_yd_boilers))
@@ -746,7 +780,6 @@ class Region(object):
 
         #ax.stackplot(x, Y_init)
         plt.show()
-
 
 def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
     """Plots stacked end_use for a region
@@ -838,7 +871,7 @@ def residential_model_main_function(data):
     resid_object = CountryResidentialModel(data['lu_reg'], data)
 
     print("READ OUT SPECIFIC ENDUSE FOR A REGION")
-    #print(resid_object.get_specific_enduse_region('Wales', 'space_heating'))
+    #print(resid_object.get_specific_enduse_region('Wales', 'resid_space_heating'))
 
 
     # ----------------------------
@@ -891,7 +924,7 @@ class EnduseResid(object):
         self.technologies_enduse = self.get_technologies_in_enduse(data) # Get all technologies of enduse
         self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data) # Get fuel switches in enduse
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
-        print("AA: " + str(tech_stock))
+        print("Enduse: " + str(self.enduse))
         # --------------------------
         # YEARLY FUELS
         # --------------------------
@@ -915,16 +948,30 @@ class EnduseResid(object):
 
         #print("Fuel train A: " + str(self.enduse_fuel_new_fuel))
 
+        # TODO MAYBE
+        # Some enduses may be defined by technologies (e.g. cooking)
         # --------------------------
         # HOURLY FUELS
         # --------------------------
 
         # If enduse has technologies
-        if self.technologies_enduse != []: # and self.enduse_specific_fuel_switches_crit:
+        if self.technologies_enduse != []:
 
             # Get corret service shape of enduse (for every enduse fuel switch need to define one)
-            if self.enduse in data['assumptions']['enduse_space_heating']: #== 'space_heating':
-                    service_y_h_shape = fuel_shape_boilers_yh # y_h_service_distribution in base year
+            if self.enduse in data['assumptions']['enduse_resid_space_heating']:
+                service_y_h_shape = fuel_shape_boilers_yh # y_h_service_distribution in base year
+
+            # -- COOKING (# SCRAP)
+            elif self.enduse in data['assumptions']['enduse_resid_cooking']:
+                service_y_h_shape_all_fueltypes = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data['shapes_resid_yd'][self.enduse]['shape_non_peak_yd'])
+
+                service_y_h_shape = np.zeros((365, 24))
+                for fuel_fueltype in service_y_h_shape_all_fueltypes:
+                    service_y_h_shape += fuel_fueltype
+                service_y_h_shape = (1 / np.sum(service_y_h_shape)) * service_y_h_shape
+
+            print("SHAdddddPE: " + str(service_y_h_shape.shape))
+            
             #elif self.enduse == 'cooling':
             #    service_y_h_shape =
             # else:
@@ -938,7 +985,6 @@ class EnduseResid(object):
                 #print("Fuel train E: " + str(self.enduse_fuel_new_fuel))
                 ###enduse_fuel_after_switch_p = self.enduse_switches_service_to_fuel_p(service_fueltype_tech_after_switch, tech_stock, self.enduse_fuel_new_fuel) # Convert service to fuel within each fueltype and assign percentage of fuel (e.g. 0.2 gastech1, 0.8 gastech2)
             else:
-                # print("NO switches implemented")
                 pass
 
             # Convert service to fuel for each technology
@@ -995,7 +1041,6 @@ class EnduseResid(object):
                 fuel_switches_enduse.append(fuelswitch)
 
         if fuel_switches_enduse != []:
-            print("Fuel switches for this enduse: " + str(fuel_switches_enduse))
             return True
         else:
             return False
@@ -1024,6 +1069,10 @@ class EnduseResid(object):
             fuel_tech = enduse_fuel_after_switch_per_tech[tech] # Get fuel of technology
             fuel_tech_peak_dh = fuel_tech * tech_stock.get_tech_attribute(tech, 'shape_peak_dh') # Multiply fuel with shape_peak_dh
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
+            print("---")
+            print(fuel_tech.shape)
+            print(fuel_tech_peak_dh.shape)
+            print(enduse_fuel_peak_yh[fueltype_tech].shape)
             enduse_fuel_peak_yh[fueltype_tech] += fuel_tech_peak_dh # Add fuel of day
 
         return enduse_fuel_peak_yh
@@ -1046,13 +1095,12 @@ class EnduseResid(object):
         for tech in technologies_enduse:
             fuel_tech = enduse_fuel_after_switch_per_tech[tech] # Get fuel of technology
             fuel_tech_d = fuel_tech * tech_stock.get_tech_attribute(tech, 'shape_yd') # Multiply fuel with shape_h
-            ####print("TEchnology: " + str(tech) + "   " + str(fuel_tech_d)) PINGU
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
-            fuels_fueltype_d[fueltype_tech] += fuel_tech_d #np.sum(fuel_tech_d) # Add fuel of day
+            fuels_fueltype_d[fueltype_tech] += fuel_tech_d # # Add fuel of day
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_switches_service_to_fuel
         #np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(self.enduse_fuel_new_fuel), decimal=5, err_msg="Error: The y to h fuel did not work")
-
+        # IF this function has problems, check wheter all technologies are assigned to technology lists (e.g. heat pumps in heating list)
         return fuels_fueltype_d
 
     def calc_enduse_fuel_tech_yh(self, enduse_fuel_after_switch_per_tech, technologies_enduse, tech_stock):
@@ -1082,12 +1130,11 @@ class EnduseResid(object):
         #TODO: fuel_shape_boilers_yh only for heating so far! fuel_shape_boilers_yh --> service_SHAPE_Y_H
 
         """
-
         # Calculate total regional service demand (across all fueltypes) (base year)
         tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(
             service_y_h_shape,
             assumptions['fuel_enduse_tech_p_by'][self.enduse],
-            fuels, #self.enduse_fuel_spec_change,
+            fuels,
             tech_stock
         )
 
@@ -1112,9 +1159,7 @@ class EnduseResid(object):
                 # Get service for current year for technologies
                 service_fueltype_tech_after_switch[tech_installed_fueltype][tech_installed] += service_tech_installed_cy
 
-                # ---------------------------------------------------------------------------------------------------
-                # 3. Remove fuel of replaced energy service demand proportinally to heat demand in base year
-                # ---------------------------------------------------------------------------------------------------
+                # Remove fuel of replaced energy service demand proportinally to heat demand in base year
                 tot_service_switched_tech_installed = 0 # Total replaced service across different fueltypes
                 fueltypes_replaced = [] # List with fueltypes where fuel is replaced
 
@@ -1145,9 +1190,6 @@ class EnduseResid(object):
                                 reduction_service_fueltype = 0
                             else:
                                 reduction_service_fueltype = service_tech_installed_cy * (np.divide(1.0, tot_service_switched_tech_installed) * relative_share)
-
-                            print("--------dd--diffusion_cy " + str(diffusion_cy))
-
                             break # switch is found
 
                     # Get all technologies which are installed
@@ -1155,7 +1197,6 @@ class EnduseResid(object):
 
                     # Iterate all technologies in within the fueltype and calculate reduction per technology
                     for technology_replaced in technologies_in_fueltype:
-                        #print("-------------heat demand within fueltype of technology: " + str(technology_replaced))
 
                         # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
                         service_demand_tech = assumptions['service_fueltype_tech_p'][self.enduse][fueltype][technology_replaced] * reduction_service_fueltype
@@ -1280,7 +1321,7 @@ class EnduseResid(object):
         """
         new_fuels = np.zeros((self.enduse_fuel_new_fuel.shape[0], 1))
 
-        if self.enduse == 'space_heating':
+        if self.enduse == 'resid_space_heating':
             for fueltype, fuel in enumerate(self.enduse_fuel_new_fuel):
                 new_fuels[fueltype] = fuel * heating_factor_y
 
@@ -1405,7 +1446,6 @@ class EnduseResid(object):
 
             setattr(self, 'enduse_fuel_new_fuel', new_fuels)
 
-
     def enduse_y_to_d(self, fuels, enduse_shape):
         """Generate array with fuels for every day
         """
@@ -1526,7 +1566,7 @@ class CountryResidentialModel(object):
         #prnt("..")
 
         # TESTER: READ OUT Specific ENDUSE for a REGION
-        #print("AA: " + str(self.get_specific_enduse_region('Wales', 'space_heating')))
+        #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
 
         # ----- Testing
         n = 0
