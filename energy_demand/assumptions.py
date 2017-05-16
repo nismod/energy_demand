@@ -220,16 +220,19 @@ def load_assumptions(data):
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
 
-    assumptions['list_tech_heating_const'] = ['boiler_gas', 'elec_boiler', 'boiler_gas2', 'elec_boiler2', 'boiler_oil', 'hydrogen_boiler', 'hydrogen_boiler2']
-    assumptions['list_tech_heating_temp_dep'] = ['heat_pump_elec', 'heat_pump_ASHP_elec']
+    # TODO: 
+    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen']
+    assumptions['list_tech_heating_temp_dep'] = ['heat_pump_ASHP_elec']
 
-    # ---Space Heating
+    # ---Residential space Heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
 
+    #boiler_biomass
+    #boiler_elec
+
     # Provides shares of fuel within each fueltype
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'elec_boiler2': 0.2, 'elec_boiler': 0.8, 'heat_pump_ASHP_elec': 0.02}  # {'heat_pump_elec': 0.02, 'elec_boiler': 0.98}  H annon 2015, heat-pump share in uk
-    #assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'hydrogen_boiler': 0.0, 'hydrogen_boiler2': 0.0}
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'heat_pump_ASHP_elec': 0.02}  #  H annon 2015, heat-pump share in uk
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
 
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
@@ -241,11 +244,15 @@ def load_assumptions(data):
 
 
     # ---Residential cooking
-    assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
+    assumptions['list_enduse_tech_cooking'] = []
+    '''assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
     assumptions['enduse_resid_cooking'] = ['resid_cooking']
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
-    
+    '''
+
+    # Helper function: Add all technologies with correct fueltype to assumptions['fuel_enduse_tech_p_by'] if not already added
+    ###assumptions['fuel_enduse_tech_p_by'] = add_all_tech_to_base_year_stock(assumptions['fuel_enduse_tech_p_by'], assumptions['technologies'])
 
     #assumptions['heat_pump_technologies'] = ['heat_pump_ASHP_elec', 'heat_pump_GSHP_elec'] # Share of ASHP to GSHP
 
@@ -255,11 +262,24 @@ def load_assumptions(data):
     #IF new technologs is introduced: assign_shapes_tech_stock()
     return assumptions
 
+def add_all_tech_to_base_year_stock(fuel_enduse_tech_p_by, technologies):
+    """All defines technologies are added if they are not manually definied
 
+    If fueltypes are manually defined, copy these values. Otherwise insert the technologies but assign no fuel to them
+    TODO: SO far all technologies are added in every enduse. not realistic...
+    """
+    for technology in technologies:
+
+        # Fueltype of technology
+        fueltype_tech = technologies[technology]['fuel_type']
+
+        for enduse in fuel_enduse_tech_p_by:
+            if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech]:
+                fuel_enduse_tech_p_by[enduse][fueltype_tech][technology] = 0.0
+    return fuel_enduse_tech_p_by
 
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
-
 def get_hlc(dw_type, age):
     """Calculates the linearly derived hlc depending on age and dwelling type
 
@@ -290,25 +310,22 @@ def get_hlc(dw_type, age):
 
     # Get linearly fitted value
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
-
     return hlc
 
 def create_lu_technologies(assumptions, in_technologies, data):
-    """Create lookup-table for technologies
+    """Helper function: Create lookup-table for technologies
     """
     out_dict = {}
     for tech_id, technology in enumerate(in_technologies, 1000):
         out_dict[technology] = tech_id
-
     return out_dict
 
 def create_lu_fueltypes(assumptions):
-    """Create lookup-table for fueltypes
+    """Helper function: Create lookup-table for fueltypes
     """
     assumptions['tech_fueltype'] = {}
     for technology in assumptions['technologies']:
         assumptions['tech_fueltype'][technology] = assumptions['technologies'][technology]['fuel_type']
-
     return assumptions
 
 def helper_create_stock(assumptions, fuel_raw_data_resid_enduses, nr_of_fueltypes):

@@ -52,14 +52,26 @@ class Technology(object):
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
 
+        # Get Shape of peak dh
+        self.shape_peak_dh = self.get_shape_peak_dh(data)
+
+        # Calculate efficiency in current year
+        self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
+
+    def get_shape_peak_dh(self, data):
+        """Depending on technology the shape dh is different
+        #TODO: MORE INFO
+        #TODO:
+        """
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_name in data['assumptions']['list_tech_heating_const']:
+            
              # Peak curve robert sansom
-            self.shape_peak_dh = np.divide(data['shapes_resid_heating_boilers_dh'][3], np.sum(data['shapes_resid_heating_boilers_dh'][3]))
+            shape_peak_dh = np.divide(data['shapes_resid_heating_boilers_dh'][3], np.sum(data['shapes_resid_heating_boilers_dh'][3]))
 
         elif self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
              # Peak curve robert sansom
-            self.shape_peak_dh = np.divide(data['shapes_resid_heating_heat_pump_dh'][3], np.sum(data['shapes_resid_heating_heat_pump_dh'][3]))
+            shape_peak_dh = np.divide(data['shapes_resid_heating_heat_pump_dh'][3], np.sum(data['shapes_resid_heating_heat_pump_dh'][3]))
 
             #elif self-tech_name in data['assumptions']['list_tech_cooling_const']:
             #    self.shape_peak_dh =
@@ -67,10 +79,9 @@ class Technology(object):
 
         else:
             # Technology is not part of defined enduse initiate with dummy data
-            self.shape_peak_dh = np.ones((24, )) #1
+            shape_peak_dh = np.ones((24, ))
 
-        # Calculate efficiency in current year
-        self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
+        return shape_peak_dh
 
     def calc_efficiency_cy(self, data, temp_cy):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency

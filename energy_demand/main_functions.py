@@ -23,7 +23,6 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
     for external_enduse in data['data_ext']['external_enduses_resid']:
-
         new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
         for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
             new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
@@ -1408,8 +1407,6 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     total_service_yh = np.zeros((365, 24))
     for fueltype in service:
         for tech in service[fueltype]:
-            #print("shape a: " + str(service[fueltype][tech].shape))
-            #print("shape b: " + str(total_service_yh.shape))
             total_service_yh += service[fueltype][tech] # (365 * 365 shapes)
 
     return total_service_yh, service
