@@ -541,6 +541,8 @@ class Region(object):
 
         Info
         ----
+        The service is calculated based on the efficiency of gas heat pumps (av_heat_pump_gas)
+
         The daily heat demand is converted to daily fuel depending on efficiency of heatpumps (assume if 100% heat pumps).
         In a final step the hourly fuel is converted to percentage of yearly fuel demand.
 
@@ -564,26 +566,13 @@ class Region(object):
             else:
                 daily_fuel_profile = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
 
-            # Calculate weighted average daily efficiency of heat pump
+            # Calculate weighted average daily efficiency of heat pum
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-
-                # Get fraction of different heat pump types
-                frac_heat_pump_types = data['assumptions']['heat_pump_stock_install']
-
-                # Get heat pump technologies TODO: Maybe fueltype speciic??
-                heat_pump_types = frac_heat_pump_types.keys()
-
-                average_eff_d_all_heat_pumps = 0
-                for tech_heat_pump in heat_pump_types:
-
-                    # Share of installed heat pumps
-                    share_hp_tech = frac_heat_pump_types[tech_heat_pump]
-
-                    tech_object = getattr(tech_stock, tech_heat_pump)
-                    average_eff_d_all_heat_pumps += share_hp_tech * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
-
-                average_eff_d = heat_share_h * average_eff_d_all_heat_pumps
+                
+                # Select gas heat pumps to calculate service shap 
+                tech_object = getattr(tech_stock, 'av_heat_pump_gas')
+                average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = np.divide(hdd_cy[day], average_eff_d)
@@ -729,7 +718,6 @@ class Region(object):
 
             #Get data of a fueltype
             for _, fuel_data in enumerate(sum_fuels_h[fueltype][day_start_plot:day_end_plot]):
-
                 for h in fuel_data:
                     list_all_h.append(h)
 
@@ -774,7 +762,6 @@ def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, re
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     """
-
     fig, ax = plt.subplots() #fig is needed
     nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
 
@@ -855,7 +842,6 @@ def residential_model_main_function(data):
     print("READ OUT SPECIFIC ENDUSE FOR A REGION")
     #print(resid_object.get_specific_enduse_region('Wales', 'resid_space_heating'))
 
-
     # ----------------------------
     # Attributes of whole country
     # ----------------------------
@@ -933,7 +919,7 @@ class EnduseResid(object):
         # --------------------------
         # If enduse has technologies
         if self.technologies_enduse != []:
-
+            print("Enduse is defined....")
             # Get corret service shape of enduse (for every enduse fuel switch need to define one)
             if self.enduse in data['assumptions']['enduse_resid_space_heating']:
                 service_shape_yh = fuel_shape_heating # y_h_service_distribution in base year #TODO: CAN SERVICE 
@@ -1069,6 +1055,12 @@ class EnduseResid(object):
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
             fuels_fueltype_d[fueltype_tech] += fuel_tech_d # Add fuel of day
             control_sum += np.sum(fuel_tech_d)
+            print(" -- ")
+            print("tech: " + str(tech))
+            print("fuel_tech: " + str(fuel_tech))
+            print(np.sum(tech_stock.get_tech_attribute(tech, 'shape_yd')))
+            print("fuel_tech_d: " + str(np.sum(fuel_tech_d)))
+
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_switches_service_to_fuel
         np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(control_sum), decimal=5, err_msg="Error: The y to h fuel did not work")
@@ -1460,9 +1452,6 @@ class EnduseResid(object):
         Notes
         -----
         """
-        print("enduse_shape_dh")
-        print(enduse_shape_dh.shape)
-        prnt(".")
         fuels_h = np.zeros((fuels.shape[0], 365, 24))
 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape

@@ -1320,7 +1320,9 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     Implement changes in heat demand (all technolgies within a fueltypes are replaced proportionally)
     """
     service_tech_switched_p = copy.deepcopy(service_tech_p)
-
+    print("service_tech_switched_p")
+    print(service_tech_switched_p)
+    
     for enduse in enduses: # Iterate enduse
         for fuel_switch in fuel_switches: # Iterate fuel switches
             if fuel_switch['enduse'] == enduse: # If fuel is switched in this enduse
@@ -1751,6 +1753,79 @@ def search_closest_weater_station(longitude_reg, latitue_reg, weather_stations):
             closest_id = station_id
 
     return closest_id
+
+def get_fueltype_str(fueltype_lu, fueltype_nr):
+    """Read from dict the fueltype string based on fueltype KeyError
+
+    Inputs
+    ------
+    fueltype_lu : dict
+        Fueltype lookup dictionary
+    fueltype_nr : int
+        Key which is to be found in lookup dict
+
+    Returns
+    -------
+    fueltype_in_string : str
+        Fueltype string
+    """
+    for fueltype_str in fueltype_lu: # data['lu_fueltype']:
+        if fueltype_lu[fueltype_str] == fueltype_nr:
+            fueltype_in_string = fueltype_str
+            break
+    return fueltype_in_string
+
+def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_pump_install_assumptions):
+    """Delete all heat_pump from tech dict and generate articifial 'heat_pump' with 
+    efficiency depending on installed ratio
+    TODO: DESCRIBE
+
+    # Assumptions:
+    - Market Entry of different technologies must be the same year! (the lowest is selected if different years)
+    - diff method is linear
+    """
+    # Calculate average efficiency of heat pump depending on installed ratio
+    for fueltype in heat_pump_install_assumptions:
+        av_eff_hps_by = 0
+        av_eff_hps_ey = 0
+        eff_achieved_av = 0
+        market_entry_lowest = 2200
+
+        for heat_pump_type in heat_pump_install_assumptions[fueltype]:
+            share_heat_pump = heat_pump_install_assumptions[fueltype][heat_pump_type]
+            eff_heat_pump_by = technologies_dict[heat_pump_type]['eff_by'] #Base year efficiency
+            eff_heat_pump_ey = technologies_dict[heat_pump_type]['eff_ey'] #End year efficiency
+            eff_achieved = technologies_dict[heat_pump_type]['eff_achieved'] #End year efficiency
+            market_entry = technologies_dict[heat_pump_type]['market_entry'] #End year efficiency
+
+            # Calc average values
+            av_eff_hps_by += share_heat_pump * eff_heat_pump_by
+            av_eff_hps_ey += share_heat_pump * eff_heat_pump_ey
+            eff_achieved_av += share_heat_pump * eff_achieved
+
+            if market_entry < market_entry_lowest:
+                market_entry_lowest = market_entry
+
+        # Add average 'av_heat_pumps' to technology dict
+        fueltype_string = get_fueltype_str(data['lu_fueltype'], fueltype)
+        name_av_hp = "av_heat_pump_{}".format(str(fueltype_string))
+        print("Create new averaged heat pump technology: " + str(name_av_hp))
+        # Add new averaged technology
+        technologies_dict[name_av_hp] = {}
+        technologies_dict[name_av_hp]['fuel_type'] = fueltype
+        technologies_dict[name_av_hp]['eff_by'] = av_eff_hps_by
+        technologies_dict[name_av_hp]['eff_ey'] = eff_heat_pump_ey
+        technologies_dict[name_av_hp]['eff_achieved'] = eff_achieved_av
+        technologies_dict[name_av_hp]['diff_method'] = 'linear'
+        technologies_dict[name_av_hp]['market_entry'] = market_entry_lowest
+
+    # Remove all heat pumps from tech dict
+    for fueltype in heat_pump_install_assumptions:
+        for heat_pump_type in heat_pump_install_assumptions[fueltype]:
+            del technologies_dict[heat_pump_type]
+
+    return technologies_dict
+
 
 '''def get_max_fuel_day(fuels):
     """The day with most fuel

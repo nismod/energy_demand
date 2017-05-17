@@ -175,12 +175,22 @@ def load_assumptions(data):
     # ============================================================
     # Technologies & Technology stock
     # ============================================================
+    # Load all technologies and their efficiencies from csv file
+    assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
 
     # Fixed tech assumptions (do not change for scenario)
     assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from Staffell et al. (2012)
 
-    # Load all technologies and their efficiencies from csv file
-    assumptions['technologies'] = mf.read_csv_assumptions_technologies(data['path_dict']['path_assumptions_STANDARD'], data)
+    # Share of installed heat pumps (ASHP to GSHP) for every fueltype
+    assumptions['heat_pump_stock_install'] = {
+        data['lu_fueltype']['gas']: {'heat_pump_ASHP_elec': 0.5, 'heat_pump_GSHP_elec': 0.5},
+        data['lu_fueltype']['electricity']: {'heat_pump_ASHP_gas': 0.5, 'heat_pump_GSHP_gas': 0.5},
+        }
+
+    # Change tech depending on assumed heat_pump_mix
+    assumptions['technologies'] = mf.generate_heat_pump_from_different_heat_pumps(data, assumptions['technologies'], assumptions['heat_pump_stock_install'])
+
+    #print(assumptions['technologies']['boiler_biomass'])
 
     # Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1
@@ -221,8 +231,9 @@ def load_assumptions(data):
     assumptions['list_tech_cooling_temp_dep'] = []
 
     # TODO: 
+    #TODO: ADD AVERAGED heat pumps automatically
     assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen']
-    assumptions['list_tech_heating_temp_dep'] = ['heat_pump_ASHP_elec']
+    assumptions['list_tech_heating_temp_dep'] = ['av_heat_pump_electricity', 'av_heat_pump_gas']
 
     # ---Residential space Heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
@@ -231,15 +242,13 @@ def load_assumptions(data):
     #boiler_elec
 
     # Provides shares of fuel within each fueltype
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'heat_pump_ASHP_elec': 0.02}  #  H annon 2015, heat-pump share in uk
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  H annon 2015, heat-pump share in uk
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
-
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
+    
     # ---Lighting
     #assumptions['fuel_enduse_tech_p_by']['lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_lighting_bulb': 0.5}
 
-    # Share of installed heat pumps (ASHP to GSHP)
-    # TODO: MAKE IN FUEL SWITCHES THAT IF FUELTYPE == heat_pump_ the share is considered...
-    assumptions['heat_pump_stock_install'] = {'heat_pump_ASHP_elec': 0.5, 'heat_pump_GSHP_elec': 0.5}
 
 
 
