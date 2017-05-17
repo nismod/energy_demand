@@ -1,7 +1,7 @@
 """Functions used for plotting"""
 import matplotlib.pyplot as plt
 import numpy as np
-
+import energy_demand.main_functions as mf
 import matplotlib as mpl
 
 

@@ -13,7 +13,7 @@ import pylab
 import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
-import energy_demand.plot_functions as pf
+#import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def add_yearly_external_fuel_data(data, dict_to_add_data):
@@ -853,7 +853,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0
     else:
-        fract_sy = np.divide(value_end - value_start, sim_years - 1) * (curr_yr - base_yr) #-1 because in base year no change
+        fract_sy = np.divide((value_end - value_start), (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
 
     return fract_sy
 
@@ -901,7 +901,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
             y_trans = -6.0 + (12.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
         # Get a value between 0 and 1 (sigmoid curve ranging from 0 to 1)
-        cy_p = 1 / (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
+        cy_p = np.divide(1, (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint))))
 
         return cy_p
 
@@ -1008,7 +1008,7 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
     m_slope : float
         Slope of efficiency of heat pump for different temperatures
     b : float
-        Intercept
+        Intercept (TODO: define for slope...(check in excel for GSHP and HSP))
     t_base_heating : float
         Base temperature for heating
 
@@ -1035,7 +1035,7 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
                     h_diff = t_base_heating + abs(temp_h)
                 else:
                     h_diff = abs(t_base_heating - temp_h)
-            eff_hp_yh[day][h_nr] = m_slope * h_diff + b[day][h_nr]
+            eff_hp_yh[day][h_nr] = m_slope * h_diff + b #[day][h_nr]
 
     return eff_hp_yh
 
@@ -1320,9 +1320,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     Implement changes in heat demand (all technolgies within a fueltypes are replaced proportionally)
     """
     service_tech_switched_p = copy.deepcopy(service_tech_p)
-    print("service_tech_switched_p")
-    print(service_tech_switched_p)
-    
+
     for enduse in enduses: # Iterate enduse
         for fuel_switch in fuel_switches: # Iterate fuel switches
             if fuel_switch['enduse'] == enduse: # If fuel is switched in this enduse
@@ -1395,7 +1393,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies (average efficiency across whole year)
         for tech in fuel_enduse_tech_p_by[fueltype]:
-
+            
             # Fuel share based on defined fuel fraction within fueltype (share of fuel of technology * tot fuel)
             fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse[0]
 
@@ -1404,6 +1402,9 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
             # Convert to energy service (Energy service = fuel * efficiency)
             service[fueltype][tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
+            
+            #print("conerting fuel to heat tech: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.average(tech_stock.get_tech_attribute(tech, 'eff_by'))))
+            #print("TESTING SHAPE: "  + str(np.sum(fuel_shape_yh)))
 
     # Calculate energy service demand over the full year and for every hour
     total_service_yh = np.zeros((365, 24))
@@ -1814,7 +1815,7 @@ def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_p
         technologies_dict[name_av_hp] = {}
         technologies_dict[name_av_hp]['fuel_type'] = fueltype
         technologies_dict[name_av_hp]['eff_by'] = av_eff_hps_by
-        technologies_dict[name_av_hp]['eff_ey'] = eff_heat_pump_ey
+        technologies_dict[name_av_hp]['eff_ey'] = av_eff_hps_ey
         technologies_dict[name_av_hp]['eff_achieved'] = eff_achieved_av
         technologies_dict[name_av_hp]['diff_method'] = 'linear'
         technologies_dict[name_av_hp]['market_entry'] = market_entry_lowest

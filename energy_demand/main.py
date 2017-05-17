@@ -216,6 +216,8 @@ if __name__ == "__main__":
         print("SIM RUN:  " + str(sim_y))
         print(data_external['glob_var']['curr_yr'])
         print("-------------------------- ")
+        print(base_data['assumptions']['technologies']['av_heat_pump_gas']['eff_by'])
+        print(base_data['assumptions']['technologies']['av_heat_pump_gas']['eff_ey'])
         results, resid_object_country = energy_demand_model(base_data)
 
         results_every_year.append(resid_object_country)

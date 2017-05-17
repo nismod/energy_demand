@@ -19,9 +19,10 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_cy, year): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
+    def __init__(self, tech_name, data, temp_by, temp_cy, year): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
         """Contructor of Technology
 
+        #TODO: Checke whetear all technologies which are temp dependent are specified for base year efficiency
         Parameters
         ----------
         tech_name : str
@@ -39,7 +40,22 @@ class Technology(object):
 
         # Attributes from data
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
-        self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
+
+        # Assign base year efficiency depending on technology
+        if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']: # Make temp dependent base year efficiency
+            self.eff_by = mf.get_heatpump_eff(
+                temp_by,
+                data['assumptions']['heat_pump_slope_assumption'],
+                #mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by']),
+                data['assumptions']['technologies'][self.tech_name]['eff_by'],
+                data['assumptions']['t_base_heating_resid']['base_yr']
+            )
+            # (temp_yr, m_slope, b, t_base_heating)
+        else:
+            # Constant base year efficiency
+            self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
+
+
         self.eff_ey = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_ey'])
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
@@ -57,6 +73,13 @@ class Technology(object):
 
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
+
+        '''print("comparae eff  " + str(self.tech_name))
+        print(np.sum(temp_by))
+        print(np.sum(temp_cy))
+        print(np.sum(self.eff_by))
+        print(np.sum(self.eff_cy))
+        '''
 
     def get_shape_peak_dh(self, data):
         """Depending on technology the shape dh is different
@@ -83,14 +106,14 @@ class Technology(object):
 
         return shape_peak_dh
 
-    def calc_efficiency_cy(self, data, temp_cy):
+    def calc_efficiency_cy(self, data, temperatures):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
         Parameters
         ----------
         data : dict
             All internal and external provided data
-        temp_cy : array
+        temperatures : array
             Temperatures of current year
 
         Returns
@@ -105,27 +128,38 @@ class Technology(object):
         """
         # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
         if self.diff_method == 'linear':
-            theor_max_eff = mf.linear_diff(data['data_ext']['glob_var']['base_yr'], self.curr_yr, self.eff_by, self.eff_ey, len(data['data_ext']['glob_var']['sim_period']))
+            theor_max_eff = mf.linear_diff(
+                data['data_ext']['glob_var']['base_yr'],
+                self.curr_yr,
+                data['assumptions']['technologies'][self.tech_name]['eff_by'],
+                data['assumptions']['technologies'][self.tech_name]['eff_ey'],
+                len(data['data_ext']['glob_var']['sim_period'])
+            )
         elif self.diff_method == 'sigmoid':
             theor_max_eff = mf.sigmoid_diffusion(data['data_ext']['glob_var']['base_yr'], self.curr_yr, data['data_ext']['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         # Consider actual achived efficiency
-        actual_eff = theor_max_eff * self.eff_achieved_factor
+        actual_max_eff = theor_max_eff * self.eff_achieved_factor
 
         # Differencey in efficiency change
-        efficiency_change = actual_eff * (self.eff_ey - self.eff_by)
-
+        efficiency_change = actual_max_eff * (data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
+        print("theor_max_eff: " + str(theor_max_eff))
+        #print("actual_max_eff: " + str(actual_max_eff))
+        print(data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
+        #print("self.eff_achieved_factor:" + str(self.eff_achieved_factor))
+        #print("efficiency_change: " + str(efficiency_change))
         # Actual efficiency potential
-        eff_cy = self.eff_by + efficiency_change
+        #eff_cy = data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change
 
         # ---------------------------------
         # Technology specific efficiencies
         # ---------------------------------
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
+            print("EFF: " + str(efficiency_change))
             eff_cy_hourly = mf.get_heatpump_eff(
-                temp_cy,
+                temperatures,
                 data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08
-                eff_cy,
+                data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change,
                 data['assumptions']['t_base_heating_resid']['base_yr']
             )
         elif self.tech_name in data['assumptions']['list_tech_cooling_temp_dep']:
@@ -135,7 +169,7 @@ class Technology(object):
             sys.exit()
         else:
             # Non temperature dependent efficiencies
-            eff_cy_hourly = eff_cy
+            eff_cy_hourly = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change)
 
         return eff_cy_hourly
 
@@ -144,7 +178,7 @@ class ResidTechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, technologies, temp_cy):
+    def __init__(self, data, technologies, temp_by, temp_cy):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -164,6 +198,7 @@ class ResidTechStock(object):
             technology_object = Technology(
                 tech_name,
                 data,
+                temp_by,
                 temp_cy,
                 data['data_ext']['glob_var']['curr_yr'],
             )
