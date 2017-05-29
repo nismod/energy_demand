@@ -28,17 +28,19 @@
 # dh = every hour in day
 
 Down the line
-- make sure that if a fuel type is added this correspoends to the fuel dict (do not read enfuse from fuel table but seperate tabel)
+- make sure that if a fuel type is added this correspoends to the fuel dict
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 
 The docs can be found here: http://ed.readthedocs.io
 """
-# pylint: disable=I0011,C0321,C0301,C0103,C0325
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 import os
 import sys
+import numpy as np
+import random
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
@@ -46,16 +48,12 @@ import energy_demand.technological_stock as ts
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
-import numpy as np
-import random
+import energy_demand.residential_model as rm # Import sub modules
+import energy_demand.service_model as sm # Import sub modules
+import energy_demand.industry_model as im # Import sub modules
+import energy_demand.transport_model as tm # Import sub modules
 
 print("Start Energy Demand Model with python version: " + str(sys.version))
-
-# Import sub modules
-import energy_demand.residential_model as rm
-import energy_demand.service_model as sm
-import energy_demand.industry_model as im
-import energy_demand.transport_model as tm
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand

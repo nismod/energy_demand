@@ -2,7 +2,7 @@
 import numpy as np
 #import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
-# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
+# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902,R0913,no-member
 
 class Technology(object):
     """Technology Class for residential & SERVICE technologies #TODO
@@ -143,9 +143,9 @@ class Technology(object):
 
         # Differencey in efficiency change
         efficiency_change = actual_max_eff * (data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
-        print("theor_max_eff: " + str(theor_max_eff))
+        #print("theor_max_eff: " + str(theor_max_eff))
         #print("actual_max_eff: " + str(actual_max_eff))
-        print(data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
+        #print(data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
         #print("self.eff_achieved_factor:" + str(self.eff_achieved_factor))
         #print("efficiency_change: " + str(efficiency_change))
         # Actual efficiency potential
@@ -155,7 +155,6 @@ class Technology(object):
         # Technology specific efficiencies
         # ---------------------------------
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
-            print("EFF: " + str(efficiency_change))
             eff_cy_hourly = mf.get_heatpump_eff(
                 temperatures,
                 data['assumptions']['heat_pump_slope_assumption'], # Constant assumption of slope (linear assumption, even thoug not linear in realisty): -0.08

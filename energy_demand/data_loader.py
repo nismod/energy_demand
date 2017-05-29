@@ -30,8 +30,8 @@ def load_data(path_main, data):
     """
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
-    folder_path_weater_data = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
-    folder_path_weater_stations = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+    folder_path_weater_data = r'Z:\01-Data_NISMOD\data_energy_demand\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    folder_path_weater_stations = r'Z:\01-Data_NISMOD\data_energy_demand\16-Met_office_weather_data\excel_list_station_details.csv'
 
     # Fuel look-up table
     data['lu_fueltype'] = {
@@ -285,9 +285,9 @@ def generate_data(data):
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
-    #folder_path_elec = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
-    #folder_path_gas= r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
-    folder_path_elec= r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
+    #folder_path_elec = r'Z:\01-Data_NISMOD\data_energy_demand\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
+    #folder_path_gas= r'Z:\01-Data_NISMOD\data_energy_demand\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
+    folder_path_elec = r'Z:\01-Data_NISMOD\data_energy_demand\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
 
     # ENDUSE XY
     #out_dict_av, _, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
@@ -311,7 +311,7 @@ def generate_data(data):
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
 
     # ENDUSE XY
-    #folder_path = r'C:\Users\cenv0553\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
+    #folder_path = r'Z:\01-Data_NISMOD\data_energy_demand\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
 
     return data

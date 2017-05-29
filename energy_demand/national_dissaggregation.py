@@ -49,7 +49,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     regions = data['lu_reg']
     base_yr = data['data_ext']['glob_var']['base_yr']
     national_fuel = data['fuel_raw_data_resid_enduses']
-    data['fueldata_disagg'] = {} #Initialise to store aggregated fuels
+    data['resid_fueldata_disagg'] = {} #Initialise to store aggregated fuels
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
 
     # Sum national fuel before disaggregation for testing purposes
@@ -92,10 +92,10 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
 
             inter_dict[enduse] = national_fuel[enduse] * reg_diasg_factor
 
-        data['fueldata_disagg'][region] = inter_dict
+        data['resid_fueldata_disagg'][region] = inter_dict
 
     # Sum total fuel of all regions for testing purposes
-    test_sum_after = sum_fuels_after(data['fueldata_disagg'])
+    test_sum_after = sum_fuels_after(data['resid_fueldata_disagg'])
 
     # Check if total fuel is the same before and after aggregation
     assertions = unittest.TestCase('__init__')

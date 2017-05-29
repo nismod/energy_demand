@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
 #import energy_demand.plot_functions as pf
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def add_yearly_external_fuel_data(data, dict_to_add_data):
     """This data check what enduses are provided by wrapper
@@ -85,14 +85,14 @@ def read_txt_t_base_by(pattemp_h_txt, base_yr):
 
     return out_dict
 
-def convert_out_format_es(data, resid_object_country):
+def convert_out_format_es(data, object_country):
     """Adds total hourly fuel data into nested dict
 
     Parameters
     ----------
     data : dict
         Dict with own data
-    resid_object_country : object
+    object_country : object
         Contains objects of the region
 
     Returns
@@ -107,7 +107,7 @@ def convert_out_format_es(data, resid_object_country):
         results[fueltype] = []
 
         for reg_name in data['lu_reg']:
-            reg = getattr(resid_object_country, str(reg_name))
+            reg = getattr(object_country, str(reg_name))
             region_name = reg.reg_name  # Get object region name
             hourly_all_fuels = reg.tot_all_enduses_h(data, 'enduse_fuel_yh')  # Get total fuel
 

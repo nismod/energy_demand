@@ -181,19 +181,17 @@ def load_assumptions(data):
     # Fixed tech assumptions (do not change for scenario)
     assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency (slope). Derived from Staffell et al. (2012)
 
-    # Share of installed heat pumps (ASHP to GSHP) for every fueltype
+    # --Share of installed heat pumps for every fueltype (ASHP to GSHP) 
     assumptions['heat_pump_stock_install'] = {
         data['lu_fueltype']['gas']: {'heat_pump_ASHP_elec': 0.5, 'heat_pump_GSHP_elec': 0.5},
         data['lu_fueltype']['electricity']: {'heat_pump_ASHP_gas': 0.5, 'heat_pump_GSHP_gas': 0.5},
         }
+    assumptions['technologies'] = mf.generate_heat_pump_from_different_heat_pumps(data, assumptions['technologies'], assumptions['heat_pump_stock_install']) # Change tech depending on assumed heat_pump_mix
 
-    # Change tech depending on assumed heat_pump_mix
-    assumptions['technologies'] = mf.generate_heat_pump_from_different_heat_pumps(data, assumptions['technologies'], assumptions['heat_pump_stock_install'])
-
-    #print(assumptions['technologies']['boiler_biomass'])
-
-    # Assumption how much of technological efficiency is reached
+    # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1
+
+
 
     # --Helper Function to write same achieved efficiency for all technologies
     assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=efficiency_achieving_factor)
@@ -230,7 +228,7 @@ def load_assumptions(data):
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
 
-    # TODO: 
+
     #TODO: ADD AVERAGED heat pumps automatically
     assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
     assumptions['list_tech_heating_temp_dep'] = ['av_heat_pump_electricity', 'av_heat_pump_gas']
@@ -238,8 +236,6 @@ def load_assumptions(data):
     # ---Residential space Heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
 
-    #boiler_biomass
-    #boiler_elec
 
     # Provides shares of fuel within each fueltype
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  H annon 2015, heat-pump share in uk
