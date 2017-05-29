@@ -3,3 +3,5 @@ numpy
 pyyaml
 recommonmark
 matplotlib
+haversine
+scipy

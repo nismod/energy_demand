@@ -285,6 +285,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         # Iterate rows
         for row in read_lines:
+            print("row: " + str(row))
             dict_with_switches.append(
                 {
                     'enduse': str(row[0]),

@@ -1,4 +1,4 @@
-"""Main file containing the energy demand model main function
+'''Main file containing the energy demand model main function
 #
 # Description: Energy Demand Model - Run one year
 # Authors: Sven Eggimann, ... Aurthors: Pranab Baruah; Scott Thacker
@@ -34,7 +34,8 @@ Down the line
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 
 The docs can be found here: http://ed.readthedocs.io
-"""
+'''
+
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 import os
@@ -185,7 +186,11 @@ if __name__ == "__main__":
     # Insert external data into base_data
     base_data['data_ext'] = data_external
 
+    # Main path
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+
+    # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
+    base_data['local_data_path'] = 'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data' 
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
