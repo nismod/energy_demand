@@ -294,6 +294,9 @@ def load_assumptions(data):
         }
     }
 
+    # Get technologies with increased service demand
+    data['tech_with_increased_share'], data['tech_with_decreased_share'] = mf.get_diff_direct_installed(data['test_share_service_tech_by_p'], data['test_share_service_tech_ey_p'])
+
     # Max share which could be achieved with individual tech
     data['test_assump_max_share_L'] = {
         'resid_space_heating': {
