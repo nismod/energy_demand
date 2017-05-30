@@ -270,9 +270,9 @@ def load_assumptions(data):
     # Must be 100% in total
     # -----------------
     # GENERATE SERVICE DISTRIBUTION
-    #assumptions['resid_service_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
+    #assumptions['resid_service_technology_switch'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
 
-    data['test_share_service_tech_by_p'] = {
+    data['service_tech_by_p'] = {
         'resid_space_heating': {
             'boiler_elec': 0.479385045423,
             'av_heat_pump_electricity': 0.0314465408805,
@@ -283,7 +283,7 @@ def load_assumptions(data):
         }
     }
 
-    data['test_share_service_tech_ey_p'] = {
+    data['share_service_tech_ey_p'] = {
         'resid_space_heating': {
             'boiler_elec': 0.7,
             'av_heat_pump_electricity': 0.1,
@@ -294,8 +294,8 @@ def load_assumptions(data):
         }
     }
 
-    # Get technologies with increased service demand
-    data['tech_with_increased_share'], data['tech_with_decreased_share'] = mf.get_diff_direct_installed(data['test_share_service_tech_by_p'], data['test_share_service_tech_ey_p'])
+    # Processing Function - Get technologies with increased service demand
+    data['tech_increased_service'], data['tech_decreased_share'] = mf.get_diff_direct_installed(data['service_tech_by_p'], data['share_service_tech_ey_p'])
 
     # Max share which could be achieved with individual tech
     data['test_assump_max_share_L'] = {
@@ -310,8 +310,8 @@ def load_assumptions(data):
     }
 
     # Fuel shares
-    #data['fuels_tech_by_p'] = mf.generate_fuel_distribution(test_share_service_tech_by_p, assumptions['technologies'], data['lu_fueltype'])
-    #data['fuels_tech_ey_p'] = mf.generate_fuel_distribution(test_share_service_tech_ey_p, assumptions['technologies'], data['lu_fueltype'])
+    #data['fuels_tech_by_p'] = mf.generate_fuel_distribution(service_tech_by_p, assumptions['technologies'], data['lu_fueltype'])
+    #data['fuels_tech_ey_p'] = mf.generate_fuel_distribution(share_service_tech_ey_p, assumptions['technologies'], data['lu_fueltype'])
 
     #prnt(".")
     return assumptions

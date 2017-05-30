@@ -898,9 +898,9 @@ class EnduseResid(object):
         self.reg_name = reg_name
         self.enduse = enduse
         self.technologies_enduse = self.get_technologies_in_enduse(data) # Get all technologies of enduse
-        self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data) # Get fuel switches in enduse
+        self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data['assumptions']['resid_fuel_switches']) # Get fuel switches in enduse
+        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['service_tech_by_p'])
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
-        print("Enduse: " + str(self.enduse))
 
         # --------------------------------
         # Yearly fuel calculation cascade
@@ -951,19 +951,17 @@ class EnduseResid(object):
 
             # Calculate energy service (across all fueltypes for base year)
             tot_service_h_by, service_fueltype_tech = mf.calc_regional_service_demand(service_shape_yh, data['assumptions']['fuel_enduse_tech_p_by'][self.enduse], self.enduse_fuel_new_fuel, tech_stock)
-            #out: array(365, 24), dict[fueltype][tech]
-            #print("SHAPE tot_service_h_by: " + str(tot_service_h_by.shape))
 
-            #print("tot_service_h_by: " + str(tot_service_h_by))
+            # ----------------
+            # Service Switches
+            # ----------------
+            if self.enduse_specific_service_switch_crit: # if is true
+                service_fueltype_tech = self.service_technology_switch(data, tot_service_h_by, tech_stock)
 
-            # ----------NEW FUEL SHARES
-            SERVICE_SWITCH_CRIT = True
-            if SERVICE_SWITCH_CRIT == True:
-                service_fueltype_tech = self.service_SWITCHES(data, tot_service_h_by, service_fueltype_tech, tech_stock)
-
-            # --Fuel Switches, calculate service if fuel switches are implemented
-            if self.enduse_specific_fuel_switches_crit:
-                print("Implemented fuel switches...." + str(self.enduse_specific_fuel_switches_crit))
+            # ----------------
+            # Fuel Switches
+            # ----------------
+            if self.enduse_specific_fuel_switches_crit:  # if is true
                 service_fueltype_tech = self.enduse_service_fuel_switches(data['data_ext'], data['assumptions'], tech_stock, tot_service_h_by, service_fueltype_tech)
 
             # Convert energy service to fuel, Convert service to fuel for current year (y)
@@ -1011,116 +1009,95 @@ class EnduseResid(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
-    def service_SWITCHES(self, data, tot_service_h_by, service_fueltype_tech, tech_stock):
+    def service_technology_switch(self, data, tot_service_h_by, tech_stock):
         """Service switches
 
         Paramters
         ---------
-        data
-
+        data : dict
+            Data
         tot_service_h_by : array
-            hourly service of all technologies
+            Sum of hourly service of all technologies
+        tech_stock : object
+            Technology stock
 
+        Returns
+        -------
+        service_fueltype_tech_cy : dict
+            Service of every fueltype and technology of current year
+        """
+        # Init
+        service_tech_cy_p = {}
+        service_fueltype_tech_cy = {}
+        for fueltype in data['lu_fueltype']: # Add all fueltypes
+            service_fueltype_tech_cy[data['lu_fueltype'][fueltype]] = {}
+
+        # Calculate diffusion of service for technology with increased service
+        service_tech_increase_cy_p = self.get_service_diffusion(data, data['tech_increased_service'][self.enduse])
+
+        # Calculate proportional share of technologies with decreasing service of base year (distribution in base year)
+        service_tech_decrease_by_rel = mf.get_service_rel_tech_decrease_by(data['tech_decreased_share'][self.enduse], data['service_tech_by_p'][self.enduse])
+
+        # Add shares to output dict
+        for tech_increase in service_tech_increase_cy_p:
+            service_tech_cy_p[tech_increase] = service_tech_increase_cy_p[tech_increase]
+        for tech_decrease in service_tech_decrease_by_rel:
+            service_tech_cy_p[tech_decrease] = data['service_tech_by_p'][self.enduse][tech_decrease]
+
+        # Iterate service switches for gaining tech
+        for tech_increase in service_tech_increase_cy_p:
+
+            # Difference in service
+            diff_service_increase = service_tech_increase_cy_p[tech_increase] - data['service_tech_by_p'][self.enduse][tech_increase]
+
+            # Distribute gain proportionaly and substract from other technologies
+            for tech_decrease in service_tech_decrease_by_rel:
+                service_tech_cy_p[tech_decrease] -= service_tech_decrease_by_rel[tech_decrease] * diff_service_increase
+
+        # Convert service per technology into fuel per technology
+        for tech in service_tech_cy_p:
+            service_tech_absolute = np.sum(tot_service_h_by) * service_tech_cy_p[tech]  # Total yearly service * share of enduse
+            fuel = np.divide(service_tech_absolute, tech_stock.get_tech_attribute(tech, 'eff_cy'))
+            tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
+            service_fueltype_tech_cy[tech_fueltype][tech] = np.sum(fuel)
+
+        return service_fueltype_tech_cy
+
+    def get_service_diffusion(self, data, tech_increased_service):
+        """Calculate energy service fraction of technologies with increased service
+
+        Parameters
+        ----------
+        data : dict
+            Data
+        tech_increased_service : dict
+            All technologies per enduse with increased future service share
+
+        Returns
+        -------
+        service_tech_cy_p : dict
+            Share of service per technology of current year
         """
         service_tech_cy_p = {}
 
-        # Get diffusion of service changes of technologies with increased service (#TODO: only for self.enduse)
-        service_fueltype_tech_incr_cy_p = self.NEW_tech_specific_replacement(data, data['tech_with_increased_share'])
-        print("service_fueltype_tech_incr_cy_p  " + str(service_fueltype_tech_incr_cy_p))
+        for tech_installed in tech_increased_service:
 
-        # Copy increased share to output dict
-        for tech in service_fueltype_tech_incr_cy_p[self.enduse]:
-            service_tech_cy_p[tech] = service_fueltype_tech_incr_cy_p[self.enduse][tech]
+            # Get service for current year based on sigmoid diffusion
+            service_tech_cy_p[tech_installed] = mf.sigmoid_function(
+                data['data_ext']['glob_var']['curr_yr'],
+                data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
+                data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
+                data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['steepness']
+            )
 
-        # Get all technologies with less service and calculate relative distribution, Get proportional share of other diminishing technologies
-        relative_share_dimini_tech = mf.get_relative_distribution_tech_shrink(data['tech_with_decreased_share'][self.enduse], data['test_share_service_tech_by_p'][self.enduse])
-        print("relative_share_dimini_tech  " + str(relative_share_dimini_tech))
+        return service_tech_cy_p
 
-        # Copy base year service into output dict
-        for tech_decrease in relative_share_dimini_tech:
-            service_tech_cy_p[tech_decrease] = data['test_share_service_tech_by_p'][self.enduse][tech_decrease]
-
-        # Iterate service switches for gaining tech
-        for tech_increase in service_fueltype_tech_incr_cy_p[self.enduse]:
-
-            # Increase difference in service
-            diff_increase_tech_service_cy = service_fueltype_tech_incr_cy_p[self.enduse][tech_increase] - data['test_share_service_tech_by_p'][self.enduse][tech_increase]
-
-            # Distribute gain proportionaly and substract from other technologies
-            for tech_decrease in relative_share_dimini_tech:
-                rel_share_tech_decrease = relative_share_dimini_tech[tech_decrease] * diff_increase_tech_service_cy
-
-                # Decrease service
-                service_tech_cy_p[tech_decrease] -= rel_share_tech_decrease
-
-        # ----------Convert service per technology into fuel per technology
-        service_fueltype_tech_cy = {}
-
-        # Add all fueltypes
-        print("........")
-        print(service_fueltype_tech_incr_cy_p)
-        print("  ")
-        pprint.pprint(service_tech_cy_p)
-        print("    ")
-        for tech in service_tech_cy_p:
-            tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
-            service_fueltype_tech_cy[tech_fueltype] = {}
-
-        for tech in service_tech_cy_p:
-            #print("000000000000000000000_Tech ")
-            #print(np.sum(tot_service_h_by))
-            #print(service_tech_cy_p[tech])
-
-            service_tech_absolute = np.sum(tot_service_h_by) * service_tech_cy_p[tech]
-            print("service_tech_absolute: " + str(service_tech_absolute))
-
-            fuel = np.divide(service_tech_absolute, tech_stock.get_tech_attribute(tech, 'eff_cy')) 
-            tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
-
-            service_fueltype_tech_cy[tech_fueltype][tech] = np.sum(fuel)
-
-
-        # enduse_service_to_fuel_per_tech() self.enduse_service_to_fuel_per_tech(service_fueltype_tech, tech_stock)
-        print("=============")
-        print(service_tech_cy_p)
-
-        print("=============")
-        print(service_fueltype_tech_cy)
-        #prnt("..")
-        return service_fueltype_tech_cy
-
-    def NEW_tech_specific_replacement(self, data, tech_with_increased_share):
-        """Calculate difference between energy service shares and calculate fuels
-
-
-        """
-        fuels_tech_cy_p = {}
-
-        for enduse in tech_with_increased_share:
-            fuels_tech_cy_p[enduse] = {}
-
-            for tech_installed in tech_with_increased_share[enduse]:
-
-                # Read out sigmoid diffusion of energy service demand of this technology for the current year
-                diffusion_cy = mf.sigmoid_function(
-                    data['data_ext']['glob_var']['curr_yr'],
-                    data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
-                    data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
-                    data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['steepness']
-                )
-                print("Tech:  " + str(tech_installed) + "   " + str(diffusion_cy))
-
-                # Get service for current year based on diffusion
-                fuels_tech_cy_p[enduse][tech_installed] = diffusion_cy
-
-        return fuels_tech_cy_p
-
-    def get_enduse_fuel_switches(self, data):
-        """See wheter there is a fuelswitch for this enduse
+    def get_enduse_fuel_switches(self, fuelswitches):
+        """Test whether there is a fuelswitch for this enduse
         """
         fuel_switches_enduse = []
 
-        for fuelswitch in data['assumptions']['resid_fuel_switches']:
+        for fuelswitch in fuelswitches:
             if fuelswitch['enduse'] == self.enduse:
                 fuel_switches_enduse.append(fuelswitch)
 
@@ -1129,6 +1106,14 @@ class EnduseResid(object):
         else:
             return False
 
+    def get_enduse_service_switches(self, service_tech_by_p):
+        """Test wheter there are defined service switches for this enduse
+        """
+        if self.enduse in service_tech_by_p:
+            return True
+        else:
+            return False
+  
     def get_peak_from_yh(self, enduse_fuel_peak_yh):
         """Iterate yearly fuels and select day with most fuel
         """

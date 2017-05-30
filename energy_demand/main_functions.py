@@ -299,7 +299,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
     return dict_with_switches
 
-'''def read_csv_assumptions_service_switches(path_to_csv, data):
+'''def read_csv_assumptions_service_technology_switch(path_to_csv, data):
     """This function reads in CSV files and skips header row.
 
     Parameters
@@ -1208,18 +1208,18 @@ def generate_sig_diffusion(data):
     """
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
-    SERVICE_SWITCH_CRIT = True
-    if SERVICE_SWITCH_CRIT == True:
-        # IS CALCULATED BASED ON ASSUMPTION ON FUEL TYPES
-        # Get installed technologies with lager shares in end year
-        print("tech_with_increased_share: "  + str(data['tech_with_increased_share']))
-        data['assumptions']['installed_tech'] = data['tech_with_increased_share']
+    # Test if service swithc is implemented
+    if len(data['service_tech_by_p']) >= 1:
+        service_switch_crit = True
+    else:
+        service_switch_crit = False
 
-        # Base year service tech
-        data['assumptions']['service_tech_p'] = data['test_share_service_tech_by_p']
+    if service_switch_crit:
 
-        # Final energy service shares per technology provided as input
-        service_tech_switched_p = data['test_share_service_tech_ey_p']
+        data['assumptions']['installed_tech'] = data['tech_increased_service'] # Tech with lager service shares in end year
+        data['assumptions']['service_tech_p'] = data['service_tech_by_p'] # Base year service tech
+
+        service_tech_switched_p = data['share_service_tech_ey_p'] # End year service shares (scenaric input)
 
         # Maximum shares of each technology
         l_values_sig = data['test_assump_max_share_L']
@@ -1263,9 +1263,11 @@ def generate_sig_diffusion(data):
         # Calculate L for every technology for sigmod diffusion
         l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, data['assumptions'])
 
-
+    # -------------------------------------------------------------
     # Calclulate sigmoid parameters for every installed technology
+    # -------------------------------------------------------------
     data['assumptions']['sigm_parameters_tech'] = tech_sigmoid_parameters(
+        service_switch_crit,
         data['assumptions']['installed_tech'],
         enduses_with_fuels,
         data['assumptions']['technologies'],
@@ -1273,8 +1275,7 @@ def generate_sig_diffusion(data):
         l_values_sig,
         data['assumptions']['service_tech_p'],
         service_tech_switched_p,
-        data['assumptions']['resid_fuel_switches'],
-        SERVICE_SWITCH_CRIT #NEW
+        data['assumptions']['resid_fuel_switches']
     )
 
     return data['assumptions']
@@ -1458,7 +1459,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     total_service_yh : array
         Total energy service per technology for base year (365, 24)
     service : dict
-        Energy service for every fueltype and technology
+        Energy service for every fueltype and technology (dict[fueltype][tech])
 
     Notes
     -----
@@ -1603,13 +1604,15 @@ def tech_L_sigmoid(enduses, data, assumptions):
 
     return l_values_sig
 
-def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_p, service_tech_switched_p, resid_fuel_switches, SERVICE_SWITCH_CRIT):
+def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_p, service_tech_switched_p, resid_fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches. A sigmoid diffusion is fitted.
 
     Parameters
     ----------
+    service_switch_crit : bool
+        Criteria whether sigmoid is calculated for service switch or not
     installed_tech : dict
         Technologies for enduses with fuel switch
     enduses : enduses
@@ -1646,17 +1649,15 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
         else:
             for technology in installed_tech[enduse]:
 
-                # Initialise
-                sigmoid_parameters[enduse][technology] = {}
+                sigmoid_parameters[enduse][technology] = {} # Initialise
 
-                # NEW
-                if SERVICE_SWITCH_CRIT == True:
+                if service_switch_crit == True:
 
+                    # Year until service are switched
                     year_until_switched = data_ext['glob_var']['end_yr']
                     #TODO: IMPROVE THAT A FUTURE ENTRY MARKET CAN BE DEFINED FOR EACH TECHNOLOGY
-                    market_entry = 2015
-                    #pass
-
+                    #market_entry = 2015
+                    market_entry = tech_stock[technology]['market_entry']
                 else:
                     # Get year which is furtherst away of all switch to installed technology
                     year_until_switched = 0
@@ -1937,48 +1938,72 @@ def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_p
 
     return technologies_dict
 
-
-
-
-
-# ------------
-def get_diff_direct_installed(test_share_service_tech_by_p, test_share_service_tech_ey_p):
+def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
-    """
-    tech_with_increased_share = {}
-    tech_with_decreased_share = {}
 
-    for enduse in test_share_service_tech_by_p:
-        tech_with_increased_share[enduse] = []
-        tech_with_decreased_share[enduse] = []
-        for tech in test_share_service_tech_by_p[enduse]: # Calculate fuel for each tech
+    Parameters
+    ----------
+    service_tech_by_p : dict
+        Share of service per technology of base year of total service
+    share_service_tech_ey_p : dict
+        Share of service per technology of end year of total service
+    
+    Returns
+    -------
+    tech_increased_service : dict
+        Technologies with increased future service
+    tech_decreased_share : dict
+        Technologies with decreased future service
+
+    Info
+    -----
+    The assumptions are always relative to the simulation end year
+    """
+    tech_increased_service = {}
+    tech_decreased_share = {}
+
+    for enduse in service_tech_by_p:
+
+        tech_increased_service[enduse] = []
+        tech_decreased_share[enduse] = []
+
+        for tech in service_tech_by_p[enduse]: # Calculate fuel for each tech
 
             # If future larger share
-            if test_share_service_tech_by_p[enduse][tech] < test_share_service_tech_ey_p[enduse][tech]:
-                tech_with_increased_share[enduse].append(tech)
-            
+            if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:
+                tech_increased_service[enduse].append(tech)
+
             # If future smaller service share
-            if test_share_service_tech_by_p[enduse][tech] > test_share_service_tech_ey_p[enduse][tech]:
-                tech_with_decreased_share[enduse].append(tech)
+            if service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
+                tech_decreased_share[enduse].append(tech)
 
-    return tech_with_increased_share, tech_with_decreased_share
+    return tech_increased_service, tech_decreased_share
 
+def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
+    """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year
 
-def get_relative_distribution_tech_shrink(tech_with_decreased_share, test_share_service_tech_by_p):
-    """Iterate technologies with less service demand and get relative share
+    Parameters
+    ----------
+    tech_decreased_share : dict
+        Technologies with decreased service
+    service_tech_by_p : dict
+        Share of service of technologies in by
+    
+    Returns
+    -------
+
     """
+    sum_decreased_tech_p = 0 # Share of all diminishing technologies
 
-    # Fraction of all diminishing technologies
-    share_all_diminished_tech = 0
-    for tech in tech_with_decreased_share:
-        share_all_diminished_tech += test_share_service_tech_by_p[tech]
-    
-    relative_share_in_service_of_diminishing_tech_by = {}
+    for tech in tech_decreased_share:
+        sum_decreased_tech_p += service_tech_by_p[tech]
+
+    relative_share_service_decreased_tech_by = {}
     # Relative of each diminishing tech
-    for tech in tech_with_decreased_share:
-        relative_share_in_service_of_diminishing_tech_by[tech] = np.divide(1, share_all_diminished_tech) * test_share_service_tech_by_p[tech] # relative share
+    for tech in tech_decreased_share:
+        relative_share_service_decreased_tech_by[tech] = np.divide(1, sum_decreased_tech_p) * service_tech_by_p[tech] # relative share
     
-    return relative_share_in_service_of_diminishing_tech_by
+    return relative_share_service_decreased_tech_by
 
 
 
@@ -2035,20 +2060,20 @@ def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
     return fuels_tech_p
 
 
-def generate_service_distribution_by(test_share_service_tech_by_p, technologies, lu_fueltype):
+def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltype):
     """Calculate percentage of service for every fueltype
     """
     service_p = {}
 
-    for enduse in test_share_service_tech_by_p:
+    for enduse in service_tech_by_p:
          
         service_p[enduse] = {}
         for fueltype in lu_fueltype:
             service_p[enduse][lu_fueltype[fueltype]] = 0
 
-        for tech in test_share_service_tech_by_p[enduse]:
+        for tech in service_tech_by_p[enduse]:
             fueltype_tech = technologies[tech]['fuel_type']
-            service_p[enduse][fueltype_tech] += test_share_service_tech_by_p[enduse][tech]
+            service_p[enduse][fueltype_tech] += service_tech_by_p[enduse][tech]
 
     return service_p
     
