@@ -264,22 +264,20 @@ def load_assumptions(data):
     #IF new technologs is introduced: assign_shapes_tech_stock()
 
 
-
-
     # -----------------
     # Assumptions NEW (Share of overall SERVICE)
     # The share of energy service is the same across all regions
     # Must be 100% in total
     # -----------------
     # GENERATE SERVICE DISTRIBUTION
-    assumptions['resid_service_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
+    #assumptions['resid_service_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
 
     data['test_share_service_tech_by_p'] = {
         'resid_space_heating': {
-            'boiler_elec': 0.401705862868,
-            'av_heat_pump_electricity': 0.0186319973501,
+            'boiler_elec': 0.479385045423,
+            'av_heat_pump_electricity': 0.0314465408805,
             'av_heat_pump_gas': 0.0,
-            'boiler_gas' : 0.579662139781,
+            'boiler_gas' : 0.489168413697,
             'boiler_biomass': 0.0,
             'boiler_hydrogen': 0.0
         }
@@ -287,12 +285,12 @@ def load_assumptions(data):
 
     data['test_share_service_tech_ey_p'] = {
         'resid_space_heating': {
-            'boiler_elec': 0.25,
+            'boiler_elec': 0.7,
             'av_heat_pump_electricity': 0.1,
             'av_heat_pump_gas': 0.1,
-            'boiler_gas' : 0.25,
-            'boiler_biomass': 0.2,
-            'boiler_hydrogen': 0.1
+            'boiler_gas' : 0.0,
+            'boiler_biomass': 0.05,
+            'boiler_hydrogen': 0.05
         }
     }
 
@@ -313,7 +311,6 @@ def load_assumptions(data):
     #data['fuels_tech_ey_p'] = mf.generate_fuel_distribution(test_share_service_tech_ey_p, assumptions['technologies'], data['lu_fueltype'])
 
     #prnt(".")
-    
     return assumptions
 
 

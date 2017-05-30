@@ -11,7 +11,7 @@ LED,electricity,0.048,0.048,1,linear,2010,40% savings compared to energy saving 
 cooling_tech_lin,electricity,0.048,0.048,1,linear,2010,
 boiler_coal,coal,0.6,0.6,1,linear,2015,
 boiler_gas,gas,0.7,0.7,1,linear,2015,
-boiler_elec,electricity,0.99,0.99,1,linear,2015,
+boiler_elec,electricity,0.7,0.7,1,linear,2015,
 boiler_oil,oil,0.7,0.7,1,linear,2015,
 boiler_biomass,bioenergy_waste,0.7,0.7,1,linear,2015,
 boiler_hydrogen,hydrogen,0.7,0.7,1,linear,2015,

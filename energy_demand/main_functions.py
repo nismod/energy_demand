@@ -1206,10 +1206,13 @@ def generate_sig_diffusion(data):
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
-    SERVICE_SWITCH_CRIT = False
+    SERVICE_SWITCH_CRIT = True
     if SERVICE_SWITCH_CRIT == "POGGAHONTAS":
         # IS CALCULATED BASED ON ASSUMPTION ON FUEL TYPES
         # Get installed technologies with lager shares in end year
+
+        data['assumptions']['installed_tech']
+        
         pass
     else:
         # Fuel Switches - Calculate all technologies installed in fuel switches
@@ -1238,14 +1241,12 @@ def generate_sig_diffusion(data):
     )
 
     if SERVICE_SWITCH_CRIT == True:
-        pass
-        '''# Final energy service shares per technology provided as input
+        # Final energy service shares per technology provided as input
         service_tech_switched_p = data['test_share_service_tech_ey_p']
 
         # Maximum shares of each technology
         l_values_sig = data['test_assump_max_share_L']
-        '''
-
+        
     else:
         # Calculate energy service demand after fuel switches to future year for each technology
         service_tech_switched_p = calc_service_fuel_switched(
@@ -1648,24 +1649,24 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
 
                 # NEW
                 if SERVICE_SWITCH_CRIT == True:
-                    pass
-                    ''' year_until_switched = data_ext['glob_var']['end_yr']
+
+
+                    year_until_switched = data_ext['glob_var']['end_yr']
                     #TODO: IMPROVE THAT A FUTURE ENTRY MARKET CAN BE DEFINED FOR EACH TECHNOLOGY
                     market_entry = 2015
-                    '''
-                else:
 
+                    #pass
+
+                else:
                     # Get year which is furtherst away of all switch to installed technology
                     year_until_switched = 0
                     for switch in resid_fuel_switches:
                         if switch['enduse'] == enduse and switch['technology_install'] == technology:
                             if year_until_switched < switch['year_fuel_consumption_switched']:
                                 year_until_switched = switch['year_fuel_consumption_switched']
-
                     market_entry = tech_stock[technology]['market_entry']
 
-                # Test wheter technology has the market entry before or after base year
-                # If afterwards, set very small number in market entry year
+                # Test wheter technology has the market entry before or after base year, If afterwards, set very small number in market entry year
                 if market_entry > data_ext['glob_var']['base_yr']:
                     point_x_by = market_entry
                     point_y_by = 0.001 # if market entry in a future year
@@ -1673,8 +1674,8 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
                     point_x_by = data_ext['glob_var']['base_yr']
                     point_y_by = service_tech_p[enduse][technology]
 
+                    #If the base year is the market entry year use a very small number (as otherwise the fit does not work)
                     if point_y_by == 0:
-                        #If the base year is the market entry year use a very small number (as otherwise the fit does not work)
                         point_y_by = 0.001
 
                 # Future energy service demand (second point on sigmoid curve for fitting)
@@ -1701,7 +1702,7 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
                         #print("fit_parameter: " + str(fit_parameter))
 
                         successfull = 'true'
-                        print("Fit successful")
+                        print("Fit successful " + str(fit_parameter))
                     except:
                         print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1
