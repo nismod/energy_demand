@@ -402,10 +402,7 @@ def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h,
     jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
     jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
     jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
-    #jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str(other_string_info) + str('.txt')))
-    ##jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_h') + str(other_string_info) + str('.txt')))
-    #jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str(other_string_info) + str('.txt')))
-    #jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+
 def jason_to_txt_shape_peak_dh(input_array, outfile_path):
     """Wrte to txt. Array with shape: (24,)
     """

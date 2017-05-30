@@ -13,6 +13,7 @@ import pylab
 import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
+import pprint
 #import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
@@ -228,7 +229,7 @@ def read_csv_base_data_resid(path_to_csv):
         print("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0)")
     return end_uses_dict
 
-def read_csv_assumptions_technologies(path_to_csv, data):
+def read_technologies(path_to_csv, data):
     """This function reads in CSV files and skips header row.
 
     Parameters
@@ -285,7 +286,6 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         # Iterate rows
         for row in read_lines:
-            print("row: " + str(row))
             dict_with_switches.append(
                 {
                     'enduse': str(row[0]),
@@ -298,6 +298,43 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
             )
 
     return dict_with_switches
+
+'''def read_csv_assumptions_service_switches(path_to_csv, data):
+    """This function reads in CSV files and skips header row.
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    dict_with_switches : dict
+        All assumptions about fuel switches provided as input
+    """
+    list_elements = []
+    dict_with_switches = []
+
+    # Read CSV file
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        _headings = next(read_lines) # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            dict_with_switches.append(
+                {
+                    'enduse': str(row[0]),
+                    'enduse_technology_service_replace': data['lu_fueltype'][str(row[1])],
+                    'technology_install': str(row[2]),
+                    'year_service_consumption_switched': float(row[3]),
+                    'share_service_consumption_switched': float(row[4]),
+                    'max_theoretical_switch': float(row[5])
+                }
+            )
+
+    return dict_with_switches
+'''
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -601,6 +638,26 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
 
             # Write YAML
             write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
+
+def write_out_txt(path_to_txt, enduses_service):
+    """Generate a txt file"""
+
+    file = open(path_to_txt, "w")
+
+    file.write("---------------------------" + '\n')
+    file.write("Base year energy service (as share of total per enduse)" + '\n')
+    file.write("---------------------------" + '\n')
+
+    for enduse in enduses_service:
+        file.write(" " + '\n')
+        file.write("Enduse  "+ str(enduse) + '\n') 
+        file.write("----------" + '\n')
+
+        for tech in enduses_service[enduse]:
+            file.write(str(tech) + str("\t") + str("\t") + str("\t") + str(enduses_service[enduse][tech]) + '\n')
+
+        file.close()
+    return
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
@@ -1149,40 +1206,60 @@ def generate_sig_diffusion(data):
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
-    # Calculate all technologies installed in fuel switches
-    data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
+    SERVICE_SWITCH_CRIT = False
+    if SERVICE_SWITCH_CRIT == "POGGAHONTAS":
+        # IS CALCULATED BASED ON ASSUMPTION ON FUEL TYPES
+        # Get installed technologies with lager shares in end year
+        pass
+    else:
+        # Fuel Switches - Calculate all technologies installed in fuel switches
+        data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
 
-    enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
+        enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
-    # Convert fuel to energy service
-    data['assumptions']['service_tech_p'], data['assumptions']['service_fueltype_tech_p'] = calc_service_fueltype_tech(
-        data['lu_fueltype'],
-        data['fuel_raw_data_resid_enduses'],
-        data['assumptions']['fuel_enduse_tech_p_by'],
-        data['fuel_raw_data_resid_enduses'],
-        data['assumptions']['technologies']
-    )
+        # Convert fuel to energy service
+        data['assumptions']['service_tech_p'], data['assumptions']['service_fueltype_tech_p'] = calc_service_fueltype_tech(
+            data['lu_fueltype'],
+            data['fuel_raw_data_resid_enduses'],
+            data['assumptions']['fuel_enduse_tech_p_by'],
+            data['fuel_raw_data_resid_enduses'],
+            data['assumptions']['technologies']
+        )
 
-    # Convert fuel to energy service per fueltype
+    # Write out txt file with service shares for each technology per enduse
+    write_out_txt(data['path_dict']['path_txt_service_tech_p'], data['assumptions']['service_tech_p'])
+    print("... a file has been generated which shows the shares of each technology per enduse")
+
+    # Calculate service per fueltype in percentage of total service
     data['assumptions']['service_fueltype_p'] = calc_service_fueltype(
         data['lu_fueltype'],
         data['assumptions']['service_tech_p'],
         data['assumptions']['technologies']
     )
 
-    # Calculate energy service demand after fuel switches to future year for each technology
-    service_tech_switched_p = calc_service_fuel_switched(
-        enduses_with_fuels,
-        data['assumptions']['resid_fuel_switches'],
-        data['assumptions']['service_fueltype_p'],
-        data['assumptions']['service_tech_p'],
-        data['assumptions']['fuel_enduse_tech_p_by'],
-        data['assumptions']['installed_tech'],
-        'actual_switch'
-    )
+    if SERVICE_SWITCH_CRIT == True:
+        pass
+        '''# Final energy service shares per technology provided as input
+        service_tech_switched_p = data['test_share_service_tech_ey_p']
 
-    # Calculate L for every technology for sigmod diffusion
-    l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, data['assumptions'])
+        # Maximum shares of each technology
+        l_values_sig = data['test_assump_max_share_L']
+        '''
+
+    else:
+        # Calculate energy service demand after fuel switches to future year for each technology
+        service_tech_switched_p = calc_service_fuel_switched(
+            enduses_with_fuels,
+            data['assumptions']['resid_fuel_switches'],
+            data['assumptions']['service_fueltype_p'],
+            data['assumptions']['service_tech_p'],
+            data['assumptions']['fuel_enduse_tech_p_by'],
+            data['assumptions']['installed_tech'],
+            'actual_switch'
+        )
+
+        # Calculate L for every technology for sigmod diffusion
+        l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, data['assumptions'])
 
     # Calclulate sigmoid parameters for every installed technology
     data['assumptions']['sigm_parameters_tech'] = tech_sigmoid_parameters(
@@ -1193,7 +1270,8 @@ def generate_sig_diffusion(data):
         l_values_sig,
         data['assumptions']['service_tech_p'],
         service_tech_switched_p,
-        data['assumptions']['resid_fuel_switches']
+        data['assumptions']['resid_fuel_switches'],
+        SERVICE_SWITCH_CRIT #NEW
     )
 
     return data['assumptions']
@@ -1394,7 +1472,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies (average efficiency across whole year)
         for tech in fuel_enduse_tech_p_by[fueltype]:
-            
+
             # Fuel share based on defined fuel fraction within fueltype (share of fuel of technology * tot fuel)
             fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse[0]
 
@@ -1403,7 +1481,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
             # Convert to energy service (Energy service = fuel * efficiency)
             service[fueltype][tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
-            
+
             #print("conerting fuel to heat tech: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.average(tech_stock.get_tech_attribute(tech, 'eff_by'))))
             #print("TESTING SHAPE: "  + str(np.sum(fuel_shape_yh)))
 
@@ -1522,7 +1600,7 @@ def tech_L_sigmoid(enduses, data, assumptions):
 
     return l_values_sig
 
-def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_p, service_tech_switched_p, resid_fuel_switches):
+def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_p, service_tech_switched_p, resid_fuel_switches, SERVICE_SWITCH_CRIT):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches. A sigmoid diffusion is fitted.
@@ -1568,17 +1646,28 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
                 # Initialise
                 sigmoid_parameters[enduse][technology] = {}
 
-                # Get year which is furtherst away of all switch to installed technology
-                year_until_switched = 0
-                for switch in resid_fuel_switches:
-                    if switch['enduse'] == enduse and switch['technology_install'] == technology:
-                        if year_until_switched < switch['year_fuel_consumption_switched']:
-                            year_until_switched = switch['year_fuel_consumption_switched']
+                # NEW
+                if SERVICE_SWITCH_CRIT == True:
+                    pass
+                    ''' year_until_switched = data_ext['glob_var']['end_yr']
+                    #TODO: IMPROVE THAT A FUTURE ENTRY MARKET CAN BE DEFINED FOR EACH TECHNOLOGY
+                    market_entry = 2015
+                    '''
+                else:
+
+                    # Get year which is furtherst away of all switch to installed technology
+                    year_until_switched = 0
+                    for switch in resid_fuel_switches:
+                        if switch['enduse'] == enduse and switch['technology_install'] == technology:
+                            if year_until_switched < switch['year_fuel_consumption_switched']:
+                                year_until_switched = switch['year_fuel_consumption_switched']
+
+                    market_entry = tech_stock[technology]['market_entry']
 
                 # Test wheter technology has the market entry before or after base year
                 # If afterwards, set very small number in market entry year
-                if tech_stock[technology]['market_entry'] > data_ext['glob_var']['base_yr']:
-                    point_x_by = tech_stock[technology]['market_entry']
+                if market_entry > data_ext['glob_var']['base_yr']:
+                    point_x_by = market_entry
                     point_y_by = 0.001 # if market entry in a future year
                 else: # If market entry before, set to 2015
                     point_x_by = data_ext['glob_var']['base_yr']
@@ -1597,19 +1686,27 @@ def tech_sigmoid_parameters(installed_tech, enduses, tech_stock, data_ext, L_val
                 ydata = np.array([point_y_by, point_y_projected])
 
                 # Parameter fitting
-                possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10]
+                possible_start_parameters = [0.01, 0.1, 1, 2, 3, 4] #[0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 40, 60, 100, 200, 400, 500, 1000]
+
                 cnt = 0
                 successfull = 'false'
                 while successfull == 'false':
                     try:
-                        start_parameters = [data_ext['glob_var']['base_yr'] + 0.5 * (data_ext['glob_var']['end_yr'] - data_ext['glob_var']['base_yr']), possible_start_parameters[cnt]]
+                        start_parameters = [possible_start_parameters[cnt], 1]
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
+                        #print("start_parameters: " + str(start_parameters))
+                        #print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
+                        #print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
+                        #print(L_values[enduse][technology])
+                        #print("fit_parameter: " + str(fit_parameter))
+
                         successfull = 'true'
+                        print("Fit successful")
                     except:
                         print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1
 
-                        if cnt == len(possible_start_parameters):
+                        if cnt > len(possible_start_parameters):
                             print("ERROR: CURVE FITTING DID NOT WORK")
                             import sys
                             sys.exit()
@@ -1648,14 +1745,15 @@ def sigmoid_function(x, L, midpoint, steepness):
     This function is used for fitting and plotting
 
     """
-    y = L / (1 + np.exp(-steepness * (x - midpoint)))
+    y = L / (1 + np.exp(-steepness * ((x - 2000) - midpoint)))
     return y
 
 def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter):
     """Plot sigmoid diffusion
     """
     L = L_values[enduse][technology]
-    x = np.linspace(2000, 2100, 100)
+    #x = np.linspace(2000, 2100, 100)
+    x = np.linspace(2015, 2100, 50)
     y = sigmoid_function(x, L, *fit_parameter)
 
     fig = plt.figure()
@@ -1686,14 +1784,21 @@ def fit_sigmoid_diffusion(L, x_data, y_data, start_parameters):
     -------
     popt : dict
         Fitting parameters
+
+    Info
+    ----
+    The Sigmoid is substacted - 2000 to allow for better fit with low values
+
+    RuntimeWarning is ignored
+
     """
-    def sigmoid(x, x0, k):
+    def sigmoid_fitting_function(x, x0, k):
         """Sigmoid function used for fitting
         """
-        y = L/ (1 + np.exp(-k * (x-x0)))
+        y = np.divide(L, 1 + np.exp(-k * ((x - 2000) - x0)))
         return y
 
-    popt, _ = curve_fit(sigmoid, x_data, y_data, p0=start_parameters)
+    popt, _ = curve_fit(sigmoid_fitting_function, x_data, y_data, p0=start_parameters)
 
     return popt
 
@@ -1829,6 +1934,95 @@ def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_p
     return technologies_dict
 
 
+
+
+
+# ------------
+def get_diff_direct_installed(test_share_service_tech_by_p, test_share_service_tech_ey_p):
+    """Get all those technologies with increased service in future
+    """
+    tech_with_increased_share = {}
+
+    for enduse in test_share_service_tech_by_p:
+        tech_with_increased_share[enduse] = []
+        for tech in test_share_service_tech_by_p[enduse]: # Calculate fuel for each tech
+
+            # If future larger share
+            if test_share_service_tech_by_p[enduse][tech] < test_share_service_tech_ey_p[enduse][tech]:
+                print("TECH installed: " + str(tech))
+                tech_with_increased_share[enduse].append(tech)
+
+    return tech_with_increased_share
+
+
+
+
+
+
+def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
+    '''Based on assumptions about energy service delivered by technologies, generate fuel distribution
+
+    As an input, the percentage of energy service (e.g. heating) is provided
+    for different technologies. Based on simple efficiency assumptions the
+    split within each fueltype is calculated. This can be used to assign
+    fuel inputs to different technologies
+
+    # TODO: MAybe do on regional level
+    #TODO: Efficiency of base year of heat pumps???
+    ALLES NUR GROB GESCHAETZT AUCH MIT EFF VON HEAT PUMPS... ...hybrid tech?
+    '''
+    fuels_tech_p = {}
+
+    for enduse in enduse_tech_p:
+
+        # Initialise
+        initial_service_units = 1000
+        fuels_tech_p[enduse] = {}
+        for fueltype in lu_fueltype:
+            fuels_tech_p[enduse][lu_fueltype[fueltype]] = {}
+
+        # Calculate fuel for each tech
+        for tech in enduse_tech_p[enduse]:
+            tech_eff_by = technologies[tech]['eff_by'] # Efficiency of technology
+            fuel_type = technologies[tech]['fuel_type'] # Fueltype of technology
+
+            # Service of technology (share)
+            service_tech_by = enduse_tech_p[enduse][tech] * initial_service_units
+
+            # Fuel of base year
+            fuels_tech_p[enduse][fuel_type][tech] = np.divide(service_tech_by, tech_eff_by)
+
+        # Calculate percentage within each fueltype
+        for fueltype in fuels_tech_p[enduse]:
+            total_fuel_fueltype = sum(fuels_tech_p[enduse][fueltype].values())
+            for tech in fuels_tech_p[enduse][fueltype]:
+
+                if total_fuel_fueltype == 0.0: #ALL TO ONE 
+                    # If no fuel for this technology, assign with 1.0
+                    fuels_tech_p[enduse][fueltype][tech] = 1.0 # If not assigned provide 1.0 ()
+                else:
+                    fuels_tech_p[enduse][fueltype][tech] = np.divide(1, total_fuel_fueltype) * fuels_tech_p[enduse][fueltype][tech]
+
+    return fuels_tech_p
+
+
+def generate_service_distribution_by(test_share_service_tech_by_p, technologies, lu_fueltype):
+    """Calculate percentage of service for every fueltype
+    """
+    service_p = {}
+
+    for enduse in test_share_service_tech_by_p:
+         
+        service_p[enduse] = {}
+        for fueltype in lu_fueltype:
+            service_p[enduse][lu_fueltype[fueltype]] = 0
+
+        for tech in test_share_service_tech_by_p[enduse]:
+            fueltype_tech = technologies[tech]['fuel_type']
+            service_p[enduse][fueltype_tech] += test_share_service_tech_by_p[enduse][tech]
+
+    return service_p
+    
 '''def get_max_fuel_day(fuels):
     """The day with most fuel
     """
