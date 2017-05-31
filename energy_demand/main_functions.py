@@ -6,16 +6,16 @@ import re
 from datetime import date
 from datetime import timedelta as td
 import math as m
-import unittest
 import copy
+import pprint
 import numpy as np
 import yaml
 import pylab
 import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
-import pprint
-#import energy_demand.plot_functions as pf
+
+import unittest
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def add_yearly_external_fuel_data(data, dict_to_add_data):
@@ -298,15 +298,25 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
                 }
             )
     
+    # -------------------------------------------------
+    # Testing wheter the provided inputs make sense
+    # -------------------------------------------------
+    for element in list_elements:
+        if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
+            sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
+
     return list_elements
 
-def read_csv_assumptions_service_switch(path_to_csv):
+def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     """This function reads in CSV files and skips header row. Test if plausible inputs.
 
+    If no assumptions about service switches, return empty dicts.
     Parameters
     ----------
     path_to_csv : str
         Path to csv file
+    assumptions : dict
+        Assumptions
 
     Returns
     -------
@@ -315,7 +325,7 @@ def read_csv_assumptions_service_switch(path_to_csv):
 
     Notes
     -----
-    While not only loadin in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
+    While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     list_elements = []
     dict_with_switches_by = {}
@@ -342,11 +352,12 @@ def read_csv_assumptions_service_switch(path_to_csv):
     # Group all entries according to enduse
     all_enduses = []
     for line in list_elements:
-        if line['enduse_service'] not in all_enduses:
-            all_enduses.append(line['enduse_service'])
-            dict_with_switches_by[line['enduse_service']] = {}
-            dict_with_switches_ey[line['enduse_service']] = {}
-            assump_max_share_L[line['enduse_service']] = {}
+        enduse = line['enduse_service']
+        if enduse not in all_enduses:
+            all_enduses.append(enduse)
+            dict_with_switches_by[enduse] = {}
+            dict_with_switches_ey[enduse] = {}
+            assump_max_share_L[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
@@ -356,19 +367,25 @@ def read_csv_assumptions_service_switch(path_to_csv):
                 dict_with_switches_by[enduse][tech] = line['service_share_by']
                 dict_with_switches_ey[enduse][tech] = line['service_share_ey']
                 assump_max_share_L[enduse][tech] = line['tech_assum_max_share']
-    
-    # Testing
-    # -------
+
+    # Add to assumptions
+    assumptions['service_tech_by_p'] = dict_with_switches_by
+    assumptions['share_service_tech_ey_p'] = dict_with_switches_ey
+    assumptions['test_assump_max_share_L'] = assump_max_share_L
+
+    # -------------------------------------------------
+    # Testing wheter the provided inputs make sense
+    # -------------------------------------------------
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in dict_with_switches_by:
 
         if sum(dict_with_switches_by[enduse].values()) != 1.0:
             sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
-        
+
         if sum(dict_with_switches_ey[enduse].values()) != 1.0:
             sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
-    
-    return dict_with_switches_by, dict_with_switches_ey, assump_max_share_L
+
+    return assumptions
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -684,7 +701,7 @@ def write_out_txt(path_to_txt, enduses_service):
 
     for enduse in enduses_service:
         file.write(" " + '\n')
-        file.write("Enduse  "+ str(enduse) + '\n') 
+        file.write("Enduse  "+ str(enduse) + '\n')
         file.write("----------" + '\n')
 
         for tech in enduses_service[enduse]:
@@ -1314,6 +1331,26 @@ def generate_sig_diffusion(data):
 
     return data['assumptions']
 
+'''def create_lu_fueltypes(technologies):
+    """Create lookup-table for all technologies
+
+    Parameters
+    ----------
+    technologies : dict
+        All defined technologies
+
+    Returns
+    -------
+    tech_fueltype : dict
+        Fueltype of each technology
+    """
+    tech_fueltype = {}
+    for technology in technologies:
+        tech_fueltype[technology] = technologies[technology]['fuel_type']
+
+    return tech_fueltype
+'''
+
 def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
@@ -1687,7 +1724,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
 
                 sigmoid_parameters[enduse][technology] = {} # Initialise
 
-                if service_switch_crit == True:
+                if service_switch_crit:
 
                     # Year until service are switched
                     year_until_switched = data_ext['glob_var']['end_yr']
@@ -1728,7 +1765,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
 
                 cnt = 0
                 successfull = False
-                while successfull == False:
+                while not successfull:
                     start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
 
                     try:
@@ -1736,10 +1773,9 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(L_values[enduse][technology]))
-                        print()
 
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
-                        print("fit_parameter: " + str(fit_parameter))
+
                         # Define manually when a fit is not successefful
                         fit_crit_A = 50
                         fit_crit_B = 0.01
@@ -1926,28 +1962,47 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
             break
     return fueltype_in_string
 
-def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_pump_install_assumptions):
-    """Delete all heat_pump from tech dict and generate articifial 'heat_pump' with 
+def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, heat_pump_assump):
+    """Delete all heat_pump from tech dict and define averaged new heat pump technologies 'av_heat_pump_fueltype' with
     efficiency depending on installed ratio
-    TODO: DESCRIBE
+    
+        Parameters
+    ----------
+    temp_dependent_tech_list : list
+        List to store temperature dependent technologies (e.g. heat-pumps)
+    technologies : dict
+        Technologies
+    heat_pump_assump : dict
+        The split of the ASHP and GSHP is provided
+    
+    Returns
+    -------
+    technologies : dict
+        Technologies with added averaged heat pump technologies for every fueltype
 
+    temp_dependent_tech_list : list
+        List with added temperature dependent technologies
+
+
+    Info
+    ----
     # Assumptions:
     - Market Entry of different technologies must be the same year! (the lowest is selected if different years)
     - diff method is linear
     """
     # Calculate average efficiency of heat pump depending on installed ratio
-    for fueltype in heat_pump_install_assumptions:
+    for fueltype in heat_pump_assump:
         av_eff_hps_by = 0
         av_eff_hps_ey = 0
         eff_achieved_av = 0
         market_entry_lowest = 2200
 
-        for heat_pump_type in heat_pump_install_assumptions[fueltype]:
-            share_heat_pump = heat_pump_install_assumptions[fueltype][heat_pump_type]
-            eff_heat_pump_by = technologies_dict[heat_pump_type]['eff_by'] #Base year efficiency
-            eff_heat_pump_ey = technologies_dict[heat_pump_type]['eff_ey'] #End year efficiency
-            eff_achieved = technologies_dict[heat_pump_type]['eff_achieved'] #End year efficiency
-            market_entry = technologies_dict[heat_pump_type]['market_entry'] #End year efficiency
+        for heat_pump_type in heat_pump_assump[fueltype]:
+            share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
+            eff_heat_pump_by = technologies[heat_pump_type]['eff_by'] #Base year efficiency
+            eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey'] #End year efficiency
+            eff_achieved = technologies[heat_pump_type]['eff_achieved'] #End year efficiency
+            market_entry = technologies[heat_pump_type]['market_entry'] #End year efficiency
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
@@ -1961,23 +2016,28 @@ def generate_heat_pump_from_different_heat_pumps(data, technologies_dict, heat_p
         fueltype_string = get_fueltype_str(data['lu_fueltype'], fueltype)
         name_av_hp = "av_heat_pump_{}".format(str(fueltype_string))
         print("Create new averaged heat pump technology: " + str(name_av_hp))
+
+        # Add technology to temperature dependent technology list
+        temp_dependent_tech_list.append(name_av_hp)
+        
+
         # Add new averaged technology
-        technologies_dict[name_av_hp] = {}
-        technologies_dict[name_av_hp]['fuel_type'] = fueltype
-        technologies_dict[name_av_hp]['eff_by'] = av_eff_hps_by
-        technologies_dict[name_av_hp]['eff_ey'] = av_eff_hps_ey
-        technologies_dict[name_av_hp]['eff_achieved'] = eff_achieved_av
-        technologies_dict[name_av_hp]['diff_method'] = 'linear'
-        technologies_dict[name_av_hp]['market_entry'] = market_entry_lowest
+        technologies[name_av_hp] = {}
+        technologies[name_av_hp]['fuel_type'] = fueltype
+        technologies[name_av_hp]['eff_by'] = av_eff_hps_by
+        technologies[name_av_hp]['eff_ey'] = av_eff_hps_ey
+        technologies[name_av_hp]['eff_achieved'] = eff_achieved_av
+        technologies[name_av_hp]['diff_method'] = 'linear'
+        technologies[name_av_hp]['market_entry'] = market_entry_lowest
 
     # Remove all heat pumps from tech dict
-    for fueltype in heat_pump_install_assumptions:
-        for heat_pump_type in heat_pump_install_assumptions[fueltype]:
-            del technologies_dict[heat_pump_type]
+    for fueltype in heat_pump_assump:
+        for heat_pump_type in heat_pump_assump[fueltype]:
+            del technologies[heat_pump_type]
 
-    return technologies_dict
+    return technologies, temp_dependent_tech_list
 
-def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
+def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, data):
     """Get all those technologies with increased service in future
 
     Parameters
@@ -1986,9 +2046,16 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
         Share of service per technology of base year of total service
     share_service_tech_ey_p : dict
         Share of service per technology of end year of total service
-    
+    data : dict
+        Data
+
     Returns
     -------
+    data : dict
+        Data
+
+    Info
+    -----
     tech_increased_service : dict
         Technologies with increased future service
     tech_decreased_share : dict
@@ -1996,8 +2063,6 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
     tech_decreased_share : dict
         Technologies with unchanged future service
 
-    Info
-    -----
     The assumptions are always relative to the simulation end year
     """
     tech_increased_service = {}
@@ -2005,7 +2070,6 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
     tech_constant_share = {}
 
     for enduse in service_tech_by_p:
-
         tech_increased_service[enduse] = []
         tech_decreased_share[enduse] = []
         tech_constant_share[enduse] = []
@@ -2021,8 +2085,12 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
                 tech_decreased_share[enduse].append(tech)
             else:
                 tech_constant_share[enduse].append(tech)
+    # Add to data
+    data['tech_increased_service'] = tech_increased_service
+    data['tech_decreased_share'] = tech_decreased_share
+    data['tech_constant_share'] = tech_constant_share
 
-    return tech_increased_service, tech_decreased_share, tech_constant_share
+    return data
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year
@@ -2050,14 +2118,6 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
         relative_share_service_tech_decrease_by[tech] = np.divide(1, sum_service_tech_decrease_p) * service_tech_by_p[tech]
 
     return relative_share_service_tech_decrease_by
-
-
-
-    
-
-    return
-
-
 
 def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
     '''Based on assumptions about energy service delivered by technologies, generate fuel distribution
@@ -2097,7 +2157,7 @@ def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
             total_fuel_fueltype = sum(fuels_tech_p[enduse][fueltype].values())
             for tech in fuels_tech_p[enduse][fueltype]:
 
-                if total_fuel_fueltype == 0.0: #ALL TO ONE 
+                if total_fuel_fueltype == 0.0: #ALL TO ONE
                     # If no fuel for this technology, assign with 1.0
                     fuels_tech_p[enduse][fueltype][tech] = 1.0 # If not assigned provide 1.0 ()
                 else:
@@ -2112,7 +2172,6 @@ def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltyp
     service_p = {}
 
     for enduse in service_tech_by_p:
-         
         service_p[enduse] = {}
         for fueltype in lu_fueltype:
             service_p[enduse][lu_fueltype[fueltype]] = 0
@@ -2122,7 +2181,7 @@ def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltyp
             service_p[enduse][fueltype_tech] += service_tech_by_p[enduse][tech]
 
     return service_p
-    
+
 '''def get_max_fuel_day(fuels):
     """The day with most fuel
     """

@@ -1,6 +1,8 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import sys
+import pprint
+from datetime import date
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -8,8 +10,8 @@ import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 import copy
-from datetime import date
-import pprint
+
+
 
 class RegionClass(object):
     """Region Class for the residential model
@@ -900,17 +902,6 @@ class EnduseResid(object):
         self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['assumptions']['service_tech_by_p'])
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
 
-
-        # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        if self.enduse_specific_fuel_switches_crit:
-            print("Fuel switch yes")
-            self.technologies_enduse = self.get_technologies_in_enduse(data['assumptions']['fuel_enduse_tech_p_by']) # Get all technologies of enduse
-        if self.enduse_specific_service_switch_crit:
-            print("Service switch yes")
-            self.technologies_enduse = self.get_technologies_service_switch(data['assumptions']['service_tech_by_p'][self.enduse]) # Get all technologies of enduse
-        
-        print("TECHNOLOGEIS " + str(self.technologies_enduse))
-
         # Test
         if self.enduse_specific_fuel_switches_crit and self.enduse_specific_service_switch_crit:
             sys.exit("Error: Can't define service switch and fuel switch for same enduse {}   {}".format(self.enduse_specific_fuel_switches_crit, self.enduse_specific_service_switch_crit))
@@ -942,10 +933,20 @@ class EnduseResid(object):
         # ----------------------------------
         # Hourly fuel calcualtions cascade
         # ----------------------------------
+        # Get technologies of enduse depending on assumptions on fuel switches or service switches
+        if self.enduse_specific_fuel_switches_crit:
+            print("...Fuel switch yes")
+            self.technologies_enduse = self.get_technologies_in_enduse(data['assumptions']['fuel_enduse_tech_p_by']) # Get all technologies of enduse
+        elif self.enduse_specific_service_switch_crit:
+            print("...Service switch")
+            self.technologies_enduse = self.get_technologies_service_switch(data['assumptions']['service_tech_by_p'][self.enduse]) # Get all technologies of enduse
+        else:
+            self.technologies_enduse = []
 
         # Check if enduse is defined with technologies
         if self.technologies_enduse != []:
             print("Enduse is defined.... " + str(self.technologies_enduse))
+            print("TECHNOLOGEIS " + str(self.technologies_enduse))
 
             # Get corret energy service shape of enduse
             if self.enduse in data['assumptions']['enduse_resid_space_heating']: # Residential space heating
@@ -1755,8 +1756,6 @@ class CountryClass(object):
         out: {enduse: sum(all_fuel_types)}
 
         """
-        tot_h = np.zeros((365, 24))
-
         tot_sum_enduses = {}
         for enduse in data['resid_enduses']:
             tot_sum_enduses[enduse] = 0
@@ -1770,8 +1769,6 @@ class CountryClass(object):
             for enduse in enduse_fuels_reg:
                 tot_sum_enduses[enduse] += np.sum(enduse_fuels_reg[enduse]) # sum across fuels
 
-            #for enduse in enduse_fuels_reg:
-            #    tot_h += enduse_fuels_reg[enduse]
         return tot_sum_enduses
 
     def peak_loads_per_fueltype(self, data, reg_names, attribute_to_get):

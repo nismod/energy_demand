@@ -251,6 +251,7 @@ def generate_data(data):
 
     # ===========================================-
     # RESIDENTIAL MODEL
+    # LOAD HES DATA
     # ===========================================
     path_txt_shapes = data['path_dict']['path_txt_shapes_resid']
 
@@ -258,10 +259,15 @@ def generate_data(data):
     hes_data, hes_y_peak, _ = df.read_hes_data(data)
     year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
 
+    print("data['fuel_raw_data_resid_enduses']")
+    print(data['fuel_raw_data_resid_enduses'])
     # Load shape for all end_uses
     for end_use in data['fuel_raw_data_resid_enduses']:
+        print("Enduse:  " + str(end_use))
+
         if end_use not in data['lu_appliances_HES_matched'][:, 1]:
-            print("Warning: The enduse {} is not defined in lu_appliances_HES_matched".format(end_use))
+            print(" ")
+            print("Warning: The enduse {} is not defined in lu_appliances_HES_matched, i.e. no generic shape is loades from HES data but enduse needs to be defined with technologies".format(end_use))
             continue
 
         # Get HES load shapes
@@ -269,6 +275,7 @@ def generate_data(data):
 
         # Write .txt files
         df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
+
 
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )

@@ -26,10 +26,10 @@
         'cooking_elec': 0.9,
         'HYDROGEN_TECH': 0.0,
 
-        # -- Lighting
+        # -- resid_lighting
         'halogen_elec': 0.036,                # 80% efficiency gaing to standard light blub RElative calculated to be 80% better than standard light bulb (180*0.02) / 100
         'standard_light_bulb': 0.02,          # Found on wiki: self
-        'fluorescent_strip_lighting': 0.054,  # 50% efficiency gaint to halogen (0.036*150) / 100
+        'fluorescent_strip_resid_lighting': 0.054,  # 50% efficiency gaint to halogen (0.036*150) / 100
         'energy_saving_light_bulb': 0.034,    # 70% efficiency gain to standard lightbulg
         'LED' : 0.048,                         # 40% savings compared to energy saving light bulb
 

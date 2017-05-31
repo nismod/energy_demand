@@ -158,11 +158,6 @@ if __name__ == "__main__":
         'population': pop_dummy,
         'region_coordinates': coord_dummy,
         'glob_var' : {},
-        #'glob_var': {
-        #    'base_yr': 2015,
-        #    'curr_yr': 2016,
-        #    'end_yr': 2017
-        #},
         'fuel_price': fuel_price_dummy,
 
         # Demand of other sectors
@@ -173,7 +168,7 @@ if __name__ == "__main__":
     }
     data_external['glob_var']['end_yr'] = ey
     data_external['glob_var']['sim_period'] = range(by, ey + 1, 1) # Alywas including last simulation year
-    data_external['glob_var']['base_yr'] = by # MUST ALWAYS BE MORE THAN ONE.  e.g. only simlulateds the year 2015: range(2015, 2016)
+    data_external['glob_var']['base_yr'] = by
     # ------------------- DUMMY END
 
 
@@ -189,7 +184,7 @@ if __name__ == "__main__":
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
     # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
-    base_data['local_data_path'] = 'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data' 
+    base_data['local_data_path'] = 'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
