@@ -270,9 +270,19 @@ def load_assumptions(data):
     # Must be 100% in total
     # -----------------
     # GENERATE SERVICE DISTRIBUTION
-    #assumptions['resid_service_technology_switch'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
+    assumptions['resid_service_technology_switch'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], data) # Read in switches
 
-    data['service_tech_by_p'] = {
+    print(assumptions['resid_service_technology_switch'])
+    sys.exit()
+
+    #TODO: REad in from CSV File
+
+    # Empty
+    data['service_tech_by_p'] = {}
+    data['share_service_tech_ey_p'] = {}
+    data['test_assump_max_share_L'] = {}
+
+    '''data['service_tech_by_p'] = {
         'resid_space_heating': {
             'boiler_elec': 0.479385045423,
             'av_heat_pump_electricity': 0.0314465408805,
@@ -308,6 +318,7 @@ def load_assumptions(data):
             'boiler_hydrogen': 0.9
         }
     }
+    '''
 
     # Fuel shares
     #data['fuels_tech_by_p'] = mf.generate_fuel_distribution(service_tech_by_p, assumptions['technologies'], data['lu_fueltype'])

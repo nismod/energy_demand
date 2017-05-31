@@ -1,5 +1,6 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -498,10 +499,8 @@ class RegionClass(object):
         hdd_d = mf.calc_hdd(t_base_heating_resid_cy, temperatures)
 
         # Error testing
-        #if np.sum(hdd_d) == 0:
-        #    print("No heating degree days means no fuel for heating is necessary")
-        #    import sys
-        #    sys.exit()
+        if np.sum(hdd_d) == 0:
+            sys.exit("Error: No heating degree days means no fuel for heating is necessary")
         return hdd_d
 
     def get_reg_cdd(self, data, temperatures, year):
@@ -902,6 +901,10 @@ class EnduseResid(object):
         self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['service_tech_by_p'])
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
 
+        # Test
+        if self.enduse_specific_fuel_switches_crit and self.enduse_specific_service_switch_crit:
+            sys.exit("Error: Can't define service switch and fuel switch for same enduse {}   {}".format(self.enduse_specific_fuel_switches_crit, self.enduse_specific_service_switch_crit))
+        
         # --------------------------------
         # Yearly fuel calculation cascade
         # --------------------------------
@@ -1024,7 +1027,7 @@ class EnduseResid(object):
         Returns
         -------
         service_fueltype_tech_cy : dict
-            Service of every fueltype and technology of current year
+            Current year fuel for every technology given according to fueltype (e.g. fueltype 1: 'techA': fuel)
         """
         # Init
         service_tech_cy_p = {}
@@ -1035,31 +1038,33 @@ class EnduseResid(object):
         # Calculate diffusion of service for technology with increased service
         service_tech_increase_cy_p = self.get_service_diffusion(data, data['tech_increased_service'][self.enduse])
 
+        # Add shares to output dict
+        for tech_increase in service_tech_increase_cy_p:
+            service_tech_cy_p[tech_increase] = service_tech_increase_cy_p[tech_increase]
+
         # Calculate proportional share of technologies with decreasing service of base year (distribution in base year)
         service_tech_decrease_by_rel = mf.get_service_rel_tech_decrease_by(data['tech_decreased_share'][self.enduse], data['service_tech_by_p'][self.enduse])
 
         # Add shares to output dict
-        for tech_increase in service_tech_increase_cy_p:
-            service_tech_cy_p[tech_increase] = service_tech_increase_cy_p[tech_increase]
         for tech_decrease in service_tech_decrease_by_rel:
             service_tech_cy_p[tech_decrease] = data['service_tech_by_p'][self.enduse][tech_decrease]
 
-        # Iterate service switches for gaining tech
+        # Iterate service switches for increase tech
         for tech_increase in service_tech_increase_cy_p:
 
-            # Difference in service
+            # Difference in service up to current year
             diff_service_increase = service_tech_increase_cy_p[tech_increase] - data['service_tech_by_p'][self.enduse][tech_increase]
 
-            # Distribute gain proportionaly and substract from other technologies
+            # Substract service gain proportionaly to all technologies which are lowered and substract from other technologies
             for tech_decrease in service_tech_decrease_by_rel:
                 service_tech_cy_p[tech_decrease] -= service_tech_decrease_by_rel[tech_decrease] * diff_service_increase
 
         # Convert service per technology into fuel per technology
         for tech in service_tech_cy_p:
             service_tech_absolute = np.sum(tot_service_h_by) * service_tech_cy_p[tech]  # Total yearly service * share of enduse
-            fuel = np.divide(service_tech_absolute, tech_stock.get_tech_attribute(tech, 'eff_cy'))
+            fuel_tech = np.divide(service_tech_absolute, tech_stock.get_tech_attribute(tech, 'eff_cy'))
             tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
-            service_fueltype_tech_cy[tech_fueltype][tech] = np.sum(fuel)
+            service_fueltype_tech_cy[tech_fueltype][tech] = np.sum(fuel_tech)
 
         return service_fueltype_tech_cy
 

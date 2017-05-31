@@ -1,5 +1,6 @@
 """This file stores all functions of main.py"""
 import os
+import sys
 import csv
 import re
 from datetime import date
@@ -286,7 +287,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         # Iterate rows
         for row in read_lines:
-            dict_with_switches.append(
+            list_elements.append(
                 {
                     'enduse': str(row[0]),
                     'enduse_fueltype_replace': data['lu_fueltype'][str(row[1])],
@@ -296,10 +297,10 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
                     'max_theoretical_switch': float(row[5])
                 }
             )
+    
+    return list_elements
 
-    return dict_with_switches
-
-'''def read_csv_assumptions_service_technology_switch(path_to_csv, data):
+def read_csv_assumptions_service_switch(path_to_csv, data):
     """This function reads in CSV files and skips header row.
 
     Parameters
@@ -313,7 +314,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
         All assumptions about fuel switches provided as input
     """
     list_elements = []
-    dict_with_switches = []
+    dict_with_switches = {}
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -322,19 +323,31 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         # Iterate rows
         for row in read_lines:
-            dict_with_switches.append(
+            list_elements.append(
                 {
-                    'enduse': str(row[0]),
-                    'enduse_technology_service_replace': data['lu_fueltype'][str(row[1])],
-                    'technology_install': str(row[2]),
-                    'year_service_consumption_switched': float(row[3]),
-                    'share_service_consumption_switched': float(row[4]),
-                    'max_theoretical_switch': float(row[5])
+                    'enduse_service': str(row[0]),
+                    'tech': str(row[1]),
+                    'service_share': str(row[2])
                 }
             )
-
+    
+    # Group all entries according to enduse
+    all_enduses = []
+    for line in list_elements:
+        if line['enduse_service'] not in all_enduses:
+            all_enduses.append(line['enduse_service'])
+            dict_with_switches[line['enduse_service']] = {}
+        
+    # Iterate all endusese and assign all lines
+    for enduse in all_enduses:
+        for line in list_elements:
+            if line['enduse_service'] == enduse:
+                tech = line['tech']
+                service_share = line['service_share']
+                dict_with_switches[enduse][tech] = service_share
+    
     return dict_with_switches
-'''
+
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -1640,6 +1653,8 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
     Notes
     -----
     NTH: improve fitting
+
+    Manually the fitting parameters can be defined which are not considered as a good fit: fit_crit_A, fit_crit_B
     """
     sigmoid_parameters = init_nested_dict(enduses, installed_tech, 'brackets')
 
@@ -1688,33 +1703,36 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 ydata = np.array([point_y_by, point_y_projected])
 
                 # Parameter fitting
-                possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4] #[0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 40, 60, 100, 200, 400, 500, 1000]
+                possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 40, 60, 100, 200, 400, 500, 1000]
 
                 cnt = 0
-                successfull = 'false'
-                while successfull == 'false':
+                successfull = False
+                while successfull == False:
+                    start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
+
                     try:
-                        start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
-                        fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
-                        '''print("--------------- Technology " + str(technology))
-                        print("start_parameters: " + str(start_parameters))
+                        print("--------------- Technology " + str(technology))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
-                        print(L_values[enduse][technology])
-                        print("fit_parameter: " + str(fit_parameter))
-                        '''
+                        print("Lvalue: " + str(L_values[enduse][technology]))
+                        print()
 
-                        successfull = 'true'
-                        print("Fit successful " + str(fit_parameter))
+                        fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
+                        print("fit_parameter: " + str(fit_parameter))
+                        # Define manually when a fit is not successefful
+                        fit_crit_A = 50
+                        fit_crit_B = 0.01
+                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B:
+                            successfull = False
+                        else:
+                            successfull = True
+                        print("Fit successful for Technology: {} with fitting parameters: ".format(technology) + str(fit_parameter))
                     except:
                         print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1
 
-                        if cnt > len(possible_start_parameters):
-                            print("ERROR: CURVE FITTING DID NOT WORK")
-                            prnt("..")
-                            import sys
-                            sys.exit()
+                        if cnt >= len(possible_start_parameters):
+                            sys.exit("Error: CURVE FITTING DID NOT WORK")
 
                 # Insert parameters
                 sigmoid_parameters[enduse][technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
@@ -1988,22 +2006,23 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
         Technologies with decreased service
     service_tech_by_p : dict
         Share of service of technologies in by
-    
+
     Returns
     -------
-
+    relative_share_service_tech_decrease_by : dict
+        Relative share of service of replaced technologies
     """
-    sum_decreased_tech_p = 0 # Share of all diminishing technologies
-
+    # Summed share of all diminishing technologies
+    sum_service_tech_decrease_p = 0
     for tech in tech_decreased_share:
-        sum_decreased_tech_p += service_tech_by_p[tech]
+        sum_service_tech_decrease_p += service_tech_by_p[tech]
 
-    relative_share_service_decreased_tech_by = {}
     # Relative of each diminishing tech
+    relative_share_service_tech_decrease_by = {}
     for tech in tech_decreased_share:
-        relative_share_service_decreased_tech_by[tech] = np.divide(1, sum_decreased_tech_p) * service_tech_by_p[tech] # relative share
-    
-    return relative_share_service_decreased_tech_by
+        relative_share_service_tech_decrease_by[tech] = np.divide(1, sum_service_tech_decrease_p) * service_tech_by_p[tech]
+
+    return relative_share_service_tech_decrease_by
 
 
 

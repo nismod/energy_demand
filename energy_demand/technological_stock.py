@@ -1,8 +1,9 @@
 """The technological stock for every simulation year"""
+import sys
 import numpy as np
 #import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
-# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902,R0913,no-member
+# pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member
 
 class Technology(object):
     """Technology Class for residential & SERVICE technologies #TODO
@@ -162,10 +163,7 @@ class Technology(object):
                 data['assumptions']['t_base_heating_resid']['base_yr']
             )
         elif self.tech_name in data['assumptions']['list_tech_cooling_temp_dep']:
-            #TODO: Non linear cooling pump efficiency
-            print("TODO: ERROR: STILL NEDS TO BE DONE")
-            import sys
-            sys.exit()
+            sys.exit("Error: The technology is not defined in technology list (e.g. temp efficient tech or not")
         else:
             # Non temperature dependent efficiencies
             eff_cy_hourly = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change)
