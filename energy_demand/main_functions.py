@@ -300,8 +300,8 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     
     return list_elements
 
-def read_csv_assumptions_service_switch(path_to_csv, data):
-    """This function reads in CSV files and skips header row.
+def read_csv_assumptions_service_switch(path_to_csv):
+    """This function reads in CSV files and skips header row. Test if plausible inputs.
 
     Parameters
     ----------
@@ -312,9 +312,15 @@ def read_csv_assumptions_service_switch(path_to_csv, data):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
+
+    Notes
+    -----
+    While not only loadin in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     list_elements = []
-    dict_with_switches = {}
+    dict_with_switches_by = {}
+    dict_with_switches_ey = {}
+    assump_max_share_L = {}
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -327,27 +333,42 @@ def read_csv_assumptions_service_switch(path_to_csv, data):
                 {
                     'enduse_service': str(row[0]),
                     'tech': str(row[1]),
-                    'service_share': str(row[2])
+                    'service_share_by': float(row[2]),
+                    'service_share_ey': float(row[3]),
+                    'tech_assum_max_share': float(row[4])
                 }
             )
-    
+
     # Group all entries according to enduse
     all_enduses = []
     for line in list_elements:
         if line['enduse_service'] not in all_enduses:
             all_enduses.append(line['enduse_service'])
-            dict_with_switches[line['enduse_service']] = {}
-        
+            dict_with_switches_by[line['enduse_service']] = {}
+            dict_with_switches_ey[line['enduse_service']] = {}
+            assump_max_share_L[line['enduse_service']] = {}
+
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
         for line in list_elements:
             if line['enduse_service'] == enduse:
                 tech = line['tech']
-                service_share = line['service_share']
-                dict_with_switches[enduse][tech] = service_share
+                dict_with_switches_by[enduse][tech] = line['service_share_by']
+                dict_with_switches_ey[enduse][tech] = line['service_share_ey']
+                assump_max_share_L[enduse][tech] = line['tech_assum_max_share']
     
-    return dict_with_switches
+    # Testing
+    # -------
+    # Test if service of all provided technologies sums up to 100% in the end year
+    for enduse in dict_with_switches_by:
 
+        if sum(dict_with_switches_by[enduse].values()) != 1.0:
+            sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+        
+        if sum(dict_with_switches_ey[enduse].values()) != 1.0:
+            sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+    
+    return dict_with_switches_by, dict_with_switches_ey, assump_max_share_L
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -1222,7 +1243,7 @@ def generate_sig_diffusion(data):
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
     # Test if service swithc is implemented
-    if len(data['service_tech_by_p']) >= 1:
+    if len(data['assumptions']['service_tech_by_p']) >= 1:
         service_switch_crit = True
     else:
         service_switch_crit = False
@@ -1230,12 +1251,12 @@ def generate_sig_diffusion(data):
     if service_switch_crit:
 
         data['assumptions']['installed_tech'] = data['tech_increased_service'] # Tech with lager service shares in end year
-        data['assumptions']['service_tech_p'] = data['service_tech_by_p'] # Base year service tech
+        data['assumptions']['service_tech_p'] = data['assumptions']['service_tech_by_p'] # Base year service tech
 
-        service_tech_switched_p = data['share_service_tech_ey_p'] # End year service shares (scenaric input)
+        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] # End year service shares (scenaric input)
 
         # Maximum shares of each technology
-        l_values_sig = data['test_assump_max_share_L']
+        l_values_sig = data['assumptions']['test_assump_max_share_L']
 
 
     else:
@@ -1972,6 +1993,8 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
         Technologies with increased future service
     tech_decreased_share : dict
         Technologies with decreased future service
+    tech_decreased_share : dict
+        Technologies with unchanged future service
 
     Info
     -----
@@ -1979,11 +2002,13 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
     """
     tech_increased_service = {}
     tech_decreased_share = {}
+    tech_constant_share = {}
 
     for enduse in service_tech_by_p:
 
         tech_increased_service[enduse] = []
         tech_decreased_share[enduse] = []
+        tech_constant_share[enduse] = []
 
         for tech in service_tech_by_p[enduse]: # Calculate fuel for each tech
 
@@ -1992,10 +2017,12 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p):
                 tech_increased_service[enduse].append(tech)
 
             # If future smaller service share
-            if service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
+            elif service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
                 tech_decreased_share[enduse].append(tech)
+            else:
+                tech_constant_share[enduse].append(tech)
 
-    return tech_increased_service, tech_decreased_share
+    return tech_increased_service, tech_decreased_share, tech_constant_share
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year
