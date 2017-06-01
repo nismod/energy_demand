@@ -171,7 +171,7 @@ def load_assumptions(data):
     assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
 
     # ============================================================
-    # Technologies & Efficiencies
+    # Technologies & efficiencies
     # ============================================================
     assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_assumptions_tech_resid'], data) # Load all technologies
 
@@ -197,26 +197,20 @@ def load_assumptions(data):
     assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, assumptions['list_tech_heating_temp_dep'], assumptions['technologies'], assumptions['heat_pump_stock_install'])
     assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=efficiency_achieving_factor)
 
-
-
     # ============================================================
-    # Scenaric FUEL switches
+    # Fuel Stock Definition (necessary to define before model run)
+    #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
     assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
-    # --Provide for every fueltype of an enduse the share of fuel which is used by technologies
-
-    # ---Residential space heating
+    #---Residential space heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  Hannon 2015, heat-pump share in uk
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
     # ---resid_lighting
     #assumptions['fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
-
 
     # ---Residential cooking
     assumptions['list_enduse_tech_cooking'] = []
@@ -226,22 +220,28 @@ def load_assumptions(data):
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
     '''
 
+    assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['fuel_enduse_tech_p_by'])
+
+    # ============================================================
+    # Scenaric FUEL switches
+    # ============================================================
+    assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
+
     # Helper function: Add all technologies with correct fueltype to assumptions['fuel_enduse_tech_p_by'] if not already added
     ###assumptions['fuel_enduse_tech_p_by'] = add_all_tech_to_base_year_stock(assumptions['fuel_enduse_tech_p_by'], assumptions['technologies'])
-
     # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
 
     # ============================================================
     # Scenaric SERVICE switches
+    #   - The share of energy service is the same across all regions
     # ============================================================
     assumptions['fuel_switch_crit'] = True
-    # The share of energy service is the same across all regions
-
-    # Load assumptions on service switches
+   
+    # Load assumptions on service switches, service_tech_ey
     assumptions = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
 
     # Get technologies with increased, decreased and constant service
-    assumptions = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
+    #assumptions = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
 
 
 
@@ -375,4 +375,14 @@ def helper_define_same_efficiencies_all_tech(tech_assump, eff_achieved_factor=1)
     for technology in tech_assump:
         tech_assump[technology]['eff_achieved'] = eff_achieved_factor
     return tech_assump
-    
+
+def helper_function_get_all_specified_tech(fuel_enduse_tech_p_by):
+    """Collect all technologies across all fueltypes for all endueses where a service share is defined for the end_year
+    """
+    all_defined_tech_service_ey = {}
+    for enduse in fuel_enduse_tech_p_by:
+        all_defined_tech_service_ey[enduse] = []
+        for fueltype in fuel_enduse_tech_p_by[enduse]:
+            all_defined_tech_service_ey[enduse].extend(fuel_enduse_tech_p_by[enduse][fueltype])
+
+    return all_defined_tech_service_ey

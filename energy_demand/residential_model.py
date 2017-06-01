@@ -989,6 +989,8 @@ class EnduseResid(object):
             summe = 0
             for tech in service_tech:
                 summe += np.sum(service_tech[tech])
+                print("Tech: " + str(tech) + str("  ") + str(np.sum(service_tech[tech])))
+
             print("Service Sum 0:   " + str(summe))
             print("TOTSUM:          " + str(np.sum(tot_service_h_by)))
             #for tech in service_tech:
@@ -1000,6 +1002,10 @@ class EnduseResid(object):
             if self.enduse_specific_service_switch_crit:
                 print("Service_switch: YES")
                 service_tech = self.switch_tech_service(data, tot_service_h_by)
+
+            print("---------------")
+            for tech in service_tech:
+                print("astertech: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
 
             # ----------------
             # Fuel Switches
@@ -1103,11 +1109,12 @@ class EnduseResid(object):
 
         # Add shares to output dict
         for tech_decrease in service_tech_decrease_by_rel:
+            print("___tech_decrease: " + str(tech_decrease))
             service_tech_cy_p[tech_decrease] = data['assumptions']['service_tech_by_p'][self.enduse][tech_decrease]
 
         # Iterate service switches for increase tech
         for tech_increase in service_tech_increase_cy_p:
-
+            print("___tech_incrase: " + str(tech_increase))
             # Difference in service up to current year
             diff_service_increase = service_tech_increase_cy_p[tech_increase] - data['assumptions']['service_tech_by_p'][self.enduse][tech_increase]
 
@@ -1117,10 +1124,12 @@ class EnduseResid(object):
 
         # Add all technologies with unchanged service in the future
         for tech_constant in data['assumptions']['tech_constant_share'][self.enduse]:
+            print("___tech_constant: " + str(tech_constant))
             service_tech_cy_p[tech_constant] = data['assumptions']['service_tech_by_p'][self.enduse][tech_constant]
 
         # Multiply share of each tech with hourly service
         for tech in service_tech_cy_p:
+            print("_____________-tech: " + str(tech))
             service_tech_absolute = tot_service_h_by * service_tech_cy_p[tech]  # Total yearly hourly service * share of enduse
             service_tech_cy[tech] = service_tech_absolute
 
@@ -1176,7 +1185,7 @@ class EnduseResid(object):
             return True
         else:
             return False
-  
+
     def get_peak_from_yh(self, enduse_fuel_peak_yh):
         """Iterate yearly fuels and select day with most fuel
         """
@@ -1228,7 +1237,9 @@ class EnduseResid(object):
         control_sum = 0
 
         for tech in technologies_enduse:
-            fuel_tech = enduse_fuel_tech[tech] # Get fuel of technology
+            print(enduse_fuel_tech)
+            print(tech)
+            fuel_tech = enduse_fuel_tech[tech] # fuel of technology
             fuel_tech_d = fuel_tech * tech_stock.get_tech_attribute(tech, 'shape_yd') # Multiply fuel with shape_h
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
             fuels_fueltype_d[fueltype_tech] += fuel_tech_d # Add fuel of day

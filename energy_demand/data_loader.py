@@ -82,7 +82,7 @@ def load_data(path_main, data):
         'path_fuel_raw_data_resid_enduses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
         'path_txt_shapes_resid': os.path.join(path_main, 'residential_model/txt_load_shapes'),
-        'path_txt_service_tech_p': os.path.join(path_main, 'model_output/resid_service_tech_p.txt'),
+        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/resid_service_tech_by_p.txt'),
 
         'path_shape_resid_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
 

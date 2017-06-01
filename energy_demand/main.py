@@ -34,7 +34,7 @@ Down the line
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 
 The docs can be found here: http://ed.readthedocs.io
-5'''
+'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 import os
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     # ------------------- DUMMY END
 
 
-
+    # ----------------------------------------
     # Model calculations outside main function
     # ----------------------------------------
     base_data = {}
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
     # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
-    base_data['local_data_path'] = 'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
+    base_data['local_data_path'] = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
@@ -194,6 +194,19 @@ if __name__ == "__main__":
 
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
+
+    # Convert base year fuel assumptions to energy service
+    base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_p'] = mf.calc_service_fueltype_tech(
+        base_data['lu_fueltype'],
+        base_data['fuel_raw_data_resid_enduses'],
+        base_data['assumptions']['fuel_enduse_tech_p_by'],
+        base_data['fuel_raw_data_resid_enduses'],
+        base_data['assumptions']['technologies']
+    )
+    print("INNNNN: " + str(base_data['assumptions']['share_service_tech_ey_p']))
+    base_data['assumptions'] = mf.get_diff_direct_installed(base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
+
+    print("SERVICE DISTRIBUTION  " + str(base_data['assumptions']['service_tech_by_p']))
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data)
