@@ -1,5 +1,3 @@
-
-
 """A one-line summary that does not use variable names or the
     function name.
     Several sentences providing an extended description. Refer to

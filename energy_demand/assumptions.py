@@ -234,6 +234,7 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
+    assumptions['fuel_switch_crit'] = True
     # The share of energy service is the same across all regions
 
     # Load assumptions on service switches
