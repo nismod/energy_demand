@@ -1272,7 +1272,7 @@ def generate_sig_diffusion(data):
     # Sigmoid calculation in case of service switch
     if service_switch_crit:
 
-        data['assumptions']['installed_tech'] = data['tech_increased_service'] # Tech with lager service shares in end year
+        data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service'] # Tech with lager service shares in end year
         data['assumptions']['service_tech_p'] = data['assumptions']['service_tech_by_p'] # Base year service tech
 
         service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] # End year service shares (scenaric input)
@@ -2048,7 +2048,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
     return technologies, temp_dependent_tech_list
 
-def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, data):
+def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, assumptions):
     """Get all those technologies with increased service in future
 
     Parameters
@@ -2057,13 +2057,13 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, data):
         Share of service per technology of base year of total service
     share_service_tech_ey_p : dict
         Share of service per technology of end year of total service
-    data : dict
-        Data
+    assumptions : dict
+        assumptions
 
     Returns
     -------
-    data : dict
-        Data
+    assumptions : dict
+        assumptions
 
     Info
     -----
@@ -2097,11 +2097,11 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, data):
             else:
                 tech_constant_share[enduse].append(tech)
     # Add to data
-    data['tech_increased_service'] = tech_increased_service
-    data['tech_decreased_share'] = tech_decreased_share
-    data['tech_constant_share'] = tech_constant_share
+    assumptions['tech_increased_service'] = tech_increased_service
+    assumptions['tech_decreased_share'] = tech_decreased_share
+    assumptions['tech_constant_share'] = tech_constant_share
 
-    return data
+    return assumptions
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year

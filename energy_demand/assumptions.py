@@ -1,6 +1,4 @@
 """ This file contains all assumptions of the energy demand model"""
-import pprint
-import numpy as np
 import energy_demand.main_functions as mf
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -202,7 +200,7 @@ def load_assumptions(data):
 
 
     # ============================================================
-    # Fuel switches
+    # Scenaric FUEL switches
     # ============================================================
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
     assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
@@ -220,8 +218,6 @@ def load_assumptions(data):
     #assumptions['fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
 
 
-
-
     # ---Residential cooking
     assumptions['list_enduse_tech_cooking'] = []
     '''assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
@@ -233,31 +229,26 @@ def load_assumptions(data):
     # Helper function: Add all technologies with correct fueltype to assumptions['fuel_enduse_tech_p_by'] if not already added
     ###assumptions['fuel_enduse_tech_p_by'] = add_all_tech_to_base_year_stock(assumptions['fuel_enduse_tech_p_by'], assumptions['technologies'])
 
-    #assumptions['heat_pump_technologies'] = ['heat_pump_ASHP_elec', 'heat_pump_GSHP_elec'] # Share of ASHP to GSHP
-
-    # TODO: ADD dummy technology for all enduses where no technologies are defined
     # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
-    #IF new technologs is introduced: assign_shapes_tech_stock()
-
 
     # ============================================================
-    # Service Switches
+    # Scenaric SERVICE switches
+    # ============================================================
     # The share of energy service is the same across all regions
-    # ============================================================
 
     # Load assumptions on service switches
     assumptions = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
 
-    print("--Service in base year of each technology")
-    print(assumptions['service_tech_by_p'])
-
     # Get technologies with increased, decreased and constant service
-    data = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], data)
+    assumptions = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
 
 
 
+
+    # ============================================================
     # Helper functions
-    data['tech_lu_resid'] = create_lu_technologies(assumptions, assumptions['technologies'], data)
+    # ============================================================
+    assumptions['tech_lu_resid'] = create_lu_technologies(assumptions['technologies'])
 
     return assumptions
 
@@ -342,7 +333,7 @@ def get_hlc(dw_type, age):
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
     return hlc
 
-def create_lu_technologies(assumptions, technologies, data):
+def create_lu_technologies(technologies):
     """Helper function: Create lookup-table for technologies
     """
     out_dict = {}
@@ -359,7 +350,7 @@ def initialise_dict_fuel_enduse_tech_p_by(fuel_raw_data_resid_enduses, nr_of_fue
         Provided fuels
     nr_of_fueltypes : int
         Nr of fueltypes
-    
+
     Returns
     -------
     fuel_enduse_tech_p_by : dict

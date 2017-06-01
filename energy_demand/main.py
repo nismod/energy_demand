@@ -39,8 +39,8 @@ The docs can be found here: http://ed.readthedocs.io
 #!python3.6
 import os
 import sys
-import numpy as np
 import random
+import numpy as np
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt

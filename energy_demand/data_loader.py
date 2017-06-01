@@ -32,9 +32,9 @@ def load_data(path_main, data):
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     folder_path_weater_data = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
     folder_path_weater_stations = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
-    
+
     print("FOLDERPATH: " + str(folder_path_weater_stations))
-    
+
     # Fuel look-up table
     data['lu_fueltype'] = {
         'coal': 0,
@@ -88,13 +88,12 @@ def load_data(path_main, data):
 
         # Technologies
         'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
-        'path_fuel_switches': os.path.join(path_main, 'residential_model/fuel_switches_SCNEARIO.csv'), #SCENARIO
-        'path_service_switch': os.path.join(path_main, 'residential_model/fuel_services_SCNEARIO.csv'), #SCENARIO
+        'path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
+        'path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
+        
         # Service
         # -------
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
-
-
         }
 
     # ----------------------------------------------------------
@@ -259,8 +258,6 @@ def generate_data(data):
     hes_data, hes_y_peak, _ = df.read_hes_data(data)
     year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
 
-    print("data['fuel_raw_data_resid_enduses']")
-    print(data['fuel_raw_data_resid_enduses'])
     # Load shape for all end_uses
     for end_use in data['fuel_raw_data_resid_enduses']:
         print("Enduse:  " + str(end_use))
@@ -298,7 +295,7 @@ def generate_data(data):
     #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
     #folder_path_gas= r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
     #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
-    folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education') 
+    folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
 
 
     # ENDUSE XY
