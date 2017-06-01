@@ -911,7 +911,7 @@ class EnduseResid(object):
         self.reg_name = reg_name
         self.enduse = enduse
         self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data['assumptions']['resid_fuel_switches']) # Get fuel switches in enduse
-        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['assumptions']['service_tech_by_p'])
+        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['assumptions']['service_switch_crit_enduse']) #data['assumptions']['service_tech_by_p'])
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
 
         # --------
@@ -1178,12 +1178,16 @@ class EnduseResid(object):
         else:
             return False
 
-    def get_enduse_service_switches(self, service_tech_by_p):
+    def get_enduse_service_switches(self, service_switch_crit):
         """Test wheter there are defined service switches for this enduse
         """
-        if self.enduse in service_tech_by_p:
-            return True
-        else:
+        #if self.enduse in service_tech_by_p:
+        try:
+            if service_switch_crit[self.enduse] == True:
+                return True
+            else:
+                return False
+        except: # If the enduse is not defined
             return False
 
     def get_peak_from_yh(self, enduse_fuel_peak_yh):
@@ -1311,7 +1315,8 @@ class EnduseResid(object):
             #print("diffusion_cy  " + str(diffusion_cy))
 
             # Get difference in hourly service based on diffusion of installed technology
-            service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed_fueltype][tech_installed]
+            #service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed_fueltype][tech_installed]
+            service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed]
 
             # Get service for current year for technologies
             #print("service_tech_installed_cy: " + str(np.sum(service_tech_installed_cy)))

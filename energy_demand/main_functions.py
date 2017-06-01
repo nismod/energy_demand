@@ -290,7 +290,6 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
         for row in read_lines:
             
             try:
-
                 list_elements.append(
                     {
                         'enduse': str(row[0]),
@@ -337,9 +336,11 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     list_elements = []
-    dict_with_switches_by = {}
+    #dict_with_switches_by = {}
     dict_with_switches_ey = {}
     assump_max_share_L = {}
+
+    service_switch_crit_enduse = {} #Store to list enduse specific switchcriteria (true or false)
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -348,13 +349,12 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
         # Iterate rows
         for row in read_lines:
-            
             try:
                 list_elements.append(
                     {
                         'enduse_service': str(row[0]),
                         'tech': str(row[1]),
-                        'service_share_by': float(row[2]),
+                        #'service_share_by': float(row[2]),
                         'service_share_ey': float(row[3]),
                         'tech_assum_max_share': float(row[4])
                     }
@@ -368,31 +368,37 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         enduse = line['enduse_service']
         if enduse not in all_enduses:
             all_enduses.append(enduse)
-            dict_with_switches_by[enduse] = {}
+            #dict_with_switches_by[enduse] = {}
             dict_with_switches_ey[enduse] = {}
             assump_max_share_L[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
+        service_switch_crit_enduse[enduse] = False #False by default
         for line in list_elements:
             if line['enduse_service'] == enduse:
                 tech = line['tech']
-                dict_with_switches_by[enduse][tech] = line['service_share_by']
+                #dict_with_switches_by[enduse][tech] = line['service_share_by']
                 dict_with_switches_ey[enduse][tech] = line['service_share_ey']
                 assump_max_share_L[enduse][tech] = line['tech_assum_max_share']
+
+                service_switch_crit_enduse[enduse] = True
 
     # Add to assumptions
     #assumptions['service_tech_by_p'] = dict_with_switches_by #TODO: GENERATE THIS ATUOMATILYY
     assumptions['share_service_tech_ey_p'] = dict_with_switches_ey
     assumptions['test_assump_max_share_L'] = assump_max_share_L
 
+    assumptions['service_switch_crit_enduse'] = service_switch_crit_enduse
+    print("Sddddddddddddervice Swithc Criteria: " + str(assumptions['service_switch_crit_enduse']))
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for enduse in assumptions['all_specified_tech_enduse_by']:
-        for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
-            if tech not in assumptions['share_service_tech_ey_p'][enduse]:
-                sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
+        if enduse in assumptions['service_switch_crit_enduse']: #If switch is defined for this enduse
+            for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
+                if tech not in assumptions['share_service_tech_ey_p'][enduse]:
+                    sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     '''# Test if service is defined for end year for every defined technology in base year where fuel is provided
     for enduse in assumptions['share_service_tech_ey_p']:
@@ -401,7 +407,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                 sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
     '''
     # Test if service of all provided technologies sums up to 100% in the end year
-    for enduse in dict_with_switches_by:
+    for enduse in dict_with_switches_ey:
 
         #if round(sum(dict_with_switches_by[enduse].values()), 2)  != 1.0:
         #    sys.exit("Error while loading future services assumptions: The provided by service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_by[enduse].values()))
@@ -1286,15 +1292,18 @@ def generate_sig_diffusion(data):
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
     # Test is Service Switch is implemented #TODO: TESt alternatively than this
-    if len(data['assumptions']['service_tech_by_p']) >= 1:
+    #print(data['assumptions']['service_switch_crit_enduse'].values())
+
+    if True in data['assumptions']['service_switch_crit_enduse'].values(): # If a switch is defined for an enduse
+        #if len(data['assumptions']['service_tech_by_p']) >= 1:
         service_switch_crit = True
     else:
         service_switch_crit = False
 
 
     # Sigmoid calculation in case of service switch
-    #if service_switch_crit:
-    if data['assumptions']['fuel_switch_crit']:
+    if service_switch_crit:
+        #if data['assumptions']['fuel_switch_crit']:
 
         data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service'] # Tech with lager service shares in end year
         #data['assumptions']['service_tech_by_p'] = data['assumptions']['service_tech_by_p'] # Base year service tech
@@ -2137,30 +2146,36 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, assump
     tech_decreased_share = {}
     tech_constant_share = {}
 
-    for enduse in service_tech_by_p:
-        tech_increased_service[enduse] = []
-        tech_decreased_share[enduse] = []
-        tech_constant_share[enduse] = []
+    if share_service_tech_ey_p == {}: # IF no service switch defined
+        assumptions['tech_increased_service'] = []
+        assumptions['tech_decreased_share'] = []
+        assumptions['tech_constant_share'] = []
+    else:
+        for enduse in service_tech_by_p:
+            
+            tech_increased_service[enduse] = []
+            tech_decreased_share[enduse] = []
+            tech_constant_share[enduse] = []
 
-        for tech in service_tech_by_p[enduse]: # Calculate fuel for each tech
+            for tech in service_tech_by_p[enduse]: # Calculate fuel for each tech
 
-            # If future larger share
-            if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:
-                tech_increased_service[enduse].append(tech)
+                # If future larger share
+                if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:
+                    tech_increased_service[enduse].append(tech)
 
-            # If future smaller service share
-            elif service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
-                tech_decreased_share[enduse].append(tech)
-            else:
-                tech_constant_share[enduse].append(tech)
-    # Add to data
-    assumptions['tech_increased_service'] = tech_increased_service
-    assumptions['tech_decreased_share'] = tech_decreased_share
-    assumptions['tech_constant_share'] = tech_constant_share
-    print("   ")
-    print("tech_increased_service:  " + str(tech_increased_service))
-    print("tech_decreased_share:    " + str(tech_decreased_share))
-    print("tech_constant_share:     " + str(tech_constant_share))
+                # If future smaller service share
+                elif service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
+                    tech_decreased_share[enduse].append(tech)
+                else:
+                    tech_constant_share[enduse].append(tech)
+        # Add to data
+        assumptions['tech_increased_service'] = tech_increased_service
+        assumptions['tech_decreased_share'] = tech_decreased_share
+        assumptions['tech_constant_share'] = tech_constant_share
+        print("   ")
+        print("tech_increased_service:  " + str(tech_increased_service))
+        print("tech_decreased_share:    " + str(tech_decreased_share))
+        print("tech_constant_share:     " + str(tech_constant_share))
     return assumptions
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):

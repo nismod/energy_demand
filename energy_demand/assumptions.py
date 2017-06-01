@@ -178,7 +178,6 @@ def load_assumptions(data):
     # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1.0
 
-
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
 
@@ -235,7 +234,7 @@ def load_assumptions(data):
     # Scenaric SERVICE switches
     #   - The share of energy service is the same across all regions
     # ============================================================
-    assumptions['fuel_switch_crit'] = True
+    #assumptions['fuel_switch_crit'] = True
    
     # Load assumptions on service switches, service_tech_ey
     assumptions = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
