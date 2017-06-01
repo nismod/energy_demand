@@ -382,11 +382,12 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in dict_with_switches_by:
 
-        if sum(dict_with_switches_by[enduse].values()) != 1.0:
-            sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+        if round(sum(dict_with_switches_by[enduse].values()), 2)  != 1.0:
+            sys.exit("Error while loading future services assumptions: The provided by service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_by[enduse].values()))
 
-        if sum(dict_with_switches_ey[enduse].values()) != 1.0:
-            sys.exit("Error while loading future services assumptions: The provided service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+        if round(sum(dict_with_switches_ey[enduse].values()), 2) != 1.0:
+
+            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_ey[enduse].values()))
 
     return assumptions
 
@@ -1267,7 +1268,6 @@ def generate_sig_diffusion(data):
         service_switch_crit = True
     else:
         service_switch_crit = False
-    
 
     # Sigmoid calculation in case of service switch
     if service_switch_crit:
@@ -1771,8 +1771,16 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])
 
+                # ----------------
                 # Parameter fitting
-                possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 40, 60, 100, 200, 400, 500, 1000]
+                # ----------------
+                # Generate possible starting parameters for fit
+                possible_start_parameters = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
+                for start in [x * 0.05 for x in range(0, 20)]:
+                    possible_start_parameters.append(start)
+                for start in range(1, 59):
+                    possible_start_parameters.append(start)
+                #possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 3 40, 60, 100, 200, 400, 500, 1000]
 
                 cnt = 0
                 successfull = False
@@ -1784,17 +1792,25 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(L_values[enduse][technology]))
+                        print("start_parameters: " + str(start_parameters))
 
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
 
                         # Define manually when a fit is not successefful
+                        print("fit_parameter: " + str(fit_parameter))
+                        print(fit_parameter[0])
                         fit_crit_A = 50
                         fit_crit_B = 0.01
-                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B:
+
+                        # Criteria when fit does not work
+                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or (fit_parameter[0] == start_parameters[0] and fit_parameter[1] == start_parameters[1]):
                             successfull = False
+                            cnt += 1
+                            if cnt >= len(possible_start_parameters):
+                                sys.exit("Error2: CURVE FITTING DID NOT WORK")
                         else:
                             successfull = True
-                        print("Fit successful for Technology: {} with fitting parameters: ".format(technology) + str(fit_parameter))
+                            print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
                     except:
                         print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1

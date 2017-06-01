@@ -11,8 +11,6 @@ import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 import copy
 
-
-
 class RegionClass(object):
     """Region Class for the residential model
 
@@ -88,6 +86,9 @@ class RegionClass(object):
         # Service
         # ------------
 
+        # ------------
+        # Industry
+        # ------------
 
         # ------------
         # Transport
@@ -286,6 +287,7 @@ class RegionClass(object):
         # Sum data
         for enduse in data['resid_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuel_yh') # Fuel of Enduse h
+        
         return sum_fuels_all_enduses
 
     def tot_all_enduses_d(self, data, attribute_to_get):
@@ -296,6 +298,7 @@ class RegionClass(object):
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
                 sum_fuels_d[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
+        
         return sum_fuels_d
 
     def get_calc_enduse_fuel_peak_yd_factor(self, data):
@@ -305,6 +308,7 @@ class RegionClass(object):
 
         for enduse in data['resid_enduses']:
             sum_calc_enduse_fuel_peak_yd_factor += self.__getattr__subclass__(enduse, 'enduse_peak_yd_factor') # Fuel of Enduse
+        
         return sum_calc_enduse_fuel_peak_yd_factor
 
     def get_calc_enduse_fuel_peak_h(self, data, attribute_to_get):
@@ -315,6 +319,7 @@ class RegionClass(object):
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
                 sum_calc_enduse_fuel_peak_yh[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype] # Fuel of Endus enduse_fuel_peak_dh
+        
         return sum_calc_enduse_fuel_peak_yh
 
     def tot_all_enduses_h(self, data, attribute_to_get):
@@ -360,6 +365,7 @@ class RegionClass(object):
                 lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
 
         lf_d = lf_d * 100 # Convert load factor to %
+        
         return lf_d
 
     def calc_load_factor_h(self, data, fuels_tot_enduses_h, fuels_peak_h):
@@ -396,6 +402,7 @@ class RegionClass(object):
 
         # Convert load factor to %
         load_factor_h *= 100
+        
         return load_factor_h
 
     def load_factor_d_non_peak(self, data):
@@ -427,6 +434,7 @@ class RegionClass(object):
                 lf_d[k] = average_demand / max_demand_d # Calculate load factor
 
         lf_d = lf_d * 100 # Convert load factor to %
+        
         return lf_d
 
     def load_factor_h_non_peak(self, data):
@@ -466,6 +474,7 @@ class RegionClass(object):
 
         # Convert load factor to %
         load_factor_h *= 100
+        
         return load_factor_h
 
     def get_reg_hdd(self, data, temperatures, year):
@@ -503,6 +512,7 @@ class RegionClass(object):
         # Error testing
         if np.sum(hdd_d) == 0:
             sys.exit("Error: No heating degree days means no fuel for heating is necessary")
+        
         return hdd_d
 
     def get_reg_cdd(self, data, temperatures, year):
@@ -531,6 +541,7 @@ class RegionClass(object):
 
         # Calculate cdd for every day (365, 1)
         cdd_d = mf.calc_cdd(t_base_cooling_resid, temperatures)
+        
         return cdd_d
 
     def shape_heating_hp_yh(self, data, tech_stock, hdd_cy, tech_to_get_shape):
@@ -583,7 +594,7 @@ class RegionClass(object):
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
 
-                # Select gas heat pumps to calculate service shap 
+                # Select gas heat pumps to calculate service shap
                 tech_object = getattr(tech_stock, 'av_heat_pump_gas')
                 average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
@@ -908,8 +919,7 @@ class EnduseResid(object):
         if self.enduse_specific_fuel_switches_crit and self.enduse_specific_service_switch_crit:
             sys.exit("Error: Can't define service switch and fuel switch for same enduse {}   {}".format(self.enduse_specific_fuel_switches_crit, self.enduse_specific_service_switch_crit))
         if not self.enduse_specific_fuel_switches_crit and not self.enduse_specific_service_switch_crit:
-            # Enduse is not defined with technologies
-            if self.enduse not in data['shapes_resid_yd']:
+            if self.enduse not in data['shapes_resid_yd']: # Enduse is not defined with technologies
                 sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for this enduse ")
 
         # -------------------------------

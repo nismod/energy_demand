@@ -24,6 +24,7 @@ class Technology(object):
         """Contructor of Technology
 
         #TODO: Checke whetear all technologies which are temp dependent are specified for base year efficiency
+
         Parameters
         ----------
         tech_name : str
@@ -35,23 +36,28 @@ class Technology(object):
         year : float
             Current year
         """
-        # Attributes from input
         self.curr_yr = year
         self.tech_name = tech_name
 
-        # Attributes from data
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
 
+        # -------
+        # Hybrid
+        # --> Efficiencies depending on temp
+        # --> Fueltype depending on temp_cut_off
+        # -------
+
+        # -------------------------------
+        # Technology specific assumptions
+        # -------------------------------
         # Assign base year efficiency depending on technology
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']: # Make temp dependent base year efficiency
             self.eff_by = mf.get_heatpump_eff(
                 temp_by,
                 data['assumptions']['heat_pump_slope_assumption'],
-                #mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by']),
                 data['assumptions']['technologies'][self.tech_name]['eff_by'],
                 data['assumptions']['t_base_heating_resid']['base_yr']
             )
-            # (temp_yr, m_slope, b, t_base_heating)
         else:
             # Constant base year efficiency
             self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
@@ -65,7 +71,7 @@ class Technology(object):
         # Attributes generated
 
         #-- Specific shapes of technologes (filled with dummy data)
-        self.shape_yd = np.ones((365, 1)) #24
+        self.shape_yd = np.ones((365, 1))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
 
@@ -75,12 +81,7 @@ class Technology(object):
         # Calculate efficiency in current year
         self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
 
-        '''print("comparae eff  " + str(self.tech_name))
-        print(np.sum(temp_by))
-        print(np.sum(temp_cy))
-        print(np.sum(self.eff_by))
-        print(np.sum(self.eff_cy))
-        '''
+
 
     def get_shape_peak_dh(self, data):
         """Depending on technology the shape dh is different

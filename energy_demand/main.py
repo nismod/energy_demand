@@ -34,7 +34,7 @@ Down the line
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 
 The docs can be found here: http://ed.readthedocs.io
-'''
+5'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 import os
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     by = 2015
-    ey = 2020 #always includes this year
+    ey = 2040 #always includes this year
     sim_years = range(by, ey + 1) #TODO:  Everyhwere wher len(sim_years) is used
 
     pop_dummy = {}
