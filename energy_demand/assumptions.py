@@ -176,24 +176,27 @@ def load_assumptions(data):
     # Technologies & Efficiencies
     # ============================================================
     assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_assumptions_tech_resid'], data) # Load all technologies
-    
-    assumptions['heat_pump_slope_assumption'] = -.08 # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
-
-    assumptions['list_tech_heating_temp_dep'] = []#= ['av_heat_pump_electricity', 'av_heat_pump_gas']
 
     # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1.0
 
+
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
+
+    # Further technology related input
+    assumptions['heat_pump_slope_assumption'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+    assumptions['list_tech_heating_temp_dep'] = []      # To store all temperature dependent heating technology
+    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
+
+    assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
+    assumptions['list_tech_cooling_temp_dep'] = []
+    #assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
+    #assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
     # --Helper functions
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, assumptions['list_tech_heating_temp_dep'], assumptions['technologies'], assumptions['heat_pump_stock_install'])
-    
-    print("assumptions['technologies']")
-    print(assumptions['technologies'])
-    
     assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=efficiency_achieving_factor)
 
 
@@ -202,32 +205,12 @@ def load_assumptions(data):
     # Fuel switches
     # ============================================================
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
-
-    # ---------------------------------------------------------------------------------------------------------------------
-    # Provide for every fueltype of an enduse the share of fuel which is used by technologies
-    # Example: From electricity used for heating, 80% is used for heat pumps, 80% for electric boilers)
-    # ---------------------------------
     assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
+    # --Provide for every fueltype of an enduse the share of fuel which is used by technologies
 
-    #TODO: ADD AVERAGED heat pumps automatically
-
-    # Lists with technologies (TODO Greate automatically)
-    assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
-    assumptions['enduse_space_cooling'] = ['resid_space_cooling']
-
-    # Technologies used
-    assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
-    assumptions['list_tech_cooling_temp_dep'] = []
-
-    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
-    #assumptions['list_tech_heating_temp_dep'] = ['av_heat_pump_electricity', 'av_heat_pump_gas'] #e.g. with generate_heat_pump_from_split
-
-    # ---Residential space Heating
+    # ---Residential space heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
-
-
-    # Provides shares of fuel within each fueltype
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  Hannon 2015, heat-pump share in uk
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
@@ -254,7 +237,6 @@ def load_assumptions(data):
 
     # TODO: ADD dummy technology for all enduses where no technologies are defined
     # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
-    # TODO: Assert wheater any heat pump is added to assumptions['list_tech_heating_temp_dep']
     #IF new technologs is introduced: assign_shapes_tech_stock()
 
 
@@ -265,6 +247,9 @@ def load_assumptions(data):
 
     # Load assumptions on service switches
     assumptions = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
+
+    print("--Service in base year of each technology")
+    print(assumptions['service_tech_by_p'])
 
     # Get technologies with increased, decreased and constant service
     data = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], data)

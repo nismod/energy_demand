@@ -308,9 +308,10 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     return list_elements
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
-    """This function reads in CSV files and skips header row. Test if plausible inputs.
+    """This function reads in service assumptions from csv file. 
 
     If no assumptions about service switches, return empty dicts.
+
     Parameters
     ----------
     path_to_csv : str
@@ -325,6 +326,8 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
     Notes
     -----
+    - skips header row
+    - It also test if plausible inputs
     While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     list_elements = []
@@ -1259,12 +1262,14 @@ def generate_sig_diffusion(data):
     """
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
-    # Test if service swithc is implemented
+    # Test is Service Switch is implemented
     if len(data['assumptions']['service_tech_by_p']) >= 1:
         service_switch_crit = True
     else:
         service_switch_crit = False
+    
 
+    # Sigmoid calculation in case of service switch
     if service_switch_crit:
 
         data['assumptions']['installed_tech'] = data['tech_increased_service'] # Tech with lager service shares in end year
@@ -1289,7 +1294,9 @@ def generate_sig_diffusion(data):
             data['assumptions']['technologies']
         )
 
+        # ---------------------------------------------------------------------
         # Write out txt file with service shares for each technology per enduse
+        # ---------------------------------------------------------------------
         write_out_txt(data['path_dict']['path_txt_service_tech_p'], data['assumptions']['service_tech_p'])
         print("... a file has been generated which shows the shares of each technology per enduse")
 
@@ -1531,7 +1538,11 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
         Total energy service per technology for base year (365, 24)
     service : dict
         Energy service for every fueltype and technology (dict[fueltype][tech])
-
+    
+    Info
+    -----
+    Energy service = fuel * efficiency
+    
     Notes
     -----
     Regional temperatures are not considered because otherwise the initial fuel share of
