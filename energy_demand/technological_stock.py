@@ -38,22 +38,31 @@ class Technology(object):
         """
         self.curr_yr = year
         self.tech_name = tech_name
+        self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
+        self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
+        self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
         # -------
         # Hybrid
         # --> Efficiencies depending on temp
         # --> Fueltype depending on temp_cut_off
         # -------
+        hybrid_tech_list = ['hybrid_tech']
+        if self.tech_name in hybrid_tech_list:
+            self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
+
+            #self.eff_cy = calc_hybrid_eff()
+            #self.fueltype_tech_h = ()
 
         # -------------------------------
-        # Technology specific assumptions
+        # Efficiencies
         # -------------------------------
-        # Assign base year efficiency depending on technology
+        # --Base year
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']: # Make temp dependent base year efficiency
             self.eff_by = mf.get_heatpump_eff(
-                temp_by,
+                temp_by, #Base year temperatures
                 data['assumptions']['heat_pump_slope_assumption'],
                 data['assumptions']['technologies'][self.tech_name]['eff_by'],
                 data['assumptions']['t_base_heating_resid']['base_yr']
@@ -62,13 +71,12 @@ class Technology(object):
             # Constant base year efficiency
             self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
 
+        # --Current year
+        self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
 
-        self.eff_ey = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_ey'])
-        self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
-        self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
-        self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
-
-        # Attributes generated
+        # -------------------------------
+        # Shapes
+        # -------------------------------
 
         #-- Specific shapes of technologes (filled with dummy data)
         self.shape_yd = np.ones((365, 1))
@@ -78,8 +86,7 @@ class Technology(object):
         # Get Shape of peak dh
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
-        # Calculate efficiency in current year
-        self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
+
 
 
 

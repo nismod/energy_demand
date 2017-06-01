@@ -1538,11 +1538,11 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
         Total energy service per technology for base year (365, 24)
     service : dict
         Energy service for every fueltype and technology (dict[fueltype][tech])
-    
+
     Info
     -----
     Energy service = fuel * efficiency
-    
+
     Notes
     -----
     Regional temperatures are not considered because otherwise the initial fuel share of
@@ -1554,7 +1554,8 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
     # Iterate fueltype
     for fueltype, fuel_enduse in enumerate(fuels):
-        service[fueltype] = {}
+        #service[fueltype] = {}
+        #service = {}
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies (average efficiency across whole year)
         for tech in fuel_enduse_tech_p_by[fueltype]:
@@ -1566,16 +1567,18 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
             fuel_tech_h = fuel_shape_yh * fuel_tech
 
             # Convert to energy service (Energy service = fuel * efficiency)
-            service[fueltype][tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
+            ##service[fueltype][tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
+            service[tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
 
             #print("conerting fuel to heat tech: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.average(tech_stock.get_tech_attribute(tech, 'eff_by'))))
             #print("TESTING SHAPE: "  + str(np.sum(fuel_shape_yh)))
 
     # Calculate energy service demand over the full year and for every hour
     total_service_yh = np.zeros((365, 24))
-    for fueltype in service:
-        for tech in service[fueltype]:
-            total_service_yh += service[fueltype][tech] # (365 * 365 shapes)
+    #for fueltype in service:
+    for tech in service: #[fueltype]:
+            #total_service_yh += service[fueltype][tech] # (365 * 365 shapes)
+            total_service_yh += service[tech] # (365 * 365 shapes)
 
     return total_service_yh, service
 
@@ -1776,7 +1779,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 # ----------------
                 # Generate possible starting parameters for fit
                 possible_start_parameters = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
-                for start in [x * 0.05 for x in range(0, 20)]:
+                for start in [x * 0.05 for x in range(0, 100)]:
                     possible_start_parameters.append(start)
                 for start in range(1, 59):
                     possible_start_parameters.append(start)
@@ -1799,11 +1802,12 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                         # Define manually when a fit is not successefful
                         print("fit_parameter: " + str(fit_parameter))
                         print(fit_parameter[0])
-                        fit_crit_A = 50
+                        fit_crit_A = 100
                         fit_crit_B = 0.01
 
-                        # Criteria when fit does not work
-                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or (fit_parameter[0] == start_parameters[0] and fit_parameter[1] == start_parameters[1]):
+
+                        # Criteria when fit did not work
+                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or fit_parameter[1] > fit_crit_A or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
                             successfull = False
                             cnt += 1
                             if cnt >= len(possible_start_parameters):

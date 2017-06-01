@@ -13,7 +13,7 @@ boiler_coal,coal,0.6,0.6,1,linear,2015,
 boiler_gas,gas,0.7,0.7,1,linear,2015,
 boiler_elec,electricity,0.7,0.7,1,linear,2015,
 boiler_oil,oil,0.7,0.7,1,linear,2015,
-boiler_biomass,bioenergy_waste,0.7,0.7,1,linear,2030,Strat year
+boiler_biomass,bioenergy_waste,0.7,0.7,1,linear,2015,Strat year
 boiler_hydrogen,hydrogen,0.7,0.7,1,linear,2015,
 boiler_condensing_gas,gas,0.85,0.85,1,linear,2015,
 boiler_condensing_oil,oil,0.85,0.85,1,linear,2015,

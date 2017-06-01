@@ -297,6 +297,7 @@ def add_all_tech_to_base_year_stock(fuel_enduse_tech_p_by, technologies):
         for enduse in fuel_enduse_tech_p_by:
             if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech]:
                 fuel_enduse_tech_p_by[enduse][fueltype_tech][technology] = 0.0
+
     return fuel_enduse_tech_p_by
 
 #TODO: Make that HLC can be improved

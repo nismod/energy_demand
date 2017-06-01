@@ -925,8 +925,7 @@ class EnduseResid(object):
         # -------------------------------
         # Yearly fuel calculation cascade
         # --------------------------------
-        # Fuels with applied changes
-        self.enduse_fuel_new_fuel = copy.deepcopy(self.enduse_fuel)
+        self.enduse_fuel_new_fuel = copy.deepcopy(self.enduse_fuel) # Fuels with applied changes
 
         # Change fuel consumption based on climate change induced temperature differences
         self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
@@ -991,7 +990,8 @@ class EnduseResid(object):
             if self.enduse_specific_fuel_switches_crit:
                 print("Fuel_switch: YES")
                 service_fueltype_tech = self.switch_tech_fuel(data['data_ext'], data['assumptions'], tech_stock, tot_service_h_by, service_fueltype_tech)
-
+            
+            print(service_fueltype_tech.keys())
             # -----------------------
             # Convert Service to Fuel
             # -----------------------
@@ -1058,8 +1058,8 @@ class EnduseResid(object):
         """
         service_tech_cy_p = {}
         service_fueltype_tech_cy = {}
-        for fueltype in data['lu_fueltype']:
-            service_fueltype_tech_cy[data['lu_fueltype'][fueltype]] = {} # Add all fueltypes
+        ##for fueltype in data['lu_fueltype']:
+        ##    service_fueltype_tech_cy[data['lu_fueltype'][fueltype]] = {} # Add all fueltypes
 
         # Calculate diffusion of service for technology with increased service
         service_tech_increase_cy_p = self.get_service_diffusion(data, data['assumptions']['tech_increased_service'][self.enduse])
@@ -1092,8 +1092,9 @@ class EnduseResid(object):
         # Multiply share of each tech with hourly service
         for tech in service_tech_cy_p:
             service_tech_absolute = tot_service_h_by * service_tech_cy_p[tech]  # Total yearly hourly service * share of enduse
-            tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
-            service_fueltype_tech_cy[tech_fueltype][tech] = service_tech_absolute
+            #tech_fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
+            #service_fueltype_tech_cy[tech_fueltype][tech] = service_tech_absolute
+            service_fueltype_tech_cy[tech] = service_tech_absolute
 
         return service_fueltype_tech_cy
 
@@ -1211,7 +1212,6 @@ class EnduseResid(object):
             print("fuel_tech_d: " + str(np.sum(fuel_tech_d)))
             '''
 
-
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_service_to_fuel_fueltype_y
         np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
         # IF this function has problems, check wheter all technologies are assigned to technology lists (e.g. heat pumps in heating list)
@@ -1276,7 +1276,8 @@ class EnduseResid(object):
 
             # Get service for current year for technologies
             #print("service_tech_installed_cy: " + str(np.sum(service_tech_installed_cy)))
-            service_fueltype_tech_after_switch[tech_installed_fueltype][tech_installed] += service_tech_installed_cy
+            ##service_fueltype_tech_after_switch[tech_installed_fueltype][tech_installed] += service_tech_installed_cy
+            service_fueltype_tech_after_switch[tech_installed] += service_tech_installed_cy
 
             # Remove fuel of replaced energy service demand proportinally to heat demand in base year
             tot_service_switched_tech_installed = 0 # Total replaced service across different fueltypes
@@ -1322,7 +1323,8 @@ class EnduseResid(object):
 
                     # Substract technology specific servide demand
                     #print("service_demand_tech: " + str(np.sum(service_demand_tech)))
-                    service_fueltype_tech_after_switch[fueltype][technology_replaced] -= service_demand_tech
+                    ###service_fueltype_tech_after_switch[fueltype][technology_replaced] -= service_demand_tech
+                    service_fueltype_tech_after_switch[technology_replaced] -= service_demand_tech
 
         return service_fueltype_tech_after_switch
 
@@ -1346,9 +1348,13 @@ class EnduseResid(object):
         fuels_per_fueltype = np.zeros((self.enduse_fuel_new_fuel.shape))
 
         # Convert service to fuel
-        for fueltype in service_fueltype_tech:
-            for tech in service_fueltype_tech[fueltype]:
-                fuel = np.divide(service_fueltype_tech[fueltype][tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
+        #for fueltype in service_fueltype_tech:
+        for tech in service_fueltype_tech: #[fueltype]:
+                print("tech: " + str(tech))
+                #fuel = np.divide(service_fueltype_tech[fueltype][tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
+                fuel = np.divide(service_fueltype_tech[tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
+                #fueltype = np.divide(service_fueltype_tech[fueltype][tech], tech_stock.get_tech_attribute(tech, 'fuel_type'))
+                fueltype = tech_stock.get_tech_attribute(tech, 'fuel_type')
                 fuels_per_fueltype[fueltype] += np.sum(fuel)
 
         setattr(self, 'enduse_fuel_new_fuel', fuels_per_fueltype)
@@ -1382,11 +1388,13 @@ class EnduseResid(object):
         fuel_tech = {} # Initialise with all fuetlypes
 
         # Convert service to fuel
-        for fueltype in service_fueltype_tech:
-            for tech in service_fueltype_tech[fueltype]:
+        #for fueltype in service_fueltype_tech:
+            #for tech in service_fueltype_tech[fueltype]:
+        for tech in service_fueltype_tech:
 
                 # Technology specific efficiency of current year
-                fuel = np.divide(service_fueltype_tech[fueltype][tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
+                #fuel = np.divide(service_fueltype_tech[fueltype][tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
+                fuel = np.divide(service_fueltype_tech[tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
                 fuel_tech[tech] = np.sum(fuel)
 
         return fuel_tech

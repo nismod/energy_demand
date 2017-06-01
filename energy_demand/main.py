@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     by = 2015
-    ey = 2040 #always includes this year
+    ey = 2020 #always includes this year
     sim_years = range(by, ey + 1) #TODO:  Everyhwere wher len(sim_years) is used
 
     pop_dummy = {}
