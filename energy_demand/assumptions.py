@@ -202,6 +202,10 @@ def load_assumptions(data):
     # ============================================================
     assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
 
+    # ------------------
+    # RESIDENTIAL SECTOR
+    # ------------------
+
     #---Residential space heating
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  Hannon 2015, heat-pump share in uk
@@ -218,7 +222,6 @@ def load_assumptions(data):
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
     '''
-
     assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['fuel_enduse_tech_p_by'])
 
     # ============================================================
@@ -226,24 +229,10 @@ def load_assumptions(data):
     # ============================================================
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
 
-    # Helper function: Add all technologies with correct fueltype to assumptions['fuel_enduse_tech_p_by'] if not already added
-    ###assumptions['fuel_enduse_tech_p_by'] = add_all_tech_to_base_year_stock(assumptions['fuel_enduse_tech_p_by'], assumptions['technologies'])
-    # TODO: Assert if all defined technologies are in assumptions['list_tech_heating_const'] or similar...
-
     # ============================================================
-    # Scenaric SERVICE switches
-    #   - The share of energy service is the same across all regions
+    # Scenaric SERVICE switches    (The share of energy service is the same across all regions)
     # ============================================================
-    #assumptions['fuel_switch_crit'] = True
-   
-    # Load assumptions on service switches, service_tech_ey
-    assumptions = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
-
-    # Get technologies with increased, decreased and constant service
-    #assumptions = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
-
-
-
+    assumptions['share_service_tech_ey_p'], assumptions['test_enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
 
     # ============================================================
     # Helper functions

@@ -9,3 +9,6 @@ boiler_elec			0.480055983205
 av_heat_pump_electricity			0.0300909727082
 boiler_biomass			0.0
 boiler_hydrogen			0.0
+ 
+Enduse  resid_lighting
+----------

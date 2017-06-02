@@ -1,6 +1,1 @@
-enduse,tech,share_by,share_ey,assump_max_share
-resid_space_heating,boiler_elec,99,0.5,0.9
-resid_space_heating,boiler_gas,99,0.4,0.9
-resid_space_heating,av_heat_pump_electricity,99,0.1,0.9
-resid_space_heating,boiler_biomass,99,0,0.9
-resid_space_heating,boiler_hydrogen,99,0,0.9
+enduse,tech,share_ey,assump_max_share

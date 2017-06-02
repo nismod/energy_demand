@@ -93,11 +93,10 @@ class Technology(object):
     def get_shape_peak_dh(self, data):
         """Depending on technology the shape dh is different
         #TODO: MORE INFO
-        #TODO:
         """
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_name in data['assumptions']['list_tech_heating_const']:
-            
+
              # Peak curve robert sansom
             shape_peak_dh = np.divide(data['shapes_resid_heating_boilers_dh'][3], np.sum(data['shapes_resid_heating_boilers_dh'][3]))
 

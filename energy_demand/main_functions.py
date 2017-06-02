@@ -203,23 +203,21 @@ def read_csv_base_data_resid(path_to_csv):
     -----
     the first row is the fuel_ID
     The header is the sub_key
-    # Quick and dirty
-    The fuel input dictionary must have a value for every fuel (0)
     """
     try:
         lines = []
         end_uses_dict = {}
 
-        with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-            read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-            _headings = next(read_lines)                      # Skip first row
+        with open(path_to_csv, 'r') as csvfile:
+            read_lines = csv.reader(csvfile, delimiter=',')
+            _headings = next(read_lines) # Skip first row
 
             # Iterate rows
-            for row in read_lines: # select row
+            for row in read_lines:
                 lines.append(row)
 
             for i in _headings[1:]: # skip first
-                end_uses_dict[i] = np.zeros((len(lines), 1)) # len fuel_ids
+                end_uses_dict[i] = np.zeros((len(lines), 1))
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
@@ -227,8 +225,9 @@ def read_csv_base_data_resid(path_to_csv):
                     end_use = _headings[cnt]
                     end_uses_dict[end_use][cnt_fueltype] = i
                     cnt += 1
-    except:
-        print("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0)")
+    except (KeyError, ValueError):
+        sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
+
     return end_uses_dict
 
 def read_technologies(path_to_csv, data):
@@ -266,7 +265,7 @@ def read_technologies(path_to_csv, data):
     return dict_technologies
 
 def read_csv_assumptions_fuel_switches(path_to_csv, data):
-    """This function reads in CSV files and skips header row.
+    """This function reads in from CSV file defined fuel switch assumptions
 
     Parameters
     ----------
@@ -307,13 +306,11 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     for element in list_elements:
         if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
             sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
-    
+
     return list_elements
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
-    """This function reads in service assumptions from csv file. 
-
-    If no assumptions about service switches, return empty dicts.
+    """This function reads in service assumptions from csv file
 
     Parameters
     ----------
@@ -326,23 +323,26 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
+    enduse_tech_maxL_by_p : dict
+        Maximum service per technology which can be switched
+    service_switch_enduse_crit : dict
+        Criteria whether service switches are defined in an enduse. If no assumptions about service switches, return empty dicts
 
     Notes
     -----
+    The base year service shares are generated from technology stock definition
     - skips header row
     - It also test if plausible inputs
     While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     list_elements = []
-    #dict_with_switches_by = {}
-    dict_with_switches_ey = {}
-    assump_max_share_L = {}
-
-    service_switch_crit_enduse = {} #Store to list enduse specific switchcriteria (true or false)
+    enduse_tech_by_p = {}
+    enduse_tech_maxL_by_p = {}
+    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip first row
 
         # Iterate rows
@@ -352,7 +352,6 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                     {
                         'enduse_service': str(row[0]),
                         'tech': str(row[1]),
-                        #'service_share_by': float(row[2]),
                         'service_share_ey': float(row[3]),
                         'tech_assum_max_share': float(row[4])
                     }
@@ -366,36 +365,26 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         enduse = line['enduse_service']
         if enduse not in all_enduses:
             all_enduses.append(enduse)
-            #dict_with_switches_by[enduse] = {}
-            dict_with_switches_ey[enduse] = {}
-            assump_max_share_L[enduse] = {}
+            enduse_tech_by_p[enduse] = {}
+            enduse_tech_maxL_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        service_switch_crit_enduse[enduse] = False #False by default
+        service_switch_enduse_crit[enduse] = False #False by default
         for line in list_elements:
             if line['enduse_service'] == enduse:
                 tech = line['tech']
-                #dict_with_switches_by[enduse][tech] = line['service_share_by']
-                dict_with_switches_ey[enduse][tech] = line['service_share_ey']
-                assump_max_share_L[enduse][tech] = line['tech_assum_max_share']
-                service_switch_crit_enduse[enduse] = True
+                enduse_tech_by_p[enduse][tech] = line['service_share_ey']
+                enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
+                service_switch_enduse_crit[enduse] = True
 
-    # Add to assumptions
-    #assumptions['service_tech_by_p'] = dict_with_switches_by #TODO: GENERATE THIS ATUOMATILYY
-    assumptions['share_service_tech_ey_p'] = dict_with_switches_ey
-    assumptions['test_assump_max_share_L'] = assump_max_share_L
-
-    assumptions['service_switch_crit_enduse'] = service_switch_crit_enduse
-    print("Sddddddddddddervice Swithc Criteria: " + str(assumptions['service_switch_crit_enduse']))
-
-    # -------------------------------------------------
+    # ------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for enduse in assumptions['all_specified_tech_enduse_by']:
-        if enduse in assumptions['service_switch_crit_enduse']: #If switch is defined for this enduse
+        if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
             for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
-                if tech not in assumptions['share_service_tech_ey_p'][enduse]:
+                if tech not in enduse_tech_by_p[enduse]:
                     sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     # Test if more service is provided as input than possible to maximum switch
@@ -404,15 +393,11 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
             sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse_service'], entry['tech']))
 
     # Test if service of all provided technologies sums up to 100% in the end year
-    for enduse in dict_with_switches_ey:
+    for enduse in enduse_tech_by_p:
+        if round(sum(enduse_tech_by_p[enduse].values()), 2) != 1.0:
+            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, enduse_tech_by_p[enduse].values()))
 
-        #if round(sum(dict_with_switches_by[enduse].values()), 2)  != 1.0:
-        #    sys.exit("Error while loading future services assumptions: The provided by service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_by[enduse].values()))
-
-        if round(sum(dict_with_switches_ey[enduse].values()), 2) != 1.0:
-            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_ey[enduse].values()))
-
-    return assumptions
+    return enduse_tech_by_p, enduse_tech_maxL_by_p, service_switch_enduse_crit
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -706,7 +691,7 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
             # Iterate fueltypes
             for reg in result_dict[fueltype]:
 
-                for reg, hour, obs_value, units in result_dict[fueltype]:
+                for reg, hour, obs_value, _ in result_dict[fueltype]:
                     start_id = "P{}H".format(hour)
                     end_id = "P{}H".format(hour + 1)
                     data.append((lu_reg[reg], start_id, end_id, obs_value))
@@ -718,14 +703,14 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
             write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
 
 def write_out_txt(path_to_txt, enduses_service):
-    """Generate a txt file
+    """Generate a txt file with base year service for each technology according to provided fuel split input
     """
     file = open(path_to_txt, "w")
 
     file.write("---------------------------------------------------------------" + '\n')
     file.write("Base year energy service (as share of total per enduse)" + '\n')
     file.write("---------------------------------------------------------------" + '\n')
-
+    
     for enduse in enduses_service:
         file.write(" " + '\n')
         file.write("Enduse  "+ str(enduse) + '\n')
@@ -734,8 +719,7 @@ def write_out_txt(path_to_txt, enduses_service):
         for tech in enduses_service[enduse]:
             file.write(str(tech) + str("\t") + str("\t") + str("\t") + str(enduses_service[enduse][tech]) + '\n')
 
-        file.close()
-
+    file.close()
     return
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
@@ -820,30 +804,6 @@ def convert_yearday_to_date(year, yearday_python):
 
     return date_new
 
-def hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean):
-    """Calculate the number of heating degree days based on Hitchens
-
-    Parameters
-    ----------
-    days_per_month : int
-        Number of days of a month
-    k_hitchens_location_constant : int
-        Hitchens constant
-    t_base : int
-        Base temperature
-    t_mean : int
-        Mean temperature of a month
-
-    Info
-    ----
-    For the hitchens constant a value of 0.71 is suggest for the United Kingdom.
-
-    More info: Day, T. (2006). Degree-days: theory and application. https://doi.org/TM41
-    """
-    hdd_hitchens = days_per_month * (t_base - t_mean)  / (1 - m.exp(-k_hitchens_location_constant * (t_base-t_mean)))
-
-    return hdd_hitchens
-
 def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
 
@@ -871,30 +831,6 @@ def calc_hdd(t_base, temp_yh):
 
     return hdd_d
 
-def get_tot_y_hdd_reg(t_mean_reg_months, t_base):
-    """Calculate total number of heating degree days in a region
-
-    #TODO: Maybe calculate HDD For every day based on houlry data and not monthly! (don't use hitchens then but real calculation)
-
-    Parameters
-    ----------
-    t_mean_reg_months : float
-        Mean temperature in region
-    """
-    month_days = {0: 31, 1: 28, 2: 31, 3: 30, 4: 31, 5: 30, 6: 31, 7: 31, 8: 30, 9: 31, 10: 30, 11: 31}
-    hdd_tot = 0
-
-    for month in range(12):
-        days_per_month = month_days[month]
-
-        k_hitchens_location_constant = 0.71
-        #print(days_per_month)
-        #print(t_base)
-        #print(t_mean_reg_months[month])
-        hdd_tot += hdd_hitchens(days_per_month, k_hitchens_location_constant, t_base, t_mean_reg_months[month])
-
-    return hdd_tot
-
 def get_hdd_country(regions, data):
     """Calculate total number of heating degree days in a region for the base year
 
@@ -905,27 +841,34 @@ def get_hdd_country(regions, data):
     data : dict
         Dictionary with data
     """
-    #temp_data = data['temp_mean']
-
-    hdd_country = 0
     hdd_regions = {}
     t_base = data['assumptions']['t_base_heating_resid']['base_yr']
 
     for region in regions:
+        longitude = data['data_ext']['region_coordinates'][region]['longitude']
+        latitude = data['data_ext']['region_coordinates'][region]['latitude']
 
-        coordinates_of_region = "TODO"
-        #reclassify region #TODO         # Regional HDD #CREATE DICT WHICH POINT IS IN WHICH REGION (e.g. do with closest)
-        temperature_region_relocated = get_temp_region(region, coordinates_of_region)
-        t_mean_reg_months = data['temp_mean'][temperature_region_relocated]
+        # Get closest weather station and temperatures
+        closest_weatherstation_id = search_closest_weater_station(longitude, latitude, data['weather_stations'])
 
-        hdd_reg = get_tot_y_hdd_reg(t_mean_reg_months, t_base)
+        # Temp data
+        temperatures = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
 
-        hdd_regions[region] = hdd_reg # get regional temp over year
-        hdd_country += hdd_reg # Sum regions
+        # Base temperature for base year
+        t_base_heating_resid_cy = t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
+
+        # Calc HDD
+        hdd_reg = calc_hdd(t_base_heating_resid_cy, temperatures)
+        print("hdd_reg_ " + str(np.sum(hdd_reg)))
+
+
+
+
+        hdd_regions[region] = np.sum(hdd_reg) # get regional temp over year
 
     return hdd_regions
 
-def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
+def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year
@@ -951,7 +894,7 @@ def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
         Base temperature of current year
     """
     # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions[t_base_str]['end_yr'] - assumptions[t_base_str]['base_yr']
+    t_base_diff = assumptions[t_base_type]['end_yr'] - assumptions[t_base_type]['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = sigmoid_diffusion(base_yr, curr_y, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
@@ -960,7 +903,7 @@ def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_str):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = t_diff_cy + assumptions[t_base_str]['base_yr']
+    t_base_cy = t_diff_cy + assumptions[t_base_type]['base_yr']
 
     return t_base_cy
 
@@ -1287,15 +1230,11 @@ def generate_sig_diffusion(data):
     """
     enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
 
-    # Test is Service Switch is implemented #TODO: TESt alternatively than this
-    #print(data['assumptions']['service_switch_crit_enduse'].values())
-
-    if True in data['assumptions']['service_switch_crit_enduse'].values(): # If a switch is defined for an enduse
-        #if len(data['assumptions']['service_tech_by_p']) >= 1:
+    # Test is Service Switch is implemented
+    if True in data['assumptions']['service_switch_enduse_crit'].values(): # If a switch is defined for an enduse
         service_switch_crit = True
     else:
         service_switch_crit = False
-
 
     # Sigmoid calculation in case of service switch
     if service_switch_crit:
@@ -1307,10 +1246,10 @@ def generate_sig_diffusion(data):
         service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] # End year service shares (scenaric input)
 
         # Maximum shares of each technology
-        l_values_sig = data['assumptions']['test_assump_max_share_L']
-
+        l_values_sig = data['assumptions']['test_enduse_tech_maxL_by_p']
 
     else:
+
         # Fuel Switches - Calculate all technologies installed in fuel switches
         data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
 
@@ -1323,14 +1262,11 @@ def generate_sig_diffusion(data):
             data['assumptions']['technologies']
         )
         '''
-
-        #'''
         # ---------------------------------------------------------------------
         # Write out txt file with service shares for each technology per enduse
         # ---------------------------------------------------------------------
         write_out_txt(data['path_dict']['path_txt_service_tech_by_p'], data['assumptions']['service_tech_by_p'])
         print("... a file has been generated which shows the shares of each technology per enduse")
-        #'''
 
         # Calculate service per fueltype in percentage of total service
         data['assumptions']['service_fueltype_p'] = calc_service_fueltype(
@@ -1357,7 +1293,7 @@ def generate_sig_diffusion(data):
     # Calclulate sigmoid parameters for every installed technology
     # -------------------------------------------------------------
     data['assumptions']['sigm_parameters_tech'] = tech_sigmoid_parameters(
-        service_switch_crit, #data['assumptions']['fuel_switch_crit'],
+        service_switch_crit,
         data['assumptions']['installed_tech'],
         enduses_with_fuels,
         data['assumptions']['technologies'],
@@ -1380,26 +1316,6 @@ def generate_sig_diffusion(data):
     data['assumptions'] = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
     '''
     return data['assumptions']
-
-'''def create_lu_fueltypes(technologies):
-    """Create lookup-table for all technologies
-
-    Parameters
-    ----------
-    technologies : dict
-        All defined technologies
-
-    Returns
-    -------
-    tech_fueltype : dict
-        Fueltype of each technology
-    """
-    tech_fueltype = {}
-    for technology in technologies:
-        tech_fueltype[technology] = technologies[technology]['fuel_type']
-
-    return tech_fueltype
-'''
 
 def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
@@ -1769,23 +1685,24 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
     NTH: improve fitting
 
     Manually the fitting parameters can be defined which are not considered as a good fit: fit_crit_A, fit_crit_B
+    If service definition, the year until switched is the end model year
+
     """
     sigmoid_parameters = init_nested_dict(enduses, installed_tech, 'brackets')
 
-    for enduse in enduses:
-        if enduse not in installed_tech:
-            print("No switch to calculate....")
-        else:
-            for technology in installed_tech[enduse]:
+    #-----------------
+    # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
+    #-----------------
+    fit_crit_A = 100
+    fit_crit_B = 0.01
 
-                sigmoid_parameters[enduse][technology] = {} # Initialise
+    for enduse in enduses:
+        if enduse in installed_tech: # If technologies are defined for switch
+            for technology in installed_tech[enduse]:
+                sigmoid_parameters[enduse][technology] = {}
 
                 if service_switch_crit:
-
-                    # Year until service are switched
-                    year_until_switched = data_ext['glob_var']['end_yr']
-                    #TODO: IMPROVE THAT A FUTURE ENTRY MARKET CAN BE DEFINED FOR EACH TECHNOLOGY
-                    #market_entry = 2015
+                    year_until_switched = data_ext['glob_var']['end_yr'] # Year until service are switched
                     market_entry = tech_stock[technology]['market_entry']
                 else:
                     # Get year which is furtherst away of all switch to installed technology
@@ -1825,7 +1742,6 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                     possible_start_parameters.append(start)
                 for start in range(1, 59):
                     possible_start_parameters.append(start)
-                #possible_start_parameters = [0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 12, 15, 20, 3 40, 60, 100, 200, 400, 500, 1000]
 
                 cnt = 0
                 successfull = False
@@ -1843,9 +1759,6 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
 
                         # Define manually when a fit is not successefful
                         print("fit_parameter: " + str(fit_parameter))
-                        print(fit_parameter[0])
-                        fit_crit_A = 100
-                        fit_crit_B = 0.01
 
 
                         # Criteria when fit did not work

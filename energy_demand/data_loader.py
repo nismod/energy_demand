@@ -7,6 +7,7 @@ import numpy as np
 import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
 import energy_demand.plot_functions as pf
+from random import randint
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -32,7 +33,6 @@ def load_data(path_main, data):
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     folder_path_weater_data = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
     folder_path_weater_stations = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
-
     print("FOLDERPATH: " + str(folder_path_weater_stations))
 
     # Fuel look-up table
@@ -90,7 +90,7 @@ def load_data(path_main, data):
         'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
         'path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
-        
+
         # Service
         # -------
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
@@ -113,7 +113,7 @@ def load_data(path_main, data):
 
     # SCRAP DUMMY DATA FOR FAST CALCULATION
     # -----------
-    from random import randint
+    
     #print(data['weather_stations'].keys())
     data['temperature_data'] = {}
 
@@ -142,7 +142,9 @@ def load_data(path_main, data):
     data['shapes_resid_dh'] = {}
     data['shapes_resid_yd'] = {}
 
+    # ------------------------------------------
     # Read in raw fuel data of residential model
+    # ------------------------------------------
     fuel_raw_data_resid_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_fuel_raw_data_resid_enduses']) # Yearly end use data
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
@@ -151,7 +153,6 @@ def load_data(path_main, data):
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
     data = create_enduse_dict(data, fuel_raw_data_resid_enduses)
 
-
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -159,14 +160,10 @@ def load_data(path_main, data):
     data['dict_shp_enduse_d_service'] = {}
 
 
-
-
     # ----------------------------------------
-    # Convert loaded data into correct units
+    # Convert units
     # ----------------------------------------
     # TODO: Check in what units external fuel data is provided
-
-    # Residential #TODO: DO CONVERSION
     '''for enduse in fuel_raw_data_resid_enduses:
         fuel_raw_data_resid_enduses[enduse] = mf.conversion_ktoe_gwh(fuel_raw_data_resid_enduses[enduse])
     #print("ENDUSES: " + str(fuel_raw_data_resid_enduses))

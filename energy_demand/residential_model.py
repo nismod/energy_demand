@@ -10,6 +10,8 @@ import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 import copy
+import unittest
+assertions = unittest.TestCase('__init__')
 
 class RegionClass(object):
     """Region Class for the residential model
@@ -365,7 +367,7 @@ class RegionClass(object):
                 lf_d[k] = average_demand / peak_d_demand[k] # Calculate load factor
 
         lf_d = lf_d * 100 # Convert load factor to %
-        
+
         return lf_d
 
     def calc_load_factor_h(self, data, fuels_tot_enduses_h, fuels_peak_h):
@@ -911,17 +913,36 @@ class EnduseResid(object):
         self.reg_name = reg_name
         self.enduse = enduse
         self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data['assumptions']['resid_fuel_switches']) # Get fuel switches in enduse
-        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['assumptions']['service_switch_crit_enduse']) #data['assumptions']['service_tech_by_p'])
+        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data['assumptions']['service_switch_enduse_crit']) #data['assumptions']['service_tech_by_p'])
         self.enduse_fuel = enduse_fuel[enduse] # Fuels for base year
+
+
+        # Get technologies of enduse depending on assumptions on fuel switches or service switches
+        if self.enduse_specific_fuel_switches_crit:
+            print("...Fuel switch yes")
+            self.technologies_enduse = self.get_technologies_fuel_switch(data['assumptions']['fuel_enduse_tech_p_by']) # Get all technologies of enduse
+        elif self.enduse_specific_service_switch_crit:
+            print("...Service switch")
+            self.technologies_enduse = self.get_technologies_service_switch(data['assumptions']['service_tech_by_p'][self.enduse]) # Get all technologies of enduse
+        else:
+            # If no fuel switch and no service switch, read out base year technologies
+            technologies = []
+            for fueltype in data['assumptions']['fuel_enduse_tech_p_by'][self.enduse]:
+                technologies.extend(data['assumptions']['fuel_enduse_tech_p_by'][self.enduse][fueltype].keys())
+            self.technologies_enduse = technologies
+            #self.technologies_enduse = []
 
         # --------
         # Testing
         # --------
         if self.enduse_specific_fuel_switches_crit and self.enduse_specific_service_switch_crit:
-            sys.exit("Error: Can't define service switch and fuel switch for same enduse {}   {}".format(self.enduse_specific_fuel_switches_crit, self.enduse_specific_service_switch_crit))
-        if not self.enduse_specific_fuel_switches_crit and not self.enduse_specific_service_switch_crit:
-            if self.enduse not in data['shapes_resid_yd']: # Enduse is not defined with technologies
-                sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for this enduse ")
+            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.enduse_specific_fuel_switches_crit, self.enduse_specific_service_switch_crit))
+        '''if not self.enduse_specific_fuel_switches_crit and not self.enduse_specific_service_switch_crit:
+            if self.enduse not in data['shapes_resid_yd']:
+                sys.exit("Error2: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
+        '''
+        if self.enduse not in data['shapes_resid_yd'] and self.technologies_enduse == []:
+            sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
 
         # -------------------------------
         # Yearly fuel calculation cascade
@@ -949,15 +970,6 @@ class EnduseResid(object):
         self.enduse_elasticity(data['data_ext'], data['assumptions'])
         print("Fuel train F: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
-        # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        if self.enduse_specific_fuel_switches_crit:
-            print("...Fuel switch yes")
-            self.technologies_enduse = self.get_technologies_in_enduse(data['assumptions']['fuel_enduse_tech_p_by']) # Get all technologies of enduse
-        elif self.enduse_specific_service_switch_crit:
-            print("...Service switch")
-            self.technologies_enduse = self.get_technologies_service_switch(data['assumptions']['service_tech_by_p'][self.enduse]) # Get all technologies of enduse
-        else:
-            self.technologies_enduse = []
 
         # ----------------------------------
         # Hourly fuel calcualtions cascade
@@ -1183,7 +1195,7 @@ class EnduseResid(object):
         """
         #if self.enduse in service_tech_by_p:
         try:
-            if service_switch_crit[self.enduse] == True:
+            if service_switch_crit[self.enduse]:
                 return True
             else:
                 return False
@@ -1216,7 +1228,7 @@ class EnduseResid(object):
             enduse_fuel_peak_yh[fueltype_tech] += fuel_tech_peak_dh # Add fuel of day
         return enduse_fuel_peak_yh
 
-    def get_technologies_in_enduse(self, fuel_enduse_tech_p_by):
+    def get_technologies_fuel_switch(self, fuel_enduse_tech_p_by):
         """Iterate assumptions about technologes in enduses of base year for each enduse
         """
         # Get all technologies of enduse
@@ -1666,7 +1678,8 @@ class EnduseResid(object):
             for day in range(365):
                 fuels_h[k][day] = enduse_shape_dh[day] * fuel[day]
 
-        assert np.sum(fuels) == np.sum(fuels_h)
+        assertions.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
+
         return fuels_h
 
     def calc_enduse_fuel_peak_yd_factor(self, fuels, factor_d):

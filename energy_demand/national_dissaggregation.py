@@ -4,6 +4,8 @@ import numpy as np
 
 import energy_demand.main_functions as mf
 
+assertions = unittest.TestCase('__init__')
+
 def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     """This function disaggregates fuel demand based on region specific parameters
     for the base year
@@ -98,7 +100,6 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     test_sum_after = sum_fuels_after(data['resid_fueldata_disagg'])
 
     # Check if total fuel is the same before and after aggregation
-    assertions = unittest.TestCase('__init__')
     assertions.assertAlmostEqual(test_sum_before, test_sum_after, places=2, msg=None, delta=None)
 
     return data
