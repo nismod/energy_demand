@@ -52,7 +52,6 @@ import energy_demand.residential_model as rm # Import sub modules
 import energy_demand.service_model as sm # Import sub modules
 import energy_demand.industry_model as im # Import sub modules
 import energy_demand.transport_model as tm # Import sub modules
-
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):

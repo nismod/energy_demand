@@ -279,7 +279,6 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
         All assumptions about fuel switches provided as input
     """
     list_elements = []
-    dict_with_switches = []
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -288,7 +287,6 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         # Iterate rows
         for row in read_lines:
-            
             try:
                 list_elements.append(
                     {
@@ -300,7 +298,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
                         'max_theoretical_switch': float(row[5])
                     }
                 )
-            except:
+            except (KeyError, ValueError):
                 sys.exit("Error in loading fuel switch: Check if provided data is complete (no emptly csv entries)")
 
     # -------------------------------------------------
@@ -309,7 +307,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     for element in list_elements:
         if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
             sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
-
+    
     return list_elements
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
@@ -359,7 +357,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                         'tech_assum_max_share': float(row[4])
                     }
                 )
-            except:
+            except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 
     # Group all entries according to enduse
@@ -381,7 +379,6 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                 #dict_with_switches_by[enduse][tech] = line['service_share_by']
                 dict_with_switches_ey[enduse][tech] = line['service_share_ey']
                 assump_max_share_L[enduse][tech] = line['tech_assum_max_share']
-
                 service_switch_crit_enduse[enduse] = True
 
     # Add to assumptions
@@ -391,6 +388,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
     assumptions['service_switch_crit_enduse'] = service_switch_crit_enduse
     print("Sddddddddddddervice Swithc Criteria: " + str(assumptions['service_switch_crit_enduse']))
+
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
@@ -400,12 +398,11 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                 if tech not in assumptions['share_service_tech_ey_p'][enduse]:
                     sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
-    '''# Test if service is defined for end year for every defined technology in base year where fuel is provided
-    for enduse in assumptions['share_service_tech_ey_p']:
-        for tech in assumptions['share_service_tech_ey_p'][enduse]:
-            if tech not in assumptions['all_specified_tech_enduse_by'][enduse]:
-                sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
-    '''
+    # Test if more service is provided as input than possible to maximum switch
+    for entry in list_elements:
+        if entry['service_share_ey'] > entry['tech_assum_max_share']:
+            sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse_service'], entry['tech']))
+
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in dict_with_switches_ey:
 
@@ -413,7 +410,6 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         #    sys.exit("Error while loading future services assumptions: The provided by service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_by[enduse].values()))
 
         if round(sum(dict_with_switches_ey[enduse].values()), 2) != 1.0:
-
             sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, dict_with_switches_ey[enduse].values()))
 
     return assumptions
