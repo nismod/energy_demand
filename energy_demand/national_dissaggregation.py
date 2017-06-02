@@ -1,7 +1,6 @@
 """ This File disaggregates total national demand """
 import unittest
 import numpy as np
-
 import energy_demand.main_functions as mf
 
 assertions = unittest.TestCase('__init__')

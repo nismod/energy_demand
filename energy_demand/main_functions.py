@@ -842,7 +842,6 @@ def get_hdd_country(regions, data):
         Dictionary with data
     """
     hdd_regions = {}
-    t_base = data['assumptions']['t_base_heating_resid']['base_yr']
 
     for region in regions:
         longitude = data['data_ext']['region_coordinates'][region]['longitude']
@@ -859,11 +858,6 @@ def get_hdd_country(regions, data):
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_resid_cy, temperatures)
-        print("hdd_reg_ " + str(np.sum(hdd_reg)))
-
-
-
-
         hdd_regions[region] = np.sum(hdd_reg) # get regional temp over year
 
     return hdd_regions

@@ -52,9 +52,9 @@ class Technology(object):
         hybrid_tech_list = ['hybrid_tech']
         if self.tech_name in hybrid_tech_list:
             self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
-
-            #self.eff_cy = calc_hybrid_eff()
-            #self.fueltype_tech_h = ()
+            #
+            #self.eff_cy = calc_hybrid_eff() # Efficiency for every hour in a year
+            #self.fueltype_tech_h = () # Fueltype for every hour in a year
 
         # -------------------------------
         # Efficiencies
@@ -78,7 +78,7 @@ class Technology(object):
         # Shapes
         # -------------------------------
 
-        #-- Specific shapes of technologes (filled with dummy data)
+        #-- Specific shapes of technologes filled with dummy data. Gets filled in Region Class
         self.shape_yd = np.ones((365, 1))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
