@@ -49,13 +49,30 @@ class Technology(object):
         # --> Efficiencies depending on temp
         # --> Fueltype depending on temp_cut_off
         # -------
-        hybrid_tech_list = ['hybrid_tech']
+        '''
+        hybrid_tech_list = ['hybrid_gas_elec']
         if self.tech_name in hybrid_tech_list:
-            self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
-            #
-            #self.eff_cy = calc_hybrid_eff() # Efficiency for every hour in a year
-            #self.fueltype_tech_h = () # Fueltype for every hour in a year
 
+            if self.tech_name == 'hybrid_gas_elec':
+                tech_hp = 'av_heat_pump_electricity'
+                tech_boiler = 'boiler_gas'
+
+            self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
+
+            self.eff_cy = self.calc_hybrid_eff(
+                temp_cy,
+                self.hybrid_temp_cut_off,
+                data['assumptions']['heat_pump_slope_assumption'],
+                data['assumptions']['t_base_heating_resid']['base_yr'],
+                data['assumptions']['technologies'][tech_boiler]['eff_by'], # Boiler efficiency
+                data['assumptions']['technologies'][tech_hp]['eff_by'] # Heat pump efficiency
+            )
+            
+            print("-------")
+            print(self.eff_cy)
+            prnt(".")
+            #self.fueltype_tech_h = () # Fueltype for every hour in a year
+        '''
         # -------------------------------
         # Efficiencies
         # -------------------------------
@@ -86,9 +103,32 @@ class Technology(object):
         # Get Shape of peak dh
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
+    def calc_hybrid_eff(self, temp_yr, hybrid_temp_cut_off, m_slope, t_base_heating, eff_boiler, eff_hp):
+        """Calculate efficiency for every hour for hybrid technology
+        """
+        eff_hybrid_yh = np.zeros((365, 24))
 
+        for day, temp_day in enumerate(temp_yr):
+            for h_nr, temp_h in enumerate(temp_day):
+                if t_base_heating < temp_h:
+                    h_diff = 0
+                else:
+                    if temp_h < 0: #below zero temp
+                        h_diff = t_base_heating + abs(temp_h)
+                    else:
+                        h_diff = abs(t_base_heating - temp_h)
 
+                # Test which efficieny of hybrid tech is used
+                if temp_h <= hybrid_temp_cut_off:
+                    print("----Boiler Efficiency"  + str(eff_boiler))
+                    efficiency = eff_boiler #Boiler efficiency
+                else:
+                    print("----HP     Efficiency "  + str(m_slope * h_diff + eff_hp))
+                    efficiency = m_slope * h_diff + eff_hp # Heat pump efficiency
 
+                eff_hybrid_yh[day][h_nr] = efficiency
+
+        return eff_hybrid_yh
 
     def get_shape_peak_dh(self, data):
         """Depending on technology the shape dh is different

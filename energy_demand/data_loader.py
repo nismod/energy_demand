@@ -45,6 +45,7 @@ def load_data(path_main, data):
         'bioenergy_waste':5,
         'hydrogen': 6,
         'future_fuel': 7
+        #'hybrid' : 'hybrid'
     }
 
     # -----------------------------
@@ -119,7 +120,7 @@ def load_data(path_main, data):
 
     temp_y = np.zeros((365, 24))
     for day in range(365):
-        temp_y[day] += randint(5, 30)
+        temp_y[day] += randint(-5, 30)
     data['temperature_data'][9] = temp_y #np.zeros((365, 24)) #10 # DUMMY DATA WITH CONSTANT 10 DEGREES
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]

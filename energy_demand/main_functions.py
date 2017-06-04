@@ -32,17 +32,6 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
 
-def get_temp_region(dw_reg_name, coordinates):
-    """
-    #TODO Reallocation any region input with wheater region (mabe also coordinate inputs)
-
-    """
-    coordinates = coordinates
-
-    temperature_region_relocated = 'Midlands'
-
-    return temperature_region_relocated
-
 def read_txt_t_base_by(pattemp_h_txt, base_yr):
     """Read out mean temperatures for all regions and store in dict
 
@@ -710,7 +699,7 @@ def write_out_txt(path_to_txt, enduses_service):
     file.write("---------------------------------------------------------------" + '\n')
     file.write("Base year energy service (as share of total per enduse)" + '\n')
     file.write("---------------------------------------------------------------" + '\n')
-    
+
     for enduse in enduses_service:
         file.write(" " + '\n')
         file.write("Enduse  "+ str(enduse) + '\n')
@@ -1775,7 +1764,6 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 sigmoid_parameters[enduse][technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
                 sigmoid_parameters[enduse][technology]['steepness'] = fit_parameter[1] #Steepnes (k)
                 sigmoid_parameters[enduse][technology]['l_parameter'] = L_values[enduse][technology]
-                #print("Insterted parameters: " + str(sigmoid_parameters[enduse][technology]))
 
                 #plot sigmoid curve
                 plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
@@ -1940,12 +1928,13 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
         if fueltype_lu[fueltype_str] == fueltype_nr:
             fueltype_in_string = fueltype_str
             break
+    print("OHMAN + ")
     return fueltype_in_string
 
 def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, heat_pump_assump):
     """Delete all heat_pump from tech dict and define averaged new heat pump technologies 'av_heat_pump_fueltype' with
     efficiency depending on installed ratio
-    
+
         Parameters
     ----------
     temp_dependent_tech_list : list
@@ -1954,7 +1943,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         Technologies
     heat_pump_assump : dict
         The split of the ASHP and GSHP is provided
-    
+
     Returns
     -------
     technologies : dict
@@ -1999,7 +1988,6 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
-        
 
         # Add new averaged technology
         technologies[name_av_hp] = {}
@@ -2055,7 +2043,6 @@ def get_diff_direct_installed(service_tech_by_p, share_service_tech_ey_p, assump
         assumptions['tech_constant_share'] = []
     else:
         for enduse in service_tech_by_p:
-            
             tech_increased_service[enduse] = []
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []

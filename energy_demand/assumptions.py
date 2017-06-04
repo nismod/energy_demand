@@ -1,4 +1,5 @@
 """ This file contains all assumptions of the energy demand model"""
+import sys
 import energy_demand.main_functions as mf
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
@@ -181,19 +182,21 @@ def load_assumptions(data):
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
 
-    # Further technology related input
-    assumptions['heat_pump_slope_assumption'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
-    assumptions['list_tech_heating_temp_dep'] = []      # To store all temperature dependent heating technology
-    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
 
+    assumptions['heat_pump_slope_assumption'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+
+    # TECHNOLOGY LISTS
+    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
+    ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
+    #assumptions['list_tech_resid_lighting'] = ['halogen_elec', 'standard_resid_lighting_bulb']
     #assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
     #assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
     # --Helper functions
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
-    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, assumptions['list_tech_heating_temp_dep'], assumptions['technologies'], assumptions['heat_pump_stock_install'])
+    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
     assumptions['technologies'] = helper_define_same_efficiencies_all_tech(assumptions['technologies'], eff_achieved_factor=efficiency_achieving_factor)
 
     # ============================================================
@@ -212,11 +215,11 @@ def load_assumptions(data):
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
-    # ---resid_lighting
+    # ---Residential lighting
     #assumptions['fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
 
     # ---Residential cooking
-    assumptions['list_enduse_tech_cooking'] = []
+    #assumptions['list_enduse_tech_cooking'] = []
     '''assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
     assumptions['enduse_resid_cooking'] = ['resid_cooking']
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
@@ -224,6 +227,10 @@ def load_assumptions(data):
     '''
     assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['fuel_enduse_tech_p_by'])
 
+    print(assumptions['all_specified_tech_enduse_by'])
+    # Testing
+    # -------------
+    testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['all_specified_tech_enduse_by'])
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
@@ -374,3 +381,12 @@ def helper_function_get_all_specified_tech(fuel_enduse_tech_p_by):
             all_defined_tech_service_ey[enduse].extend(fuel_enduse_tech_p_by[enduse][fueltype])
 
     return all_defined_tech_service_ey
+
+def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_enduse_by):
+    """Test if all defined technologies of fuels are also defined in technology stock
+    """
+    for enduse in all_specified_tech_enduse_by:
+        for tech in all_specified_tech_enduse_by[enduse]:
+            if tech not in technologies:
+                sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
+    return

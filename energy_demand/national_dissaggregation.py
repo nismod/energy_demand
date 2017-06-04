@@ -2,7 +2,6 @@
 import unittest
 import numpy as np
 import energy_demand.main_functions as mf
-
 assertions = unittest.TestCase('__init__')
 
 def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):

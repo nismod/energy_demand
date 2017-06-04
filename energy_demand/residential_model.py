@@ -68,6 +68,8 @@ class RegionClass(object):
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
 
+        #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
+
         # -- PEAK
 
         # ------------
@@ -75,8 +77,7 @@ class RegionClass(object):
         # ------------
         self.tech_stock = self.assign_shapes_tech_stock(
             data['assumptions']['tech_lu_resid'],
-            data['assumptions'],
-            data
+            data['assumptions']
             )
 
         # ------------
@@ -159,7 +160,7 @@ class RegionClass(object):
         max_factor_yd = np.divide(1.0, tot_demand_y) * max_demand_d # Factor
         return max_factor_yd
 
-    def assign_shapes_tech_stock(self, technologies, assumptions, data):
+    def assign_shapes_tech_stock(self, technologies, assumptions):
         """Assign shapes to technological stock to technologies
 
         The technologies are iterated and checked wheter they are part of
@@ -193,12 +194,22 @@ class RegionClass(object):
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
 
+            #elif technology in assumptions['list_tech_resid_lighting']:
+                #self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
+                #self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
+
+            #else:
+            #    sys.exit("Error: The technology '{}' was not defined in a TECHLISTE".format(technology))
+
+            '''
             elif technology in assumptions['list_enduse_tech_cooking']:
                 enduse_shape_from_HES_yd = data['shapes_resid_yd']['resid_cooking']['shape_non_peak_yd']
                 enduse_shape_from_HES_dh = data['shapes_resid_dh']['resid_cooking']['shape_non_peak_h']
                 enduse_shape_from_HES_yh = enduse_shape_from_HES_yd * enduse_shape_from_HES_dh
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
+            '''
+
 
         return self.tech_stock
 
@@ -643,7 +654,7 @@ class RegionClass(object):
         """
         shape_yd_cooling_tech = np.zeros((365, 24))
 
-        for day in range(365):            
+        for day in range(365):
             shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
         return shape_yd_cooling_tech
 
@@ -872,7 +883,7 @@ def residential_model_main_function(data):
     # Attributes of whole country
     # ----------------------------
     fueltot = resid_object.tot_country_fuel # Total fuel of country
-    country_enduses = resid_object.tot_country_fuel_enduse_specific_h # Total fuel of country for each enduse
+    #country_enduses = resid_object.tot_country_fuel_enduse_specific_h # Total fuel of country for each enduse
 
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
@@ -1069,7 +1080,7 @@ class EnduseResid(object):
             self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(self.enduse_fuel_peak_yd, self.technologies_enduse, tech_stock)
             self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh) # Get maximum hour demand per fueltype
             '''
-            
+
             # --------
             # PEAK (Peak is not defined by yd factor so far but read out from real data!)
             # --------
@@ -1223,7 +1234,7 @@ class EnduseResid(object):
 
     def calc_enduse_fuel_peak_tech_yh(self, enduse_fuel_tech, technologies_enduse, tech_stock):
         """Calculate peak demand
-        
+
         The daily peak is assumed to be the same in an enduse for all technologies
 
         From daily to hourly with hourly specific peak shape
@@ -1264,18 +1275,16 @@ class EnduseResid(object):
         control_sum = 0
 
         for tech in technologies_enduse:
-            fuel_tech = enduse_fuel_tech[tech] # fuel of technology 
+            fuel_tech = enduse_fuel_tech[tech]
 
             #DDD: Hier musste fuel pro technologie und type herausgelesen werden
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
 
             #DDD: Hier fuel_tech_pro_h
-            # Hier musste der Fueltyp mit der shape pro Fueltype 
+            # Hier musste der Fueltyp mit der shape pro Fueltype
             fuel_tech_d = fuel_tech * tech_stock.get_tech_attribute(tech, 'shape_yd') # Multiply fuel with shape_h
-            
-            
-            
-            
+
+
             fuels_fueltype_d[fueltype_tech] += fuel_tech_d # Add fuel of day
             control_sum += np.sum(fuel_tech_d)
             '''print(" -- ")
@@ -1726,12 +1735,10 @@ class EnduseResid(object):
             fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type')
             fuel_tech = tech_fuels[tech]
             fuels_d_peak[fueltype_tech] += factor_d * fuel_tech
-
             fuels_d_peak[tech][fueltype_tech] += factor_d * fuel_tech
 
-        
         return fuels_d_peak
-        
+
     def calc_enduse_fuel_peak_yd_factor(self, fuels, factor_d):
         """Disaggregate yearly absolute fuel data to the peak day.
 
@@ -1862,6 +1869,8 @@ class CountryClass(object):
         return
 
     def get_specific_enduse_region(self, spec_region, spec_enduse):
+        """
+        """
         _reg_object = getattr(self, spec_region)
         enduse_fuels = _reg_object.get_fuels_enduse_requested(spec_enduse)
         return enduse_fuels
