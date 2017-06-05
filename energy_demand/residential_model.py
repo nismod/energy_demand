@@ -82,7 +82,7 @@ class RegionClass(object):
         # ------------
         # Set attributs of all enduses to the Region Class
         self.create_enduses_resid(
-            data['resid_enduses'].
+            data['resid_enduses'],
             data)
 
 

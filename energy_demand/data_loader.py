@@ -31,8 +31,13 @@ def load_data(path_main, data):
     """
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
-    folder_path_weater_data = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
-    folder_path_weater_stations = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
+    #Z:\01-Data_NISMOD\data_energy_demand
+    folder_path_weater_data = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
+    folder_path_weater_stations = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv')
+
+
+    #folder_path_weater_data = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'
+    #folder_path_weater_stations = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\16-Met_office_weather_data\excel_list_station_details.csv'
     print("FOLDERPATH: " + str(folder_path_weater_stations))
 
     # Fuel look-up table

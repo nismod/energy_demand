@@ -179,7 +179,8 @@ if __name__ == "__main__":
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 
     # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
-    base_data['local_data_path'] = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
+    #base_data['local_data_path'] = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
+    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand'
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
