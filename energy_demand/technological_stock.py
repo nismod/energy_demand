@@ -41,6 +41,8 @@ class Technology(object):
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
+        ##self.fuel_type = mf.constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'])
+
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
@@ -49,13 +51,22 @@ class Technology(object):
         # --> Efficiencies depending on temp
         # --> Fueltype depending on temp_cut_off
         # -------
-        '''
+
         hybrid_tech_list = ['hybrid_gas_elec']
         if self.tech_name in hybrid_tech_list:
+            """ Hybrid efficiencies
+            - Define temp_switch and share of service (e.g. 5 degree, 60%, 6 Degree: 20%, 7 degree: 20%)
+            - Define daily curve with technology mix in percent for every hour
+            - Define average effiiciency depending on tech switch
+            - define fuel share for every hour
 
+
+            """
             if self.tech_name == 'hybrid_gas_elec':
-                tech_hp = 'av_heat_pump_electricity'
-                tech_boiler = 'boiler_gas'
+                tech_high_temp = 'av_heat_pump_electricity'
+                tech_low_temp = 'boiler_gas'
+                fueltype_low_temp = data['lu_fueltype']['gas']
+                fueltype_ligh_temp = data['lu_fueltype']['electricity']
 
             self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
 
@@ -64,15 +75,19 @@ class Technology(object):
                 self.hybrid_temp_cut_off,
                 data['assumptions']['heat_pump_slope_assumption'],
                 data['assumptions']['t_base_heating_resid']['base_yr'],
-                data['assumptions']['technologies'][tech_boiler]['eff_by'], # Boiler efficiency
-                data['assumptions']['technologies'][tech_hp]['eff_by'] # Heat pump efficiency
+                data['assumptions']['technologies'][tech_low_temp]['eff_by'], # Boiler efficiency
+                data['assumptions']['technologies'][tech_high_temp]['eff_by'] # Heat pump efficiency
             )
-            
-            print("-------")
-            print(self.eff_cy)
-            prnt(".")
-            #self.fueltype_tech_h = () # Fueltype for every hour in a year
-        '''
+
+            # Fueltype for every hour #Make possible that different fueltypes fueltype: {h1: {typA: 50%, typB: 40%}, ....}
+            self.fueltype = self.calc_hybrid_fueltype(temp_cy, self.hybrid_temp_cut_off, fueltype_low_temp, fueltype_ligh_temp)
+
+            # Shape
+            # d_h --> IS different for every day or fueltype. --> Iterate days and calculate share of service for fueltype
+            #--> Distribute share of fueltype to technology (is wrong) (e.g. 20% boiler, 80% hp)
+
+
+
         # -------------------------------
         # Efficiencies
         # -------------------------------
@@ -120,15 +135,31 @@ class Technology(object):
 
                 # Test which efficieny of hybrid tech is used
                 if temp_h <= hybrid_temp_cut_off:
-                    print("----Boiler Efficiency"  + str(eff_boiler))
+                    #print("----Boiler Efficiency"  + str(eff_boiler))
                     efficiency = eff_boiler #Boiler efficiency
                 else:
-                    print("----HP     Efficiency "  + str(m_slope * h_diff + eff_hp))
+                    #print("----HP     Efficiency "  + str(m_slope * h_diff + eff_hp))
                     efficiency = m_slope * h_diff + eff_hp # Heat pump efficiency
 
                 eff_hybrid_yh[day][h_nr] = efficiency
 
         return eff_hybrid_yh
+
+    def calc_hybrid_fueltype(self, temp_yr, hybrid_temp_cut_off, fueltype_low_temp, fueltype_high_temp):
+        """Calculate efficiency for every hour for hybrid technology
+        """
+        fueltype_yh = np.zeros((365, 24))
+
+        for day, temp_day in enumerate(temp_yr):
+            for h_nr, temp_h in enumerate(temp_day):
+
+                # Test which efficieny of hybrid tech is used
+                if temp_h <= hybrid_temp_cut_off:
+                    fueltype_yh[day][h_nr] = fueltype_low_temp
+                else:
+                    fueltype_yh[day][h_nr] = fueltype_high_temp
+
+        return fueltype_yh
 
     def get_shape_peak_dh(self, data):
         """Depending on technology the shape dh is different

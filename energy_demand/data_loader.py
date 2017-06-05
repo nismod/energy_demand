@@ -44,8 +44,8 @@ def load_data(path_main, data):
         'heat_sold': 4,
         'bioenergy_waste':5,
         'hydrogen': 6,
-        'future_fuel': 7
-        #'hybrid' : 'hybrid'
+        'future_fuel': 7,
+        'hybrid' : 'hybrid'
     }
 
     # -----------------------------

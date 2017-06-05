@@ -1102,6 +1102,13 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
 
     return eff_hp_yh
 
+def constant_fueltype(fueltype):
+    
+    fueltype_yh = np.zeros((365, 24))
+    fueltype_yh = fueltype
+    return fueltype_yh
+
+
 def const_eff_yh(input_eff):
     """Assing a constant efficiency to every hour in a year
 
@@ -1554,6 +1561,8 @@ def calc_service_fueltype(lu_fueltype, service_tech_by_p, tech_stock):
             # Add percentage of total enduse to fueltype
             service_fueltype[enduse][tech_stock[technology]['fuel_type']] += service_tech_by_p[enduse][technology]
 
+            # TODO: HYBRID: Add dependingon fueltype
+
     return service_fueltype
 
 def get_tech_installed(fuel_switches):
@@ -1925,6 +1934,7 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
         Fueltype string
     """
     for fueltype_str in fueltype_lu: # data['lu_fueltype']:
+        print(fueltype_str)
         if fueltype_lu[fueltype_str] == fueltype_nr:
             fueltype_in_string = fueltype_str
             break
