@@ -41,7 +41,7 @@ class Technology(object):
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
-        ##self.fuel_type = mf.constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'])
+        #self.fuel_type = mf.constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'])
 
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
@@ -94,7 +94,7 @@ class Technology(object):
         # --Base year
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']: # Make temp dependent base year efficiency
             self.eff_by = mf.get_heatpump_eff(
-                temp_by, #Base year temperatures
+                temp_by,
                 data['assumptions']['heat_pump_slope_assumption'],
                 data['assumptions']['technologies'][self.tech_name]['eff_by'],
                 data['assumptions']['t_base_heating_resid']['base_yr']

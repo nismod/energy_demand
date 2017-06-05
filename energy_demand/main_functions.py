@@ -1103,11 +1103,20 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
     return eff_hp_yh
 
 def constant_fueltype(fueltype):
-    
-    fueltype_yh = np.zeros((365, 24))
-    fueltype_yh = fueltype
-    return fueltype_yh
+    """Create dictionary with constant single fueltype
+    """
+    fueltypes_yh = {}
 
+    share_single_fueltype = 1.0
+
+    for day in range(365):
+        fueltypes_yh[day] = {}
+        for hour in range(12):
+            fueltypes_yh[day][hour] = {fueltype: share_single_fueltype}
+
+    #fueltype_yh = np.zeros((365, 24))
+    #fueltype_yh = fueltype
+    return fueltypes_yh
 
 def const_eff_yh(input_eff):
     """Assing a constant efficiency to every hour in a year
