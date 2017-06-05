@@ -40,8 +40,14 @@ class Technology(object):
         self.tech_name = tech_name
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
-        self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
-        #self.fuel_type = mf.constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'])
+        #self.fuel_type = data['assumptions']['technologies'][self.tech_name]['fuel_type']
+
+        # NEW Shares of fueltype for every hour for every fueltype
+        single_fueltype = data['assumptions']['technologies'][self.tech_name]['fuel_type']
+        self.fuel_types_share_yh = mf.constant_fueltype(single_fueltype, len(data['lu_fueltype'])) #Fueltype_shares_for_every_hour ('gas: {0: 80%, 1:80%...}, 'elec: {0: 20%, 1:20%...})
+
+        # NEW Convert hourly shares to daily shares
+        self.fuel_types_share_yd = mf.convert_hourly_to_daily_shares(self.fuel_types_share_yh, len(data['lu_fueltype']))
 
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])

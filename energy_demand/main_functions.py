@@ -1102,21 +1102,34 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
 
     return eff_hp_yh
 
-def constant_fueltype(fueltype):
+def constant_fueltype(fueltype, len_fueltypes):
     """Create dictionary with constant single fueltype
     """
-    fueltypes_yh = {}
+    #fueltypes_yh = {}
 
-    share_single_fueltype = 1.0
+    #fueltypes_input = {fueltype: 1.0}
 
-    for day in range(365):
+    '''for day in range(365):
         fueltypes_yh[day] = {}
-        for hour in range(12):
+        for hour in range(24):
             fueltypes_yh[day][hour] = {fueltype: share_single_fueltype}
+    '''
 
-    #fueltype_yh = np.zeros((365, 24))
-    #fueltype_yh = fueltype
+    fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
+    fueltypes_yh[fueltype] = 1.0 # 100 of fuel of this fueltype
+
     return fueltypes_yh
+
+def convert_hourly_to_daily_shares(fueltypes_yh, len_fueltypes):
+    """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
+    """
+    fuely_yd_shares = np.zeros((len_fueltypes, 365))
+
+    for fueltype, fueltype_yh in enumerate(fueltypes_yh):
+        for day, fueltype_dh in enumerate(fueltype_yh):
+            fuely_yd_shares[fueltype][day] = np.average(fueltype_dh)
+
+    return fuely_yd_shares
 
 def const_eff_yh(input_eff):
     """Assing a constant efficiency to every hour in a year
@@ -1252,15 +1265,6 @@ def generate_sig_diffusion(data):
         # Fuel Switches - Calculate all technologies installed in fuel switches
         data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
 
-        '''# Convert fuel to energy service
-        data['assumptions']['service_tech_by_p'], data['assumptions']['service_fueltype_tech_p'] = calc_service_fueltype_tech(
-            data['lu_fueltype'],
-            data['fuel_raw_data_resid_enduses'],
-            data['assumptions']['fuel_enduse_tech_p_by'],
-            data['fuel_raw_data_resid_enduses'],
-            data['assumptions']['technologies']
-        )
-        '''
         # ---------------------------------------------------------------------
         # Write out txt file with service shares for each technology per enduse
         # ---------------------------------------------------------------------
@@ -1568,9 +1572,15 @@ def calc_service_fueltype(lu_fueltype, service_tech_by_p, tech_stock):
         for technology in service_tech_by_p[enduse]:
 
             # Add percentage of total enduse to fueltype
-            service_fueltype[enduse][tech_stock[technology]['fuel_type']] += service_tech_by_p[enduse][technology]
+            fueltype = tech_stock[technology]['fuel_type']
+            service_fueltype[enduse][fueltype] += service_tech_by_p[enduse][technology]
 
-            # TODO: HYBRID: Add dependingon fueltype
+            # TODO:  Add dependingon fueltype HYBRID
+            ##fueltypes_tech = technology]['fuel_type']
+
+            #service_fueltype[enduse][fueltype]
+
+
 
     return service_fueltype
 
@@ -2114,8 +2124,8 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
 
     return relative_share_service_tech_decrease_by
 
-def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
-    '''Based on assumptions about energy service delivered by technologies, generate fuel distribution
+'''def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
+    #Based on assumptions about energy service delivered by technologies, generate fuel distribution
 
     As an input, the percentage of energy service (e.g. heating) is provided
     for different technologies. Based on simple efficiency assumptions the
@@ -2125,7 +2135,7 @@ def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
     # TODO: MAybe do on regional level
     #TODO: Efficiency of base year of heat pumps???
     ALLES NUR GROB GESCHAETZT AUCH MIT EFF VON HEAT PUMPS... ...hybrid tech?
-    '''
+    #
     fuels_tech_p = {}
 
     for enduse in enduse_tech_p:
@@ -2159,7 +2169,7 @@ def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
                     fuels_tech_p[enduse][fueltype][tech] = np.divide(1, total_fuel_fueltype) * fuels_tech_p[enduse][fueltype][tech]
 
     return fuels_tech_p
-
+'''
 
 def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltype):
     """Calculate percentage of service for every fueltype

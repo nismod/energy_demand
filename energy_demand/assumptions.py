@@ -279,7 +279,7 @@ def helper_assign_ASHP_GSHP_split(split_factor, data):
 
     return heat_pump_stock_install
 
-def add_all_tech_to_base_year_stock(fuel_enduse_tech_p_by, technologies):
+'''def add_all_tech_to_base_year_stock(fuel_enduse_tech_p_by, technologies):
     """All defines technologies are added if they are not manually definied
 
     If fueltypes are manually defined, copy these values. Otherwise insert the technologies but assign no fuel to them
@@ -295,6 +295,7 @@ def add_all_tech_to_base_year_stock(fuel_enduse_tech_p_by, technologies):
                 fuel_enduse_tech_p_by[enduse][fueltype_tech][technology] = 0.0
 
     return fuel_enduse_tech_p_by
+'''
 
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
