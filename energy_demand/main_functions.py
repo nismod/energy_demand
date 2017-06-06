@@ -3,6 +3,7 @@ import os
 import sys
 import csv
 import re
+import time
 from datetime import date
 from datetime import timedelta as td
 import math as m
@@ -374,7 +375,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
             for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
                 if tech not in enduse_tech_by_p[enduse]:
-                    sys.exit("Error: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
+                    sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     # Test if more service is provided as input than possible to maximum switch
     for entry in list_elements:
@@ -689,7 +690,7 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
             csv_writer.writerows(data)
 
             # Write YAML
-            write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
+            write_YAML(crit_YAML, os.path.join(main_path, 'model_output/YAML_  ----TIMESTEPS_{}.yml'.format(fueltype)), yaml_list_fuel_type)
 
 def write_out_txt(path_to_txt, enduses_service):
     """Generate a txt file with base year service for each technology according to provided fuel split input
@@ -920,6 +921,37 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
 
     return fract_sy
 
+def fraction_tech_high_temp(templow, temphigh, current_temp):
+    """Parameters
+    ----------
+    templow : float
+        Lower temperature limit where only lower technology is operated with 100%
+    temphigh : float
+        Higher temperature limit where only lower technology is operated with 100%
+    current_temp : float
+        Temperature to find fraction
+
+    Return
+    ------
+    fraction_currenttemp : float
+        Fraction of higher temperature technology
+    """
+    if templow < 0:
+        temp_diff = temphigh + abs(templow)
+        temp_diff_currenttemp = current_temp + abs(templow)
+    else:
+        temp_diff = temphigh - templow
+        temp_diff_currenttemp = current_temp - templow
+    if current_temp >= temphigh:
+        fraction_currenttemp = 1.0
+    elif  current_temp <= templow:
+        fraction_currenttemp = 0.0
+    else:
+        fraction_currenttemp = (1.0 / temp_diff) * temp_diff_currenttemp
+
+    return fraction_currenttemp
+
+
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value where saturation is assumed at the endyear
 
@@ -1123,11 +1155,17 @@ def constant_fueltype(fueltype, len_fueltypes):
 def convert_hourly_to_daily_shares(fueltypes_yh, len_fueltypes):
     """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
     """
+    start_time_test = time.time()
+
     fuely_yd_shares = np.zeros((len_fueltypes, 365))
 
     for fueltype, fueltype_yh in enumerate(fueltypes_yh):
+        fuely_yd_shares[fueltype] = fueltype_yh.mean(axis=1) # Calculate daily mean for every row
+        '''
         for day, fueltype_dh in enumerate(fueltype_yh):
-            fuely_yd_shares[fueltype][day] = np.average(fueltype_dh)
+            fuely_yd_shares[fueltype][day] = np.mean(fueltype_dh)
+        '''
+    #print("  ----TIMER convert_hourly_to_daily_shares: %s seconds---" % (time.time() - start_time_test))
 
     return fuely_yd_shares
 
@@ -1529,7 +1567,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
             # Convert to energy service (Energy service = fuel * efficiency)
             service_tech[tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
 
-            print("Convert fuel to service: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
+            #print("Convert fuel to service: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
 
             # Testing
             assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
@@ -1543,14 +1581,14 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
     return total_service_yh, service_tech
 
-def calc_service_fueltype(lu_fueltype, service_tech_by_p, tech_stock):
+def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):
     """Calculate service per fueltype in percentage of total service
 
     Parameters
     ----------
     service_tech_by_p : dict
         Service demand per technology
-    tech_stock : dict
+    technologies_assumptions : dict
         Technologies with all attributes
 
     Return
@@ -1572,10 +1610,10 @@ def calc_service_fueltype(lu_fueltype, service_tech_by_p, tech_stock):
         for technology in service_tech_by_p[enduse]:
 
             # Add percentage of total enduse to fueltype
-            fueltype = tech_stock[technology]['fuel_type']
+            fueltype = technologies_assumptions[technology]['fuel_type']
             service_fueltype[enduse][fueltype] += service_tech_by_p[enduse][technology]
 
-            # TODO:  Add dependingon fueltype HYBRID
+            # TODO:  Add dependingon fueltype HYBRID --> If hybrid, get base year assumption split--> Assumption how much service for each fueltype 
             ##fueltypes_tech = technology]['fuel_type']
 
             #service_fueltype[enduse][fueltype]
@@ -1760,17 +1798,14 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                     start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
 
                     try:
-                        print("--------------- Technology " + str(technology))
+                        '''print("--------------- Technology " + str(technology))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(L_values[enduse][technology]))
                         print("start_parameters: " + str(start_parameters))
+                        '''
 
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
-
-                        # Define manually when a fit is not successefful
-                        print("fit_parameter: " + str(fit_parameter))
-
 
                         # Criteria when fit did not work
                         if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or fit_parameter[1] > fit_crit_A or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:

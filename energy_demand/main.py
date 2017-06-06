@@ -41,6 +41,7 @@ The docs can be found here: http://ed.readthedocs.io
 import os
 import sys
 import random
+import time
 import numpy as np
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
@@ -54,6 +55,7 @@ import energy_demand.service_model as sm # Import sub modules
 import energy_demand.industry_model as im # Import sub modules
 import energy_demand.transport_model as tm # Import sub modules
 print("Start Energy Demand Model with python version: " + str(sys.version))
+start_time = time.time()
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -126,19 +128,28 @@ if __name__ == "__main__":
     ey = 2020 #always includes this year
     sim_years = range(by, ey + 1) #TODO:  Everyhwere wher len(sim_years) is used
 
-    pop_dummy = {}
-    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
-    for i in sim_years:
-        y_data = {}
-        for reg in a:
-            y_data[reg] = a[reg] # + (a[reg] * 1.04)
-        pop_dummy[i] = y_data
-
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
     coord_dummy['Scotland'] = {'longitude': 56.483100, 'latitude': -4.027093}
     coord_dummy['England'] = {'longitude': 52.874205, 'latitude': -0.871205}
+
+    pop_dummy = {}
+
+    ff = range(100, 102)
+
+    a = {}
+    for i in ff:
+        a[str(i)] = i * 1000
+        coord_dummy[str(i)] = {'longitude': 52.289288, 'latitude': -3.610933}
+    print(a)
+    #a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
+
+    for i in sim_years:
+        y_data = {}
+        for reg in a:
+            y_data[reg] = a[reg] # + (a[reg] * 1.04)
+        pop_dummy[i] = y_data
 
     fuel_price_dummy = {}
     a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0}
@@ -184,6 +195,7 @@ if __name__ == "__main__":
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
+    
 
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
@@ -213,6 +225,7 @@ if __name__ == "__main__":
 
     # Generate virtual building stock over whole simulatin period
     base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'])
+    print("  ----TIME: %s seconds until start yearly calculations---" % (time.time() - start_time))
 
     # If several years are run:
     results_every_year = []

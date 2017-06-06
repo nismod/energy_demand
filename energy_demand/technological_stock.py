@@ -1,6 +1,7 @@
 """The technological stock for every simulation year"""
 import sys
 import numpy as np
+import time
 #import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 # pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member
@@ -20,7 +21,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, year): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
+    def __init__(self, tech_name, data, temp_by, temp_cy, curr_yr): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
         """Contructor of Technology
 
         #TODO: Checke whetear all technologies which are temp dependent are specified for base year efficiency
@@ -33,10 +34,11 @@ class Technology(object):
             All internal and external provided data
         temp_cy : array
             Temperatures of current year
-        year : float
+        curr_yr : float
             Current year
         """
-        self.curr_yr = year
+        start_time_tech = time.time()
+
         self.tech_name = tech_name
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
@@ -57,7 +59,6 @@ class Technology(object):
         # --> Efficiencies depending on temp
         # --> Fueltype depending on temp_cut_off
         # -------
-
         hybrid_tech_list = ['hybrid_gas_elec']
         if self.tech_name in hybrid_tech_list:
             """ Hybrid efficiencies
@@ -76,6 +77,10 @@ class Technology(object):
 
             self.hybrid_temp_cut_off = 1 # Temperature where fueltypes are switched
 
+            # HYBRID: MIXED, three scenarios (boiler, combi, hp)
+            #mf.fraction_tech_high_temp()
+
+
             self.eff_cy = self.calc_hybrid_eff(
                 temp_cy,
                 self.hybrid_temp_cut_off,
@@ -91,8 +96,6 @@ class Technology(object):
             # Shape
             # d_h --> IS different for every day or fueltype. --> Iterate days and calculate share of service for fueltype
             #--> Distribute share of fueltype to technology (is wrong) (e.g. 20% boiler, 80% hp)
-
-
 
         # -------------------------------
         # Efficiencies
@@ -110,8 +113,7 @@ class Technology(object):
             self.eff_by = mf.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
 
         # --Current year
-        self.eff_cy = self.calc_efficiency_cy(data, temp_cy)
-
+        self.eff_cy = self.calc_efficiency_cy(data, temp_cy, curr_yr)
         # -------------------------------
         # Shapes
         # -------------------------------
@@ -123,6 +125,7 @@ class Technology(object):
 
         # Get Shape of peak dh
         self.shape_peak_dh = self.get_shape_peak_dh(data)
+        #print("  ----TIME for technology %s seconds" % (time.time() - start_time_tech))
 
     def calc_hybrid_eff(self, temp_yr, hybrid_temp_cut_off, m_slope, t_base_heating, eff_boiler, eff_hp):
         """Calculate efficiency for every hour for hybrid technology
@@ -191,7 +194,7 @@ class Technology(object):
 
         return shape_peak_dh
 
-    def calc_efficiency_cy(self, data, temperatures):
+    def calc_efficiency_cy(self, data, temperatures, curr_yr):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
         Parameters
@@ -215,13 +218,13 @@ class Technology(object):
         if self.diff_method == 'linear':
             theor_max_eff = mf.linear_diff(
                 data['data_ext']['glob_var']['base_yr'],
-                self.curr_yr,
+                curr_yr,
                 data['assumptions']['technologies'][self.tech_name]['eff_by'],
                 data['assumptions']['technologies'][self.tech_name]['eff_ey'],
                 len(data['data_ext']['glob_var']['sim_period'])
             )
         elif self.diff_method == 'sigmoid':
-            theor_max_eff = mf.sigmoid_diffusion(data['data_ext']['glob_var']['base_yr'], self.curr_yr, data['data_ext']['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
+            theor_max_eff = mf.sigmoid_diffusion(data['data_ext']['glob_var']['base_yr'], curr_yr, data['data_ext']['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         # Consider actual achived efficiency
         actual_max_eff = theor_max_eff * self.eff_achieved_factor
@@ -271,6 +274,7 @@ class ResidTechStock(object):
         temp_cy : int
             Temperatures of current year
         """
+        start_time_ResidTechStock = time.time()
 
         # Crate all technologies and add as attribute
         for tech_name in technologies:
@@ -290,6 +294,7 @@ class ResidTechStock(object):
                 tech_name,
                 technology_object
             )
+        #print("  ----TIMER for ResidTechStock: %s seconds---" % (time.time() - start_time_ResidTechStock))
 
     def get_tech_attribute(self, tech, attribute_to_get):
         """Read an attrribute from a technology in the technology stock
