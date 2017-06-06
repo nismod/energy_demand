@@ -72,6 +72,12 @@ class RegionClass(object):
         
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
+        
+        # NEW FOR HYBRID TODO: DESCRIBE
+        self.fuel_shape_boilers_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
+        self.shape_heating_hp_d_dh = self.shape_heating_hp_d_dh(data, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh')
+
+        
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
         #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
@@ -210,21 +216,35 @@ class RegionClass(object):
             elif technology in assumptions['list_tech_heating_hybrid']: #HYBRID TECHNOLOGIES
 
                 if technology == 'hybrid_gas_elec':
+
+                    # Dh Shapes for every day
+                    fuel_curves_fraction_low_tech_high_tech_y_dh = mf.calculate_y_dh_fuelcurves(
+                        self.fuel_shape_boilers_dh,
+                        self.shape_heating_hp_d_dh,
+                        self.tech_stock.get_tech_attribute(technology, 'fractions_service_high_low'),
+                        self.tech_stock.get_tech_attribute('boiler_gas', 'eff_cy'),
+                        self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy'),
+                        )
+                    #print(np.sum(fuel_curves_fraction_low_tech_high_tech_y_dh))
+                    print("----tt")
+                    print(fuel_curves_fraction_low_tech_high_tech_y_dh.shape)
+                    # Take Boiler Shape --> Because this is constant efficiency, is also a shape of the necessary heat
                     # Divide service per hour by average efficiency
                     heat_distr = self.heating_shape_yd # Distribution of heat over yd
-                    average_eff = self.tech_stock.get_tech_attribute(technology, 'eff_cy')
-                    
-                    hybrid_fuels = np.divide(heat_distr, average_eff)
-                    print("TESSSSSSSSSSSSSSSSSSSSSSSSSSS: " + str(np.sum(hybrid_fuels)))
 
-                    shape_hybrid_fuels = np.divide(1, np.sum(hybrid_fuels)) * hybrid_fuels
+                    shape_yh = np.zeros((365, 24))
+                    for day, share_day in enumerate(heat_distr):
+                        shape_yh[day] = fuel_curves_fraction_low_tech_high_tech_y_dh[day] * share_day
+ 
+                    # Calculate daily curve based on efficiencies and split of tech
+                    #average_eff = self.tech_stock.get_tech_attribute(technology, 'eff_cy')
+                    #hybrid_fuels = np.divide(heat_distr, average_eff)
+                    #print("TESSSSSSSSSSSSSSSSSSSSSSSSSSS: " + str(np.sum(hybrid_fuels)))
+                    #shape_hybrid_fuels = np.divide(1, np.sum(hybrid_fuels)) * hybrid_fuels
+                    #print("TESSSSSSSSSSSSSSSSSSSSSSSSSSS: " + str(np.sum(shape_hybrid_fuels)))
 
-                    print("TESSSSSSSSSSSSSSSSSSSSSSSSSSS: " + str(np.sum(shape_hybrid_fuels)))
-                    self.tech_stock.set_tech_attribute(technology, 'shape_yd', shape_hybrid_fuels)
-                    #self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
-                    
-                    
-            
+                    self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
+                    self.tech_stock.set_tech_attribute(technology, 'shape_yh', shape_yh)
 
             #elif technology in assumptions['list_tech_resid_lighting']:
                 #self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
@@ -341,12 +361,16 @@ class RegionClass(object):
     def tot_all_enduses_d(self, data, attribute_to_get):
         """Calculate total daily fuel demand for each fueltype
         """
-        sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365, 1))  # Initialise
+        sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365)) #, 1))  # Initialise
+
+        
+        print("TE: " + str(sum_fuels_d.shape))
 
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
+                print("aa: " + str(self.__getattr__subclass__(enduse, attribute_to_get)[fueltype].shape))
                 sum_fuels_d[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
-        
+
         return sum_fuels_d
 
     def get_calc_enduse_fuel_peak_yd_factor(self, data):
@@ -592,6 +616,26 @@ class RegionClass(object):
         
         return cdd_d
 
+    def shape_heating_hp_d_dh(self, data, hdd_cy, tech_to_get_shape):
+        """Get sandom dh heat pump shapes for every day
+        """
+        shape_y_dh_hp = np.zeros((365, 24))
+
+        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
+
+        for day, date_gasday in enumerate(list_dates):
+
+            # See wether day is weekday or weekend
+            weekday = date_gasday.timetuple().tm_wday
+
+            # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
+            if weekday == 5 or weekday == 6:
+                shape_y_dh_hp[day] = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2])) # WkendHourly gas shape. Robert Sansom hp curve
+            else:
+                shape_y_dh_hp[day] = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
+    
+        return shape_y_dh_hp
+
     def shape_heating_hp_yh(self, data, tech_stock, hdd_cy, tech_to_get_shape):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump
 
@@ -642,7 +686,7 @@ class RegionClass(object):
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
 
-                # Select gas heat pumps to calculate service shap
+                # Select gas heat pumps to calculate service shape
                 tech_object = getattr(tech_stock, 'av_heat_pump_gas')
                 average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
@@ -742,6 +786,29 @@ class RegionClass(object):
         #assert np.sum(shape_yd_boilers) == 1, "Error in shape_heating_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_yd_boilers))
         np.testing.assert_almost_equal(np.sum(shape_yd_boilers), 1, err_msg=  "Error in shape_heating_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_yd_boilers)))
         return shape_yd_boilers
+
+    def shape_heating_boilers_y_dh(self, data, tech_to_get_shape):
+        """Get daily dh shape for every day for sansom boilers
+        """
+        shape_y_dh_boilers = np.zeros((365, 24))
+
+        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
+
+        for day, date_gasday in enumerate(list_dates):
+
+            # See wether day is weekday or weekend
+            weekday = date_gasday.timetuple().tm_wday
+
+            # Take respectve daily fuel curve depending on weekday or weekend
+            if weekday == 5 or weekday == 6:
+
+                # Wkend Hourly gas shape. Robert Sansom boiler curve
+                shape_y_dh_boilers[day] = data[tech_to_get_shape][2] / np.sum(data[tech_to_get_shape][2])
+            else:
+                # Wkday Hourly gas shape. Robert Sansom boiler curve
+                shape_y_dh_boilers[day] = data[tech_to_get_shape][1] / np.sum(data[tech_to_get_shape][1])
+
+        return shape_y_dh_boilers
 
     def __getattr__(self, attr): #TODO: Maybe can be removed
         """Get method of own object
@@ -1100,7 +1167,7 @@ class EnduseResid(object):
             self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech, self.technologies_enduse, tech_stock)
             self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
             #self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
-
+            print("Ssadf" + str(self.enduse_fuel_yd.shape))
             print("SUMME YH " + str(np.sum(self.enduse_fuel_yd)))
             print("SUMME YH " + str(np.sum(self.enduse_fuel_yh)))
             print("d YH " + str(np.sum(self.enduse_fuel_yd[0].shape)))
@@ -1350,8 +1417,7 @@ class EnduseResid(object):
             
             print(np.sum(enduse_fuel_tech[tech]))
             print(np.sum(fuel_tech_yd))
-
-            assert np.sum(fuel_tech_yd) == np.sum(enduse_fuel_tech[tech])
+            np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
             fueltype_tech_share_yd = tech_stock.get_tech_attribute(tech, 'fuel_types_share_yd') # Get fueltype of tech HYBRID DONE check
             print(" ")
@@ -1773,9 +1839,13 @@ class EnduseResid(object):
             Hourly fuel data (365, 1)
 
         """
-        fuels_d = np.zeros((fuels.shape[0], 365, 1))
+        fuels_d = np.zeros((fuels.shape[0], 365)) #, 1))
 
         for k, fuel in enumerate(fuels):
+            print("ffsf: " + str(fuel.shape))
+            print("ffsf: " + str(enduse_shape_yd.shape))
+            print("ffsf: " + str(fuel))
+            print("ffsf: " + str(enduse_shape_yd[0]))
             fuels_d[k] = enduse_shape_yd * fuel
         
         #print("fuelsdd")

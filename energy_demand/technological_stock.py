@@ -78,6 +78,11 @@ class Technology(object):
             # ------A Get service distribution for every hour, Get service fraction based on temp(lindiff) and assume distribution of fuel based on dummy data
             self.fractions_service_high_low = mf.fraction_service_high_low_temp_tech(temp_cy, self.hybrid_temp_cut_off_low_temp, self.hybrid_temp_cut_off_high_temp)
 
+            # Create daily shapes based on technology mix ()
+            # ---------------------
+            # Calculate based on service assumption for every hour the split of daily curve
+
+
             # B: Calculate average efficiency based on service distribution
             '''self.eff_cy = self.calc_hybrid_eff(
                 temp_cy,
@@ -86,9 +91,8 @@ class Technology(object):
                 data['assumptions']['technologies'][tech_low_temp]['eff_by'], # Boiler efficiency
                 data['assumptions']['technologies'][tech_high_temp]['eff_by'], # Heat pump efficiency
                 self.fractions_service_high_low
-            )  
+            )
             '''
-
             # C. Calculate fuel share distribution
             # TODO: DO NOT ASSIGN FOR EVERY HOUR BUT ASSIGN AVERAGE ACROSS : MAYBE???
             self.fuel_types_share_yh = self.calc_hybrid_fueltype(fueltype_low_temp, fueltype_high_temp, self.fractions_service_high_low, len(data['lu_fueltype']))
@@ -151,6 +155,7 @@ class Technology(object):
         """Calculate efficiency for every hour for hybrid technology
         """
         eff_hybrid_yh = np.zeros((365, 24))
+
         for day, temp_day in enumerate(temp_yr):
             for hour, temp_h in enumerate(temp_day):
                 if t_base_heating < temp_h:

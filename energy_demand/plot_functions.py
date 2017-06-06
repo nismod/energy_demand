@@ -4,6 +4,11 @@ import numpy as np
 import energy_demand.main_functions as mf
 import matplotlib as mpl
 
+#def plot_dh(dh_data):
+#    plt.plot(dh_data)
+#    plt.show()
+
+
 
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load"""

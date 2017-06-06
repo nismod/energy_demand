@@ -2396,3 +2396,33 @@ def convert_to_tech_array(in_dict, tech_lu_resid):
         copy_dict[i] = np.array(list(in_dict[i].items()), dtype=float)
     return copy_dict
 '''
+
+def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, fraction_high_low, eff_low_tech, eff_high_tech):
+    """Calculate dh fuel shapes for hybrid technologies
+    #TODO: TEST
+    """
+    fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
+
+    for day in fraction_high_low:
+
+        daily_shape = np.zeros(24)
+
+        for hour in range(24):
+            fraction_low = fraction_high_low[day][hour]['low'] 
+            fraction_high = fraction_high_low[day][hour]['high']
+
+            eff_low = eff_low_tech[day][hour]
+            eff_high = eff_high_tech[day][hour]
+
+            daily_shape[hour] = ((fraction_low * low_temp_tech_dh[day][hour]) / eff_low) + ((fraction_high * high_temp_dh[day][hour]) / eff_high)
+            #TEST print
+
+        daily_shape_normed = (1/np.sum(daily_shape)) * daily_shape
+
+        #import matplotlib.pyplot as plt
+        #plt.plot(daily_shape)
+        #plt.show()
+
+        fuel_shapes_hybrid_y_dh[day] = daily_shape_normed
+
+    return fuel_shapes_hybrid_y_dh

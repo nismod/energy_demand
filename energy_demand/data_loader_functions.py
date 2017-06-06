@@ -460,7 +460,7 @@ def read_txt_shape_peak_yd_factor(file_path):
 def read_txt_shape_non_peak_yd(file_path):
     """Read to txt. Array with shape: (365, 1)
     """
-    out_dict = np.zeros((365, 1))
+    out_dict = np.zeros((365)) #, 1))
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     for day, row in enumerate(read_dict_list):
