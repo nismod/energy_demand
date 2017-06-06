@@ -57,6 +57,9 @@ import energy_demand.transport_model as tm # Import sub modules
 print("Start Energy Demand Model with python version: " + str(sys.version))
 start_time = time.time()
 
+import cProfile
+#cProfile.run()
+
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 
@@ -136,14 +139,15 @@ if __name__ == "__main__":
 
     pop_dummy = {}
 
-    ff = range(100, 102)
+    '''ff = range(100, 102)
 
     a = {}
     for i in ff:
         a[str(i)] = i * 1000
         coord_dummy[str(i)] = {'longitude': 52.289288, 'latitude': -3.610933}
     print(a)
-    #a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
+    '''
+    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
 
     for i in sim_years:
         y_data = {}
@@ -256,4 +260,6 @@ if __name__ == "__main__":
     # Run main function
     results = energy_demand_model(base_data)
 
+    # Profiler
+    cProfile.run(energy_demand_model(base_data))
     print("Finished running Energy Demand Model")

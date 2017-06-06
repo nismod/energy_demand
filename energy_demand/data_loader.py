@@ -42,15 +42,14 @@ def load_data(path_main, data):
 
     # Fuel look-up table
     data['lu_fueltype'] = {
-        'coal': 0,
+        'hybrid': 0,
         'gas': 1,
         'electricity': 2,
         'oil': 3,
         'heat_sold': 4,
         'bioenergy_waste':5,
         'hydrogen': 6,
-        'future_fuel': 7
-        #'hybrid' : 'hybrid'
+        'coal': 7
     }
 
     # -----------------------------

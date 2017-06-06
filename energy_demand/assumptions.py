@@ -194,6 +194,8 @@ def load_assumptions(data):
     #assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
     #assumptions['enduse_space_cooling'] = ['resid_space_cooling']
 
+    assumptions['list_tech_heating_hybrid'] = ['hybrid_gas_elec']
+
     # --Helper functions
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
@@ -210,8 +212,8 @@ def load_assumptions(data):
     # ------------------
 
     #---Residential space heating
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0 } #'hybrid_gas_elec': 0
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.98, 'av_heat_pump_electricity': 0.02}  #  Hannon 2015, heat-pump share in uk
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.96, 'av_heat_pump_electricity': 0.02}  #  Hannon 2015, heat-pump share in uk
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
     assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 

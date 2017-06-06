@@ -337,13 +337,14 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
         # Iterate rows
         for row in read_lines:
+            print(row)
             try:
                 list_elements.append(
                     {
                         'enduse_service': str(row[0]),
                         'tech': str(row[1]),
-                        'service_share_ey': float(row[3]),
-                        'tech_assum_max_share': float(row[4])
+                        'service_share_ey': float(row[2]),
+                        'tech_assum_max_share': float(row[3])
                     }
                 )
             except (KeyError, ValueError):
@@ -809,7 +810,7 @@ def calc_hdd(t_base, temp_yh):
     hdd_d : array
         An array containing the Heating Degree Days for every day (shape 365, 1)
     """
-    hdd_d = np.zeros((365, 1))
+    hdd_d = np.zeros((365, )) #, 1))
 
     for day, temp_day in enumerate(temp_yh):
         hdd = 0
@@ -921,7 +922,37 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
 
     return fract_sy
 
-def fraction_tech_high_temp(templow, temphigh, current_temp):
+
+def fraction_service_high_low_temp_tech(temp_cy, hybrid_temp_cut_off_low_temp, hybrid_temp_cut_off_high_temp):
+    """Calculate fraction of service for every hour
+
+    Parameters
+    ----------
+    temp_cy : array
+        Temperature of current year
+    hybrid_temp_cut_off_low_temp : int
+        Temperature cut-off criteria (blow this temp, 100% service provided by lower temperature technology)
+    hybrid_temp_cut_off_high_temp : int
+        Temperature cut-off criteria (above this temp, 100% service provided by higher temperature technology)
+    Return
+    ------
+    fraction_high_low : dict
+        Share of lower and higher service fraction for every hour
+    """
+    fraction_high_low = {}
+    for day, temp_d in enumerate(temp_cy):
+        fraction_high_low[day] = {}
+        for hour, temp_h in enumerate(temp_d):
+
+            # Get fraction of high_temp technology
+            fraction_high = fraction_service_high_temp(hybrid_temp_cut_off_low_temp, hybrid_temp_cut_off_high_temp, temp_h)
+            fraction_low = 1 - fraction_high
+            fraction_high_low[day][hour] = {'low': fraction_low, 'high': fraction_high}
+
+    return fraction_high_low
+
+
+def fraction_service_high_temp(templow, temphigh, current_temp):
     """Parameters
     ----------
     templow : float
@@ -944,7 +975,7 @@ def fraction_tech_high_temp(templow, temphigh, current_temp):
         temp_diff_currenttemp = current_temp - templow
     if current_temp >= temphigh:
         fraction_currenttemp = 1.0
-    elif  current_temp <= templow:
+    elif  current_temp < templow:
         fraction_currenttemp = 0.0
     else:
         fraction_currenttemp = (1.0 / temp_diff) * temp_diff_currenttemp
@@ -1136,17 +1167,35 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
 
 def constant_fueltype(fueltype, len_fueltypes):
     """Create dictionary with constant single fueltype
+
+    Parameters
+    ----------
+    fueltype : int
+        Single fueltype for defined technology
+    len_fueltypes : int
+        Number of fueltypes
+
+    Return
+    ------
+    fueltypes_yh : arrey
+        Fraction of fueltype for every hour and for all fueltypes
+    
+    Note
+    ----
+    The array is defined with 1.0 fraction for the input fueltype. For all other fueltypes,
+    the fraction is defined as zero.
+
+    Example
+    -------
+    array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
     """
     #fueltypes_yh = {}
-
     #fueltypes_input = {fueltype: 1.0}
-
     '''for day in range(365):
         fueltypes_yh[day] = {}
         for hour in range(24):
             fueltypes_yh[day][hour] = {fueltype: share_single_fueltype}
     '''
-
     fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
     fueltypes_yh[fueltype] = 1.0 # 100 of fuel of this fueltype
 
