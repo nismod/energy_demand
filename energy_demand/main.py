@@ -30,7 +30,6 @@
 Down the line
 - new tech --> enduse per person, --> distribution in pop --> shape of appliances
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
--
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 

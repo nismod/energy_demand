@@ -239,10 +239,9 @@ class EnduseResid(object):
             for tech in fuel_enduse_tech_p_by[fueltype].keys():
                 if tech not in technologies:
                     technologies.append(tech)
-        
+
         return technologies
-    
-    
+
     def switch_tech_service(self, data, tot_service_h_by):
         """Scenaric service switches
 
@@ -392,13 +391,14 @@ class EnduseResid(object):
         return enduse_fuel_peak_yh
 
     def get_technologies_fuel_switch(self, fuel_enduse_tech_p_by):
-        """Iterate assumptions about technologes in enduses of base year for each enduse
+        """Iterate assumptions about technologes in enduses of base year for each enduse, no doubles
         """
         # Get all technologies of enduse
         technologies_enduse = []
         for fueltype in fuel_enduse_tech_p_by[self.enduse]:
             for tech in fuel_enduse_tech_p_by[self.enduse][fueltype]:
-                technologies_enduse.append(tech)
+                if tech not in technologies_enduse:
+                    technologies_enduse.append(tech)
 
         return technologies_enduse
 
@@ -419,7 +419,7 @@ class EnduseResid(object):
 
             # Multiply fuel with shape_yd
             fuel_tech_yd = enduse_fuel_tech[tech] * tech_stock.get_tech_attribute(tech, 'shape_yd')
-
+            print("fuel_tech_yd: " + str(np.sum(fuel_tech_yd)))
             # Testing
             np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
@@ -430,13 +430,14 @@ class EnduseResid(object):
                 fuels_fueltype_d[fueltype_hybrid] += fuel_per_fueltype_dh
 
                 control_sum += np.sum(fuel_per_fueltype_dh)
-                #print("new fuel " + str(np.sum(fuel_per_fueltype_dh)))
-                #print(np.sum(fuels_fueltype_d))
-                #print(control_sum)
+                print("new fuel " + str(np.sum(fuel_per_fueltype_dh)))
+                print(np.sum(fuels_fueltype_d))
+                print(control_sum)
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_service_to_fuel_fueltype_y
         #np.testing.assert_array_almost_equal(np.sum(fuels_fueltype_d), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
-
+        print(technologies_enduse)
+        print(enduse_fuel_tech.values())
         np.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_fueltype_d
@@ -596,7 +597,6 @@ class EnduseResid(object):
 
             for fueltype, _ in enumerate(fueltype_share_yh):
                 fuel_fueltype = fueltype_share_yh[fueltype] * fuel_tech
-                print("-- " + str(np.sum(fuel_fueltype)))
                 enduse_fuels[fueltype] += np.sum(fuel_fueltype) # Share of fuel of fueltype_hybrid * fuel 
 
         setattr(self, 'enduse_fuel_new_fuel', enduse_fuels)
@@ -841,12 +841,9 @@ class EnduseResid(object):
 
         for k, fuel in enumerate(fuels):
             fuels_d[k] = enduse_shape_yd * fuel
-        
-        #print("fuelsdd")
-        #print(fuels)
-        #print(np.sum(fuels_d))
-        #assert np.sum(fuels) == np.sum(fuels_d)
+
         np.testing.assert_almost_equal(np.sum(fuels), np.sum(fuels_d), decimal=3, err_msg='The distribution of dwelling types went wrong', verbose=True)
+
         return fuels_d
 
     def enduse_d_to_h(self, fuels, enduse_shape_dh):
@@ -966,4 +963,3 @@ class EnduseResid(object):
         for fueltype, fuel_data in enumerate(fuels):
             fuels_h_peak[fueltype] = shape_peak_dh * fuel_data
         return fuels_h_peak
-
