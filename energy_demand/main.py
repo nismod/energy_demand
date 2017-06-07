@@ -57,8 +57,8 @@ import energy_demand.transport_model as tm # Import sub modules
 print("Start Energy Demand Model with python version: " + str(sys.version))
 start_time = time.time()
 
-import cProfile
-#cProfile.run()
+
+
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -199,7 +199,6 @@ if __name__ == "__main__":
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
-    
 
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
@@ -260,6 +259,20 @@ if __name__ == "__main__":
     # Run main function
     results = energy_demand_model(base_data)
 
-    # Profiler
-    cProfile.run(energy_demand_model(base_data))
     print("Finished running Energy Demand Model")
+
+    #-----------
+    # Profiler
+    #-----------
+    """
+    import cProfile
+    import pstats
+    cProfile.run('energy_demand_model(base_data)')
+
+    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//resid_service_tech_by_p.txt')  
+    #base_data['path_dict']['path_out_stats_cProfile']     
+
+    stats.strip_dirs()
+    stats.sort_stats(-1)
+    stats.print_stats()
+    """

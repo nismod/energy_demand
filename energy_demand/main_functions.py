@@ -27,7 +27,7 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
     for external_enduse in data['data_ext']['external_enduses_resid']:
-        new_fuel_array = np.zeros((len(data['fuel_type_lu']), 1))
+        new_fuel_array = np.zeros((len(data['fuel_type_lu'])))
         for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
             new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
@@ -207,7 +207,7 @@ def read_csv_base_data_resid(path_to_csv):
                 lines.append(row)
 
             for i in _headings[1:]: # skip first
-                end_uses_dict[i] = np.zeros((len(lines), 1))
+                end_uses_dict[i] = np.zeros((len(lines)))
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
@@ -810,7 +810,7 @@ def calc_hdd(t_base, temp_yh):
     hdd_d : array
         An array containing the Heating Degree Days for every day (shape 365, 1)
     """
-    hdd_d = np.zeros((365, )) #, 1))
+    hdd_d = np.zeros((365))
 
     for day, temp_day in enumerate(temp_yh):
         hdd = 0
@@ -1055,7 +1055,7 @@ def calc_cdd(t_base_cooling_resid, temperatures):
 
     https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
-    cdd_d = np.zeros((365, 1))
+    cdd_d = np.zeros((365))
 
     for day_nr, day in enumerate(temperatures):
         sum_d = 0
@@ -1455,7 +1455,7 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
             for tech in fuel_p_tech_by[enduse][fueltype]:
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
-                fuel_tech = fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0]
+                fuel_tech = fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype
 
                 # Energy service of end use: Fuel of technoloy * efficiency == Service (e.g.heat demand in Joules)
                 service_fueltype_tech = fuel_tech * tech_stock[tech]['eff_by']
@@ -1608,7 +1608,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
         for tech in fuel_enduse_tech_p_by[fueltype]:
 
             # Fuel share based on defined fuel fraction within fueltype (share of fuel of technology * tot fuel)
-            fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse[0]
+            fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
 
             # Distribute fuel into every hour based on shape how the fuel is distributed over the year
             fuel_tech_h = fuel_shape_yh * fuel_tech

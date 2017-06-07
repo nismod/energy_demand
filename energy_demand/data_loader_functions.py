@@ -161,7 +161,7 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     # -------------------------
     # Calculate non-peak shapes
     # -------------------------
-    shape_non_peak_yd = np.zeros((365, 1))
+    shape_non_peak_yd = np.zeros((365))
     shape_non_peak_h = np.zeros((365, 24))
 
     for day in range(365):
@@ -257,7 +257,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                     if cnt > 365: #ONLY TAKE ONE YEAR
                         continue
 
-                    hourly_load_shape = np.zeros((24, 1))
+                    hourly_load_shape = np.zeros((24))
 
                     row[1:] = map(float, row[1:]) # Convert all values except date into float values
                     daily_sum = sum(row[1:]) # Total daily sum
@@ -380,7 +380,7 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     # Calculate daily peak of maximum day
     # If all_gas --> heating_gas demand peak
     # -----------------------------------------
-    maxday_h_shape = np.zeros((24, 1))
+    maxday_h_shape = np.zeros((24))
 
     for shape_yd in hourly_shape_of_maximum_days:
         maxday_h_shape += hourly_shape_of_maximum_days[shape_yd]
@@ -430,7 +430,7 @@ def jason_to_txt_shape_non_peak_yd(input_array, outfile_path):
     )"""
     out_dict = {}
     for k, row in enumerate(input_array):
-        out_dict[k] = row[0]
+        out_dict[k] = row
     with open(outfile_path, 'w') as outfile:
         json.dump(out_dict, outfile)
 
@@ -460,7 +460,7 @@ def read_txt_shape_peak_yd_factor(file_path):
 def read_txt_shape_non_peak_yd(file_path):
     """Read to txt. Array with shape: (365, 1)
     """
-    out_dict = np.zeros((365)) #, 1))
+    out_dict = np.zeros((365))
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     for day, row in enumerate(read_dict_list):

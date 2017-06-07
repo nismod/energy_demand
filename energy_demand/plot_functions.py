@@ -251,7 +251,7 @@ def plot_fuels_peak_hour(results_resid, data): # nr_of_day_to_plot, fueltype, ye
         data_over_years = []
         for model_year_object in results_resid:
             fueltype_load_max_h = model_year_object.tot_country_fuel_max_allenduse_fueltyp
-            data_over_years.append(fueltype_load_max_h[fueltype][0])
+            data_over_years.append(fueltype_load_max_h[fueltype])
 
         Y_init[fueltype] = data_over_years
 

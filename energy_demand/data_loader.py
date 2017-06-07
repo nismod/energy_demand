@@ -91,6 +91,8 @@ def load_data(path_main, data):
 
         'path_shape_resid_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
 
+        'path_out_stats_cProfile': os.path.join(path_main, '/model_output/stats_cProfile.txt'),
+
         # Technologies
         'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),

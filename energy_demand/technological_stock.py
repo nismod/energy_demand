@@ -143,7 +143,7 @@ class Technology(object):
         # -------------------------------
 
         #-- Specific shapes of technologes filled with dummy data. Gets filled in Region Class
-        self.shape_yd = np.ones((365, )) # 1))
+        self.shape_yd = np.ones((365)) # 1))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
 
