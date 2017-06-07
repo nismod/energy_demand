@@ -922,73 +922,6 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
 
     return fract_sy
 
-def service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
-    """Calculate fraction of service for every hour within each hour
-
-    Within every hour the fraction of service provided by the low-temp technology
-    and the high-temp technology is calculated
-
-    Parameters
-    ----------
-    temp_cy : array
-        Temperature of current year
-    hybrid_cutoff_temp_low : int
-        Temperature cut-off criteria (blow this temp, 100% service provided by lower temperature technology)
-    hybrid_cutoff_temp_high : int
-        Temperature cut-off criteria (above this temp, 100% service provided by higher temperature technology)
-
-    Return
-    ------
-    fraction_high_low : dict
-        Share of lower and higher service fraction for every hour
-    """
-    fraction_high_low = {}
-
-    for day, temp_d in enumerate(temp_cy):
-        fraction_high_low[day] = {}
-
-        for hour, temp_h in enumerate(temp_d):
-            service_high_tech_p = fraction_service_high_temp(hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, temp_h)
-            service_low_tech_p = 1 - service_high_tech_p
-            fraction_high_low[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
-
-    return fraction_high_low
-
-def fraction_service_high_temp(hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, current_temp):
-    """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
-
-    Parameters
-    ----------
-    hybrid_cutoff_temp_low : float
-        Lower temperature limit where only lower technology is operated with 100%
-    hybrid_cutoff_temp_high : float
-        Higher temperature limit where only lower technology is operated with 100%
-    current_temp : float
-        Temperature to find fraction
-
-    Return
-    ------
-    fraction_currenttemp : float
-        Fraction of higher temperature technology
-        It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
-    """
-    if current_temp >= hybrid_cutoff_temp_high:
-        fraction_currenttemp = 1.0
-    elif current_temp < hybrid_cutoff_temp_low:
-        fraction_currenttemp = 0.0
-    else:
-        if hybrid_cutoff_temp_low < 0:
-            temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
-            temp_diff_currenttemp = current_temp + abs(hybrid_cutoff_temp_low)
-        else:
-            temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-            temp_diff_currenttemp = current_temp - hybrid_cutoff_temp_low
-
-        # Calculate share of high temp 
-        fraction_currenttemp = np.divide(1.0, temp_diff) * temp_diff_currenttemp
-
-    return fraction_currenttemp
-
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value where saturation is assumed at the endyear
 
@@ -1124,114 +1057,6 @@ def change_temp_data_climate_change(data):
                     temp_data_climate_change[weather_station_id][current_year][yearday][h] = temp_old + lin_diff_current_year
 
     return temp_data_climate_change
-
-def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
-    """Calculate efficiency according to temperatur difference of base year
-
-    For every hour the temperature difference is calculated and the efficiency of the heat pump calculated
-    based on efficiency assumptions
-
-    #TODO: EITHER ASSUME DIFFERENT HEAT PUMP TECHNOLOGIES OR HEAT PUMP MIX TO CALCULATE EFFICIENCY
-
-    Parameters
-    ----------
-    temp_yr : array
-        Temperatures for every hour in a year (365, 24)
-    m_slope : float
-        Slope of efficiency of heat pump for different temperatures
-    b : float
-        Intercept (TODO: define for slope...(check in excel for GSHP and HSP))
-    t_base_heating : float
-        Base temperature for heating
-
-    Return
-    ------
-    eff_hp_yh : array (365, 24)
-        Efficiency for every hour in a year
-
-    Info
-    -----
-    The efficiency assumptions of the heat pump are taken from Staffell et al. (2012).
-
-    Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
-    Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
-    """
-    eff_hp_yh = np.zeros((365, 24))
-
-    for day, temp_day in enumerate(temp_yr):
-        for h_nr, temp_h in enumerate(temp_day):
-            if t_base_heating < temp_h:
-                h_diff = 0
-            else:
-                if temp_h < 0: #below zero temp
-                    h_diff = t_base_heating + abs(temp_h)
-                else:
-                    h_diff = abs(t_base_heating - temp_h)
-            eff_hp_yh[day][h_nr] = m_slope * h_diff + b #[day][h_nr]
-
-            #--Testing
-            assert eff_hp_yh[day][h_nr] > 0
-
-    return eff_hp_yh
-
-def set_constant_fueltype(fueltype, len_fueltypes):
-    """Create dictionary with constant single fueltype
-
-    Parameters
-    ----------
-    fueltype : int
-        Single fueltype for defined technology
-    len_fueltypes : int
-        Number of fueltypes
-
-    Return
-    ------
-    fueltypes_yh : array
-        Fraction of fueltype for every hour and for all fueltypes
-    
-    Note
-    ----
-    The array is defined with 1.0 fraction for the input fueltype. For all other fueltypes,
-    the fraction is defined as zero.
-
-    Example
-    -------
-    array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
-    """
-    # Initiat fuel dict and set per default as 0 percent
-    fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
-
-    # Insert for the single fueltype for every hour the share to 1.0
-    fueltypes_yh[fueltype] = 1.0
-
-    return fueltypes_yh
-
-def convert_hourly_to_daily_shares(fueltypes_yh, len_fueltypes):
-    """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
-    """
-    fuely_yd_shares = np.zeros((len_fueltypes, 365))
-
-    for fueltype, fueltype_yh in enumerate(fueltypes_yh):
-        fuely_yd_shares[fueltype] = fueltype_yh.mean(axis=1) # Calculate daily mean for every row
-
-    return fuely_yd_shares
-
-def const_eff_yh(input_eff):
-    """Assing a constant efficiency to every hour in a year
-
-    Parameters
-    ----------
-    input_eff : float
-        Efficiency of a technology
-
-    Return
-    ------
-    eff_yh : array
-        Array with efficency for every hour in a year (365,24)
-    """
-    eff_yh = np.zeros((365, 24))
-    eff_yh += input_eff
-    return eff_yh
 
 def init_dict(first_level_keys, crit):
     """Initialise a  dictionary with one level
@@ -1614,8 +1439,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
             # Convert to energy service (Energy service = fuel * efficiency)
             service_tech[tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
 
-            
-            print("Convert fuel to service: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
+            print("Convert fuel to service: " + str(tech) + str("  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
 
             # Testing
             assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
@@ -2398,30 +2222,48 @@ def convert_to_tech_array(in_dict, tech_lu_resid):
 
 def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, fraction_high_low, eff_low_tech, eff_high_tech):
     """Calculate dh fuel shapes for hybrid technologies
+
+    Depending on the share of each hybrid technology the daily fuelshapes of each technology
+    are taken for every hour according to share of technology
+
+    Parameters
+    ----------
+    low_temp_tech_dh : array
+        Dh shape of low temperature technology (typially boiler)
+
+
+    Example
+    --------
+    E.g. 0-12, 16-24:   TechA
+         12-16          TechA 50%, TechB 50%
+
+    The daily shape is taken for TechA for 0-12 and weighted according to efficency
+    Between 12 and Tech A and TechB are taken with 50% shares and weighted with either efficiency
+
     #TODO: TEST
     """
     fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
     for day in fraction_high_low:
 
+        # New daily shape made out of hybrid shapes
         daily_shape = np.zeros(24)
 
         for hour in range(24):
-            fraction_low = fraction_high_low[day][hour]['low'] 
+            fraction_low = fraction_high_low[day][hour]['low']
             fraction_high = fraction_high_low[day][hour]['high']
 
             eff_low = eff_low_tech[day][hour]
             eff_high = eff_high_tech[day][hour]
 
-            daily_shape[hour] = ((fraction_low * low_temp_tech_dh[day][hour]) / eff_low) + ((fraction_high * high_temp_dh[day][hour]) / eff_high)
-            #TEST print
+            # Weighted hourly dh shape with efficiencies
+            daily_shape[hour] = np.divide(fraction_low * low_temp_tech_dh[day][hour], eff_low) + np.divide(fraction_high * high_temp_dh[day][hour], eff_high)
 
-        daily_shape_normed = (1/np.sum(daily_shape)) * daily_shape
+        # Normalise dh shape
+        fuel_shapes_hybrid_y_dh[day] = np.divide(1, np.sum(daily_shape)) * daily_shape
 
         #import matplotlib.pyplot as plt
         #plt.plot(daily_shape)
         #plt.show()
-
-        fuel_shapes_hybrid_y_dh[day] = daily_shape_normed
 
     return fuel_shapes_hybrid_y_dh

@@ -213,24 +213,24 @@ class RegionClass(object):
 
                 if technology == 'hybrid_gas_elec':
 
-                    # Dh Shapes for every day
-                    fuel_curves_fraction_low_tech_high_tech_y_dh = mf.calculate_y_dh_fuelcurves(
+                    # Create dh shapes for every day from relative dh shape of hybrid technologies
+                    fuel_shape_habrid_y_dh = mf.calculate_y_dh_fuelcurves(
                         self.fuel_shape_boilers_dh,
                         self.shape_heating_hp_d_dh,
-                        self.tech_stock.get_tech_attribute(technology, 'service_hybrid_h_p_cy'), #fractions_service_high_low'),
+                        self.tech_stock.get_tech_attribute(technology, 'service_hybrid_h_p_cy'),
                         self.tech_stock.get_tech_attribute('boiler_gas', 'eff_cy'),
                         self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy'),
                         )
-                    #print(np.sum(fuel_curves_fraction_low_tech_high_tech_y_dh))
+                    #print(np.sum(fuel_shape_habrid_y_dh))
                     print("----tt")
-                    print(fuel_curves_fraction_low_tech_high_tech_y_dh.shape)
+                    print(fuel_shape_habrid_y_dh.shape)
                     # Take Boiler Shape --> Because this is constant efficiency, is also a shape of the necessary heat
                     # Divide service per hour by average efficiency
                     heat_distr = self.heating_shape_yd # Distribution of heat over yd
 
                     shape_yh = np.zeros((365, 24))
                     for day, share_day in enumerate(heat_distr):
-                        shape_yh[day] = fuel_curves_fraction_low_tech_high_tech_y_dh[day] * share_day
+                        shape_yh[day] = fuel_shape_habrid_y_dh[day] * share_day
  
                     # Calculate daily curve based on efficiencies and split of tech
                     #average_eff = self.tech_stock.get_tech_attribute(technology, 'eff_cy')
@@ -842,7 +842,6 @@ class RegionClass(object):
             legend_entries.append(enduse)
             sum_fuels_h = self.__getattr__subclass__(enduse, 'enduses_fuel_h') #np.around(fuel_end_use_h,10)
 
-            #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
             list_all_h = []
 
             #Get data of a fueltype
@@ -909,7 +908,6 @@ def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, re
         legend_entries.append(enduse)
         sum_fuels_h = self.__getattr__subclass__(enduse, 'enduse_fuel_yh') #np.around(fuel_end_use_h,10)
 
-        #fueldata_enduse = np.zeros((nr_hours_to_plot, ))
         list_all_h = []
 
         #Get data of a fueltype
@@ -1169,8 +1167,6 @@ class EnduseResid(object):
             #self.enduse_fuel_peak_yd = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_new_fuel, enduse_peak_yd_factor)
             ##self.enduse_fuel_peak_yd = self.calc_enduse_fuel_tech_peak_yd_factor(data['lu_fueltype'], enduse_fuel_tech, enduse_peak_yd_factor, tech_stock)
 
-            print("SHAPEL " + str(self.enduse_fuel_peak_yd))
-
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
             #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
             self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(self.enduse_fuel_peak_yd, self.technologies_enduse, tech_stock)
@@ -1385,31 +1381,14 @@ class EnduseResid(object):
         control_sum = 0
 
         for tech in technologies_enduse:
-            print("TECH: " + str(tech))
-            '''fuel_tech = enduse_fuel_tech[tech]
-            fueltype_tech = tech_stock.get_tech_attribute(tech, 'fuel_type') # Get fueltype of tech
-            fuel_tech_d = fuel_tech * tech_stock.get_tech_attribute(tech, 'shape_yd') # Multiply fuel with shape_h
-            fuels_fueltype_d[fueltype_tech] += fuel_tech_d # Add fuel of day
-            control_sum += np.sum(fuel_tech_d)
-            '''
-            '''print(" -- ")
-            print("tech: " + str(tech))
-            print("fuel_tech: " + str(fuel_tech))
-            print(np.sum(tech_stock.get_tech_attribute(tech, 'shape_yd')))
-            print("fuel_tech_d: " + str(np.sum(fuel_tech_d)))
-            '''
-            # NEW
 
             fuel_tech_yd = enduse_fuel_tech[tech] * tech_stock.get_tech_attribute(tech, 'shape_yd') # Multiply fuel with shape_yd
             
-            #print(np.sum(enduse_fuel_tech[tech]))
-            #print(np.sum(fuel_tech_yd))
+            # Testing
             np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
             fueltype_tech_share_yd = tech_stock.get_tech_attribute(tech, 'fuel_types_share_yd') # Get fueltype of tech HYBRID DONE check
-            #print(" ")
-            #print(".sdf..")
-            #print(np.sum(fuel_tech_yd))
+
 
             for fueltype_hybrid, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
                 fuel_per_fueltype_dh = fuel_tech_yd * fuel_shares_dh

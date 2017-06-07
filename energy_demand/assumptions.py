@@ -182,6 +182,13 @@ def load_assumptions(data):
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
 
+    # --Hybrid technologies assumptions
+    assumptions['hybrid_gas_elec'] = {
+        "tech_high_temp": 'av_heat_pump_electricity',
+        "tech_low_temp": 'boiler_gas',
+        "hybrid_cutoff_temp_low": -5,
+        "hybrid_cutoff_temp_high": 7
+    }
 
     assumptions['heat_pump_slope_assumption'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
 
