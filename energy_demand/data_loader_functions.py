@@ -251,7 +251,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                 print("FILE covers a full year---------------------------")
                 cnt = 0
                 for row in row_data: # Iterate day
-                    if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries 
+                    if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries
                         continue # Skip row
                     cnt += 1
                     if cnt > 365: #ONLY TAKE ONE YEAR
@@ -367,7 +367,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     # Add to daily shape
     #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
     #prnt("..")
-    
+
     return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw
 
 def is_leap_year(year):
@@ -426,8 +426,7 @@ def jason_to_txt_shape_peak_yd_factor(input_array, outfile_path):
         json.dump(input_array, outfile)
 
 def jason_to_txt_shape_non_peak_yd(input_array, outfile_path):
-    """Wrte to txt. Array with shape: (365, 1
-    )"""
+    """Wrte to txt. Array with shape: (365)"""
     out_dict = {}
     for k, row in enumerate(input_array):
         out_dict[k] = row

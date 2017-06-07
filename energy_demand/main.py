@@ -35,7 +35,7 @@ Down the line
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
 
 The docs can be found here: http://ed.readthedocs.io
-5'''
+'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 import os
@@ -50,6 +50,7 @@ import energy_demand.technological_stock as ts
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
+
 import energy_demand.residential_model as rm # Import sub modules
 import energy_demand.service_model as sm # Import sub modules
 import energy_demand.industry_model as im # Import sub modules
