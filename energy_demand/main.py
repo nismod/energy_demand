@@ -55,10 +55,6 @@ import energy_demand.service_model as sm # Import sub modules
 import energy_demand.industry_model as im # Import sub modules
 import energy_demand.transport_model as tm # Import sub modules
 print("Start Energy Demand Model with python version: " + str(sys.version))
-start_time = time.time()
-
-
-
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -228,7 +224,6 @@ if __name__ == "__main__":
 
     # Generate virtual building stock over whole simulatin period
     base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'])
-    print("  ----TIME: %s seconds until start yearly calculations---" % (time.time() - start_time))
 
     # If several years are run:
     results_every_year = []

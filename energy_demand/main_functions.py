@@ -922,42 +922,46 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
 
     return fract_sy
 
+def service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    """Calculate fraction of service for every hour within each hour
 
-def fraction_service_high_low_temp_tech(temp_cy, hybrid_temp_cut_off_low_temp, hybrid_temp_cut_off_high_temp):
-    """Calculate fraction of service for every hour
+    Within every hour the fraction of service provided by the low-temp technology
+    and the high-temp technology is calculated
 
     Parameters
     ----------
     temp_cy : array
         Temperature of current year
-    hybrid_temp_cut_off_low_temp : int
+    hybrid_cutoff_temp_low : int
         Temperature cut-off criteria (blow this temp, 100% service provided by lower temperature technology)
-    hybrid_temp_cut_off_high_temp : int
+    hybrid_cutoff_temp_high : int
         Temperature cut-off criteria (above this temp, 100% service provided by higher temperature technology)
+
     Return
     ------
     fraction_high_low : dict
         Share of lower and higher service fraction for every hour
     """
     fraction_high_low = {}
+
     for day, temp_d in enumerate(temp_cy):
         fraction_high_low[day] = {}
-        for hour, temp_h in enumerate(temp_d):
 
-            # Get fraction of high_temp technology
-            fraction_high = fraction_service_high_temp(hybrid_temp_cut_off_low_temp, hybrid_temp_cut_off_high_temp, temp_h)
-            fraction_low = 1 - fraction_high
-            fraction_high_low[day][hour] = {'low': fraction_low, 'high': fraction_high}
+        for hour, temp_h in enumerate(temp_d):
+            service_high_tech_p = fraction_service_high_temp(hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, temp_h)
+            service_low_tech_p = 1 - service_high_tech_p
+            fraction_high_low[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
 
     return fraction_high_low
 
+def fraction_service_high_temp(hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, current_temp):
+    """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
 
-def fraction_service_high_temp(templow, temphigh, current_temp):
-    """Parameters
+    Parameters
     ----------
-    templow : float
+    hybrid_cutoff_temp_low : float
         Lower temperature limit where only lower technology is operated with 100%
-    temphigh : float
+    hybrid_cutoff_temp_high : float
         Higher temperature limit where only lower technology is operated with 100%
     current_temp : float
         Temperature to find fraction
@@ -966,22 +970,24 @@ def fraction_service_high_temp(templow, temphigh, current_temp):
     ------
     fraction_currenttemp : float
         Fraction of higher temperature technology
+        It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
     """
-    if templow < 0:
-        temp_diff = temphigh + abs(templow)
-        temp_diff_currenttemp = current_temp + abs(templow)
-    else:
-        temp_diff = temphigh - templow
-        temp_diff_currenttemp = current_temp - templow
-    if current_temp >= temphigh:
+    if current_temp >= hybrid_cutoff_temp_high:
         fraction_currenttemp = 1.0
-    elif  current_temp < templow:
+    elif current_temp < hybrid_cutoff_temp_low:
         fraction_currenttemp = 0.0
     else:
-        fraction_currenttemp = (1.0 / temp_diff) * temp_diff_currenttemp
+        if hybrid_cutoff_temp_low < 0:
+            temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
+            temp_diff_currenttemp = current_temp + abs(hybrid_cutoff_temp_low)
+        else:
+            temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
+            temp_diff_currenttemp = current_temp - hybrid_cutoff_temp_low
+
+        # Calculate share of high temp 
+        fraction_currenttemp = np.divide(1.0, temp_diff) * temp_diff_currenttemp
 
     return fraction_currenttemp
-
 
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value where saturation is assumed at the endyear
@@ -1163,9 +1169,12 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
                     h_diff = abs(t_base_heating - temp_h)
             eff_hp_yh[day][h_nr] = m_slope * h_diff + b #[day][h_nr]
 
+            #--Testing
+            assert eff_hp_yh[day][h_nr] > 0
+
     return eff_hp_yh
 
-def constant_fueltype(fueltype, len_fueltypes):
+def set_constant_fueltype(fueltype, len_fueltypes):
     """Create dictionary with constant single fueltype
 
     Parameters
@@ -1177,7 +1186,7 @@ def constant_fueltype(fueltype, len_fueltypes):
 
     Return
     ------
-    fueltypes_yh : arrey
+    fueltypes_yh : array
         Fraction of fueltype for every hour and for all fueltypes
     
     Note
@@ -1189,32 +1198,21 @@ def constant_fueltype(fueltype, len_fueltypes):
     -------
     array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
     """
-    #fueltypes_yh = {}
-    #fueltypes_input = {fueltype: 1.0}
-    '''for day in range(365):
-        fueltypes_yh[day] = {}
-        for hour in range(24):
-            fueltypes_yh[day][hour] = {fueltype: share_single_fueltype}
-    '''
+    # Initiat fuel dict and set per default as 0 percent
     fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
-    fueltypes_yh[fueltype] = 1.0 # 100 of fuel of this fueltype
+
+    # Insert for the single fueltype for every hour the share to 1.0
+    fueltypes_yh[fueltype] = 1.0
 
     return fueltypes_yh
 
 def convert_hourly_to_daily_shares(fueltypes_yh, len_fueltypes):
     """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
     """
-    start_time_test = time.time()
-
     fuely_yd_shares = np.zeros((len_fueltypes, 365))
 
     for fueltype, fueltype_yh in enumerate(fueltypes_yh):
         fuely_yd_shares[fueltype] = fueltype_yh.mean(axis=1) # Calculate daily mean for every row
-        '''
-        for day, fueltype_dh in enumerate(fueltype_yh):
-            fuely_yd_shares[fueltype][day] = np.mean(fueltype_dh)
-        '''
-    #print("  ----TIMER convert_hourly_to_daily_shares: %s seconds---" % (time.time() - start_time_test))
 
     return fuely_yd_shares
 
@@ -1616,7 +1614,8 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
             # Convert to energy service (Energy service = fuel * efficiency)
             service_tech[tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
 
-            #print("Convert fuel to service: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
+            
+            print("Convert fuel to service: " + str(tech) + str( "  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
 
             # Testing
             assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
