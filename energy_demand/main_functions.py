@@ -909,6 +909,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
         Fraction of population served with fuel_enduse_switch in end year
     sim_years : str
         Total number of simulated years.
+
     Returns
     -------
     fract_sy : float
@@ -2220,7 +2221,7 @@ def convert_to_tech_array(in_dict, tech_lu_resid):
     return copy_dict
 '''
 
-def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, fraction_high_low, eff_low_tech, eff_high_tech):
+def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, eff_low_tech, eff_high_tech):
     """Calculate dh fuel shapes for hybrid technologies
 
     Depending on the share of each hybrid technology the daily fuelshapes of each technology
@@ -2244,14 +2245,14 @@ def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, fraction_high_low,
     """
     fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
-    for day in fraction_high_low:
+    for day in tech_low_high_p:
 
         # New daily shape made out of hybrid shapes
         daily_shape = np.zeros(24)
 
         for hour in range(24):
-            fraction_low = fraction_high_low[day][hour]['low']
-            fraction_high = fraction_high_low[day][hour]['high']
+            fraction_low = tech_low_high_p[day][hour]['low']
+            fraction_high = tech_low_high_p[day][hour]['high']
 
             eff_low = eff_low_tech[day][hour]
             eff_high = eff_high_tech[day][hour]

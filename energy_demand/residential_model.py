@@ -68,24 +68,20 @@ class RegionClass(object):
         # Heating and cooling yd shapes
         self.heating_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.hdd_cy))) * self.hdd_cy
         self.cooling_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
-        
+
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
-        
-        # NEW FOR HYBRID TODO: DESCRIBE
-        self.fuel_shape_boilers_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
-        self.shape_heating_hp_d_dh = self.shape_heating_hp_d_dh(data, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh')
 
-        
+        # -------------------
+        # Hybrid technologies shapes
+        # -------------------
+        self.fuel_shape_heating_boilers_y_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
+        self.fuel_shape_heating_hp_y_dh = self.shape_heating_hp_d_dh(data, 'shapes_resid_heating_heat_pump_dh')
+
+
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
         #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
-
-        # -------------------
-        # Hybrid technologies
-        # -------------------
-
-
 
         # ------------
         # Assign shapes to technologies in technological stock for enduses with technologies
@@ -215,8 +211,8 @@ class RegionClass(object):
 
                     # Create dh shapes for every day from relative dh shape of hybrid technologies
                     fuel_shape_habrid_y_dh = mf.calculate_y_dh_fuelcurves(
-                        self.fuel_shape_boilers_dh,
-                        self.shape_heating_hp_d_dh,
+                        self.fuel_shape_heating_boilers_y_dh,
+                        self.fuel_shape_heating_hp_y_dh,
                         self.tech_stock.get_tech_attribute(technology, 'service_hybrid_h_p_cy'),
                         self.tech_stock.get_tech_attribute('boiler_gas', 'eff_cy'),
                         self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy'),
@@ -605,11 +601,23 @@ class RegionClass(object):
 
         # Calculate cdd for every day (365, 1)
         cdd_d = mf.calc_cdd(t_base_cooling_resid, temperatures)
-        
+
         return cdd_d
 
-    def shape_heating_hp_d_dh(self, data, hdd_cy, tech_to_get_shape):
-        """Get sandom dh heat pump shapes for every day
+    def shape_heating_hp_d_dh(self, data, tech_to_get_shape):
+        """Get sandom dh heat pump shapes for every day for a year
+
+        Parameters
+        ----------
+        data : dict
+            Data
+        tech_to_get_shape : string
+            Criteria to read out shapes
+
+        Returns
+        -------
+        shape_y_dh_hp : dict
+            For every day in a year the fuel shape of heat pumps
         """
         shape_y_dh_hp = np.zeros((365, 24))
 
@@ -625,7 +633,10 @@ class RegionClass(object):
                 shape_y_dh_hp[day] = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
                 shape_y_dh_hp[day] = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
-    
+            
+        # Testing
+        np.testing.assert_almost_equal(np.sum(shape_y_dh_hp), 365.0, decimal=3, err_msg="Error NR XXX")
+
         return shape_y_dh_hp
 
     def shape_heating_hp_yh(self, data, tech_stock, hdd_cy, tech_to_get_shape):
@@ -777,10 +788,26 @@ class RegionClass(object):
         # Testing
         #assert np.sum(shape_yd_boilers) == 1, "Error in shape_heating_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_yd_boilers))
         np.testing.assert_almost_equal(np.sum(shape_yd_boilers), 1, err_msg=  "Error in shape_heating_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_yd_boilers)))
+        
         return shape_yd_boilers
 
     def shape_heating_boilers_y_dh(self, data, tech_to_get_shape):
-        """Get daily dh shape for every day for sansom boilers
+        """Get daily dh (y_dh) shape for every day of boilers
+
+        The dh shapes of boilers for every day for a year are generated based on dh shapes from Robert Sansom.
+        (see elsewhere for more info)
+
+        Parameters
+        ----------
+        data : dict
+            Data
+        tech_to_get_shape : string
+            Criteria to read out dh shape
+
+        Return
+        ------
+        shape_y_dh_boilers : array
+            For every day the shape is provided (within every day, sums up to 1.0 (= 100%))
         """
         shape_y_dh_boilers = np.zeros((365, 24))
 
@@ -793,12 +820,14 @@ class RegionClass(object):
 
             # Take respectve daily fuel curve depending on weekday or weekend
             if weekday == 5 or weekday == 6:
-
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_y_dh_boilers[day] = data[tech_to_get_shape][2] / np.sum(data[tech_to_get_shape][2])
+                shape_y_dh_boilers[day] = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2]))
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve
-                shape_y_dh_boilers[day] = data[tech_to_get_shape][1] / np.sum(data[tech_to_get_shape][1])
+                shape_y_dh_boilers[day] = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1]))
+
+        # Testing
+        np.testing.assert_almost_equal(np.sum(shape_y_dh_boilers), 365.0, decimal=3, err_msg="Error NR XXX")
 
         return shape_y_dh_boilers
 

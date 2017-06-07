@@ -6,6 +6,58 @@ import energy_demand.main_functions as mf
 #import energy_demand.technological_stock_functions as tf
 # pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
+class ResidTechStock(object):
+    """Class of a technological stock of a year of the residential model
+
+    The main class of the residential model.
+    """
+    def __init__(self, data, technologies, temp_by, temp_cy):
+        """Constructor of technologies for residential sector
+
+        Parameters
+        ----------
+        data : dict
+            All data
+        technologies : list
+            Technologies of technology stock
+        temp_cy : int
+            Temperatures of current year
+        """
+        # Crate all technologies and add as attribute
+        for tech_name in technologies:
+
+            # Technology object
+            technology_object = Technology(
+                tech_name,
+                data,
+                temp_by,
+                temp_cy,
+                data['data_ext']['glob_var']['curr_yr'],
+            )
+
+            # Set technology object as attribute
+            ResidTechStock.__setattr__(
+                self,
+                tech_name,
+                technology_object
+            )
+
+    def get_tech_attribute(self, tech, attribute_to_get):
+        """Read an attrribute from a technology in the technology stock
+        """
+        tech_object = getattr(self, str(tech))
+        tech_attribute = getattr(tech_object, str(attribute_to_get))
+
+        return tech_attribute
+
+    def set_tech_attribute(self, tech, attribute_to_set, value_to_set):
+        """Set an attrribute from a technology in the technology stock
+        """
+        tech_object = getattr(self, str(tech))
+        setattr(tech_object, str(attribute_to_set), value_to_set)
+
+        return
+
 class Technology(object):
     """Technology Class for residential & SERVICE technologies #TODO
 
@@ -129,8 +181,6 @@ class Technology(object):
         For every hour the temperature difference is calculated and the efficiency of the heat pump calculated
         based on efficiency assumptions
 
-        #TODO: EITHER ASSUME DIFFERENT HEAT PUMP TECHNOLOGIES OR HEAT PUMP MIX TO CALCULATE EFFICIENCY
-
         Parameters
         ----------
         temp_yr : array
@@ -165,7 +215,8 @@ class Technology(object):
                         h_diff = t_base_heating + abs(temp_h)
                     else:
                         h_diff = abs(t_base_heating - temp_h)
-                eff_hp_yh[day][h_nr] = m_slope * h_diff + b #[day][h_nr]
+
+                eff_hp_yh[day][h_nr] = m_slope * h_diff + b
 
                 #--Testing
                 assert eff_hp_yh[day][h_nr] > 0
@@ -182,7 +233,7 @@ class Technology(object):
         ----------
         temp_cy : array
             Temperature of current year
-        
+
         Info
         ----
         hybrid_cutoff_temp_low : int
@@ -192,32 +243,35 @@ class Technology(object):
 
         Return
         ------
-        fraction_high_low : dict
+        tech_low_high_p : dict
             Share of lower and higher service fraction for every hour
         """
-        fraction_high_low = {}
+        tech_low_high_p = {}
 
         for day, temp_d in enumerate(temp_cy):
-            fraction_high_low[day] = {}
+            tech_low_high_p[day] = {}
 
             for hour, temp_h in enumerate(temp_d):
-                service_high_tech_p = self.fraction_service_high_temp(self.hybrid_cutoff_temp_low, self.hybrid_cutoff_temp_high, temp_h)
+                service_high_tech_p = self.fraction_service_high_temp(temp_h)
                 service_low_tech_p = 1 - service_high_tech_p
-                fraction_high_low[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
+                tech_low_high_p[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
 
-        return fraction_high_low
+        return tech_low_high_p
 
-    def fraction_service_high_temp(self, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, current_temp):
+    def fraction_service_high_temp(self, current_temp):
         """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
 
         Parameters
         ----------
+        current_temp : float
+            Temperature to find fraction
+
+        Info
+        -----
         hybrid_cutoff_temp_low : float
             Lower temperature limit where only lower technology is operated with 100%
         hybrid_cutoff_temp_high : float
             Higher temperature limit where only lower technology is operated with 100%
-        current_temp : float
-            Temperature to find fraction
 
         Return
         ------
@@ -225,17 +279,17 @@ class Technology(object):
             Fraction of higher temperature technology
             It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
         """
-        if current_temp >= hybrid_cutoff_temp_high:
+        if current_temp >= self.hybrid_cutoff_temp_high:
             fraction_currenttemp = 1.0
-        elif current_temp < hybrid_cutoff_temp_low:
+        elif current_temp < self.hybrid_cutoff_temp_low:
             fraction_currenttemp = 0.0
         else:
-            if hybrid_cutoff_temp_low < 0:
-                temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
-                temp_diff_currenttemp = current_temp + abs(hybrid_cutoff_temp_low)
+            if self.hybrid_cutoff_temp_low < 0:
+                temp_diff = self.hybrid_cutoff_temp_high + abs(self.hybrid_cutoff_temp_low)
+                temp_diff_currenttemp = current_temp + abs(self.hybrid_cutoff_temp_low)
             else:
-                temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-                temp_diff_currenttemp = current_temp - hybrid_cutoff_temp_low
+                temp_diff = self.hybrid_cutoff_temp_high - self.hybrid_cutoff_temp_low
+                temp_diff_currenttemp = current_temp - self.hybrid_cutoff_temp_low
 
             # Calculate share of high temp
             fraction_currenttemp = np.divide(1.0, temp_diff) * temp_diff_currenttemp
@@ -294,6 +348,31 @@ class Technology(object):
 
     def calc_hybrid_eff(self, eff_tech_low, eff_tech_high, temp_yr, m_slope, t_base_heating):
         """Calculate efficiency for every hour for hybrid technology
+
+        The weighted efficiency for every hour is calculated based on fraction of service
+        delieverd with eigher hybrid technology
+
+        Parameters
+        ----------
+        eff_tech_low : float
+            Efficiency of technology operating at lower temperatures
+        eff_tech_high : float
+            Efficiency of technology operating at higher temperatures
+        temp_yr : dict
+            Hourly temperatures
+        m_slope : float
+            Heat pumps slope assumptions
+        t_base_heating : float
+            Base temperatures for heating
+
+        Return
+        ------
+        var1 : dict
+            Blabla
+
+        Info
+        -----
+        It is assumed that the temperature operating at higher temperatures is a heat pump
         """
         eff_hybrid_yh = np.zeros((365, 24))
 
@@ -322,26 +401,61 @@ class Technology(object):
 
         return eff_hybrid_yh
 
-    def convert_yh_to_yd_shares(self, len_fueltypes):
-        """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
+    def convert_yh_to_yd_shares(self, nr_fueltypes):
+        """Take shares of fueltypes for every yh are taken and the mean share of a day calculated
+
+        The daily mean is calculated for every row of an array.
+
+        Parameters
+        ----------
+        nr_fueltypes : int
+            Number of defined fueltypes
+
+        Return
+        ------
+        fuel_yd_shares : array
+            Yd shape fuels
+
+        Example
+        -------
+        array((8fueltype, 365days, 24)) is converted into array((8fueltypes, 365days with average))
         """
-        fuely_yd_shares = np.zeros((len_fueltypes, 365))
+        fuel_yd_shares = np.zeros((nr_fueltypes, 365))
 
         for fueltype, fueltype_yh in enumerate(self.fueltypes_p_cy):
-            fuely_yd_shares[fueltype] = fueltype_yh.mean(axis=1) # Calculate daily mean for every row
+            fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row in array
 
-        return fuely_yd_shares
+        return fuel_yd_shares
 
-    def calc_hybrid_fueltype(self, temp_yr, t_base_heating, m_slope, len_fueltypes):
+    def calc_hybrid_fueltype(self, temp_yr, t_base_heating, m_slope, nr_fueltypes):
         """Calculate share of fueltypes for every hour for hybrid technology
 
-        Here the distribution to different fueltypes is only valid within an hour (e.g. the fuel is not distributed across
-        the day)
+        Parameters
+        -----------
+        temp_yr : array
+            Temperature data
+        t_base_heating : float
+            Base temperature for residential heating
+        m_slope : float
+            Slope of heat pump
+        nr_fueltypes : int
+            Number of fuels
+        
+        Return
+        ------
+        fueltypes_yh : array (fueltpes, days, hours)
+            The share of fuel given for the fueltypes
+
+        Info
+        -----
+        The distribution to different fueltypes is only valid within an hour,
+        i.e. the fuel is not distributed across the day. This means that within an hour the array
+        always sums up to 1 (=100%) across the fueltypes.
 
         TODO: SEE if based on daily share of each service the hourly distribution can be made: Improve
-        uel = Energy service / efficiency
+        fuel = Energy service / efficiency
         """
-        fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
+        fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
 
         for day, temp_day in enumerate(temp_yr):
             for hour, temp_h in enumerate(temp_day):
@@ -357,8 +471,7 @@ class Technology(object):
                 service_high_p = self.service_hybrid_h_p_cy[day][hour]['high']
                 service_low_p = self.service_hybrid_h_p_cy[day][hour]['low']
 
-                # Efficiencies m_slope, eff_tech_high, eff_tech_low
-                # Calculate current year efficiency
+                # Calculate current year efficiency of low and high tech
                 eff_tech_low = self.eff_tech_low_cy
                 eff_tech_high_hp = m_slope * h_diff + self.eff_tech_high_cy #TODO: MAYBE NOT ALWAY HEAT PUMP. Make more complex
 
@@ -383,6 +496,9 @@ class Technology(object):
                 fueltypes_yh[self.fueltype_low_temp][day][hour] = np.divide(1, tot_fuel) * fuel_low
                 fueltypes_yh[self.fueltype_high_temp][day][hour] = np.divide(1, tot_fuel) * fuel_high
 
+        # Testing
+        assert np.sum(fueltypes_yh) == 365 * 24
+
         return fueltypes_yh
 
     def get_shape_peak_dh(self, data):
@@ -403,7 +519,6 @@ class Technology(object):
             #elif self-tech_name in data['assumptions']['list_tech_cooling_const']:
             #    self.shape_peak_dh =
             # TODO: DEfine peak curve for cooling
-
         else:
             # Technology is not part of defined enduse initiate with dummy data
             shape_peak_dh = np.ones((24))
@@ -445,63 +560,8 @@ class Technology(object):
 
         # Differencey in efficiency change
         efficiency_change = actual_max_eff * (data['assumptions']['technologies'][technology]['eff_ey'] - data['assumptions']['technologies'][technology]['eff_by'])
-        #print("theor_max_eff: " + str(theor_max_eff))
-        #print("actual_max_eff: " + str(actual_max_eff))
-        #print(data['assumptions']['technologies'][self.tech_name]['eff_ey'] - data['assumptions']['technologies'][self.tech_name]['eff_by'])
-        #print("self.eff_achieved_factor:" + str(self.eff_achieved_factor))
-        #print("efficiency_change: " + str(efficiency_change))
+
         # Actual efficiency potential
         eff_cy = eff_by + efficiency_change
+
         return eff_cy
-
-class ResidTechStock(object):
-    """Class of a technological stock of a year of the residential model
-
-    The main class of the residential model.
-    """
-    def __init__(self, data, technologies, temp_by, temp_cy):
-        """Constructor of technologies for residential sector
-
-        Parameters
-        ----------
-        data : dict
-            All data
-        technologies : list
-            Technologies of technology stock
-        temp_cy : int
-            Temperatures of current year
-        """
-        # Crate all technologies and add as attribute
-        for tech_name in technologies:
-
-            # Technology object
-            technology_object = Technology(
-                tech_name,
-                data,
-                temp_by,
-                temp_cy,
-                data['data_ext']['glob_var']['curr_yr'],
-            )
-
-            # Set technology object as attribute
-            ResidTechStock.__setattr__(
-                self,
-                tech_name,
-                technology_object
-            )
-
-    def get_tech_attribute(self, tech, attribute_to_get):
-        """Read an attrribute from a technology in the technology stock
-        """
-        tech_object = getattr(self, str(tech))
-        tech_attribute = getattr(tech_object, str(attribute_to_get))
-
-        return tech_attribute
-
-    def set_tech_attribute(self, tech, attribute_to_set, value_to_set):
-        """Set an attrribute from a technology in the technology stock
-        """
-        tech_object = getattr(self, str(tech))
-        setattr(tech_object, str(attribute_to_set), value_to_set)
-
-        return
