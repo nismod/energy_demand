@@ -1423,7 +1423,7 @@ class EnduseResid(object):
 
             # NEW
             fuel_tech = enduse_fuel_tech[tech] # Get fuel of technology
-            fueltype_tech_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_fraction_yh_cy') #fueltypes_fraction_yh') # Get fueltype of tech HYBRID DONE fueltypes_fraction_yh_cy
+            fueltype_tech_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_p_cy') #fueltypes_fraction_yh') # Get fueltype of tech HYBRID DONE fueltypes_p_cy
 
             for fueltype_hybrid, fuel_tech_share in enumerate(fueltype_tech_share_yh):
                 # Shape of fuel of technology #TODO: For every fueltype
@@ -1558,7 +1558,7 @@ class EnduseResid(object):
             '''
             # --------NEW Fuels (divide by efficiency)
             fuel_tech = np.divide(service_tech[tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))
-            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_fraction_yh_cy') #HYBRID DONE
+            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_p_cy') #HYBRID DONE
 
             for fueltype_hybrid, _ in enumerate(fueltype_share_yh):
                 fuel_fueltype_iter = fueltype_share_yh[fueltype_hybrid] * fuel_tech

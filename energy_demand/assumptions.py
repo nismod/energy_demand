@@ -190,7 +190,7 @@ def load_assumptions(data):
         "hybrid_cutoff_temp_high": 7
     }
 
-    assumptions['heat_pump_slope_assumption'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+    assumptions['hp_slope_assumpt'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
 
     # TECHNOLOGY LISTS
     assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']

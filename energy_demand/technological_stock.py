@@ -2,8 +2,8 @@
 import sys
 import numpy as np
 import time
-#import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
+#import energy_demand.technological_stock_functions as tf
 # pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class Technology(object):
@@ -49,81 +49,68 @@ class Technology(object):
             """
             # Hybrid gas_electricity technology TODO: DEFINE TECHNOLOGY IN ASSUMPTIONS
             if self.tech_name == 'hybrid_gas_elec':
-                tech_high_temp = data['assumptions']['hybrid_gas_elec']['tech_high_temp']
-                tech_low_temp = data['assumptions']['hybrid_gas_elec']['tech_low_temp']
-                hybrid_cutoff_temp_low = data['assumptions']['hybrid_gas_elec']['hybrid_cutoff_temp_low']
-                hybrid_cutoff_temp_high = data['assumptions']['hybrid_gas_elec']['hybrid_cutoff_temp_high']
-                fueltype_low_temp = data['assumptions']['technologies'][tech_low_temp]['fuel_type']
-                fueltype_high_temp = data['assumptions']['technologies'][tech_high_temp]['fuel_type']
-                eff_tech_low_by = data['assumptions']['technologies'][tech_low_temp]['eff_by']
-                eff_tech_high_by = data['assumptions']['technologies'][tech_high_temp]['eff_by']
+                self.tech_high_temp = data['assumptions']['hybrid_gas_elec']['tech_high_temp']
+                self.tech_low_temp = data['assumptions']['hybrid_gas_elec']['tech_low_temp']
+                self.hybrid_cutoff_temp_low = data['assumptions']['hybrid_gas_elec']['hybrid_cutoff_temp_low']
+                self.hybrid_cutoff_temp_high = data['assumptions']['hybrid_gas_elec']['hybrid_cutoff_temp_high']
+                
+                self.fueltype_low_temp = data['assumptions']['technologies'][self.tech_low_temp]['fuel_type']
+                self.fueltype_high_temp = data['assumptions']['technologies'][self.tech_high_temp]['fuel_type']
+                
+                self.eff_tech_low_by = data['assumptions']['technologies'][self.tech_low_temp]['eff_by']
+                self.eff_tech_high_by = data['assumptions']['technologies'][self.tech_high_temp]['eff_by']
 
-            # Get fraction of service for every hour for hybrid technology
-            self.service_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
+                self.eff_tech_low_cy = self.calc_eff_cy(self.eff_tech_low_by, self.tech_low_temp, data, curr_yr)
+                self.eff_tech_high_cy = self.calc_eff_cy(self.eff_tech_high_by, self.tech_high_temp, data, curr_yr)
 
-            # Calculate fuel share distribution
-            eff_cy_tech_low = eff_tech_low_by + self.calc_efficiency_change(tech_low_temp, data, curr_yr)
-            eff_cy_tech_high = eff_tech_high_by + self.calc_efficiency_change(tech_high_temp, data, curr_yr)
+            #if self.tech_name == 'hybrid_whatever':
 
-            self.fueltypes_fraction_yh_cy = self.calc_hybrid_fueltype(
-                fueltype_low_temp,
-                fueltype_high_temp,
+            # Get fraction of service for hybrid technologies for every hour
+            self.service_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(temp_cy)
+
+            # Get fraction of fueltypes for every hour
+            self.fueltypes_p_cy = self.calc_hybrid_fueltype(
                 temp_cy,
                 data['assumptions']['t_base_heating_resid']['base_yr'],
-                data['assumptions']['heat_pump_slope_assumption'],
-                eff_cy_tech_low,
-                eff_cy_tech_high,
-                self.service_hybrid_h_p_cy,
+                data['assumptions']['hp_slope_assumpt'],
                 len(data['lu_fueltype'])
             )
 
-            # Shape
-            # d_h --> IS different for every day or fueltype. --> Iterate days and calculate share of service for fueltype
-            #--> Distribute share of fueltype to technology (is wrong) (e.g. 20% boiler, 80% hp)
         else:
-            # Shares of fueltype for every hour for every fueltype
-            self.fueltypes_fraction_yh_cy = self.set_constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'], len(data['lu_fueltype']))
+            # Shares of fueltype for every hour for single fueltype
+            self.fueltypes_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'], len(data['lu_fueltype']))
 
         # -------------------------------
         # Base and current year efficiencies
         # -------------------------------
+        t_base_heating_resid_cy = mf.t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
+
         # Depending what sort of technology, make temp dependent, hybrid or constant efficiencies
         if self.tech_name in data['assumptions']['list_tech_heating_temp_dep']:
-
-            # Base year efficiency
-            self.eff_by = self.get_heatpump_eff(temp_by, data['assumptions']['heat_pump_slope_assumption'], data['assumptions']['technologies'][self.tech_name]['eff_by'], data['assumptions']['t_base_heating_resid']['base_yr'])
-
-            # Efficiency change up to current year
-            efficiency_change = self.calc_efficiency_change(self.tech_name, data, curr_yr)
-
-            # Current year efficiency
-            self.eff_cy = self.get_heatpump_eff(temp_cy, data['assumptions']['heat_pump_slope_assumption'], data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change, data['assumptions']['t_base_heating_resid']['base_yr'])
+            self.eff_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumpt'], data['assumptions']['technologies'][self.tech_name]['eff_by'], data['assumptions']['t_base_heating_resid']['base_yr'])
+            
+            self.eff_cy = self.get_heatpump_eff(
+                temp_cy,
+                data['assumptions']['hp_slope_assumpt'],
+                self.calc_eff_cy(data['assumptions']['technologies'][self.tech_name]['eff_by'], self.tech_name, data, curr_yr),
+                t_base_heating_resid_cy)
 
         elif self.tech_name in data['assumptions']['list_tech_heating_hybrid']:
-
-            # Base year efficiency
-            self.eff_by = self.calc_hybrid_eff(temp_by, data['assumptions']['heat_pump_slope_assumption'], data['assumptions']['t_base_heating_resid']['base_yr'], eff_tech_low_by, eff_tech_high_by, self.service_hybrid_h_p_cy)
-
+            self.eff_by = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by, temp_by, data['assumptions']['hp_slope_assumpt'], data['assumptions']['t_base_heating_resid']['base_yr'])
             # Current year efficiency (weighted according to service for hybrid technologies)
-            t_base_heating_resid_cy = mf.t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
-
-            self.eff_cy = self.calc_hybrid_eff(temp_cy, data['assumptions']['heat_pump_slope_assumption'], t_base_heating_resid_cy, eff_cy_tech_low, eff_cy_tech_high, self.service_hybrid_h_p_cy)
+            self.eff_cy = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy, temp_cy, data['assumptions']['hp_slope_assumpt'], t_base_heating_resid_cy)
 
             ##elif self.tech_name in data['assumptions']['list_tech_cooling_temp_dep']:
             ##sys.exit("Error: The technology is not defined in technology list (e.g. temp efficient tech or not")
         else:
-
-            # Constant base year efficiency
             self.eff_by = self.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
 
-            # Efficiency change up to current year
-            efficiency_change = self.calc_efficiency_change(self.tech_name, data, curr_yr)
-
-            # Non temperature dependent efficiencies
-            self.eff_cy = self.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'] + efficiency_change)
+            # CURRENT YEAR EFFICIENCY
+            self.eff_cy = self.const_eff_yh(
+                self.calc_eff_cy(data['assumptions']['technologies'][self.tech_name]['eff_by'], self.tech_name, data, curr_yr))
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fuel_types_share_yd = self.convert_hourly_to_daily_shares(self.fueltypes_fraction_yh_cy, len(data['lu_fueltype']))
+        self.fuel_types_share_yd = self.convert_yh_to_yd_shares(len(data['lu_fueltype']))
 
         # -------------------------------
         # Shapes
@@ -185,7 +172,7 @@ class Technology(object):
 
         return eff_hp_yh
 
-    def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    def service_hybrid_tech_low_high_h_p(self, temp_cy): #, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour
 
         Within every hour the fraction of service provided by the low-temp technology
@@ -195,6 +182,9 @@ class Technology(object):
         ----------
         temp_cy : array
             Temperature of current year
+        
+        Info
+        ----
         hybrid_cutoff_temp_low : int
             Temperature cut-off criteria (blow this temp, 100% service provided by lower temperature technology)
         hybrid_cutoff_temp_high : int
@@ -211,7 +201,7 @@ class Technology(object):
             fraction_high_low[day] = {}
 
             for hour, temp_h in enumerate(temp_d):
-                service_high_tech_p = self.fraction_service_high_temp(hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, temp_h)
+                service_high_tech_p = self.fraction_service_high_temp(self.hybrid_cutoff_temp_low, self.hybrid_cutoff_temp_high, temp_h)
                 service_low_tech_p = 1 - service_high_tech_p
                 fraction_high_low[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
 
@@ -302,7 +292,7 @@ class Technology(object):
 
         return eff_yh
 
-    def calc_hybrid_eff(self, temp_yr, m_slope, t_base_heating, eff_tech_low, eff_tech_high, service_hybrid_h_p_cy):
+    def calc_hybrid_eff(self, eff_tech_low, eff_tech_high, temp_yr, m_slope, t_base_heating):
         """Calculate efficiency for every hour for hybrid technology
         """
         eff_hybrid_yh = np.zeros((365, 24))
@@ -318,8 +308,8 @@ class Technology(object):
                         h_diff = abs(t_base_heating - temp_h)
 
                 # Fraction of service of low and high temp technology
-                service_high_p = service_hybrid_h_p_cy[day][hour]['high']
-                service_low_p = service_hybrid_h_p_cy[day][hour]['low']
+                service_high_p = self.service_hybrid_h_p_cy[day][hour]['high']
+                service_low_p = self.service_hybrid_h_p_cy[day][hour]['low']
 
                 # Efficiencies
                 eff_tech_low = eff_tech_low
@@ -328,21 +318,21 @@ class Technology(object):
                 # Calculate weighted efficiency
                 eff_hybrid_yh[day][hour] = (service_high_p * eff_tech_hp) + (service_low_p * eff_tech_low)
 
-                assert eff_tech_high >= 0
+                assert eff_tech_hp >= 0
 
         return eff_hybrid_yh
 
-    def convert_hourly_to_daily_shares(self, fueltypes_yh, len_fueltypes):
+    def convert_yh_to_yd_shares(self, len_fueltypes):
         """Take shares of fueltypes for every hour and calculate share of fueltypes of a day
         """
         fuely_yd_shares = np.zeros((len_fueltypes, 365))
 
-        for fueltype, fueltype_yh in enumerate(fueltypes_yh):
+        for fueltype, fueltype_yh in enumerate(self.fueltypes_p_cy):
             fuely_yd_shares[fueltype] = fueltype_yh.mean(axis=1) # Calculate daily mean for every row
 
         return fuely_yd_shares
 
-    def calc_hybrid_fueltype(self, fueltype_low_temp, fueltype_high_temp, temp_yr, t_base_heating, m_slope, eff_tech_low, eff_tech_high, service_hybrid_h_p_cy, len_fueltypes):
+    def calc_hybrid_fueltype(self, temp_yr, t_base_heating, m_slope, len_fueltypes):
         """Calculate share of fueltypes for every hour for hybrid technology
 
         Here the distribution to different fueltypes is only valid within an hour (e.g. the fuel is not distributed across
@@ -364,13 +354,13 @@ class Technology(object):
                         h_diff = abs(t_base_heating - temp_h)
 
                 # Fraction of service of low and high temp technology
-                service_high_p = service_hybrid_h_p_cy[day][hour]['high']
-                service_low_p = service_hybrid_h_p_cy[day][hour]['low']
+                service_high_p = self.service_hybrid_h_p_cy[day][hour]['high']
+                service_low_p = self.service_hybrid_h_p_cy[day][hour]['low']
 
                 # Efficiencies m_slope, eff_tech_high, eff_tech_low
                 # Calculate current year efficiency
-                eff_tech_low = eff_tech_low
-                eff_tech_high_hp = m_slope * h_diff + eff_tech_high #TODO: MAYBE NOT ALWAY HEAT PUMP. Make more complex
+                eff_tech_low = self.eff_tech_low_cy
+                eff_tech_high_hp = m_slope * h_diff + self.eff_tech_high_cy #TODO: MAYBE NOT ALWAY HEAT PUMP. Make more complex
 
                 dummy_service = 100.0
 
@@ -390,8 +380,8 @@ class Technology(object):
                 tot_fuel = fuel_low + fuel_high
 
                 # Assign share of total fuel for respective fueltypes
-                fueltypes_yh[fueltype_low_temp][day][hour] = np.divide(1, tot_fuel) * fuel_low
-                fueltypes_yh[fueltype_high_temp][day][hour] = np.divide(1, tot_fuel) * fuel_high
+                fueltypes_yh[self.fueltype_low_temp][day][hour] = np.divide(1, tot_fuel) * fuel_low
+                fueltypes_yh[self.fueltype_high_temp][day][hour] = np.divide(1, tot_fuel) * fuel_high
 
         return fueltypes_yh
 
@@ -420,7 +410,7 @@ class Technology(object):
 
         return shape_peak_dh
 
-    def calc_efficiency_change(self, technology, data, curr_yr):
+    def calc_eff_cy(self, eff_by, technology, data, curr_yr):
         """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
         Parameters
@@ -461,7 +451,8 @@ class Technology(object):
         #print("self.eff_achieved_factor:" + str(self.eff_achieved_factor))
         #print("efficiency_change: " + str(efficiency_change))
         # Actual efficiency potential
-        return efficiency_change
+        eff_cy = eff_by + efficiency_change
+        return eff_cy
 
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
