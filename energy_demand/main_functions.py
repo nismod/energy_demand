@@ -297,6 +297,27 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
         if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
             sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
 
+        if element['share_fuel_consumption_switched'] == 0:
+            sys.exit("Error: The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
+    
+    # Test if more than 100% per fueltype is switched
+    for element in list_elements:
+
+        enduse = element['enduse']
+        fuel_type = element['enduse_fueltype_replace']
+
+        tot_share_fueltype_switched = 0
+        # Do check for every entry
+        for element_iter in list_elements:
+
+            if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
+                # Found same fueltypes which is switched
+                tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
+
+        if tot_share_fueltype_switched > 1.0:
+            print("SHARE: " + str(tot_share_fueltype_switched))
+            sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
+
     return list_elements
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
@@ -1161,12 +1182,12 @@ def generate_sig_diffusion(data):
 
     # Sigmoid calculation in case of service switch
     if service_switch_crit:
-        #if data['assumptions']['fuel_switch_crit']:
 
-        data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service'] # Tech with lager service shares in end year
-        #data['assumptions']['service_tech_by_p'] = data['assumptions']['service_tech_by_p'] # Base year service tech
+        # Tech with lager service shares in end year
+        data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service']
 
-        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] # End year service shares (scenaric input)
+        # End year service shares (scenaric input)
+        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] 
 
         # Maximum shares of each technology
         l_values_sig = data['assumptions']['test_enduse_tech_maxL_by_p']
@@ -1175,12 +1196,6 @@ def generate_sig_diffusion(data):
 
         # Fuel Switches - Calculate all technologies installed in fuel switches
         data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
-
-        # ---------------------------------------------------------------------
-        # Write out txt file with service shares for each technology per enduse
-        # ---------------------------------------------------------------------
-        write_out_txt(data['path_dict']['path_txt_service_tech_by_p'], data['assumptions']['service_tech_by_p'])
-        print("... a file has been generated which shows the shares of each technology per enduse")
 
         # Calculate service per fueltype in percentage of total service
         data['assumptions']['service_fueltype_p'] = calc_service_fueltype(
@@ -1218,20 +1233,9 @@ def generate_sig_diffusion(data):
         data['assumptions']['resid_fuel_switches']
     )
 
-    '''# ---------------------------------------------------------------------
-    # Write out txt file with service shares for each technology per enduse TODO :Masbe from here seperately
-    # ---------------------------------------------------------------------
-    write_out_txt(data['path_dict']['path_txt_service_tech_by_p'], data['assumptions']['service_tech_by_p'])
-    print("... a file has been generated which shows the shares of each technology per enduse")
-    #data['assumptions']['service_tech_by_p'] =  assumptions['service_tech_by_p']
-
-
-    # Get technologies with increased, decreased and constant service
-    data['assumptions'] = mf.get_diff_direct_installed(assumptions['service_tech_by_p'], assumptions['share_service_tech_ey_p'], assumptions)
-    '''
     return data['assumptions']
 
-def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
+def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -1271,36 +1275,47 @@ def calc_service_fueltype_tech(fueltypes_lu, enduses, fuel_p_tech_by, fuels, tec
     service_tech_by_p = init_dict(enduses, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_p = init_nested_dict(enduses, fueltypes_lu.values(), 'brackets') # Percentage of energy service for technologies within the fueltypes
 
-    for enduse in enduses: # Iterate enduse
-        for fueltype, fuel_fueltype in enumerate(fuels[enduse]): # Iterate fueltype
+    for enduse in enduses:
+        for fueltype, fuel_fueltype in enumerate(fuels[enduse]):
             tot_service_fueltype = 0
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech in fuel_p_tech_by[enduse][fueltype]:
+                print("TECH: " + str(tech))
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype
+                print("fuel_tech: " + str(fuel_tech))
+
+                # Get efficiency depending whether hybrid or regular technology
+                if tech in assumptions['list_tech_heating_hybrid']:
+                    eff_tech = assumptions['hybrid_gas_elec']['average_efficiency_national_by']
+                else:
+                    eff_tech = tech_stock[tech]['eff_by']
 
                 # Energy service of end use: Fuel of technoloy * efficiency == Service (e.g.heat demand in Joules)
-                service_fueltype_tech = fuel_tech * tech_stock[tech]['eff_by']
+                service_fueltype_tech = fuel_tech * eff_tech
 
-                service[enduse][fueltype][tech] = service_fueltype_tech # Add energy service demand to dict
-                tot_service_fueltype += service_fueltype_tech # Total energy service demand within a fueltype
+                # Add energy service demand
+                service[enduse][fueltype][tech] = service_fueltype_tech
+
+                # Total energy service demand within a fueltype
+                tot_service_fueltype += service_fueltype_tech
 
             # Calculate percentage of service enduse within fueltype
             for tech in fuel_p_tech_by[enduse][fueltype]: # Iterate technologis in defined tech stock
                 if tot_service_fueltype == 0: # No fuel in this fueltype
                     service_fueltype_tech_p[enduse][fueltype][tech] = 0
                 else:
-                    service_fueltype_tech_p[enduse][fueltype][tech] = (1 / tot_service_fueltype) * service[enduse][fueltype][tech] #* (fuel_p_tech_by[enduse][fueltype][tech] * fuel_fueltype[0] * tech_stock[tech]['eff_by'])
+                    service_fueltype_tech_p[enduse][fueltype][tech] = np.divide(1, tot_service_fueltype) * service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
-        total_service = sum_2_level_dict(service[enduse]) #Total service demand
+        total_service = sum_2_level_dict(service[enduse])
 
         # Percentage of energy service per technology
         for fueltype in service[enduse]:
             for technology in service[enduse][fueltype]:
-                service_tech_by_p[enduse][technology] = (1 / total_service) * service[enduse][fueltype][technology]
+                service_tech_by_p[enduse][technology] = np.divide(1, total_service) * service[enduse][fueltype][technology]
 
     '''# Assert does not work for endues with no defined technologies
     # --------
@@ -1383,7 +1398,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
     return service_tech_switched_p
 
-def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, tech_stock):
+def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p_by, fuels, tech_stock):
     """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
     This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -1396,6 +1411,8 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
 
     Parameters
     ----------
+    enduse_technologies : list
+        All technologies in enduse
     fuel_shape_yh : array
         Shape how the fuel is distributed over a year (y to h)
     fuel_enduse_tech_p_by : dict
@@ -1409,7 +1426,7 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     ------
     total_service_yh : array
         Total energy service per technology for base year (365, 24)
-    service : dict
+    service_tech_by : dict
         Energy service for every fueltype and technology (dict[fueltype][tech])
 
     Info
@@ -1423,7 +1440,11 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     Therfore a constant technology efficiency of the full year needs to be assumed for all technologies.
     """
     # Energy service per technology for base year (e.g. heat demand in joules)
-    service_tech = {}
+    service_tech_by = {}
+
+    for technology in enduse_technologies:
+        service_tech_by[technology] = 0
+    print("service_tech" + str(service_tech_by))
 
     # Iterate fueltype
     for fueltype, fuel_enduse in enumerate(fuels):
@@ -1438,9 +1459,8 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
             fuel_tech_h = fuel_shape_yh * fuel_tech
 
             # Convert to energy service (Energy service = fuel * efficiency)
-            service_tech[tech] = fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
-
-            print("Convert fuel to service: " + str(tech) + str("  ") + str(fuel_tech) + str("  ") + str(np.sum(service_tech[tech])))
+            service_tech_by[tech] += fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by') # becaues of hybrid tech += is necessary
+            print("Convert fuel to service and add to existing: " + str(tech) + str("       New tot fuel for tech: ") + str(np.sum(service_tech_by[tech])))
 
             # Testing
             assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
@@ -1449,10 +1469,10 @@ def calc_regional_service_demand(fuel_shape_yh, fuel_enduse_tech_p_by, fuels, te
     total_service_yh = np.zeros((365, 24))
 
     # Sum demand accross all technologies
-    for tech in service_tech:
-        total_service_yh += service_tech[tech] # (365 * 365 shapes)
+    for tech in service_tech_by:
+        total_service_yh += service_tech_by[tech] # (365 * 365 shapes)
 
-    return total_service_yh, service_tech
+    return total_service_yh, service_tech_by
 
 def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):
     """Calculate service per fueltype in percentage of total service
@@ -1671,12 +1691,12 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                     start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
 
                     try:
-                        '''print("--------------- Technology " + str(technology))
+                        print("--------------- Technology " + str(technology) + str("  ") + str(cnt))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(L_values[enduse][technology]))
                         print("start_parameters: " + str(start_parameters))
-                        '''
+                        
 
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
 
@@ -1860,19 +1880,18 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
     fueltype_in_string : str
         Fueltype string
     """
-    for fueltype_str in fueltype_lu: # data['lu_fueltype']:
-        print(fueltype_str)
+    for fueltype_str in fueltype_lu:
         if fueltype_lu[fueltype_str] == fueltype_nr:
             fueltype_in_string = fueltype_str
             break
-    print("OHMAN + ")
+
     return fueltype_in_string
 
 def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, heat_pump_assump):
     """Delete all heat_pump from tech dict and define averaged new heat pump technologies 'av_heat_pump_fueltype' with
     efficiency depending on installed ratio
 
-        Parameters
+    Parameters
     ----------
     temp_dependent_tech_list : list
         List to store temperature dependent technologies (e.g. heat-pumps)
@@ -2268,3 +2287,33 @@ def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, e
         #plt.show()
 
     return fuel_shapes_hybrid_y_dh
+
+def eff_heat_pump(m_slope, h_diff, b):
+    """Calculate efficiency of heat pump
+
+    Parameters
+    ----------
+    m_slope : float
+        Slope of heat pump
+    h_diff : float
+        Temperature difference
+    b : float
+        Extrapolated intersect for 0 (which is treated as efficiency)
+    
+    Returns
+    efficiency_hp : float
+        Efficiency of heat pump
+
+    Notes
+    -----
+    Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
+    be calculated based on slope and intersect which is at temp XX and treated
+    as efficiency
+    The intersect (b) is for ASHP about 6, for GSHP 9
+
+    #TODO: ELABORATE ON INTERSECT
+    # TODO: MAKE THAT FOR 10 DEGREE TEMP DIFFERENCE THE CPE can be inserted
+    """
+    efficiency_hp =  m_slope * h_diff + b
+    
+    return efficiency_hp

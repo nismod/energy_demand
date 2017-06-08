@@ -204,17 +204,23 @@ if __name__ == "__main__":
 
     # Convert base year fuel input assumptions to energy service
     base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_p'] = mf.calc_service_fueltype_tech(
+        base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['fuel_raw_data_resid_enduses'],
         base_data['assumptions']['fuel_enduse_tech_p_by'],
         base_data['fuel_raw_data_resid_enduses'],
         base_data['assumptions']['technologies']
     )
+    print("DDDDDDDDDD")
     print(base_data['assumptions']['service_tech_by_p'])
+
+
+    # Write out txt file with service shares for each technology per enduse
+    mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['service_tech_by_p'])
+    print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
     base_data['assumptions'] = mf.get_diff_direct_installed(base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
-    #print("SERVICE DISTRIBUTION  " + str(base_data['assumptions']['service_tech_by_p']))
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data)

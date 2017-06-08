@@ -73,7 +73,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, curr_yr): #, reg_shape_yd, reg_shape_yh, peak_yd_factor):
+    def __init__(self, tech_name, data, temp_by, temp_cy, curr_yr):
         """Contructor of Technology
 
         # TODO: CALCULATE CURRENT EFFICIENY EAR AND BASE YEAR EFFICIENCY IN SAME STROKE
@@ -207,7 +207,8 @@ class Technology(object):
                     else:
                         h_diff = abs(t_base_heating - temp_h)
 
-                eff_hp_yh[day][h_nr] = m_slope * h_diff + b
+                #eff_hp_yh[day][h_nr] = m_slope * h_diff + b
+                eff_hp_yh[day][h_nr] = mf.eff_heat_pump(m_slope, h_diff, b)
 
                 #--Testing
                 assert eff_hp_yh[day][h_nr] > 0
@@ -332,8 +333,7 @@ class Technology(object):
         eff_yh : array
             Array with efficency for every hour in a year (365,24)
         """
-        eff_yh = np.zeros((365, 24))
-        eff_yh += input_eff
+        eff_yh = np.full((365, 24), input_eff)
 
         return eff_yh
 
@@ -488,7 +488,9 @@ class Technology(object):
                 fueltypes_yh[self.fueltype_high_temp][day][hour] = np.divide(1, tot_fuel) * fuel_high
 
         # Testing
-        assert np.sum(fueltypes_yh) == 365 * 24
+        print(np.sum(fueltypes_yh))
+        print(365 * 24)
+        np.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')
 
         return fueltypes_yh
 
