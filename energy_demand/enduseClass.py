@@ -45,16 +45,7 @@ class EnduseResid(object):
         self.enduse_fuel = enduse_fuel[enduse]
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        if self.enduse_specific_fuel_switches_crit:
-            print("...Fuel switch yes")
-            self.technologies_enduse = self.get_technologies_fuel_switch(data['assumptions']['fuel_enduse_tech_p_by']) # Get all technologies of enduse
-        elif self.enduse_specific_service_switch_crit:
-            print("...Service switch")
-            self.technologies_enduse = self.get_technologies_service_switch(data['assumptions']['service_tech_by_p'][self.enduse]) # Get all technologies of enduse
-        else:
-            # If no fuel switch and no service switch, read out base year technologies
-            self.technologies_enduse = self.get_technologies_from_fuel_definition(data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
-
+        self.technologies_enduse = self.get_enduse_technologies(data)
 
         # --------
         # Testing
@@ -220,27 +211,29 @@ class EnduseResid(object):
 
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
-
-    def get_technologies_from_fuel_definition(self, fuel_enduse_tech_p_by):
-        """Get all defined technologies from defined fuel shares in base year
-
-        Parameters
-        ----------
-        fuel_enduse_tech_p_by : dict
-            Fuel definition assumptions of base year
-
+    
+    def get_enduse_technologies(self, data):
+        """Get all defined technologies
+        
         Return
         ------
-        technologies : list
+        technologies_enduse : list
             All technologies (no technolgy is added twice)
-        """
-        technologies = []
-        for fueltype in fuel_enduse_tech_p_by:
-            for tech in fuel_enduse_tech_p_by[fueltype].keys():
-                if tech not in technologies:
-                    technologies.append(tech)
 
-        return technologies
+        Depending on whether fuel swatches are implemented or services switches
+        """
+        if self.enduse_specific_service_switch_crit:
+            technologies_enduse = data['assumptions']['service_tech_by_p'][self.enduse].keys()
+
+        else: # also if fuel switches
+            # If no fuel switch and no service switch, read out base year technologies
+            technologies_enduse = []
+            for fueltype in data['assumptions']['fuel_enduse_tech_p_by'][self.enduse]:
+                for tech in data['assumptions']['fuel_enduse_tech_p_by'][self.enduse][fueltype].keys():
+                    if tech not in technologies_enduse:
+                        technologies_enduse.append(tech)
+        
+        return technologies_enduse
 
     def switch_tech_service(self, data, tot_service_h_by):
         """Scenaric service switches
@@ -389,25 +382,6 @@ class EnduseResid(object):
                 enduse_fuel_peak_yh[fueltype] += fuel_fueltype_tech_peak_dh # Add fuel of day
 
         return enduse_fuel_peak_yh
-
-    def get_technologies_fuel_switch(self, fuel_enduse_tech_p_by):
-        """Iterate assumptions about technologes in enduses of base year for each enduse, no doubles
-        """
-        # Get all technologies of enduse
-        technologies_enduse = []
-        for fueltype in fuel_enduse_tech_p_by[self.enduse]:
-            for tech in fuel_enduse_tech_p_by[self.enduse][fueltype]:
-                if tech not in technologies_enduse:
-                    technologies_enduse.append(tech)
-
-        return technologies_enduse
-
-    def get_technologies_service_switch(self, enduse_tech_shares):
-        """Iterate assumptions about services and get technologies
-        """
-        # Get all technologies of enduse
-        technologies_enduse = enduse_tech_shares.keys()
-        return technologies_enduse
 
     def calc_enduse_fuel_tech_yd(self, enduse_fuel_tech, technologies_enduse, tech_stock):
         """Iterate fuels for each technology and assign shape d
