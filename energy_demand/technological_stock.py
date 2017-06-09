@@ -207,7 +207,6 @@ class Technology(object):
                     else:
                         h_diff = abs(t_base_heating - temp_h)
 
-                #eff_hp_yh[day][h_nr] = m_slope * h_diff + b
                 eff_hp_yh[day][h_nr] = mf.eff_heat_pump(m_slope, h_diff, b)
 
                 #--Testing
