@@ -1404,7 +1404,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
     return service_tech_switched_p
 
-def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p_by, fuels, tech_stock):
+def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p_by, fuels, tech_stock, fueltypes_lu):
     """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
     This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -1422,7 +1422,7 @@ def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse
     fuel_shape_yh : array
         Shape how the fuel is distributed over a year (y to h)
     fuel_enduse_tech_p_by : dict
-        Fuel composition of base year for every fueltype for each enduse
+        Fuel composition of base year for every fueltype for each enduse (assumtions for national scale)
     fuels : array
         Base year fuel demand
     tech_stock : object
@@ -1451,6 +1451,23 @@ def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse
         service_tech_by[technology] = 0
     print("service_tech" + str(service_tech_by))
 
+    # --NEW
+    service_tech_by_p = {} #Done
+
+    service_fueltype_tech_p = {}
+    for fueltype in fueltypes_lu:
+        service_fueltype_tech_p[fueltypes_lu[fueltype]] = {}
+        for tech in fuel_enduse_tech_p_by[fueltypes_lu[fueltype]]:
+            service_fueltype_tech_p[fueltypes_lu[fueltype]][tech] = 0
+
+    
+    # --
+    service_fueltype_by_p = {}
+    for fueltype in fueltypes_lu:
+        service_fueltype_by_p[fueltypes_lu[fueltype]] = 0
+    #service_fueltype_by_p = 
+
+
     # Iterate fueltype
     for fueltype, fuel_enduse in enumerate(fuels):
 
@@ -1459,14 +1476,33 @@ def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse
 
             # Fuel share based on defined fuel fraction within fueltype (share of fuel of technology * tot fuel)
             fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
+            print("FUELTECH: " + str(fuel_tech))
 
             # Distribute fuel into every hour based on shape how the fuel is distributed over the year
             fuel_tech_h = fuel_shape_yh * fuel_tech
 
-            # Convert to energy service (Energy service = fuel * efficiency)
-            # NEW: HEre REgional efficiencies are used
+            print("E:")
+            print(fuel_tech_h.shape)
+            print(np.sum(fuel_tech_h))
+
+            # Convert to energy service (Energy service = fuel * efficiency), HEre REgional efficiencies are used
             service_tech_by[tech] += fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by') # becaues of hybrid tech += is necessary
             print("Convert fuel to service and add to existing: "+ str(np.sum(service_tech_by[tech])) + str("  ") + str(tech))
+
+            print("CURTIL:  " + str(np.sum(service_tech_by[tech])))
+
+            # ---- new
+            #Get fuel distribution
+            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_p_cy')
+
+            # Convert to service depending on fueltype distirbution (not percentage yet)
+            for fueltype_installed_tech_yh, _ in enumerate(fueltype_share_yh):
+                fuel_fueltype = fueltype_share_yh[fueltype_installed_tech_yh] * fuel_tech_h
+                if np.sum(fuel_fueltype) > 0:
+                    service_fueltype_tech_p[fueltype_installed_tech_yh][tech] += np.sum(fuel_fueltype * tech_stock.get_tech_attribute(tech, 'eff_by')) # Convert fueltype to fuel
+
+
+            # -- 
 
             # Testing
             assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
@@ -1478,7 +1514,26 @@ def calc_regional_service_demand(enduse_technologies, fuel_shape_yh, fuel_enduse
     for tech in service_tech_by:
         total_service_yh += service_tech_by[tech] # (365 * 365 shapes)
 
-    return total_service_yh, service_tech_by
+    #--NEW Calculate regional service_tech_by
+    # ----------------------------------------
+    for technology in service_tech_by:
+        service_tech_by_p[technology] = np.divide(1, np.sum(total_service_yh)) * np.sum(service_tech_by[technology])
+
+    # ---
+    # Convert service per fueltype of technology
+    for fueltype in service_fueltype_tech_p:
+        for tech in service_fueltype_tech_p[fueltype]:
+            service_fueltype_tech_p[fueltype][tech] = np.divide(1, np.sum(total_service_yh)) * service_fueltype_tech_p[fueltype][tech]
+
+    # ---
+    for fueltype in service_fueltype_tech_p:
+        print("Fueltypes: " + str(service_fueltype_tech_p[fueltype]))
+        for tech in service_fueltype_tech_p[fueltype]:
+            
+            service_fueltype_by_p[fueltype] += service_fueltype_tech_p[fueltype][tech]
+            print("tech: " + str(np.sum(service_fueltype_by_p[fueltype])))
+
+    return total_service_yh, service_tech_by, service_tech_by_p, service_fueltype_tech_p, service_fueltype_by_p
 
 def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):
     """Calculate service per fueltype in percentage of total service

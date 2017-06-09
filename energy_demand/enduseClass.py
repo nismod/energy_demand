@@ -103,14 +103,30 @@ class EnduseResid(object):
             # ------------------------------------------------------------------------
             # Calculate energy service (across all fueltypes for region for base year)
             # ------------------------------------------------------------------------
-            # NeW CANB MAYBE service_tech_by_p and service_fueltype_tech_p and service_fueltype_by_p be derived 
-            tot_service_h_by, service_tech = mf.calc_regional_service_demand(
+            # NeW CA
+            tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_p, service_fueltype_by_p = mf.calc_regional_service_demand(
                 self.technologies_enduse,
                 service_shape_yh,
                 data['assumptions']['fuel_enduse_tech_p_by'][self.enduse],
-                self.enduse_fuel_new_fuel, tech_stock)
+                self.enduse_fuel_new_fuel, tech_stock,
+                data['lu_fueltype'],
+                )
 
-            print(" ")
+
+            print("REGIONAL WORKAROUND service_tech_by_p")
+            for tech in service_tech_by_p:
+                print("TECH: " + str(np.sum(service_tech_by_p[tech])))
+            print("  ")
+            print("OOOOOOOOOOOOOOOOOOOOOOOOOOO")
+            print(service_fueltype_tech_p)
+            print("=============================")
+            a = 0
+            for i in service_fueltype_by_p:
+                print("SUMME: " + str(np.sum(service_fueltype_by_p[i])))
+                i += np.sum(service_fueltype_by_p[i])
+            print("sef : " + str(i))
+
+            prin(" ")
             print("Service Sum 00: " + str(np.sum(tot_service_h_by)))
 
             # ----------------
@@ -508,7 +524,7 @@ class EnduseResid(object):
         assumptions : dict
             Assumptions
         tot_service_h_by : dict
-            Total service for every hour
+            Total regional service for every hour for base year
         service_tech : dict
             Service for every fueltype and technology
 
