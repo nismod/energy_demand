@@ -209,11 +209,19 @@ if __name__ == "__main__":
         base_data['fuel_raw_data_resid_enduses'],
         base_data['assumptions']['fuel_enduse_tech_p_by'],
         base_data['fuel_raw_data_resid_enduses'],
-        base_data['assumptions']['technologies']
-    )
-    print("DDDDDDDDDD")
-    print(base_data['assumptions']['service_tech_by_p'])
+        base_data['assumptions']['technologies'])
 
+    # Calculate service per fueltype in percentage of total service
+    base_data['assumptions']['service_fueltype_by_p'] = mf.calc_service_fueltype(
+        base_data['lu_fueltype'],
+        base_data['assumptions']['service_tech_by_p'],
+        base_data['assumptions']['technologies'])
+
+    print(" ")
+    print("Base Year Services per technology (service_tech_by_p)")
+    print(base_data['assumptions']['service_tech_by_p'])
+    print("--Base year service within fueltypes by--")
+    print(base_data['assumptions']['service_fueltype_tech_p'])
 
     # Write out txt file with service shares for each technology per enduse
     mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['service_tech_by_p'])

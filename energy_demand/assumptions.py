@@ -264,7 +264,7 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches    (The share of energy service is the same across all regions)
     # ============================================================
-    assumptions['share_service_tech_ey_p'], assumptions['test_enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
+    assumptions['share_service_tech_ey_p'], assumptions['enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
 
     # ============================================================
     # Helper functions

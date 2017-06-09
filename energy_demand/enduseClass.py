@@ -39,9 +39,9 @@ class EnduseResid(object):
     """
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_shape_heating, enduse_peak_yd_factor):
         self.enduse = enduse
-        self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data, data['assumptions']['resid_fuel_switches']) # Get fuel switches in enduse
-        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data, data['assumptions']['service_switch_enduse_crit'])
         self.enduse_fuel = enduse_fuel[enduse]
+        self.enduse_specific_fuel_switches_crit = self.get_enduse_fuel_switches(data, data['assumptions']['resid_fuel_switches'])
+        self.enduse_specific_service_switch_crit = self.get_enduse_service_switches(data, data['assumptions']['service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_technologies(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
@@ -101,7 +101,7 @@ class EnduseResid(object):
             # else:
             '''
 
-            # Calculate energy service (across all fueltypes for base year)
+            # Calculate energy service (across all fueltypes for region for base year)
             tot_service_h_by, service_tech = mf.calc_regional_service_demand(self.technologies_enduse, service_shape_yh, data['assumptions']['fuel_enduse_tech_p_by'][self.enduse], self.enduse_fuel_new_fuel, tech_stock)
             print("Service Sum 00: " + str(np.sum(tot_service_h_by)))
             #for tech in service_tech:
@@ -125,7 +125,7 @@ class EnduseResid(object):
                 service_tech = self.switch_tech_service(
                     data,
                     tot_service_h_by
-            )
+                    )
 
             summe = 0
             for tech in service_tech:
@@ -336,9 +336,11 @@ class EnduseResid(object):
         If current year is base year, do not implement any switch
         """
 
-        if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
+        '''if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
             return False
         else:
+        '''
+        if 1 == 1:
             fuel_switches_enduse = []
 
             for fuelswitch in fuelswitches:
@@ -353,9 +355,11 @@ class EnduseResid(object):
     def get_enduse_service_switches(self, data, service_switch_crit):
         """Test wheter there are defined service switches for this enduse
         """
-        if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
+        '''if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
             return False
         else:
+        '''
+        if 1 == 1:
             try:
                 if service_switch_crit[self.enduse]:
                     return True
@@ -507,36 +511,49 @@ class EnduseResid(object):
         print("... fuel_switch is implemented")
         print(" ")
 
+        a = 0
+        for tech in service_tech:
+            a += np.sum(service_tech[tech])
+            print("--top fuel switch h: {}  ".format(tech) + str(np.sum(service_tech[tech])))
+        print("SUMME START: " + str(a))
+
         # Make copy to calculate fuel percentages within fueltype after switch
         service_tech_after_switch = copy.deepcopy(service_tech)
 
         # Iterate all technologies which are installed in fuel switches
         for tech_installed in assumptions['installed_tech'][self.enduse]:
-            print("-----------Tech_installed:  "  + str(tech_installed))
+            print("-----------Tech_installed:  "  + str(tech_installed) + str(data_ext['glob_var']['curr_yr']))
 
             # Read out sigmoid diffusion of energy service demand of this technology for the current year
-            # diff_cy = share of technology on total service
             diffusion_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
             print("diffusion_cy  " + str(diffusion_cy))
-            print(np.sum(diffusion_cy * tot_service_h_by))
             print(np.sum(tot_service_h_by))
-            print(np.sum(service_tech[tech_installed]))
+            print("--g--")
+            print(np.sum(service_tech_after_switch[tech_installed]))
             print("----")
+            print(np.sum(diffusion_cy * tot_service_h_by))
+            print(np.sum(service_tech[tech_installed]))
+            print(np.sum((diffusion_cy * tot_service_h_by) - service_tech[tech_installed]))
             print("TODAY SHARE: " + str(np.sum((1 / np.sum(tot_service_h_by)) * service_tech[tech_installed])))
 
             # Get difference in hourly service based on diffusion of installed technology
             service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed]
 
-            '''print("service_tech_installed_cy: " + str(np.sum(service_tech_installed_cy)))
+            #'''
+            print("service_tech_installed_cy: " + str(np.sum(service_tech_installed_cy)))
             if np.sum((diffusion_cy * tot_service_h_by) - service_tech[tech_installed]) < 0:
                 pint("minus  ERROR")
-            '''
+            #'''
 
             # Get service for current year for technologies
             print("service_tech_installed_cy: " + str(np.sum(service_tech_installed_cy)))
             service_tech_after_switch[tech_installed] += service_tech_installed_cy
 
-            # Remove fuel of replaced energy service demand proportinally to heat demand in base year
+            print(" ")
+            print("OBB:  " + str(np.sum(service_tech_after_switch[tech_installed])))
+
+
+            # Remove fuel of replaced energy service demand proportinally to fuel demand in base year
             tot_service_switched_tech_installed = 0 # Total replaced service across different fueltypes
             fueltypes_replaced = [] # List with fueltypes where fuel is replaced
 
@@ -547,20 +564,27 @@ class EnduseResid(object):
                     # Store replaced fueltype
                     fueltypes_replaced.append(fuelswitch['enduse_fueltype_replace'])
 
-                    # Share of service demand per fueltype * fraction of fuel switched
-                    tot_service_switched_tech_installed += assumptions['service_fueltype_p'][self.enduse][fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
+                    # Share of service demand per fueltype * fraction of fuel switched #TODO: WHY FUEL SHARE??
+                    tot_service_switched_tech_installed += assumptions['service_fueltype_by_p'][self.enduse][fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
 
             print("Service demand which is switched with this technology: " + str(tot_service_switched_tech_installed))
+            print("0A: " + str(np.sum(service_tech_after_switch[tech_installed])))
 
             # Iterate all fueltypes which are affected in the technology installed
             for fueltype in fueltypes_replaced:
+
+                a = 0
+                for tech in service_tech_after_switch:
+                    a += np.sum(service_tech_after_switch[tech])
+                    print("--FOL h: " + str(np.sum(service_tech_after_switch[tech])))
+                print("TOT: " + str(a))
 
                 # Find fuel switch where this fueltype is replaced
                 for fuelswitch in assumptions['resid_fuel_switches']:
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype:
 
                         # share of total service of fueltype * share of replaced fuel
-                        relative_share = assumptions['service_fueltype_p'][self.enduse][fueltype] * fuelswitch['share_fuel_consumption_switched']
+                        relative_share = assumptions['service_fueltype_by_p'][self.enduse][fueltype] * fuelswitch['share_fuel_consumption_switched']
 
                         # Service reduced for this fueltype (service technology cy sigmoid diff *  % of heat demand within fueltype)
                         if tot_service_switched_tech_installed == 0:
@@ -572,18 +596,27 @@ class EnduseResid(object):
                 # Get all technologies which are installed
                 technologies_in_fueltype = assumptions['fuel_enduse_tech_p_by'][self.enduse][fueltype].keys()
 
+                print("REDUCITON: " + str(np.sum(reduction_service_fueltype)))
+                #print(assumptions['service_fueltype_tech_p'][self.enduse].values())
+
                 # Iterate all technologies in within the fueltype and calculate reduction per technology
                 for technology_replaced in technologies_in_fueltype:
-
+                    print(" ")
+                    print("technology_replaced: " + str(technology_replaced))
+                    #TODO: INSTEAD OF TAKING assumptions['service_fueltype_tech_p'] from BASE YEAR
+                    # It needs to be calculated within each region the share how the fuel is distributed...
                     # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
                     service_demand_tech = assumptions['service_fueltype_tech_p'][self.enduse][fueltype][technology_replaced] * reduction_service_fueltype
 
                     # Substract technology specific servide demand
                     print("service_demand_tech: " + str(np.sum(service_demand_tech)))
+                    print("A: " + str(np.sum(service_tech_after_switch[technology_replaced])))
                     service_tech_after_switch[technology_replaced] -= service_demand_tech
-                    
+                    print("B: " + str(np.sum(service_tech_after_switch[technology_replaced])))
+
                     # Testing
                     if np.sum(service_tech_after_switch[technology_replaced]) < 0:
+                        print(np.sum(service_tech_after_switch[technology_replaced]))
                         sys.exit("ERROR: Service cant be minus")
 
         return service_tech_after_switch
