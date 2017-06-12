@@ -204,6 +204,7 @@ def load_assumptions(data):
 
     # ---------------------------------
     # --Hybrid technologies assumptions
+    #   The technology for higher temperatures is always a heat pump
     # ---------------------------------
     assumptions['hybrid_gas_elec'] = {
         "tech_high_temp": 'av_heat_pump_electricity',
@@ -225,7 +226,7 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], len(data['fuel_type_lu']))
+    assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], data['nr_of_fueltypes'])
 
     # ------------------
     # RESIDENTIAL SECTOR
@@ -248,8 +249,6 @@ def load_assumptions(data):
     assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
     '''
     assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['fuel_enduse_tech_p_by'])
-    print(assumptions['all_specified_tech_enduse_by'])
-    print("EEEEEEEEEE")
 
     # ============================================================
     # Scenaric FUEL switches

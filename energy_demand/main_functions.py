@@ -27,7 +27,7 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
     for external_enduse in data['data_ext']['external_enduses_resid']:
-        new_fuel_array = np.zeros((len(data['fuel_type_lu'])))
+        new_fuel_array = np.zeros((data['nr_of_fueltypes']))
         for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
             new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
@@ -299,7 +299,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
 
         if element['share_fuel_consumption_switched'] == 0:
             sys.exit("Error: The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
-    
+
     # Test if more than 100% per fueltype is switched
     for element in list_elements:
         enduse = element['enduse']
@@ -1188,7 +1188,7 @@ def generate_sig_diffusion(data):
         data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service']
 
         # End year service shares (scenaric input)
-        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p'] 
+        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p']
 
         # Maximum shares of each technology
         l_values_sig = data['assumptions']['enduse_tech_maxL_by_p']
@@ -1540,7 +1540,7 @@ def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptio
             fueltype = technologies_assumptions[technology]['fuel_type']
             service_fueltype[enduse][fueltype] += service_tech_by_p[enduse][technology]
 
-            # TODO:  Add dependingon fueltype HYBRID --> If hybrid, get base year assumption split--> Assumption how much service for each fueltype 
+            # TODO:  Add dependingon fueltype HYBRID --> If hybrid, get base year assumption split--> Assumption how much service for each fueltype
             ##fueltypes_tech = technology]['fuel_type']
 
             #service_fueltype[enduse][fueltype]
@@ -2326,6 +2326,8 @@ def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, e
         '''plt.plot(dh_shape_hybrid)
         plt.show()
         '''
+    # Testing
+    np.testing.assert_array_almost_equal(np.sum(fuel_shapes_hybrid_y_dh), 365, decimal=4, err_msg='Error in shapes')
 
     return fuel_shapes_hybrid_y_dh
 
@@ -2366,3 +2368,29 @@ def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
             service_fueltype_tech_by_p[fueltypevalue][tech] = 0
 
     return service_fueltype_tech_by_p
+
+
+def TEST_GET_MAX(yh_shape, beschreibung):
+    print("-------------------------")
+    print("Name of variable: " + str(beschreibung))
+    print("Maximum value: " + str(np.amax(yh_shape)))
+    #print("Shape: " + str(yh_shape.shape))
+
+    max_val = 0
+    cnt = 0
+    for day in yh_shape:
+        for h_val in day:
+            cnt += 1
+            if h_val > max_val:
+                max_val = h_val
+                pos = cnt
+                day_values = day
+
+    #print("Day: "  + str(pos))
+    print("SUME DAY: " + str(np.sum(day_values)))
+    #print("Daily Values * 1000" + str(day_values*1000))
+    ##print("Test: " + str(max_val))
+
+    #plt.plot(day_values)
+    #plt.show()
+

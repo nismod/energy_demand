@@ -71,16 +71,21 @@ class RegionClass(object):
 
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
+        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
+        self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
 
         # -------------------
         # Hybrid technologies shapes
         # -------------------
-        self.fuel_shape_heating_boilers_y_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
-        self.fuel_shape_heating_hp_y_dh = self.shape_heating_hp_d_dh(data, 'shapes_resid_heating_heat_pump_dh')
-        self.fuel_shape_hybrid_hybrid_gas_elec_yh = self.calc_fuel_shape_hybrid_gas_elec_yh()
+        fuel_shape_heating_boilers_y_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
+        fuel_shape_heating_hp_y_dh = self.shape_heating_hp_d_dh(data, 'shapes_resid_heating_heat_pump_dh')
+        self.fuel_shape_hybrid_hybrid_gas_elec_yh = self.shape_heating_hybrid_gas_elec_yh(fuel_shape_heating_boilers_y_dh, fuel_shape_heating_hp_y_dh)
 
-        self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
-        self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
+        print("-------TESTING MAX PEAK")
+        mf.TEST_GET_MAX(self.fuel_shape_boilers_yh, "fuel_shape_boilers_yh")
+        mf.TEST_GET_MAX(self.fuel_shape_hp_yh , "fuel_shape_hp_yh")
+        mf.TEST_GET_MAX(self.fuel_shape_hybrid_hybrid_gas_elec_yh, "fuel_shape_hybrid_hybrid_gas_elec_yh")
+        print("=====")
         #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
 
         # ------------
@@ -124,6 +129,7 @@ class RegionClass(object):
         # Get peak energy demand for all enduses for every fueltype
         self.max_fuel_peak = self.max_fuel_fueltype_allenduses(data, 'enduse_fuel_peak_h')
 
+        print("MAX PEAK: " + str(self.max_fuel_peak))
         # ----
         # PEAK summaries
         # ----
@@ -142,7 +148,7 @@ class RegionClass(object):
         # Calculate load factors from peak values
         self.reg_load_factor_h = self.calc_load_factor_h(data, self.fuels_tot_enduses_h, self.fuels_peak_h) #Across all enduses
 
-    def calc_fuel_shape_hybrid_gas_elec_yh(self):
+    def shape_heating_hybrid_gas_elec_yh(self, fuel_shape_heating_boilers_y_dh, fuel_shape_heating_hp_y_dh):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
         Return
@@ -156,8 +162,8 @@ class RegionClass(object):
 
         # Create dh shapes for every day from relative dh shape of hybrid technologies
         fuel_shape_hybrid_y_dh = mf.calculate_y_dh_fuelcurves(
-            self.fuel_shape_heating_boilers_y_dh,
-            self.fuel_shape_heating_hp_y_dh,
+            fuel_shape_heating_boilers_y_dh,
+            fuel_shape_heating_hp_y_dh,
             self.tech_stock.get_tech_attribute('hybrid_gas_elec', 'service_hybrid_h_p_cy'),
             self.tech_stock.get_tech_attribute('boiler_gas', 'eff_cy'),
             self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy'),
@@ -173,7 +179,7 @@ class RegionClass(object):
             '''
 
         # Testing
-        np.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: blbla")
+        np.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: The hybridy yh shape does not sum up to 1.0")
 
         return fuel_shape_yh
 
@@ -314,7 +320,7 @@ class RegionClass(object):
     def max_fuel_fueltype_allenduses(self, data, attribute_to_get):
         """Sum all fuel types over all end uses
         """
-        sum_fuels = np.zeros((len(data['fuel_type_lu']))) # Initialise
+        sum_fuels = np.zeros((data['nr_of_fueltypes']))
 
         for enduse in data['resid_enduses']:
             for fueltype in data['fuel_type_lu']:
@@ -332,7 +338,7 @@ class RegionClass(object):
         """
         sum_fuels_all_enduses = {}
         for enduse in data['resid_enduses']:
-            sum_fuels_all_enduses[enduse] = np.zeros((len(data['fuel_type_lu'])))
+            sum_fuels_all_enduses[enduse] = np.zeros((data['nr_of_fueltypes']))
 
         # Sum data
         for enduse in data['resid_enduses']:
@@ -344,7 +350,7 @@ class RegionClass(object):
         """
         sum_fuels_all_enduses = {}
         for enduse in data['resid_enduses']:
-            sum_fuels_all_enduses[enduse] = np.zeros((len(data['fuel_type_lu']), 365, 24))
+            sum_fuels_all_enduses[enduse] = np.zeros((data['nr_of_fueltypes'], 365, 24))
 
         # Sum data
         for enduse in data['resid_enduses']:
@@ -355,7 +361,7 @@ class RegionClass(object):
     def tot_all_enduses_d(self, data, attribute_to_get):
         """Calculate total daily fuel demand for each fueltype
         """
-        sum_fuels_d = np.zeros((len(data['fuel_type_lu']), 365))
+        sum_fuels_d = np.zeros((data['nr_of_fueltypes'], 365))
 
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
@@ -366,7 +372,7 @@ class RegionClass(object):
     def get_calc_enduse_fuel_peak_yd_factor(self, data):
         """Summarise absolute fuel of peak days over all end_uses
         """
-        sum_calc_enduse_fuel_peak_yd_factor = np.zeros((len(data['fuel_type_lu'])))  # Initialise
+        sum_calc_enduse_fuel_peak_yd_factor = np.zeros((data['nr_of_fueltypes']))  # Initialise
 
         for enduse in data['resid_enduses']:
             sum_calc_enduse_fuel_peak_yd_factor += self.__getattr__subclass__(enduse, 'enduse_peak_yd_factor') # Fuel of Enduse
@@ -376,7 +382,7 @@ class RegionClass(object):
     def get_calc_enduse_fuel_peak_h(self, data, attribute_to_get):
         """Summarise peak values of all enduses for every fueltype
         """
-        sum_calc_enduse_fuel_peak_yh = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise
+        sum_calc_enduse_fuel_peak_yh = np.zeros((data['nr_of_fueltypes'], 1)) # Initialise
 
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
@@ -387,7 +393,7 @@ class RegionClass(object):
     def tot_all_enduses_h(self, data, attribute_to_get):
         """Calculate total hourly fuel demand for each fueltype
         """
-        sum_fuels_h = np.zeros((len(data['fuel_type_lu']), 365, 24)) # Initialise
+        sum_fuels_h = np.zeros((data['nr_of_fueltypes'], 365, 24)) # Initialise
 
         for fueltype in data['fuel_type_lu']:
             for enduse in data['resid_enduses']:
@@ -414,7 +420,7 @@ class RegionClass(object):
 
         Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
         """
-        lf_d = np.zeros((len(data['fuel_type_lu'])))
+        lf_d = np.zeros((data['nr_of_fueltypes']))
 
         # Get day with maximum demand (in percentage of year)
         peak_d_demand = self.fuels_peak_d
@@ -447,7 +453,7 @@ class RegionClass(object):
 
         Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
         """
-        load_factor_h = np.zeros((len(data['fuel_type_lu'])))
+        load_factor_h = np.zeros((data['nr_of_fueltypes']))
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for fueltype, fuels in enumerate(fuels_tot_enduses_h):
@@ -484,7 +490,7 @@ class RegionClass(object):
 
         Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
         """
-        lf_d = np.zeros((len(data['fuel_type_lu'])))
+        lf_d = np.zeros((data['nr_of_fueltypes']))
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for k, fueldata in enumerate(self.fuels_tot_enduses_d):
@@ -515,7 +521,7 @@ class RegionClass(object):
 
         Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
         """
-        load_factor_h = np.zeros((len(data['fuel_type_lu']), 1)) # Initialise array to store fuel
+        load_factor_h = np.zeros((data['nr_of_fueltypes'], 1)) # Initialise array to store fuel
 
         # Iterate fueltypes to calculate load factors for each fueltype
         for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):

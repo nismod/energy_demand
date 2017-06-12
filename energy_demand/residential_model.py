@@ -156,10 +156,10 @@ class CountryClass(object):
     def peak_loads_per_fueltype(self, data, reg_names, attribute_to_get):
         """Get peak loads for fueltype per maximum h
         """
-        peak_loads_fueltype_max_h = np.zeros((len(data['lu_fueltype'])))
+        peak_loads_fueltype_max_h = np.zeros((data['nr_of_fueltypes']))
 
         for reg_name in reg_names:
-            reg_object = getattr(self, str(reg_name)) # Get region
+            reg_object = getattr(self, str(reg_name))
 
             # Get fuel data of region
             load_max_h = getattr(reg_object, attribute_to_get)

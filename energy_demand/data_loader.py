@@ -32,7 +32,7 @@ def load_data(path_main, data):
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     #Z:\01-Data_NISMOD\data_energy_demand
-    folder_path_weater_data = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
+    #folder_path_weater_data = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
     folder_path_weater_stations = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv')
 
 
@@ -51,7 +51,7 @@ def load_data(path_main, data):
         'hydrogen': 6,
         'coal': 7
     }
-
+    data['nr_of_fueltypes'] = len(data['lu_fueltype']) 
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
     # -----------------------------
@@ -196,7 +196,7 @@ def load_data(path_main, data):
     # ---TESTS----------------------
     # Test if numer of fuel types is identical (Fuel lookup needs to have same dimension as end-use fuels)
     for end_use in data['fuel_raw_data_resid_enduses']:
-        assert len(data['fuel_type_lu']) == len(data['fuel_raw_data_resid_enduses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
+        assert data['nr_of_fueltypes'] == len(data['fuel_raw_data_resid_enduses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
 
     scrap = 0
     for enduse in data['fuel_raw_data_resid_enduses']:

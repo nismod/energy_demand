@@ -183,7 +183,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((len(data['lu_fueltype']), nr_y_to_plot))
+    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lu_fueltype']):
 
@@ -236,21 +236,19 @@ def plot_fuels_peak_hour(results_resid, data): # nr_of_day_to_plot, fueltype, ye
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((len(data['lu_fueltype']), nr_y_to_plot))
+    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lu_fueltype']):
 
         # Legend
         fueltype_in_string = mf.get_fueltype_str(data['lu_fueltype'], fueltype)
-        #for fueltype_str in data['lu_fueltype']:
-        #    if data['lu_fueltype'][fueltype_str] == fueltype:
-        #        fueltype_in_string = fueltype_str
+
         legend_entries.append(fueltype_in_string)
 
         # REad out fueltype specific max h load
         data_over_years = []
         for model_year_object in results_resid:
-            fueltype_load_max_h = model_year_object.tot_country_fuel_max_allenduse_fueltyp
+            fueltype_load_max_h = model_year_object.tot_country_fuel_max_allenduse_fueltyp #DATA
             data_over_years.append(fueltype_load_max_h[fueltype])
 
         Y_init[fueltype] = data_over_years
@@ -266,7 +264,7 @@ def plot_fuels_peak_hour(results_resid, data): # nr_of_day_to_plot, fueltype, ye
 
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
-    plt.title("Fuels for peak hour in a year")
+    plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
 
 '''
@@ -286,7 +284,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((len(data['lu_fueltype']), nr_y_to_plot))
+    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lu_fueltype']):
         for fueltype_str in data['lu_fueltype']:

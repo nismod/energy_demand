@@ -1,6 +1,4 @@
 technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry,NOTES
-elec_boiler2,electricity,0.4,0.4,1,linear,2015,
-hydrogen_boiler2,hydrogen,0.5,0.5,1,linear,2015,
 halogen_elec,electricity,0.036,0.036,1,linear,2010,Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100
 standard_resid_lighting_bulb,electricity,0.02,0.02,1,linear,2010,Found on wikipedia
 fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2010,Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100
