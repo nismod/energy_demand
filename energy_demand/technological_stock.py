@@ -128,11 +128,11 @@ class Technology(object):
             self.service_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
 
             # Get fraction of fueltypes for every hour
-            self.fueltypes_p_cy = self.calc_hybrid_fueltype(data['nr_of_fueltypes'], eff_tech_low_cy, eff_tech_high_cy, fueltype_low_temp, fueltype_high_temp)
+            self.fueltypes_yh_p_cy = self.calc_hybrid_fueltype(data['nr_of_fueltypes'], eff_tech_low_cy, eff_tech_high_cy, fueltype_low_temp, fueltype_high_temp)
 
         else:
             # Shares of fueltype for every hour for single fueltype
-            self.fueltypes_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'], data['nr_of_fueltypes'])
+            self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
         # -------------------------------
         # Base and current year efficiencies
@@ -154,7 +154,7 @@ class Technology(object):
             self.eff_cy = self.const_eff_yh(self.calc_eff_cy(data['assumptions']['technologies'][self.tech_name]['eff_by'], self.tech_name, data, curr_yr))
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_p_cy)
+        self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
         # -------------------------------
         # Shapes
@@ -385,7 +385,7 @@ class Technology(object):
 
         return eff_hybrid_yh
 
-    def convert_yh_to_yd_fueltype_shares(self, nr_fueltypes, fueltypes_p_cy):
+    def convert_yh_to_yd_fueltype_shares(self, nr_fueltypes, fueltypes_yh_p_cy):
         """Take share of fueltypes for every yh and calculate the mean share of every day
 
         The daily mean is calculated for every row of an array.
@@ -406,7 +406,7 @@ class Technology(object):
         """
         fuel_yd_shares = np.zeros((nr_fueltypes, 365))
 
-        for fueltype, fueltype_yh in enumerate(fueltypes_p_cy):
+        for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
             fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row in array
 
         assert np.sum(fuel_yd_shares) == 365

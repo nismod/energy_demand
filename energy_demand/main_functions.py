@@ -1465,7 +1465,7 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
             #print("Convert fuel to service and add to existing: "+ str(np.sum(service_tech_by[tech])) + str("  ") + str(tech))
 
             # Get fuel distribution yh
-            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_p_cy')
+            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
 
             # Distribute service depending on fueltype distirbution (not percentage yet)
             for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
@@ -2038,9 +2038,6 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p,
 
             # Calculate fuel for each tech
             for tech in service_tech_by_p[enduse]:
-                print("Tech: " + str(tech))
-                print("by: " + str(service_tech_by_p[enduse][tech]))
-                print("ey: " + str(share_service_tech_ey_p[enduse][tech]))
 
                 # If future larger share
                 if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:

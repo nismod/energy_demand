@@ -48,9 +48,6 @@ class RegionClass(object):
         self.temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
         self.temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
 
-        # Create region specific technological stock
-        self.tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], self.temp_by, self.temp_cy)
-
         # Calculate HDD and CDD for calculating heating and cooling service demand
         self.hdd_by = self.get_reg_hdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
         self.hdd_cy = self.get_reg_hdd(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
@@ -69,6 +66,9 @@ class RegionClass(object):
         self.heating_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.hdd_cy))) * self.hdd_cy
         self.cooling_shape_yd = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_cy))) * self.cdd_cy
 
+        # Create region specific technological stock
+        self.tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], self.temp_by, self.temp_cy)
+
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         self.fuel_shape_boilers_yh = self.shape_heating_boilers_yh(data, self.heating_shape_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
@@ -83,7 +83,7 @@ class RegionClass(object):
 
         print("-------TESTING MAX PEAK")
         mf.TEST_GET_MAX(self.fuel_shape_boilers_yh, "fuel_shape_boilers_yh")
-        mf.TEST_GET_MAX(self.fuel_shape_hp_yh , "fuel_shape_hp_yh")
+        mf.TEST_GET_MAX(self.fuel_shape_hp_yh, "fuel_shape_hp_yh")
         mf.TEST_GET_MAX(self.fuel_shape_hybrid_hybrid_gas_elec_yh, "fuel_shape_hybrid_hybrid_gas_elec_yh")
         print("=====")
         #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
@@ -129,7 +129,7 @@ class RegionClass(object):
         # Get peak energy demand for all enduses for every fueltype
         self.max_fuel_peak = self.max_fuel_fueltype_allenduses(data, 'enduse_fuel_peak_h')
 
-        print("MAX PEAK: " + str(self.max_fuel_peak))
+        print("MAX PEAK: " + str(np.sum(self.max_fuel_peak)))
         # ----
         # PEAK summaries
         # ----
@@ -239,7 +239,7 @@ class RegionClass(object):
             elif technology in assumptions['list_tech_heating_temp_dep']: # Technologies with hourly efficiencies
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.heating_shape_yd)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
-            elif technology in assumptions['list_tech_heating_hybrid']: 
+            elif technology in assumptions['list_tech_heating_hybrid']:
 
                 # Hybrid
                 if technology == 'hybrid_gas_elec':
@@ -287,7 +287,7 @@ class RegionClass(object):
                 enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
                 enduse_peak_yd_factor = data['shapes_resid_yd'][resid_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
-            
+
             # --------------------
             # Add enduse to region
             # --------------------
@@ -355,7 +355,7 @@ class RegionClass(object):
         # Sum data
         for enduse in data['resid_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuel_yh') # Fuel of Enduse h
-        
+
         return sum_fuels_all_enduses
 
     def tot_all_enduses_d(self, data, attribute_to_get):
@@ -838,11 +838,6 @@ class RegionClass(object):
         np.testing.assert_almost_equal(np.sum(shape_y_dh_boilers), 365.0, decimal=3, err_msg="Error NR XXX")
 
         return shape_y_dh_boilers
-
-    def __getattr__(self, attr): #TODO: Maybe can be removed
-        """Get method of own object
-        """
-        return self.attr
 
     def __getattr__subclass__(self, attr_main_class, attr_sub_class):
         """Get the attribute of a subclass"""

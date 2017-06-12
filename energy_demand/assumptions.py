@@ -268,12 +268,13 @@ def load_assumptions(data):
     assumptions['tech_lu_resid'] = create_lu_technologies(assumptions['technologies'])
 
 
-    # Testin
-    # -------------
+    # Testing
     testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['all_specified_tech_enduse_by'])
     testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['fuel_enduse_tech_p_by'], assumptions['share_service_tech_ey_p'], assumptions['technologies'], assumptions)
 
     return assumptions
+
+
 
 def helper_assign_ASHP_GSHP_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies
