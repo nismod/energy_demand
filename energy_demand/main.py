@@ -164,7 +164,6 @@ if __name__ == "__main__":
 
     # Reg Floor Area? Reg lookup?
     data_external = {
-
         'population': pop_dummy,
         'region_coordinates': coord_dummy,
         'glob_var' : {},
@@ -221,7 +220,7 @@ if __name__ == "__main__":
     print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions'] = mf.get_diff_direct_installed(base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
+    base_data['assumptions'] = mf.get_technology_services_scenario(base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data)
@@ -271,8 +270,8 @@ if __name__ == "__main__":
     import pstats
     cProfile.run('energy_demand_model(base_data)')
 
-    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//resid_service_tech_by_p.txt')  
-    #base_data['path_dict']['path_out_stats_cProfile']     
+    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//resid_service_tech_by_p.txt')
+    #base_data['path_dict']['path_out_stats_cProfile']
 
     stats.strip_dirs()
     stats.sort_stats(-1)

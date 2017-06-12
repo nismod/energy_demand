@@ -121,13 +121,12 @@ class EnduseResid(object):
                 service_tech = self.switch_tech_service(
                     data,
                     tot_service_h_by,
-                    service_tech_by_p,
-                    service_fueltype_by_p
+                    service_tech_by_p
                     )
 
             summe = 0
             for tech in service_tech:
-                print("tech before service swith: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
+                print("tech before service switch: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
                 summe += np.sum(service_tech[tech])
 
             print(" ")
@@ -141,9 +140,10 @@ class EnduseResid(object):
                 service_tech = self.switch_tech_fuel(
                     data['data_ext'],
                     data['assumptions'],
-                    #tot_service_h_by,
                     service_tech,
-                    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
+                    service_tech_by_p,
+                    service_fueltype_tech_by_p,
+                    service_fueltype_by_p
                     )
 
             #summe = 0
@@ -242,7 +242,7 @@ class EnduseResid(object):
 
         return technologies_enduse
 
-    def switch_tech_service(self, data, tot_service_h_by, service_tech_by_p, service_fueltype_by_p):
+    def switch_tech_service(self, data, tot_service_h_by, service_tech_by_p):
         """Scenaric service switches
 
         All diminishing technologies are proportionally to base year share diminished.
@@ -270,10 +270,14 @@ class EnduseResid(object):
         # Technology with increaseing service
         # -------------
         # Calculate diffusion of service for technology with increased service
+        print(data['assumptions']['tech_increased_service'][self.enduse])
+        print("-----------")
         service_tech_increase_cy_p = self.get_service_diffusion(data, data['assumptions']['tech_increased_service'][self.enduse])
+        print("service_tech_increase_cy_p")
+        print(service_tech_increase_cy_p)
 
         for tech_increase, share_tech in service_tech_increase_cy_p.items():
-            service_tech_cy_p[tech_increase] = share_tech # Init: Add shares to output dict
+            service_tech_cy_p[tech_increase] = share_tech # Add shares to output dict
 
         # -------------
         # Technology with decreasing service
@@ -286,19 +290,33 @@ class EnduseResid(object):
         for tech_decrease in service_tech_decrease_by_rel:
             service_tech_cy_p[tech_decrease] = service_tech_by_p[tech_decrease]
 
+        print("service_tech_decrease_by_rel")
+        print(service_tech_decrease_by_rel)
+        
         # Iterate service switches for increase tech, calculated gained service and substract this gained service proportionally for all decreasing technologies
         for tech_increase in service_tech_increase_cy_p:
-
+            print("tech_increase: " + str(tech_increase))
             # Difference in service up to current year
             diff_service_increase = service_tech_increase_cy_p[tech_increase] - service_tech_by_p[tech_increase]
 
             # Substract service gain proportionaly to all technologies which are lowered and substract from other technologies
-            for tech_decrease in service_tech_decrease_by_rel:
+            for tech_decrease, service_tech_decrease in service_tech_decrease_by_rel.items():
+                print("tech_decrease: " + str(tech_decrease))
+                print(diff_service_increase)
+                print(service_tech_decrease)
+                print(service_tech_cy_p[tech_decrease])
+                print(service_tech_decrease * diff_service_increase)
+                service_to_substract = service_tech_decrease * diff_service_increase
 
-                if np.sum(service_tech_cy_p[tech_decrease] - service_tech_decrease_by_rel[tech_decrease] * diff_service_increase) < 0:
+                # Testing
+                if service_tech_cy_p[tech_decrease] - service_to_substract < -1:
                     sys.exit("Error in fuel switch")
-                # Substract service
-                service_tech_cy_p[tech_decrease] -= service_tech_decrease_by_rel[tech_decrease] * diff_service_increase
+
+                # Substract service (Because of rounding errors the service my fall below zero (therfore set to zero if only slighlty minus)
+                if np.sum(service_tech_cy_p[tech_decrease] - service_to_substract) < 0:
+                    service_tech_cy_p[tech_decrease] *= 0 # Set to zero service
+                else:
+                    service_tech_cy_p[tech_decrease] -= service_to_substract
 
         # -------------
         # Technology with constant service
@@ -310,7 +328,8 @@ class EnduseResid(object):
         # Multiply share of each tech with hourly service
         for tech, enduse_share in service_tech_cy_p.items():
             service_tech_cy[tech] = tot_service_h_by * enduse_share  # Total yearly hourly service * share of enduse
-
+        
+        print("Finished service switch")
         return service_tech_cy
 
     def get_service_diffusion(self, data, tech_increased_service):
@@ -386,8 +405,8 @@ class EnduseResid(object):
         peak_fueltype_h = np.zeros((enduse_fuel_peak_yh.shape[0]))
 
         for fueltype, fuel_yh in enumerate(enduse_fuel_peak_yh):
-            max_fuel_h = np.max(fuel_yh) # Get hour with maximum fuel_yh
-            peak_fueltype_h[fueltype] = max_fuel_h # add
+            peak_fueltype_h[fueltype] = np.max(fuel_yh) # Get hour with maximum fuel_yh
+
         return peak_fueltype_h
 
     def calc_enduse_fuel_peak_tech_yh(self, enduse_fuel_tech, technologies_enduse, tech_stock):
@@ -400,7 +419,7 @@ class EnduseResid(object):
         The peak is calculated for every fueltype (fueltype specfici)
         """
 
-        # TODO HYBRID: 
+        # TODO HYBRID
         peak_day = 100 # Define peak day
 
         enduse_fuel_peak_yh = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365, 24))
@@ -411,8 +430,7 @@ class EnduseResid(object):
             fueltypes_tech_p = tech_stock.get_tech_attribute(tech, 'fuel_types_share_yd') # Get fueltype of tech HYBRID DONE
 
             for fueltype, fueltype_share_d in enumerate(fueltypes_tech_p):
-                fuel_fueltype_tech_peak_dh = fuel_tech_peak_dh * fueltype_share_d[peak_day]
-                enduse_fuel_peak_yh[fueltype] += fuel_fueltype_tech_peak_dh # Add fuel of day
+                enduse_fuel_peak_yh[fueltype] += fuel_tech_peak_dh * fueltype_share_d[peak_day] # Add fuel of day
 
         return enduse_fuel_peak_yh
 
@@ -859,7 +877,7 @@ class EnduseResid(object):
             Data
         reg_name : str
             Region
-        
+
         Returns
         -------
         fuels_h : array

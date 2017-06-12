@@ -116,8 +116,8 @@ class CountryClass(object):
     def get_specific_enduse_region(self, spec_region, spec_enduse):
         """
         """
-        _reg_object = getattr(self, spec_region)
-        enduse_fuels = _reg_object.get_fuels_enduse_requested(spec_enduse)
+        reg_object = getattr(self, spec_region)
+        enduse_fuels = reg_object.get_fuels_enduse_requested(spec_enduse)
         return enduse_fuels
 
     def get_overall_sum(self, reg_names):
@@ -183,4 +183,5 @@ def test_function_fuel_sum(data):
     for reg in data['resid_fueldata_disagg']:
         for enduse in data['resid_fueldata_disagg'][reg]:
             fuel_in += np.sum(data['resid_fueldata_disagg'][reg][enduse])
+
     return fuel_in

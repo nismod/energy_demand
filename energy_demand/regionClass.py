@@ -77,7 +77,7 @@ class RegionClass(object):
         # -------------------
         self.fuel_shape_heating_boilers_y_dh = self.shape_heating_boilers_y_dh(data, 'shapes_resid_heating_boilers_dh')
         self.fuel_shape_heating_hp_y_dh = self.shape_heating_hp_d_dh(data, 'shapes_resid_heating_heat_pump_dh')
-        self.fuel_shape_hybrid_hybrid_gas_elec_yh = self.calc_fuel_shape_hybrid_hybrid_gas_elec_yh()
+        self.fuel_shape_hybrid_hybrid_gas_elec_yh = self.calc_fuel_shape_hybrid_gas_elec_yh()
 
         self.fuel_shape_hp_yh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         self.fuel_shape_cooling_yh = self.shape_cooling_yh(data, self.cooling_shape_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
@@ -142,7 +142,7 @@ class RegionClass(object):
         # Calculate load factors from peak values
         self.reg_load_factor_h = self.calc_load_factor_h(data, self.fuels_tot_enduses_h, self.fuels_peak_h) #Across all enduses
 
-    def calc_fuel_shape_hybrid_hybrid_gas_elec_yh(self):
+    def calc_fuel_shape_hybrid_gas_elec_yh(self):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
         Return
@@ -150,12 +150,12 @@ class RegionClass(object):
         fuel_shape_yh : array
             Share of yearly fuel for hybrid technology
 
-        Note: This is for hybrid_hybrid_gas_elec technology
+        Note: This is for hybrid_gas_elec technology
         """
         fuel_shape_yh = np.zeros((365, 24))
 
         # Create dh shapes for every day from relative dh shape of hybrid technologies
-        fuel_shape_habrid_y_dh = mf.calculate_y_dh_fuelcurves(
+        fuel_shape_hybrid_y_dh = mf.calculate_y_dh_fuelcurves(
             self.fuel_shape_heating_boilers_y_dh,
             self.fuel_shape_heating_hp_y_dh,
             self.tech_stock.get_tech_attribute('hybrid_gas_elec', 'service_hybrid_h_p_cy'),
@@ -163,8 +163,14 @@ class RegionClass(object):
             self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy'),
         )
 
+        # Calculate yh shape
         for day, share_day in enumerate(self.heating_shape_yd):
-            fuel_shape_yh[day] = fuel_shape_habrid_y_dh[day] * share_day
+            fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * share_day
+
+            '''print("Ploat shapesssss")
+            plt.plot(fuel_shape_yh[day])
+            plt.show()
+            '''
 
         # Testing
         np.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: blbla")
