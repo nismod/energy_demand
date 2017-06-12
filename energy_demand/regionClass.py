@@ -44,9 +44,7 @@ class RegionClass(object):
         self.resid_enduses_fuel = data['resid_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
-        closest_weatherstation_id = mf.search_closest_weater_station(self.longitude, self.latitude, data['weather_stations'])
-
-        # Weather data
+        closest_weatherstation_id = mf.get_closest_weather_station(self.longitude, self.latitude, data['weather_stations'])
         self.temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
         self.temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
 
@@ -276,13 +274,14 @@ class RegionClass(object):
             elif resid_enduse == 'resid_space_cooling' or resid_enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                # Get parameters from loaded shapes for enduse
-                enduse_peak_yd_factor = data['shapes_resid_yd'][resid_enduse]['shape_peak_yd_factor']
-
+                enduse_peak_yd_factor = data['shapes_resid_yd'][resid_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
+            
+            # --------------------
             # Add enduse to region
+            # --------------------
             RegionClass.__setattr__(
                 self,
-                resid_enduse, # Name of enduse
+                resid_enduse,
 
                 enduseClass.EnduseResid(
                     self.reg_name,
@@ -293,7 +292,7 @@ class RegionClass(object):
                     self.heating_factor_y,
                     self.cooling_factor_y,
                     self.fuel_shape_boilers_yh,
-                    enduse_peak_yd_factor  # yd factor which is different depending on enduse
+                    enduse_peak_yd_factor # yd factor which is different depending on enduse
                     )
                 )
 

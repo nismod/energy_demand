@@ -203,7 +203,7 @@ if __name__ == "__main__":
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
 
     # Convert base year fuel input assumptions to energy service #TODO: USE CORRECT EFF FOR HEATPUMPS
-    base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_p'], base_data['assumptions']['service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
+    base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_by_p'], base_data['assumptions']['service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['fuel_raw_data_resid_enduses'],
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     print("Base Year Services per technology (service_tech_by_p)")
     print(base_data['assumptions']['service_tech_by_p'])
     print("--Base year service within fueltypes by--")
-    print(base_data['assumptions']['service_fueltype_tech_p'])
+    print(base_data['assumptions']['service_fueltype_tech_by_p'])
 
     # Write out txt file with service shares for each technology per enduse
     mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['service_tech_by_p'])

@@ -99,11 +99,13 @@ class CountryClass(object):
         reg_names : list
             The name of the Region (unique identifier)
         """
+        # Iterate all regions
         for reg_name in reg_names:
+
+            # Set each region as an attribute of the CountryClass
             CountryClass.__setattr__(
                 self,
                 str(reg_name),
-
                 reg.RegionClass(
                     reg_name,
                     data
