@@ -27,15 +27,20 @@
 # yh = for every hour in a year
 # dh = every hour in day
 
+# y = for total year
+# y_dh = for every day in a year, the dh is provided
+
+
 Down the line
 - new tech --> enduse per person, --> distribution in pop --> shape of appliances
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 
 # Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
-
+visu
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+
 #!python3.6
 import os
 import sys
@@ -253,8 +258,12 @@ if __name__ == "__main__":
     # Plot results for every year
     pf.plot_stacked_Country_end_use(results_every_year, base_data)
 
+    # Plot total fuel (y) per fueltype
+    pf.plot_fuels_tot_all_enduses(results_every_year, base_data)
+
     # Plot peak demand for every fueltype
     pf.plot_fuels_peak_hour(results_every_year, base_data)
+
 
 
     # Run main function

@@ -207,12 +207,12 @@ def load_assumptions(data):
     #   The technology for higher temperatures is always a heat pump
     # ---------------------------------
     assumptions['hybrid_gas_elec'] = {
-        "tech_high_temp": 'av_heat_pump_electricity',
         "tech_low_temp": 'boiler_gas',
+        "tech_high_temp": 'av_heat_pump_electricity',
         "hybrid_cutoff_temp_low": -5,
         "hybrid_cutoff_temp_high": 7,
         "average_efficiency_national_by": get_average_eff_by(
-            'boiler_gas',
+            'boiler_gas', #Provide same tech as above
             'av_heat_pump_electricity',
             0.2, #Assumption on share of service provided by lower temperature technology on a national scale in by
             assumptions
@@ -259,9 +259,7 @@ def load_assumptions(data):
     # Scenaric SERVICE switches    (The share of energy service is the same across all regions)
     # ============================================================
     assumptions['share_service_tech_ey_p'], assumptions['enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
-    print("assumptions['share_service_tech_ey_p']")
-    print(assumptions['share_service_tech_ey_p'])
-    print(" ")
+
     # ============================================================
     # Helper functions
     # ============================================================

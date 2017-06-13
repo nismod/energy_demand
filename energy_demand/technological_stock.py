@@ -125,7 +125,7 @@ class Technology(object):
             #if self.tech_name == 'hybrid_whatever':
 
             # Get fraction of service for hybrid technologies for every hour
-            self.service_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
+            self.service_distr_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
 
             # Get fraction of fueltypes for every hour
             self.fueltypes_yh_p_cy = self.calc_hybrid_fueltype(data['nr_of_fueltypes'], eff_tech_low_cy, eff_tech_high_cy, fueltype_low_temp, fueltype_high_temp)
@@ -371,8 +371,8 @@ class Technology(object):
             for hour in range(24):
 
                 # Fraction of service of low and high temp technology
-                service_high_p = self.service_hybrid_h_p_cy[day][hour]['high']
-                service_low_p = self.service_hybrid_h_p_cy[day][hour]['low']
+                service_high_p = self.service_distr_hybrid_h_p_cy[day][hour]['high']
+                service_low_p = self.service_distr_hybrid_h_p_cy[day][hour]['low']
 
                 # Efficiencies
                 eff_low = eff_tech_low[day][hour]
@@ -449,8 +449,8 @@ class Technology(object):
             for hour in range(24):
 
                 # Fraction of service of low and high temp technology
-                service_high_p = self.service_hybrid_h_p_cy[day][hour]['high']
-                service_low_p = self.service_hybrid_h_p_cy[day][hour]['low']
+                service_high_h_p = self.service_distr_hybrid_h_p_cy[day][hour]['high']
+                service_low_h_p = self.service_distr_hybrid_h_p_cy[day][hour]['low']
 
                 # Efficiency of low and high tech
                 eff_tech_low = eff_tech_low_cy[day][hour]
@@ -459,23 +459,27 @@ class Technology(object):
                 dummy_service = 100.0
 
                 # Calculate fuel fractions: (frac_tech * dummy_service) / eff_tech
-                if service_low_p > 0:
-                    service_low_p = dummy_service * service_low_p
-                    fuel_low = np.divide(service_low_p, eff_tech_low)
+                if service_low_h_p > 0:
+                    service_low_h = dummy_service * service_low_h_p
+                    fuel_low_h = np.divide(service_low_h, eff_tech_low)
                 else:
-                    fuel_low = 0
+                    fuel_low_h = 0
 
-                if service_high_p > 0:
-                    service_high_p = dummy_service * service_high_p
-                    fuel_high = np.divide(service_high_p, eff_tech_high_hp)
+                if service_high_h_p > 0:
+                    service_high_h = dummy_service * service_high_h_p
+                    fuel_high_h = np.divide(service_high_h, eff_tech_high_hp)
                 else:
-                    fuel_high = 0
+                    fuel_high_h = 0
 
-                tot_fuel = fuel_low + fuel_high
+                tot_fuel_h = fuel_low_h + fuel_high_h
 
-                # Assign share of total fuel for respective fueltypes
-                fueltypes_yh[fueltype_low_temp][day][hour] = np.divide(1, tot_fuel) * fuel_low
-                fueltypes_yh[fueltype_high_temp][day][hour] = np.divide(1, tot_fuel) * fuel_high
+                # The the low and high temp tech have same fueltype
+                if fueltype_low_temp == fueltype_high_temp:
+                    fueltypes_yh[fueltype_low_temp][day][hour] = 1.0
+                else:
+                    # Assign share of total fuel for respective fueltypes
+                    fueltypes_yh[fueltype_low_temp][day][hour] = np.divide(1, tot_fuel_h) * fuel_low_h
+                    fueltypes_yh[fueltype_high_temp][day][hour] = np.divide(1, tot_fuel_h) * fuel_high_h
 
         # Testing
         np.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')

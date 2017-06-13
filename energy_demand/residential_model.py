@@ -76,6 +76,8 @@ class CountryClass(object):
         self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'reg_load_factor_h')
         self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'max_fuel_peak')
 
+        # NEW
+        self.tot_country_fuels_all_enduses = self.tot_fuels_all_enduses_yh(data, reg_names, 'tot_fuels_all_enduses_yh')
           # TESTER: READ OUT Specific ENDUSE for a REGION
         #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
 
@@ -153,6 +155,19 @@ class CountryClass(object):
                 tot_sum_enduses[enduse] += np.sum(enduse_fuels_reg[enduse]) # sum across fuels
 
         return tot_sum_enduses
+
+    def tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
+
+        tot_fuels_all_enduses = np.zeros(((data['nr_of_fueltypes'], 365, 24)))
+
+        for reg_name in reg_names:
+            reg_object = getattr(self, str(reg_name))
+            tot_fuels = getattr(reg_object, attribute_to_get) # Get fuel data of region
+
+            for fueltype, tot_fuel in enumerate(tot_fuels):
+                tot_fuels_all_enduses[fueltype] += tot_fuel
+
+        return tot_fuels_all_enduses
 
     def peak_loads_per_fueltype(self, data, reg_names, attribute_to_get):
         """Get peak loads for fueltype per maximum h

@@ -23,8 +23,6 @@ class EnduseResid(object):
         Enduse given in a string
     enduse_fuel : array
         Fuel data for the region the endu
-    fuel_shape_heating : array
-        Service shape for space heating (yh)
     enduse_peak_yd_factor : float
         Peak yd factor of enduse
 
@@ -37,14 +35,14 @@ class EnduseResid(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_shape_heating, enduse_peak_yd_factor):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor):
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel[enduse]
         self.enduse_fuelswitch_crit = self.get_fuel_switches(data, data['assumptions']['resid_fuel_switches'])
         self.enduse_serviceswitch_crit = self.get_service_switches(data, data['assumptions']['service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        self.technologies_enduse = self.get_technologies_in_enduse(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
+        self.technologies_enduse = self.get_enduse_tech(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
 
         # --------
         # Testing
@@ -87,28 +85,15 @@ class EnduseResid(object):
         if self.technologies_enduse != []:
             print("Enduse {} is defined.... ".format(self.enduse) + str(self.technologies_enduse))
 
-            # Get corret energy service shape of enduse
-            if self.enduse == 'resid_space_heating' or self.enduse == 'service_space_heating': # Residential space heating
-                fuel_shape_yh = fuel_shape_heating
-            '''elif self.enduse in data['assumptions']['enduse_resid_cooking']: # -- COOKING (# SCRAP)
-                service_shape_yh_all_fueltypes = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data['shapes_resid_yd'][self.enduse]['shape_non_peak_yd'])
-                fuel_shape_yh = np.zeros((365, 24))
-                for fuel_fueltype in service_shape_yh_all_fueltypes:
-                    service_shape_yh += fuel_fueltype
-                fuel_shape_yh = (1 / np.sum(service_shape_yh)) * service_shape_yh
-            #elif self.enduse == 'resid_cooling':
-            #    fuel_shape_yh =
-            # else:
-            '''
             # ------------------------------------------------------------------------
             # Calculate regional energy service (for base year)
             # ------------------------------------------------------------------------
             tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = mf.calc_regional_service(
                 self.technologies_enduse,
-                fuel_shape_yh,
                 data['assumptions']['fuel_enduse_tech_p_by'][self.enduse],
-                self.enduse_fuel_new_fuel, tech_stock,
-                data['lu_fueltype'],
+                self.enduse_fuel_new_fuel,
+                tech_stock,
+                data['lu_fueltype']
                 )
 
             # ----------------
@@ -147,34 +132,35 @@ class EnduseResid(object):
             #for tech in service_tech:
             #    summe += np.sum(service_tech[tech])
             #print("Service Sum 1: " + str(summe))
-            for tech in service_tech:
-                print("outside: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
+            #for tech in service_tech:
+            #    print("outside: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
 
             # -----------------------
             # Convert Service to Fuel
             # -----------------------
             # Convert energy service to fuel, convert service to fuel for current year (y)
+            # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
             self.enduse_service_to_fuel_fueltype_y(service_tech, tech_stock)
             print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
-            # Convert service to fuel for each technology depending on technological efficiences in current year
-            enduse_fuel_tech = self.enduse_service_to_fuel_per_tech(service_tech, tech_stock)
+            # Convert service to fuel (y) for each technology depending on technological efficiences in current year
+            enduse_fuel_tech_y = self.enduse_service_to_fuel_per_tech(service_tech, tech_stock)
             print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
             summe = 0
-            for tech in enduse_fuel_tech:
+            for tech in enduse_fuel_tech_y:
                 summe += np.sum(service_tech[tech])
             print("TOTAL FUEL TO REDISRIBUTE " + str(summe))
-
 
 
             # --------
             # NON-PEAK
             # --------
             # Iterate technologies in enduse and assign technology specific shape for respective fuels
-            self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech, self.technologies_enduse, tech_stock)
-            self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
+            self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
+            self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
             #self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
+            print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
 
             # Get day with most fuel across all fueltypes (this is selected as max day)
             self.peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
@@ -186,10 +172,10 @@ class EnduseResid(object):
             # --------
             #enduse_fuel_tech  enduse_fuel_new_fuel
             #self.enduse_fuel_peak_yd = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_new_fuel, enduse_peak_yd_factor)
-            ##self.enduse_fuel_peak_yd = self.calc_enduse_fuel_tech_peak_yd_factor(data['lu_fueltype'], enduse_fuel_tech, enduse_peak_yd_factor, tech_stock)
+            ##self.enduse_fuel_peak_yd = self.calc_enduse_fuel_tech_peak_yd_factor(data['lu_fueltype'], enduse_fuel_tech_y, enduse_peak_yd_factor, tech_stock)
 
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
+            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
             self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(self.enduse_fuel_peak_yd, self.technologies_enduse, tech_stock)
             self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh) # Get maximum hour demand per fueltype
             '''
@@ -198,8 +184,8 @@ class EnduseResid(object):
             # PEAK (Peak is not defined by yd factor so far but read out from real data!) #TODO
             # --------
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
-            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech, self.technologies_enduse, tech_stock)
+            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
+            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
 
             self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_dh) # Get maximum hour demand per fueltype
             print("-------------PEEEEEEEEEEEEEAK self.enduse_fuel_peak_h: " + str(np.sum(self.enduse_fuel_peak_h)))
@@ -260,7 +246,7 @@ class EnduseResid(object):
 
 
 
-    def get_technologies_in_enduse(self, service_tech_by_p, fuel_enduse_tech_p_by):
+    def get_enduse_tech(self, service_tech_by_p, fuel_enduse_tech_p_by):
         """Get all defined technologies
         service_tech_by_p
 
@@ -732,7 +718,7 @@ class EnduseResid(object):
 
         # Convert service to fuel
         for tech in service_tech:
-            print("SERVICE TO CONVERT: {}  ".format(tech) + str(np.sum(service_tech[tech])))
+            ##print("SERVICE TO CONVERT: {}  ".format(tech) + str(np.sum(service_tech[tech])))
 
             # Calculate fuels (divide by efficiency)
             fuel_tech = np.divide(service_tech[tech], tech_stock.get_tech_attribute(tech, 'eff_cy'))

@@ -219,10 +219,56 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
     plt.show()
 
 
+def plot_fuels_tot_all_enduses(results_resid, data):
+    """Plots stacked end_use for a region
 
 
+    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+    # INFO Cannot plot a single year?
+    """
 
-def plot_fuels_peak_hour(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+    fig, ax = plt.subplots()
+    nr_y_to_plot = len(results_resid) #number of simluated years
+    x = range(nr_y_to_plot)
+    legend_entries = []
+
+    # Initialise (number of enduses, number of hours to plot)
+    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
+
+    for fueltype, _ in enumerate(data['lu_fueltype']):
+
+        # Legend
+        fueltype_in_string = mf.get_fueltype_str(data['lu_fueltype'], fueltype)
+        legend_entries.append(fueltype_in_string)
+
+        # Read out fueltype specific max h load
+        data_over_years = []
+        for model_year_object in results_resid:
+
+            tot_fuels = model_year_object.tot_country_fuels_all_enduses #DATA
+
+            #for every hour is summed to have yearl fuel
+            tot_fuel_fueltype_y = np.sum(tot_fuels[fueltype]) 
+            data_over_years.append(tot_fuel_fueltype_y)
+
+        Y_init[fueltype] = data_over_years
+
+    # Plot lines
+    for line, _ in enumerate(Y_init):
+        plt.plot(Y_init[line])
+
+    ax.legend(legend_entries)
+
+    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='green')
+    plt.axis('tight')
+
+    plt.ylabel("Fuel")
+    plt.xlabel("Simulation years")
+    plt.title("Total yearly fuels of all enduses per fueltype")
+    plt.show()
+
+
+def plot_fuels_peak_hour(results_resid, data):
     """Plots stacked end_use for a region
 
 

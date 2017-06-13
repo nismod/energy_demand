@@ -1405,7 +1405,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
     return service_tech_switched_p
 
-def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p_by, fuels, tech_stock, fueltypes_lu):
+def calc_regional_service(enduse_technologies, fuel_enduse_tech_p_by, fuels, tech_stock, fueltypes_lu):
     """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
     This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -1418,9 +1418,6 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
     ----------
     enduse_technologies : list
         All technologies in enduse
-    fuel_shape_yh : array
-        Shape how the fuel is distributed over a year (yh) with 100% boilers. Boilers are assumed to have the
-        smalles time-lag and therfore better represents service need than eg. heat pumps
     fuel_enduse_tech_p_by : dict
         Fuel composition of base year for every fueltype for each enduse (assumtions for national scale)
     fuels : array
@@ -1447,9 +1444,7 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
     """
     # Initialise
     service_tech_by = init_dict(enduse_technologies, 'zero')
-    service_tech_by_p = {}
     service_fueltype_tech_by_p = initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
-    service_fueltype_by_p = init_dict(fueltypes_lu.values(), 'zero')
 
     # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
     for fueltype, fuel_enduse in enumerate(fuels):
@@ -1458,15 +1453,10 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
             # Fuel share based on defined fuel fraction within fueltype (assumed national share of fuel of technology * tot fuel)
             fuel_tech_y = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
 
-            # Get fuel yh shape of technology
-            fuel_shape_tech_yh = tech_stock.get_tech_attribute(tech, 'shape_yh')
+            # Distribute y to yh by multiplying total fuel of technology with yh fuel shape
+            fuel_tech_yh = fuel_tech_y * tech_stock.get_tech_attribute(tech, 'shape_yh')
 
-            # Distribute fuel into every hour based on shape how the fuel is distributed over the year
-            ##fuel_tech_yh = fuel_shape_yh * fuel_tech_y
-            fuel_tech_yh = fuel_tech_y * fuel_shape_tech_yh
-            print("NPPPP " + str(np.sum(fuel_shape_tech_yh)))
-
-            # Convert to energy service (Energy service = fuel * regional_efficiency)
+            # Convert to energy service
             service_tech_by[tech] += fuel_tech_yh * tech_stock.get_tech_attribute(tech, 'eff_by')
             #print("Convert fuel to service and add to existing: "+ str(np.sum(service_tech_by[tech])) + str("  ") + str(tech))
 
@@ -1493,6 +1483,7 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
         tot_service_yh += service_tech
 
     # --Convert to percentage
+    service_tech_by_p = {}
     for technology, service_tech in service_tech_by.items():
         service_tech_by_p[technology] = np.divide(1, np.sum(tot_service_yh)) * np.sum(service_tech)
 
@@ -1512,6 +1503,7 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
                 service_fueltype_tech_by_p[fueltype][tech] = 0
 
     # Calculate service fraction per fueltype
+    service_fueltype_by_p = init_dict(fueltypes_lu.values(), 'zero')
     for fueltype, service_fueltype in service_fueltype_tech_by_p.items():
         for tech, service_fueltype_tech in service_fueltype.items():
             service_fueltype_by_p[fueltype] += service_fueltype_tech
@@ -1678,8 +1670,8 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
     #-----------------
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     #-----------------
-    fit_crit_A = 100
-    fit_crit_B = 0.01
+    fit_crit_A = 200
+    fit_crit_B = 0.001
 
     for enduse in enduses:
         if enduse in installed_tech: # If technologies are defined for switch
@@ -1740,6 +1732,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                         print("Lvalue: " + str(L_values[enduse][technology]))
                         print("start_parameters: " + str(start_parameters))
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
+                        print("fit_parameter: " + str(fit_parameter))
 
                         # Criteria when fit did not work
                         if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or fit_parameter[1] > fit_crit_A or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
@@ -1755,7 +1748,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                         cnt += 1
 
                         if cnt >= len(possible_start_parameters):
-                            sys.exit("Error: CURVE FITTING DID NOT WORK")
+                            sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_A and fit_crit_B")
 
                 # Insert parameters
                 sigmoid_parameters[enduse][technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
@@ -1802,11 +1795,14 @@ def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_pa
     y = sigmoid_function(x, L, *fit_parameter)
 
     fig = plt.figure()
+
     fig.set_size_inches(12, 8)
     pylab.plot(xdata, ydata, 'o', label='base year and future market share')
     pylab.plot(x, y, label='fit')
+
     pylab.ylim(0, 1.05)
     pylab.legend(loc='best')
+
     pylab.xlabel('Time')
     pylab.ylabel('Market share of technology on energy service')
     pylab.title("Sigmoid diffusion of technology  {}  in enduse {}".format(technology, enduse))
@@ -2157,144 +2153,29 @@ def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltyp
 
     return service_p
 
-'''def get_max_fuel_day(fuels):
-    """The day with most fuel
-    """
-    max_fuel = 0
-    max_day = None
-    for day, fuels_day in enumerate(fuels):
-        sum_day_fuel = np.sum(fuels_day)
+def calc_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p, eff_low_tech, eff_high_tech):
+    """Calculate y_dh fuel shapes for hybrid technologies for every day in a year
 
-        if sum_day_fuel > max_fuel:
-            max_fuel = sum_day_fuel
-            max_day = day
-
-    return max_fuel, max_day
-'''
-
-'''def convert_service_tech_to_fuel_p(service_fueltype_tech, tech_stock):
-    """ Convert service per technology into fuel percent per technology
-    """
-    fuel_fueltype_tech = {}
-
-    # Convert service to fuel
-    for fueltype in service_fueltype_tech:
-        fuel_fueltype_tech[fueltype] = {}
-        for tech in service_fueltype_tech[fueltype]:
-            service_tech_h = service_fueltype_tech[fueltype][tech]
-            fuel_fueltype_tech[fueltype][tech] = service_tech_h / tech_stock.get_tech_attribute(tech, 'eff_cy')
-
-    # Convert to percent within fueltype
-    fuel_fueltype_tech_p = {}
-
-    for fueltype in fuel_fueltype_tech:
-        fuel_fueltype_tech_p[fueltype] = {}
-
-        # Get sum of fuel within fueltype
-        sum_fuel_fueltype = 0
-        for tech in fuel_fueltype_tech[fueltype]:
-            sum_fuel_fueltype += np.sum(fuel_fueltype_tech[fueltype][tech])
-        if sum_fuel_fueltype == 0:
-            for tech in fuel_fueltype_tech[fueltype]:
-                fuel_fueltype_tech_p[fueltype][tech] = 0
-        else:
-            for tech in fuel_fueltype_tech[fueltype]:
-                fuel_fueltype_tech_p[fueltype][tech] = (1.0 / sum_fuel_fueltype) * np.sum(fuel_fueltype_tech[fueltype][tech])
-
-    return fuel_fueltype_tech_p
-'''
-
-'''def calc_age_distribution(age_distr_by, age_distr_ey):
-    """ CAlculate share of age distribution of buildings
-    DEMOLISHRN RATE?
-    """
-    # Calculate difference between base yeare and ey
-    # --> Add
-    assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    return
-'''
-
-'''
-def convert_to_tech_array(in_dict, tech_lu_resid):
-    """Convert dictionary to array
-
-    The input array of efficiency is replaced and technologies are replaced with technology IDs
-
-    # TODO: WRITE DOCUMENTATION
-    Parameters
-    ----------
-    in_dict : dict
-        One-level dictionary
-
-    Returns
-    -------
-    in_dict : array
-        Array with identical data of dict
-
-    Example
-    -------
-    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
-    """
-    out_dict = {}
-
-    for fueltype in in_dict:
-        a = list(in_dict[fueltype].items())
-
-        # REplace technologies with technology ID
-        replaced_tech_with_ID = []
-        for enduse_tech_eff in a:
-            technology = enduse_tech_eff[0]
-            tech_eff = enduse_tech_eff[1]
-            replaced_tech_with_ID.append((tech_lu_resid[technology], tech_eff))
-
-        # IF empty replace with 0.0, 0.0) to have an array with length 2
-        if replaced_tech_with_ID == []:
-            out_dict[fueltype] = []
-        else:
-            replaced_with_ID = np.array(replaced_tech_with_ID, dtype=float)
-            out_dict[fueltype] = replaced_with_ID
-
-    return out_dict
-'''
-
-'''def convert_to_array(in_dict):
-    """Convert dictionary to array
-
-    As an input the base data is provided and price differences and elasticity
-
-    Parameters
-    ----------
-    in_dict : dict
-        One-level dictionary
-
-    Returns
-    -------
-    in_dict : array
-        Array with identical data of dict
-
-    Example
-    -------
-    in_dict = {1: "a", 2: "b"} is converted to np.array((1, a), (2,b))
-    """
-    copy_dict = {}
-    for i in in_dict:
-        copy_dict[i] = np.array(list(in_dict[i].items()), dtype=float)
-    return copy_dict
-'''
-
-def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, eff_low_tech, eff_high_tech):
-    """Calculate dh fuel shapes for hybrid technologies for every day in a year
-
-    Depending on the share of each hybrid technology in every hour,
+    Depending on the share of servide each hybrid technology in every hour,
     the daily fuelshapes of each technology are taken for every hour respectively
 
     Parameters
     ----------
-    low_temp_tech_dh : array
-        Dh shape of low temperature technology (typically boiler)
+    fuel_shape_boilers_y_dh : array
+        Fuel shape of low temperature technology (boiler technology)
+    fuel_shape_hp_y_dh : array
+        Fuel shape of high temp technology (y_dh) (heat pump technology)
     tech_low_high_p : array
-        Share of each technology in every hour
+        Share of service of technology in every hour (heat pump technology)
+    eff_low_tech : array
+        Efficiency of low temperature technology
+    eff_high_tech : array
+        Efficiency of high temperature technology
+
+    Return
+    ------
+    fuel_shapes_hybrid_y_dh : array
+        Fuel shape (y_dh) for hybrid technology
 
     Example
     --------
@@ -2303,13 +2184,11 @@ def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, e
 
     The daily shape is taken for TechA for 0-12 and weighted according to efficency
     Between 12 and Tech A and TechB are taken with 50% shares and weighted with either efficiency
-
-    #TODO: TEST
     """
     fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
     for day in tech_low_high_p:
-        dh_shape_hybrid = np.zeros(24) # New daily shape made out of hybrid shapes
+        dh_shape_hybrid = np.zeros(24)
 
         for hour in range(24):
 
@@ -2322,7 +2201,7 @@ def calculate_y_dh_fuelcurves(low_temp_tech_dh, high_temp_dh, tech_low_high_p, e
             eff_high = eff_high_tech[day][hour]
 
             # Weighted hourly dh shape with efficiencies
-            dh_shape_hybrid[hour] = np.divide(low_p * low_temp_tech_dh[day][hour], eff_low) + np.divide(high_p * high_temp_dh[day][hour], eff_high)
+            dh_shape_hybrid[hour] = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low) + np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high)
 
         # Normalise dh shape
         fuel_shapes_hybrid_y_dh[day] = np.divide(1, np.sum(dh_shape_hybrid)) * dh_shape_hybrid
