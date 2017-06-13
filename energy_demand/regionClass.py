@@ -683,8 +683,8 @@ class RegionClass(object):
             # Distribute fuel of day according to fuel load curve
             shape_yh_hp[day] = fuel_shape_d
 
-            print("*************DDDDDDD")
-            print(np.sum(fuel_shape_d))
+            #print("*************DDDDDDD")
+            #print(np.sum(fuel_shape_d))
 
             # Add daily fuel curve
             shape_y_dh[day] = np.divide(1, np.sum(fuel_shape_d)) * fuel_shape_d
@@ -739,7 +739,7 @@ class RegionClass(object):
         data : dict
             data
         heating_shape : array
-            Daily service demand shape for heat (percentage of yearly heat demand for every day)
+            Daily (yd) service demand shape for heat (percentage of yearly heat demand for every day)
 
         Returns
         -------
@@ -773,6 +773,10 @@ class RegionClass(object):
             # Take respectve daily fuel curve depending on weekday or weekend
             if weekday == 5 or weekday == 6:
 
+                # -----
+                # The percentage of totaly yearly heat demand (heating_shape[day]) is distributed with daily fuel shape of boilers
+                # Because boiler eff is constant, the shape_yh_boilers reflects the needed heat per hour
+                # ------
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
                 shape_yh_boilers[day] = heating_shape[day] * (data[tech_to_get_shape][2] / np.sum(data[tech_to_get_shape][2]))
 

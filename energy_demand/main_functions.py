@@ -1458,8 +1458,13 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
             # Fuel share based on defined fuel fraction within fueltype (assumed national share of fuel of technology * tot fuel)
             fuel_tech_y = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
 
+            # Get fuel yh shape of technology
+            fuel_shape_tech_yh = tech_stock.get_tech_attribute(tech, 'shape_yh')
+
             # Distribute fuel into every hour based on shape how the fuel is distributed over the year
-            fuel_tech_yh = fuel_shape_yh * fuel_tech_y
+            ##fuel_tech_yh = fuel_shape_yh * fuel_tech_y
+            fuel_tech_yh = fuel_tech_y * fuel_shape_tech_yh
+            print("NPPPP " + str(np.sum(fuel_shape_tech_yh)))
 
             # Convert to energy service (Energy service = fuel * regional_efficiency)
             service_tech_by[tech] += fuel_tech_yh * tech_stock.get_tech_attribute(tech, 'eff_by')

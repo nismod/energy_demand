@@ -97,11 +97,10 @@ class Technology(object):
         t_base_heating_resid_cy = mf.t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
 
         # -------
-        # Depending on wheather only single fueltype or multiple fueltypes (hybrid technologies)
+        # Depending on wether only single fueltype or multiple fueltypes (e.g. hybrid technologies)
         # -------
         if self.tech_name in data['assumptions']['list_tech_heating_hybrid']:
-            """ Hybrid efficiencies for residential heating
-            """
+            """ Hybrid efficiencies for residential heating"""
             # Hybrid gas_electricity technology TODO: DEFINE TECHNOLOGY IN ASSUMPTIONS
             if self.tech_name == 'hybrid_gas_elec':
 
@@ -158,7 +157,7 @@ class Technology(object):
         self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
         # -------------------------------
-        # Shapes
+        # FUEL Shapes (not service)
         #  Specific shapes of technologes filled with dummy data. Gets filled in Region Class
         # -------------------------------
         self.shape_yd = np.ones((365))
