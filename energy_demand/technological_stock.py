@@ -92,6 +92,7 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
+        # Base temp assumptions
         t_base_heating_resid_by = data['assumptions']['t_base_heating_resid']['base_yr']
         t_base_heating_resid_cy = mf.t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
 

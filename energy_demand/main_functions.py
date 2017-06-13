@@ -1419,7 +1419,8 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
     enduse_technologies : list
         All technologies in enduse
     fuel_shape_yh : array
-        Shape how the fuel is distributed over a year (y to h)
+        Shape how the fuel is distributed over a year (yh) with 100% boilers. Boilers are assumed to have the
+        smalles time-lag and therfore better represents service need than eg. heat pumps
     fuel_enduse_tech_p_by : dict
         Fuel composition of base year for every fueltype for each enduse (assumtions for national scale)
     fuels : array
@@ -1455,36 +1456,38 @@ def calc_regional_service(enduse_technologies, fuel_shape_yh, fuel_enduse_tech_p
         for tech in fuel_enduse_tech_p_by[fueltype]:
 
             # Fuel share based on defined fuel fraction within fueltype (assumed national share of fuel of technology * tot fuel)
-            fuel_tech = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
+            fuel_tech_y = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
 
             # Distribute fuel into every hour based on shape how the fuel is distributed over the year
-            fuel_tech_h = fuel_shape_yh * fuel_tech
+            fuel_tech_yh = fuel_shape_yh * fuel_tech_y
 
             # Convert to energy service (Energy service = fuel * regional_efficiency)
-            service_tech_by[tech] += fuel_tech_h * tech_stock.get_tech_attribute(tech, 'eff_by')
+            service_tech_by[tech] += fuel_tech_yh * tech_stock.get_tech_attribute(tech, 'eff_by')
             #print("Convert fuel to service and add to existing: "+ str(np.sum(service_tech_by[tech])) + str("  ") + str(tech))
 
             # Get fuel distribution yh
             fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
 
-            # Distribute service depending on fueltype distirbution (not percentage yet)
+            # Distribute service depending on fueltype distirbution
             for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
-                fuel_fueltype = fueltype_share * fuel_tech_h
+                fuel_fueltype = fueltype_share * fuel_tech_yh
 
+                # Convert fuel to service #TODO: WHY IS NOT IN TECH IF NO SERVICE?
                 if np.sum(fuel_fueltype) > 0:
-
-                    # Convert fueltype to fuel
                     service_fueltype_tech_by_p[fueltype_installed_tech_yh][tech] += np.sum(fuel_fueltype * tech_stock.get_tech_attribute(tech, 'eff_by'))
 
             # Testing
-            assertions.assertAlmostEqual(np.sum(fuel_tech_h), np.sum(fuel_tech), places=7, msg="The fuel to service y to h went wrong", delta=None)
+            assertions.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong", delta=None)
 
-    # Calculate energy service demand over the full year and for every hour, sum demand accross all technologies
+    # ----------
+    # Convert service to other formats
+    # ----------
+    # --Calculate energy service demand over the full year and for every hour, sum demand accross all technologies
     tot_service_yh = np.zeros((365, 24))
     for tech, service_tech in service_tech_by.items():
         tot_service_yh += service_tech
 
-    # Convert to percentage
+    # --Convert to percentage
     for technology, service_tech in service_tech_by.items():
         service_tech_by_p[technology] = np.divide(1, np.sum(tot_service_yh)) * np.sum(service_tech)
 

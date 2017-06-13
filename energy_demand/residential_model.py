@@ -111,6 +111,7 @@ class CountryClass(object):
                     data
                 )
             )
+
         return
 
     def get_specific_enduse_region(self, spec_region, spec_enduse):
