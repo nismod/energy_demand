@@ -4,4 +4,4 @@ resid_space_heating,av_heat_pump_electricity,0,1
 resid_space_heating,boiler_gas,0,0.9
 resid_space_heating,boiler_biomass,0,0.9
 resid_space_heating,boiler_hydrogen,0,0.9
-resid_space_heating,hybrid_gas_elec,1,0.9
+resid_space_heating,hybrid_gas_elec,1,1

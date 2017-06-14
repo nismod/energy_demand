@@ -122,12 +122,13 @@ class EnduseResid(object):
                 service_tech = self.switch_tech_fuel(
                     data['data_ext'],
                     data['assumptions'],
+                    tot_service_h_by,
                     service_tech,
-                    service_tech_by_p,
+                    #service_tech_by_p,
                     service_fueltype_tech_by_p,
                     service_fueltype_by_p
                     )
-
+            #l(self, data_ext, assumptions, tot_service_h_by, service_tech, service_fueltype_tech_by_p, service_fueltype_by_p):
             #summe = 0
             #for tech in service_tech:
             #    summe += np.sum(service_tech[tech])
@@ -159,37 +160,38 @@ class EnduseResid(object):
             # Iterate technologies in enduse and assign technology specific shape for respective fuels
             self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
             self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
-            #self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
+            #self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
             print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+            print(self.enduse_fuel_yh)
 
-            # Get day with most fuel across all fueltypes (this is selected as max day)
-            self.peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
-
-            # Iterate h and get peak day with peak hour
-
-            '''# --------
-            # PEAK
-            # --------
-            #enduse_fuel_tech  enduse_fuel_new_fuel
-            #self.enduse_fuel_peak_yd = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_new_fuel, enduse_peak_yd_factor)
-            ##self.enduse_fuel_peak_yd = self.calc_enduse_fuel_tech_peak_yd_factor(data['lu_fueltype'], enduse_fuel_tech_y, enduse_peak_yd_factor, tech_stock)
-
-            # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
-            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(self.enduse_fuel_peak_yd, self.technologies_enduse, tech_stock)
-            self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh) # Get maximum hour demand per fueltype
-            '''
 
             # --------
             # PEAK (Peak is not defined by yd factor so far but read out from real data!) #TODO
             # --------
+            summe = 0
+            for tech in enduse_fuel_tech_y:
+                summe += np.sum(service_tech[tech])
+            print("TOTAL FUEL TO REDISRIBUTE 22 " + str(summe))
+            
+
+            # Get day with most fuel across all fueltypes (this is selected as max day)
+            peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh, tech_stock, data)
+            print("Peak day: " + str(peak_day_nr))
+
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
-            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_yh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
+            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_dh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
+            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data, enduse_fuel_tech_y, self.technologies_enduse, tech_stock, peak_day_nr)
 
-            self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_dh) # Get maximum hour demand per fueltype
+            print("PEAK DEMAND D: " + str(np.sum(self.enduse_fuel_peak_dh)))
+
+            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh) # Get maximum hour demand per of peak day
+
+            print(self.enduse)
+
             print("-------------PEEEEEEEEEEEEEAK self.enduse_fuel_peak_h: " + str(np.sum(self.enduse_fuel_peak_h)))
+            print(self.enduse_fuel_peak_h)
 
+            print("Proportion von day: " + str((100/np.sum(self.enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
         else: # No technologies specified in enduse
             print("enduse is not defined with technologies: " + str(self.enduse))
 
@@ -206,16 +208,20 @@ class EnduseResid(object):
             # PEAK
             # --------
             self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data['shapes_resid_dh'][enduse]['shape_peak_dh'])
-            self.enduse_fuel_peak_h = self.get_peak_from_yh(self.enduse_fuel_peak_yh)
+            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)
 
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
-    def get_peak_fuel_day(self, enduse_fuel_yh):
+    def get_peak_fuel_day(self, enduse_fuel_yh, tech_stock, data):
         """Iterate hourly service and get day with most service
         Return
+        ------
         peak_day_nr : int
             Day with most fuel across all fueltypes
+        peak_day_shape_dh : array
+            Peak dh shape of day with peak hour value
+
         Assumption: Day with most service is the day with peak
         """
         max_service_day = 0
@@ -242,7 +248,15 @@ class EnduseResid(object):
 
         print("max_service_day: " + str(max_service_day))
         print("Day_nr :         " + str(peak_day_nr))
-        return peak_day_nr #max_service_day
+
+        # Calculate hybrid dh fuel shape NEW PINGU
+        '''peak_day_shape_dh_hybrid_gas_elec_absolute = tech_stock.get_tech_attribute('hybrid_gas_elec', 'shape_yh')[peak_day_nr]
+        peak_day_shape_dh_hybrid_gas_elec = mf.absolute_to_relative(peak_day_shape_dh_hybrid_gas_elec_absolute)
+        print("PINGU 1: " + str(np.sum(peak_day_shape_dh_hybrid_gas_elec_absolute)))
+        print("PINGU 1: " + str(peak_day_shape_dh_hybrid_gas_elec))
+        print("PINGU 1: " + str(np.sum(peak_day_shape_dh_hybrid_gas_elec)))
+        '''
+        return peak_day_nr #, peak_day_shape_dh_hybrid_gas_elec
 
 
 
@@ -416,7 +430,7 @@ class EnduseResid(object):
             except: # If the enduse is not defined
                 return False
 
-    def get_peak_from_yh(self, enduse_fuel_peak_dh):
+    def get_peak_h_from_dh(self, enduse_fuel_peak_dh):
         """Iterate peak day fuels and select peak hour
 
         # The peak of the individual fueltypes may not be all in the same hour of the day
@@ -424,13 +438,14 @@ class EnduseResid(object):
         peak_fueltype_h = np.zeros((enduse_fuel_peak_dh.shape[0]))
 
         # Peak values for every fueltype
-        for fueltype, fuel_h in enumerate(enduse_fuel_peak_dh):
-            #print("--peakfinidng: " + str(fueltype) + str("  ") + str(np.max(fuel_h)))
-            peak_fueltype_h[fueltype] = np.max(fuel_h) # Get hour with maximum fuel_yh
-
+        for fueltype, fuel_dh in enumerate(enduse_fuel_peak_dh):
+            print("--peakfinidng: " + str(fueltype) + str("  ") + str(np.max(fuel_dh)))
+            peak_fueltype_h[fueltype] = np.max(fuel_dh) # Get hour with maximum fuel in a day of fueltype
+        
+        print("TESTSUM: " + str(np.sum(peak_fueltype_h)))
         return peak_fueltype_h
 
-    def calc_enduse_fuel_peak_tech_yh(self, enduse_fuel_tech, technologies_enduse, tech_stock):
+    def calc_enduse_fuel_peak_tech_dh(self, data, enduse_fuel_tech, technologies_enduse, tech_stock, peak_day_nr):
         """Calculate peak demand
 
         The daily peak is assumed to be the same in an enduse for all technologies
@@ -441,52 +456,56 @@ class EnduseResid(object):
 
         # Distribute the fuel for everyday as if were peak
         """
-        print("AAAAAAAAAAAA")
-        print(enduse_fuel_tech)
+
         #enduse_fuel_peak_yh = np.zeros((self.enduse_fuel_new_fuel.shape[0], 365, 24))
         fuels_peak_dh = np.zeros((self.enduse_fuel_new_fuel.shape[0], 24))
 
         for tech in technologies_enduse:
+            print("TECHNOLOGY: " + str(tech))
 
-            # Get fuel share of peak day (multiply total fuel per technology & maximum daily use)
+            # Get fuel share of  peak day (multiply total fuel per technology & maximum daily use)
             fuel_shape_yd = tech_stock.get_tech_attribute(tech, 'shape_yd')
 
-            fuel_shape_yd_peak = fuel_shape_yd[self.peak_day_nr]
+            # Get peak day demand
+            fuel_tech_y_d = enduse_fuel_tech[tech] * fuel_shape_yd[peak_day_nr]
 
-            fuel_tech_y_d = enduse_fuel_tech[tech] * fuel_shape_yd_peak
+            # If hybrid technology
+            if tech in data['assumptions']['list_tech_heating_hybrid']:
+                # The 'shape_peak_dh'is not defined in technology stock because in the 'RegionClass' the peak day is not yet known
+                # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
+                fuel_tech_peak_dh_absolute = tech_stock.get_tech_attribute(tech, 'shape_yh')[peak_day_nr]
+                fuel_tech_peak_dh = mf.absolute_to_relative(fuel_tech_peak_dh_absolute)
 
-            # Assign Peak shape of a peak day of a technology
-            fuel_tech_peak_dh = tech_stock.get_tech_attribute(tech, 'shape_peak_dh') * fuel_tech_y_d
+            else:
+
+                print("PEAK DAY DEMAND: " + str(np.sum(fuel_tech_y_d)))
+                print(np.sum(tech_stock.get_tech_attribute(tech, 'shape_peak_dh')))
+                assert np.sum(tech_stock.get_tech_attribute(tech, 'shape_peak_dh')) == 1 # IF not one, no shape is assigned
+
+                # Assign Peak shape of a peak day of a technology
+                fuel_tech_peak_dh = tech_stock.get_tech_attribute(tech, 'shape_peak_dh') * fuel_tech_y_d
+                print("A: " + str(np.sum(fuel_tech_peak_dh)))
 
             # Get fueltypes of tech for peak day
             fueltypes_tech_share_yd = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
-
-            print("fueltypes_tech_share_yd:" + str(fueltypes_tech_share_yd.shape))
-
+            print("B: " + str(np.sum(fueltypes_tech_share_yd)))
+            #print("fueltypes_tech_share_yd:" + str(fueltypes_tech_share_yd.shape))
+            control_sum = 0
             # Iterate shares of fueltypes, calculate share of fuel and add to fuels
             for fueltype, fuel_shares_dh in enumerate(fueltypes_tech_share_yd):
-                fuel_distribution_peak_day = fuel_shares_dh[self.peak_day_nr]
+                fuel_distribution_peak_day = fuel_shares_dh[peak_day_nr]
+                print("C: " + str(np.sum(fuel_distribution_peak_day)))
+                print("D: " + str(np.sum(fuel_tech_peak_dh)))
                 fuels_peak_dh[fueltype] += fuel_tech_peak_dh * fuel_distribution_peak_day
+                
+                control_sum += (fuel_tech_peak_dh * fuel_distribution_peak_day)
 
+            assert np.sum(control_sum) == np.sum(fuel_tech_peak_dh)
+        
+        print("TESTING:")
+        print(np.sum)
+        print(np.sum(fuels_peak_dh))
         return fuels_peak_dh
-        ''' # Get fuel of technology for peak day
-            fuel_tech_peak_d = fuel_tech_yd[self.peak_day_nr]
-
-            # Get shares of fueltypes of technology (because hybrid assing fuels differently)
-            fueltypes_tech_p = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
-
-            print("--Tech: " + str(tech) + str("  ") + str(np.sum(fueltypes_tech_p)))
-            # Iterate shares of fuel
-            for fueltype, fueltype_share_d in enumerate(fueltypes_tech_p):
-
-                # Distribution of fuel across fueltypes for peak day
-                fuel_fraction_peak_day = fueltype_share_d[self.peak_day_nr]
-
-                # Add peak fuels for specific fueltypes of peak day for peak day
-                enduse_fuel_peak_yh[fueltype] += fuel_tech_peak_d * fuel_fraction_peak_day
-
-                print("........" + str(fuel_fraction_peak_day) + str("   ") + str(np.sum(enduse_fuel_peak_yh[fueltype])))
-        '''
 
     def calc_enduse_fuel_tech_yd(self, enduse_fuel_tech, technologies_enduse, tech_stock):
         """Iterate fuels for each technology and assign shape yd
@@ -603,6 +622,11 @@ class EnduseResid(object):
             diffusion_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
 
             # Calculate increase in service based on diffusion of installed technology (diff & total service== Todays demand) - already installed service
+            print("eeeeeeeeeeeeeeeeee")
+            print(tech_installed)
+            print(np.sum(service_tech[tech_installed]))
+            print(diffusion_cy)
+            print(np.sum(tot_service_h_by))
             service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed]
 
             print("-----------Tech_installed:  "  + str(tech_installed) + str(data_ext['glob_var']['curr_yr']))
@@ -1069,3 +1093,5 @@ class EnduseResid(object):
         #TODO: DIFFERENT FUELTYPES
 
         return fuels_h_peak
+
+

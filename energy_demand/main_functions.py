@@ -1282,7 +1282,7 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype_input_data].items():
-                print("------------Tech: " + str(tech))
+                #print("------------Tech: " + str(tech))
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
@@ -1320,14 +1320,14 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
         total_service = sum_2_level_dict(service[enduse])
 
         # Percentage of energy service per technology
-        _a = 0
+        #_a = 0
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
                 service_tech_by_p[enduse][technology] = np.divide(1, total_service) * service_tech
-                print("Technolog_enduse: " + str(technology) + str("  ") + str(service_tech))
-                _a += service_tech
+                #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
+                #_a += service_tech
 
-        print("Total Service base year for enduse {}  :  {}".format(enduse, _a))
+        #print("Total Service base year for enduse {}  :  {}".format(enduse, _a))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
@@ -2246,10 +2246,11 @@ def eff_heat_pump(m_slope, h_diff, b):
 
 def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
     service_fueltype_tech_by_p = {}
-    for fueltype, fueltypevalue in fueltypes_lu.items():
-        service_fueltype_tech_by_p[fueltypevalue] = {}
-        for tech in fuel_enduse_tech_p_by[fueltypevalue]:
-            service_fueltype_tech_by_p[fueltypevalue][tech] = 0
+
+    for fueltype_int in fueltypes_lu.values():
+        service_fueltype_tech_by_p[fueltype_int] = {}
+        for tech in fuel_enduse_tech_p_by[fueltype_int]:
+            service_fueltype_tech_by_p[fueltype_int][tech] = 0
 
     return service_fueltype_tech_by_p
 
@@ -2278,3 +2279,19 @@ def TEST_GET_MAX(yh_shape, beschreibung):
     #plt.plot(day_values)
     #plt.show()
 
+def absolute_to_relative(absolute_array):
+    """Convert absolute numbers in an array to relative
+
+    Parameters
+    ----------
+    absolute_array : array
+        Contains absolute numbers in it
+    
+    Returns
+    -------
+    relative_array : array
+        Contains relative numbers
+    """
+    relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
+
+    return relative_array

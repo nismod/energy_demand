@@ -1,10 +1,9 @@
 """The technological stock for every simulation year"""
 import sys
 import numpy as np
-import time
 import energy_demand.main_functions as mf
 #import energy_demand.technological_stock_functions as tf
-# pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
+#pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class ResidTechStock(object):
     """Class of a technological stock of a year of the residential model
@@ -100,7 +99,7 @@ class Technology(object):
         # Depending on wether only single fueltype or multiple fueltypes (e.g. hybrid technologies)
         # -------
         if self.tech_name in data['assumptions']['list_tech_heating_hybrid']:
-            """ Hybrid efficiencies for residential heating"""
+            """Hybrid efficiencies for residential heating"""
             # Hybrid gas_electricity technology TODO: DEFINE TECHNOLOGY IN ASSUMPTIONS
             if self.tech_name == 'hybrid_gas_elec':
 
@@ -164,7 +163,7 @@ class Technology(object):
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
 
-        # Get Shape of peak dh
+        # Get Shape of peak dh where not read from values directly
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
     def get_heatpump_eff(self, temp_yr, m_slope, b, t_base_heating):
@@ -501,6 +500,10 @@ class Technology(object):
              # Peak curve robert sansom
             shape_peak_dh = np.divide(data['shapes_resid_heating_heat_pump_dh'][3], np.sum(data['shapes_resid_heating_heat_pump_dh'][3]))
 
+        elif self.tech_name in data['assumptions']['list_tech_heating_hybrid']: # if hybrid technology
+            #TODO: WRONG: THE PEAK SHAPE FOR HYBRID TECH IS REGIONAL DEPENDENT AND IS TAKEN from shape_yh directly for peak day
+            # The shape is assigned in region from peak day #TODO CHECK
+            shape_peak_dh = np.ones((24))
             #elif self-tech_name in data['assumptions']['list_tech_cooling_const']:
             #    self.shape_peak_dh =
             # TODO: DEfine peak curve for cooling
