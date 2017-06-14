@@ -11,7 +11,7 @@ import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 #import energy_demand.residential_model
 import energy_demand.enduseClass as enduseClass
-
+import serviceSector as ssClass
 assertions = unittest.TestCase('__init__')
 
 class RegionClass(object):
@@ -37,49 +37,44 @@ class RegionClass(object):
         print(" ")
 
         self.reg_name = reg_name
-        self.longitude = data['data_ext']['region_coordinates'][reg_name]['longitude']
-        self.latitude = data['data_ext']['region_coordinates'][reg_name]['latitude']
         self.resid_enduses_fuel = data['resid_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
-        closest_weatherstation_id = mf.get_closest_weather_station(self.longitude, self.latitude, data['weather_stations'])
-        self.temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
-        self.temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
+        longitude = data['data_ext']['region_coordinates'][reg_name]['longitude']
+        latitude = data['data_ext']['region_coordinates'][reg_name]['latitude']
+
+        closest_weatherstation_id = mf.get_closest_weather_station(longitude, latitude, data['weather_stations'])
+        temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
+        temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
 
         # Calculate HDD and CDD for calculating heating and cooling service demand
-        self.hdd_by = self.get_reg_hdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
-        self.hdd_cy = self.get_reg_hdd(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
-        self.cdd_by = self.get_reg_cdd(data, self.temp_by, data['data_ext']['glob_var']['base_yr'])
-        self.cdd_cy = self.get_reg_cdd(data, self.temp_cy, data['data_ext']['glob_var']['curr_yr'])
+        hdd_by = self.get_reg_hdd(data, temp_by, data['data_ext']['glob_var']['base_yr'])
+        hdd_cy = self.get_reg_hdd(data, temp_cy, data['data_ext']['glob_var']['curr_yr'])
+        cdd_by = self.get_reg_cdd(data, temp_by, data['data_ext']['glob_var']['base_yr'])
+        cdd_cy = self.get_reg_cdd(data, temp_cy, data['data_ext']['glob_var']['curr_yr'])
 
         # YD Factors (factor to calculate max daily demand from yearly demand)
-        self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(self.hdd_cy)
-        self.reg_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(self.cdd_cy)
+        self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(hdd_cy)
+        self.reg_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(cdd_cy)
 
         # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel)
-        self.heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(self.hdd_by))) * np.sum(self.hdd_cy) #Yearly factor
-        self.cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(self.cdd_by))) * np.sum(self.cdd_cy) #Yearly factor
+        self.heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(hdd_by))) * np.sum(hdd_cy) #Yearly factor
+        self.cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(cdd_by))) * np.sum(cdd_cy) #Yearly factor
 
         # Heating and cooling yd shapes
-        fuel_shape_heating_yd = mf.absolute_to_relative(self.hdd_cy)
-        fuel_shape_cooling_yd = mf.absolute_to_relative(self.cdd_cy)
+        fuel_shape_heating_yd = mf.absolute_to_relative(hdd_cy)
+        fuel_shape_cooling_yd = mf.absolute_to_relative(cdd_cy)
 
         # Create region specific technological stock
-        self.tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], self.temp_by, self.temp_cy)
+        self.tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], temp_by, temp_cy)
 
         # -------------------
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         # -------------------
         fuel_shape_boilers_yh, fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, fuel_shape_heating_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
-        fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
+        fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.tech_stock, hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, fuel_shape_cooling_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
         fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_gas_elec_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd) # Hybrid technologies shapes
-
-        print("-------TESTING MAX PEAK")
-        mf.TEST_GET_MAX(fuel_shape_boilers_yh, "fuel_shape_boilers_yh")
-        mf.TEST_GET_MAX(fuel_shape_hp_yh, "fuel_shape_hp_yh")
-        mf.TEST_GET_MAX(fuel_shape_hybrid_gas_elec_yh, "fuel_shape_hybrid_gas_elec_yh")
-        print("=====")
         #self.fuel_shape_lighting = data['shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
 
         # ------------
@@ -106,6 +101,11 @@ class RegionClass(object):
         # ------------
         # Service
         # ------------
+        self.create_enduses_sector(
+            data,
+            data)
+        
+        # Summarise all enduses accross all sectors and add as attribute to region
 
         # ------------
         # Industry
@@ -274,6 +274,18 @@ class RegionClass(object):
             '''
 
         return self.tech_stock
+
+    def create_enduses_sector(self, resid_enduses, data):
+        """ SERVICE
+        """
+        # Iterate over sectors and create Sectors
+        for sector_name in data['all_service_sectors']:
+            ssClass.ServiceSectorClass(
+                sector_name,
+                data
+                )
+        prnt("..")
+        pass
 
     def create_enduses_resid(self, resid_enduses, data):
         """All enduses are initialised and inserted as an attribute of the `Region` Class

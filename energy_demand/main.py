@@ -42,7 +42,6 @@ The docs can be found here: http://ed.readthedocs.io
 import os
 import sys
 import random
-import time
 import numpy as np
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
@@ -230,8 +229,11 @@ if __name__ == "__main__":
     # Disaggregate national data into regional data #TODO
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1)
 
-    # Generate virtual building stock over whole simulatin period
-    base_data['dw_stock'] = bg.resid_build_stock(base_data, base_data['assumptions'])
+    # Generate virtual residential building stock over whole simulatin period
+    base_data['dw_stock_resid'] = bg.resid_build_stock(base_data, base_data['assumptions'])
+
+    # Generate virtual service building stock
+    #base_data['dw_stock_service']
 
     # If several years are run:
     results_every_year = []

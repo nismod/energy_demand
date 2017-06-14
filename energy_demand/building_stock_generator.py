@@ -34,7 +34,7 @@ def resid_build_stock(data, assumptions):
 
     """
     dw_stock_every_year = {}
-    base_yr = data['data_ext']['glob_var']['base_yr'] # Base year
+    base_yr = data['data_ext']['glob_var']['base_yr']
 
     # Get distribution of dwelling types of all simulation years
     dwtype_distr_sim = bf.get_dwtype_dist(assumptions['assump_dwtype_distr_by'], assumptions['assump_dwtype_distr_ey'], data['data_ext']['glob_var']) # Calculate distribution of dwelling types over simulation period
@@ -64,7 +64,19 @@ def resid_build_stock(data, assumptions):
 
             # Only calculate changing
             if sim_y == base_yr:
-                dw_stock_base = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_by, floorarea_by, pop_by, assumptions, data['data_ext'])
+                dw_stock_base = generate_dw_existing(
+                    data,
+                    reg_name,
+                    sim_y, data['dwtype_lu'],
+                    floorarea_p_sy[base_yr],
+                    floorarea_by,
+                    assumptions['dwtype_age_distr'][base_yr],
+                    floorarea_pp_by,
+                    floorarea_by,
+                    pop_by,
+                    assumptions,
+                    data['data_ext']
+                    )
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings

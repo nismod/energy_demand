@@ -2,12 +2,12 @@
 import os
 import csv
 #import unittest
+from random import randint
 import matplotlib.pyplot as plt
 import numpy as np
 import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
 import energy_demand.plot_functions as pf
-from random import randint
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -101,6 +101,7 @@ def load_data(path_main, data):
 
         # Service
         # -------
+        'path_fuel_raw_data_service_enduses': os.path.join(path_main, 'residential_model/data_service_by_fuel_end_uses.csv'),
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
         }
 
@@ -165,6 +166,10 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
+    fuel_raw_data_service_enduses, all_service_sectors = mf.read_csv_base_data_service(data['path_dict']['path_fuel_raw_data_service_enduses']) # Yearly end use data
+    data['fuel_raw_data_service_enduses'] = fuel_raw_data_service_enduses
+    data['all_service_sectors'] = all_service_sectors
+
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
 

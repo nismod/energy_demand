@@ -174,6 +174,74 @@ def read_csv(path_to_csv):
 
     return np.array(list_elements) # Convert list into array
 
+def read_csv_base_data_service(path_to_csv):
+    """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
+
+    Returns
+    -------
+    elements_array : dict
+        Returns an dict with arrays
+
+    Notes
+    -----
+    the first row is the fuel_ID
+    The header is the sub_key
+    """
+    try:
+        lines = []
+        end_uses_dict = {}
+
+        with open(path_to_csv, 'r') as csvfile:
+            read_lines = csv.reader(csvfile, delimiter=',')
+            _headings = next(read_lines) # Skip first row
+            _secondLine = next(read_lines) # Skip first row
+
+            # All sectors
+            all_sectors = []
+            for sector in _secondLine[1:]: #skip fuel ID:
+                if sector not in all_sectors:
+                    all_sectors.append(sector)
+                
+            
+            # All enduses
+            all_enduses = []
+            for enduse in _headings[1:]: #skip fuel ID:
+                if enduse not in all_enduses:
+                    all_enduses.append(enduse)
+
+            # Initialise dict
+            for sector in all_sectors:
+                end_uses_dict[sector] = {}
+                for enduse in all_enduses:
+                    end_uses_dict[sector][enduse] = {}
+
+            # Iterate rows
+            for row in read_lines:
+                lines.append(row)
+
+            for cnt_fueltype, row in enumerate(lines):
+                cnt = 1 #skip first
+                for entry in row[1:]:
+                    end_use = _headings[cnt]
+                    sector = _secondLine[cnt]
+                    end_uses_dict[sector][end_use][cnt_fueltype] = entry
+                    cnt += 1
+        print("end_uses_dict")
+        print(end_uses_dict)
+        return end_uses_dict, all_sectors
+            
+    except (KeyError, ValueError):
+        sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
+
+    return end_uses_dict
+
 def read_csv_base_data_resid(path_to_csv):
     """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
 

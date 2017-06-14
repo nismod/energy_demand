@@ -37,6 +37,7 @@ class EnduseResid(object):
     """
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor):
         self.enduse = enduse
+        #self.sector = "TEST" #For Residential by default == Residential
         self.enduse_fuel = enduse_fuel[enduse]
         self.enduse_fuelswitch_crit = self.get_fuel_switches(data, data['assumptions']['resid_fuel_switches'])
         self.enduse_serviceswitch_crit = self.get_service_switches(data, data['assumptions']['service_switch_enduse_crit'])
@@ -1047,11 +1048,11 @@ class EnduseResid(object):
         new_fuels = copy.deepcopy(self.enduse_fuel_new_fuel)
 
         # Test if enduse has a building related scenario driver
-        if hasattr(data['dw_stock'][reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) and data['data_ext']['glob_var']['curr_yr'] != data['data_ext']['glob_var']['base_yr']:
+        if hasattr(data['dw_stock_resid'][reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) and data['data_ext']['glob_var']['curr_yr'] != data['data_ext']['glob_var']['base_yr']:
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(data['dw_stock'][reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) # Base year building stock
-            cy_driver = getattr(data['dw_stock'][reg_name][data['data_ext']['glob_var']['curr_yr']], self.enduse) # Current building stock
+            by_driver = getattr(data['dw_stock_resid'][reg_name][data['data_ext']['glob_var']['base_yr']], self.enduse) # Base year building stock
+            cy_driver = getattr(data['dw_stock_resid'][reg_name][data['data_ext']['glob_var']['curr_yr']], self.enduse) # Current building stock
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
             factor_driver = np.divide(cy_driver, by_driver) # TODO: FROZEN Here not effecieicny but scenario parameters
