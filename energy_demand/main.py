@@ -32,11 +32,8 @@
 
 
 Down the line
-- new tech --> enduse per person, --> distribution in pop --> shape of appliances
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 
-# Either calculate peak always speratly or assign peak shapes to day with most demand (for heating possible, for appliances other method??)
-visu
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -109,7 +106,7 @@ def energy_demand_model(data):
     print("Finished energy demand model")
 
     # Plot Region 0 for half a year
-    # pf.plot_x_days(result_dict[2], 0, 2)
+    #pf.plot_x_days(result_dict[2], 0, 2)
 
     return result_dict, resid_object_country #MULTIPLE YEARS
 
@@ -261,10 +258,11 @@ if __name__ == "__main__":
     # Plot total fuel (y) per fueltype
     pf.plot_fuels_tot_all_enduses(results_every_year, base_data)
 
-    # Plot peak demand for every fueltype
+    # Plot peak demand (h) for every fueltype
     pf.plot_fuels_peak_hour(results_every_year, base_data)
 
-
+    # Plot a full week
+    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data)
 
     # Run main function
     results = energy_demand_model(base_data)

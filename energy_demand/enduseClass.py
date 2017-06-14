@@ -1,10 +1,10 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import sys
-import numpy as np
-import energy_demand.main_functions as mf
 import unittest
 import copy
+import numpy as np
+import energy_demand.main_functions as mf
 assertions = unittest.TestCase('__init__')
 
 class EnduseResid(object):
@@ -151,17 +151,11 @@ class EnduseResid(object):
             # --------
             # PEAK (Peak is not defined by yd factor so far but read out from real data!) #TODO
             # --------
-            summe = 0
-            for tech in enduse_fuel_tech_y:
-                summe += np.sum(service_tech[tech])
-            print("TOTAL FUEL TO REDISRIBUTE 22 " + str(summe))
-            
             # Get day with most fuel across all fueltypes (this is selected as max day)
             peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
             print("Peak day: " + str(peak_day_nr))
 
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_tech_dh(enduse_fuel_tech_y, self.technologies_enduse, tech_stock)
             self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data, enduse_fuel_tech_y, tech_stock, peak_day_nr)
             print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
 
@@ -556,8 +550,6 @@ class EnduseResid(object):
             # Get yd fuel shape of technology
             fuel_shape_yd = tech_stock.get_tech_attribute(tech, 'shape_yd')
 
-            #TESTING
-            np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
 
             # Calculate absolute fuel values for yd
             fuel_tech_y_d = enduse_fuel_tech[tech] * fuel_shape_yd #[peak_day_nr]
@@ -579,7 +571,6 @@ class EnduseResid(object):
                 # Assign Peak shape of a peak day of a technology
                 tech_peak_dh = tech_stock.get_tech_attribute(tech, 'shape_peak_dh')
 
-            assert np.sum(tech_peak_dh) == 1 # If not one, no shape is assigned
 
             # Multiply absolute d fuels with dh peak fuel shape
             fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
@@ -595,9 +586,11 @@ class EnduseResid(object):
                 fuels_peak_dh[fueltype] += fuel_tech_peak_dh * fueltype_distr_yh[peak_day_nr]
 
                 control_sum += (fuel_tech_peak_dh * fueltype_distr_yh[peak_day_nr])
-            
+
             # Testing
-            assert np.sum(control_sum) == np.sum(fuel_tech_peak_dh)
+            np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
+            np.testing.assert_almost_equal(np.sum(tech_peak_dh), 1, decimal=3, err_msg='Error XY')
+            np.testing.assert_almost_equal(np.sum(control_sum), np.sum(fuel_tech_peak_dh), decimal=3, err_msg='Error XY')
 
         return fuels_peak_dh
 
@@ -1085,8 +1078,8 @@ class EnduseResid(object):
         """
         fuels_d = np.zeros((fuels.shape[0], 365))
 
-        for k, fuel in enumerate(fuels):
-            fuels_d[k] = enduse_shape_yd * fuel
+        for fueltype, fuel in enumerate(fuels):
+            fuels_d[fueltype] = enduse_shape_yd * fuel
 
         np.testing.assert_almost_equal(np.sum(fuels), np.sum(fuels_d), decimal=3, err_msg='The distribution of dwelling types went wrong', verbose=True)
 
@@ -1180,8 +1173,4 @@ class EnduseResid(object):
         for fueltype, fuel in enumerate(fuels):
             fuels_h_peak[fueltype] = shape_peak_dh * fuel
 
-        #TODO: DIFFERENT FUELTYPES
-
         return fuels_h_peak
-
-

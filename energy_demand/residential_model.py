@@ -70,15 +70,14 @@ class CountryClass(object):
         # Create object for every region
         self.create_regions(reg_names, data)
 
+
+
         # Functions to summarise data for all Regions in the CountryClass class
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data, reg_names) #yearly fuel
         self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'reg_load_factor_h')
         self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'max_fuel_peak')
-
-        # NEW
         self.tot_country_fuels_all_enduses = self.tot_fuels_all_enduses_yh(data, reg_names, 'tot_fuels_all_enduses_yh')
-          # TESTER: READ OUT Specific ENDUSE for a REGION
         #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
 
         # ----- Testing

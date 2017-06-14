@@ -56,15 +56,22 @@ class Dwelling(object):
         """
         # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:
+            
             driver_value = 1 #used to sum (not zero!)
-            drivers = self.driver_assumptions[enduse]
 
-            # Iterate scenario drivver and get attriute to multiply values
-            for driver in drivers:
-                driver_value = driver_value * getattr(self, driver)
+            # If there are scenario drivers for enduse
+            if enduse not in self.driver_assumptions:
+                Dwelling.__setattr__(self, enduse, driver_value)
+    
+            else:
+                drivers = self.driver_assumptions[enduse]
 
-            # Set attribute
-            Dwelling.__setattr__(self, enduse, driver_value)
+                # Iterate scenario drivver and get attriute to multiply values
+                for driver in drivers:
+                    driver_value = driver_value * getattr(self, driver)
+
+                # Set attribute
+                Dwelling.__setattr__(self, enduse, driver_value)
 
 class DwStockRegion(object):
     """Class of the building stock in a region"""

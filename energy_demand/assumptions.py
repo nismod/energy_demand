@@ -3,8 +3,6 @@ import sys
 import energy_demand.main_functions as mf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-#TODO: IF EFFICIENCY FOF HYBRID TECH IS ENTERED; IGNORE
-
 def load_assumptions(data):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
@@ -58,6 +56,8 @@ def load_assumptions(data):
         'resid_home_computing': ['pop'],
     }
 
+    #Testing (test if all provided fueltypes)
+    #test_if_enduses_are_assigneddata['resid_enduses']
     # ========================================================================================================================
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
@@ -179,7 +179,6 @@ def load_assumptions(data):
     assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_assumptions_tech_resid'], data) # Load all technologies
     assumptions['hp_slope_assumpt'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
 
-
     # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1.0
 
@@ -256,7 +255,7 @@ def load_assumptions(data):
     assumptions['resid_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
 
     # ============================================================
-    # Scenaric SERVICE switches    (The share of energy service is the same across all regions)
+    # Scenaric SERVICE switches
     # ============================================================
     assumptions['share_service_tech_ey_p'], assumptions['enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
 
@@ -476,4 +475,3 @@ def testing_all_defined_tech_in_switch_in_fuel_definition(fuel_enduse_tech_p_by,
                 if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
     return
-

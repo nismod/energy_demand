@@ -51,7 +51,8 @@ def load_data(path_main, data):
         'hydrogen': 6,
         'coal': 7
     }
-    data['nr_of_fueltypes'] = len(data['lu_fueltype']) 
+    data['nr_of_fueltypes'] = len(data['lu_fueltype'])
+
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
     # -----------------------------
@@ -159,7 +160,7 @@ def load_data(path_main, data):
     ###data = add_yearly_external_fuel_data(data, fuel_raw_data_resid_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
-    data = create_enduse_dict(data, fuel_raw_data_resid_enduses)
+    data['resid_enduses'] = create_enduse_dict(data, fuel_raw_data_resid_enduses)
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
@@ -345,14 +346,14 @@ def create_enduse_dict(data, fuel_raw_data_resid_enduses):
 
     Returns
     -------
-    data : dict
-        Main data dictionary with added enduse dictionary
+    resid_enduses : dict
+        Ditionary with residential enduses
     """
-    data['resid_enduses'] = {}
+    resid_enduses = {}
     for ext_enduse in data['data_ext']['external_enduses_resid']: # Add external enduse
-        data['resid_enduses'][ext_enduse] = ext_enduse
+        resid_enduses[ext_enduse] = ext_enduse
 
     for enduse in fuel_raw_data_resid_enduses: # Add resid enduses
-        data['resid_enduses'][enduse] = enduse
+        resid_enduses[enduse] = enduse
 
-    return data
+    return resid_enduses

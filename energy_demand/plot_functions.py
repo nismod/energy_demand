@@ -219,6 +219,69 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
     plt.show()
 
 
+
+
+
+
+
+
+
+def plot_fuels_tot_all_enduses_week(results_resid, data):
+    """Plots stacked end_use for a region
+
+
+    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+    # INFO Cannot plot a single year?
+    """
+
+    # Number of days to plot
+    days_to_plot = range(100, 107)
+
+    # Which year in simulation (2015 = 0)
+    year_to_plot = 2
+
+    fig, ax = plt.subplots()
+    nr_of_h_to_plot = len(days_to_plot) * 24
+
+    legend_entries = []
+
+    # Initialise (number of enduses, number of hours to plot)
+    Y_init = np.zeros((data['nr_of_fueltypes'], nr_of_h_to_plot))
+
+    for fueltype, _ in enumerate(data['lu_fueltype']):
+
+        # Legend
+        fueltype_in_string = mf.get_fueltype_str(data['lu_fueltype'], fueltype)
+        legend_entries.append(fueltype_in_string)
+
+        # Read out fueltype specific max h load
+        tot_fuels = results_resid[year_to_plot].tot_country_fuels_all_enduses #DATA
+
+        data_over_day = []
+        for day, daily_values in enumerate(tot_fuels[fueltype]):
+            if day in days_to_plot:
+                for hour in daily_values:
+                    data_over_day.append(hour)
+
+        Y_init[fueltype] = data_over_day
+
+    # Plot lines
+    for line, _ in enumerate(Y_init):
+        plt.plot(Y_init[line])
+
+    ax.legend(legend_entries)
+
+    x_tick_pos = []
+    for day in range(len(days_to_plot)):
+        x_tick_pos.append(day * 24)
+    plt.xticks(x_tick_pos, days_to_plot, color='black')
+    plt.axis('tight')
+
+    plt.ylabel("Fuel")
+    plt.xlabel("days")
+    plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
+    plt.show()
+
 def plot_fuels_tot_all_enduses(results_resid, data):
     """Plots stacked end_use for a region
 

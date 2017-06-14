@@ -13,3 +13,6 @@ boiler_hydrogen			0.0
  
 Enduse  resid_lighting
 ----------
+ 
+Enduse  resid_consumer_electronics
+----------
