@@ -408,7 +408,8 @@ class Technology(object):
         for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
             fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row in array
 
-        assert np.sum(fuel_yd_shares) == 365
+        #Testing
+        np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 365, decimal=3, err_msg='Error XY')
 
         return fuel_yd_shares
 

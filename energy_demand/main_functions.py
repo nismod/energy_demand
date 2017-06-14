@@ -1405,111 +1405,6 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
     return service_tech_switched_p
 
-def calc_regional_service(enduse_technologies, fuel_enduse_tech_p_by, fuels, tech_stock, fueltypes_lu):
-    """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
-
-    This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
-    and then calculates the fraction of an invidual technology to which it contributes to total energy
-    service (e.g. how much of total heat demand condensing boilers contribute).
-
-    #TODO
-
-    Parameters
-    ----------
-    enduse_technologies : list
-        All technologies in enduse
-    fuel_enduse_tech_p_by : dict
-        Fuel composition of base year for every fueltype for each enduse (assumtions for national scale)
-    fuels : array
-        Base year fuel demand
-    tech_stock : object
-        Technology stock of region
-
-    Return
-    ------
-    tot_service_yh : array
-        Total energy service per technology for base year (365, 24)
-    service_tech_by : dict
-        Energy service for every fueltype and technology (dict[fueltype][tech])
-
-    Info
-    -----
-    Energy service = fuel * efficiency
-
-    Notes
-    -----
-    The fraction of fuel is calculated based on regional temperatures. The fraction
-    of fueltypes belonging to each technology is however based on national assumptions (fuel_enduse_tech_p_by)
-    and thus changes the share of enery service in each region
-    """
-    # Initialise
-    service_tech_by = init_dict(enduse_technologies, 'zero')
-    service_fueltype_tech_by_p = initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
-
-    # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
-    for fueltype, fuel_enduse in enumerate(fuels):
-        for tech in fuel_enduse_tech_p_by[fueltype]:
-
-            # Fuel share based on defined fuel fraction within fueltype (assumed national share of fuel of technology * tot fuel)
-            fuel_tech_y = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
-
-            # Distribute y to yh by multiplying total fuel of technology with yh fuel shape
-            fuel_tech_yh = fuel_tech_y * tech_stock.get_tech_attribute(tech, 'shape_yh')
-
-            # Convert to energy service
-            service_tech_by[tech] += fuel_tech_yh * tech_stock.get_tech_attribute(tech, 'eff_by')
-            #print("Convert fuel to service and add to existing: "+ str(np.sum(service_tech_by[tech])) + str("  ") + str(tech))
-
-            # Get fuel distribution yh
-            fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
-
-            # Distribute service depending on fueltype distirbution
-            for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
-                fuel_fueltype = fueltype_share * fuel_tech_yh
-
-                # Convert fuel to service #TODO: WHY IS NOT IN TECH IF NO SERVICE?
-                if np.sum(fuel_fueltype) > 0:
-                    service_fueltype_tech_by_p[fueltype_installed_tech_yh][tech] += np.sum(fuel_fueltype * tech_stock.get_tech_attribute(tech, 'eff_by'))
-
-            # Testing
-            assertions.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong", delta=None)
-
-    # ----------
-    # Convert service to other formats
-    # ----------
-    # --Calculate energy service demand over the full year and for every hour, sum demand accross all technologies
-    tot_service_yh = np.zeros((365, 24))
-    for tech, service_tech in service_tech_by.items():
-        tot_service_yh += service_tech
-
-    # --Convert to percentage
-    service_tech_by_p = {}
-    for technology, service_tech in service_tech_by.items():
-        service_tech_by_p[technology] = np.divide(1, np.sum(tot_service_yh)) * np.sum(service_tech)
-
-    # Convert service per fueltype of technology
-    for fueltype, service_fueltype in service_fueltype_tech_by_p.items():
-
-        # Calculate total sum within fueltype
-        sum_within_fueltype = 0
-        for tech in service_fueltype:
-            sum_within_fueltype += service_fueltype_tech_by_p[fueltype][tech]
-
-        # Calculate fraction of servcie per technology
-        for tech, service_fueltype_tech in service_fueltype.items():
-            if sum_within_fueltype > 0:
-                service_fueltype_tech_by_p[fueltype][tech] = np.divide(1, np.sum(sum_within_fueltype)) * service_fueltype_tech
-            else:
-                service_fueltype_tech_by_p[fueltype][tech] = 0
-
-    # Calculate service fraction per fueltype
-    service_fueltype_by_p = init_dict(fueltypes_lu.values(), 'zero')
-    for fueltype, service_fueltype in service_fueltype_tech_by_p.items():
-        for tech, service_fueltype_tech in service_fueltype.items():
-            service_fueltype_by_p[fueltype] += service_fueltype_tech
-
-    return tot_service_yh, service_tech_by, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
-
 def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):
     """Calculate service per fueltype in percentage of total service
 
@@ -1544,8 +1439,6 @@ def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptio
             ##fueltypes_tech = technology]['fuel_type']
 
             #service_fueltype[enduse][fueltype]
-
-
 
     return service_fueltype
 
@@ -2090,53 +1983,6 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
 
     return relative_share_service_tech_decrease_by
 
-'''def generate_fuel_distribution(enduse_tech_p, technologies, lu_fueltype):
-    #Based on assumptions about energy service delivered by technologies, generate fuel distribution
-
-    As an input, the percentage of energy service (e.g. heating) is provided
-    for different technologies. Based on simple efficiency assumptions the
-    split within each fueltype is calculated. This can be used to assign
-    fuel inputs to different technologies
-
-    # TODO: MAybe do on regional level
-    #TODO: Efficiency of base year of heat pumps???
-    ALLES NUR GROB GESCHAETZT AUCH MIT EFF VON HEAT PUMPS... ...hybrid tech?
-    #
-    fuels_tech_p = {}
-
-    for enduse in enduse_tech_p:
-
-        # Initialise
-        initial_service_units = 1000
-        fuels_tech_p[enduse] = {}
-        for fueltype in lu_fueltype:
-            fuels_tech_p[enduse][lu_fueltype[fueltype]] = {}
-
-        # Calculate fuel for each tech
-        for tech in enduse_tech_p[enduse]:
-            tech_eff_by = technologies[tech]['eff_by'] # Efficiency of technology
-            fuel_type = technologies[tech]['fuel_type'] # Fueltype of technology
-
-            # Service of technology (share)
-            service_tech_by = enduse_tech_p[enduse][tech] * initial_service_units
-
-            # Fuel of base year
-            fuels_tech_p[enduse][fuel_type][tech] = np.divide(service_tech_by, tech_eff_by)
-
-        # Calculate percentage within each fueltype
-        for fueltype in fuels_tech_p[enduse]:
-            total_fuel_fueltype = sum(fuels_tech_p[enduse][fueltype].values())
-            for tech in fuels_tech_p[enduse][fueltype]:
-
-                if total_fuel_fueltype == 0.0: #ALL TO ONE
-                    # If no fuel for this technology, assign with 1.0
-                    fuels_tech_p[enduse][fueltype][tech] = 1.0 # If not assigned provide 1.0 ()
-                else:
-                    fuels_tech_p[enduse][fueltype][tech] = np.divide(1, total_fuel_fueltype) * fuels_tech_p[enduse][fueltype][tech]
-
-    return fuels_tech_p
-'''
-
 def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltype):
     """Calculate percentage of service for every fueltype
     """
@@ -2184,11 +2030,16 @@ def calc_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, te
 
     The daily shape is taken for TechA for 0-12 and weighted according to efficency
     Between 12 and Tech A and TechB are taken with 50% shares and weighted with either efficiency
+
+    Info
+    ----
+    In case no fuel is provided for a day 'fuel_shapes_hybrid_y_dh' for this day is zero. Therfore
+    the total sum of 'fuel_shapes_hybrid_y_dh not necessarily 365.
     """
     fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
     for day in tech_low_high_p:
-        dh_shape_hybrid = np.zeros(24)
+        dh_fuel_hybrid = np.zeros(24)
 
         for hour in range(24):
 
@@ -2200,19 +2051,48 @@ def calc_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, te
             eff_low = eff_low_tech[day][hour]
             eff_high = eff_high_tech[day][hour]
 
+            # Calculate fuel for every hour
+            if low_p == 0:
+                fuel_boiler = 0
+            else:
+                fuel_boiler = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low)
+
+            if high_p == 0:
+                fuel_hp = 0
+            else:
+                fuel_hp = np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high)
+
+            '''print("****hour")
+            print(low_p)
+            print(high_p)
+            print(eff_low)
+            print(eff_high)
+            print(fuel_shape_boilers_y_dh[day][hour])
+            print(fuel_shape_hp_y_dh[day][hour])
+            print(np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low))
+            print(np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high))
+            print("iff")
+            print(fuel_boiler)
+            print(fuel_hp)
+            #if fuel_boiler + fuel_hp == 0:
+            #    prit("eee")
+            '''
+
             # Weighted hourly dh shape with efficiencies
-            dh_shape_hybrid[hour] = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low) + np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high)
+            dh_fuel_hybrid[hour] = fuel_boiler + fuel_hp
+            #dh_shape_hybrid[hour] = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low) + np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high)
 
         # Normalise dh shape
-        fuel_shapes_hybrid_y_dh[day] = np.divide(1, np.sum(dh_shape_hybrid)) * dh_shape_hybrid
+        #fuel_shapes_hybrid_y_dh[day] = np.divide(1, np.sum(dh_shape_hybrid)) * dh_shape_hybrid
+        fuel_shapes_hybrid_y_dh[day] = absolute_to_relative(dh_fuel_hybrid)
 
         ########
         '''plt.plot(dh_shape_hybrid)
         plt.show()
         '''
     # Testing
-    np.testing.assert_array_almost_equal(np.sum(fuel_shapes_hybrid_y_dh), 365, decimal=4, err_msg='Error in shapes')
-
+    #np.testing.assert_array_almost_equal(np.sum(fuel_shapes_hybrid_y_dh), 365, decimal=4, err_msg='Error in shapes')
+    
     return fuel_shapes_hybrid_y_dh
 
 def eff_heat_pump(m_slope, h_diff, b):
@@ -2282,16 +2162,27 @@ def TEST_GET_MAX(yh_shape, beschreibung):
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative
 
+    If the total sum is zero, return an array with zeros and raise a warning
+
     Parameters
     ----------
     absolute_array : array
         Contains absolute numbers in it
-    
+
     Returns
     -------
     relative_array : array
         Contains relative numbers
-    """
-    relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
 
+
+    """
+    # If the total sum is zero, return same array
+    if np.sum(absolute_array) == 0:
+        relative_array = absolute_array
+        #print("Warning: The sum was zero")
+    else:
+        #relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
+        relative_array = np.nan_to_num(np.divide(1, np.sum(absolute_array)) * absolute_array)
+
+    #assert np.sum(absolute_array) > 0
     return relative_array

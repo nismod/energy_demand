@@ -59,7 +59,7 @@ class RegionClass(object):
         self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(self.hdd_cy)
         self.reg_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(self.cdd_cy)
 
-        # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel)
+        # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel) absolute_to_relative #TODO
         self.heating_factor_y = np.nan_to_num(np.divide(1, np.sum(self.hdd_by))) * np.sum(self.hdd_cy)
         self.cooling_factor_y = np.nan_to_num(np.divide(1, np.sum(self.cdd_by))) * np.sum(self.cdd_cy)
 
@@ -75,6 +75,9 @@ class RegionClass(object):
         # -------------------
         fuel_shape_boilers_yh, fuel_shape_boilers_y_dh = self.shape_heating_boilers_yh(data, fuel_shape_heating_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
         fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.shape_heating_hp_yh(data, self.tech_stock, self.hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
+        
+        print("TESTING THE SUM OF fuel_shape_hp_y_dh: " + str(np.sum(fuel_shape_hp_y_dh)))
+
         fuel_shape_cooling_yh = self.shape_cooling_yh(data, fuel_shape_cooling_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
         fuel_shape_hybrid_gas_elec_yh = self.shape_heating_hybrid_gas_elec_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd) # Hybrid technologies shapes
 
@@ -703,12 +706,15 @@ class RegionClass(object):
             #print("*************DDDDDDD")
             #print(np.sum(fuel_shape_d))
 
-            # Add daily fuel curve
-            shape_y_dh[day] = np.divide(1, np.sum(fuel_shape_d)) * fuel_shape_d
+ 
+
+            # Add normalised daily fuel curve
+            #shape_y_dh[day] = np.divide(1, np.sum(fuel_shape_d)) * fuel_shape_d
+            shape_y_dh[day] = mf.absolute_to_relative(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp
-    
+
         return shape_yh, shape_y_dh
 
     def shape_cooling_yh(self, data, cooling_shape, tech_to_get_shape):
