@@ -202,7 +202,7 @@ if __name__ == "__main__":
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
 
-    # Convert base year fuel input assumptions to energy service #TODO: USE CORRECT EFF FOR HEATPUMPS
+    # Convert base year fuel input assumptions to energy service
     base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_by_p'], base_data['assumptions']['service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],

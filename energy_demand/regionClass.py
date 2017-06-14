@@ -284,7 +284,7 @@ class RegionClass(object):
                 sector_name,
                 data
                 )
-        prnt("..")
+
         pass
 
     def create_enduses_resid(self, resid_enduses, data):

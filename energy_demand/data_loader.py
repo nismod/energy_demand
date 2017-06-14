@@ -226,11 +226,12 @@ def collect_shapes_from_txts(data):
     # Iterate folders and get all enduse
     all_csv_in_folder = os.listdir(data['path_dict']['path_txt_shapes_resid'])
 
-    enduses = []
+    enduses = set([])
     for file_name in all_csv_in_folder:
         enduse = file_name.split("__")[0] # two dashes because individual enduses may contain a single slash
-        if enduse not in enduses:
-            enduses.append(enduse)
+        enduses.add(enduse)
+        #if enduse not in enduses:
+        #    enduses.append(enduse)
 
     # Read load shapes from txt files for enduses
     for end_use in enduses:

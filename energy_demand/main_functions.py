@@ -204,17 +204,17 @@ def read_csv_base_data_service(path_to_csv):
             _secondLine = next(read_lines) # Skip first row
 
             # All sectors
-            all_sectors = []
+            all_sectors = set([])
             for sector in _secondLine[1:]: #skip fuel ID:
-                if sector not in all_sectors:
-                    all_sectors.append(sector)
+                #if sector not in all_sectors:
+                all_sectors.add(sector)
                 
             
             # All enduses
-            all_enduses = []
+            all_enduses = set([])
             for enduse in _headings[1:]: #skip fuel ID:
-                if enduse not in all_enduses:
-                    all_enduses.append(enduse)
+                #if enduse not in all_enduses:
+                all_enduses.add(enduse)
 
             # Initialise dict
             for sector in all_sectors:
@@ -1527,12 +1527,14 @@ def get_tech_installed(fuel_switches):
     # Add technology list for every enduse with affected switches
     installed_tech = {}
     for switch in fuel_switches:
-        installed_tech[switch['enduse']] = []
+        installed_tech[switch['enduse']] = set([]) #[]
 
     for switch in fuel_switches:
         enduse_fuelswitch = switch['enduse']
-        if switch['technology_install'] not in installed_tech[enduse_fuelswitch]:
-            installed_tech[enduse_fuelswitch].append(switch['technology_install'])
+        installed_tech[enduse_fuelswitch].add(switch['technology_install'])
+
+        #if switch['technology_install'] not in installed_tech[enduse_fuelswitch]:
+        #    installed_tech[enduse_fuelswitch].append(switch['technology_install'])
 
     return installed_tech
 

@@ -36,11 +36,15 @@ class EnduseResid(object):
     otherwise enduse load shapes are used.
     """
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor):
+
+        self.base_year = data['data_ext']['glob_var']['base_yr']
+        self.current_year = data['data_ext']['glob_var']['curr_yr']
+
         self.enduse = enduse
         #self.sector = "TEST" #For Residential by default == Residential
         self.enduse_fuel = enduse_fuel[enduse]
-        self.enduse_fuelswitch_crit = self.get_fuel_switches(data, data['assumptions']['resid_fuel_switches'])
-        self.enduse_serviceswitch_crit = self.get_service_switches(data, data['assumptions']['service_switch_enduse_crit'])
+        self.enduse_fuelswitch_crit = self.get_fuel_switches(data['assumptions']['resid_fuel_switches'])
+        self.enduse_serviceswitch_crit = self.get_service_switches(data['assumptions']['service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_tech(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
@@ -285,10 +289,10 @@ class EnduseResid(object):
                 service_fueltype_by_p[fueltype] += service_fueltype_tech
 
         return tot_service_yh, service_tech_by, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
-    
+
     def get_peak_fuel_day(self, enduse_fuel_yh):
         """Iterate hourly service and get day with most service
-        
+
         Parameters
         ----------
         enduse_fuel_yh : array
@@ -329,11 +333,15 @@ class EnduseResid(object):
         print("Day_nr :         " + str(peak_day_nr))
         return peak_day_nr
 
-
-
     def get_enduse_tech(self, service_tech_by_p, fuel_enduse_tech_p_by):
-        """Get all defined technologies
-        service_tech_by_p
+        """Get all defined technologies of an enduse
+
+        Parameters
+        ----------
+        service_tech_by_p : dict
+            Percentage of total service per technology in base year in
+        fuel_enduse_tech_p_by : dict
+            Percentage of fuel per enduse per technology
 
         Return
         ------
@@ -345,13 +353,19 @@ class EnduseResid(object):
         if self.enduse_serviceswitch_crit:
             technologies_enduse = service_tech_by_p.keys()
 
-        else: # also if fuel switches
+        else:
             # If no fuel switch and no service switch, read out base year technologies
-            technologies_enduse = []
-            for fueltype in fuel_enduse_tech_p_by:
+            technologies_enduse = [] #set([])
+            for fueltype, tech_fueltype in fuel_enduse_tech_p_by.items():
                 for tech in fuel_enduse_tech_p_by[fueltype].keys():
                     if tech not in technologies_enduse:
                         technologies_enduse.append(tech)
+
+                '''for tech in tech_fueltype.keys(): #for tech in fuel_enduse_tech_p_by[fueltype].keys():
+                    technologies_enduse.add(tech)
+                    #if tech not in technologies_enduse:
+                    #    technologies_enduse.append(tech)
+                '''
 
         return technologies_enduse
 
@@ -463,19 +477,26 @@ class EnduseResid(object):
 
         return service_tech_cy_p
 
-    def get_fuel_switches(self, data, fuelswitches):
+    #@classmethod
+    def get_fuel_switches(self, fuelswitches):
         """Test whether there is a fuelswitch for this enduse
+
+        Parameters
+        ----------
+        fuelswitches : dict
+            All fuel switches
+
         Note
         ----
         If base year, no switches are implemented
         """
-        if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
+        if self.base_year == self.current_year:
             return False
         else:
             fuel_switches_enduse = []
 
             for fuelswitch in fuelswitches:
-                if fuelswitch['enduse'] == self.enduse:
+                if fuelswitch['enduse'] == self.enduse: #If fuelswitch belongs to this enduse
                     fuel_switches_enduse.append(fuelswitch)
 
             if fuel_switches_enduse != []:
@@ -483,22 +504,24 @@ class EnduseResid(object):
             else:
                 return False
 
-    def get_service_switches(self, data, service_switch_crit):
-        """Test wheter there are defined service switches for this enduse
+    def get_service_switches(self, service_switch_crit):
+        """Test whether there are defined service switches for this enduse
 
+        Parameters
+        ----------
+        service_switch_crit : boolean
+            Criteria wheter a service switch is defined or not
         Note
         ----
         If base year, no switches are implemented
         """
-        if data['data_ext']['glob_var']['curr_yr'] == data['data_ext']['glob_var']['base_yr']:
+        if self.base_year == self.current_year:
             return False
         else:
             try:
-                if service_switch_crit[self.enduse]:
-                    return True
-                else:
-                    return False
-            except: # If the enduse is not defined
+                return service_switch_crit[self.enduse]
+            except:
+                # If the enduse is not defined, return false
                 return False
 
     def get_peak_h_from_dh(self, enduse_fuel_peak_dh):
@@ -512,14 +535,14 @@ class EnduseResid(object):
         for fueltype, fuel_dh in enumerate(enduse_fuel_peak_dh):
             #print("--peakfinidng: " + str(fueltype) + str("  ") + str(np.max(fuel_dh)))
             peak_fueltype_h[fueltype] = np.max(fuel_dh) # Get hour with maximum fuel in a day of fueltype
-        
+
         print("TESTSUM: " + str(np.sum(peak_fueltype_h)))
         return peak_fueltype_h
 
     def calc_enduse_fuel_peak_tech_dh(self, data, enduse_fuel_tech, tech_stock, peak_day_nr):
         """Calculate peak demand
-        
-        This function gets the hourly values of the peak day for every fueltype. 
+
+        This function gets the hourly values of the peak day for every fueltype.
         The daily fuel is converted to dh for each technology.
 
         Parameters
@@ -532,7 +555,7 @@ class EnduseResid(object):
             Technology stock
         peak_day_nr : int
             Peak day number of enduse
-        
+
         Returns
         -------
         fuels_peak_dh : array
@@ -839,7 +862,8 @@ class EnduseResid(object):
 
         setattr(self, 'enduse_fuel_new_fuel', enduse_fuels)
 
-    def enduse_service_to_fuel_per_tech(self, service_tech, tech_stock):
+    @staticmethod
+    def enduse_service_to_fuel_per_tech(service_tech, tech_stock):
         """Calculate percent of fuel for each technology within fueltype considering current efficiencies
 
         Parameters
