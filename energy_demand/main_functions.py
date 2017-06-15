@@ -229,9 +229,9 @@ def read_csv_base_data_service(path_to_csv):
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
                 for entry in row[1:]:
-                    end_use = _headings[cnt]
+                    enduse = _headings[cnt]
                     sector = _secondLine[cnt]
-                    end_uses_dict[sector][end_use][cnt_fueltype] = entry
+                    end_uses_dict[sector][enduse][cnt_fueltype] = entry
                     cnt += 1
         print("end_uses_dict")
         print(end_uses_dict)
@@ -1299,7 +1299,7 @@ def generate_sig_diffusion(data):
 
     return data['assumptions']
 
-def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_by, fuels, tech_stock):
+def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -1313,8 +1313,6 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
     ----------
     fueltypes_lu : dict
         Fueltypes
-    enduses : list
-        All enduses to perform calulations
     fuel_p_tech_by : dict
         Assumed fraction of fuel for each technology within a fueltype
     fuels : array
@@ -1330,6 +1328,7 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
         Percentage of energy service witin a fueltype for all technologies with this fueltype for base year
     service_fueltype_by_p : dict
         Percentage of energy service per fueltype
+
     Notes
     -----
     Regional temperatures are not considered because otherwise the initial fuel share of
@@ -1339,12 +1338,13 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
     Because regional efficiencies may differ within regions, the fuel distribution within
     the fueltypes may also differ
     """
-    service = init_nested_dict(enduses, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year (e.g. heat demand in joules)
-    service_tech_by_p = init_dict(enduses, 'brackets') # Percentage of total energy service per technology for base year
-    service_fueltype_tech_by_p = init_nested_dict(enduses, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
+    service = init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year (e.g. heat demand in joules)
+    service_tech_by_p = init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
+    service_fueltype_tech_by_p = init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
     service_fueltype_by_p = init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
+    
 
-    for enduse in enduses:
+    for enduse in fuels:
         for fueltype_input_data, fuel_fueltype in enumerate(fuels[enduse]):
             tot_service_fueltype = 0
 
@@ -1400,7 +1400,7 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, enduses, fuel_p_tech_b
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
             service_fueltype_by_p[enduse][fueltype] = np.divide(1, total_service) * service_fueltype_by_p[enduse][fueltype]
-
+    print("FINISHED")
     '''# Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
@@ -2257,3 +2257,22 @@ def absolute_to_relative(absolute_array):
 
     #assert np.sum(absolute_array) > 0
     return relative_array
+
+def ss_summarise_fuel_per_enduse_all_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
+    """Aggregated fuel for all sectors according to enduse
+    """
+    aggregated_fuel_enduse = {}
+
+    # Initialise
+    for enduse in ss_enduses:
+        aggregated_fuel_enduse[enduse] = np.zeros((nr_fueltypes))
+    
+    # ITerate and sum fuel per enduse
+    for sector, fuels_sector in ss_fuel_raw_data_enduses.items():
+        
+        for enduse, fuels_enduse in fuels_sector.items():
+            for fueltype, fuel in fuels_enduse.items():
+                # Add fuels for each enduse
+                aggregated_fuel_enduse[str(enduse)][int(fueltype)] += float(fuel)
+
+    return aggregated_fuel_enduse

@@ -32,6 +32,7 @@ class RegionClass(object):
         """Constructor of RegionClass
         """
         print(" ")
+        print("--------------------------------")
         print("REGION NAME: " + str(reg_name))
         print("--------------------------------")
         print(" ")

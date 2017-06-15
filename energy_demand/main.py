@@ -214,26 +214,32 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
         base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['technologies']
         )
-
-    # SERVICE: 
-    '''base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['ss_assumptions']['ss_service_fueltype_by_p'] = calc_service_fueltype_tech()
-        base_data['assumptions'],
-        base_data['lu_fueltype'],
-        base_data['ss_fuel_raw_data_enduses'],
-        base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
-        base_data['rs_fuel_raw_data_enduses'],
-        base_data['assumptions']['technologies']
-        )
-    '''
     print("Base Year Services per technology (service_tech_by_p)")
     print(base_data['assumptions']['rs_service_tech_by_p'])
     print("--Base year service within fueltypes by--")
     print(base_data['assumptions']['rs_service_fueltype_tech_by_p'])
+
+    # SERVICE Sector:
+    fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['all_service_enduses'], base_data['nr_of_fueltypes'])
+
+    # Calculate sigmoid for service sector
+    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
+        base_data['assumptions'],
+        base_data['lu_fueltype'],
+        base_data['assumptions']['ss_fuel_enduse_tech_p_by'],
+        fuels_aggregated_across_sectors,
+        base_data['assumptions']['technologies']
+        )
+
+    print("servic basey er")
+    print(base_data['assumptions']['ss_service_tech_by_p'])
+    print("----")
+    print(base_data['assumptions']['ss_service_fueltype_tech_by_p'])
+
 
     # Write out txt file with service shares for each technology per enduse
     mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
