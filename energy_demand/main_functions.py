@@ -1962,7 +1962,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
     return technologies, temp_dependent_tech_list
 
-def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p, assumptions):
+def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
 
     Parameters
@@ -1971,8 +1971,6 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p,
         Share of service per technology of base year of total service
     share_service_tech_ey_p : dict
         Share of service per technology of end year of total service
-    assumptions : dict
-        assumptions
 
     Returns
     -------
@@ -1995,9 +1993,9 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p,
     tech_constant_share = {}
 
     if share_service_tech_ey_p == {}: # If no service switch defined
-        assumptions['tech_increased_service'] = []
-        assumptions['tech_decreased_share'] = []
-        assumptions['tech_constant_share'] = []
+        tech_increased_service = []
+        tech_decreased_share = []
+        tech_constant_share = []
     else:
         for enduse in service_tech_by_p:
             tech_increased_service[enduse] = []
@@ -2017,14 +2015,14 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p,
                 else:
                     tech_constant_share[enduse].append(tech)
         # Add to data
-        assumptions['tech_increased_service'] = tech_increased_service
-        assumptions['tech_decreased_share'] = tech_decreased_share
-        assumptions['tech_constant_share'] = tech_constant_share
+        #assumptions['tech_increased_service'] = tech_increased_service
+        #assumptions['tech_decreased_share'] = tech_decreased_share
+        #assumptions['tech_constant_share'] = tech_constant_share
         print("   ")
         print("tech_increased_service:  " + str(tech_increased_service))
         print("tech_decreased_share:    " + str(tech_decreased_share))
         print("tech_constant_share:     " + str(tech_constant_share))
-    return assumptions
+    return tech_increased_service, tech_decreased_share, tech_constant_share
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year

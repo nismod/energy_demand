@@ -114,7 +114,7 @@ class EnduseResid(object):
 
             summe = 0
             for tech in service_tech:
-                print("tech before service switch: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
+                #print("tech before service switch: " + str(tech) + "  " + str(np.sum(service_tech[tech])))
                 summe += np.sum(service_tech[tech])
 
             print(" ")
@@ -311,31 +311,30 @@ class EnduseResid(object):
             Peak dh shape of day with peak hour value
 
         Assumption: Day with most service is the day with peak
+
+        Note
+        -----
+        The Peak day may change date in a year
         """
-        max_service_day = 0
+        max_fuel_day = 0
 
-        all_fueltypes_tot_h = np.zeros((365, 24))
-
-        # Sum accross all fueltypes
-        for fuels_fueltype in enduse_fuel_yh:
-            #print("---")
-            #print(" fueltype: " + str(np.sum(all_fueltypes_tot_h)))
-            all_fueltypes_tot_h += fuels_fueltype
+        # Sum all fuely across all fueltypes for every day and hour in a year
+        all_fueltypes_tot_h = np.sum(enduse_fuel_yh, axis=0) #shape (365, 24)
 
         # Iterate summed fueltypes to read out maximum fuel
-        day_nr = 0
-        for services_dh in all_fueltypes_tot_h:
+        for day_nr, services_dh in enumerate(all_fueltypes_tot_h):
             day_sum = np.sum(services_dh)
 
-            if day_sum > max_service_day:
-                print("...serach:max: " + str(max_service_day))
-                max_service_day = day_sum
+            if day_sum > max_fuel_day:
+                #print("...serach: max: " + str(max_fuel_day))
+                #print("fuzeltype 1: " + str(np.sum(enduse_fuel_yh[1][day_nr])))
+                #print("fueltype 2: " + str(np.sum(enduse_fuel_yh[2][day_nr])))
+                #print(day_sum)
+
+                max_fuel_day = day_sum
                 peak_day_nr = day_nr
 
-            day_nr += 1
-
-        print("max_service_day: " + str(max_service_day))
-        print("Day_nr :         " + str(peak_day_nr))
+        print("Peak Day Number {}  with peak fuel demand (across all fueltypes): {}        ".format(peak_day_nr, max_fuel_day))
         return peak_day_nr
 
     def get_enduse_tech(self, service_tech_by_p, fuel_enduse_tech_p_by):
@@ -565,11 +564,10 @@ class EnduseResid(object):
         fuels_peak_dh = np.zeros((self.enduse_fuel_new_fuel.shape[0], 24))
 
         for tech in self.technologies_enduse:
-            print("Tech: " + str(tech) + "   " + str(enduse_fuel_tech[tech]))
+            #print("Tech: " + str(tech) + "   " + str(enduse_fuel_tech[tech]))
 
             # Get yd fuel shape of technology
             fuel_shape_yd = tech_stock.get_tech_attribute(tech, 'shape_yd')
-
 
             # Calculate absolute fuel values for yd
             fuel_tech_y_d = enduse_fuel_tech[tech] * fuel_shape_yd #[peak_day_nr]
@@ -915,7 +913,7 @@ class EnduseResid(object):
         percent_ey = assumptions['enduse_overall_change_ey'][self.enduse]
 
         # Share of fuel consumption difference
-        diff_fuel_consump = percent_ey - percent_by 
+        diff_fuel_consump = percent_ey - percent_by
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
 
         if diff_fuel_consump != 0: # If change in fuel consumption
@@ -961,7 +959,7 @@ class EnduseResid(object):
         ----
         `cooling_factor_y` and `heating_factor_y` are based on the sum over the year. Therefore
         it is assumed that fuel correlates directly with HDD or CDD
-        
+
         Technology mix and efficiencies are ignored at this stage. This will be taken into consideration with other steps
         """
         new_fuels = np.zeros((self.enduse_fuel_new_fuel.shape[0]))
