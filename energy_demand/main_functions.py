@@ -235,7 +235,7 @@ def read_csv_base_data_service(path_to_csv):
                     cnt += 1
         print("end_uses_dict")
         print(end_uses_dict)
-        return end_uses_dict, all_sectors
+        return end_uses_dict, list(all_sectors)
             
     except (KeyError, ValueError):
         sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
@@ -1527,14 +1527,15 @@ def get_tech_installed(fuel_switches):
     # Add technology list for every enduse with affected switches
     installed_tech = {}
     for switch in fuel_switches:
-        installed_tech[switch['enduse']] = set([]) #[]
+        installed_tech[switch['enduse']] = set([])
 
     for switch in fuel_switches:
         enduse_fuelswitch = switch['enduse']
         installed_tech[enduse_fuelswitch].add(switch['technology_install'])
-
-        #if switch['technology_install'] not in installed_tech[enduse_fuelswitch]:
-        #    installed_tech[enduse_fuelswitch].append(switch['technology_install'])
+    
+    # Convert set to lists
+    for enduse in installed_tech:
+        installed_tech[enduse] = list(installed_tech[enduse])
 
     return installed_tech
 
