@@ -235,7 +235,7 @@ def read_csv_base_data_service(path_to_csv):
                     cnt += 1
         print("end_uses_dict")
         print(end_uses_dict)
-        return end_uses_dict, list(all_sectors)
+        return end_uses_dict, list(all_sectors), list(all_enduses)
             
     except (KeyError, ValueError):
         sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))

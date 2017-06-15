@@ -45,7 +45,7 @@ class EnduseResid(object):
         """CONSTRUCTOR
         """
         self.enduse = enduse
-        self.enduse_fuel = enduse_fuel[enduse]
+        self.enduse_fuel = enduse_fuel
         self.enduse_fuelswitch_crit = self.get_fuel_switches(data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['curr_yr'], data['assumptions']['resid_fuel_switches'])
         self.enduse_serviceswitch_crit = self.get_service_switches(data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['curr_yr'], data['assumptions']['service_switch_enduse_crit'])
 

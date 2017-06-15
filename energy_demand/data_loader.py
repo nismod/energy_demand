@@ -166,7 +166,7 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    fuel_raw_data_service_enduses, all_service_sectors = mf.read_csv_base_data_service(data['path_dict']['path_fuel_raw_data_service_enduses']) # Yearly end use data
+    fuel_raw_data_service_enduses, all_service_sectors, data['all_service_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_fuel_raw_data_service_enduses']) # Yearly end use data
     data['fuel_raw_data_service_enduses'] = fuel_raw_data_service_enduses
     data['all_service_sectors'] = all_service_sectors
 

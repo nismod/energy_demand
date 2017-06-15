@@ -186,6 +186,12 @@ if __name__ == "__main__":
     # Model calculations outside main function
     # ----------------------------------------
     base_data = {}
+
+    # Copy external data into data container
+    for ext_data_name, ext_data in data_external.itmes():
+        base_data[ext_data_name] = ext_data
+
+    
     base_data['data_ext'] = data_external # Insert external data into base_data
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 

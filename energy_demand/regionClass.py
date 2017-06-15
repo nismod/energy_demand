@@ -102,7 +102,8 @@ class RegionClass(object):
         # Service
         # ------------
         self.create_enduses_sector(
-            data,
+            self.reg_name,
+            data['all_service_sectors'],
             data)
         
         # Summarise all enduses accross all sectors and add as attribute to region
@@ -275,14 +276,19 @@ class RegionClass(object):
 
         return self.tech_stock
 
-    def create_enduses_sector(self, resid_enduses, data):
-        """ SERVICE
+    def create_enduses_sector(self, reg_name, service_sectors, data):
+        """Create instance of service sector
         """
-        # Iterate over sectors and create Sectors
-        for sector_name in data['all_service_sectors']:
+
+        # Iterate over sectors and create Sector instance
+        for sector_name in service_sectors:
             ssClass.ServiceSectorClass(
+                reg_name,
                 sector_name,
-                data
+                data,
+                self.tech_stock,
+                self.heating_factor_y,
+                self.cooling_factor_y
                 )
 
         pass
@@ -322,7 +328,7 @@ class RegionClass(object):
                     self.reg_name,
                     data,
                     resid_enduse,
-                    self.resid_enduses_fuel,
+                    self.resid_enduses_fuel[resid_enduse], #fuel of speicific enduse
                     self.tech_stock,
                     self.heating_factor_y,
                     self.cooling_factor_y,
