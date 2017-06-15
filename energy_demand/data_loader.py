@@ -58,12 +58,12 @@ def load_data(path_main, data):
     # -----------------------------
     #TODO: REGION LOOKUP: Generate region_lookup from input data (MAybe read in region_lookup from shape?)
     data['lu_reg'] = {}
-    for reg_name in data['data_ext']['population'][data['data_ext']['glob_var']['base_yr']]:
+    for reg_name in data['population'][data['glob_var']['base_yr']]:
         data['lu_reg'][reg_name] = reg_name
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
-    for reg_name in data['data_ext']['population'][data['data_ext']['glob_var']['base_yr']]:
+    for reg_name in data['population'][data['glob_var']['base_yr']]:
         data['reg_floorarea_resid'][reg_name] = 100000
 
     # Paths
@@ -356,7 +356,7 @@ def create_enduse_dict(data, fuel_raw_data_resid_enduses):
         Ditionary with residential enduses
     """
     resid_enduses = {}
-    for ext_enduse in data['data_ext']['external_enduses_resid']: # Add external enduse
+    for ext_enduse in data['external_enduses_resid']: # Add external enduse
         resid_enduses[ext_enduse] = ext_enduse
 
     for enduse in fuel_raw_data_resid_enduses: # Add resid enduses

@@ -188,11 +188,11 @@ if __name__ == "__main__":
     base_data = {}
 
     # Copy external data into data container
-    for ext_data_name, ext_data in data_external.itmes():
-        base_data[ext_data_name] = ext_data
+    for ext_data_name in data_external: #.itmes():
+        base_data[ext_data_name] = data_external[ext_data_name]
 
-    
-    base_data['data_ext'] = data_external # Insert external data into base_data
+
+    #base_data = data_external # Insert external data into base_data
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 
     # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)

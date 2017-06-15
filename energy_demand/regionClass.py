@@ -40,18 +40,18 @@ class RegionClass(object):
         self.resid_enduses_fuel = data['resid_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
-        longitude = data['data_ext']['region_coordinates'][reg_name]['longitude']
-        latitude = data['data_ext']['region_coordinates'][reg_name]['latitude']
+        longitude = data['region_coordinates'][reg_name]['longitude']
+        latitude = data['region_coordinates'][reg_name]['latitude']
 
         closest_weatherstation_id = mf.get_closest_weather_station(longitude, latitude, data['weather_stations'])
-        temp_by = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
-        temp_cy = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['curr_yr']]
+        temp_by = data['temperature_data'][closest_weatherstation_id][data['glob_var']['base_yr']]
+        temp_cy = data['temperature_data'][closest_weatherstation_id][data['glob_var']['curr_yr']]
 
         # Calculate HDD and CDD for calculating heating and cooling service demand
-        hdd_by = self.get_reg_hdd(data, temp_by, data['data_ext']['glob_var']['base_yr'])
-        hdd_cy = self.get_reg_hdd(data, temp_cy, data['data_ext']['glob_var']['curr_yr'])
-        cdd_by = self.get_reg_cdd(data, temp_by, data['data_ext']['glob_var']['base_yr'])
-        cdd_cy = self.get_reg_cdd(data, temp_cy, data['data_ext']['glob_var']['curr_yr'])
+        hdd_by = self.get_reg_hdd(data, temp_by, data['glob_var']['base_yr'])
+        hdd_cy = self.get_reg_hdd(data, temp_cy, data['glob_var']['curr_yr'])
+        cdd_by = self.get_reg_cdd(data, temp_by, data['glob_var']['base_yr'])
+        cdd_cy = self.get_reg_cdd(data, temp_cy, data['glob_var']['curr_yr'])
 
         # YD Factors (factor to calculate max daily demand from yearly demand)
         self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(hdd_cy)
@@ -101,10 +101,11 @@ class RegionClass(object):
         # ------------
         # Service
         # ------------
-        self.create_enduses_sector(
+        '''self.create_enduses_sector(
             self.reg_name,
             data['all_service_sectors'],
             data)
+        '''
         
         # Summarise all enduses accross all sectors and add as attribute to region
 
@@ -612,7 +613,7 @@ class RegionClass(object):
         The diffusion is assumed to be sigmoid
         """
         # Calculate base temperature for heating of current year
-        t_base_heating_resid_cy = mf.t_base_sigm(year, data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
+        t_base_heating_resid_cy = mf.t_base_sigm(year, data['assumptions'], data['glob_var']['base_yr'], data['glob_var']['end_yr'], 't_base_heating_resid')
 
         # Calculate hdd for every day (365, 1)
         hdd_d = mf.calc_hdd(t_base_heating_resid_cy, temperatures)
@@ -645,7 +646,7 @@ class RegionClass(object):
         shape_yd : array
             Fraction of heat for every day. Array-shape: 365, 1
         """
-        t_base_cooling_resid = mf.t_base_sigm(year, data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_cooling_resid')
+        t_base_cooling_resid = mf.t_base_sigm(year, data['assumptions'], data['glob_var']['base_yr'], data['glob_var']['end_yr'], 't_base_cooling_resid')
 
         # Calculate cdd for every day (365, 1)
         cdd_d = mf.calc_cdd(t_base_cooling_resid, temperatures)
@@ -687,7 +688,7 @@ class RegionClass(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
+        list_dates = mf.fullyear_dates(start=date(data['glob_var']['base_yr'], 1, 1), end=date(data['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -796,7 +797,7 @@ class RegionClass(object):
         shape_yh_boilers = np.zeros((365, 24))
         shape_y_dh_boilers = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data['data_ext']['glob_var']['base_yr'], 1, 1), end=date(data['data_ext']['glob_var']['base_yr'], 12, 31))
+        list_dates = mf.fullyear_dates(start=date(data['glob_var']['base_yr'], 1, 1), end=date(data['glob_var']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 

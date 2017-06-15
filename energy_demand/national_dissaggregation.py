@@ -47,7 +47,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     # TODO: COOLING DG DAYS to disaggregate regionaly
 
     regions = data['lu_reg']
-    base_yr = data['data_ext']['glob_var']['base_yr']
+    base_yr = data['glob_var']['base_yr']
     national_fuel = data['fuel_raw_data_resid_enduses']
     data['resid_fueldata_disagg'] = {} #Initialise to store aggregated fuels
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
@@ -61,13 +61,13 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     # Total heated days for all person sum of
     tot_hdd_popreg = 0
     for region in regions:
-        reg_pop = data['data_ext']['population'][base_yr][region] # Regional popluation
+        reg_pop = data['population'][base_yr][region] # Regional popluation
         tot_hdd_popreg += reg_pop * hdd_individ_region[region]
 
     # Iterate regions
     for region in regions:
-        reg_pop = data['data_ext']['population'][base_yr][region] # Regional popluation
-        total_pop = sum(data['data_ext']['population'][base_yr].values()) # Total population
+        reg_pop = data['population'][base_yr][region] # Regional popluation
+        total_pop = sum(data['population'][base_yr].values()) # Total population
         hdd_reg = hdd_individ_region[region] # Hdd of region
         inter_dict = {} # Disaggregate fuel depending on end_use
 

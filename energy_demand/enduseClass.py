@@ -46,8 +46,8 @@ class EnduseResid(object):
         """
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel
-        self.enduse_fuelswitch_crit = self.get_fuel_switches(data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['curr_yr'], data['assumptions']['resid_fuel_switches'])
-        self.enduse_serviceswitch_crit = self.get_service_switches(data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['curr_yr'], data['assumptions']['service_switch_enduse_crit'])
+        self.enduse_fuelswitch_crit = self.get_fuel_switches(data['glob_var']['base_yr'], data['glob_var']['curr_yr'], data['assumptions']['resid_fuel_switches'])
+        self.enduse_serviceswitch_crit = self.get_service_switches(data['glob_var']['base_yr'], data['glob_var']['curr_yr'], data['assumptions']['service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_tech(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
@@ -71,19 +71,19 @@ class EnduseResid(object):
         #print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calcualte smart meter induced general savings
-        self.smart_meter_eff_gain(data['data_ext'], data['assumptions'])
+        self.smart_meter_eff_gain(data, data['assumptions'])
         #print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_specific_change(data['data_ext'], data['assumptions'])
+        self.enduse_specific_change(data, data['assumptions'])
         #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(data, reg_name, data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['curr_yr'])
+        self.enduse_building_stock_driver(data, reg_name, data['glob_var']['base_yr'], data['glob_var']['curr_yr'])
         #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        self.enduse_elasticity(data['data_ext'], data['assumptions'])
+        self.enduse_elasticity(data, data['assumptions'])
         #print("Fuel train F: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # ----------------------------------
@@ -122,7 +122,7 @@ class EnduseResid(object):
             # ----------------
             if self.enduse_fuelswitch_crit:
                 service_tech = self.switch_tech_fuel(
-                    data['data_ext'],
+                    data,
                     data['assumptions'],
                     tot_service_h_by,
                     service_tech,
@@ -462,7 +462,7 @@ class EnduseResid(object):
 
             # Get service for current year based on sigmoid diffusion
             service_tech_cy_p[tech_installed] = mf.sigmoid_function(
-                data['data_ext']['glob_var']['curr_yr'],
+                data['glob_var']['curr_yr'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['steepness']

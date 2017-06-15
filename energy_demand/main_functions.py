@@ -26,10 +26,10 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
 
     #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
     """
-    for external_enduse in data['data_ext']['external_enduses_resid']:
+    for external_enduse in data['external_enduses_resid']:
         new_fuel_array = np.zeros((data['nr_of_fueltypes']))
-        for fueltype in data['data_ext']['external_enduses_resid'][external_enduse]:
-            new_fuel_array[fueltype] = data['data_ext']['external_enduses_resid'][external_enduse][fueltype]
+        for fueltype in data['external_enduses_resid'][external_enduse]:
+            new_fuel_array[fueltype] = data['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
     return data
 
@@ -924,17 +924,17 @@ def get_hdd_country(regions, data):
     hdd_regions = {}
 
     for region in regions:
-        longitude = data['data_ext']['region_coordinates'][region]['longitude']
-        latitude = data['data_ext']['region_coordinates'][region]['latitude']
+        longitude = data['region_coordinates'][region]['longitude']
+        latitude = data['region_coordinates'][region]['latitude']
 
         # Get closest weather station and temperatures
         closest_weatherstation_id = get_closest_weather_station(longitude, latitude, data['weather_stations'])
 
         # Temp data
-        temperatures = data['temperature_data'][closest_weatherstation_id][data['data_ext']['glob_var']['base_yr']]
+        temperatures = data['temperature_data'][closest_weatherstation_id][data['glob_var']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_resid_cy = t_base_sigm(data['data_ext']['glob_var']['base_yr'], data['assumptions'], data['data_ext']['glob_var']['base_yr'], data['data_ext']['glob_var']['end_yr'], 't_base_heating_resid')
+        t_base_heating_resid_cy = t_base_sigm(data['glob_var']['base_yr'], data['assumptions'], data['glob_var']['base_yr'], data['glob_var']['end_yr'], 't_base_heating_resid')
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_resid_cy, temperatures)
@@ -1117,14 +1117,14 @@ def change_temp_data_climate_change(data):
         temp_data_climate_change[weather_station_id] = {}
 
         # Iterate over simulation period
-        for current_year in data['data_ext']['glob_var']['sim_period']:
+        for current_year in data['glob_var']['sim_period']:
             temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
 
             # Iterate every month and substract
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = convert_yearday_to_date(data['data_ext']['glob_var']['base_yr'], yearday)
+                date_object = convert_yearday_to_date(data['glob_var']['base_yr'], yearday)
 
                 # Get month of yearday
                 month_yearday = date_object.timetuple().tm_mon - 1
@@ -1134,11 +1134,11 @@ def change_temp_data_climate_change(data):
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
                 lin_diff_current_year = linear_diff(
-                    data['data_ext']['glob_var']['base_yr'],
+                    data['glob_var']['base_yr'],
                     current_year,
                     temp_by,
                     temp_ey,
-                    len(data['data_ext']['glob_var']['sim_period'])
+                    len(data['glob_var']['sim_period'])
                 )
 
                 # Iterate hours of base year
@@ -1290,7 +1290,7 @@ def generate_sig_diffusion(data):
         data['assumptions']['installed_tech'],
         enduses_with_fuels,
         data['assumptions']['technologies'],
-        data['data_ext'],
+        data,
         l_values_sig,
         data['assumptions']['service_tech_by_p'],
         service_tech_switched_p,
