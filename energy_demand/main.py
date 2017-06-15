@@ -5,6 +5,10 @@
 #
 # Abbreviations:
 # -------------
+# rs = Residential Sector
+# ss = service Sector
+# ts = transportation Sector #TODO
+#
 # bd = Base demand
 # by = Base year
 # cy = Current year
@@ -125,7 +129,7 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     by = 2015
-    ey = 2020 #always includes this year
+    ey = 2020 #includes this year
     sim_years = range(by, ey + 1)
 
     # dummy coordinates
@@ -176,9 +180,9 @@ if __name__ == "__main__":
             #'ICT_model': {}
         }
     }
-    data_external['glob_var']['end_yr'] = ey
-    data_external['glob_var']['sim_period'] = range(by, ey + 1, 1) # Alywas including last simulation year
-    data_external['glob_var']['base_yr'] = by
+    data_external['end_yr'] = ey
+    data_external['sim_period'] = range(by, ey + 1, 1) # Alywas including last simulation year
+    data_external['base_yr'] = by
     # ------------------- DUMMY END
 
 
@@ -188,11 +192,9 @@ if __name__ == "__main__":
     base_data = {}
 
     # Copy external data into data container
-    for ext_data_name in data_external: #.itmes():
-        base_data[ext_data_name] = data_external[ext_data_name]
+    for dataset_name, external_data in data_external.items():
+        base_data[str(dataset_name)] = external_data
 
-
-    #base_data = data_external # Insert external data into base_data
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 
     # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
@@ -208,26 +210,37 @@ if __name__ == "__main__":
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
 
-    # Convert base year fuel input assumptions to energy service
-    base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['service_fueltype_tech_by_p'], base_data['assumptions']['service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
+    # RESIDENTIAL: Convert base year fuel input assumptions to energy service
+    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['fuel_raw_data_resid_enduses'],
-        base_data['assumptions']['fuel_enduse_tech_p_by'],
-        base_data['fuel_raw_data_resid_enduses'],
-        base_data['assumptions']['technologies'])
+        base_data['rs_fuel_raw_data_enduses'],
+        base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
+        base_data['rs_fuel_raw_data_enduses'],
+        base_data['assumptions']['technologies']
+        )
 
+    # SERVICE: 
+    '''base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['ss_assumptions']['ss_service_fueltype_by_p'] = calc_service_fueltype_tech()
+        base_data['assumptions'],
+        base_data['lu_fueltype'],
+        base_data['ss_fuel_raw_data_enduses'],
+        base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
+        base_data['rs_fuel_raw_data_enduses'],
+        base_data['assumptions']['technologies']
+        )
+    '''
     print("Base Year Services per technology (service_tech_by_p)")
-    print(base_data['assumptions']['service_tech_by_p'])
+    print(base_data['assumptions']['rs_service_tech_by_p'])
     print("--Base year service within fueltypes by--")
-    print(base_data['assumptions']['service_fueltype_tech_by_p'])
+    print(base_data['assumptions']['rs_service_fueltype_tech_by_p'])
 
     # Write out txt file with service shares for each technology per enduse
-    mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['service_tech_by_p'])
+    mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions'] = mf.get_technology_services_scenario(base_data['assumptions']['service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
+    base_data['assumptions'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data)
@@ -244,7 +257,7 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
     for sim_y in sim_years:
-        data_external['glob_var']['curr_yr'] = sim_y
+        base_data['curr_yr'] = sim_y
         print("                           ")
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_y))

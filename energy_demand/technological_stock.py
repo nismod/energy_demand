@@ -31,7 +31,7 @@ class ResidTechStock(object):
                 data,
                 temp_by,
                 temp_cy,
-                data['glob_var']['curr_yr'],
+                data['curr_yr'],
             )
 
             # Set technology object as attribute
@@ -93,7 +93,7 @@ class Technology(object):
 
         # Base temp assumptions
         t_base_heating_resid_by = data['assumptions']['t_base_heating_resid']['base_yr']
-        t_base_heating_resid_cy = mf.t_base_sigm(data['glob_var']['base_yr'], data['assumptions'], data['glob_var']['base_yr'], data['glob_var']['end_yr'], 't_base_heating_resid')
+        t_base_heating_resid_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 't_base_heating_resid')
 
         # -------
         # Depending on wether only single fueltype or multiple fueltypes (e.g. hybrid technologies)
@@ -535,14 +535,14 @@ class Technology(object):
         # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
         if self.diff_method == 'linear':
             theor_max_eff = mf.linear_diff(
-                data['glob_var']['base_yr'],
+                data['base_yr'],
                 curr_yr,
                 data['assumptions']['technologies'][technology]['eff_by'],
                 data['assumptions']['technologies'][technology]['eff_ey'],
-                len(data['glob_var']['sim_period'])
+                len(data['sim_period'])
             )
         elif self.diff_method == 'sigmoid':
-            theor_max_eff = mf.sigmoid_diffusion(data['glob_var']['base_yr'], curr_yr, data['glob_var']['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
+            theor_max_eff = mf.sigmoid_diffusion(data['base_yr'], curr_yr, data['end_yr'], data['assumptions']['sig_midpoint'], data['assumptions']['sig_steeppness'])
 
         # Consider actual achived efficiency
         actual_max_eff = theor_max_eff * self.eff_achieved_factor

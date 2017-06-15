@@ -931,10 +931,10 @@ def get_hdd_country(regions, data):
         closest_weatherstation_id = get_closest_weather_station(longitude, latitude, data['weather_stations'])
 
         # Temp data
-        temperatures = data['temperature_data'][closest_weatherstation_id][data['glob_var']['base_yr']]
+        temperatures = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_resid_cy = t_base_sigm(data['glob_var']['base_yr'], data['assumptions'], data['glob_var']['base_yr'], data['glob_var']['end_yr'], 't_base_heating_resid')
+        t_base_heating_resid_cy = t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 't_base_heating_resid')
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_resid_cy, temperatures)
@@ -1117,14 +1117,14 @@ def change_temp_data_climate_change(data):
         temp_data_climate_change[weather_station_id] = {}
 
         # Iterate over simulation period
-        for current_year in data['glob_var']['sim_period']:
+        for current_year in data['sim_period']:
             temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
 
             # Iterate every month and substract
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = convert_yearday_to_date(data['glob_var']['base_yr'], yearday)
+                date_object = convert_yearday_to_date(data['base_yr'], yearday)
 
                 # Get month of yearday
                 month_yearday = date_object.timetuple().tm_mon - 1
@@ -1134,11 +1134,11 @@ def change_temp_data_climate_change(data):
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
                 lin_diff_current_year = linear_diff(
-                    data['glob_var']['base_yr'],
+                    data['base_yr'],
                     current_year,
                     temp_by,
                     temp_ey,
-                    len(data['glob_var']['sim_period'])
+                    len(data['sim_period'])
                 )
 
                 # Iterate hours of base year
@@ -1239,7 +1239,7 @@ def generate_sig_diffusion(data):
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
-    enduses_with_fuels = data['fuel_raw_data_resid_enduses'].keys() # All endueses with provided fuels
+    enduses_with_fuels = data['rs_fuel_raw_data_enduses'].keys() # All endueses with provided fuels
 
     # Test is Service Switch is implemented
     if True in data['assumptions']['service_switch_enduse_crit'].values(): # If a switch is defined for an enduse
@@ -1272,15 +1272,15 @@ def generate_sig_diffusion(data):
         service_tech_switched_p = calc_service_fuel_switched(
             enduses_with_fuels,
             data['assumptions']['resid_fuel_switches'],
-            data['assumptions']['service_fueltype_by_p'],
-            data['assumptions']['service_tech_by_p'],
-            data['assumptions']['fuel_enduse_tech_p_by'],
+            data['assumptions']['rs_service_fueltype_by_p'],
+            data['assumptions']['rs_service_tech_by_p'],
+            data['assumptions']['rs_fuel_enduse_tech_p_by'],
             data['assumptions']['installed_tech'],
             'actual_switch'
         )
 
         # Calculate L for every technology for sigmod diffusion
-        l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, data['assumptions'], data['assumptions']['service_fueltype_by_p'])
+        l_values_sig = tech_L_sigmoid(enduses_with_fuels, data, data['assumptions'], data['assumptions']['rs_service_fueltype_by_p'])
 
     # -------------------------------------------------------------
     # Calclulate sigmoid parameters for every installed technology
@@ -1292,7 +1292,7 @@ def generate_sig_diffusion(data):
         data['assumptions']['technologies'],
         data,
         l_values_sig,
-        data['assumptions']['service_tech_by_p'],
+        data['assumptions']['rs_service_tech_by_p'],
         service_tech_switched_p,
         data['assumptions']['resid_fuel_switches']
     )
@@ -1578,7 +1578,7 @@ def tech_L_sigmoid(enduses, data, assumptions, service_fueltype_p):
                     service_fueltype_p,
                     #assumptions['service_fueltype_by_p'], # Service demand for enduses and fueltypes
                     assumptions['service_tech_by_p'], # Percentage of service demands for every technology
-                    assumptions['fuel_enduse_tech_p_by'],
+                    assumptions['rs_fuel_enduse_tech_p_by'],
                     {str(enduse): [technology]},
                     'max_switch'
                     )
@@ -1643,7 +1643,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 sigmoid_parameters[enduse][technology] = {}
 
                 if service_switch_crit:
-                    year_until_switched = data_ext['glob_var']['end_yr'] # Year until service are switched
+                    year_until_switched = data_ext['end_yr'] # Year until service are switched
                     market_entry = tech_stock[technology]['market_entry']
                 else:
                     # Get year which is furtherst away of all switch to installed technology
@@ -1655,11 +1655,11 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                     market_entry = tech_stock[technology]['market_entry']
 
                 # Test wheter technology has the market entry before or after base year, If afterwards, set very small number in market entry year
-                if market_entry > data_ext['glob_var']['base_yr']:
+                if market_entry > data_ext['base_yr']:
                     point_x_by = market_entry
                     point_y_by = 0.001 # if market entry in a future year
                 else: # If market entry before, set to 2015
-                    point_x_by = data_ext['glob_var']['base_yr']
+                    point_x_by = data_ext['base_yr']
                     point_y_by = service_tech_by_p[enduse][technology]
 
                     #If the base year is the market entry year use a very small number (as otherwise the fit does not work)

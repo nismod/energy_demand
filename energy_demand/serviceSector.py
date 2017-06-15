@@ -8,13 +8,20 @@ class ServiceSectorClass(object):
         """
         print("Generate Sector: " + str(sector_name))
         self.sector_name = sector_name
-        self.fuels_all_enduses = data['fuel_raw_data_service_enduses'][sector_name]
+        self.fuels_all_enduses = data['ss_fuel_raw_data_enduses'][sector_name]
 
         # Get all service enduses
         all_service_enduses = data['all_service_enduses']
 
         # Att endueses as attribute to service sector
-        self.create_enduses_service(all_service_enduses, data, reg_name, tech_stock, heating_factor_y, cooling_factor_y)
+        self.create_enduses_service(
+            all_service_enduses,
+            data,
+            reg_name,
+            tech_stock,
+            heating_factor_y,
+            cooling_factor_y
+            )
 
         # Summing
         ##self.summ_enduses_across_all_sectors()
@@ -24,7 +31,7 @@ class ServiceSectorClass(object):
         # Iterate enduses
         #ServiceSectorClass.setattr(summed_enduse)
         pass
-    
+
     def create_enduses_service(self, service_enduses, data, reg_name, tech_stock, heating_factor_y, cooling_factor_y):
         """
 

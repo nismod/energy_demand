@@ -47,8 +47,8 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     # TODO: COOLING DG DAYS to disaggregate regionaly
 
     regions = data['lu_reg']
-    base_yr = data['glob_var']['base_yr']
-    national_fuel = data['fuel_raw_data_resid_enduses']
+    base_yr = data['base_yr']
+    national_fuel = data['rs_fuel_raw_data_enduses']
     data['resid_fueldata_disagg'] = {} #Initialise to store aggregated fuels
     #reg_data_assump_disaggreg = reg_data_assump_disaggreg
 

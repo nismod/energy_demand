@@ -225,29 +225,40 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions['fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['fuel_raw_data_resid_enduses'], data['nr_of_fueltypes'])
+    assumptions['rs_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['resid_enduses'], data['nr_of_fueltypes'])
+    assumptions['ss_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['all_service_enduses'], data['nr_of_fueltypes'])
+
 
     # ------------------
     # RESIDENTIAL SECTOR
     # ------------------
 
     #---Residential space heating
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'av_heat_pump_electricity': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
-    assumptions['fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'av_heat_pump_electricity': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
     # ---Residential lighting
-    #assumptions['fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
+    #assumptions['rs_fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
 
     # ---Residential cooking
     #assumptions['list_enduse_tech_cooking'] = []
     '''assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
     assumptions['enduse_resid_cooking'] = ['resid_cooking']
-    assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
-    assumptions['fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
     '''
-    assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['fuel_enduse_tech_p_by'])
+    assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
+
+    # ------------------
+    # SERVICE SECTOR
+    # ------------------
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'av_heat_pump_electricity': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
+
 
     # ============================================================
     # Scenaric FUEL switches
@@ -267,7 +278,7 @@ def load_assumptions(data):
 
     # Testing
     testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['all_specified_tech_enduse_by'])
-    testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['fuel_enduse_tech_p_by'], assumptions['share_service_tech_ey_p'], assumptions['technologies'], assumptions)
+    testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['share_service_tech_ey_p'], assumptions['technologies'], assumptions)
 
     return assumptions
 
@@ -346,12 +357,12 @@ def create_lu_technologies(technologies):
         out_dict[technology] = tech_id
     return out_dict
 
-def initialise_dict_fuel_enduse_tech_p_by(fuel_raw_data_resid_enduses, nr_of_fueltypes):
+def initialise_dict_fuel_enduse_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
     """Helper function to define stocks for all enduse and fueltype
 
     Parameters
     ----------
-    fuel_raw_data_resid_enduses : dict
+    all_enduses_with_fuels : dict
         Provided fuels
     nr_of_fueltypes : int
         Nr of fueltypes
@@ -362,8 +373,6 @@ def initialise_dict_fuel_enduse_tech_p_by(fuel_raw_data_resid_enduses, nr_of_fue
 
     """
     fuel_enduse_tech_p_by = {}
-
-    all_enduses_with_fuels = fuel_raw_data_resid_enduses.keys()
 
     for enduse in all_enduses_with_fuels:
         fuel_enduse_tech_p_by[enduse] = {}

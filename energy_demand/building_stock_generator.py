@@ -34,13 +34,13 @@ def resid_build_stock(data, assumptions):
 
     """
     dw_stock_every_year = {}
-    base_yr = data['glob_var']['base_yr']
+    base_yr = data['base_yr']
 
     # Get distribution of dwelling types of all simulation years
-    dwtype_distr_sim = bf.get_dwtype_dist(assumptions['assump_dwtype_distr_by'], assumptions['assump_dwtype_distr_ey'], data['glob_var']) # Calculate distribution of dwelling types over simulation period
+    dwtype_distr_sim = bf.get_dwtype_dist(assumptions['assump_dwtype_distr_by'], assumptions['assump_dwtype_distr_ey'], data) # Calculate distribution of dwelling types over simulation period
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data['population'][base_yr], data['glob_var'], assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
+    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data['population'][base_yr], data, assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
@@ -53,7 +53,7 @@ def resid_build_stock(data, assumptions):
         dw_stock_every_year[reg_name] = {}
 
         # Iterate simulation year
-        for sim_y in data['glob_var']['sim_period']:
+        for sim_y in data['sim_period']:
 
             # Calculate new necessary floor area of simulation year
             floorarea_pp_sy = data_floorarea_pp[reg_name][sim_y] # Get floor area per person of sim_yr

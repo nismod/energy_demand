@@ -44,13 +44,17 @@ class EnduseResid(object):
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor):
         """CONSTRUCTOR
         """
+        self.current_yr = data['base_yr']
+        self.base_yr = data['curr_yr']
+        self.end_yr = data['end_yr']
+
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel
-        self.enduse_fuelswitch_crit = self.get_fuel_switches(data['glob_var']['base_yr'], data['glob_var']['curr_yr'], data['assumptions']['resid_fuel_switches'])
-        self.enduse_serviceswitch_crit = self.get_service_switches(data['glob_var']['base_yr'], data['glob_var']['curr_yr'], data['assumptions']['service_switch_enduse_crit'])
+        self.enduse_fuelswitch_crit = self.get_fuel_switches(data['assumptions']['resid_fuel_switches'])
+        self.enduse_serviceswitch_crit = self.get_service_switches(data['assumptions']['service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        self.technologies_enduse = self.get_enduse_tech(data['assumptions']['service_tech_by_p'][self.enduse], data['assumptions']['fuel_enduse_tech_p_by'][self.enduse])
+        self.technologies_enduse = self.get_enduse_tech(data['assumptions']['rs_service_tech_by_p'][self.enduse], data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse])
 
         # --------
         # Testing
@@ -71,15 +75,15 @@ class EnduseResid(object):
         #print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calcualte smart meter induced general savings
-        self.smart_meter_eff_gain(data, data['assumptions'])
+        self.smart_meter_eff_gain(data['assumptions'])
         #print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_specific_change(data, data['assumptions'])
+        self.enduse_specific_change(data['assumptions'])
         #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(data, reg_name, data['glob_var']['base_yr'], data['glob_var']['curr_yr'])
+        self.enduse_building_stock_driver(data, reg_name)
         #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
@@ -97,7 +101,7 @@ class EnduseResid(object):
             # Calculate regional energy service (for base year)
             # ------------------------------------------------------------------------
             tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduse_services(
-                data['assumptions']['fuel_enduse_tech_p_by'][self.enduse],
+                data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse],
                 tech_stock,
                 data['lu_fueltype']
                 )
@@ -462,7 +466,7 @@ class EnduseResid(object):
 
             # Get service for current year based on sigmoid diffusion
             service_tech_cy_p[tech_installed] = mf.sigmoid_function(
-                data['glob_var']['curr_yr'],
+                data['curr_yr'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['steepness']
@@ -471,15 +475,11 @@ class EnduseResid(object):
         return service_tech_cy_p
 
     #@classmethod
-    def get_fuel_switches(self, base_year, current_year, fuelswitches):
+    def get_fuel_switches(self, fuelswitches):
         """Test whether there is a fuelswitch for this enduse
 
         Parameters
         ----------
-        base_year : float
-            Base year
-        current_year : float
-            Current year
         fuelswitches : dict
             All fuel switches
 
@@ -487,7 +487,7 @@ class EnduseResid(object):
         ----
         If base year, no switches are implemented
         """
-        if base_year == current_year:
+        if self.base_yr == self.current_yr:
             return False
         else:
             fuel_switches_enduse = []
@@ -501,22 +501,18 @@ class EnduseResid(object):
             else:
                 return False
 
-    def get_service_switches(self, base_year, current_year, service_switch_crit):
+    def get_service_switches(self, service_switch_crit):
         """Test whether there are defined service switches for this enduse
 
         Parameters
         ----------
-        base_year : float
-            Base year
-        current_year : float
-            Current year
         service_switch_crit : boolean
             Criteria wheter a service switch is defined or not
         Note
         ----
         If base year, no switches are implemented
         """
-        if base_year == current_year:
+        if self.base_yr == self.current_yr:
             return False
         else:
             try:
@@ -726,7 +722,7 @@ class EnduseResid(object):
         for tech_installed in assumptions['installed_tech'][self.enduse]:
 
             # Read out sigmoid diffusion of service of this technology for the current year
-            diffusion_cy = mf.sigmoid_function(data_ext['glob_var']['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
+            diffusion_cy = mf.sigmoid_function(data_ext['curr_yr'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'], assumptions['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
 
             # Calculate increase in service based on diffusion of installed technology (diff & total service== Todays demand) - already installed service
             print("eeeeeeeeeeeeeeeeee")
@@ -736,7 +732,7 @@ class EnduseResid(object):
             print(np.sum(tot_service_h_by))
             service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed]
 
-            print("-----------Tech_installed:  "  + str(tech_installed) + str(data_ext['glob_var']['curr_yr']))
+            print("-----------Tech_installed:  "  + str(tech_installed) + str(data_ext['curr_yr']))
             print("diffusion_cy  " + str(diffusion_cy))
             print(" Tot service  " + str(np.sum(tot_service_h_by)))
             print(" Tot ser aft  " + str(np.sum(service_tech_after_switch[tech_installed])))
@@ -778,7 +774,7 @@ class EnduseResid(object):
             for fueltype_replace in fueltypes_replaced:
 
                 # Get all technologies of the replaced fueltype
-                technologies_replaced_fueltype = assumptions['fuel_enduse_tech_p_by'][self.enduse][fueltype_replace].keys()
+                technologies_replaced_fueltype = assumptions['rs_fuel_enduse_tech_p_by'][self.enduse][fueltype_replace].keys()
 
                 # Find fuel switch where this fueltype is replaced
                 for fuelswitch in assumptions['resid_fuel_switches']:
@@ -891,7 +887,7 @@ class EnduseResid(object):
 
         return fuel_tech
 
-    def enduse_specific_change(self, data_ext, assumptions):
+    def enduse_specific_change(self, assumptions):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
         Because for enduses where no technology stock is defined (and may consist of many different)
@@ -902,8 +898,6 @@ class EnduseResid(object):
 
         Parameters
         ----------
-        data_ext : dict
-            Data
         assumptions : dict
             assumptions
 
@@ -919,7 +913,7 @@ class EnduseResid(object):
         # Fuel consumption shares in base and end year
         percent_by = 1.0
         percent_ey = assumptions['enduse_overall_change_ey'][self.enduse]
-        
+
         # Share of fuel consumption difference
         diff_fuel_consump = percent_ey - percent_by 
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
@@ -930,17 +924,17 @@ class EnduseResid(object):
             # Lineare diffusion up to cy
             if diffusion_choice == 'linear':
                 lin_diff_factor = mf.linear_diff(
-                    data_ext['glob_var']['base_yr'],
-                    data_ext['glob_var']['curr_yr'],
+                    self.base_yr,
+                    self.curr_yr,
                     percent_by,
                     percent_ey,
-                    len(data_ext['glob_var']['sim_period'])
+                    len(data_ext['sim_period'])
                 )
                 change_cy = diff_fuel_consump * abs(lin_diff_factor)
 
             # Sigmoid diffusion up to cy
             elif diffusion_choice == 'sigmoid':
-                sig_diff_factor = mf.sigmoid_diffusion(data_ext['glob_var']['base_yr'], data_ext['glob_var']['curr_yr'], data_ext['glob_var']['end_yr'], assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                sig_diff_factor = mf.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage
@@ -996,7 +990,7 @@ class EnduseResid(object):
         ----------
         Every enduse can only have on shape independently of the fueltype
         """
-        if data_ext['glob_var']['curr_yr'] != data_ext['glob_var']['base_yr']: # if not base year
+        if self.current_yr != self.base_yr: # if not base year
 
             new_fuels = np.zeros((self.enduse_fuel_new_fuel.shape[0])) #fueltypes, days, hours
 
@@ -1006,15 +1000,15 @@ class EnduseResid(object):
             for fueltype, fuel in enumerate(self.enduse_fuel_new_fuel):
 
                 if fuel != 0: # if fuel exists
-                    fuelprice_by = data_ext['fuel_price'][data_ext['glob_var']['base_yr']][fueltype] # Fuel price by
-                    fuelprice_cy = data_ext['fuel_price'][data_ext['glob_var']['curr_yr']][fueltype] # Fuel price ey
+                    fuelprice_by = data_ext['fuel_price'][self.base_yr][fueltype] # Fuel price by
+                    fuelprice_cy = data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
                     new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
                 else:
                     new_fuels[fueltype] = fuel
 
             setattr(self, 'enduse_fuel_new_fuel', new_fuels)
 
-    def smart_meter_eff_gain(self, data_ext, assumptions):
+    def smart_meter_eff_gain(self, assumptions):
         """Calculate fuel savings depending on smart meter penetration
 
         The smart meter penetration is assumed with a sigmoid diffusion.
@@ -1024,8 +1018,7 @@ class EnduseResid(object):
 
         Parameters
         ----------
-        data_ext : dict
-            External data
+
         assumptions : dict
             assumptions
 
@@ -1039,9 +1032,9 @@ class EnduseResid(object):
 
             # Sigmoid diffusion up to current year
             sigm_factor = mf.sigmoid_diffusion(
-                data_ext['glob_var']['base_yr'],
-                data_ext['glob_var']['curr_yr'],
-                data_ext['glob_var']['end_yr'],
+                self.base_yr,
+                self.current_yr,
+                self.end_yr,
                 assumptions['sig_midpoint'], assumptions['sig_steeppness']
                 )
 
@@ -1055,7 +1048,7 @@ class EnduseResid(object):
 
             setattr(self, 'enduse_fuel_new_fuel', new_fuels)
 
-    def enduse_building_stock_driver(self, data, reg_name, base_year, current_year):
+    def enduse_building_stock_driver(self, data, reg_name):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         If no building specific scenario driver is found, the identical fuel is returned.
@@ -1068,10 +1061,6 @@ class EnduseResid(object):
             Data
         reg_name : str
             Region
-        base_year : float
-            Base year
-        current_year : float
-            Current year
 
         Returns
         -------
@@ -1085,11 +1074,11 @@ class EnduseResid(object):
         new_fuels = copy.deepcopy(self.enduse_fuel_new_fuel)
 
         # Test if enduse has a building related scenario driver
-        if hasattr(data['dw_stock_resid'][reg_name][base_year], self.enduse) and current_year != base_year:
+        if hasattr(data['dw_stock_resid'][reg_name][self.base_yr], self.enduse) and self.current_yr != self.base_yr:
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(data['dw_stock_resid'][reg_name][base_year], self.enduse)
-            cy_driver = getattr(data['dw_stock_resid'][reg_name][current_year], self.enduse)
+            by_driver = getattr(data['dw_stock_resid'][reg_name][self.base_yr], self.enduse)
+            cy_driver = getattr(data['dw_stock_resid'][reg_name][self.current_yr], self.enduse)
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
             factor_driver = np.divide(cy_driver, by_driver) # FROZEN
