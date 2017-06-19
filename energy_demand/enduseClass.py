@@ -51,7 +51,7 @@ class EnduseResid(object):
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel
         self.enduse_fuelswitch_crit = self.get_fuel_switches(data['assumptions']['resid_fuel_switches'])
-        self.enduse_serviceswitch_crit = self.get_service_switches(data['assumptions']['service_switch_enduse_crit'])
+        self.enduse_serviceswitch_crit = self.get_service_switches(data['assumptions']['rs_service_switch_enduse_crit'])
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_tech(data['assumptions']['rs_service_tech_by_p'][self.enduse], data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse])
@@ -393,7 +393,7 @@ class EnduseResid(object):
         # Technology with increaseing service
         # -------------
         # Calculate diffusion of service for technology with increased service
-        service_tech_increase_cy_p = self.get_service_diffusion(data, data['assumptions']['tech_increased_service'][self.enduse])
+        service_tech_increase_cy_p = self.get_service_diffusion(data, data['assumptions']['rs_tech_increased_service'][self.enduse])
 
         for tech_increase, share_tech in service_tech_increase_cy_p.items():
             service_tech_cy_p[tech_increase] = share_tech # Add shares to output dict
@@ -403,7 +403,7 @@ class EnduseResid(object):
         # -------------
         # Calculate proportional share of technologies with decreasing service of base year (distribution in base year)
         service_tech_decrease_by_rel = mf.get_service_rel_tech_decrease_by(
-            data['assumptions']['tech_decreased_share'][self.enduse], service_tech_by_p)
+            data['assumptions']['rs_tech_decreased_share'][self.enduse], service_tech_by_p)
 
         # Add shares to output dict
         for tech_decrease in service_tech_decrease_by_rel:
@@ -434,7 +434,7 @@ class EnduseResid(object):
         # Technology with constant service
         # -------------
         # Add all technologies with unchanged service in the future
-        for tech_constant in data['assumptions']['tech_constant_share'][self.enduse]:
+        for tech_constant in data['assumptions']['rs_tech_constant_share'][self.enduse]:
             service_tech_cy_p[tech_constant] = service_tech_by_p[tech_constant]
 
         # Multiply share of each tech with hourly service

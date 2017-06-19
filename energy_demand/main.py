@@ -218,10 +218,6 @@ if __name__ == "__main__":
         base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['technologies']
         )
-    print("Base Year Services per technology (service_tech_by_p)")
-    print(base_data['assumptions']['rs_service_tech_by_p'])
-    print("--Base year service within fueltypes by--")
-    print(base_data['assumptions']['rs_service_fueltype_tech_by_p'])
 
     # SERVICE Sector:
     fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['all_service_enduses'], base_data['nr_of_fueltypes'])
@@ -235,19 +231,13 @@ if __name__ == "__main__":
         base_data['assumptions']['technologies']
         )
 
-    print("servic basey er")
-    print(base_data['assumptions']['ss_service_tech_by_p'])
-    print("----")
-    print(base_data['assumptions']['ss_service_fueltype_tech_by_p'])
-
-
     # Write out txt file with service shares for each technology per enduse
     mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions']['tech_increased_service'], base_data['assumptions']['tech_decreased_share'], base_data['assumptions']['tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'])
-    #base_data['assumptions']['tech_increased_service'], base_data['assumptions']['tech_decreased_share'], base_data['assumptions']['tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['share_service_tech_ey_p'], base_data['assumptions'])
+    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
+    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
     base_data['assumptions'] = mf.generate_sig_diffusion(base_data)

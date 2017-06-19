@@ -268,7 +268,8 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['share_service_tech_ey_p'], assumptions['enduse_tech_maxL_by_p'], assumptions['service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['path_service_switch'], assumptions)
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switch_enduse_crit'] = mf.read_csv_assumptions_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
 
     # ============================================================
     # Helper functions
@@ -278,7 +279,7 @@ def load_assumptions(data):
 
     # Testing
     testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['all_specified_tech_enduse_by'])
-    testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['share_service_tech_ey_p'], assumptions['technologies'], assumptions)
+    testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
 
     return assumptions
 

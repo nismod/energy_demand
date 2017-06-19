@@ -401,9 +401,9 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
-    enduse_tech_maxL_by_p : dict
+    rs_enduse_tech_maxL_by_p : dict
         Maximum service per technology which can be switched
-    service_switch_enduse_crit : dict
+    rs_service_switch_enduse_crit : dict
         Criteria whether service switches are defined in an enduse. If no assumptions about service switches, return empty dicts
 
     Notes
@@ -415,8 +415,8 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     """
     list_elements = []
     enduse_tech_by_p = {}
-    enduse_tech_maxL_by_p = {}
-    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
+    rs_enduse_tech_maxL_by_p = {}
+    rs_service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -445,23 +445,23 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_by_p[enduse] = {}
-            enduse_tech_maxL_by_p[enduse] = {}
+            rs_enduse_tech_maxL_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        service_switch_enduse_crit[enduse] = False #False by default
+        rs_service_switch_enduse_crit[enduse] = False #False by default
         for line in list_elements:
             if line['enduse_service'] == enduse:
                 tech = line['tech']
                 enduse_tech_by_p[enduse][tech] = line['service_share_ey']
-                enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
-                service_switch_enduse_crit[enduse] = True
+                rs_enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
+                rs_service_switch_enduse_crit[enduse] = True
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for enduse in assumptions['all_specified_tech_enduse_by']:
-        if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
+        if enduse in rs_service_switch_enduse_crit: #If switch is defined for this enduse
             for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
                 if tech not in enduse_tech_by_p[enduse]:
                     sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
@@ -476,7 +476,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         if round(sum(enduse_tech_by_p[enduse].values()), 2) != 1.0:
             sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, enduse_tech_by_p[enduse].values()))
 
-    return enduse_tech_by_p, enduse_tech_maxL_by_p, service_switch_enduse_crit
+    return enduse_tech_by_p, rs_enduse_tech_maxL_by_p, rs_service_switch_enduse_crit
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -1242,7 +1242,7 @@ def generate_sig_diffusion(data):
     enduses_with_fuels = data['rs_fuel_raw_data_enduses'].keys() # All endueses with provided fuels
 
     # Test is Service Switch is implemented
-    if True in data['assumptions']['service_switch_enduse_crit'].values(): # If a switch is defined for an enduse
+    if True in data['assumptions']['rs_service_switch_enduse_crit'].values(): # If a switch is defined for an enduse
         service_switch_crit = True
     else:
         service_switch_crit = False
@@ -1253,13 +1253,13 @@ def generate_sig_diffusion(data):
         # ---------------------------------------------
 
         # Tech with lager service shares in end year
-        data['assumptions']['installed_tech'] = data['assumptions']['tech_increased_service']
+        data['assumptions']['installed_tech'] = data['assumptions']['rs_tech_increased_service']
 
         # End year service shares (scenaric input)
-        service_tech_switched_p = data['assumptions']['share_service_tech_ey_p']
+        service_tech_switched_p = data['assumptions']['rs_share_service_tech_ey_p']
 
         # Maximum shares of each technology
-        l_values_sig = data['assumptions']['enduse_tech_maxL_by_p']
+        l_values_sig = data['assumptions']['rs_enduse_tech_maxL_by_p']
 
     else:
         # ---------------------------------------------
@@ -2015,9 +2015,9 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p)
                 else:
                     tech_constant_share[enduse].append(tech)
         # Add to data
-        #assumptions['tech_increased_service'] = tech_increased_service
-        #assumptions['tech_decreased_share'] = tech_decreased_share
-        #assumptions['tech_constant_share'] = tech_constant_share
+        #assumptions['rs_tech_increased_service'] = tech_increased_service
+        #assumptions['rs_tech_decreased_share'] = tech_decreased_share
+        #assumptions['rs_tech_constant_share'] = tech_constant_share
         print("   ")
         print("tech_increased_service:  " + str(tech_increased_service))
         print("tech_decreased_share:    " + str(tech_decreased_share))

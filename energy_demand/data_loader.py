@@ -32,7 +32,7 @@ def load_data(path_main, data):
 
     # PATH WITH DATA WHICH I'm NOT ALLOWED TO ULOAD ON GITHUB TODO: LOCAL DATA
     #Z:\01-Data_NISMOD\data_energy_demand
-    #folder_path_weater_data = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
+    folder_path_weater_data = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
     folder_path_weater_stations = os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv')
 
 
@@ -97,7 +97,10 @@ def load_data(path_main, data):
         # Technologies
         'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
         'path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
-        'path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
+        
+        # Path to excel with ss service switch
+        'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
+        'ss_path_service_switch': os.path.join(path_main, 'service_model/switches_service_scenaric.csv'),
 
         # Service
         # -------
@@ -109,7 +112,8 @@ def load_data(path_main, data):
     # Read in weather data and clean data
     # ----------------------------------------------------------
     data['weather_stations_raw'] = df.read_weather_stations_raw(folder_path_weater_stations) # Read all weater stations properties
-    '''data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
+    
+    data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
     data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
@@ -134,7 +138,7 @@ def load_data(path_main, data):
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
     # -----------
-
+    '''
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------
