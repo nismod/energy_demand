@@ -342,7 +342,8 @@ class RegionClass(object):
                     data['assumptions']['rs_service_tech_by_p'],
                     data['assumptions']['rs_tech_increased_service'],
                     data['assumptions']['rs_tech_decreased_share'],
-                    data['assumptions']['rs_tech_constant_share']
+                    data['assumptions']['rs_tech_constant_share'],
+                    data['assumptions']['rs_installed_tech']
                     )
                 )
 
