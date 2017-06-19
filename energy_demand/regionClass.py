@@ -365,8 +365,6 @@ class RegionClass(object):
 
         return tot_fuels_all_enduse
 
-
-
     def max_fuel_fueltype_allenduses(self, data, attribute_to_get):
         """Sum all fuel types over all end uses
         """

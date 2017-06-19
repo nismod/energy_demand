@@ -395,7 +395,7 @@ class EnduseResid(object):
             Current year fuel for every technology (e.g. fueltype 1: 'techA': fuel) for every hour
         """
         print(" ")
-        print("...Service switch is implemented")
+        print("...Service switch is implemented "  + str(self.enduse))
         service_tech_cy_p = {}
         service_tech_cy = {}
 
@@ -472,7 +472,8 @@ class EnduseResid(object):
         service_tech_cy_p = {}
 
         for tech_installed in tech_increased_service:
-
+            print("tech_installed: " + str(tech_installed))
+            print(data['assumptions']['sigm_parameters_tech'][self.enduse])
             # Get service for current year based on sigmoid diffusion
             service_tech_cy_p[tech_installed] = mf.sigmoid_function(
                 data['curr_yr'],
@@ -706,7 +707,7 @@ class EnduseResid(object):
 
         return fuels_yh
 
-    def switch_tech_fuel(self, data_ext, tot_service_h_by, service_tech, service_fueltype_tech_by_p, service_fueltype_by_p, fuel_switches, fuel_enduse_tech_p_by):
+    def switch_tech_fuel(self, data, tot_service_h_by, service_tech, service_fueltype_tech_by_p, service_fueltype_by_p, fuel_switches, fuel_enduse_tech_p_by):
         """Scenaric fuel switches
 
         Based on assumptions about shares of fuels which are switched per enduse to specific
@@ -742,7 +743,7 @@ class EnduseResid(object):
 
             # Read out sigmoid diffusion of service of this technology for the current year
             diffusion_cy = mf.sigmoid_function(
-                data_ext['curr_yr'],
+                data['curr_yr'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
                 data['assumptions']['sigm_parameters_tech'][self.enduse][tech_installed]['steepness'])
@@ -755,7 +756,7 @@ class EnduseResid(object):
             print(np.sum(tot_service_h_by))
             service_tech_installed_cy = (diffusion_cy * tot_service_h_by) - service_tech[tech_installed]
 
-            print("-----------Tech_installed:  "  + str(tech_installed) + str(data_ext['curr_yr']))
+            print("-----------Tech_installed:  "  + str(tech_installed) + str(data['curr_yr']))
             print("diffusion_cy  " + str(diffusion_cy))
             print(" Tot service  " + str(np.sum(tot_service_h_by)))
             print(" Tot ser aft  " + str(np.sum(service_tech_after_switch[tech_installed])))
