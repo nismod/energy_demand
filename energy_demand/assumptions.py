@@ -57,7 +57,7 @@ def load_assumptions(data):
     }
 
     #Testing (test if all provided fueltypes)
-    #test_if_enduses_are_assigneddata['resid_enduses']
+    #test_if_enduses_are_assigneddata['rs_all_enduses']
     # ========================================================================================================================
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
@@ -225,8 +225,8 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions['rs_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['resid_enduses'], data['nr_of_fueltypes'])
-    assumptions['ss_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['all_service_enduses'], data['nr_of_fueltypes'])
+    assumptions['rs_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['rs_all_enduses'], data['nr_of_fueltypes'])
+    assumptions['ss_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['ss_all_enduses'], data['nr_of_fueltypes'])
 
 
     # ------------------

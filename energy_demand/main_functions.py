@@ -1244,6 +1244,9 @@ def generate_sig_diffusion(data, service_switches):
     """
 
     #TODO: DO THIS FOR EVERY ENDUSE
+    # Add all enduses into one list
+    all_enduses_all_sectors = data['rs_all_enduses'] + data['ss_all_enduses']
+
     #1. test if switc
 
     enduses_with_fuels = data['rs_fuel_raw_data_enduses'].keys() # All endueses with provided fuels
@@ -1588,7 +1591,7 @@ def tech_L_sigmoid(enduses, data, assumptions, service_fueltype_p):
 
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
-                    data['resid_enduses'],
+                    data['rs_all_enduses'],
                     assumptions['rs_fuel_switches'],
                     service_fueltype_p,
                     #assumptions['service_fueltype_by_p'], # Service demand for enduses and fueltypes

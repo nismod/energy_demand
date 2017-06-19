@@ -11,11 +11,11 @@ class ServiceSectorClass(object):
         self.fuels_all_enduses = data['ss_fuel_raw_data_enduses'][sector_name]
 
         # Get all service enduses
-        all_service_enduses = data['all_service_enduses']
+        ss_all_enduses = data['ss_all_enduses']
 
         # Att endueses as attribute to service sector
         self.create_enduses_service(
-            all_service_enduses,
+            ss_all_enduses,
             data,
             reg_name,
             tech_stock,

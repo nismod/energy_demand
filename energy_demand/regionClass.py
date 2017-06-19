@@ -96,7 +96,7 @@ class RegionClass(object):
         # ------------
         # Set attributs of all enduses to the Region Class
         self.create_enduses_resid(
-            data['resid_enduses'],
+            data['rs_all_enduses'],
             data)
 
         # ------------
@@ -124,9 +124,9 @@ class RegionClass(object):
         # -- summing functions
         # --------------------
         # Sum final 'yearly' fuels (summarised over all enduses)
-        self.fuels_new = self.tot_all_enduses_y(data['resid_enduses'], 'enduse_fuel_yh')
+        self.fuels_new = self.tot_all_enduses_y(data['rs_all_enduses'], 'enduse_fuel_yh')
         # Get sum of fuels for each fueltype across fueltypes
-        self.tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['resid_enduses'], 'enduse_fuel_yh') #NEW
+        self.tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['rs_all_enduses'], 'enduse_fuel_yh') #NEW
 
         #self.fuels_new_enduse_specific_y = self.enduse_specific_y(data, 'enduse_fuel_new_fuel')
         self.fuels_new_enduse_specific_h = self.enduse_specific_h(data)
@@ -372,7 +372,7 @@ class RegionClass(object):
         """
         sum_fuels = np.zeros((data['nr_of_fueltypes']))
 
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             for fueltype in data['fuel_type_lu']:
                 sum_fuels[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
 
@@ -387,11 +387,11 @@ class RegionClass(object):
         """Sum fuels for every fuel type for each enduse
         """
         sum_fuels_all_enduses = {}
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             sum_fuels_all_enduses[enduse] = np.zeros((data['nr_of_fueltypes']))
 
         # Sum data
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, attribute_to_get) # Fuel of Enduse
         return sum_fuels_all_enduses
 
@@ -399,11 +399,11 @@ class RegionClass(object):
         """Sum fuels for every fuel type for each enduse
         """
         sum_fuels_all_enduses = {}
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             sum_fuels_all_enduses[enduse] = np.zeros((data['nr_of_fueltypes'], 365, 24))
 
         # Sum data
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             sum_fuels_all_enduses[enduse] += self.__getattr__subclass__(enduse, 'enduse_fuel_yh') # Fuel of Enduse h
 
         return sum_fuels_all_enduses
@@ -414,7 +414,7 @@ class RegionClass(object):
         sum_fuels_d = np.zeros((data['nr_of_fueltypes'], 365))
 
         for fueltype in data['fuel_type_lu']:
-            for enduse in data['resid_enduses']:
+            for enduse in data['rs_all_enduses']:
                 sum_fuels_d[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
 
         return sum_fuels_d
@@ -424,7 +424,7 @@ class RegionClass(object):
         """
         sum_calc_enduse_fuel_peak_yd_factor = np.zeros((data['nr_of_fueltypes']))  # Initialise
 
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             sum_calc_enduse_fuel_peak_yd_factor += self.__getattr__subclass__(enduse, 'enduse_peak_yd_factor') # Fuel of Enduse
 
         return sum_calc_enduse_fuel_peak_yd_factor
@@ -435,7 +435,7 @@ class RegionClass(object):
         sum_calc_enduse_fuel_peak_yh = np.zeros((data['nr_of_fueltypes'], 1)) # Initialise
 
         for fueltype in data['fuel_type_lu']:
-            for enduse in data['resid_enduses']:
+            for enduse in data['rs_all_enduses']:
                 sum_calc_enduse_fuel_peak_yh[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype] # Fuel of Endus enduse_fuel_peak_dh
 
         return sum_calc_enduse_fuel_peak_yh
@@ -446,7 +446,7 @@ class RegionClass(object):
         sum_fuels_h = np.zeros((data['nr_of_fueltypes'], 365, 24)) # Initialise
 
         for fueltype in data['fuel_type_lu']:
-            for enduse in data['resid_enduses']:
+            for enduse in data['rs_all_enduses']:
                 sum_fuels_h[fueltype] += self.__getattr__subclass__(enduse, attribute_to_get)[fueltype]
 
         # Read out more error information (e.g. RuntimeWarning)

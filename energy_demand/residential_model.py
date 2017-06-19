@@ -141,7 +141,7 @@ class CountryClass(object):
 
         """
         tot_sum_enduses = {}
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             tot_sum_enduses[enduse] = 0
 
         for reg_name in reg_names:

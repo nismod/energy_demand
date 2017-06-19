@@ -165,12 +165,12 @@ def load_data(path_main, data):
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
-    data['resid_enduses'] = create_enduse_dict(data, rs_fuel_raw_data_enduses)
+    data['rs_all_enduses'] = create_enduse_dict(data, rs_fuel_raw_data_enduses)
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    ss_fuel_raw_data_enduses, all_service_sectors, data['all_service_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses']) # Yearly end use data
+    ss_fuel_raw_data_enduses, all_service_sectors, data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses']) # Yearly end use data
     data['ss_fuel_raw_data_enduses'] = ss_fuel_raw_data_enduses
     data['all_service_sectors'] = all_service_sectors
 
@@ -356,14 +356,14 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
 
     Returns
     -------
-    resid_enduses : dict
+    resid_enduses : list
         Ditionary with residential enduses
     """
-    resid_enduses = {}
+    resid_enduses = []
     for ext_enduse in data['external_enduses_resid']: # Add external enduse
-        resid_enduses[ext_enduse] = ext_enduse
+        resid_enduses.append(ext_enduse)
 
     for enduse in rs_fuel_raw_data_enduses: # Add resid enduses
-        resid_enduses[enduse] = enduse
+        resid_enduses.append(enduse)
 
     return resid_enduses

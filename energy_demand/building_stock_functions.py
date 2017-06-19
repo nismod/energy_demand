@@ -36,7 +36,7 @@ class Dwelling(object):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.driver_assumptions = data['assumptions']['resid_scen_driver_assumptions']
-        self.enduses = data['resid_enduses']
+        self.enduses = data['rs_all_enduses']
         self.coordinates = coordinates
         self.dwtype = dwtype
         self.age = age
@@ -93,7 +93,7 @@ class DwStockRegion(object):
 
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
-        for enduse in data['resid_enduses']:
+        for enduse in data['rs_all_enduses']:
             DwStockRegion.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
 
     def get_scenario_driver_enduse(self, enduse):

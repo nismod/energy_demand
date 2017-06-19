@@ -798,7 +798,7 @@ class EnduseResid(object):
 
                 # Get all technologies of the replaced fueltype
                 #technologies_replaced_fueltype = assumptions['rs_fuel_enduse_tech_p_by'][self.enduse][fueltype_replace].keys()
-                technologies_replaced_fueltype = data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse][fueltype_replace].keys()
+                technologies_replaced_fueltype = fuel_enduse_tech_p_by[self.enduse][fueltype_replace].keys()
 
                 # Find fuel switch where this fueltype is replaced
                 for fuelswitch in fuel_switches: #assumptions['rs_fuel_switches']:

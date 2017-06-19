@@ -131,9 +131,9 @@ def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fuel
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((len(data['resid_enduses']), nr_y_to_plot))
+    Y_init = np.zeros((len(data['rs_all_enduses']), nr_y_to_plot))
 
-    for k, enduse in enumerate(data['resid_enduses']):
+    for k, enduse in enumerate(data['rs_all_enduses']):
         legend_entries.append(enduse)
         data_over_years = []
 
