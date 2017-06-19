@@ -59,6 +59,10 @@ import energy_demand.residential_model as rm # Import sub modules
 import energy_demand.service_model as sm # Import sub modules
 import energy_demand.industry_model as im # Import sub modules
 import energy_demand.transport_model as tm # Import sub modules
+
+
+
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -239,8 +243,12 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
     base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
 
+
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
-    base_data['assumptions'] = mf.generate_sig_diffusion(base_data)
+    base_data['assumptions'] = mf.generate_sig_diffusion(
+        base_data,
+        base_data['assumptions']['rs_resid_serivce_switches']
+        )
 
     # Disaggregate national data into regional data #TODO
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1)
@@ -283,7 +291,7 @@ if __name__ == "__main__":
     pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data)
 
     # Run main function
-    results = energy_demand_model(base_data)
+    #results = energy_demand_model(base_data)
 
     print("Finished running Energy Demand Model")
 
@@ -301,4 +309,20 @@ if __name__ == "__main__":
     stats.strip_dirs()
     stats.sort_stats(-1)
     stats.print_stats()
+
+    # -------------
+    # PyCallGraph
+    # -------------
+    
+    from pycallgraph import PyCallGraph
+    from pycallgraph.output import GraphvizOutput
+
+    print("Run profiler....")
+    #with PyCallGraph(output=GraphvizOutput()):
+
+    graphviz = GraphvizOutput()
+    graphviz.output_file = r'C:\\Users\\cenv0553\\GIT\\data\\model_output\\basic.png'
+
+    with PyCallGraph(output=graphviz):
+        energy_demand_model(base_data)
     """

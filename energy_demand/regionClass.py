@@ -335,7 +335,14 @@ class RegionClass(object):
                     self.tech_stock,
                     self.heating_factor_y,
                     self.cooling_factor_y,
-                    enduse_peak_yd_factor # yd factor which is different depending on enduse
+                    enduse_peak_yd_factor, # yd factor which is different depending on enduse
+                    data['assumptions']['rs_fuel_switches'],
+                    data['assumptions']['rs_resid_serivce_switches'],
+                    data['assumptions']['rs_fuel_enduse_tech_p_by'],
+                    data['assumptions']['rs_service_tech_by_p'],
+                    data['assumptions']['rs_tech_increased_service'],
+                    data['assumptions']['rs_tech_decreased_share'],
+                    data['assumptions']['rs_tech_constant_share']
                     )
                 )
 

@@ -113,7 +113,7 @@ def load_data(path_main, data):
     # ----------------------------------------------------------
     data['weather_stations_raw'] = df.read_weather_stations_raw(folder_path_weater_stations) # Read all weater stations properties
     
-    data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
+    '''data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
     data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
@@ -138,7 +138,7 @@ def load_data(path_main, data):
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
     # -----------
-    '''
+    #'''
     # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------

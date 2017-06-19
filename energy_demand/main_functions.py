@@ -131,7 +131,7 @@ def read_csv_float(path_to_csv):
     -----
     The header row is always skipped.
     """
-    list_elements = []
+    service_switches = []
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -140,9 +140,9 @@ def read_csv_float(path_to_csv):
 
         # Iterate rows
         for row in read_lines:
-            list_elements.append(row)
+            service_switches.append(row)
 
-    return np.array(list_elements, float) # Convert list into array
+    return np.array(service_switches, float) # Convert list into array
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -163,16 +163,16 @@ def read_csv(path_to_csv):
     -----
     The header row is always skipped.
     """
-    list_elements = []
+    service_switches = []
     with open(path_to_csv, 'r') as csvfile:               # Read CSV file
         read_lines = csv.reader(csvfile, delimiter=',')   # Read line
         _headings = next(read_lines)                      # Skip first row
 
         # Iterate rows
         for row in read_lines:
-            list_elements.append(row)
+            service_switches.append(row)
 
-    return np.array(list_elements) # Convert list into array
+    return np.array(service_switches) # Convert list into array
 
 def read_csv_base_data_service(path_to_csv):
     """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
@@ -335,7 +335,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
     """
-    list_elements = []
+    service_switches = []
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -345,7 +345,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
         # Iterate rows
         for row in read_lines:
             try:
-                list_elements.append(
+                service_switches.append(
                     {
                         'enduse': str(row[0]),
                         'enduse_fueltype_replace': data['lu_fueltype'][str(row[1])],
@@ -361,7 +361,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
-    for element in list_elements:
+    for element in service_switches:
         if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
             sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
 
@@ -369,13 +369,13 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
             sys.exit("Error: The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
 
     # Test if more than 100% per fueltype is switched
-    for element in list_elements:
+    for element in service_switches:
         enduse = element['enduse']
         fuel_type = element['enduse_fueltype_replace']
 
         tot_share_fueltype_switched = 0
         # Do check for every entry
-        for element_iter in list_elements:
+        for element_iter in service_switches:
 
             if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
                 # Found same fueltypes which is switched
@@ -385,7 +385,7 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
             print("SHARE: " + str(tot_share_fueltype_switched))
             sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
-    return list_elements
+    return service_switches
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     """This function reads in service assumptions from csv file
@@ -403,8 +403,10 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         All assumptions about fuel switches provided as input
     rs_enduse_tech_maxL_by_p : dict
         Maximum service per technology which can be switched
-    rs_service_switch_enduse_crit : dict
-        Criteria whether service switches are defined in an enduse. If no assumptions about service switches, return empty dicts
+    service_switches : dict
+        Service switches
+    #rs_service_switch_enduse_crit : dict
+    #    Criteria whether service switches are defined in an enduse. If no assumptions about service switches, return empty dicts
 
     Notes
     -----
@@ -413,7 +415,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     - It also test if plausible inputs
     While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
-    list_elements = []
+    service_switches = []
     enduse_tech_by_p = {}
     rs_enduse_tech_maxL_by_p = {}
     rs_service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
@@ -427,7 +429,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         for row in read_lines:
             print(row)
             try:
-                list_elements.append(
+                service_switches.append(
                     {
                         'enduse_service': str(row[0]),
                         'tech': str(row[1]),
@@ -440,7 +442,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
     # Group all entries according to enduse
     all_enduses = []
-    for line in list_elements:
+    for line in service_switches:
         enduse = line['enduse_service']
         if enduse not in all_enduses:
             all_enduses.append(enduse)
@@ -449,13 +451,14 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        rs_service_switch_enduse_crit[enduse] = False #False by default
-        for line in list_elements:
+        #rs_service_switch_enduse_crit[enduse] = False #False by default
+        for line in service_switches:
             if line['enduse_service'] == enduse:
                 tech = line['tech']
                 enduse_tech_by_p[enduse][tech] = line['service_share_ey']
                 rs_enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
-                rs_service_switch_enduse_crit[enduse] = True
+                #rs_service_switch_enduse_crit[enduse] = True
+    
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -467,7 +470,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                     sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     # Test if more service is provided as input than possible to maximum switch
-    for entry in list_elements:
+    for entry in service_switches:
         if entry['service_share_ey'] > entry['tech_assum_max_share']:
             sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse_service'], entry['tech']))
 
@@ -476,7 +479,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
         if round(sum(enduse_tech_by_p[enduse].values()), 2) != 1.0:
             sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, enduse_tech_by_p[enduse].values()))
 
-    return enduse_tech_by_p, rs_enduse_tech_maxL_by_p, rs_service_switch_enduse_crit
+    return enduse_tech_by_p, rs_enduse_tech_maxL_by_p, service_switches #rs_service_switch_enduse_crit
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -1222,7 +1225,7 @@ def sum_2_level_dict(two_level_dict):
 
     return tot_sum
 
-def generate_sig_diffusion(data):
+def generate_sig_diffusion(data, service_switches):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
 
     Parameters
@@ -1239,13 +1242,25 @@ def generate_sig_diffusion(data):
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
+
+    #TODO: DO THIS FOR EVERY ENDUSE
+    #1. test if switc
+
     enduses_with_fuels = data['rs_fuel_raw_data_enduses'].keys() # All endueses with provided fuels
 
     # Test is Service Switch is implemented
+    if len(service_switches) > 0:
+        service_switch_crit = True
+    else:
+        service_switch_crit = False
+    print("SERVICE SWITHC IS IMPEMENTED OR NOT: " + str(service_switch_crit))
+
+    '''
     if True in data['assumptions']['rs_service_switch_enduse_crit'].values(): # If a switch is defined for an enduse
         service_switch_crit = True
     else:
         service_switch_crit = False
+    '''
 
     if service_switch_crit:
         # ---------------------------------------------
@@ -1266,12 +1281,12 @@ def generate_sig_diffusion(data):
         # Sigmoid calculation in case of 'fuel switch'
         # ---------------------------------------------
         # Tech with lager service shares in end year (installed in fuel switch)
-        data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['resid_fuel_switches'])
+        data['assumptions']['installed_tech'] = get_tech_installed(data['assumptions']['rs_fuel_switches'])
 
         # Calculate energy service demand after fuel switches to future year for each technology
         service_tech_switched_p = calc_service_fuel_switched(
             enduses_with_fuels,
-            data['assumptions']['resid_fuel_switches'],
+            data['assumptions']['rs_fuel_switches'],
             data['assumptions']['rs_service_fueltype_by_p'],
             data['assumptions']['rs_service_tech_by_p'],
             data['assumptions']['rs_fuel_enduse_tech_p_by'],
@@ -1294,7 +1309,7 @@ def generate_sig_diffusion(data):
         l_values_sig,
         data['assumptions']['rs_service_tech_by_p'],
         service_tech_switched_p,
-        data['assumptions']['resid_fuel_switches']
+        data['assumptions']['rs_fuel_switches']
     )
 
     return data['assumptions']
@@ -1574,7 +1589,7 @@ def tech_L_sigmoid(enduses, data, assumptions, service_fueltype_p):
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     data['resid_enduses'],
-                    assumptions['resid_fuel_switches'],
+                    assumptions['rs_fuel_switches'],
                     service_fueltype_p,
                     #assumptions['service_fueltype_by_p'], # Service demand for enduses and fueltypes
                     assumptions['service_tech_by_p'], # Percentage of service demands for every technology
@@ -1588,7 +1603,7 @@ def tech_L_sigmoid(enduses, data, assumptions, service_fueltype_p):
 
     return l_values_sig
 
-def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_by_p, service_tech_switched_p, resid_fuel_switches):
+def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_stock, data_ext, L_values, service_tech_by_p, service_tech_switched_p, rs_fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches. A sigmoid diffusion is fitted.
@@ -1613,7 +1628,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
         Energy service demand for base year (1.sigmoid point)
     service_tech_switched_p : dict
         Service demand after fuelswitch
-    resid_fuel_switches : dict
+    rs_fuel_switches : dict
         Fuel switch information
 
     Returns
@@ -1648,7 +1663,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, tech_s
                 else:
                     # Get year which is furtherst away of all switch to installed technology
                     year_until_switched = 0
-                    for switch in resid_fuel_switches:
+                    for switch in rs_fuel_switches:
                         if switch['enduse'] == enduse and switch['technology_install'] == technology:
                             if year_until_switched < switch['year_fuel_consumption_switched']:
                                 year_until_switched = switch['year_fuel_consumption_switched']
