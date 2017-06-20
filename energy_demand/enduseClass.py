@@ -195,12 +195,12 @@ class EnduseClass(object):
             # NON-PEAK
             # --------
             self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data_shapes_yd[self.enduse]['shape_non_peak_yd'])
-            self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[self.enduse]['shape_non_peak_h'])
+            self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[self.enduse]['shape_non_peak_dh'])
 
             # --------
             # PEAK
             # --------
-            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data_shapes_dh[enduse]['shape_peak_dh'])
+            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data_shapes_dh[self.enduse]['shape_peak_dh'])
             self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)
 
         # Testing

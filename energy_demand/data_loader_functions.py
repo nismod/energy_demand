@@ -10,6 +10,7 @@ import energy_demand.main_functions as mf
 import copy
 import matplotlib.pyplot as plt
 import energy_demand.plot_functions as pf
+assertions = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 # HES-----------------------------------
@@ -81,7 +82,7 @@ def assign_hes_data_to_year(data, hes_data, base_yr):
 def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
     """Fill every base year day with correct data"""
 
-    shape_non_peak_h = np.zeros((365, 24))
+    shape_non_peak_dh = np.zeros((365, 24))
 
     # -- Daily shape over full year (365,1)
 
@@ -97,9 +98,9 @@ def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_non_peak_h[yearday_python] = np.array(_data[:, 1], dtype=float)   # now [yearday][24 hours with relative shape]
+        shape_non_peak_dh[yearday_python] = np.array(_data[:, 1], dtype=float)   # now [yearday][24 hours with relative shape]
 
-    return shape_non_peak_h
+    return shape_non_peak_dh
 
 def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
     """Read in raw HES data and generate shapes
@@ -162,16 +163,16 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
     # Calculate non-peak shapes
     # -------------------------
     shape_non_peak_yd = np.zeros((365))
-    shape_non_peak_h = np.zeros((365, 24))
+    shape_non_peak_dh = np.zeros((365, 24))
 
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
         d_sum = np.sum(day_values)
 
         shape_non_peak_yd[day] = (1.0 / total_y_end_use_demand) * d_sum
-        shape_non_peak_h[day] = (1.0 / d_sum) * day_values # daily shape
+        shape_non_peak_dh[day] = (1.0 / d_sum) * day_values # daily shape
 
-    return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
+    return shape_peak_yh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
 
 
 
@@ -207,27 +208,40 @@ def dict_init_carbon_trunst():
 
 def read_raw_carbon_trust_data(data, folder_path):
     """
-    Folder with all csv files stored
 
+    Parameters
+    ----------
+    data : dict
+        Data
+    foder_path : string
+        Path to folder with stored csv files
+
+    Returns
+    -------
+    out_dict_av : array
+        Every daily measurment is taken from all files and averaged
+
+    out_dict_not_average: array
+        Every measurment of of every file is plotted
+
+    Info
+    -----
     A. Get gas peak day load shape (the max daily demand can be taken from weather data, the daily shape however is not provided by samson)
         I. Iterate individual files which are about a year (even though gaps exist)
         II. Select those day with the maximum load
         III. Get the hourly shape of this day
 
-    #0. Find what day it is (with date function). Then define daytype and month
     1. Calculate total demand of every day
     2. Assign percentag of total daily demand to each hour
 
-     ut_dict_av: Every daily measurment is taken from all files and averaged
-    out_dict_not_average: Every measurment of of every file is plotted
-
     """
-    all_csv_in_folder = os.listdir(folder_path) # Get all files in folder
+    # Get all files in folder
+    all_csv_in_folder = os.listdir(folder_path)
     main_dict = initialise_main_dict()
-    carbon_trust_raw = dict_init_carbon_trunst() # Initialise dictionaries
+    carbon_trust_raw = dict_init_carbon_trunst()
 
     nr_of_line_entries = 0
-    hourly_shape_of_maximum_days = {}
+    dict_max_dh_shape = {}
 
     # Itreateu folder with csv files
     for path_csv_file in all_csv_in_folder:
@@ -238,7 +252,7 @@ def read_raw_carbon_trust_data(data, folder_path):
             print("path_csv_file: " + str(path_csv_file))
             read_lines = csv.reader(csv_file, delimiter=',')  # Read line
             _headings = next(read_lines)                      # Skip first row
-            maximum_dayly_demand = 0                          # Used for searching maximum
+            max_d_demand = 0                          # Used for searching maximum
 
             # Count number of lines in CSV file
             row_data = []
@@ -246,23 +260,24 @@ def read_raw_carbon_trust_data(data, folder_path):
                 row_data.append(row)
             #print("Number of lines in csv file: " + str(count_row))
 
-            # Calc yearly demand
+            # Calc yearly demand based on one year data measurements
             if count_row > 365: # if more than one year is recorded in csv file TODO: All but then distored?
                 print("FILE covers a full year---------------------------")
 
-                for day, row in enumerate(row_data): # Iterate day
+                for day, row in enumerate(row_data):
                     if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries
                         continue # Skip row
-  
-                    if day > 365: #ONLY TAKE ONE YEAR
+
+                    # Use only data of one year
+                    if day > 365:
                         continue
 
-                    hourly_load_shape = np.zeros((24))
+                    load_shape_dh = np.zeros((24))
 
                     row[1:] = map(float, row[1:]) # Convert all values except date into float values
                     daily_sum = sum(row[1:]) # Total daily sum
                     nr_of_line_entries += 1 # Nr of lines added
-                    day, month, year  = int(row[0].split("/")[0]), int(row[0].split("/")[1]), int(row[0].split("/")[2])
+                    day, month, year = int(row[0].split("/")[0]), int(row[0].split("/")[1]), int(row[0].split("/")[2])
 
                     # Redefine yearday to another year and skip 28. of Feb.
                     if is_leap_year(int(year)) == True:
@@ -270,57 +285,92 @@ def read_raw_carbon_trust_data(data, folder_path):
                         if month == 2 and day == 29:
                             continue #skip leap day
 
-                    date_row = date(year, month, day) #Date
-                    daytype = mf.get_weekday_type(date_row) # Daytype
+                    date_row = date(year, month, day)
+                    daytype = mf.get_weekday_type(date_row)
                     yearday_python = date_row.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
                     month_python = month - 1 # Month Python
 
-                    cnt, h_day, control_sum = 0, 0, 0
+                    h_day, cnt, control_sum = 0, 0, 0
 
-                    # Iterate hours
-                    for haload_factor_hour_val in row[1:]:  # Skip first date row in csv file
+                    # -----------------------------------------------
+                    # Iterate half hour data and summarise to hourly
+                    # -----------------------------------------------
+                    for data_h in row[1:]:  # Skip first date row in csv file
                         cnt += 1
                         if cnt == 2:
-                            demand = first_haload_factor_hour + haload_factor_hour_val
-                            control_sum += abs(demand)
-                            carbon_trust_raw[yearday_python][h_day].append(demand) # Calc percent of total daily demand
 
-                            # Dict for aggregated monthly values
-                            main_dict[daytype][month_python][h_day].append(demand)
+                            demand_h = first_data_h + data_h
+                            control_sum += abs(demand_h)
 
-                            if daily_sum == 0: # Skip row if no demand of the day #print("no demand")
-                                hourly_load_shape[h_day] = 0
+                            # Calc percent of total daily demand
+                            carbon_trust_raw[yearday_python][h_day].append(demand_h) 
+
+                            # Stor demand according to daytype (aggregated by doing so)
+                            main_dict[daytype][month_python][h_day].append(demand_h)
+
+                            if daily_sum == 0: # Skip row if no demand of the day
+                                load_shape_dh[h_day] = 0
                                 continue
                             else:
-                                hourly_load_shape[h_day] = demand * (1.0 / daily_sum) # Load shape of this day
+                                load_shape_dh[h_day] = demand_h * np.divide(1.0, daily_sum) # Load shape of this day
 
                                 cnt = 0
-                                h_day += 1
 
-                        first_haload_factor_hour = haload_factor_hour_val # must be at this position
+                            h_day += 1
+
+                        # Value lagging behind one iteration
+                        first_data_h = data_h
 
                     # Test if this is the day with maximum demand of this CSV file
-                    if daily_sum >= maximum_dayly_demand:
-                        maximum_dayly_demand = daily_sum
-                        max_h_shape = hourly_load_shape
+                    if daily_sum >= max_d_demand:
+                        max_d_demand = daily_sum
+                        max_dh_shape = load_shape_dh
 
                     # Check if 100 %
                     assertions = unittest.TestCase('__init__')
                     assertions.assertAlmostEqual(control_sum, daily_sum, places=7, msg=None, delta=None)
 
                 # Add load shape of maximum day in csv file
-                hourly_shape_of_maximum_days[path_csv_file] = max_h_shape
+                dict_max_dh_shape[path_csv_file] = max_dh_shape
 
-    # --YEARDAY VALUES
-    # Calculate average of all different entries from different excel files (sum of nr of entries / average)
+    # ---------------
+    # Data processing
+    # ---------------
+
+    # --Average maxium peak dh of every csv file
+    load_peak_shape_dh = np.zeros((24))
+    for peak_shape_dh in dict_max_dh_shape.values():
+        load_peak_shape_dh += peak_shape_dh
+    load_peak_shape_dh = np.divide(np.sum(load_peak_shape_dh), len(dict_max_dh_shape)) #calc average
+
+    # Calculate average of for different csv files (sum of all entries / number of entries)
     for yearday in carbon_trust_raw:
         for h_day in carbon_trust_raw[yearday]:
-            carbon_trust_raw[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
+            carbon_trust_raw[yearday][h_day] = np.divide(sum(carbon_trust_raw[yearday][h_day]), len(carbon_trust_raw[yearday][h_day])) #average
 
     # Calculate yearly sum
     yearly_demand = 0
     for day in carbon_trust_raw:
         yearly_demand += sum(carbon_trust_raw[day].values())
+    
+    # Calculate shape_peak_yd_factor
+    max_demand_d = 0
+    for yearday, carbon_trust_d in enumerate(carbon_trust_raw):
+        daily_sum = np.sum(carbon_trust_d)
+        print("daily_sum: " + str(daily_sum))
+        if daily_sum > max_demand_d:
+            max_demand_d = daily_sum
+            print("max_demand_d: " + str(max_demand_d))
+            max_day = yearday
+
+    shape_peak_yd_factor = np.divide(1, np.sum(carbon_trust_raw)) * max_demand_d
+    print("shape_peak_yd_factor: " + str(shape_peak_yd_factor))
+
+    # Calculate shape_non_peak_yd
+    shape_non_peak_yd = np.zeros((365))
+    for yearday, carbon_trust_d in enumerate(carbon_trust_raw):
+        shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
+    shape_non_peak_yd = np.divide(1, np.sum(shape_non_peak_yd)) * shape_non_peak_yd
 
     # Get relative yearly demand
     '''for yearday in carbon_trust_raw:
@@ -343,38 +393,37 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Calculate average for monthly dict
     for daytype in main_dict:
-        for month in main_dict[daytype]: # Iterate month
-            for hour in main_dict[daytype][month]: # Iterate hour
-                #print(main_dict[daytype][month][hour])
-                nr_of_entries = len(main_dict[daytype][month][hour]) # nr of added entries
-                if nr_of_entries != 0: # Because may not contain data because not available in the csv files
-                    out_dict_av[daytype][month][hour] = sum(main_dict[daytype][month][hour]) / nr_of_entries
+        for month in main_dict[daytype]:
+            for hour in main_dict[daytype][month]:
+                nr_of_entries = len(main_dict[daytype][month][hour])
+                if nr_of_entries != 0:
+                    out_dict_av[daytype][month][hour] = np.divide(sum(main_dict[daytype][month][hour]), nr_of_entries)
 
 
     # Test to for summing
     for daytype in out_dict_av:
         for month in out_dict_av[daytype]:
             test_sum = sum(map(abs, out_dict_av[daytype][month].values())) # Sum absolute values
-            assertions = unittest.TestCase('__init__')
+            
             #TODO: Don't know why it doesnt owrk
             #np.testing.assert_almost_equal(test_sum, 100.0, decimal=5, err_msg='', verbose=True)
             #assertions.assertAlmostEqual(test_sum, 100.0, places=2, msg=None, delta=None)
 
     # Add SHAPES
-    # Add to hourly non-residential shape
-    #data['rs_shapes_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
+    # Add to hourly non-residential shape load_shape_dh
+    #data['rs_shapes_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_dh': }
 
     # Add to daily shape
-    #data['rs_shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
+    #data['rs_shapes_yd'][end_use]  = {'shape_peak_yd_factor': CCWDATA, 'shape_non_peak_yd': } # No peak
     #prnt("..")
 
-    return out_dict_av, hourly_shape_of_maximum_days, carbon_trust_raw
+    return out_dict_av, dict_max_dh_shape, carbon_trust_raw, load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yd
 
 def is_leap_year(year):
     """Determine whether a year is a leap year"""
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
-def non_residential_peak_h(hourly_shape_of_maximum_days):
+def non_residential_peak_h(dict_max_dh_shape):
     """ Returns the peak of the day """
     # -----------------------------------------
     # Calculate daily peak of maximum day
@@ -382,24 +431,20 @@ def non_residential_peak_h(hourly_shape_of_maximum_days):
     # -----------------------------------------
     maxday_h_shape = np.zeros((24))
 
-    for shape_yd in hourly_shape_of_maximum_days:
-        maxday_h_shape += hourly_shape_of_maximum_days[shape_yd]
+    for shape_yd in dict_max_dh_shape:
+        maxday_h_shape += dict_max_dh_shape[shape_yd]
 
     # Calc average
-    maxday_h_shape = maxday_h_shape / len(hourly_shape_of_maximum_days)
+    maxday_h_shape = maxday_h_shape / len(dict_max_dh_shape)
     #print("maxday_h_shape: " + str(maxday_h_shape))
-    #print(len(hourly_shape_of_maximum_days))
+    #print(len(dict_max_dh_shape))
     #pf.plot_load_shape_yd(maxday_h_shape)
     return maxday_h_shape
 
-def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, other_string_info):
+def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, other_string_info):
     """ Function collecting functions to write out txt files"""
-    #print(shape_peak_dh.shape)       # 24
-    #print(shape_non_peak_h.shape)   # 365, 24
-    #print(shape_peak_yd_factor.shape)       # ()
-    #print(shape_non_peak_yd.shape)   # 365, 1
     jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-    jason_to_txt_shape_non_peak_h(shape_non_peak_h, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
+    jason_to_txt_shape_non_peak_dh(shape_non_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
     jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
     jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
@@ -410,7 +455,7 @@ def jason_to_txt_shape_peak_dh(input_array, outfile_path):
     with open(outfile_path, 'w') as outfile:
         json.dump(np_dict, outfile)
 
-def jason_to_txt_shape_non_peak_h(input_array, outfile_path):
+def jason_to_txt_shape_non_peak_dh(input_array, outfile_path):
     """Wrte to txt. Array with shape: (365, 24)
     """
     out_dict = {}
@@ -739,12 +784,12 @@ def reduce_weather_stations(station_ids, weather_stations):
     # NON-PEAK Shape Calculations------------------------------------------------------------------------------
 
     # --hourly
-    shape_non_peak_h = np.zeros((365, 24), dtype=float)
+    shape_non_peak_dh = np.zeros((365, 24), dtype=float)
 
     for i, day_in_h in enumerate(hd_data):
-        shape_non_peak_h[i] = (1.0 / np.sum(day_in_h)) * day_in_h
+        shape_non_peak_dh[i] = (1.0 / np.sum(day_in_h)) * day_in_h
 
-    #print("shape_non_peak_h: " + str(shape_non_peak_h))
+    #print("shape_non_peak_dh: " + str(shape_non_peak_dh))
 
     # --day
     shape_non_peak_yd = np.zeros((365, 1)) #Two dimensional array with one row
@@ -768,7 +813,7 @@ def reduce_weather_stations(station_ids, weather_stations):
     #print("Daily load shape gas loading----" + str(wheater_scenario))
 
 
-    return shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd
+    return shape_peak_yh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
 '''
 
 

@@ -76,7 +76,7 @@ class RegionClass(object):
         fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.tech_stock, hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, fuel_shape_cooling_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
         fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_gas_elec_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd) # Hybrid technologies shapes
-        #self.fuel_shape_lighting = data['rs_shapes_resid_yd']['resid_lighting']['shape_non_peak_yd'] * data['rs_shapes_resid_dh']['resid_lighting']['shape_non_peak_h']
+        #self.fuel_shape_lighting = data['rs_shapes_yd']['resid_lighting']['shape_non_peak_yd'] * data['rs_shapes_dh']['resid_lighting']['shape_non_peak_dh']
 
         # ------------
         # Assign shapes to technologies in technological stock
@@ -95,17 +95,18 @@ class RegionClass(object):
         # Residential
         # ------------
         # Set attributs of all enduses to the Region Class
-        '''self.rs_create_enduse(
+        self.rs_create_enduse(
             data['rs_all_enduses'],
             data)
-        '''
+        
         # ------------
         # Service
         # ------------
-        self.create_enduses_sector(
+        '''self.create_enduses_sector(
             self.reg_name,
             data['all_service_sectors'],
             data)
+        '''
         
         '''self.ss_create_enduse(
             data['ss_all_enduses'],
@@ -273,8 +274,8 @@ class RegionClass(object):
 
             '''
             elif technology in assumptions['list_enduse_tech_cooking']:
-                enduse_shape_from_HES_yd = data['rs_shapes_resid_yd']['resid_cooking']['shape_non_peak_yd']
-                enduse_shape_from_HES_dh = data['rs_shapes_resid_dh']['resid_cooking']['shape_non_peak_h']
+                enduse_shape_from_HES_yd = data['rs_shapes_yd']['resid_cooking']['shape_non_peak_yd']
+                enduse_shape_from_HES_dh = data['rs_shapes_dh']['resid_cooking']['shape_non_peak_dh']
                 enduse_shape_from_HES_yh = enduse_shape_from_HES_yd * enduse_shape_from_HES_dh
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
@@ -332,8 +333,11 @@ class RegionClass(object):
             elif resid_enduse == 'resid_space_cooling' or resid_enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                enduse_peak_yd_factor = data['rs_shapes_resid_yd'][resid_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
-
+                enduse_peak_yd_factor = data['rs_shapes_yd'][resid_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
+            
+            print("data['rs_shapes_yd']")
+            print(data['rs_shapes_yd'].keys())
+            print(resid_enduse)
             # --------------------
             # Add enduse to region
             # --------------------
@@ -359,8 +363,8 @@ class RegionClass(object):
                     data['assumptions']['rs_tech_constant_share'],
                     data['assumptions']['rs_installed_tech'],
                     data['assumptions']['rs_sigm_parameters_tech'],
-                    data['rs_shapes_resid_yd'],
-                    data['rs_shapes_resid_dh'],
+                    data['rs_shapes_yd'],
+                    data['rs_shapes_dh'],
                     data['assumptions']['enduse_overall_change_ey']['residential_sector']
                     )
                 )

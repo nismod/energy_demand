@@ -52,11 +52,10 @@ class ServiceSectorClass(object):
             elif enduse == 'service_space_cooling' or enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                #enduse_peak_yd_factor = data['rs_shapes_resid_yd'][enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
+                #enduse_peak_yd_factor = data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
 
                 '''
-            #TODO
-            enduse_peak_yd_factor = 1
+            enduse_peak_yd_factor = 1 #TODO
             print(" ")
             print("-------------------")
             print("Create Enduse in sector  {}".format(self.sector_name))
@@ -91,8 +90,8 @@ class ServiceSectorClass(object):
                     data['assumptions']['ss_installed_tech'],
                     data['assumptions']['ss_sigm_parameters_tech'],
                     data['ss_shapes_resid_yd'],
-                    data['rs_shapes_resid_yd'], #TODO CHANGE TO SS
-                    data['rs_shapes_resid_dh'], #TODO CHANGE TO SS
+                    data['rs_shapes_yd'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
+                    data['rs_shapes_dh'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
                     data['assumptions']['enduse_overall_change_ey']['service_sector']
                     
                     )

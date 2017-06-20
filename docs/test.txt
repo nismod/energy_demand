@@ -86,7 +86,7 @@ SECTORS                                           SHAPES
   Education (individ)                      -->    Carbon Trust: Education
   Retail (individ)                         -->    Carbon Trust: Retail
   Health (individ)                         -->    Carbon Trust: Health
-  Offices (individ)                        -->    Carbon Trust: Financial & Government
+  Offices (individ)                        -->    Carbon Trust: Offices
 
   Emergency Services (aggr)                -->    Carbon Trust: Manufacturing, other Sectors ?? (or averaged of all?)
   Hospitality (aggr)

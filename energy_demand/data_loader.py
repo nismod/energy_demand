@@ -156,8 +156,8 @@ def load_data(path_main, data):
     data['shapes_resid_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_resid_cooling'])
 
     # load shapes
-    data['rs_shapes_resid_dh'] = {}
-    data['rs_shapes_resid_yd'] = {}
+    data['rs_shapes_dh'] = {}
+    data['rs_shapes_yd'] = {}
 
     # ------------------------------------------
     # Read in raw fuel data of residential model
@@ -174,12 +174,11 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    data['ss_shapes_resid_dh'] = {}
-    data['ss_shapes_resid_yd'] = {}
+    data['ss_shapes_dh'] = {}
+    data['ss_shapes_yd'] = {}
 
-    data['ss_fuel_raw_data_enduses'], all_service_sectors, data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
-
-    data['all_service_sectors'] = all_service_sectors
+    # Read in fuel for
+    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
@@ -204,9 +203,9 @@ def load_data(path_main, data):
     #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
     '''
 
-    # Residential Sector
-    data['rs_fuel_raw_data_enduses'] = rs_fuel_raw_data_enduses
-    data['ss_fuel_raw_data_enduses'] = ss_fuel_raw_data_enduses
+    # Residential Sector (TODO: REPLACE)
+    data['rs_fuel_raw_data_enduses'] = data['rs_fuel_raw_data_enduses'] # rs_fuel_raw_data_enduses
+    data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses'] #ss_fuel_raw_data_enduses
 
 
 
@@ -215,10 +214,6 @@ def load_data(path_main, data):
     for end_use in data['rs_fuel_raw_data_enduses']:
         assert data['nr_of_fueltypes'] == len(data['rs_fuel_raw_data_enduses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
 
-    scrap = 0
-    for enduse in data['rs_fuel_raw_data_enduses']:
-        scrap += np.sum(rs_fuel_raw_data_enduses[enduse])
-    print("scrap FUELS FINAL FOR OUT: " + str(scrap))
     # ---TESTS----------------------
 
     return data
@@ -245,12 +240,12 @@ def collect_shapes_from_txts(data):
     # Read load shapes from txt files for enduses
     for end_use in enduses:
         shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_h = df.read_txt_shape_non_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_h') + str('.txt')))
+        shape_non_peak_dh = df.read_txt_shape_non_peak_yh(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
         shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
         shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        data['rs_shapes_resid_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_h': shape_non_peak_h}
-        data['rs_shapes_resid_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        data['rs_shapes_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+        data['rs_shapes_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files
@@ -288,10 +283,10 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             continue
 
         # Get HES load shapes
-        shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
+        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = df.get_hes_end_uses_shape(data, year_raw_values_hes, hes_y_peak, _, end_use)
 
         # Write .txt files
-        df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
+        df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
 
     # TODO
@@ -308,19 +303,68 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
     folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
 
-    for enduse in ss_raw_fuel:
-        print("Enduse service: " + str(enduse))
 
-    # ENDUSE XY
-    out_dict_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
+    # Iterate sectors and read in shape
+    for sector in data['all_service_sectors']:
+        data['ss_shapes_dh'][sector] = {}
+
+        # Match shapes for every sector
+        if sector == 'ss_community_arts_leisure':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Community')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Community')
+
+        if sector == 'ss_education':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
+
+        if sector == 'ss_emergency_services':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
+
+        if sector == 'ss_health':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Health')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Health')
+
+        if sector == 'ss_hospitality':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
+
+        if sector == 'ss_military':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
+
+        if sector == 'ss_offices':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
+
+        if sector == 'ss_retail':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Retail')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Retail')
+
+        if sector == 'ss_storage':
+            folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
+            folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
+
+        # Read in shape from carbon trust metering trial dataset
+        out_dict_av, dict_max_dh_shape, main_dict_dayyear_absolute, load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path_elec)
+
+        # ------------------------------------------------------
+        # Assign same shape across all enduse for service sector
+        # ------------------------------------------------------
+        for enduse in ss_raw_fuel:
+            print("Enduse service: {}  in sector {}".format(enduse, sector))
+
+            #if enduse == 'ss_space_heating':
+
+            # Assign shapes
+            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': load_shape_dh}
+            data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
 
+    #df.create_txt_shapes('service_all_elec', data['path_dict']['path_txt_shapes_service'], shape_peak_yh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "scrap")
 
-    #df.create_txt_shapes('service_all_elec', data['path_dict']['path_txt_shapes_service'], shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "scrap")
-    
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
-
 
     # Get yearly profiles
     year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
@@ -331,6 +375,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     #folder_path = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
     prnt(".")
+    
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):
