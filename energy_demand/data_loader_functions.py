@@ -79,12 +79,17 @@ def assign_hes_data_to_year(data, hes_data, base_yr):
 
     return year_raw_values
 
-def assign_carbon_trust_data_to_year(data, end_use, carbon_trust_data, base_yr):
-    """Fill every base year day with correct data"""
+def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
+    """Fill every base year day with correct data
+    
+    Parameters
+    ----------
+    carbon_trust_data : data
 
+    base_yr : int
+        Base Year 2015     
+    """
     shape_non_peak_dh = np.zeros((365, 24))
-
-    # -- Daily shape over full year (365,1)
 
     # Create list with all dates of a whole year
     list_dates = mf.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
@@ -167,10 +172,9 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
 
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
-        d_sum = np.sum(day_values)
 
-        shape_non_peak_yd[day] = (1.0 / total_y_end_use_demand) * d_sum
-        shape_non_peak_dh[day] = (1.0 / d_sum) * day_values # daily shape
+        shape_non_peak_yd[day] = (1.0 / total_y_end_use_demand) * np.sum(day_values)
+        shape_non_peak_dh[day] = (1.0 / np.sum(day_values)) * day_values # daily shape
 
     return shape_peak_yh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
 
@@ -218,11 +222,7 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     Returns
     -------
-    out_dict_av : array
-        Every daily measurment is taken from all files and averaged
 
-    out_dict_not_average: array
-        Every measurment of of every file is plotted
 
     Info
     -----
@@ -248,11 +248,11 @@ def read_raw_carbon_trust_data(data, folder_path):
         path_csv_file = os.path.join(folder_path, path_csv_file)
 
         # Read csv file
-        with open(path_csv_file, 'r') as csv_file:            # Read CSV file
+        with open(path_csv_file, 'r') as csv_file:
             print("path_csv_file: " + str(path_csv_file))
-            read_lines = csv.reader(csv_file, delimiter=',')  # Read line
-            _headings = next(read_lines)                      # Skip first row
-            max_d_demand = 0                          # Used for searching maximum
+            read_lines = csv.reader(csv_file, delimiter=',')
+            _headings = next(read_lines) 
+            max_d_demand = 0 # Used for searching maximum
 
             # Count number of lines in CSV file
             row_data = []
@@ -337,40 +337,22 @@ def read_raw_carbon_trust_data(data, folder_path):
     # Data processing
     # ---------------
 
-    # --Average maxium peak dh of every csv file
-    load_peak_shape_dh = np.zeros((24))
+    # --Average average maxium peak dh of every csv file
+    load_peak_average_dh = np.zeros((24))
     for peak_shape_dh in dict_max_dh_shape.values():
-        load_peak_shape_dh += peak_shape_dh
-    load_peak_shape_dh = np.divide(np.sum(load_peak_shape_dh), len(dict_max_dh_shape)) #calc average
+        load_peak_average_dh += peak_shape_dh
+    load_peak_shape_dh = np.divide(load_peak_average_dh, len(dict_max_dh_shape)) 
 
     # Calculate average of for different csv files (sum of all entries / number of entries)
+    carbon_trust_raw_array = np.zeros((365, 24))
     for yearday in carbon_trust_raw:
         for h_day in carbon_trust_raw[yearday]:
+
+            # Add average to array
+            carbon_trust_raw_array[yearday][h_day] = np.divide(sum(carbon_trust_raw[yearday][h_day]), len(carbon_trust_raw[yearday][h_day])) #average
+
+            # Add average to dict
             carbon_trust_raw[yearday][h_day] = np.divide(sum(carbon_trust_raw[yearday][h_day]), len(carbon_trust_raw[yearday][h_day])) #average
-
-    # Calculate yearly sum
-    yearly_demand = 0
-    for day in carbon_trust_raw:
-        yearly_demand += sum(carbon_trust_raw[day].values())
-    
-    # Calculate shape_peak_yd_factor
-    max_demand_d = 0
-    for yearday, carbon_trust_d in enumerate(carbon_trust_raw):
-        daily_sum = np.sum(carbon_trust_d)
-        print("daily_sum: " + str(daily_sum))
-        if daily_sum > max_demand_d:
-            max_demand_d = daily_sum
-            print("max_demand_d: " + str(max_demand_d))
-            max_day = yearday
-
-    shape_peak_yd_factor = np.divide(1, np.sum(carbon_trust_raw)) * max_demand_d
-    print("shape_peak_yd_factor: " + str(shape_peak_yd_factor))
-
-    # Calculate shape_non_peak_yd
-    shape_non_peak_yd = np.zeros((365))
-    for yearday, carbon_trust_d in enumerate(carbon_trust_raw):
-        shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
-    shape_non_peak_yd = np.divide(1, np.sum(shape_non_peak_yd)) * shape_non_peak_yd
 
     # Get relative yearly demand
     '''for yearday in carbon_trust_raw:
@@ -381,9 +363,6 @@ def read_raw_carbon_trust_data(data, folder_path):
             #print(carbon_trust_raw[yearday][h_day])
             carbon_trust_raw[yearday][h_day] = carbon_trust_raw[yearday][h_day] / yearly_demand #yearly demand in %
     '''
-
-    #print("TESTSUM: " + str(np.sum(carbon_trust_raw)))
-
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
@@ -399,25 +378,43 @@ def read_raw_carbon_trust_data(data, folder_path):
                 if nr_of_entries != 0:
                     out_dict_av[daytype][month][hour] = np.divide(sum(main_dict[daytype][month][hour]), nr_of_entries)
 
+    # ----------------------------------------------------------
+    # Distribute raw data into base year depending on daytype
+    # ----------------------------------------------------------
+    year_data = assign_carbon_trust_data_to_year(out_dict_av, 2015)
 
-    # Test to for summing
-    for daytype in out_dict_av:
-        for month in out_dict_av[daytype]:
-            test_sum = sum(map(abs, out_dict_av[daytype][month].values())) # Sum absolute values
-            
-            #TODO: Don't know why it doesnt owrk
-            #np.testing.assert_almost_equal(test_sum, 100.0, decimal=5, err_msg='', verbose=True)
-            #assertions.assertAlmostEqual(test_sum, 100.0, places=2, msg=None, delta=None)
+    year_data_shape = mf.absolute_to_relative(year_data) #np.divide(1, np.sum(year_data)) * year_data
 
-    # Add SHAPES
-    # Add to hourly non-residential shape load_shape_dh
-    #data['rs_shapes_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_dh': }
+    # Calculate yearly sum
+    yearly_demand = np.sum(year_data)
 
-    # Add to daily shape
-    #data['rs_shapes_yd'][end_use]  = {'shape_peak_yd_factor': CCWDATA, 'shape_non_peak_yd': } # No peak
-    #prnt("..")
+    # Calculate shape_peak_yd_factor
+    max_demand_d = 0
+    for yearday, carbon_trust_d in enumerate(year_data):
+        daily_sum = np.sum(carbon_trust_d)
+        if daily_sum > max_demand_d:
+            max_demand_d = daily_sum
+            #max_day = yearday
 
-    return out_dict_av, dict_max_dh_shape, carbon_trust_raw, load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yd
+    shape_peak_yd_factor = np.divide(1, yearly_demand) * max_demand_d
+    print("shape_peak_yd_factor: " + str(shape_peak_yd_factor))
+
+    # Create load_shape_dh
+    load_shape_dh = np.zeros((365, 24))
+    for day, dh_values in enumerate(year_data):
+        load_shape_dh[day] = mf.absolute_to_relative(dh_values) #np.divide(1.0, np.sum(dh_values)) * dh_values # daily shape
+    
+    assertions.assertAlmostEqual(np.sum(load_shape_dh), 365.0, places=2, msg=None, delta=None)
+
+    # Calculate shape_non_peak_yd
+    shape_non_peak_yd = np.zeros((365))
+    for yearday, carbon_trust_d in enumerate(year_data):
+        shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
+    shape_non_peak_yd = np.divide(1, yearly_demand) * shape_non_peak_yd
+
+    assertions.assertAlmostEqual(np.sum(np.sum(shape_non_peak_yd)), 1.0, places=2, msg=None, delta=None)
+
+    return load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd
 
 def is_leap_year(year):
     """Determine whether a year is a leap year"""

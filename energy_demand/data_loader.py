@@ -307,6 +307,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     # Iterate sectors and read in shape
     for sector in data['all_service_sectors']:
         data['ss_shapes_dh'][sector] = {}
+        data['ss_shapes_yd'][sector] = {}
 
         # Match shapes for every sector
         if sector == 'ss_community_arts_leisure':
@@ -346,36 +347,33 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
         # Read in shape from carbon trust metering trial dataset
-        out_dict_av, dict_max_dh_shape, main_dict_dayyear_absolute, load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path_elec)
+        shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path_elec)
 
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
-        for enduse in ss_raw_fuel:
+        for enduse in ss_raw_fuel[sector]:
             print("Enduse service: {}  in sector {}".format(enduse, sector))
 
             #if enduse == 'ss_space_heating':
 
             # Assign shapes
-            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': load_shape_dh}
+            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': shape_non_peak_dh}
             data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
+            # Write txt
+            print(".asdf.")
+            print(np.sum(load_peak_shape_dh))
 
-    #df.create_txt_shapes('service_all_elec', data['path_dict']['path_txt_shapes_service'], shape_peak_yh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "scrap")
+            print(load_peak_shape_dh.shape)
+            print(shape_non_peak_dh.shape)
+            print(shape_peak_yd_factor.shape)
+            print(shape_non_peak_yd.shape)
+            df.create_txt_shapes(enduse, data['path_dict']['path_txt_shapes_service'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
 
-    # Get yearly profiles
-    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
-
-    #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
-
-    # ENDUSE XY
-    #folder_path = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
-
-    prnt(".")
-    
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

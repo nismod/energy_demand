@@ -311,7 +311,7 @@ class RegionClass(object):
 
         pass
 
-    def rs_create_enduse(self, resid_enduses, data):
+    def rs_create_enduse(self, enduses, data):
         """All enduses are initialised and inserted as an attribute of the `Region` Class
 
         It is checked wheter the enduse is a defined enduse where the enduse_peak_yd_factor
@@ -319,37 +319,37 @@ class RegionClass(object):
 
         Parameters
         ----------
-        resid_enduses : list
+        enduses : list
             Enduses
         data : dict
             Data
         """
         # Iterate all residential enduses
-        for resid_enduse in resid_enduses:
+        for enduse in enduses:
 
             # Enduse specific parameters
-            if resid_enduse == 'resid_space_heating' or resid_enduse == 'service_space_heating': #in data['assumptions']['enduse_resid_space_heating']:
+            if enduse == 'resid_space_heating' or enduse == 'service_space_heating': #in data['assumptions']['enduse_resid_space_heating']:
                 enduse_peak_yd_factor = self.reg_peak_yd_heating_factor # Regional yd factor for heating
-            elif resid_enduse == 'resid_space_cooling' or resid_enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
+            elif enduse == 'resid_space_cooling' or enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                enduse_peak_yd_factor = data['rs_shapes_yd'][resid_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
+                enduse_peak_yd_factor = data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
             
             print("data['rs_shapes_yd']")
             print(data['rs_shapes_yd'].keys())
-            print(resid_enduse)
+            print(enduse)
             # --------------------
             # Add enduse to region
             # --------------------
             RegionClass.__setattr__(
                 self,
-                resid_enduse,
+                enduse,
 
                 enduseClass.EnduseClass(
                     self.reg_name,
                     data,
-                    resid_enduse,
-                    self.resid_enduses_fuel[resid_enduse], #fuel of speicific enduse
+                    enduse,
+                    self.resid_enduses_fuel[enduse], #fuel of speicific enduse
                     self.tech_stock,
                     self.heating_factor_y,
                     self.cooling_factor_y,
@@ -363,12 +363,13 @@ class RegionClass(object):
                     data['assumptions']['rs_tech_constant_share'],
                     data['assumptions']['rs_installed_tech'],
                     data['assumptions']['rs_sigm_parameters_tech'],
+                    #data['shapes_resid_yd']
                     data['rs_shapes_yd'],
                     data['rs_shapes_dh'],
                     data['assumptions']['enduse_overall_change_ey']['residential_sector']
                     )
                 )
-
+    
     def tot_all_enduses_y(self, enduses, attribute_to_get):
         """Sum all fuel types over all end uses
         """

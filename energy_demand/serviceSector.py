@@ -89,10 +89,9 @@ class ServiceSectorClass(object):
                     data['assumptions']['ss_tech_constant_share'],
                     data['assumptions']['ss_installed_tech'],
                     data['assumptions']['ss_sigm_parameters_tech'],
-                    data['ss_shapes_resid_yd'],
+                    #data['ss_shapes_resid_yd'],
                     data['rs_shapes_yd'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
                     data['rs_shapes_dh'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
                     data['assumptions']['enduse_overall_change_ey']['service_sector']
-                    
                     )
             )

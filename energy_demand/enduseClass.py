@@ -41,7 +41,7 @@ class EnduseClass(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, loaded_shapes, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey):
         """CONSTRUCTOR
         """
         self.current_yr = data['base_yr']
@@ -61,9 +61,9 @@ class EnduseClass(object):
         # --------
         if self.enduse_fuelswitch_crit and self.enduse_serviceswitch_crit:
             sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.enduse_fuelswitch_crit, self.enduse_serviceswitch_crit))
-        if self.enduse not in loaded_shapes and self.technologies_enduse == []:
+        if self.enduse not in data_shapes_yd and self.technologies_enduse == []: #data['shapes_resid_yd'] loaded_shapes
             sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
-
+    
         # -------------------------------
         # Yearly fuel calculation cascade
         # --------------------------------
