@@ -4,7 +4,7 @@ import energy_demand.building_stock_functions as bf
 import energy_demand.main_functions as mf
 import numpy as np
 
-def resid_build_stock(data, assumptions):
+def resid_build_stock(data):
     """Creates a virtual building stock based on base year data and assumptions for every region
 
     Because the heating degree days are calculated for every region,
@@ -37,19 +37,19 @@ def resid_build_stock(data, assumptions):
     base_yr = data['base_yr']
 
     # Get distribution of dwelling types of all simulation years
-    dwtype_distr_sim = bf.get_dwtype_dist(assumptions['assump_dwtype_distr_by'], assumptions['assump_dwtype_distr_ey'], data) # Calculate distribution of dwelling types over simulation period
+    dwtype_distr_sim = bf.get_dwtype_dist(data['assumptions']['assump_dwtype_distr_by'], data['assumptions']['assump_dwtype_distr_ey'], data) # Calculate distribution of dwelling types over simulation period
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data['population'][base_yr], data, assumptions['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
+    data_floorarea_pp = bf.calc_floorarea_pp(data['reg_floorarea_resid'], data['population'][base_yr], data, data['assumptions']['assump_diff_floorarea_pp']) # Get floor area per person of sim_yr
 
     # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
-    floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], assumptions['assump_dwtype_floorarea'], dwtype_distr_sim)
+    floorarea_p_sy = p_floorarea_dwtype(data['dwtype_lu'], data['assumptions']['assump_dwtype_floorarea'], dwtype_distr_sim)
 
     # Iterate regions
     for reg_name in data['lu_reg']:
         floorarea_by = data['reg_floorarea_resid'][reg_name] # Read in floor area of base year
         pop_by = data['population'][base_yr][reg_name] # Read in population
-        floorarea_pp_by = floorarea_by / pop_by # Floor area per person [m2/person]
+        floorarea_pp_by = np.divide(floorarea_by, pop_by) # Floor area per person [m2/person]
         dw_stock_every_year[reg_name] = {}
 
         # Iterate simulation year
@@ -70,12 +70,10 @@ def resid_build_stock(data, assumptions):
                     sim_y, data['dwtype_lu'],
                     floorarea_p_sy[base_yr],
                     floorarea_by,
-                    assumptions['dwtype_age_distr'][base_yr],
+                    data['assumptions']['dwtype_age_distr'][base_yr],
                     floorarea_pp_by,
                     floorarea_by,
-                    pop_by,
-                    assumptions,
-                    data
+                    pop_by
                     )
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
@@ -91,7 +89,17 @@ def resid_build_stock(data, assumptions):
                 pop_in_exist_dw_new_floor_area_pp = floorarea_by / floorarea_pp_sy #In existing building stock fewer people are living
 
                 #dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
-                dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], new_area_minus_demolished, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data)
+                dw_stock_new_dw = generate_dw_existing(
+                    data,
+                    reg_name,
+                    sim_y,
+                    data['dwtype_lu'],
+                    floorarea_p_sy[sim_y],
+                    new_area_minus_demolished,
+                    data['assumptions']['dwtype_age_distr'][base_yr],
+                    floorarea_pp_sy,
+                    new_area_minus_demolished,
+                    pop_in_exist_dw_new_floor_area_pp)
 
                 # - new dwellings
                 if new_floorarea_sy < 0:
@@ -103,7 +111,7 @@ def resid_build_stock(data, assumptions):
                     #print("new_floorarea_sy: " + str(new_floorarea_sy))
                     #print("floorarea_pp_by   " + str(floorarea_pp_by))
                     #print("floorarea_pp_sy   " + str(floorarea_pp_sy))
-                    dw_stock_new_dw = generate_dw_new(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, assumptions, data)
+                    dw_stock_new_dw = generate_dw_new(data, reg_name, sim_y, data['dwtype_lu'], floorarea_p_sy[sim_y], floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, data['assumptions'], data)
 
                 # Generate region and save it in dictionary
                 dw_stock_every_year[reg_name][sim_y] = bf.DwStockRegion(reg_name, dw_stock_new_dw, data) # Add old and new buildings to stock
@@ -164,7 +172,7 @@ def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
 
     return dw_floorarea_p
 
-def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_by, dwtype_age_distr_by, floorarea_pp, tot_floorarea_cy, pop_by, assumptions, data_ext):
+def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_by, dwtype_age_distr_by, floorarea_pp, tot_floorarea_cy, pop_by):
     """Generates dwellings according to age, floor area and distribution assumptsion"""
 
     dw_stock_base, control_pop, control_floorarea = [], 0, 0
@@ -176,18 +184,28 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
 
         # Distribute according to age
         for dwtype_age_id in dwtype_age_distr_by:
-            age_class_p = dwtype_age_distr_by[dwtype_age_id] / 100              # Percent of dw of age class
+            age_class_p = np.divide(dwtype_age_distr_by[dwtype_age_id], 100)              # Percent of dw of age class
 
             # Floor area of dwelling_class_age
             dw_type_age_class_floorarea = dw_type_floorarea * age_class_p       # Distribute proportionally floor area
             control_floorarea += dw_type_age_class_floorarea
 
             # Pop
-            pop_dwtype_age_class = dw_type_age_class_floorarea / floorarea_pp # Floor area is divided by base area value
+            pop_dwtype_age_class = np.divide(dw_type_age_class_floorarea, floorarea_pp) # Floor area is divided by base area value
             control_pop += pop_dwtype_age_class
 
             # create building object
-            dw_stock_base.append(bf.Dwelling(curr_yr, reg_name, ['X', 'Y'], dw_type_id, float(dwtype_age_id), pop_dwtype_age_class, dw_type_age_class_floorarea, assumptions, data, data_ext))
+            dw_stock_base.append(bf.Dwelling(
+                curr_yr,
+                reg_name,
+                ['X', 'Y'],
+                dw_type_id,
+                float(dwtype_age_id),
+                pop_dwtype_age_class,
+                dw_type_age_class_floorarea,
+                data
+                )
+            )
 
             # TODO: IF Necessary calculate absolute number of buildings by dividng by the average floor size of a dwelling
             # Calculate number of dwellings

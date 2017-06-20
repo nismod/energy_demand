@@ -29,10 +29,8 @@ class Dwelling(object):
         Heat loss coefficient
     hdd : float
         Heating degree days
-    assumptions : dict
-        Modelling assumptions stored in dictionary
     """
-    def __init__(self, curr_y, reg_name, coordinates, dwtype, age, pop, floorarea, assumptions, data, data_ext):
+    def __init__(self, curr_y, reg_name, coordinates, dwtype, age, pop, floorarea, data):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.driver_assumptions = data['assumptions']['resid_scen_driver_assumptions']

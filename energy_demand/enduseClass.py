@@ -7,7 +7,7 @@ import numpy as np
 import energy_demand.main_functions as mf
 assertions = unittest.TestCase('__init__')
 
-class EnduseResid(object):
+class EnduseClass(object):
     """Class of an end use of the residential sector
 
     End use class for residential model. For every region, a different
@@ -41,7 +41,7 @@ class EnduseResid(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, loaded_shapes, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey):
         """CONSTRUCTOR
         """
         self.current_yr = data['base_yr']
@@ -50,26 +50,26 @@ class EnduseResid(object):
 
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel
-        self.enduse_fuelswitch_crit = self.get_fuel_switches_crit(fuel_switches) #(data['assumptions']['rs_fuel_switches'])  fuel_switches_data, service_switches_data
-        self.enduse_serviceswitch_crit = self.get_service_switches_crit(service_switches) #(data['assumptions']['rs_service_switch_enduse_crit']) # #
+        self.enduse_fuelswitch_crit = self.get_fuel_switches_crit(fuel_switches)
+        self.enduse_serviceswitch_crit = self.get_service_switches_crit(service_switches)
 
-        # Get technologies of enduse depending on assumptions on fuel switches or service switches  
-        self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[self.enduse], fuel_enduse_tech_p_by[self.enduse]) # data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse])
+        # Get technologies of enduse depending on assumptions on fuel switches or service switches
+        self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[self.enduse], fuel_enduse_tech_p_by[self.enduse])
 
         # --------
         # Testing
         # --------
         if self.enduse_fuelswitch_crit and self.enduse_serviceswitch_crit:
             sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.enduse_fuelswitch_crit, self.enduse_serviceswitch_crit))
-        if self.enduse not in data['shapes_resid_yd'] and self.technologies_enduse == []:
+        if self.enduse not in loaded_shapes and self.technologies_enduse == []:
             sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
 
         # -------------------------------
         # Yearly fuel calculation cascade
         # --------------------------------
         self.enduse_fuel_new_fuel = copy.deepcopy(self.enduse_fuel)
-        #print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel)))
-
+        print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel)))
+        print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel.shape)))
         # Change fuel consumption based on climate change induced temperature differences
         self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
         #print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
@@ -79,7 +79,7 @@ class EnduseResid(object):
         #print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_specific_change(data['assumptions'])
+        self.enduse_specific_change(data['assumptions'], data, enduse_overall_change_ey)
         #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
@@ -101,7 +101,6 @@ class EnduseResid(object):
             # Calculate regional energy service (for base year)
             # ------------------------------------------------------------------------
             tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduse_services(
-                #data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse],
                 fuel_enduse_tech_p_by[self.enduse],
                 tech_stock,
                 data['lu_fueltype']
@@ -115,9 +114,9 @@ class EnduseResid(object):
                     data,
                     tot_service_h_by,
                     service_tech_by_p,
-                    tech_increased_service[self.enduse], #data['assumptions']['rs_tech_increased_service'][self.enduse],
-                    tech_decreased_share[self.enduse], # data['assumptions']['rs_tech_decreased_share'][self.enduse],
-                    tech_constant_share[self.enduse] #data['assumptions']['rs_tech_constant_share'][self.enduse]
+                    tech_increased_service[self.enduse],
+                    tech_decreased_share[self.enduse],
+                    tech_constant_share[self.enduse]
                     )
 
             summe = 0
@@ -135,15 +134,14 @@ class EnduseResid(object):
             if self.enduse_fuelswitch_crit:
                 service_tech = self.switch_tech_fuel(
                     data,
-                    installed_tech, #data['assumptions']['rs_installed_tech'],
-                    data['assumptions']['rs_sigm_parameters_tech'],
+                    installed_tech,
+                    sigm_parameters_tech,
                     tot_service_h_by,
                     service_tech,
                     service_fueltype_tech_by_p,
                     service_fueltype_by_p,
-                    fuel_switches, #assumptions['rs_fuel_switches']
-                    fuel_enduse_tech_p_by[self.enduse] #                    assumptions['rs_fuel_enduse_tech_p_by'][self.enduse]
-
+                    fuel_switches,
+                    fuel_enduse_tech_p_by[self.enduse]
                     )
 
             # -----------------------
@@ -196,13 +194,13 @@ class EnduseResid(object):
             # --------
             # NON-PEAK
             # --------
-            self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data['shapes_resid_yd'][self.enduse]['shape_non_peak_yd'])
-            self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data['shapes_resid_dh'][self.enduse]['shape_non_peak_h'])
+            self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data_shapes_yd[self.enduse]['shape_non_peak_yd'])
+            self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[self.enduse]['shape_non_peak_h'])
 
             # --------
             # PEAK
             # --------
-            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data['shapes_resid_dh'][enduse]['shape_peak_dh'])
+            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data_shapes_dh[enduse]['shape_peak_dh'])
             self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)
 
         # Testing
@@ -529,7 +527,7 @@ class EnduseResid(object):
             for service_switch in service_switches:
                 if service_switch['enduse_service'] == self.enduse:
                     crit_service_switch = True
-            
+
             return crit_service_switch
             '''
             try:
@@ -911,7 +909,7 @@ class EnduseResid(object):
 
         return fuel_tech
 
-    def enduse_specific_change(self, assumptions):
+    def enduse_specific_change(self, assumptions, data, enduse_overall_change_ey):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
         Because for enduses where no technology stock is defined (and may consist of many different)
@@ -936,7 +934,7 @@ class EnduseResid(object):
         """
         # Fuel consumption shares in base and end year
         percent_by = 1.0
-        percent_ey = assumptions['enduse_overall_change_ey'][self.enduse]
+        percent_ey = enduse_overall_change_ey[self.enduse] #assumptions['enduse_overall_change_ey']
 
         # Share of fuel consumption difference
         diff_fuel_consump = percent_ey - percent_by
@@ -952,7 +950,7 @@ class EnduseResid(object):
                     self.curr_yr,
                     percent_by,
                     percent_ey,
-                    len(data_ext['sim_period'])
+                    len(data['sim_period'])
                 )
                 change_cy = diff_fuel_consump * abs(lin_diff_factor)
 

@@ -10,6 +10,8 @@ class ServiceSectorClass(object):
         self.sector_name = sector_name
         self.fuels_all_enduses = data['ss_fuel_raw_data_enduses'][sector_name]
 
+        print("eeeeeeeeeeeeeee")
+        print(self.fuels_all_enduses)
         # Get all service enduses
         ss_all_enduses = data['ss_all_enduses']
 
@@ -42,15 +44,15 @@ class ServiceSectorClass(object):
         ff : dict
             ff
         """
-        for service_enduse in service_enduses:
+        for enduse in service_enduses:
 
             '''# Enduse specific parameters
-            if service_enduse == 'service_space_heating' or service_enduse == 'service_space_heating': #in data['assumptions']['enduse_resid_space_heating']:
+            if enduse == 'service_space_heating' or enduse == 'service_space_heating': #in data['assumptions']['enduse_resid_space_heating']:
                 enduse_peak_yd_factor = reg_peak_yd_heating_factor # Regional yd factor for heating
-            elif service_enduse == 'service_space_cooling' or service_enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
+            elif enduse == 'service_space_cooling' or enduse == 'service_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = reg_peak_yd_cooling_factor # Regional yd factor for cooling
             else:
-                #enduse_peak_yd_factor = data['shapes_resid_yd'][service_enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
+                #enduse_peak_yd_factor = data['rs_shapes_resid_yd'][enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
 
                 '''
             #TODO
@@ -59,24 +61,39 @@ class ServiceSectorClass(object):
             print("-------------------")
             print("Create Enduse in sector  {}".format(self.sector_name))
             print("-------------------")
-            print(service_enduse)
+            print(enduse)
             print(reg_name)
+            print(self.fuels_all_enduses[enduse])
 
             # --------------------
             # Add enduse to region
             # --------------------
             ServiceSectorClass.__setattr__(
                 self,
-                service_enduse,
+                enduse,
 
-                class_enduse.EnduseResid(
+                class_enduse.EnduseClass(
                     reg_name,
                     data,
-                    service_enduse,
-                    self.fuels_all_enduses[service_enduse],
+                    enduse,
+                    self.fuels_all_enduses[enduse],
                     tech_stock,
                     heating_factor_y,
                     cooling_factor_y,
-                    enduse_peak_yd_factor # yd factor which is different depending on enduse
+                    enduse_peak_yd_factor, # yd factor which is different depending on enduse
+                    data['assumptions']['ss_fuel_switches'],
+                    data['assumptions']['ss_service_switches'],
+                    data['assumptions']['ss_fuel_enduse_tech_p_by'],
+                    data['assumptions']['ss_service_tech_by_p'],
+                    data['assumptions']['ss_tech_increased_service'],
+                    data['assumptions']['ss_tech_decreased_share'],
+                    data['assumptions']['ss_tech_constant_share'],
+                    data['assumptions']['ss_installed_tech'],
+                    data['assumptions']['ss_sigm_parameters_tech'],
+                    data['ss_shapes_resid_yd'],
+                    data['rs_shapes_resid_yd'], #TODO CHANGE TO SS
+                    data['rs_shapes_resid_dh'], #TODO CHANGE TO SS
+                    data['assumptions']['enduse_overall_change_ey']['service_sector']
+                    
                     )
-                )
+            )

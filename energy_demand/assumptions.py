@@ -151,17 +151,23 @@ def load_assumptions(data):
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
-        'resid_space_heating': 1,
-        'resid_water_heating': 1,
-        'resid_lighting': 1,
-        'resid_cooking': 1,
-        'resid_cold': 1,
-        'resid_wet': 1,
-        'resid_consumer_electronics': 1,
-        'resid_home_computing': 1,
+        'residential_sector': {
+            'resid_space_heating': 1,
+            'resid_water_heating': 1,
+            'resid_lighting': 1,
+            'resid_cooking': 1,
+            'resid_cold': 1,
+            'resid_wet': 1,
+            'resid_consumer_electronics': 1,
+            'resid_home_computing': 1
+        },
+        'service_sector': {
+            'ss_space_heating': 1, #TODO: ADD ALL ENDUSES
+            'ss_lighting': 1
+        }
     }
 
-    # Specifid diffusion information
+    # Specific diffusion information
     assumptions['other_enduse_mode_info'] = {
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
@@ -189,8 +195,9 @@ def load_assumptions(data):
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
 
-
-    # --TECHNOLOGY LISTS
+    # ------------------
+    # --Technology type definition
+    # ------------------
     assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
@@ -263,7 +270,8 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['path_fuel_switches'], data) # Read in switches
+    assumptions['rs_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['rs_path_fuel_switches'], data) # Read in switches
+    assumptions['ss_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['ss_path_fuel_switches'], data) # Read in switches
 
     # Get criteria which enduese has fuel switches
     #assumptions[]
@@ -272,8 +280,8 @@ def load_assumptions(data):
     # ============================================================
 
     # Get criteria which enduse has service switches
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_resid_serivce_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_resid_serivce_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
 
     # ============================================================
     # Helper functions

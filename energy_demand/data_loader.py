@@ -96,7 +96,10 @@ def load_data(path_main, data):
 
         # Technologies
         'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
-        'path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
+
+        # Fuel switches
+        'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
+        'ss_path_fuel_switches': os.path.join(path_main, 'service_model/switches_fuel_scenaric.csv'),
         
         # Path to excel with ss service switch
         'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
@@ -104,7 +107,7 @@ def load_data(path_main, data):
 
         # Service
         # -------
-        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'residential_model/data_service_by_fuel_end_uses.csv'),
+        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'service_model/data_service_by_fuel_end_uses.csv'),
         'path_txt_shapes_service': os.path.join(path_main, 'service_model/txt_load_shapes')
         }
 
@@ -153,32 +156,46 @@ def load_data(path_main, data):
     data['shapes_resid_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_resid_cooling'])
 
     # load shapes
-    data['shapes_resid_dh'] = {}
-    data['shapes_resid_yd'] = {}
+    data['rs_shapes_resid_dh'] = {}
+    data['rs_shapes_resid_yd'] = {}
 
     # ------------------------------------------
     # Read in raw fuel data of residential model
     # ------------------------------------------
-    rs_fuel_raw_data_enduses = mf.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses']) # Yearly end use data
+    data['rs_fuel_raw_data_enduses'] = mf.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses']) # Yearly end use data
+
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
-    data['rs_all_enduses'] = create_enduse_dict(data, rs_fuel_raw_data_enduses)
+    data['rs_all_enduses'] = create_enduse_dict(data, data['rs_fuel_raw_data_enduses'])
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    ss_fuel_raw_data_enduses, all_service_sectors, data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses']) # Yearly end use data
-    data['ss_fuel_raw_data_enduses'] = ss_fuel_raw_data_enduses
+    data['ss_shapes_resid_dh'] = {}
+    data['ss_shapes_resid_yd'] = {}
+
+    data['ss_fuel_raw_data_enduses'], all_service_sectors, data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
+
     data['all_service_sectors'] = all_service_sectors
 
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
 
+ 
+    # ---------------------------------------------------------------------------------------------
+    # --- Generate load shapes
+    # ---------------------------------------------------------------------------------------------
+    data = generate_data(data, data['rs_fuel_raw_data_enduses'], data['ss_fuel_raw_data_enduses']) # Otherwise already read out files are read in from txt files
 
-    # ----------------------------------------
+    # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
+    data = collect_shapes_from_txts(data)
+
+
+
+   # ----------------------------------------
     # Convert units
     # ----------------------------------------
     # TODO: Check in what units external fuel data is provided
@@ -186,20 +203,10 @@ def load_data(path_main, data):
         rs_fuel_raw_data_enduses[enduse] = mf.conversion_ktoe_gwh(rs_fuel_raw_data_enduses[enduse])
     #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
     '''
+
     # Residential Sector
     data['rs_fuel_raw_data_enduses'] = rs_fuel_raw_data_enduses
     data['ss_fuel_raw_data_enduses'] = ss_fuel_raw_data_enduses
-
-    # ---------------------------------------------------------------------------------------------
-    # --- Generate load_shape
-    # ---------------------------------------------------------------------------------------------
-    data = generate_data(data) # Otherwise already read out files are read in from txt files
-
-    # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
-    data = collect_shapes_from_txts(data)
-
-
-
 
 
 
@@ -234,8 +241,6 @@ def collect_shapes_from_txts(data):
     for file_name in all_csv_in_folder:
         enduse = file_name.split("__")[0] # two dashes because individual enduses may contain a single slash
         enduses.add(enduse)
-        #if enduse not in enduses:
-        #    enduses.append(enduse)
 
     # Read load shapes from txt files for enduses
     for end_use in enduses:
@@ -244,8 +249,8 @@ def collect_shapes_from_txts(data):
         shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
         shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(data['path_dict']['path_txt_shapes_resid'], str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        data['shapes_resid_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_h': shape_non_peak_h}
-        data['shapes_resid_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        data['rs_shapes_resid_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_h': shape_non_peak_h}
+        data['rs_shapes_resid_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files
@@ -258,15 +263,14 @@ def collect_shapes_from_txts(data):
 
     return data
 
-def generate_data(data):
+def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     """This function loads all that which does not neet to be run every time
     """
 
     base_yr_load_data = 2015
 
     # ===========================================-
-    # RESIDENTIAL MODEL
-    # LOAD HES DATA
+    # RESIDENTIAL MODEL - LOAD HES DATA
     # ===========================================
     path_txt_shapes = data['path_dict']['path_txt_shapes_resid']
 
@@ -275,7 +279,7 @@ def generate_data(data):
     year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
 
     # Load shape for all end_uses
-    for end_use in data['rs_fuel_raw_data_enduses']:
+    for end_use in rs_raw_fuel:
         print("Enduse:  " + str(end_use))
 
         if end_use not in data['lu_appliances_HES_matched'][:, 1]:
@@ -293,18 +297,9 @@ def generate_data(data):
     # TODO
     # Add load shapes of external enduses (e.g. sewer treatment plants, )
 
-
-
-
     # ===========================================
     # SERVICE MODEL DATA GENERATION
     # ===========================================
-
-
-    # ----------------------------
-    # Service Gas demand
-    # ----------------------------
-
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
@@ -313,32 +308,29 @@ def generate_data(data):
     #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
     folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
 
+    for enduse in ss_raw_fuel:
+        print("Enduse service: " + str(enduse))
 
     # ENDUSE XY
-    #out_dict_av, _, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
+    out_dict_av, hourly_shape_of_maximum_days, main_dict_dayyear_absolute = df.read_raw_carbon_trust_data(data, folder_path_elec)
 
-    #print(out_dict_av)
-    #print(hourly_shape_of_maximum_days)
-    #print(main_dict_dayyear_absolute)
 
-    #path_txt_shapes_service = data['path_dict']['path_txt_shapes_service']
 
-    #df.create_txt_shapes('service_all_elec', path_txt_shapes_service, shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "scrap")
-
+    #df.create_txt_shapes('service_all_elec', data['path_dict']['path_txt_shapes_service'], shape_peak_yh, shape_non_peak_h, shape_peak_yd_factor, shape_non_peak_yd, "scrap")
+    
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
 
 
     # Get yearly profiles
-
-    #year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
+    year_data = df.assign_carbon_trust_data_to_year(data, enduse, out_dict_av, base_yr_load_data) #TODO: out_dict_av is percentages of day sum up to one
 
     #out_dict_av [daytype, month, ...] ---> Calculate yearly profile with averaged monthly profiles
 
     # ENDUSE XY
     #folder_path = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\__OWN_SEWAGE' #Community _OWN_SEWAGE
 
-
+    prnt(".")
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

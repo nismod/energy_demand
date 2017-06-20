@@ -249,12 +249,12 @@ def read_raw_carbon_trust_data(data, folder_path):
             # Calc yearly demand
             if count_row > 365: # if more than one year is recorded in csv file TODO: All but then distored?
                 print("FILE covers a full year---------------------------")
-                cnt = 0
-                for row in row_data: # Iterate day
+
+                for day, row in enumerate(row_data): # Iterate day
                     if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries
                         continue # Skip row
-                    cnt += 1
-                    if cnt > 365: #ONLY TAKE ONE YEAR
+  
+                    if day > 365: #ONLY TAKE ONE YEAR
                         continue
 
                     hourly_load_shape = np.zeros((24))
@@ -362,13 +362,13 @@ def read_raw_carbon_trust_data(data, folder_path):
 
     # Add SHAPES
     # Add to hourly non-residential shape
-    #data['shapes_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
+    #data['rs_shapes_resid_dh'][end_use] = {'shape_peak_yh_non_resid': maxday_h_shape, 'shape_non_peak_h': }
 
     # Add to daily shape
-    #data['shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
+    #data['rs_shapes_resid_yd'][end_use]  = {'shape_peak_yd_factor_non_resid': CCWDATA, 'shape_non_peak_yd_non_resid': } # No peak
     #prnt("..")
 
-    return out_dict_av, _, hourly_shape_of_maximum_days, carbon_trust_raw
+    return out_dict_av, hourly_shape_of_maximum_days, carbon_trust_raw
 
 def is_leap_year(year):
     """Determine whether a year is a leap year"""

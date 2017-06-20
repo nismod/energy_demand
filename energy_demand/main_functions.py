@@ -174,7 +174,7 @@ def read_csv(path_to_csv):
 
     return np.array(service_switches) # Convert list into array
 
-def read_csv_base_data_service(path_to_csv):
+def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
 
     Parameters
@@ -220,7 +220,7 @@ def read_csv_base_data_service(path_to_csv):
             for sector in all_sectors:
                 end_uses_dict[sector] = {}
                 for enduse in all_enduses:
-                    end_uses_dict[sector][enduse] = {}
+                    end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes)) #{}
 
             # Iterate rows
             for row in read_lines:
@@ -231,7 +231,7 @@ def read_csv_base_data_service(path_to_csv):
                 for entry in row[1:]:
                     enduse = _headings[cnt]
                     sector = _secondLine[cnt]
-                    end_uses_dict[sector][enduse][cnt_fueltype] = entry
+                    end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
                     cnt += 1
         print("end_uses_dict")
         print(end_uses_dict)
@@ -1301,9 +1301,8 @@ def generate_sig_diffusion(data, service_switches, fuel_switches, enduse_sector,
             # Calculate L for every technology for sigmod diffusion
             l_values_sig = tech_L_sigmoid(
                 enduses_with_fuels,
-                data,
-                fuel_switches, #data['assumptions']['rs_fuel_switches'],
-                enduse_sector, #data['rs_all_enduses']
+                fuel_switches,
+                enduse_sector,
                 installed_tech,
                 service_fueltype_by_p,
                 service_tech_by_p, 
@@ -1566,15 +1565,13 @@ def get_tech_installed(fuel_switches):
 
     return installed_tech
 
-def tech_L_sigmoid(enduses, data, fuel_switches, all_enduses, installed_tech, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by):
+def tech_L_sigmoid(enduses, fuel_switches, all_enduses, installed_tech, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by):
     """Calculate L value for every installed technology with maximum theoretical replacement value
 
     Parameters
     ----------
     enduses : list
         List with enduses where fuel switches are defined
-    data : dict
-        Data
     assumptions : dict
         Assumptions
 
@@ -1591,7 +1588,7 @@ def tech_L_sigmoid(enduses, data, fuel_switches, all_enduses, installed_tech, se
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
-        if enduse not in installed_tech: #data['assumptions']['rs_installed_tech']:
+        if enduse not in installed_tech:
             print("No technologies to calculate sigmoid")
         else:
 
@@ -1600,7 +1597,7 @@ def tech_L_sigmoid(enduses, data, fuel_switches, all_enduses, installed_tech, se
 
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
-                    all_enduses, #data['rs_all_enduses'],
+                    all_enduses,
                     fuel_switches,
                     service_fueltype_p,
                     service_tech_by_p, # Percentage of service demands for every technology
@@ -2289,14 +2286,16 @@ def ss_summarise_fuel_per_enduse_all_sectors(ss_fuel_raw_data_enduses, ss_enduse
 
     # Initialise
     for enduse in ss_enduses:
-        aggregated_fuel_enduse[enduse] = np.zeros((nr_fueltypes))
-    
+        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
+
     # ITerate and sum fuel per enduse
     for sector, fuels_sector in ss_fuel_raw_data_enduses.items():
-        
+
         for enduse, fuels_enduse in fuels_sector.items():
-            for fueltype, fuel in fuels_enduse.items():
-                # Add fuels for each enduse
-                aggregated_fuel_enduse[str(enduse)][int(fueltype)] += float(fuel)
+
+            #for fueltype, fuel in fuels_enduse.items():
+            #    # Add fuels for each enduse
+            #    aggregated_fuel_enduse[str(enduse)][int(fueltype)] += float(fuel)
+            aggregated_fuel_enduse[enduse] += fuels_enduse
 
     return aggregated_fuel_enduse
