@@ -134,8 +134,7 @@ def plot_stacked_Country_end_use(results_resid, enduses_data, attribute_to_get):
         data_over_years = []
 
         for model_year_object in results_resid:
-            tot_fuel = getattr(model_year_object, attribute_to_get) #rs_tot_country_fuel_enduse_specific_h # Hourly fuel data ss_tot_country_fuel_enduse_specific_h
-            print("tot_fuel: " + str(tot_fuel))
+            tot_fuel = getattr(model_year_object, attribute_to_get) # Hourly fuel data
             data_over_years.append(tot_fuel[enduse])
 
         Y_init[k] = data_over_years
@@ -223,7 +222,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
 
 
 
-def plot_fuels_tot_all_enduses_week(results_resid, data):
+def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -252,7 +251,7 @@ def plot_fuels_tot_all_enduses_week(results_resid, data):
         legend_entries.append(fueltype_in_string)
 
         # Read out fueltype specific max h load
-        tot_fuels = results_resid[year_to_plot].tot_country_fuels_all_enduses #DATA
+        tot_fuels = getattr(results_resid[year_to_plot], attribute_to_get) # #DATA
 
         data_over_day = []
         for day, daily_values in enumerate(tot_fuels[fueltype]):
@@ -279,7 +278,7 @@ def plot_fuels_tot_all_enduses_week(results_resid, data):
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
     plt.show()
 
-def plot_fuels_tot_all_enduses(results_resid, data):
+def plot_fuels_tot_all_enduses(results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -305,7 +304,7 @@ def plot_fuels_tot_all_enduses(results_resid, data):
         data_over_years = []
         for model_year_object in results_resid:
 
-            tot_fuels = model_year_object.tot_country_fuels_all_enduses
+            tot_fuels = getattr(model_year_object, attribute_to_get)
 
             #for every hour is summed to have yearl fuel
             tot_fuel_fueltype_y = np.sum(tot_fuels[fueltype]) 
@@ -328,7 +327,7 @@ def plot_fuels_tot_all_enduses(results_resid, data):
     plt.show()
 
 
-def plot_rs_fuels_peak_hour(results_resid, data):
+def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -354,7 +353,7 @@ def plot_rs_fuels_peak_hour(results_resid, data):
         # REad out fueltype specific max h load
         data_over_years = []
         for model_year_object in results_resid:
-            fueltype_load_max_h = model_year_object.tot_country_fuel_max_allenduse_fueltyp #DATA
+            fueltype_load_max_h = getattr(model_year_object, attribute_to_get)
             data_over_years.append(fueltype_load_max_h[fueltype])
 
         Y_init[fueltype] = data_over_years

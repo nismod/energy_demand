@@ -77,15 +77,14 @@ class CountryClass(object):
         self.ss_tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data['ss_all_enduses'], reg_names, 'ss_fuels_new_enduse_specific_h') #yearly fuel
 
         self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'rs_reg_load_factor_h')
-        self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'rs_max_fuel_peak')
-        self.tot_country_fuels_all_enduses = self.rs_tot_fuels_all_enduses_yh(data, reg_names, 'rs_tot_fuels_all_enduses_yh')
+        
+        self.rs_tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'rs_max_fuel_peak')
+        self.ss_tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'ss_max_fuel_peak')
+
+        self.rs_tot_country_fuels_all_enduses = self.get_tot_fuels_all_enduses_yh(data, reg_names, 'rs_tot_fuels_all_enduses_yh')
+        self.ss_tot_country_fuels_all_enduses = self.get_tot_fuels_all_enduses_yh(data, reg_names, 'ss_tot_fuels_all_enduses_yh')
         #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
 
-        # ----- Testing
-        n = 0
-        for i in self.rs_tot_country_fuel_enduse_specific_h:
-            n += self.rs_tot_country_fuel_enduse_specific_h[i]
-        #print("============================ddddddddddd= " + str(self.tot_country_fuel))
 
         # TESTING
         test_sum = 0
@@ -156,7 +155,7 @@ class CountryClass(object):
 
         return tot_sum_enduses
 
-    def rs_tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
+    def get_tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
 
         tot_fuels_all_enduses = np.zeros(((data['nr_of_fueltypes'], 365, 24)))
 

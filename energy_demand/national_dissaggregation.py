@@ -27,7 +27,7 @@ def disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg):
     - floorarea
     - population
     - etc...abs
-    TODO: Write disaggregation
+     #TODO: Write disaggregation
     """
     def sum_fuels_before(fuel):
         """Inner function for testing purposes - sum fuel"""

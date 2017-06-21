@@ -45,20 +45,20 @@ The docs can be found here: http://ed.readthedocs.io
 #!python3.6
 import os
 import sys
-import random
-import numpy as np
+#import random
+#import numpy as np
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
-import energy_demand.technological_stock as ts
+#import energy_demand.technological_stock as ts
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 
 import energy_demand.residential_model as rm # Import sub modules
-import energy_demand.service_model as sm # Import sub modules
-import energy_demand.industry_model as im # Import sub modules
-import energy_demand.transport_model as tm # Import sub modules
+#import energy_demand.service_model as sm # Import sub modules
+#import energy_demand.industry_model as im # Import sub modules
+#import energy_demand.transport_model as tm # Import sub modules
 
 
 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_tech_by_p'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
-    
+
     print("base_data['assumptions']['ss_sigm_parameters_tech']")
     print(base_data['assumptions']['ss_sigm_parameters_tech'])
     #prnt(".")
@@ -310,17 +310,20 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
-    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    #pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
     pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
-    pf.plot_fuels_tot_all_enduses(results_every_year, base_data)
+    #pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Plot peak demand (h) for every fueltype
-    pf.plot_rs_fuels_peak_hour(results_every_year, base_data)
+    #pf.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
+    pf.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_max_allenduse_fueltyp')
 
     # Plot a full week
-    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data)
+    #pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Run main function
     #results = energy_demand_model(base_data)

@@ -82,7 +82,6 @@ class EnduseClass(object):
         # --------------------------------
         self.enduse_fuel_new_fuel = copy.deepcopy(self.enduse_fuel)
         print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel)))
-        print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel.shape)))
         # Change fuel consumption based on climate change induced temperature differences
         self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
         #print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
@@ -163,7 +162,7 @@ class EnduseClass(object):
             # -----------------------
             # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
             self.enduse_service_to_fuel_fueltype_y(service_tech, tech_stock)
-            #print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_fuel)))
+            print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
             # Convert service to fuel (y) for each technology depending on technological efficiences in current year
             enduse_fuel_tech_y = self.enduse_service_to_fuel_per_tech(service_tech, tech_stock)
@@ -210,11 +209,10 @@ class EnduseClass(object):
             # --------
             self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_fuel, data_shapes_yd[self.enduse]['shape_non_peak_yd'])
             self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[self.enduse]['shape_non_peak_dh'])
-
+            print("--SUMME2 enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
             # --------
             # PEAK
             # --------
-            print("AA: " + str(self.enduse_fuel_peak_yd.shape))
             self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(self.enduse_fuel_peak_yd, data_shapes_dh[self.enduse]['shape_peak_dh'])
             self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh)
 

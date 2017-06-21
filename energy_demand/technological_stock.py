@@ -1,5 +1,4 @@
 """The technological stock for every simulation year"""
-import sys
 import numpy as np
 import energy_demand.main_functions as mf
 #import energy_demand.technological_stock_functions as tf
@@ -23,11 +22,11 @@ class ResidTechStock(object):
             Temperatures of current year
         """
         # Crate all technologies and add as attribute
-        for tech_name in technologies:
+        for technology in technologies:
 
             # Technology object
             technology_object = Technology(
-                tech_name,
+                technology,
                 data,
                 temp_by,
                 temp_cy,
@@ -37,7 +36,7 @@ class ResidTechStock(object):
             # Set technology object as attribute
             ResidTechStock.__setattr__(
                 self,
-                tech_name,
+                technology,
                 technology_object
             )
 

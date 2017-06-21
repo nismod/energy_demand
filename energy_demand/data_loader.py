@@ -99,7 +99,7 @@ def load_data(path_main, data):
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
         'ss_path_fuel_switches': os.path.join(path_main, 'service_model/switches_fuel_scenaric.csv'),
-        
+
         # Path to excel with ss service switch
         'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
         'ss_path_service_switch': os.path.join(path_main, 'service_model/switches_service_scenaric.csv'),
@@ -114,7 +114,7 @@ def load_data(path_main, data):
     # Read in weather data and clean data
     # ----------------------------------------------------------
     data['weather_stations_raw'] = df.read_weather_stations_raw(folder_path_weater_stations) # Read all weater stations properties
-    
+
     '''data['temperature_data_raw'] = df.read_weather_data_raw(folder_path_weater_data, 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
@@ -182,7 +182,6 @@ def load_data(path_main, data):
     data['dict_shp_enduse_h_service'] = {}
     data['dict_shp_enduse_d_service'] = {}
 
- 
     # ---------------------------------------------------------------------------------------------
     # --- Generate load shapes
     # ---------------------------------------------------------------------------------------------
@@ -213,8 +212,6 @@ def load_data(path_main, data):
     for end_use in data['rs_fuel_raw_data_enduses']:
         assert data['nr_of_fueltypes'] == len(data['rs_fuel_raw_data_enduses'][end_use]) # Fuel in fuel distionary does not correspond to len of input fuels
 
-    # ---TESTS----------------------
-
     return data
 
 
@@ -224,7 +221,6 @@ def load_data(path_main, data):
 def collect_shapes_from_txts(data):
     """Rread in load shapes from text without accesing raw files
     """
-
     # ----------------------------------------------------------------------
     # RESIDENTIAL MODEL txt files
     # ----------------------------------------------------------------------
@@ -260,7 +256,6 @@ def collect_shapes_from_txts(data):
 def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     """This function loads all that which does not neet to be run every time
     """
-
     base_yr_load_data = 2015
 
     # ===========================================-
@@ -277,7 +272,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         print("Enduse:  " + str(end_use))
 
         if end_use not in data['lu_appliances_HES_matched'][:, 1]:
-            print(" ")
             print("Warning: The enduse {} is not defined in lu_appliances_HES_matched, i.e. no generic shape is loades from HES data but enduse needs to be defined with technologies".format(end_use))
             continue
 
@@ -288,8 +282,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         df.create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
 
-    # TODO
-    # Add load shapes of external enduses (e.g. sewer treatment plants, )
+    # TODO: Add load shapes of external enduses (e.g. sewer treatment plants, )
 
     # ===========================================
     # SERVICE MODEL DATA GENERATION
@@ -297,10 +290,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     # ---------------------
     # Load Carbon Trust data - electricity for non-residential
     # ---------------------
-    #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
-    #folder_path_gas= r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
-    folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
-
 
     # Iterate sectors and read in shape
     for sector in data['all_service_sectors']:
@@ -345,7 +334,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         if sector == 'storage':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
-
 
         # SCRAP
         folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
