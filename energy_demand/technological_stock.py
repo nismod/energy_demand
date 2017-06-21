@@ -213,7 +213,7 @@ class Technology(object):
 
         return eff_hp_yh
 
-    def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high): #, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour
 
         Within every hour the fraction of service provided by the low-temp technology
@@ -235,6 +235,10 @@ class Technology(object):
         ------
         tech_low_high_p : dict
             Share of lower and higher service fraction for every hour
+
+        Info
+        ----
+        TODO: Plot chart in INDESIGN OF SHARE OF USAGE FOR HYBRID TECH
         """
         tech_low_high_p = {}
 
@@ -242,9 +246,17 @@ class Technology(object):
             tech_low_high_p[day] = {}
 
             for hour, temp_h in enumerate(temp_d):
+
+                # Get share of service of high temp technology
                 service_high_tech_p = self.fraction_service_high_temp(temp_h, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
+
+                # Calculate share of service of low temp technology
                 service_low_tech_p = 1 - service_high_tech_p
-                tech_low_high_p[day][hour] = {'low': service_low_tech_p, 'high': service_high_tech_p}
+
+                tech_low_high_p[day][hour] = {
+                    'low': service_low_tech_p,
+                    'high': service_high_tech_p
+                    }
 
         return tech_low_high_p
 
@@ -265,26 +277,26 @@ class Technology(object):
 
         Return
         ------
-        fraction_currenttemp : float
+        fraction_current_temp : float
             Fraction of higher temperature technology
             It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
         """
         if current_temp >= hybrid_cutoff_temp_high:
-            fraction_currenttemp = 1.0
+            fraction_current_temp = 1.0
         elif current_temp < hybrid_cutoff_temp_low:
-            fraction_currenttemp = 0.0
+            fraction_current_temp = 0.0
         else:
             if hybrid_cutoff_temp_low < 0:
                 temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
-                temp_diff_currenttemp = current_temp + abs(hybrid_cutoff_temp_low)
+                temp_diff_current_temp = current_temp + abs(hybrid_cutoff_temp_low)
             else:
                 temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-                temp_diff_currenttemp = current_temp - hybrid_cutoff_temp_low
+                temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
 
-            # Calculate share of high temp
-            fraction_currenttemp = np.divide(1.0, temp_diff) * temp_diff_currenttemp
+            # Calculate service share of high temp technology
+            fraction_current_temp = np.divide(1.0, temp_diff) * temp_diff_current_temp
 
-        return fraction_currenttemp
+        return fraction_current_temp
 
     def set_constant_fueltype(self, fueltype, len_fueltypes):
         """Create dictionary with constant single fueltype

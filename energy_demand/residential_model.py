@@ -39,7 +39,7 @@ def residential_model_main_function(data):
     # ----------------------------
     # Attributes of whole country
     # ----------------------------
-    fueltot = resid_object.tot_country_fuel # Total fuel of country
+    fueltot = resid_object.rs_tot_country_fuel # Total fuel of country
     #country_enduses = resid_object.rs_tot_country_fuel_enduse_specific_h # Total fuel of country for each enduse
 
     print("Fuel input:          " + str(fuel_in))
@@ -71,13 +71,13 @@ class CountryClass(object):
         self.create_regions(reg_names, data)
 
         # Functions to summarise data for all Regions in the CountryClass class
-        self.tot_country_fuel = self.get_overall_sum(reg_names)
-        
+        self.rs_tot_country_fuel = self.get_overall_sum(reg_names, 'rs_fuels_tot_enduses_h')
+
         self.rs_tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data['rs_all_enduses'], reg_names, 'rs_fuels_new_enduse_specific_h') #yearly fuel
         self.ss_tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data['ss_all_enduses'], reg_names, 'ss_fuels_new_enduse_specific_h') #yearly fuel
 
-        self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'rs_reg_load_factor_h')
-        
+        self.rs_tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'rs_reg_load_factor_h')
+
         self.rs_tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'rs_max_fuel_peak')
         self.ss_tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'ss_max_fuel_peak')
 
@@ -90,7 +90,7 @@ class CountryClass(object):
         test_sum = 0
         for enduse in self.rs_tot_country_fuel_enduse_specific_h:
             test_sum += self.rs_tot_country_fuel_enduse_specific_h[enduse]
-        np.testing.assert_almost_equal(np.sum(self.tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
+        np.testing.assert_almost_equal(np.sum(self.rs_tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
 
     def create_regions(self, reg_names, data):
         """Create all regions and add them as attributes based on region name to the CountryClass Class
@@ -122,7 +122,7 @@ class CountryClass(object):
         enduse_fuels = reg_object.get_fuels_enduse_requested(spec_enduse)
         return enduse_fuels
 
-    def get_overall_sum(self, reg_names):
+    def get_overall_sum(self, reg_names, attribute_to_get):
         """Collect hourly data from all regions and sum across all fuel types and enduses
         """
         tot_sum = 0
@@ -130,7 +130,7 @@ class CountryClass(object):
             reg_object = getattr(self, str(reg_name))
 
             # Get fuel data of region #Sum hourly demand # could also be read out as houly
-            tot_sum += np.sum(getattr(reg_object, 'rs_fuels_tot_enduses_h'))
+            tot_sum += np.sum(getattr(reg_object, attribute_to_get))
 
         return tot_sum
 

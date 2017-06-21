@@ -231,7 +231,7 @@ def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
     """
 
     # Number of days to plot
-    days_to_plot = range(100, 107)
+    days_to_plot = range(10, 17)
 
     # Which year in simulation (2015 = 0)
     year_to_plot = 2
@@ -251,8 +251,8 @@ def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
         legend_entries.append(fueltype_in_string)
 
         # Read out fueltype specific max h load
-        tot_fuels = getattr(results_resid[year_to_plot], attribute_to_get) # #DATA
-
+        tot_fuels = getattr(results_resid[year_to_plot], attribute_to_get)
+        print("TEESTFUL : " + str(np.sum(tot_fuels[fueltype])))
         data_over_day = []
         for day, daily_values in enumerate(tot_fuels[fueltype]):
             if day in days_to_plot:

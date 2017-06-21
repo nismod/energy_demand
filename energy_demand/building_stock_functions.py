@@ -30,12 +30,13 @@ class Dwelling(object):
     hdd : float
         Heating degree days
     """
-    def __init__(self, curr_y, reg_name, coordinates, dwtype, age, pop, floorarea, data):
+    def __init__(self, curr_y, reg_name, longitude, latitude, dwtype, age, pop, floorarea, data):
         """Returns a new dwelling object"""
         self.curr_y = curr_y
         self.driver_assumptions = data['assumptions']['resid_scen_driver_assumptions']
         self.enduses = data['rs_all_enduses']
-        self.coordinates = coordinates
+        self.longitude = longitude
+        self.latitude = latitude
         self.dwtype = dwtype
         self.age = age
         self.pop = pop
@@ -54,13 +55,11 @@ class Dwelling(object):
         """
         # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:
-            
             driver_value = 1 #used to sum (not zero!)
 
             # If there are scenario drivers for enduse
             if enduse not in self.driver_assumptions:
                 Dwelling.__setattr__(self, enduse, driver_value)
-    
             else:
                 drivers = self.driver_assumptions[enduse]
 
@@ -69,7 +68,11 @@ class Dwelling(object):
                     driver_value = driver_value * getattr(self, driver)
 
                 # Set attribute
-                Dwelling.__setattr__(self, enduse, driver_value)
+                Dwelling.__setattr__(
+                    self,
+                    enduse,
+                    driver_value
+                    )
 
 class DwStockRegion(object):
     """Class of the building stock in a region"""
@@ -221,4 +224,5 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     # Test if distribution is 100%
     for y in dwtype_distr:
         np.testing.assert_almost_equal(sum(dwtype_distr[y].values()), 1.0, decimal=5, err_msg='The distribution of dwelling types went wrong', verbose=True)
+   
     return dwtype_distr

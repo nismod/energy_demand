@@ -37,7 +37,8 @@
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
-
+- Heat recycling/reuse in percentage (lower heating demand accordingly)
+- 
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -45,8 +46,6 @@ The docs can be found here: http://ed.readthedocs.io
 #!python3.6
 import os
 import sys
-#import random
-#import numpy as np
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
@@ -56,13 +55,8 @@ import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 
 import energy_demand.residential_model as rm # Import sub modules
-#import energy_demand.service_model as sm # Import sub modules
 #import energy_demand.industry_model as im # Import sub modules
 #import energy_demand.transport_model as tm # Import sub modules
-
-
-
-
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -91,10 +85,7 @@ def energy_demand_model(data):
     # Convert to dict for energy_supply_model
     result_dict = mf.convert_out_format_es(data, resid_object_country, data['ss_all_enduses'])
 
-    # --------------------------
-    # Service Model
-    # --------------------------
-    #service_object_country = sm.service_model_main_function(data)
+
 
     # --------------------------
     # Industry Model
@@ -132,9 +123,10 @@ if __name__ == "__main__":
 
 
     # DUMMY DATA GENERATION----------------------
-    by = 2015
-    ey = 2020 #includes this year
-    sim_years = range(by, ey + 1)
+    #global base_yr
+    base_yr = 2015
+    end_yr = 2020 #includes this year
+    sim_years = range(base_yr, end_yr + 1)
 
     # dummy coordinates
     coord_dummy = {}
@@ -184,9 +176,9 @@ if __name__ == "__main__":
             #'ICT_model': {}
         }
     }
-    data_external['end_yr'] = ey
-    data_external['sim_period'] = range(by, ey + 1, 1) # Alywas including last simulation year
-    data_external['base_yr'] = by
+    data_external['end_yr'] = end_yr
+    data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['base_yr'] = base_yr
     # ------------------- DUMMY END
 
 
@@ -268,7 +260,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],
         base_data['ss_all_enduses'],
-        fuels_aggregated_across_sectors, #base_data['ss_fuel_raw_data_enduses'], #TODO: USE AGGREGATED FUEL across all sectors
+        fuels_aggregated_across_sectors,
         base_data['assumptions']['ss_tech_increased_service'],
         base_data['assumptions']['ss_share_service_tech_ey_p'],
         base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
@@ -277,18 +269,12 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
 
-    print("base_data['assumptions']['ss_sigm_parameters_tech']")
-    print(base_data['assumptions']['ss_sigm_parameters_tech'])
-    #prnt(".")
 
-    # Disaggregate national data into regional data #TODO
-    base_data = nd.disaggregate_base_demand_for_reg(base_data, 1)
+    # Disaggregate national data into regional data
+    base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
-    # Generate virtual residential building stock over whole simulatin period
-    base_data['dw_stock_resid'] = bg.resid_build_stock(base_data)
-
-    # Generate virtual service building stock
-    #base_data['dw_stock_service']
+    # Generate residential building stock over whole simulation period
+    base_data['dw_stock_resid'] = bg.resid_build_stock(base_data, base_data['base_yr'])
 
     # If several years are run:
     results_every_year = []
