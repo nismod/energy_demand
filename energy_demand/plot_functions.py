@@ -113,16 +113,12 @@ def plot_FUNCTIONSE():
         plt.title("Plotting the Month of {} for the daytype {}".format(month, daytype))
         plt.show()
 
-#print("Finished loead profiles generator")
-
-def plot_stacked_Country_end_use(results_resid, enduses_data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+def plot_stacked_Country_end_use(results_resid, enduses_data, attribute_to_get): # nr_of_day_to_plot, fueltype, yearday, reg_name):
     """Plots stacked end_use for a region
-
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-
     fig, ax = plt.subplots() #fig is needed
     nr_y_to_plot = len(results_resid) #number of simluated years
 
@@ -138,7 +134,8 @@ def plot_stacked_Country_end_use(results_resid, enduses_data): # nr_of_day_to_pl
         data_over_years = []
 
         for model_year_object in results_resid:
-            tot_fuel = model_year_object.tot_country_fuel_enduse_specific_h # Hourly fuel data
+            tot_fuel = getattr(model_year_object, attribute_to_get) #rs_tot_country_fuel_enduse_specific_h # Hourly fuel data ss_tot_country_fuel_enduse_specific_h
+            print("tot_fuel: " + str(tot_fuel))
             data_over_years.append(tot_fuel[enduse])
 
         Y_init[k] = data_over_years

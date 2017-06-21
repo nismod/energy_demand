@@ -78,7 +78,7 @@ def read_txt_t_base_by(pattemp_h_txt, base_yr):
 
     return out_dict
 
-def convert_out_format_es(data, object_country):
+def convert_out_format_es(data, object_country, enduses):
     """Adds total hourly fuel data into nested dict
 
     Parameters
@@ -102,7 +102,7 @@ def convert_out_format_es(data, object_country):
         for reg_name in data['lu_reg']:
             reg = getattr(object_country, str(reg_name))
             region_name = reg.reg_name
-            hourly_all_fuels = reg.tot_all_enduses_h(data, 'enduse_fuel_yh')
+            hourly_all_fuels = reg.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
 
             for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour_in_day, demand in enumerate(hourly_demand):
@@ -208,8 +208,7 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
             for sector in _secondLine[1:]: #skip fuel ID:
                 #if sector not in all_sectors:
                 all_sectors.add(sector)
-                
-            
+
             # All enduses
             all_enduses = set([])
             for enduse in _headings[1:]: #skip fuel ID:
@@ -233,8 +232,7 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                     sector = _secondLine[cnt]
                     end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
                     cnt += 1
-        print("end_uses_dict")
-        print(end_uses_dict)
+
         return end_uses_dict, list(all_sectors), list(all_enduses)
             
     except (KeyError, ValueError):

@@ -346,6 +346,11 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
+
+        # SCRAP
+        folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
+        folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
+
         # Read in shape from carbon trust metering trial dataset
         shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path_elec)
 
@@ -364,9 +369,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
 
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
-    print("  ")
-    print("egon")
-    print(data['ss_shapes_dh'])
+
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

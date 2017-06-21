@@ -116,6 +116,7 @@ def load_assumptions(data):
         'resid_consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
         'resid_home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
     }
+    #TODO: ADD FOR SERVICE SECTOR
 
     # ============================================================
     # Smart meter assumptions (Residential)

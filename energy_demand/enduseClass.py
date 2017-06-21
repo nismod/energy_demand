@@ -76,7 +76,7 @@ class EnduseClass(object):
         if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
             print(data_shapes_yd)
             sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
-    
+
         # -------------------------------
         # Yearly fuel calculation cascade
         # --------------------------------
@@ -100,7 +100,7 @@ class EnduseClass(object):
         #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        self.enduse_elasticity(data, data['assumptions'])
+        ##self.enduse_elasticity(data, data['assumptions'])
         #print("Fuel train F: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # ----------------------------------
@@ -129,7 +129,8 @@ class EnduseClass(object):
                     service_tech_by_p,
                     tech_increased_service[self.enduse],
                     tech_decreased_share[self.enduse],
-                    tech_constant_share[self.enduse]
+                    tech_constant_share[self.enduse],
+                    sigm_parameters_tech
                     )
 
             summe = 0
@@ -180,7 +181,7 @@ class EnduseClass(object):
             # Iterate technologies in enduse and assign technology specific shape for respective fuels
             self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, tech_stock)
             self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
-            #self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)# Get maximum hour demand per fueltype
+            #self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh)# Get maximum hour demand per fueltype
             print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
 
             # --------
@@ -191,15 +192,13 @@ class EnduseClass(object):
             print("Peak day: " + str(peak_day_nr))
 
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data, enduse_fuel_tech_y, tech_stock, peak_day_nr)
-            print("enduse_fuel_peak_dh: " + str(np.sum(enduse_fuel_peak_dh)))
+            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data, enduse_fuel_tech_y, tech_stock, peak_day_nr)
+            print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
 
-            #self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, enduse_fuel_peak_dh)
-
-            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(enduse_fuel_peak_dh) # Get maximum hour demand per of peak day
+            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh) # Get maximum hour demand per of peak day
             print("enduse_fuel_peak_h: " + str(np.sum(self.enduse_fuel_peak_h)))
 
-            print("Proportion von day: " + str((100/np.sum(enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
+            print("Proportion von day: " + str((100/np.sum(self.enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
         else: # No technologies specified in enduse
             print("enduse is not defined with technologies: " + str(self.enduse))
 
@@ -215,8 +214,9 @@ class EnduseClass(object):
             # --------
             # PEAK
             # --------
-            self.enduse_fuel_peak_yh = self.calc_enduse_fuel_peak_yh(self.enduse_fuel_peak_yd, data_shapes_dh[self.enduse]['shape_peak_dh'])
-            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_yh)
+            print("AA: " + str(self.enduse_fuel_peak_yd.shape))
+            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(self.enduse_fuel_peak_yd, data_shapes_dh[self.enduse]['shape_peak_dh'])
+            self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh)
 
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
@@ -390,7 +390,7 @@ class EnduseClass(object):
 
         return list(technologies_enduse)
 
-    def switch_tech_service(self, data, tot_service_h_by, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service):
+    def switch_tech_service(self, data, tot_service_h_by, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sigm_parameters_tech):
         """Scenaric service switches
 
         All diminishing technologies are proportionally to base year share diminished.
@@ -418,7 +418,7 @@ class EnduseClass(object):
         # Technology with increaseing service
         # -------------
         # Calculate diffusion of service for technology with increased service
-        service_tech_increase_cy_p = self.get_service_diffusion(data, tech_increase_service) #data['assumptions']['rs_tech_increased_service'][self.enduse])
+        service_tech_increase_cy_p = self.get_service_diffusion(data, tech_increase_service, sigm_parameters_tech)
 
         for tech_increase, share_tech in service_tech_increase_cy_p.items():
             service_tech_cy_p[tech_increase] = share_tech # Add shares to output dict
@@ -469,7 +469,7 @@ class EnduseClass(object):
         print("...Finished service switch")
         return service_tech_cy
 
-    def get_service_diffusion(self, data, tech_increased_service):
+    def get_service_diffusion(self, data, tech_increased_service, sigm_parameters_tech):
         """Calculate energy service fraction of technologies with increased service
 
         Parameters
@@ -490,9 +490,9 @@ class EnduseClass(object):
             # Get service for current year based on sigmoid diffusion
             service_tech_cy_p[tech_installed] = mf.sigmoid_function(
                 data['curr_yr'],
-                data['assumptions']['rs_sigm_parameters_tech'][self.enduse][tech_installed]['l_parameter'],
-                data['assumptions']['rs_sigm_parameters_tech'][self.enduse][tech_installed]['midpoint'],
-                data['assumptions']['rs_sigm_parameters_tech'][self.enduse][tech_installed]['steepness']
+                sigm_parameters_tech[self.enduse][tech_installed]['l_parameter'],
+                sigm_parameters_tech[self.enduse][tech_installed]['midpoint'],
+                sigm_parameters_tech[self.enduse][tech_installed]['steepness']
             )
 
         return service_tech_cy_p
@@ -1205,13 +1205,12 @@ class EnduseClass(object):
             print("--")
             print(fueltype_year_data)
             a = factor_d * fueltype_year_data # BIG CHANGE[0]
-            print("aa.aa")
             print(a)
             '''
             fuels_d_peak[fueltype] = factor_d * fueltype_year_data
         return fuels_d_peak
 
-    def calc_enduse_fuel_peak_yh(self, fuels, shape_peak_dh):
+    def calc_enduse_fuel_peak_dh(self, fuels, shape_peak_dh):
         """Disaggregate daily peak day fuel data to the peak hours.
 
         Parameters
@@ -1230,7 +1229,7 @@ class EnduseClass(object):
         Notes
         -----
         """
-        fuels_h_peak = np.zeros((fuels.shape[0], 1, 24))
+        fuels_h_peak = np.zeros((fuels.shape[0], 24))
 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
         for fueltype, fuel in enumerate(fuels):

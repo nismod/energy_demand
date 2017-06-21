@@ -74,7 +74,7 @@ class ServiceSectorClass(object):
                     data,
                     enduse,
                     self.fuels_all_enduses[enduse],
-                    tech_stock,
+                    tech_stock, #TODO
                     heating_factor_y,
                     cooling_factor_y,
                     enduse_peak_yd_factor, # yd factor which is different depending on enduse

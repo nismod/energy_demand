@@ -89,7 +89,7 @@ def energy_demand_model(data):
     resid_object_country = rm.residential_model_main_function(data)
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, resid_object_country)
+    result_dict = mf.convert_out_format_es(data, resid_object_country, data['ss_all_enduses'])
 
     # --------------------------
     # Service Model
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # Residential
-    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sigm_parameters_tech'] = mf.generate_sig_diffusion(
+    '''base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sigm_parameters_tech'] = mf.generate_sig_diffusion(
         base_data,
         base_data['assumptions']['rs_service_switches'],
         base_data['assumptions']['rs_fuel_switches'],
@@ -260,6 +260,7 @@ if __name__ == "__main__":
         base_data['assumptions']['rs_service_tech_by_p'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by']
         )
+    '''
 
     # Service
     base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sigm_parameters_tech'] = mf.generate_sig_diffusion(
@@ -267,7 +268,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],
         base_data['ss_all_enduses'],
-        base_data['ss_fuel_raw_data_enduses'],
+        fuels_aggregated_across_sectors, #base_data['ss_fuel_raw_data_enduses'], #TODO: USE AGGREGATED FUEL across all sectors
         base_data['assumptions']['ss_tech_increased_service'],
         base_data['assumptions']['ss_share_service_tech_ey_p'],
         base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
@@ -275,6 +276,10 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_tech_by_p'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
+    
+    print("base_data['assumptions']['ss_sigm_parameters_tech']")
+    print(base_data['assumptions']['ss_sigm_parameters_tech'])
+    #prnt(".")
 
     # Disaggregate national data into regional data #TODO
     base_data = nd.disaggregate_base_demand_for_reg(base_data, 1)
@@ -305,8 +310,8 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
-    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'])
-    pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'])
+    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
     pf.plot_fuels_tot_all_enduses(results_every_year, base_data)
