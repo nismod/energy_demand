@@ -305,13 +305,14 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
-    pf.plot_stacked_Country_end_use(results_every_year, base_data)
+    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'])
+    pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'])
 
     # Plot total fuel (y) per fueltype
     pf.plot_fuels_tot_all_enduses(results_every_year, base_data)
 
     # Plot peak demand (h) for every fueltype
-    pf.plot_fuels_peak_hour(results_every_year, base_data)
+    pf.plot_rs_fuels_peak_hour(results_every_year, base_data)
 
     # Plot a full week
     pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data)

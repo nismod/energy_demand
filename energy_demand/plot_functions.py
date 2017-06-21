@@ -115,7 +115,7 @@ def plot_FUNCTIONSE():
 
 #print("Finished loead profiles generator")
 
-def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+def plot_stacked_Country_end_use(results_resid, enduses_data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
     """Plots stacked end_use for a region
 
 
@@ -131,9 +131,9 @@ def plot_stacked_Country_end_use(results_resid, data): # nr_of_day_to_plot, fuel
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((len(data['rs_all_enduses']), nr_y_to_plot))
+    Y_init = np.zeros((len(enduses_data), nr_y_to_plot))
 
-    for k, enduse in enumerate(data['rs_all_enduses']):
+    for k, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
         data_over_years = []
 
@@ -308,7 +308,7 @@ def plot_fuels_tot_all_enduses(results_resid, data):
         data_over_years = []
         for model_year_object in results_resid:
 
-            tot_fuels = model_year_object.tot_country_fuels_all_enduses #DATA
+            tot_fuels = model_year_object.tot_country_fuels_all_enduses
 
             #for every hour is summed to have yearl fuel
             tot_fuel_fueltype_y = np.sum(tot_fuels[fueltype]) 
@@ -331,7 +331,7 @@ def plot_fuels_tot_all_enduses(results_resid, data):
     plt.show()
 
 
-def plot_fuels_peak_hour(results_resid, data):
+def plot_rs_fuels_peak_hour(results_resid, data):
     """Plots stacked end_use for a region
 
 

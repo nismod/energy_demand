@@ -1,19 +1,18 @@
 import os
 import csv
 import re
-import numpy as np
 import unittest
 import json
 import datetime
-from datetime import date
-import energy_demand.main_functions as mf
 import copy
+from datetime import date
+import numpy as np
 import matplotlib.pyplot as plt
+import energy_demand.main_functions as mf
 import energy_demand.plot_functions as pf
 assertions = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-# HES-----------------------------------
 def read_hes_data(data):
     '''
     Read in HES and give out for every yearday all types.
@@ -23,16 +22,13 @@ def read_hes_data(data):
     # NOTES: Yearly peak demand is stored in Month January = 0
     # Improve: Could read in shape of HES nicer (e.g. peak seperately)
     '''
-    # initialise
     paths_hes = data['path_dict']['path_bd_e_load_profiles']
     daytype_lu = data['day_type_lu'] #0: Weekd_day, 1: Weekend, 2 : Coldest, 3 : Warmest
     app_type_lu = data['app_type_lu']
-    month_nr = 12
-    hours = 24
-    hes_data = np.zeros((len(daytype_lu), month_nr, hours, len(app_type_lu)), dtype=float)
+    hes_data = np.zeros((len(daytype_lu), 12, 24, len(app_type_lu)), dtype=float)
 
-    hes_y_coldest = np.zeros((hours, len(app_type_lu)))
-    hes_y_warmest = np.zeros((hours, len(app_type_lu)))
+    hes_y_coldest = np.zeros((24, len(app_type_lu)))
+    hes_y_warmest = np.zeros((24, len(app_type_lu)))
 
     # Read in raw HES data from CSV
     raw_elec_data = mf.read_csv(paths_hes)
@@ -40,9 +36,9 @@ def read_hes_data(data):
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
         month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
-        k_header = 3    #Row in Excel where energy data start
+        k_header = 3 #Row in Excel where energy data start
 
-        for hour in range(hours): # iterate over hour  = row in csv file
+        for hour in range(24): # iterate over hour  = row in csv file
             # [kWH electric] Converts the summed watt into kWH TODO: Is not necessary as we are only calculating in relative terms
             _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000))
 
@@ -251,7 +247,7 @@ def read_raw_carbon_trust_data(data, folder_path):
         with open(path_csv_file, 'r') as csv_file:
             print("path_csv_file: " + str(path_csv_file))
             read_lines = csv.reader(csv_file, delimiter=',')
-            _headings = next(read_lines) 
+            _headings = next(read_lines)
             max_d_demand = 0 # Used for searching maximum
 
             # Count number of lines in CSV file
@@ -303,7 +299,7 @@ def read_raw_carbon_trust_data(data, folder_path):
                             control_sum += abs(demand_h)
 
                             # Calc percent of total daily demand
-                            carbon_trust_raw[yearday_python][h_day].append(demand_h) 
+                            carbon_trust_raw[yearday_python][h_day].append(demand_h)
 
                             # Stor demand according to daytype (aggregated by doing so)
                             main_dict[daytype][month_python][h_day].append(demand_h)
@@ -383,7 +379,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     # ----------------------------------------------------------
     year_data = assign_carbon_trust_data_to_year(out_dict_av, 2015)
 
-    year_data_shape = mf.absolute_to_relative(year_data) #np.divide(1, np.sum(year_data)) * year_data
+    #year_data_shape = mf.absolute_to_relative(year_data) #np.divide(1, np.sum(year_data)) * year_data
 
     # Calculate yearly sum
     yearly_demand = np.sum(year_data)

@@ -1,7 +1,6 @@
 """Loads all necessary data"""
 import os
 import csv
-#import unittest
 from random import randint
 import matplotlib.pyplot as plt
 import numpy as np
@@ -300,49 +299,50 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     # ---------------------
     #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec' #Community _OWN_SEWAGE Education
     #folder_path_gas= r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas' #Community _OWN_SEWAGE Education
-    #folder_path_elec = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data\09_Carbon_Trust_advanced_metering_trial_(owen)\Education' #Community _OWN_SEWAGE Education
     folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
 
 
     # Iterate sectors and read in shape
     for sector in data['all_service_sectors']:
+        print("Read in shape {}".format(sector))
         data['ss_shapes_dh'][sector] = {}
         data['ss_shapes_yd'][sector] = {}
 
         # Match shapes for every sector
-        if sector == 'ss_community_arts_leisure':
+        if sector == 'community_arts_leisure':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Community')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Community')
 
-        if sector == 'ss_education':
+        if sector == 'education':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Education')
 
-        if sector == 'ss_emergency_services':
+        if sector == 'emergency_services':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
-        if sector == 'ss_health':
+        if sector == 'health':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Health')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Health')
 
-        if sector == 'ss_hospitality':
+        if sector == 'hospitality':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
-        if sector == 'ss_military':
+        if sector == 'military':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
-        if sector == 'ss_offices':
+        if sector == 'offices':
+            print("SECTOR OFFICES")
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Offices')
 
-        if sector == 'ss_retail':
+        if sector == 'retail':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Retail')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\Retail')
 
-        if sector == 'ss_storage':
+        if sector == 'storage':
             folder_path_elec = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_elec')
             folder_path_gas = os.path.join(data['local_data_path'], '09_Carbon_Trust_advanced_metering_trial_(owen)\_all_gas')
 
@@ -352,28 +352,21 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
-        for enduse in ss_raw_fuel[sector]:
-            print("Enduse service: {}  in sector {}".format(enduse, sector))
-
-            #if enduse == 'ss_space_heating':
+        for end_use in ss_raw_fuel[sector]:
+            print("Enduse service: {}  in sector '{}'".format(end_use, sector))
 
             # Assign shapes
             data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': shape_non_peak_dh}
             data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
             # Write txt
-            print(".asdf.")
-            print(np.sum(load_peak_shape_dh))
-
-            print(load_peak_shape_dh.shape)
-            print(shape_non_peak_dh.shape)
-            print(shape_peak_yd_factor.shape)
-            print(shape_non_peak_yd.shape)
-            df.create_txt_shapes(enduse, data['path_dict']['path_txt_shapes_service'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
+            df.create_txt_shapes(end_use, data['path_dict']['path_txt_shapes_service'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
     # Compare Jan and Jul
     #df.compare_jan_jul(main_dict_dayyear_absolute)
-
+    print("  ")
+    print("egon")
+    print(data['ss_shapes_dh'])
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

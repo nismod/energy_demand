@@ -75,9 +75,9 @@ class CountryClass(object):
         # Functions to summarise data for all Regions in the CountryClass class
         self.tot_country_fuel = self.get_overall_sum(reg_names)
         self.tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data, reg_names) #yearly fuel
-        self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'reg_load_factor_h')
-        self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'max_fuel_peak')
-        self.tot_country_fuels_all_enduses = self.tot_fuels_all_enduses_yh(data, reg_names, 'tot_fuels_all_enduses_yh')
+        self.tot_country_fuel_load_max_h = self.peak_loads_per_fueltype(data, reg_names, 'rs_reg_load_factor_h')
+        self.tot_country_fuel_max_allenduse_fueltyp = self.peak_loads_per_fueltype(data, reg_names, 'rs_max_fuel_peak')
+        self.tot_country_fuels_all_enduses = self.rs_tot_fuels_all_enduses_yh(data, reg_names, 'rs_tot_fuels_all_enduses_yh')
         #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
 
         # ----- Testing
@@ -130,7 +130,7 @@ class CountryClass(object):
             reg_object = getattr(self, str(reg_name))
 
             # Get fuel data of region #Sum hourly demand # could also be read out as houly
-            tot_sum += np.sum(getattr(reg_object, 'fuels_tot_enduses_h'))
+            tot_sum += np.sum(getattr(reg_object, 'rs_fuels_tot_enduses_h'))
 
         return tot_sum
 
@@ -148,14 +148,14 @@ class CountryClass(object):
             reg_object = getattr(self, str(reg_name)) # Get region
 
             # Get fuel data of region
-            enduse_fuels_reg = getattr(reg_object, 'fuels_new_enduse_specific_h')
+            enduse_fuels_reg = getattr(reg_object, 'rs_fuels_new_enduse_specific_h')
 
             for enduse in enduse_fuels_reg:
                 tot_sum_enduses[enduse] += np.sum(enduse_fuels_reg[enduse]) # sum across fuels
 
         return tot_sum_enduses
 
-    def tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
+    def rs_tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
 
         tot_fuels_all_enduses = np.zeros(((data['nr_of_fueltypes'], 365, 24)))
 

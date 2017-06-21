@@ -10,8 +10,6 @@ class ServiceSectorClass(object):
         self.sector_name = sector_name
         self.fuels_all_enduses = data['ss_fuel_raw_data_enduses'][sector_name]
 
-        print("eeeeeeeeeeeeeee")
-        print(self.fuels_all_enduses)
         # Get all service enduses
         ss_all_enduses = data['ss_all_enduses']
 
@@ -62,10 +60,10 @@ class ServiceSectorClass(object):
             print("-------------------")
             print(enduse)
             print(reg_name)
-            print(self.fuels_all_enduses[enduse])
+            print(self.fuels_all_enduses)
 
             # --------------------
-            # Add enduse to region
+            # Add enduse to ServiceSector
             # --------------------
             ServiceSectorClass.__setattr__(
                 self,
@@ -89,9 +87,8 @@ class ServiceSectorClass(object):
                     data['assumptions']['ss_tech_constant_share'],
                     data['assumptions']['ss_installed_tech'],
                     data['assumptions']['ss_sigm_parameters_tech'],
-                    #data['ss_shapes_resid_yd'],
-                    data['rs_shapes_yd'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
-                    data['rs_shapes_dh'], #TODO CHANGE TO SS data['ss_shapes_dh'][self.sector_name]
+                    data['ss_shapes_yd'][self.sector_name],
+                    data['ss_shapes_dh'][self.sector_name],
                     data['assumptions']['enduse_overall_change_ey']['service_sector']
                     )
             )
