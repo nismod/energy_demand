@@ -30,7 +30,10 @@ def residential_model_main_function(data):
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `CountryClass`
-    resid_object = CountryClass(data['lu_reg'], data)
+    resid_object = CountryClass(
+        reg_names=data['lu_reg'],
+        data=data
+    )
 
     #print("READ OUT SPECIFIC ENDUSE FOR A REGION")
     #print(resid_object.get_specific_enduse_region('Wales', 'resid_space_heating'))
@@ -66,10 +69,14 @@ class CountryClass(object):
     def __init__(self, reg_names, data):
         """Constructor of the class which holds all regions of a country
         """
-        # Create object for every region
+        # Create object for every region and add as attribute
         self.create_regions(reg_names, data)
 
+
+
+        # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the CountryClass class
+        # ---------------------------------------------------------------------
         self.rs_tot_country_fuel = self.get_overall_sum(reg_names, 'rs_fuels_tot_enduses_h')
 
         self.rs_tot_country_fuel_enduse_specific_h = self.get_sum_for_each_enduse_h(data['rs_all_enduses'], reg_names, 'rs_fuels_new_enduse_specific_h') #yearly fuel
@@ -107,8 +114,8 @@ class CountryClass(object):
                 self,
                 str(reg_name),
                 reg.RegionClass(
-                    reg_name,
-                    data
+                    reg_name=reg_name,
+                    data=data
                 )
             )
 

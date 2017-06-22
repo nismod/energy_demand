@@ -1,4 +1,4 @@
-fuel_id,resid_space_heating,resid_lighting,resid_consumer_electronics
+fuel_id,rs_space_heating,rs_lighting,rs_consumer_electronics
 0,0,0,0
 1,5000,0,0
 2,5000,0,0

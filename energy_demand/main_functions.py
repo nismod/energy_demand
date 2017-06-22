@@ -383,6 +383,18 @@ def read_csv_assumptions_fuel_switches(path_to_csv, data):
             print("SHARE: " + str(tot_share_fueltype_switched))
             sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
+    # Test whether defined enduse exist
+    for element in service_switches:
+        if element['enduse'] in data['ss_all_enduses'] or element['enduse'] in data['rs_all_enduses']:
+            _ = 0
+            #print("allgood")
+        else:
+            print("enduses")
+            print(data['ss_all_enduses'])
+            print("  ")
+            print(data['rs_all_enduses'])
+            sys.exit("ERROR: The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
+
     return service_switches
 
 def read_csv_assumptions_service_switch(path_to_csv, assumptions):
@@ -429,7 +441,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
             try:
                 service_switches.append(
                     {
-                        'enduse_service': str(row[0]),
+                        'enduse': str(row[0]),
                         'tech': str(row[1]),
                         'service_share_ey': float(row[2]),
                         'tech_assum_max_share': float(row[3])
@@ -441,7 +453,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     # Group all entries according to enduse
     all_enduses = []
     for line in service_switches:
-        enduse = line['enduse_service']
+        enduse = line['enduse']
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_by_p[enduse] = {}
@@ -451,7 +463,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     for enduse in all_enduses:
         #rs_service_switch_enduse_crit[enduse] = False #False by default
         for line in service_switches:
-            if line['enduse_service'] == enduse:
+            if line['enduse'] == enduse:
                 tech = line['tech']
                 enduse_tech_by_p[enduse][tech] = line['service_share_ey']
                 rs_enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
@@ -470,7 +482,7 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     # Test if more service is provided as input than possible to maximum switch
     for entry in service_switches:
         if entry['service_share_ey'] > entry['tech_assum_max_share']:
-            sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse_service'], entry['tech']))
+            sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
 
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in enduse_tech_by_p:

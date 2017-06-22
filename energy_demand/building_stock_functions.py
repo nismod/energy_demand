@@ -11,7 +11,7 @@ class Dwelling(object):
 
     Parameters
     ----------
-    curr_y : int
+    curr_yr : int
         Current year of simulation
     coordinates : float
         coordinates
@@ -29,26 +29,33 @@ class Dwelling(object):
         Heat loss coefficient
     hdd : float
         Heating degree days
+
+    Info
+    -----
+    Depending on service or residential model, not all attributes are filled (then they are inistialised as None or zero)
+
     """
-    def __init__(self, curr_y, reg_name, longitude, latitude, dwtype, age, pop, floorarea, data):
-        """Returns a new dwelling object"""
-        self.curr_y = curr_y
-        self.driver_assumptions = data['assumptions']['resid_scen_driver_assumptions']
-        self.enduses = data['rs_all_enduses']
+    def __init__(self, curr_yr, reg_name, longitude, latitude, floorarea, enduses, driver_assumptions, pop=0, age=None, dwtype=None, sector_type=None):
+        """Constructor of Dwelling Class
+        """
+        self.dw_ID = 'To_IMPEMENT'
+        self.dw_reg_name = reg_name
+        self.curr_yr = curr_yr
+        self.enduses = enduses
         self.longitude = longitude
         self.latitude = latitude
         self.dwtype = dwtype
         self.age = age
         self.pop = pop
         self.floorarea = floorarea
-        self.dw_reg_name = reg_name
+        self.sector_type = sector_type
 
-        self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type
+        self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type if possible
 
         # Generate attribute for each enduse containing calculated scenario driver value
-        self.calc_scenario_driver()
+        self.calc_scenario_driver(driver_assumptions)
 
-    def calc_scenario_driver(self):
+    def calc_scenario_driver(self, driver_assumptions):
         """ Summen driver values for dwellign depending on enduse and dfined assumptions and add as attribute
         IMPORTANT FUNCTION
         e.g. assumptION. {'resid_space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
@@ -58,14 +65,14 @@ class Dwelling(object):
             driver_value = 1 #used to sum (not zero!)
 
             # If there are scenario drivers for enduse
-            if enduse not in self.driver_assumptions:
+            if enduse not in driver_assumptions:
                 Dwelling.__setattr__(self, enduse, driver_value)
             else:
-                drivers = self.driver_assumptions[enduse]
+                drivers = driver_assumptions[enduse]
 
-                # Iterate scenario drivver and get attriute to multiply values
+                # Iterate scenario driver and get attriute to multiply values
                 for driver in drivers:
-                    driver_value = driver_value * getattr(self, driver)
+                    driver_value *= getattr(self, driver) # sum drivers
 
                 # Set attribute
                 Dwelling.__setattr__(
@@ -74,27 +81,29 @@ class Dwelling(object):
                     driver_value
                     )
 
+        return
+
 class DwStockRegion(object):
     """Class of the building stock in a region"""
 
-    def __init__(self, region_ID, dwellings, data):
+    def __init__(self, region_name, dwellings, enduses):
         """Returns a new building stock region object.
 
         Parameters
         ----------
-        region_ID : float
+        region_name : float
             Region ID of building stock
         dwellings : list
             List containing all dwelling objects
-
         """
-        self.region_ID = region_ID
+        self.region_name = region_name
         self.dwellings = dwellings
+
         self.pop = self.get_tot_pop()
 
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
-        for enduse in data['rs_all_enduses']:
+        for enduse in enduses:
             DwStockRegion.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
 
     def get_scenario_driver_enduse(self, enduse):
@@ -102,6 +111,7 @@ class DwStockRegion(object):
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += getattr(dwelling, enduse)
+
         return sum_driver
 
     def get_tot_pop(self):
@@ -109,9 +119,10 @@ class DwStockRegion(object):
         totpop = 0
         for dwelling in self.dwellings:
             totpop += dwelling.pop
+
         return round(totpop, 3)
 
-def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, sim_period, base_yr, assump_final_diff_floorarea_pp):
+def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on assumptions on final change and base year data
 
     Assumption: Linear Change of floor area per person
@@ -139,9 +150,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, sim_period, base_yr, assu
     Linear change of floor area
     # todo: check with simulation period
     """
-    # initialisation
     data_floorarea_pp = {}
-    #sim_period = glob_var['sim_period']
 
     # Iterate regions
     for reg_name in reg_pop_by:
@@ -150,7 +159,6 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, sim_period, base_yr, assu
 
         # Iterate simulation years
         for sim_yr in sim_period:
-
             if sim_yr == base_yr:
                 sim_yrs[sim_yr] = floorarea_pp_by # base year value
             else:
@@ -201,13 +209,11 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period
     """
     dwtype_distr = {}
 
-    #sim_period = data['base_yr'], data['sim_period']
-
     # Iterate years
     for sim_yr in sim_period:
-        sim_yr_nr = sim_yr - base_yr #data['base_yr']
+        sim_yr_nr = sim_yr - base_yr
 
-        if sim_yr == base_yr: # data['base_yr']:
+        if sim_yr == base_yr:
             y_distr = dwtype_distr_by # If base year, base year distribution
         else:
             y_distr = {}

@@ -27,7 +27,7 @@ class ServiceSectorClass(object):
 
     def create_enduses_service(self, enduses, data, reg_name, tech_stock, heating_factor_y, cooling_factor_y, reg_peak_yd_heating_factor, reg_peak_yd_cooling_factor):
         """Enduse services across all sectors
-        
+
         Parameters
         ----------
         ff : list
@@ -58,25 +58,26 @@ class ServiceSectorClass(object):
                 enduse,
 
                 class_enduse.EnduseClass(
-                    reg_name,
-                    data,
-                    enduse,
-                    self.fuels_all_enduses[enduse],
-                    tech_stock, #TODO TAKE SERVICE STOCK
-                    heating_factor_y,
-                    cooling_factor_y,
-                    enduse_peak_yd_factor, # yd factor which is different depending on enduse
-                    data['assumptions']['ss_fuel_switches'],
-                    data['assumptions']['ss_service_switches'],
-                    data['assumptions']['ss_fuel_enduse_tech_p_by'],
-                    data['assumptions']['ss_service_tech_by_p'],
-                    data['assumptions']['ss_tech_increased_service'],
-                    data['assumptions']['ss_tech_decreased_share'],
-                    data['assumptions']['ss_tech_constant_share'],
-                    data['assumptions']['ss_installed_tech'],
-                    data['assumptions']['ss_sigm_parameters_tech'],
-                    data['ss_shapes_yd'][self.sector_name],
-                    data['ss_shapes_dh'][self.sector_name],
-                    data['assumptions']['enduse_overall_change_ey']['service_sector']
+                    reg_name=reg_name,
+                    data=data,
+                    enduse=enduse,
+                    enduse_fuel=self.fuels_all_enduses[enduse],
+                    tech_stock=tech_stock,
+                    heating_factor_y=heating_factor_y,
+                    cooling_factor_y=cooling_factor_y,
+                    enduse_peak_yd_factor=enduse_peak_yd_factor,
+                    fuel_switches=data['assumptions']['ss_service_switches'],
+                    service_switches=data['assumptions']['ss_service_switches'],
+                    fuel_enduse_tech_p_by=data['assumptions']['ss_fuel_enduse_tech_p_by'],
+                    service_tech_by_p=data['assumptions']['ss_service_tech_by_p'],
+                    tech_increased_service=data['assumptions']['ss_tech_increased_service'],
+                    tech_decreased_share=data['assumptions']['ss_tech_decreased_share'],
+                    tech_constant_share=data['assumptions']['ss_tech_constant_share'],
+                    installed_tech=data['assumptions']['ss_installed_tech'],
+                    sigm_parameters_tech=data['assumptions']['ss_sigm_parameters_tech'],
+                    data_shapes_yd=data['ss_shapes_yd'][self.sector_name],
+                    data_shapes_dh=data['ss_shapes_dh'][self.sector_name],
+                    enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['service_sector'],
+                    dw_stock=data['ss_dw_stock']
                     )
             )

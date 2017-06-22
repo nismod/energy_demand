@@ -47,13 +47,16 @@ def load_data(path_main, data):
         'bioenergy_waste':5,
         'hydrogen': 6,
         'coal': 7
-    }
+        }
+
+    # Number of fueltypes
     data['nr_of_fueltypes'] = len(data['lu_fueltype'])
 
     # -----------------------------
     # Read in floor area of all regions and store in dict: TODO
+    # TODO: REPLACE WITH Newcastle if ready
     # -----------------------------
-    #TODO: REGION LOOKUP: Generate region_lookup from input data (MAybe read in region_lookup from shape?)
+    #REPLACE: Generate region_lookup from input data (MAybe read in region_lookup from shape?)
     data['lu_reg'] = {}
     for reg_name in data['population'][data['base_yr']]:
         data['lu_reg'][reg_name] = reg_name
@@ -143,7 +146,7 @@ def load_data(path_main, data):
     # RESIDENTIAL SECTOR
     # ------------------------------------------
     data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
-    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])              # Dwelling types lookup table
+    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu']) # Dwelling types lookup table
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(data['path_dict']['path_day_type_lu'])                         # Day type lookup
@@ -173,13 +176,20 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+
     # Read fuels
     data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     # ---------------------------------------------------------------------------------------------
     # --- Generate load shapes
     # ---------------------------------------------------------------------------------------------
-    data = generate_data(data, data['rs_fuel_raw_data_enduses'], data['ss_fuel_raw_data_enduses']) # Otherwise already read out files are read in from txt files
+    # Otherwise already read out files are read in from txt files
+    data = generate_data(
+        data,
+        data['rs_fuel_raw_data_enduses'],
+        data['ss_fuel_raw_data_enduses']
+        )
 
     # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
     data = collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'], data['path_dict']['path_rs_txt_shapes'])
@@ -354,6 +364,8 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             if sector == 'other':
                 folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
                 folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
+            
+            
 
             # Use gas or electricity shape depending on dominante fuelt in enduse
             if end_use in ['ss_hot_water', 'ss_space_heating', 'other']:
@@ -362,6 +374,10 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             else:
                 print("For enduse {} in sector {} use the electricity shape ".format(end_use, sector))
                 folder_path = folder_path_elec # Select electricity shape
+            
+            #TODO: IMPROVE AND DOCUMENT
+            #folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\__OWN_SEWAGE')
+            folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
 
             # Read in shape from carbon trust metering trial dataset
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path)

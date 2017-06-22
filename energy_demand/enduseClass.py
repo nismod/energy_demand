@@ -53,7 +53,7 @@ class EnduseClass(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey, dw_stock):
         """CONSTRUCTOR
         """
         self.current_yr = data['curr_yr']
@@ -64,7 +64,7 @@ class EnduseClass(object):
         self.enduse = enduse
         self.enduse_fuel = enduse_fuel
         self.enduse_fuelswitch_crit = self.get_fuel_switches_crit(fuel_switches)
-        self.enduse_serviceswitch_crit = self.get_service_switches_crit(service_switches)
+        self.enduseswitch_crit = self.get_service_switches_crit(service_switches)
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[self.enduse], fuel_enduse_tech_p_by[self.enduse])
@@ -72,8 +72,8 @@ class EnduseClass(object):
         # --------
         # Testing
         # --------
-        if self.enduse_fuelswitch_crit and self.enduse_serviceswitch_crit:
-            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.enduse_fuelswitch_crit, self.enduse_serviceswitch_crit))
+        if self.enduse_fuelswitch_crit and self.enduseswitch_crit:
+            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.enduse_fuelswitch_crit, self.enduseswitch_crit))
         if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
             sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
 
@@ -95,7 +95,7 @@ class EnduseClass(object):
         #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(data['rs_dw_stock'], reg_name)
+        self.enduse_building_stock_driver(dw_stock, reg_name)
         #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
@@ -112,7 +112,7 @@ class EnduseClass(object):
             # ------------------------------------------------------------------------
             # Calculate regional energy service (for base year)
             # ------------------------------------------------------------------------
-            tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduse_services(
+            tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduses(
                 fuel_enduse_tech_p_by[self.enduse],
                 tech_stock,
                 data['lu_fueltype']
@@ -121,7 +121,7 @@ class EnduseClass(object):
             # ----------------
             # Service Switches
             # ----------------
-            if self.enduse_serviceswitch_crit:
+            if self.enduseswitch_crit:
                 service_tech = self.switch_tech_service(
                     tot_service_h_by,
                     service_tech_by_p,
@@ -159,11 +159,11 @@ class EnduseClass(object):
             # Convert Service to Fuel
             # -----------------------
             # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
-            self.enduse_service_to_fuel_fueltype_y(service_tech, tech_stock)
+            self.enduse_to_fuel_fueltype_y(service_tech, tech_stock)
             print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
             # Convert service to fuel (y) for each technology depending on technological efficiences in current year
-            enduse_fuel_tech_y = self.enduse_service_to_fuel_per_tech(service_tech, tech_stock)
+            enduse_fuel_tech_y = self.enduse_to_fuel_per_tech(service_tech, tech_stock)
             #print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
             summe = 0
@@ -224,7 +224,7 @@ class EnduseClass(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
-    def calc_enduse_services(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu):
+    def calc_enduses(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu):
         """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
         This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -382,7 +382,7 @@ class EnduseClass(object):
 
         Depending on whether fuel swatches are implemented or services switches
         """
-        if self.enduse_serviceswitch_crit:
+        if self.enduseswitch_crit:
             technologies_enduse = service_tech_by_p.keys()
         else:
             # If no fuel switch and no service switch, read out base year technologies
@@ -516,6 +516,9 @@ class EnduseClass(object):
             fuel_switches_enduse = []
 
             for fuelswitch in fuelswitches:
+                print("ddd")
+                print(fuelswitch)
+                print(self.enduse)
                 if fuelswitch['enduse'] == self.enduse: #If fuelswitch belongs to this enduse
                     fuel_switches_enduse.append(fuelswitch)
 
@@ -541,7 +544,7 @@ class EnduseClass(object):
         else:
             crit_service_switch = False
             for service_switch in service_switches:
-                if service_switch['enduse_service'] == self.enduse:
+                if service_switch['enduse'] == self.enduse:
                     crit_service_switch = True
 
             return crit_service_switch
@@ -715,7 +718,7 @@ class EnduseClass(object):
 
                 control_sum += fuel_tech_share_h * fuel_tech_yh
 
-        # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_service_to_fuel_fueltype_y
+        # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  enduse_to_fuel_fueltype_y
         np.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_yh
@@ -860,7 +863,7 @@ class EnduseClass(object):
 
         return service_tech_after_switch
 
-    def enduse_service_to_fuel_fueltype_y(self, service_tech, tech_stock):
+    def enduse_to_fuel_fueltype_y(self, service_tech, tech_stock):
         """Convert energy service to yearly fuel
 
         For every technology the service is taken and converted to fuel based on efficiency of current year
@@ -895,7 +898,7 @@ class EnduseClass(object):
         setattr(self, 'enduse_fuel_new_fuel', enduse_fuels)
 
     @staticmethod
-    def enduse_service_to_fuel_per_tech(service_tech, tech_stock):
+    def enduse_to_fuel_per_tech(service_tech, tech_stock):
         """Calculate percent of fuel for each technology within fueltype considering current efficiencies
 
         Parameters

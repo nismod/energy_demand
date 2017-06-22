@@ -38,9 +38,10 @@
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - Heat recycling/reuse in percentage (lower heating demand accordingly)
-- 
+-
 The docs can be found here: http://ed.readthedocs.io
 '''
+
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 #!python3.6
@@ -136,6 +137,21 @@ if __name__ == "__main__":
 
     pop_dummy = {}
 
+
+    # Dummy service floor area
+    # Newcastle: TODO REPLAE IF AVAILABLE.
+    all_sectors = ['community_arts_leisure','education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+    ss_floorarea_sector_by_dummy = {}
+
+    ss_floorarea_sector_by_dummy['Wales'] = {}
+    ss_floorarea_sector_by_dummy['Scotland'] = {}
+    ss_floorarea_sector_by_dummy['England'] = {}
+    for sector in all_sectors:
+        ss_floorarea_sector_by_dummy['Wales'][sector] = 10000 #[m2]
+        ss_floorarea_sector_by_dummy['Scotland'][sector] = 10000 #[m2]
+        ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
+
+
     '''ff = range(100, 102)
 
     a = {}
@@ -169,6 +185,7 @@ if __name__ == "__main__":
         'region_coordinates': coord_dummy,
         'glob_var' : {},
         'fuel_price': fuel_price_dummy,
+        'ss_sector_floor_area_by': ss_floorarea_sector_by_dummy,
 
         # Demand of other sectors
         'external_enduses_resid': {
@@ -274,7 +291,10 @@ if __name__ == "__main__":
     base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
     # Generate residential building stock over whole simulation period
-    base_data['rs_dw_stock'] = bg.resid_build_stock(base_data, base_data['base_yr'])
+    base_data['rs_dw_stock'] = bg.resid_build_stock(base_data)
+
+    base_data['ss_dw_stock'] = bg.ss_build_stock(base_data)
+    print("...created dwelling stocks for service and residential model")
 
     # If several years are run:
     results_every_year = []

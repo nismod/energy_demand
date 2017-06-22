@@ -43,9 +43,11 @@ def load_assumptions(data):
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
     # ============================================================
-    # Dwelling stock related scenario driver assumptions
+    #  Dwelling stock related scenario driver assumptions
     # ============================================================
-    assumptions['resid_scen_driver_assumptions'] = {
+    
+    # RESIDENTIALSECTOR
+    assumptions['rs_scen_driver_assumptions'] = {
         'resid_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
         'resid_water_heating': ['pop'],
         'resid_lighting': ['pop', 'floorarea'],
@@ -55,6 +57,32 @@ def load_assumptions(data):
         'resid_consumer_electronics': ['pop'],
         'resid_home_computing': ['pop'],
     }
+
+
+
+    # ..SERVICE SECTOR
+
+    # Scenario drivers
+    assumptions['ss_scen_driver_assumptions'] = {
+        'ss_space_heating': ['floorarea']
+    }
+
+
+    # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    assumptions['ss_floorarea_change_ey_p'] = {
+
+        'community_arts_leisure': 1,
+        'education': 1,
+        'emergency_services': 1,
+        'health': 1,
+        'hospitality': 1,
+        'military': 1,
+        'offices': 1,
+        'retail': 1,
+        'storage': 1,
+        'other': 1
+        }
+
 
     #Testing (test if all provided fueltypes)
     #test_if_enduses_are_assigneddata['rs_all_enduses']
@@ -242,10 +270,10 @@ def load_assumptions(data):
     # ------------------
 
     #---Residential space heating
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'av_heat_pump_electricity': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'av_heat_pump_electricity': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
     # ---Residential lighting
     #assumptions['rs_fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
@@ -350,6 +378,12 @@ def get_hlc(dw_type, age):
     Source: Linear trends derived from Table 3.17 ECUK Tables
     https://www.gov.uk/government/collections/energy-consumption-in-the-uk
     """
+
+    if dw_type == None or age == None:
+        print("The HLC could not be calculated of a dwelling")
+
+        return None
+
     # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
     linear_fits_hlc = {
         0: [-0.0223, 48.292],       # Detached
@@ -361,6 +395,7 @@ def get_hlc(dw_type, age):
 
     # Get linearly fitted value
     hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
+
     return hlc
 
 def create_lu_technologies(technologies):
