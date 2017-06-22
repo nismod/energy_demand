@@ -31,6 +31,7 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
         for fueltype in data['external_enduses_resid'][external_enduse]:
             new_fuel_array[fueltype] = data['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
+    
     return data
 
 def read_txt_t_base_by(pattemp_h_txt, base_yr):

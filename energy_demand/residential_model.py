@@ -201,8 +201,8 @@ class CountryClass(object):
 def test_function_fuel_sum(data):
     """ Sum raw disaggregated fuel data """
     fuel_in = 0
-    for reg in data['resid_fueldata_disagg']:
-        for enduse in data['resid_fueldata_disagg'][reg]:
-            fuel_in += np.sum(data['resid_fueldata_disagg'][reg][enduse])
+    for reg in data['rs_fueldata_disagg']:
+        for enduse in data['rs_fueldata_disagg'][reg]:
+            fuel_in += np.sum(data['rs_fueldata_disagg'][reg][enduse])
 
     return fuel_in

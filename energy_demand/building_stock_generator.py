@@ -65,8 +65,19 @@ def ss_build_stock(data):
 
                 # Floor area of sector in current year considering linear diffusion
                 lin_diff_factor = mf.linear_diff(data['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['sim_period']))
-                floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
+                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
+
+                if floorarea_sector_cy == 0:
+                    print(data['base_yr'])
+                    print(sim_yr)
+                    print(change_floorarea_p_ey)
+                    print(len(data['sim_period']))
+                    print(floorarea_sector_by)
+                    print(lin_diff_factor)
+                    print(change_floorarea_p_ey)
+                    sys.exit("ERROR: FLOORAREA CANNOT BE ZERO")
+        
                 # create building object
                 dw_stock.append(
                     bf.Dwelling(
@@ -89,7 +100,6 @@ def ss_build_stock(data):
                 )
 
     return dw_stock_every_year
-
 
 def resid_build_stock(data):
     """Creates a virtual building stock based on base year data and assumptions for every region

@@ -140,7 +140,8 @@ if __name__ == "__main__":
 
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
-    all_sectors = ['community_arts_leisure','education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+    #all_sectors = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+    all_sectors = ['offices', 'storage']
     ss_floorarea_sector_by_dummy = {}
 
     ss_floorarea_sector_by_dummy['Wales'] = {}

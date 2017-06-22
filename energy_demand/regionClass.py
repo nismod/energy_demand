@@ -30,14 +30,16 @@ class RegionClass(object):
     def __init__(self, reg_name, data):
         """Constructor of RegionClass
         """
-        print(" ")
         print("--------------------------------")
+        print(" ")
         print("REGION NAME: " + str(reg_name))
-        print("--------------------------------")
         print(" ")
-
+        print("--------------------------------")
         self.reg_name = reg_name
-        self.resid_enduses_fuel = data['resid_fueldata_disagg'][reg_name]
+
+        # Fuels
+        self.rs_enduses_fuel = data['rs_fueldata_disagg'][reg_name]
+        self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
         longitude = data['region_coordinates'][reg_name]['longitude']
@@ -311,7 +313,8 @@ class RegionClass(object):
                 heating_factor_y=self.heating_factor_y,
                 cooling_factor_y=self.cooling_factor_y,
                 reg_peak_yd_heating_factor=self.reg_peak_yd_heating_factor,
-                reg_peak_yd_cooling_factor=self.reg_peak_yd_cooling_factor
+                reg_peak_yd_cooling_factor=self.reg_peak_yd_cooling_factor,
+                fuels_all_enduses= self.ss_enduses_sectors_fuels
                 )
             list_with_sectors.append(sector_object)
 
@@ -389,7 +392,7 @@ class RegionClass(object):
                     reg_name=self.reg_name,
                     data=data,
                     enduse=enduse,
-                    enduse_fuel=self.resid_enduses_fuel[enduse],
+                    enduse_fuel=self.rs_enduses_fuel[enduse],
                     tech_stock=self.tech_stock,
                     heating_factor_y=self.heating_factor_y,
                     cooling_factor_y=self.cooling_factor_y,
@@ -935,10 +938,10 @@ class RegionClass(object):
         legend_entries = []
 
         # Initialise (number of enduses, number of hours to plot)
-        Y_init = np.zeros((len(self.resid_enduses_fuel), nr_hours_to_plot))
+        Y_init = np.zeros((len(self.rs_enduses_fuel), nr_hours_to_plot))
 
         # Iterate enduse
-        for k, enduse in enumerate(self.resid_enduses_fuel):
+        for k, enduse in enumerate(self.rs_enduses_fuel):
             legend_entries.append(enduse)
             sum_fuels_h = self.__getattr__subclass__(enduse, 'enduses_fuel_h') #np.around(fuel_end_use_h,10)
 

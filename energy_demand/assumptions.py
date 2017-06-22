@@ -45,17 +45,17 @@ def load_assumptions(data):
     # ============================================================
     #  Dwelling stock related scenario driver assumptions
     # ============================================================
-    
+
     # RESIDENTIALSECTOR
     assumptions['rs_scen_driver_assumptions'] = {
-        'resid_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
-        'resid_water_heating': ['pop'],
-        'resid_lighting': ['pop', 'floorarea'],
-        'resid_cooking': ['pop'],
-        'resid_cold': ['pop'],
-        'resid_wet': ['pop'],
-        'resid_consumer_electronics': ['pop'],
-        'resid_home_computing': ['pop'],
+        'rs_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
+        'rs_water_heating': ['pop'],
+        'rs_lighting': ['pop', 'floorarea'],
+        'rs_cooking': ['pop'],
+        'rs_cold': ['pop'],
+        'rs_wet': ['pop'],
+        'rs_consumer_electronics': ['pop'],
+        'rs_home_computing': ['pop'],
     }
 
 
@@ -379,7 +379,7 @@ def get_hlc(dw_type, age):
     https://www.gov.uk/government/collections/energy-consumption-in-the-uk
     """
 
-    if dw_type == None or age == None:
+    if dw_type is None or age is None:
         print("The HLC could not be calculated of a dwelling")
 
         return None

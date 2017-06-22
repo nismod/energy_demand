@@ -3,12 +3,12 @@ import energy_demand.enduseClass as class_enduse
 class ServiceSectorClass(object):
     """Service Sector Class
     """
-    def __init__(self, reg_name, sector_name, data, tech_stock, heating_factor_y, cooling_factor_y, reg_peak_yd_heating_factor, reg_peak_yd_cooling_factor):
+    def __init__(self, reg_name, sector_name, data, tech_stock, heating_factor_y, cooling_factor_y, reg_peak_yd_heating_factor, reg_peak_yd_cooling_factor, fuels_all_enduses):
         """Constructor of ServiceSector
         """
         print("Generate Sector: " + str(sector_name))
         self.sector_name = sector_name
-        self.fuels_all_enduses = data['ss_fuel_raw_data_enduses'][sector_name]
+        self.fuels_all_enduses = fuels_all_enduses[sector_name]
 
         # Get all service enduses
         ss_all_enduses = data['ss_all_enduses']
@@ -66,7 +66,7 @@ class ServiceSectorClass(object):
                     heating_factor_y=heating_factor_y,
                     cooling_factor_y=cooling_factor_y,
                     enduse_peak_yd_factor=enduse_peak_yd_factor,
-                    fuel_switches=data['assumptions']['ss_service_switches'],
+                    fuel_switches=data['assumptions']['ss_fuel_switches'],
                     service_switches=data['assumptions']['ss_service_switches'],
                     fuel_enduse_tech_p_by=data['assumptions']['ss_fuel_enduse_tech_p_by'],
                     service_tech_by_p=data['assumptions']['ss_service_tech_by_p'],

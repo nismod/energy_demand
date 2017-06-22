@@ -84,19 +84,19 @@ class EnduseClass(object):
         print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_fuel)))
         # Change fuel consumption based on climate change induced temperature differences
         self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
-        #print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
+        print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calcualte smart meter induced general savings
         self.smart_meter_eff_gain(data['assumptions'])
-        #print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_fuel)))
+        print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
         self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey)
-        #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
+        print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
         self.enduse_building_stock_driver(dw_stock, reg_name)
-        #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
+        print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
         ##self.enduse_elasticity(data, data['assumptions'])
@@ -112,7 +112,7 @@ class EnduseClass(object):
             # ------------------------------------------------------------------------
             # Calculate regional energy service (for base year)
             # ------------------------------------------------------------------------
-            tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduses(
+            tot_service_h_by, service_tech, service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = self.calc_enduses_service(
                 fuel_enduse_tech_p_by[self.enduse],
                 tech_stock,
                 data['lu_fueltype']
@@ -224,7 +224,7 @@ class EnduseClass(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
-    def calc_enduses(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu):
+    def calc_enduses_service(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu):
         """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
         This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -277,6 +277,7 @@ class EnduseClass(object):
 
                 # Get fuel distribution yh
                 fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
+                print("FUELTYPE  {}   tech   {}     {}    {}     {}".format(fueltype, tech, np.sum(fuel_tech_y), np.sum(fuel_tech_yh), np.sum(fueltype_share_yh)))
 
                 # Distribute service depending on fueltype distirbution
                 for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
@@ -287,7 +288,7 @@ class EnduseClass(object):
                         service_fueltype_tech_by_p[fueltype_installed_tech_yh][tech] += np.sum(fuel_fueltype * tech_stock.get_tech_attribute(tech, 'eff_by'))
 
                 # Testing
-                ASSERTIONS.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong", delta=None)
+                ASSERTIONS.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong {}  {}  ".format(np.sum(fuel_tech_yh), np.sum(fuel_tech_y)), delta=None)
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -522,7 +523,7 @@ class EnduseClass(object):
                 if fuelswitch['enduse'] == self.enduse: #If fuelswitch belongs to this enduse
                     fuel_switches_enduse.append(fuelswitch)
 
-            if fuel_switches_enduse != []:
+            if len(fuel_switches_enduse) > 0: # != []:
                 return True
             else:
                 return False
@@ -539,21 +540,15 @@ class EnduseClass(object):
         ----
         If base year, no switches are implemented
         """
+        crit_service_switch = False
         if self.base_yr == self.current_yr:
-            return False
+            return crit_service_switch
         else:
-            crit_service_switch = False
             for service_switch in service_switches:
                 if service_switch['enduse'] == self.enduse:
                     crit_service_switch = True
 
             return crit_service_switch
-            '''
-            try:
-                return service_switch_crit[self.enduse]
-            except KeyError: # If the enduse is not defined, return false
-                return False
-            '''
 
     def get_peak_h_from_dh(self, enduse_fuel_peak_dh):
         """Iterate peak day fuels and select peak hour
@@ -858,7 +853,6 @@ class EnduseClass(object):
                         #print("B: " + str(np.sum(service_tech_after_switch[technology_replaced])))
 
                 # Testing
-                #TODO
                 #assert np.testing.assert_almost_equal(np.sum(test_sum), np.sum(reduction_service_fueltype), decimal=4)
 
         return service_tech_after_switch
@@ -1179,7 +1173,7 @@ class EnduseClass(object):
         ASSERTIONS.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
 
         return fuels_h
-
+    
     def calc_enduse_fuel_peak_yd_factor(self, fuels, factor_d):
         """Disaggregate yearly absolute fuel data to the peak day.
 
@@ -1213,6 +1207,7 @@ class EnduseClass(object):
             fuels_d_peak[fueltype] = factor_d * fueltype_year_data
         return fuels_d_peak
 
+    @classmethod
     def calc_enduse_fuel_peak_dh(self, fuels, shape_peak_dh):
         """Disaggregate daily peak day fuel data to the peak hours.
 
