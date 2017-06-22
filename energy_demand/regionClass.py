@@ -6,13 +6,12 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-#import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 #import energy_demand.residential_model
 import energy_demand.enduseClass as enduseClass
 import energy_demand.serviceSector as ssClass
-assertions = unittest.TestCase('__init__')
+ASSERTIONS = unittest.TestCase('__init__')
 
 class RegionClass(object):
     """Region Class for the residential model
@@ -68,7 +67,7 @@ class RegionClass(object):
 
         # Create region specific technological stock
         self.rs_tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], temp_by, temp_cy)
-        # self.ss_tech_stock_ss = ts.ssResidTechStock()
+
         # -------------------
         # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
         # -------------------

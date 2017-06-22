@@ -7,11 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import energy_demand.regionClass as reg
-import energy_demand.technological_stock_functions as tf
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
 import unittest
-assertions = unittest.TestCase('__init__')
+ASSERTIONS = unittest.TestCase('__init__')
 
 def residential_model_main_function(data):
     """Main function of residential model

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from haversine import haversine # PAckage to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
 import unittest
-assertions = unittest.TestCase('__init__')
+ASSERTIONS = unittest.TestCase('__init__')
 
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 

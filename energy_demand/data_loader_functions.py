@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import energy_demand.main_functions as mf
 import energy_demand.plot_functions as pf
-assertions = unittest.TestCase('__init__')
+ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def read_hes_data(data):
@@ -323,8 +323,8 @@ def read_raw_carbon_trust_data(data, folder_path):
                         max_dh_shape = load_shape_dh
 
                     # Check if 100 %
-                    assertions = unittest.TestCase('__init__')
-                    assertions.assertAlmostEqual(control_sum, daily_sum, places=7, msg=None, delta=None)
+                    ASSERTIONS = unittest.TestCase('__init__')
+                    ASSERTIONS.assertAlmostEqual(control_sum, daily_sum, places=7, msg=None, delta=None)
 
                 # Add load shape of maximum day in csv file
                 dict_max_dh_shape[path_csv_file] = max_dh_shape
@@ -400,7 +400,7 @@ def read_raw_carbon_trust_data(data, folder_path):
     for day, dh_values in enumerate(year_data):
         load_shape_dh[day] = mf.absolute_to_relative(dh_values) #np.divide(1.0, np.sum(dh_values)) * dh_values # daily shape
     
-    assertions.assertAlmostEqual(np.sum(load_shape_dh), 365.0, places=2, msg=None, delta=None)
+    ASSERTIONS.assertAlmostEqual(np.sum(load_shape_dh), 365.0, places=2, msg=None, delta=None)
 
     # Calculate shape_non_peak_yd
     shape_non_peak_yd = np.zeros((365))
@@ -408,7 +408,7 @@ def read_raw_carbon_trust_data(data, folder_path):
         shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
     shape_non_peak_yd = np.divide(1, yearly_demand) * shape_non_peak_yd
 
-    assertions.assertAlmostEqual(np.sum(np.sum(shape_non_peak_yd)), 1.0, places=2, msg=None, delta=None)
+    ASSERTIONS.assertAlmostEqual(np.sum(np.sum(shape_non_peak_yd)), 1.0, places=2, msg=None, delta=None)
 
     return load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd
 

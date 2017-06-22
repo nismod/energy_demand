@@ -1,7 +1,6 @@
 """The technological stock for every simulation year"""
 import numpy as np
 import energy_demand.main_functions as mf
-#import energy_demand.technological_stock_functions as tf
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class ResidTechStock(object):
@@ -21,6 +20,10 @@ class ResidTechStock(object):
         temp_cy : int
             Temperatures of current year
         """
+        #self.base_yr = data['base_yr']
+        #self.end_yr = data['end_yr']
+        #self.current_yr = data['curr_yr']
+
         # Crate all technologies and add as attribute
         for technology in technologies:
 

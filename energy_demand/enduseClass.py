@@ -5,7 +5,7 @@ import unittest
 import copy
 import numpy as np
 import energy_demand.main_functions as mf
-assertions = unittest.TestCase('__init__')
+ASSERTIONS = unittest.TestCase('__init__')
 
 
 class EnduseClassSummarySector(object):
@@ -95,7 +95,7 @@ class EnduseClass(object):
         #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(data['dw_stock_resid'], reg_name)
+        self.enduse_building_stock_driver(data['rs_dw_stock'], reg_name)
         #print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_fuel)))
 
         # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
@@ -287,7 +287,7 @@ class EnduseClass(object):
                         service_fueltype_tech_by_p[fueltype_installed_tech_yh][tech] += np.sum(fuel_fueltype * tech_stock.get_tech_attribute(tech, 'eff_by'))
 
                 # Testing
-                assertions.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong", delta=None)
+                ASSERTIONS.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong", delta=None)
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -1173,7 +1173,7 @@ class EnduseClass(object):
             for day in range(365):
                 fuels_h[fueltype][day] = enduse_shape_dh[day] * fuel[day]
 
-        assertions.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
+        ASSERTIONS.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
 
         return fuels_h
 

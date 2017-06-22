@@ -266,7 +266,6 @@ def collect_shapes_from_txts(data, rs_path_to_txts, ss_path_to_txts):
 def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     """This function loads all that which does not neet to be run every time
     """
-    base_yr_load_data = 2015
 
     # ===========================================-
     # RESIDENTIAL MODEL - LOAD HES DATA
@@ -275,7 +274,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
 
     # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
     hes_data, hes_y_peak, _ = df.read_hes_data(data)
-    year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, base_yr_load_data)
+    year_raw_values_hes = df.assign_hes_data_to_year(data, hes_data, 2015)
 
     # Load shape for all end_uses
     for end_use in rs_raw_fuel:
@@ -315,7 +314,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         for end_use in ss_raw_fuel[sector]:
             print("Enduse service: {}  in sector '{}'".format(end_use, sector))
 
-
             # Match shapes for every sector
             if sector == 'community_arts_leisure':
                 folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Community')
@@ -353,13 +351,17 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
                 folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
                 folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
 
-            # Use gas or electricity shape depending on enduse
-            if end_use in ['ss_hot_water', 'ss_space_heating']:
+            if sector == 'other':
+                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
+
+            # Use gas or electricity shape depending on dominante fuelt in enduse
+            if end_use in ['ss_hot_water', 'ss_space_heating', 'other']:
                 print("For enduse {} in sector {} use the gas shape ".format(end_use, sector))
-                folder_path = folder_path_gas
+                folder_path = folder_path_gas # Select gas shape
             else:
                 print("For enduse {} in sector {} use the electricity shape ".format(end_use, sector))
-                folder_path = folder_path_elec
+                folder_path = folder_path_elec # Select electricity shape
 
             # Read in shape from carbon trust metering trial dataset
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path)
@@ -371,7 +373,9 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             # Write txt
             df.create_txt_shapes(end_use, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
 
+    # ---------------------
     # Compare Jan and Jul
+    # ---------------------
     #df.compare_jan_jul(main_dict_dayyear_absolute)
 
     return data

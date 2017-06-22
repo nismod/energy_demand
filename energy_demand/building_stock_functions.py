@@ -111,7 +111,7 @@ class DwStockRegion(object):
             totpop += dwelling.pop
         return round(totpop, 3)
 
-def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_diff_floorarea_pp):
+def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, sim_period, base_yr, assump_final_diff_floorarea_pp):
     """ Calculates future floor area per person depending on assumptions on final change and base year data
 
     Assumption: Linear Change of floor area per person
@@ -141,7 +141,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
     """
     # initialisation
     data_floorarea_pp = {}
-    sim_period = glob_var['sim_period']
+    #sim_period = glob_var['sim_period']
 
     # Iterate regions
     for reg_name in reg_pop_by:
@@ -151,7 +151,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
         # Iterate simulation years
         for sim_yr in sim_period:
 
-            if sim_yr == glob_var['base_yr']:
+            if sim_yr == base_yr:
                 sim_yrs[sim_yr] = floorarea_pp_by # base year value
             else:
                 # Change up to current year (linear)
@@ -159,7 +159,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
                 #print(assump_final_diff_floorarea_pp)
                 #print(sim_period)
                 #print(len(sim_period))
-                lin_diff_factor = mf.linear_diff(glob_var['base_yr'], sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
+                lin_diff_factor = mf.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
                 #print("lin_diff_factor: " + str(lin_diff_factor))
                 #diff_cy = lin_diff_factor #(1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
                 #print("diff_cy: " + str(diff_cy))
@@ -170,7 +170,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, glob_var, assump_final_di
 
     return data_floorarea_pp
 
-def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
+def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period):
     """Calculates the yearly distribution of dw types
     based on assumption of distribution on end_yr
 
@@ -186,7 +186,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     assump_dwtype_distr_ey : dict
         Distribution of dwelling types end year
 
-    glob_var : dict
+    data : dict
         Contains all global simulation variables
 
     Returns
@@ -201,13 +201,13 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     """
     dwtype_distr = {}
 
-    sim_period = glob_var['sim_period']
+    #sim_period = data['base_yr'], data['sim_period']
 
     # Iterate years
     for sim_yr in sim_period:
-        sim_yr_nr = sim_yr - glob_var['base_yr']
+        sim_yr_nr = sim_yr - base_yr #data['base_yr']
 
-        if sim_yr == glob_var['base_yr']:
+        if sim_yr == base_yr: # data['base_yr']:
             y_distr = dwtype_distr_by # If base year, base year distribution
         else:
             y_distr = {}
@@ -224,5 +224,5 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, glob_var):
     # Test if distribution is 100%
     for y in dwtype_distr:
         np.testing.assert_almost_equal(sum(dwtype_distr[y].values()), 1.0, decimal=5, err_msg='The distribution of dwelling types went wrong', verbose=True)
-   
+
     return dwtype_distr

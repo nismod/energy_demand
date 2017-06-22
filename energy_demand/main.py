@@ -49,11 +49,11 @@ import sys
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
-#import energy_demand.technological_stock as ts
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 
+#import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm # Import sub modules
 #import energy_demand.industry_model as im # Import sub modules
 #import energy_demand.transport_model as tm # Import sub modules
@@ -274,15 +274,15 @@ if __name__ == "__main__":
     base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
     # Generate residential building stock over whole simulation period
-    base_data['dw_stock_resid'] = bg.resid_build_stock(base_data, base_data['base_yr'])
+    base_data['rs_dw_stock'] = bg.resid_build_stock(base_data, base_data['base_yr'])
 
     # If several years are run:
     results_every_year = []
-    for sim_y in sim_years:
-        base_data['curr_yr'] = sim_y
+    for sim_yr in sim_years:
+        base_data['curr_yr'] = sim_yr
         print("                           ")
         print("-------------------------- ")
-        print("SIM RUN:  " + str(sim_y))
+        print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
         results, resid_object_country = energy_demand_model(base_data)
 
