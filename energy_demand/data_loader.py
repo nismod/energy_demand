@@ -1,5 +1,6 @@
 """Loads all necessary data"""
 import os
+import sys
 from random import randint
 #import matplotlib.pyplot as plt
 import numpy as np
@@ -191,9 +192,9 @@ def load_data(path_main, data):
         data['ss_fuel_raw_data_enduses']
         )
 
-    # -- Read in load shapes from files #TODO: Make that the correct txt depending on whetaer scenario are read in or out
-    data = collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'], data['path_dict']['path_rs_txt_shapes'])
-
+    # -- Read in load shapes from files
+    data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
+    data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
 
 
    # ----------------------------------------
@@ -222,14 +223,14 @@ def load_data(path_main, data):
 # ---------------------------------------------------
 # All pre-processed load shapes are read in from .txt files
 # ---------------------------------------------------
-def collect_shapes_from_txts(data, rs_path_to_txts, ss_path_to_txts):
+def rs_collect_shapes_from_txts(data, path_to_txts):
     """Rread in load shapes from text without accesing raw files
     """
     # ----------------------------------------------------------------------
     # RESIDENTIAL MODEL txt files
     # ----------------------------------------------------------------------
     # Iterate folders and get all enduse
-    all_csv_in_folder = os.listdir(rs_path_to_txts)
+    all_csv_in_folder = os.listdir(path_to_txts)
 
     enduses = set([])
     for file_name in all_csv_in_folder:
@@ -238,38 +239,43 @@ def collect_shapes_from_txts(data, rs_path_to_txts, ss_path_to_txts):
 
     # Read load shapes from txt files for enduses
     for end_use in enduses:
-        shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(rs_path_to_txts, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_dh = df.read_txt_shape_non_peak_yh(os.path.join(rs_path_to_txts, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
-        shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(rs_path_to_txts, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(rs_path_to_txts, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+        shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
+        shape_non_peak_dh = df.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+        shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+        shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         data['rs_shapes_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
         data['rs_shapes_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
+    return data
+
+def ss_collect_shapes_from_txts(data, path_to_txts):
+    
     # ----------------------------------------------------------------------
     # SERVICE MODEL .txt files
     # ----------------------------------------------------------------------
     # Iterate folders and get all enduse
-    all_csv_in_folder = os.listdir(ss_path_to_txts)
+    all_csv_in_folder = os.listdir(path_to_txts)
 
     enduses = set([])
     for file_name in all_csv_in_folder:
         enduse = file_name.split("__")[0] # two dashes because individual enduses may contain a single slash
         enduses.add(enduse)
-
+    
     # Read load shapes from txt files for enduses
-    for end_use in enduses:
-        shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(ss_path_to_txts, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_dh = df.read_txt_shape_non_peak_yh(os.path.join(ss_path_to_txts, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
-        shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(ss_path_to_txts, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(ss_path_to_txts, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+    for sector in data['all_service_sectors']:
+        for end_use in enduses:
+            
+            joint_string_name = str(sector) + "____" + str(end_use)
+            print("AA: " + str(joint_string_name))
 
-        data['ss_shapes_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
-        data['ss_shapes_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+            shape_peak_dh = df.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
+            shape_non_peak_dh = df.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+            shape_peak_yd_factor = df.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+            shape_non_peak_yd = df.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-    # ----------------------------------------------------------------------
-    # Industry MODEL .txt files
-    # ----------------------------------------------------------------------
+            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+            data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return data
 
@@ -318,76 +324,55 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
         data['ss_shapes_dh'][sector] = {}
         data['ss_shapes_yd'][sector] = {}
 
+
+        # Match electricits shapes for every sector
+        if sector == 'community_arts_leisure':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Community')
+        elif sector == 'education':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Education')
+        elif sector == 'emergency_services':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'health':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
+        elif sector == 'hospitality':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'military':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'offices':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Offices')
+        elif sector == 'retail':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Retail')
+        elif sector == 'storage':
+            sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        else:
+            sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
+
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
         for end_use in ss_raw_fuel[sector]:
             print("Enduse service: {}  in sector '{}'".format(end_use, sector))
 
-            # Match shapes for every sector
-            if sector == 'community_arts_leisure':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Community')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Community')
-
-            if sector == 'education':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Education')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Education')
-
-            if sector == 'emergency_services':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
-
-            if sector == 'health':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
-
-            if sector == 'hospitality':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
-
-            if sector == 'military':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
-
-            if sector == 'offices':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Offices')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Offices')
-
-            if sector == 'retail':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Retail')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Retail')
-
-            if sector == 'storage':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
-
-            if sector == 'other':
-                folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-                folder_path_gas = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
-            
-            
-
-            # Use gas or electricity shape depending on dominante fuelt in enduse
-            if end_use in ['ss_hot_water', 'ss_space_heating', 'other']:
-                print("For enduse {} in sector {} use the gas shape ".format(end_use, sector))
-                folder_path = folder_path_gas # Select gas shape
+            # Select shape depending on enduse
+            if end_use in ['ss_water_heating', 'ss_space_heating', 'ss_other']:
+                folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
             else:
-                print("For enduse {} in sector {} use the electricity shape ".format(end_use, sector))
-                folder_path = folder_path_elec # Select electricity shape
-            
-            #TODO: IMPROVE AND DOCUMENT
-            #folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\__OWN_SEWAGE')
-            folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
+                folder_path = sector_folder_path_elec
 
-            # Read in shape from carbon trust metering trial dataset
+            #TODO: IMPROVE AND DOCUMENT
+            #folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
+
+            # Read in shape from carbon trust metering trial dataset #TODO: NOT SO FAST BECAUSE REad in multiple times
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(data, folder_path)
 
             # Assign shapes
             data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': shape_non_peak_dh}
             data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
-            # Write txt
-            df.create_txt_shapes(end_use, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "") # Write shapes to txt
+            joint_string_name = str(sector) + "____" + str(end_use)
+            
+            # Write shapes to txt
+            df.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "")
 
     # ---------------------
     # Compare Jan and Jul

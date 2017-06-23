@@ -14,12 +14,23 @@ LOREM IPSUM
 HIRE
 =======================
 
-**HIRE** is written in Python (Python>=3.5).
+**HIRE** is written in Python (Python>=3.6).
 
 
 Residential model
 =======================
 NOT IN HEADER BUT NEW TITLE
+
+=====  =====  ====== 
+   Inputs     Output 
+------------  ------ 
+  A      B    A or B 
+=====  =====  ====== 
+False  False  False 
+True   False  True 
+False  True   True 
+True   True   True 
+=====  =====  ======
 
 
 Data
@@ -27,7 +38,7 @@ Data
 
 1. **Household Electricity Servey**
 
-    ```The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
+    The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
     Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
 
     **More information**:
@@ -36,7 +47,7 @@ Data
 
     **Data preparation**
     Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
-    ```
+    
 
 2. Carbon Trust advanced metering trial
 
