@@ -139,14 +139,14 @@ class RegionClass(object):
         #self.rs_fuels_new_enduse_specific_y = self.enduse_specific_y(data, data['rs_all_enduses'], 'enduse_fuel_new_fuel')
         self.rs_fuels_new_enduse_specific_h = self.enduse_specific_h(data, data['rs_all_enduses'])
         self.ss_fuels_new_enduse_specific_h = self.enduse_specific_h(data, data['ss_all_enduses'])
-        
+
         print("FUEL sr AMOUNT IN REGION: " + str(np.sum(self.rs_tot_fuels_all_enduses_yh)))
         print("FUEL ss AMOUNT IN REGION: " + str(np.sum(self.ss_tot_fuels_all_enduses_yh)))
 
         # Get peak energy demand for all enduses for every fueltype
         self.rs_max_fuel_peak = self.max_fuel_fueltype_allenduses(data, data['rs_all_enduses'], 'enduse_fuel_peak_h')
         self.ss_max_fuel_peak = self.max_fuel_fueltype_allenduses(data, data['ss_all_enduses'], 'enduse_fuel_peak_h')
-        
+
         print("MAX PEAK: " + str(np.sum(self.rs_max_fuel_peak)))
         # ----
         # PEAK summaries
@@ -312,7 +312,7 @@ class RegionClass(object):
         # Iterate over sectors and create 'ServiceSectorClass' instance
         list_with_sectors = []
         for sector in service_sectors:
-            
+
             # Service sector object
             sector_object = ssClass.ServiceSectorClass(
                 reg_name=self.reg_name,
@@ -323,7 +323,7 @@ class RegionClass(object):
                 cooling_factor_y=self.cooling_factor_y,
                 reg_peak_yd_heating_factor=self.reg_peak_yd_heating_factor,
                 reg_peak_yd_cooling_factor=self.reg_peak_yd_cooling_factor,
-                fuels_all_enduses= self.ss_enduses_sectors_fuels
+                fuels_all_enduses=self.ss_enduses_sectors_fuels
                 )
             list_with_sectors.append(sector_object)
 
@@ -393,7 +393,6 @@ class RegionClass(object):
             # --------------------
             # Add enduse to region
             # --------------------
-            
             RegionClass.__setattr__(
                 self,
                 enduse,

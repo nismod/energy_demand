@@ -13,19 +13,39 @@ import energy_demand.plot_functions as pf
 ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def read_hes_data(data):
-    '''
-    Read in HES and give out for every yearday all types.
+def read_hes_data(paths_hes, app_type_lu, day_type_lu):
+    '''Read in HES raw csv files and provide for every day in a year (yearday) all fuels
 
-    # TODO: Don't read in HES relsted paramters but save them here (e.g. appliances)
+    The fuel is provided for every daytype (weekend or working day) for every month
+    and every appliance_typ
+
+    Parameters
+    ----------
+    paths_hes : string
+        Path to HES raw data file
+    app_type_lu : dict
+        Look-up table for appliances
+    day_type_lu : dict
+        Look-up table for daytypes
+
+    Returns
+    -------
+    hes_data : array
+        HES non peak raw data
+    hes_y_coldest : array
+        HES for coldest day
+    hes_y_warmest : array
+        HES for warmest day
+
+    Info
+    ----
+    - Yearly peak demand is stored in Month Januar = 0
+
 
     # NOTES: Yearly peak demand is stored in Month January = 0
     # Improve: Could read in shape of HES nicer (e.g. peak seperately)
     '''
-    paths_hes = data['path_dict']['path_bd_e_load_profiles']
-    daytype_lu = data['day_type_lu'] #0: Weekd_day, 1: Weekend, 2 : Coldest, 3 : Warmest
-    app_type_lu = data['app_type_lu']
-    hes_data = np.zeros((len(daytype_lu), 12, 24, len(app_type_lu)), dtype=float)
+    hes_data = np.zeros((len(day_type_lu), 12, 24, len(app_type_lu)), dtype=float)
 
     hes_y_coldest = np.zeros((24, len(app_type_lu)))
     hes_y_warmest = np.zeros((24, len(app_type_lu)))
@@ -39,27 +59,38 @@ def read_hes_data(data):
         k_header = 3 #Row in Excel where energy data start
 
         for hour in range(24): # iterate over hour  = row in csv file
-            # [kWH electric] Converts the summed watt into kWH TODO: Is not necessary as we are only calculating in relative terms
+            # [kWH electric] Converts the summed watt into kWH 
+            # Note: This would actually not necessary as we are only calculating in relative terms
             _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000))
 
             # if coldest (see HES file)
             if daytype == 2:
                 hes_y_coldest[hour][appliance_typ] = _value
                 k_header += 1
-                continue
-
-            if daytype == 3:
+            elif daytype == 3:
                 hes_y_warmest[hour][appliance_typ] = _value
                 k_header += 1
-                continue
-
-            hes_data[daytype][month][hour][appliance_typ] = _value
-            k_header += 1
+            else:
+                hes_data[daytype][month][hour][appliance_typ] = _value
+                k_header += 1
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
 def assign_hes_data_to_year(data, hes_data, base_yr):
-    '''Fill every base year day with correct data'''
+    '''Fill every base year day with correct data
+
+    Parameters
+    ----------
+    hes_data : array
+        HES raw data for every month and daytype and appliance
+    base_yr : float
+        Base year to generate shapes
+    
+    Returns
+    -------
+    year_raw_values : array
+        Energy data for every day in the base year for every appliances
+    '''
 
     year_raw_values = np.zeros((365, 24, len(data['app_type_lu'])), dtype=float)
 
@@ -103,23 +134,21 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
 
     return shape_non_peak_dh
 
-def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end_use):
+def get_hes_load_shapes(data, year_raw_values, hes_y_peak, end_use):
     """Read in raw HES data and generate shapes
 
     Calculate peak day demand
 
     Parameters
     ----------
-    data : data
-        Data container
+    data : dict
+        data
     year_raw_values : data
-        Unique dwellinge id
+        Yearly values from raw
     hes_y_peak : data
-        Unique dwellinge id
-    hes_y_warmest : data
-        Unique dwellinge id
-    end_use : data
-        Unique dwellinge id
+        Peak raw values
+    end_use : string
+        enduse
 
     Returns
     -------
@@ -130,25 +159,32 @@ def get_hes_end_uses_shape(data, year_raw_values, hes_y_peak, hes_y_warmest, end
 
     Notes
     -----
-    #Todo: Warmest load shape is not used
+    The HES enduses are matched 
 
     shape_peak_yd_factor    To calculate actual energy demand, the yearly energy demand needs to be multiplied with this factor
     shape_peak_yh    Total sum is 1.0. To calculate actual energy demand, the peak day must be multiplied with this array
 
     """
-    # Calculate yearly total demand over all day years and all appliances
 
-    # Peak calculation
-    # ----------------
-
-    #-- daily peak     # Relationship of total yearly demand with averaged values and a peak day
     appliances_HES = data['app_type_lu']
 
+
+    # Match HES appliances with enduse ()
     # Get end use of HES data of current end_use of EUREC Data
     for i in data['lu_appliances_HES_matched']:
         if i[1] == end_use:
             hes_app_id = int(i[0])
             break
+
+    # Calculate yearly total demand over all day years and all appliances
+
+    # ----------------
+    # Peak calculation
+    # ----------------
+
+    # Relationship of total yearly demand with averaged values and a peak day
+    
+
 
     # --Get peak daily load shape
 

@@ -21,17 +21,19 @@ Residential model
 =======================
 NOT IN HEADER BUT NEW TITLE
 
-=====  =====  ====== 
-   Inputs     Output 
-------------  ------ 
-  A      B    A or B 
-=====  =====  ====== 
-False  False  False 
-True   False  True 
-False  True   True 
-True   True   True 
-=====  =====  ======
-
+=====                       =====
+ECUK Data (Table 5.05)      Carbon Trust Datase
+=====                       =====
+Community, arts and leisure	Community
+Education	                Education
+Emergency Services	        Aggregated across all sectors
+Health	                    Health
+Hospitality	                Aggregated across all sectors
+Military	                Aggregated across all sectors
+Offices	                    Offices
+Retail	                    Retail
+Storage	                    Aggregated across all sectors
+=====                       =====
 
 Data
 ----
