@@ -101,7 +101,7 @@ def ss_build_stock(data):
 
     return dw_stock_every_year
 
-def resid_build_stock(data):
+def rs_build_stock(data):
     """Creates a virtual building stock based on base year data and assumptions for every region
 
     Because the heating degree days are calculated for every region,

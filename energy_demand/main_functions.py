@@ -948,10 +948,10 @@ def get_hdd_country(regions, data):
         temperatures = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_resid_cy = t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 't_base_heating_resid')
+        rs_t_base_heating_cy = t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
 
         # Calc HDD
-        hdd_reg = calc_hdd(t_base_heating_resid_cy, temperatures)
+        hdd_reg = calc_hdd(rs_t_base_heating_cy, temperatures)
         hdd_regions[region] = np.sum(hdd_reg) # get regional temp over year
 
     return hdd_regions
@@ -2183,10 +2183,8 @@ def calc_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, te
 
             # Weighted hourly dh shape with efficiencies
             dh_fuel_hybrid[hour] = fuel_boiler + fuel_hp
-            #dh_shape_hybrid[hour] = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low) + np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high)
 
         # Normalise dh shape
-        #fuel_shapes_hybrid_y_dh[day] = np.divide(1, np.sum(dh_shape_hybrid)) * dh_shape_hybrid
         fuel_shapes_hybrid_y_dh[day] = absolute_to_relative(dh_fuel_hybrid)
 
         ########

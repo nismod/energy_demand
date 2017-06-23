@@ -52,6 +52,7 @@ class Dwelling(object):
 
         self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type if possible
 
+        # Testing
         assert floorarea != 0
 
         # Generate attribute for each enduse containing calculated scenario driver value
@@ -60,7 +61,7 @@ class Dwelling(object):
     def calc_scenario_driver(self, driver_assumptions):
         """ Summen driver values for dwellign depending on enduse and dfined assumptions and add as attribute
         IMPORTANT FUNCTION
-        e.g. assumptION. {'resid_space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
+        e.g. assumptION. {'re_space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
         """
         # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:
@@ -74,7 +75,6 @@ class Dwelling(object):
 
                 # Iterate scenario driver and get attriute to multiply values
                 for driver in drivers:
-                    a = getattr(self, driver)
                     driver_value *= getattr(self, driver) # sum drivers
 
                 # Set attribute
@@ -83,14 +83,8 @@ class Dwelling(object):
                     enduse,
                     driver_value
                     )
-
-            # Test
-            #print("VALUES   {}   {}".format(enduse, driver_value))
-            if driver_value == 0:
-                print("VALUES   {}   {}".format(enduse, driver_value))
-                print( driver_assumptions[enduse])
-                print(a)
-
+            
+            # Testing
             assert driver_value != 0
 
         return

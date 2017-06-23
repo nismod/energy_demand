@@ -53,11 +53,7 @@ import energy_demand.assumptions as assumpt
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
-
-#import energy_demand.technological_stock as ts
 import energy_demand.residential_model as rm # Import sub modules
-#import energy_demand.industry_model as im # Import sub modules
-#import energy_demand.transport_model as tm # Import sub modules
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -81,10 +77,10 @@ def energy_demand_model(data):
     # -------------------------
     # Residential model
     # --------------------------
-    resid_object_country = rm.residential_model_main_function(data)
+    object_country = rm.model_main_function(data)
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, resid_object_country, data['ss_all_enduses'])
+    result_dict = mf.convert_out_format_es(data, object_country, data['ss_all_enduses'])
 
 
 
@@ -107,7 +103,7 @@ def energy_demand_model(data):
     # Plot Region 0 for half a year
     #pf.plot_x_days(result_dict[2], 0, 2)
 
-    return result_dict, resid_object_country #MULTIPLE YEARS
+    return result_dict, object_country #MULTIPLE YEARS
 
 # Run
 if __name__ == "__main__":
@@ -292,7 +288,7 @@ if __name__ == "__main__":
     base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
     # Generate residential building stock over whole simulation period
-    base_data['rs_dw_stock'] = bg.resid_build_stock(base_data)
+    base_data['rs_dw_stock'] = bg.rs_build_stock(base_data)
 
     base_data['ss_dw_stock'] = bg.ss_build_stock(base_data)
     print("...created dwelling stocks for service and residential model")
@@ -305,9 +301,9 @@ if __name__ == "__main__":
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
-        results, resid_object_country = energy_demand_model(base_data)
+        results, object_country = energy_demand_model(base_data)
 
-        results_every_year.append(resid_object_country)
+        results_every_year.append(object_country)
 
 
     # ------------------------------
@@ -345,7 +341,7 @@ if __name__ == "__main__":
     import pstats
     cProfile.run('energy_demand_model(base_data)')
 
-    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//resid_service_tech_by_p.txt')
+    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//rs_service_tech_by_p.txt')
     #base_data['path_dict']['path_out_stats_cProfile']
 
     stats.strip_dirs()

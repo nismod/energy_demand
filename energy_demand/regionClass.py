@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
-#import energy_demand.residential_model
 import energy_demand.enduseClass as enduseClass
 import energy_demand.serviceSector as ssClass
+#import energy_demand.residential_model
 ASSERTIONS = unittest.TestCase('__init__')
 
 class RegionClass(object):
@@ -44,7 +44,6 @@ class RegionClass(object):
         # Get closest weather station and temperatures
         longitude = data['region_coordinates'][reg_name]['longitude']
         latitude = data['region_coordinates'][reg_name]['latitude']
-
         closest_weatherstation_id = mf.get_closest_weather_station(longitude, latitude, data['weather_stations'])
         temp_by = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
         temp_cy = data['temperature_data'][closest_weatherstation_id][data['curr_yr']]
@@ -55,7 +54,7 @@ class RegionClass(object):
         cdd_by = self.get_reg_cdd(data, temp_by, data['base_yr'])
         cdd_cy = self.get_reg_cdd(data, temp_cy, data['curr_yr'])
 
-        # YD Factors (factor to calculate max daily demand from yearly demand)
+        # yd peak factors for heating and cooling (factor to calculate max daily demand from yearly demand)
         self.reg_peak_yd_heating_factor = self.get_shape_peak_yd_factor(hdd_cy)
         self.reg_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(cdd_cy)
 
@@ -63,27 +62,35 @@ class RegionClass(object):
         self.heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(hdd_by))) * np.sum(hdd_cy) #Yearly factor
         self.cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(cdd_by))) * np.sum(cdd_cy) #Yearly factor
 
-        # Heating and cooling yd shapes
+        # yd shapes cy - Heating and cooling 
         fuel_shape_heating_yd = mf.absolute_to_relative(hdd_cy)
         fuel_shape_cooling_yd = mf.absolute_to_relative(cdd_cy)
 
         # Create region specific technological stock
-        self.tech_stock = ts.ResidTechStock(data, data['assumptions']['tech_lu_resid'], temp_by, temp_cy)
+        self.tech_stock = ts.ResidTechStock(
+            data,
+            data['assumptions']['tech_lu'],
+            temp_by,
+            temp_cy
+            )
 
         # -------------------
-        # -- NON-PEAK: Shapes for different enduses, technologies and fueltypes
+        # Load and calculate fuel shapes for different technologies and assign to technological stock for every region
         # -------------------
-        fuel_shape_boilers_yh, fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, fuel_shape_heating_yd, 'shapes_resid_heating_boilers_dh') # Residential heating, boiler, non-peak
-        fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.tech_stock, hdd_cy, 'shapes_resid_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
-        fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, fuel_shape_cooling_yd, 'shapes_resid_cooling_dh') # Residential cooling, linear tech (such as boilers)
-        fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_gas_elec_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd) # Hybrid technologies shapes
-        #self.fuel_shape_lighting = data['rs_shapes_yd']['resid_lighting']['shape_non_peak_yd'] * data['rs_shapes_dh']['resid_lighting']['shape_non_peak_dh']
+        
+        # Heating technologies
+        fuel_shape_boilers_yh, fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh') # Residential heating, boiler, non-peak
+        fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.tech_stock, hdd_cy, 'rs_shapes_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
+        fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling, linear tech (such as boilers)
+        fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid
 
-        # ------------
+        # OTHER TECHNOLOGIES?
+        #fuel_shape_lighting = data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'] * data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh']
+
         # Assign shapes to technologies in technological stock
-        # ------------
-        self.tech_stock = self.assign_fuel_shapes_tech_stock(
-            data['assumptions']['tech_lu_resid'],
+        #self.tech_stock = self.assign_fuel_shapes_tech_stock(
+        self.assign_fuel_shapes_tech_stock(
+            data['assumptions']['tech_lu'],
             data['assumptions'],
             fuel_shape_heating_yd,
             fuel_shape_boilers_yh,
@@ -163,7 +170,7 @@ class RegionClass(object):
         self.rs_reg_load_factor_h = self.calc_load_factor_h(data, self.rs_fuels_tot_enduses_h, self.rs_fuels_peak_h) #Across all enduses
         self.ss_reg_load_factor_h = self.calc_load_factor_h(data, self.ss_fuels_tot_enduses_h, self.ss_fuels_peak_h) #Across all enduses
 
-    def get_shape_heating_hybrid_gas_elec_yh(self, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd):
+    def get_shape_heating_hybrid_yh(self, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech, tech_low_temp, tech_high_temp):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
         Parameters
@@ -174,6 +181,10 @@ class RegionClass(object):
             Fuel shape of heat pumps (dh) for every day in a year
         fuel_shape_heating_yd : array
             Fuel shape for assign demand to day in a year (yd)
+        tech_low_temp : string
+            Low temperature technology
+        tech_high_temp : string
+            High temperature technology
 
         Return
         -------
@@ -186,21 +197,16 @@ class RegionClass(object):
 
         # Create dh shapes for every day from relative dh shape of hybrid technologies
         fuel_shape_hybrid_y_dh = mf.calc_hybrid_fuel_shapes_y_dh(
-            fuel_shape_boilers_y_dh,
-            fuel_shape_hp_y_dh,
-            self.tech_stock.get_tech_attribute('hybrid_gas_elec', 'service_distr_hybrid_h_p_cy'),
-            self.tech_stock.get_tech_attribute('boiler_gas', 'eff_cy'),
-            self.tech_stock.get_tech_attribute('av_heat_pump_electricity', 'eff_cy')
+            fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
+            fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
+            tech_low_high_p=self.tech_stock.get_tech_attribute(hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            eff_low_tech=self.tech_stock.get_tech_attribute(tech_low_temp, 'eff_cy'),
+            eff_high_tech=self.tech_stock.get_tech_attribute(tech_high_temp, 'eff_cy')
             )
 
         # Calculate yh fuel shape
         for day, fuel_day in enumerate(fuel_shape_heating_yd):
             fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * fuel_day
-
-            '''print("Ploat shapesssss")
-            plt.plot(fuel_shape_yh[day])
-            plt.show()
-            '''
 
         # Testing
         np.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: The hybridy yh shape does not sum up to 1.0")
@@ -228,7 +234,7 @@ class RegionClass(object):
         tot_demand_y = np.sum(demand_yd) # Total yearly demand
         max_demand_d = np.max(demand_yd) # Maximum daily demand
         max_factor_yd = np.divide(1.0, tot_demand_y) * max_demand_d
-        
+
         return max_factor_yd
 
     def assign_fuel_shapes_tech_stock(self, technologies, assumptions, fuel_shape_heating_yd, fuel_shape_boilers_yh, fuel_get_shape_cooling_yh, fuel_shape_hp_yh, fuel_shape_hybrid_gas_elec_yh):
@@ -265,6 +271,7 @@ class RegionClass(object):
             elif technology in assumptions['list_tech_heating_temp_dep']:
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', fuel_shape_heating_yd)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hp_yh)
+
             elif technology in assumptions['list_tech_heating_hybrid']:
 
                 # Hybrid
@@ -272,7 +279,7 @@ class RegionClass(object):
                     self.tech_stock.set_tech_attribute(technology, 'shape_yd', fuel_shape_heating_yd)
                     self.tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
 
-            #elif technology in assumptions['list_tech_resid_lighting']:
+            #elif technology in assumptions['list_tech_rs_lighting']:
                 #self.tech_stock.set_tech_attribute(technology, 'shape_yd', self.fuel_shape_heating_yd)
                 #self.tech_stock.set_tech_attribute(technology, 'shape_yh', self.fuel_shape_hp_yh)
 
@@ -281,14 +288,14 @@ class RegionClass(object):
 
             '''
             elif technology in assumptions['list_enduse_tech_cooking']:
-                enduse_shape_from_HES_yd = data['rs_shapes_yd']['resid_cooking']['shape_non_peak_yd']
-                enduse_shape_from_HES_dh = data['rs_shapes_dh']['resid_cooking']['shape_non_peak_dh']
+                enduse_shape_from_HES_yd = data['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd']
+                enduse_shape_from_HES_dh = data['rs_shapes_dh']['rs_cooking']['shape_non_peak_dh']
                 enduse_shape_from_HES_yh = enduse_shape_from_HES_yd * enduse_shape_from_HES_dh
                 self.tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
                 self.tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
             '''
-
-        return self.tech_stock
+        
+        #return self.tech_stock
 
     def ss_create_enduses_sector(self, service_sectors, data, all_enduses):
         """Create instance of service sector
@@ -302,9 +309,11 @@ class RegionClass(object):
         data : dict
             Data
         """
-        # Iterate over sectors and create Sector instance
+        # Iterate over sectors and create 'ServiceSectorClass' instance
         list_with_sectors = []
         for sector in service_sectors:
+            
+            # Service sector object
             sector_object = ssClass.ServiceSectorClass(
                 reg_name=self.reg_name,
                 sector_name=sector,
@@ -374,7 +383,7 @@ class RegionClass(object):
         for enduse in enduses:
 
             # Enduse specific parameters
-            if enduse == 'rs_space_heating' or enduse == 'ss_space_heating': #in data['assumptions']['enduse_resid_space_heating']:
+            if enduse == 'rs_space_heating' or enduse == 'ss_space_heating': #in data['assumptions']['enduse_rs_space_heating']:
                 enduse_peak_yd_factor = self.reg_peak_yd_heating_factor # Regional yd factor for heating
             elif enduse == 'rs_space_cooling' or enduse == 'ss_space_cooling': #in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = self.reg_peak_yd_cooling_factor # Regional yd factor for cooling
@@ -697,10 +706,10 @@ class RegionClass(object):
         The diffusion is assumed to be sigmoid
         """
         # Calculate base temperature for heating of current year
-        t_base_heating_resid_cy = mf.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], 't_base_heating_resid')
+        rs_t_base_heating_cy = mf.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
 
         # Calculate hdd for every day (365, 1)
-        hdd_d = mf.calc_hdd(t_base_heating_resid_cy, temperatures)
+        hdd_d = mf.calc_hdd(rs_t_base_heating_cy, temperatures)
 
         # Error testing
         if np.sum(hdd_d) == 0:
@@ -848,7 +857,7 @@ class RegionClass(object):
         return shape_yd_cooling_tech
 
     def get_shape_heating_boilers_yh(self, data, heating_shape, tech_to_get_shape):
-        """Convert daily shape to hourly based on robert sansom daily load for boilers
+        """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
         This is for non-peak.
 

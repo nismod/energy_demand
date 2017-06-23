@@ -90,7 +90,7 @@ def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
         #TODO: Improve specific disaggregation depending on enduse
         for enduse in rs_national_fuel:
 
-            if enduse == 'resid_space_heating':
+            if enduse == 're_space_heating':
                 # Use HDD and pop to disaggregat
                 #print("------")
                 #print(reg_pop)

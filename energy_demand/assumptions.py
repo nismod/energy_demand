@@ -113,7 +113,7 @@ def load_assumptions(data):
     # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
     # ============================================================
     # Heating base temperature
-    assumptions['t_base_heating_resid'] = {
+    assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
         'end_yr': 15.5
     }
@@ -130,19 +130,18 @@ def load_assumptions(data):
     # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
-    # Demand elasticities (Long-term resid_elasticities)
+    # Demand elasticities (Long-term rs_elasticities)
     # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
     # ============================================================
-    assumptions['resid_elasticities'] = {
-        'resid_space_heating': 0,
-        'resid_water_heating' : 0,
-        'water' : 0,
-        'resid_cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
-        'resid_lighting': 0,
-        'resid_cold': 0,
-        'resid_wet': 0,
-        'resid_consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
-        'resid_home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
+    assumptions['rs_elasticities'] = {
+        'rs_space_heating': 0,
+        'rs_water_heating' : 0,
+        'rs_cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
+        'rs_lighting': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
+        'rs_home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
     }
     #TODO: ADD FOR SERVICE SECTOR
 
@@ -161,13 +160,13 @@ def load_assumptions(data):
 
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['general_savings_smart_meter'] = {
-        'resid_cold': -0.03,
-        'resid_cooking': -0.03,
-        'resid_lighting': -0.03,
-        'resid_wet': -0.03,
-        'resid_consumer_electronics': -0.03,
-        'resid_home_computing': -0.03,
-        'resid_space_heating': -0.03
+        'rs_cold': -0.03,
+        'rs_cooking': -0.03,
+        'rs_lighting': -0.03,
+        'rs_wet': -0.03,
+        'rs_consumer_electronics': -0.03,
+        'rs_home_computing': -0.03,
+        'rs_space_heating': -0.03
     }
 
     # ---------------------------------------------------------------------------------------------------------------------
@@ -181,14 +180,14 @@ def load_assumptions(data):
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
         'residential_sector': {
-            'resid_space_heating': 1,
-            'resid_water_heating': 1,
-            'resid_lighting': 1,
-            'resid_cooking': 1,
-            'resid_cold': 1,
-            'resid_wet': 1,
-            'resid_consumer_electronics': 1,
-            'resid_home_computing': 1
+            'rs_space_heating': 1,
+            'rs_water_heating': 1,
+            'rs_lighting': 1,
+            'rs_cooking': 1,
+            'rs_cold': 1,
+            'rs_wet': 1,
+            'rs_consumer_electronics': 1,
+            'rs_home_computing': 1
         },
         'service_sector': {
             'ss_space_heating': 1, #TODO: ADD ALL ENDUSES
@@ -211,7 +210,7 @@ def load_assumptions(data):
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
-    assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_assumptions_tech_resid'], data) # Load all technologies
+    assumptions['technologies'] = mf.read_technologies(data['path_dict']['rs_path_assumptions_tech'], data) # Load all technologies
     assumptions['hp_slope_assumpt'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
 
     # --Assumption how much of technological efficiency is reached
@@ -233,9 +232,9 @@ def load_assumptions(data):
     assumptions['list_tech_heating_hybrid'] = ['hybrid_gas_elec']
 
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
-    #assumptions['list_tech_resid_lighting'] = ['halogen_elec', 'standard_resid_lighting_bulb']
-    #assumptions['enduse_resid_space_heating'] = ['resid_space_heating']
-    #assumptions['enduse_space_cooling'] = ['resid_space_cooling']
+    #assumptions['list_tech_rs_lighting'] = ['halogen_elec', 'standard_rs_lighting_bulb']
+    #assumptions['enduse_rs_space_heating'] = ['rs_space_heating']
+    #assumptions['enduse_space_cooling'] = ['rs_space_cooling']
 
     # ---------------------------------
     # --Hybrid technologies assumptions
@@ -276,14 +275,14 @@ def load_assumptions(data):
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
     # ---Residential lighting
-    #assumptions['rs_fuel_enduse_tech_p_by']['resid_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_resid_lighting_bulb': 0.5}
+    #assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_rs_lighting_bulb': 0.5}
 
     # ---Residential cooking
     #assumptions['list_enduse_tech_cooking'] = []
     '''assumptions['list_enduse_tech_cooking'] = ['cooking_hob_elec', 'cooking_hob_gas']
-    assumptions['enduse_resid_cooking'] = ['resid_cooking']
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['resid_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
+    assumptions['enduse_rs_cooking'] = ['rs_cooking']
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {'cooking_hob_elec': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['gas']] = {'cooking_hob_gas': 1.0}
     '''
     assumptions['all_specified_tech_enduse_by'] = helper_function_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
 
@@ -315,7 +314,7 @@ def load_assumptions(data):
     # ============================================================
     # Helper functions
     # ============================================================
-    assumptions['tech_lu_resid'] = create_lu_technologies(assumptions['technologies'])
+    assumptions['tech_lu'] = create_lu_technologies(assumptions['technologies'])
 
 
     # Testing

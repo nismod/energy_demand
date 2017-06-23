@@ -12,7 +12,7 @@ import energy_demand.technological_stock as ts
 import unittest
 ASSERTIONS = unittest.TestCase('__init__')
 
-def residential_model_main_function(data):
+def model_main_function(data):
     """Main function of residential model
 
     This function is executed in the wrapper.
@@ -24,31 +24,31 @@ def residential_model_main_function(data):
 
     Returns
     -------
-    resid_object : object
+    rs_object : object
         Object containing all regions as attributes for the residential model
     """
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `CountryClass`
-    resid_object = CountryClass(
+    rs_object = CountryClass(
         reg_names=data['lu_reg'],
         data=data
     )
 
     #print("READ OUT SPECIFIC ENDUSE FOR A REGION")
-    #print(resid_object.get_specific_enduse_region('Wales', 'resid_space_heating'))
+    #print(rs_object.get_specific_enduse_region('Wales', 'rs_space_heating'))
 
     # ----------------------------
     # Attributes of whole country
     # ----------------------------
-    fueltot = resid_object.rs_tot_country_fuel # Total fuel of country
-    #country_enduses = resid_object.rs_tot_country_fuel_enduse_specific_h # Total fuel of country for each enduse
+    fueltot = rs_object.rs_tot_country_fuel # Total fuel of country
+    #country_enduses = rs_object.rs_tot_country_fuel_enduse_specific_h # Total fuel of country for each enduse
 
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
     print("FUEL DIFFERENCE:     " + str(fueltot - fuel_in))
     print(" ")
-    return resid_object
+    return rs_object
 
 class CountryClass(object):
     """Class of a country containing all regions as self.attributes
@@ -89,7 +89,7 @@ class CountryClass(object):
 
         self.rs_tot_country_fuels_all_enduses = self.get_tot_fuels_all_enduses_yh(data, reg_names, 'rs_tot_fuels_all_enduses_yh')
         self.ss_tot_country_fuels_all_enduses = self.get_tot_fuels_all_enduses_yh(data, reg_names, 'ss_tot_fuels_all_enduses_yh')
-        #print("AA: " + str(self.get_specific_enduse_region('Wales', 'resid_space_heating')))
+        #print("AA: " + str(self.get_specific_enduse_region('Wales', 'rs_space_heating')))
 
 
         # TESTING

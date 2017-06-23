@@ -86,13 +86,13 @@ def load_data(path_main, data):
         'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
         'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
         'path_lu_appliances_HES_matched': os.path.join(path_main, 'residential_model/lookup_appliances_HES_matched.csv'),
-        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/resid_service_tech_by_p.txt'),
+        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/rs_service_tech_by_p.txt'),
 
-        'path_shape_resid_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
+        'path_shape_rs_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
         'path_out_stats_cProfile': os.path.join(path_main, '/model_output/stats_cProfile.txt'),
 
         # Technologies
-        'path_assumptions_tech_resid': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
+        'rs_path_assumptions_tech': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
@@ -150,10 +150,10 @@ def load_data(path_main, data):
     data['app_type_lu'] = mf.read_csv(data['path_dict']['path_lookup_appliances'])                   # Appliances types lookup table
     data['fuel_type_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_fuel_type_lu'])        # Fuel type lookup
     data['day_type_lu'] = mf.read_csv(data['path_dict']['path_day_type_lu'])                         # Day type lookup
-    data['shapes_resid_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
-    data['shapes_resid_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
+    data['rs_shapes_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom #TODO: REmove because in read_shp_heating_gas
+    data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
     data['lu_appliances_HES_matched'] = mf.read_csv(data['path_dict']['path_lu_appliances_HES_matched']) # Read in dictionary which matches enduses in HES data with enduses in ECUK data
-    data['shapes_resid_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_resid_cooling'])
+    data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling'])
 
     # load shapes
     data['rs_shapes_dh'] = {}
@@ -411,14 +411,14 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
 
     Returns
     -------
-    resid_enduses : list
+    enduses : list
         Ditionary with residential enduses
     """
-    resid_enduses = []
+    enduses = []
     for ext_enduse in data['external_enduses_resid']: # Add external enduse
-        resid_enduses.append(ext_enduse)
+        enduses.append(ext_enduse)
 
     for enduse in rs_fuel_raw_data_enduses: # Add resid enduses
-        resid_enduses.append(enduse)
+        enduses.append(enduse)
 
-    return resid_enduses
+    return enduses
