@@ -1,4 +1,5 @@
 import energy_demand.enduseClass as class_enduse
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 class ServiceSectorClass(object):
     """Service Sector Class
@@ -13,7 +14,7 @@ class ServiceSectorClass(object):
         # Get all service enduses
         ss_all_enduses = data['ss_all_enduses']
 
-        # Att endueses as attribute to service sector
+        # Set all endueses of service sector as attribute to sector
         self.create_enduses_service(
             ss_all_enduses,
             data,
