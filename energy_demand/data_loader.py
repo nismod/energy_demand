@@ -207,7 +207,7 @@ def load_data(path_main, data):
             # Add shapes
             data['ss_all_tech_shapes_dh'][enduse] = data['ss_shapes_dh'][sector][enduse]
             data['ss_all_tech_shapes_yd'][enduse] = data['ss_shapes_yd'][sector][enduse]
-            break #only iterate first sector
+        break #only iterate first sector
     
 
    # ----------------------------------------
