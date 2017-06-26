@@ -93,7 +93,8 @@ class Technology(object):
         # Base temp assumptions for by and cy
         rs_t_base_heating_by = data['assumptions']['rs_t_base_heating']['base_yr']
         rs_t_base_heating_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
-
+        # ss_t_base_heating_cy 
+        #TODO:
         # -------
         # Depending on wether only single fueltype or multiple fueltypes (e.g. hybrid technologies)
         # -------

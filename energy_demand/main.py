@@ -253,7 +253,7 @@ if __name__ == "__main__":
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # Residential
-    '''base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sigm_parameters_tech'] = mf.generate_sig_diffusion(
+    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sigm_parameters_tech'] = mf.generate_sig_diffusion(
         base_data,
         base_data['assumptions']['rs_service_switches'],
         base_data['assumptions']['rs_fuel_switches'],
@@ -266,10 +266,9 @@ if __name__ == "__main__":
         base_data['assumptions']['rs_service_tech_by_p'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by']
         )
-    '''
 
     # Service
-    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sigm_parameters_tech'] = mf.generate_sig_diffusion(
+    '''base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sigm_parameters_tech'] = mf.generate_sig_diffusion(
         base_data,
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],
@@ -282,6 +281,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_tech_by_p'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
+    '''
 
 
     # Disaggregate national data into regional data
@@ -313,19 +313,19 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
-    #pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
     pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
-    #pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
     pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Plot peak demand (h) for every fueltype
-    #pf.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
+    pf.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
     pf.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_max_allenduse_fueltyp')
 
     # Plot a full week
-    #pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
     pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Run main function

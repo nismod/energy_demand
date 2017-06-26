@@ -97,7 +97,7 @@ def convert_out_format_es(data, object_country, enduses):
     # Create timesteps for full year (wrapper-timesteps)
     results = {}
 
-    for fueltype_id, fueltype in data['fuel_type_lu'].items():
+    for fueltype, fueltype_id in data['lu_fueltype'].items():
         results[fueltype] = []
 
         for reg_name in data['lu_reg']:
@@ -772,7 +772,7 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
     """
     main_path = data['path_dict']['path_main'][:-5] # Remove data from path_main
 
-    for fueltype in data['fuel_type_lu']:
+    for fueltype in data['lu_fueltype'].values():
 
         # Path to create csv file
         path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype))
@@ -925,7 +925,7 @@ def calc_hdd(t_base, temp_yh):
 
     return hdd_d
 
-def get_hdd_country(regions, data):
+def get_hdd_country(regions, data, t_base_type):
     """Calculate total number of heating degree days in a region for the base year
 
     Parameters
@@ -948,10 +948,10 @@ def get_hdd_country(regions, data):
         temperatures = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
 
         # Base temperature for base year
-        rs_t_base_heating_cy = t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
+        t_base_heating_cy = t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], t_base_type)
 
         # Calc HDD
-        hdd_reg = calc_hdd(rs_t_base_heating_cy, temperatures)
+        hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
         hdd_regions[region] = np.sum(hdd_reg) # get regional temp over year
 
     return hdd_regions
@@ -1074,7 +1074,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
 
         return cy_p
 
-def calc_cdd(t_base_cooling_resid, temperatures):
+def calc_cdd(rs_t_base_cooling, temperatures):
     """Calculate cooling degree days
 
     The Cooling Degree Days are calculated based on
@@ -1082,7 +1082,7 @@ def calc_cdd(t_base_cooling_resid, temperatures):
 
     Parameters
     ----------
-    t_base_cooling_resid : float
+    rs_t_base_cooling : float
         Base temperature for cooling
     temperatures : array
         Temperatures for every hour in a year
@@ -1103,7 +1103,7 @@ def calc_cdd(t_base_cooling_resid, temperatures):
     for day_nr, day in enumerate(temperatures):
         sum_d = 0
         for temp_h in day:
-            diff_t = temp_h - t_base_cooling_resid
+            diff_t = temp_h - rs_t_base_cooling
             if diff_t > 0: # Only if cooling is necessary
                 sum_d += diff_t
 

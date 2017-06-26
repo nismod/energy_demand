@@ -72,19 +72,19 @@ def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
     test_sum_before = sum_fuels_before(rs_national_fuel)
 
     # Calculate heating degree days in whole country for base year
-    hdd_individ_region = mf.get_hdd_country(regions, data)
+    rs_hdd_individ_region = mf.get_hdd_country(regions, data, 'rs_t_base_heating')
 
     # Total heated days for all person sum of
     tot_hdd_popreg = 0
     for region in regions:
         reg_pop = data['population'][base_yr][region] # Regional popluation
-        tot_hdd_popreg += reg_pop * hdd_individ_region[region]
+        tot_hdd_popreg += reg_pop * rs_hdd_individ_region[region]
 
     # Iterate regions
     for region in regions:
         reg_pop = data['population'][base_yr][region] # Regional popluation
         total_pop = sum(data['population'][base_yr].values()) # Total population
-        hdd_reg = hdd_individ_region[region] # Hdd of region
+        hdd_reg = rs_hdd_individ_region[region] # Hdd of region
         inter_dict = {} # Disaggregate fuel depending on end_use
 
         #TODO: Improve specific disaggregation depending on enduse

@@ -26,8 +26,8 @@ def load_assumptions(data):
     assumptions['assump_diff_floorarea_pp'] = 0
 
     # Dwelling type distribution
-    assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #base year
-    assumptions['assump_dwtype_distr_ey'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088} #end year
+    assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088}
+    assumptions['assump_dwtype_distr_ey'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088}
 
     # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
@@ -62,15 +62,21 @@ def load_assumptions(data):
 
     # ..SERVICE SECTOR
 
-    # Scenario drivers
+    # Scenario drivers #TODO: SCENARIO DRIVERS POP? GENERATE TABLE
     assumptions['ss_scen_driver_assumptions'] = {
-        'ss_space_heating': ['floorarea']
+        'sscatering': [],
+        'ss_computing': [],
+        'ss_space_cooling': ['floorarea'],
+        'ss_water_heating': [],
+        'ss_space_heating': ['floorarea'],
+        'ss_lighting': ['floorarea'],
+        'ss_other_gas': ['floorarea'],
+        'ss_other_electricity': ['floorarea']
     }
 
-
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    # TODO: READ IN FROM READL BUILDING SCENARIOS...
     assumptions['ss_floorarea_change_ey_p'] = {
-
         'community_arts_leisure': 1,
         'education': 1,
         'emergency_services': 1,
@@ -113,16 +119,12 @@ def load_assumptions(data):
     # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
     # ============================================================
     # Heating base temperature
-    assumptions['rs_t_base_heating'] = {
-        'base_yr': 15.5,
-        'end_yr': 15.5
-    }
+    assumptions['rs_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
+    assumptions['ss_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
 
     # Cooling base temperature
-    assumptions['t_base_cooling_resid'] = {
-        'base_yr': 21.0,
-        'end_yr': 21.0
-    }
+    assumptions['rs_t_base_cooling'] = {'base_yr': 21.0, 'end_yr': 21.0}
+    assumptions['ss_t_base_cooling'] = {'base_yr': 15.5, 'end_yr': 15.5}
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -190,8 +192,14 @@ def load_assumptions(data):
             'rs_home_computing': 1
         },
         'service_sector': {
-            'ss_space_heating': 1, #TODO: ADD ALL ENDUSES
-            'ss_lighting': 1
+            'ss_catering': 1,
+            'ss_computing': 1,
+            'ss_space_cooling': 1, #Cooling and ventilation
+            'ss_water_heating': 1,
+            'ss_space_heating': 1,
+            'ss_lighting': 1,
+            'ss_other_gas': 1,
+            'ss_other_electricity': 1
         }
     }
 
@@ -233,8 +241,8 @@ def load_assumptions(data):
 
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
     #assumptions['list_tech_rs_lighting'] = ['halogen_elec', 'standard_rs_lighting_bulb']
-    #assumptions['enduse_rs_space_heating'] = ['rs_space_heating']
-    #assumptions['enduse_space_cooling'] = ['rs_space_cooling']
+    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating']
+    assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_heating']
 
     # ---------------------------------
     # --Hybrid technologies assumptions
@@ -274,7 +282,7 @@ def load_assumptions(data):
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['bioenergy_waste']] = {'boiler_biomass': 0.0}
 
-    # ---Residential lighting
+    # ---Residential lighting 
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {'halogen_elec': 0.5, 'standard_rs_lighting_bulb': 0.5}
 
     # ---Residential cooking
