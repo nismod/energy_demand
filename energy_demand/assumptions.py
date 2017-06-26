@@ -171,6 +171,11 @@ def load_assumptions(data):
         'rs_space_heating': -0.03
     }
 
+    # ============================================================
+    # HEAT RECYCLING
+    # ============================================================
+    #assumptions['rs_heat_recovered] = 0.0
+    #assumptions['rs_heat_recovered] =
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------------------------------------------------------------------
@@ -218,8 +223,11 @@ def load_assumptions(data):
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
-    assumptions['technologies'] = mf.read_technologies(data['path_dict']['rs_path_assumptions_tech'], data) # Load all technologies
-    assumptions['hp_slope_assumpt'] = -.08    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+    # Load all technologies
+    assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_technologies'], data)
+
+    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+    assumptions['hp_slope_assumpt'] = -.08    
 
     # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1.0

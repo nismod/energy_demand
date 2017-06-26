@@ -7,7 +7,7 @@
 # -------------
 # rs = Residential Sector
 # ss = service Sector
-# ts = transportation Sector #TODO
+# ts = transportation Sector
 #
 # bd = Base demand
 # by = Base year
@@ -230,8 +230,6 @@ if __name__ == "__main__":
 
     # SERVICE Sector:
     fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
-
-    # Calculate sigmoid for service sector
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
@@ -280,17 +278,15 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_tech_by_p'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
-    
-
 
     # Disaggregate national data into regional data
     base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
-    # Generate residential building stock over whole simulation period
+    # Generate building stocks over whole simulation period
+    print("...created dwelling stocks for service and residential model")
     base_data['rs_dw_stock'] = bg.rs_build_stock(base_data)
 
     base_data['ss_dw_stock'] = bg.ss_build_stock(base_data)
-    print("...created dwelling stocks for service and residential model")
 
     # If several years are run:
     results_every_year = []
@@ -335,8 +331,7 @@ if __name__ == "__main__":
     #-----------
     # Profiler
     #-----------
-    """
-    import cProfile
+    """import cProfile
     import pstats
     cProfile.run('energy_demand_model(base_data)')
 

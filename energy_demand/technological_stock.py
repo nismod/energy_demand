@@ -8,7 +8,7 @@ class ResidTechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, technologies, temp_by, temp_cy, t_base_heating):
+    def __init__(self, data, temp_by, temp_cy, t_base_heating):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -22,7 +22,7 @@ class ResidTechStock(object):
         """
 
         # Crate all technologies and add as attribute
-        for technology in technologies:
+        for technology in data['assumptions']['tech_lu']:
 
             # Technology object
             technology_object = Technology(
@@ -83,21 +83,16 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
+        #self.base_yr = data['base_yr']
+        #self.current_yr = 
         self.tech_name = tech_name
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
         self.market_entry = float(data['assumptions']['technologies'][self.tech_name]['market_entry'])
 
         # Base temp assumptions for by and cy
-        #t_base_heating = data['assumptions']['rs_t_base_heating']['base_yr']
-        ###ss_t_base_heating_by = data['assumptions']['ss_t_base_heating']['base_yr']
-
         t_base_heating_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
-        ###ss_t_base_heating_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_heating')
 
-
-        # ss_t_base_heating_cy 
-        #TODO:
         # -------
         # Depending on wether only single fueltype or multiple fueltypes (e.g. hybrid technologies)
         # -------
@@ -111,7 +106,6 @@ class Technology(object):
 
                 eff_tech_low_by = self.const_eff_yh(data['assumptions']['technologies'][tech_low_temp]['eff_by'])
                 eff_tech_high_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumpt'], data['assumptions']['technologies'][tech_high_temp]['eff_by'], t_base_heating)
-                ###ss_eff_tech_high_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumpt'], data['assumptions']['technologies'][tech_high_temp]['eff_by'], ss_t_base_heating_by)
 
                 # Consider efficincy improvements
                 eff_tech_low_cy = self.calc_eff_cy(data['assumptions']['technologies'][tech_low_temp]['eff_by'], tech_low_temp, data)
@@ -120,9 +114,7 @@ class Technology(object):
                 # efficiencies
                 eff_tech_low_cy = self.const_eff_yh(eff_tech_low_cy)
                 eff_tech_high_cy = self.get_heatpump_eff(temp_cy, data['assumptions']['hp_slope_assumpt'], eff_tech_high_cy, t_base_heating_cy)
-                ###ss_eff_tech_high_cy = self.get_heatpump_eff(temp_cy, data['assumptions']['hp_slope_assumpt'], eff_tech_high_cy, ss_t_base_heating_by)
-            
-            #if self.tech_name == 'hybrid_whatever':
+            #elif self.tech_name == 'hybrid_whatever':
 
             # Get fraction of service for hybrid technologies for every hour
             self.service_distr_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(
@@ -172,7 +164,7 @@ class Technology(object):
         # Convert hourly fuel type shares to daily fuel type shares
         self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
         ###self.ss_fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.ss_fueltypes_yh_p_cy)
-    
+
         # -------------------------------
         # FUEL Shapes (not service)
         #  Specific shapes of technologes filled with dummy data. Gets filled in Region Class
@@ -531,8 +523,8 @@ class Technology(object):
              # Peak curve robert sansom
             shape_peak_dh = np.divide(data['rs_shapes_heating_heat_pump_dh'][3], np.sum(data['rs_shapes_heating_heat_pump_dh'][3]))
 
-        elif self.tech_name in data['assumptions']['list_tech_heating_hybrid']: # if hybrid technology
-            #TODO: WRONG: THE PEAK SHAPE FOR HYBRID TECH IS REGIONAL DEPENDENT AND IS TAKEN from shape_yh directly for peak day
+        elif self.tech_name in data['assumptions']['list_tech_heating_hybrid']:
+            #TODO: THE PEAK SHAPE FOR HYBRID TECH IS REGIONAL DEPENDENT AND IS TAKEN from shape_yh directly for peak day
             # The shape is assigned in region from peak day #TODO CHECK
             shape_peak_dh = np.ones((24))
             #elif self-tech_name in data['assumptions']['list_tech_cooling_const']:

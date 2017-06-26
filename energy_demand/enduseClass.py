@@ -105,7 +105,7 @@ class EnduseClass(object):
         #print("Fuel train F: " + str(np.sum(self.enduse_fuel_y_new_y)))
 
         # ----------------------------------
-        # Hourly fuel calcualtions cascade
+        # Hourly fuel calculation cascade
         # ----------------------------------
         # Check if enduse is defined with technologies
         if self.technologies_enduse != []:
@@ -174,7 +174,15 @@ class EnduseClass(object):
                 summe += np.sum(service_tech[tech])
             print("TOTAL FUEL TO REDISRIBUTE " + str(summe))
 
+            # -----------------------------
+            # Reduction through heat recovery
+            # for space heating, reduce service by percentage
 
+
+            #TODO
+
+
+            # -----------------------------
             ##
             ## NEW: SERVICE SECTOR: NO TECHNOLOGY SPECIFIC SHAPES. Therefore distribute fuel for technologies
             ## according to overall sector shape

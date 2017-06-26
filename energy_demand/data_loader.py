@@ -5,8 +5,8 @@ from random import randint
 import numpy as np
 import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
+# import energy_demand.plot_functions as pf
 #import matplotlib.pyplot as plt
-#import energy_demand.plot_functions as pf
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -27,9 +27,6 @@ def load_data(path_main, data):
     data : list
         Returns a list where storing all data
     """
-
-    # Data which I am not allowed to publish online
-
     # ------------------------------------------------
     # Very basic look up tables
     # ------------------------------------------------
@@ -97,8 +94,8 @@ def load_data(path_main, data):
         'path_shape_rs_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
         'path_out_stats_cProfile': os.path.join(path_main, '/model_output/stats_cProfile.txt'),
 
-        # Technologies
-        'rs_path_assumptions_tech': os.path.join(path_main, 'residential_model/technology_base_scenario.csv'),
+        # All technologies
+        'path_technologies': os.path.join(path_main, 'scenario_and_base_data/technology_base_scenario.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
@@ -120,8 +117,11 @@ def load_data(path_main, data):
     # ----------------------------------------------------------
     # Read in weather data and clean data
     # ----------------------------------------------------------
+
+    # Weather stations
     data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations']) # Read all weater stations properties
 
+    # Weather data
     '''data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
@@ -135,8 +135,6 @@ def load_data(path_main, data):
 
     # SCRAP DUMMY DATA FOR FAST CALCULATION
     # -----------
-
-    #print(data['weather_stations'].keys())
     data['temperature_data'] = {}
 
     temp_y = np.zeros((365, 24))
@@ -148,49 +146,69 @@ def load_data(path_main, data):
     data['weather_stations'][9] = data['weather_stations_raw'][9]
 
     # ------------------------------------------
+    # FUEL DATA
+    # ------------------------------------------
+    data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = mf.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
+    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
+
+    #ALL EXTERNAL ENDUSES?
+    #ALL 
+
+    # ------------------------------------------
     # RESIDENTIAL SECTOR
     # ------------------------------------------
-    data['temp_mean'] = mf.read_txt_t_base_by(data['path_dict']['path_temp_txt'], 2015)
+
     data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu']) # Dwelling types lookup table
 
-    data['rs_shapes_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Load hourly shape for gas from Robert Sansom
-    data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Load h
-    data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling'])
+    # Technology shapes
+    data['rs_shapes_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
+    data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
+    data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
+
+    #---
+    #data['ss_shapes_heating_any_tech'] = 
 
 
     # ------------------------------------------
     # Read in raw fuel data of residential model
     # ------------------------------------------
-    data['rs_fuel_raw_data_enduses'] = mf.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses']) # Yearly end use data
-
+    
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
-
-    # Create dictionary with all enduses based on provided fuel data (after loading in external enduses)
-    data['rs_all_enduses'] = create_enduse_dict(data, data['rs_fuel_raw_data_enduses'])
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
     # Read fuels
-    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     # ---------------------------------------------------------------------------------------------
     # --- Generate load shapes
     # ---------------------------------------------------------------------------------------------
     # Otherwise already read out files are read in from txt files
-    data = generate_data(
-        data,
-        data['rs_fuel_raw_data_enduses'],
-        data['ss_fuel_raw_data_enduses']
-        )
+    data = generate_data(data, data['rs_fuel_raw_data_enduses'], data['ss_fuel_raw_data_enduses'])
 
-    # -- Read in load shapes from files
+    # -- Read in load shapes from files (TPDO: Put in function)
     data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
     data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
+
+
+    # -- From Carbon Trust (service sector data) read out enduse specific shapes --
+    data['ss_all_tech_shapes_dh'] = {} 
+    data['ss_all_tech_shapes_yd'] = {}
+
+    for sector in data['ss_shapes_yd']:
+        for enduse in data['ss_shapes_yd'][sector]:
+            print("ENDU: " + str(enduse))
+            data['ss_all_tech_shapes_dh'][enduse] = {}
+            data['ss_all_tech_shapes_yd'][enduse] = {}
+
+            # Add shapes
+            data['ss_all_tech_shapes_dh'][enduse] = data['ss_shapes_dh'][sector][enduse]
+            data['ss_all_tech_shapes_yd'][enduse] = data['ss_shapes_yd'][sector][enduse]
+            break #only iterate first sector
+    
 
    # ----------------------------------------
     # Convert units
@@ -360,7 +378,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     data['ss_shapes_dh'] = {}
     data['ss_shapes_yd'] = {}
 
-
     # Iterate sectors and read in shape
     for sector in data['all_service_sectors']:
         #print("Read in shape {}".format(sector))
@@ -388,7 +405,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
         else:
             sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
-        
 
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector

@@ -34,7 +34,7 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
     
     return data
 
-def read_txt_t_base_by(pattemp_h_txt, base_yr):
+'''def read_txt_t_base_by(pattemp_h_txt, base_yr):
     """Read out mean temperatures for all regions and store in dict
 
     Parameters
@@ -78,7 +78,7 @@ def read_txt_t_base_by(pattemp_h_txt, base_yr):
         out_dict[reg_name] = out_dict_reg
 
     return out_dict
-
+'''
 def convert_out_format_es(data, object_country, enduses):
     """Adds total hourly fuel data into nested dict
 
@@ -285,7 +285,12 @@ def read_csv_base_data_resid(path_to_csv):
     except (KeyError, ValueError):
         sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
 
-    return end_uses_dict
+    # Create list with all rs enduses
+    rs_all_enduses = []
+    for enduse in end_uses_dict:
+        rs_all_enduses.append(enduse)
+
+    return end_uses_dict, rs_all_enduses
 
 def read_technologies(path_to_csv, data):
     """This function reads in CSV files and skips header row.
@@ -2193,7 +2198,7 @@ def calc_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, te
         '''
     # Testing
     #np.testing.assert_array_almost_equal(np.sum(fuel_shapes_hybrid_y_dh), 365, decimal=4, err_msg='Error in shapes')
-    
+
     return fuel_shapes_hybrid_y_dh
 
 def eff_heat_pump(m_slope, h_diff, b):
@@ -2206,7 +2211,7 @@ def eff_heat_pump(m_slope, h_diff, b):
     h_diff : float
         Temperature difference
     b : float
-        Extrapolated intersect for 0 (which is treated as efficiency)
+        Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
 
     Returns
     efficiency_hp : float
@@ -2215,14 +2220,13 @@ def eff_heat_pump(m_slope, h_diff, b):
     Notes
     -----
     Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
-    be calculated based on slope and intersect which is at temp XX and treated
-    as efficiency
-    The intersect (b) is for ASHP about 6, for GSHP 9
+    be calculated based on slope and intersect which is provided as input for temp difference 10
+    and treated as efficiency
 
-    #TODO: ELABORATE ON INTERSECT
-    # TODO: MAKE THAT FOR 10 DEGREE TEMP DIFFERENCE THE CPE can be inserted
+    The intersect (b) at temp differenc 10 is for ASHP about 6, for GSHP about 9
     """
-    efficiency_hp = m_slope * h_diff + b
+    efficiency_hp = m_slope * h_diff + (b + (-1 * m_slope*10))
+
     return efficiency_hp
 
 def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
