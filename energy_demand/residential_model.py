@@ -1,15 +1,16 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-import sys
-from datetime import date
-import copy
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import energy_demand.regionClass as reg
-import energy_demand.main_functions as mf
-import energy_demand.technological_stock as ts
+#import sys
+#from datetime import date
+#import copy
 import unittest
+import numpy as np
+#import matplotlib.pyplot as plt
+#import matplotlib as mpl
+import energy_demand.regionClass as reg
+#import energy_demand.main_functions as mf
+#import energy_demand.technological_stock as ts
+
 ASSERTIONS = unittest.TestCase('__init__')
 
 def model_main_function(data):
@@ -162,6 +163,8 @@ class CountryClass(object):
         return tot_sum_enduses
 
     def get_tot_fuels_all_enduses_yh(self, data, reg_names, attribute_to_get):
+        """
+        """
 
         tot_fuels_all_enduses = np.zeros(((data['nr_of_fueltypes'], 365, 24)))
 
@@ -201,8 +204,8 @@ class CountryClass(object):
 def test_function_fuel_sum(data):
     """ Sum raw disaggregated fuel data """
     fuel_in = 0
-    for reg in data['rs_fueldata_disagg']:
-        for enduse in data['rs_fueldata_disagg'][reg]:
-            fuel_in += np.sum(data['rs_fueldata_disagg'][reg][enduse])
+    for region in data['rs_fueldata_disagg']:
+        for enduse in data['rs_fueldata_disagg'][region]:
+            fuel_in += np.sum(data['rs_fueldata_disagg'][region][enduse])
 
     return fuel_in

@@ -83,7 +83,7 @@ class Dwelling(object):
                     enduse,
                     driver_value
                     )
-            
+
             # Testing
             assert driver_value != 0
 
@@ -117,7 +117,8 @@ class DwStockRegion(object):
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += getattr(dwelling, enduse)
-
+            #sum_driver += dwelling.enduse
+            
         return sum_driver
 
     def get_tot_pop(self):

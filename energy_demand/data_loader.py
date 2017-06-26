@@ -32,14 +32,14 @@ def load_data(path_main, data):
     # ------------------------------------------------
     # Fuel look-up table
     data['lu_fueltype'] = {
-        'hybrid': 0,
+        'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,
         'oil': 3,
         'heat_sold': 4,
         'bioenergy_waste':5,
         'hydrogen': 6,
-        'coal': 7
+        'other': 7
         }
 
     #Daytypes
@@ -122,7 +122,7 @@ def load_data(path_main, data):
     data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations']) # Read all weater stations properties
 
     # Weather data
-    '''data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999) # Read in raw temperature data
+    data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999) # Read in raw temperature data
 
     data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
     data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
@@ -144,7 +144,7 @@ def load_data(path_main, data):
     data['temperature_data'][9] = temp_y #np.zeros((365, 24)) #10 # DUMMY DATA WITH CONSTANT 10 DEGREES
     data['weather_stations'] = {}
     data['weather_stations'][9] = data['weather_stations_raw'][9]
-
+    '''
     # ------------------------------------------
     # FUEL DATA
     # ------------------------------------------
@@ -152,7 +152,7 @@ def load_data(path_main, data):
     data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     #ALL EXTERNAL ENDUSES?
-    #ALL 
+    #ALL
 
     # ------------------------------------------
     # RESIDENTIAL SECTOR
@@ -165,14 +165,11 @@ def load_data(path_main, data):
     data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
 
-    #---
-    #data['ss_shapes_heating_any_tech'] = 
-
 
     # ------------------------------------------
     # Read in raw fuel data of residential model
     # ------------------------------------------
-    
+
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater) #TODO
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
@@ -195,20 +192,20 @@ def load_data(path_main, data):
 
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes --
-    data['ss_all_tech_shapes_dh'] = {} 
+    data['ss_all_tech_shapes_dh'] = {}
     data['ss_all_tech_shapes_yd'] = {}
 
     for sector in data['ss_shapes_yd']:
         for enduse in data['ss_shapes_yd'][sector]:
-            print("ENDU: " + str(enduse))
             data['ss_all_tech_shapes_dh'][enduse] = {}
             data['ss_all_tech_shapes_yd'][enduse] = {}
 
             # Add shapes
             data['ss_all_tech_shapes_dh'][enduse] = data['ss_shapes_dh'][sector][enduse]
             data['ss_all_tech_shapes_yd'][enduse] = data['ss_shapes_yd'][sector][enduse]
-        break #only iterate first sector
-    
+        #only iterate first sector as all enduses are the same in all sectors
+        break
+
 
    # ----------------------------------------
     # Convert units
@@ -374,6 +371,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
 
     # ==========================================
     # SERVICE MODEL - Load Carbon Trust data
+    # Could be writte nfaster because rea in multiple times
     # ===========================================
     data['ss_shapes_dh'] = {}
     data['ss_shapes_yd'] = {}
@@ -422,11 +420,11 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
                     folder_path = sector_folder_path_elec
 
             # -------------
-            #TODO: SCRAP IMPROVE AND DOCUMENT (INSERT IF YOU WANT FAST VERSION)
+            #SCRAP
             folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
             # -------------
 
-            # Read in shape from carbon trust metering trial dataset #TODO: NOT SO FAST BECAUSE REad in multiple times
+            # Read in shape from carbon trust metering trial dataset
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(folder_path)
 
             # Assign shapes
@@ -442,7 +440,6 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     # ---------------------
     #df.compare_jan_jul(main_dict_dayyear_absolute)
 
-    # TODO: Add load shapes of external enduses (e.g. sewer treatment plants, )
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

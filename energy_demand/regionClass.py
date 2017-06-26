@@ -76,6 +76,7 @@ class RegionClass(object):
         # yd shapes cy - Heating and cooling
         rs_fuel_shape_heating_yd = mf.absolute_to_relative(rs_hdd_cy)
         rs_fuel_shape_cooling_yd = mf.absolute_to_relative(rs_cdd_cy)
+        
         ss_fuel_shape_heating_yd = mf.absolute_to_relative(ss_hdd_cy)
         ss_fuel_shape_cooling_yd = mf.absolute_to_relative(ss_cdd_cy)
 

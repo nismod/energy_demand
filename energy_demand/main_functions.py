@@ -2,13 +2,12 @@
 import os
 import sys
 import csv
-import re
-import time
+#import re
 from datetime import date
 from datetime import timedelta as td
 import math as m
 import copy
-import pprint
+#import pprint
 import numpy as np
 import yaml
 import pylab
@@ -31,54 +30,9 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
         for fueltype in data['external_enduses_resid'][external_enduse]:
             new_fuel_array[fueltype] = data['external_enduses_resid'][external_enduse][fueltype]
         dict_to_add_data[external_enduse] = new_fuel_array
-    
+
     return data
 
-'''def read_txt_t_base_by(pattemp_h_txt, base_yr):
-    """Read out mean temperatures for all regions and store in dict
-
-    Parameters
-    ----------
-    pattemp_h_txt : str
-        Path to folder with temperature txt files
-    base_yr : int
-        Base year
-
-    Returns
-    -------
-    out_dict : dict
-        Returns a dict with name of file and base year mean temp for every month
-
-    Example
-    -------
-    out_dict = {'file_name': {0: mean_teamp, 1: mean_temp ...}}
-
-    #
-
-    """
-    # get all files in folder
-    all_txt_files = os.listdir(pattemp_h_txt)
-    out_dict = {}
-
-    # Iterate files in folder
-    for file_name in all_txt_files:
-        reg_name = file_name[:-4] # remove .txt
-        file_name = os.path.join(pattemp_h_txt, file_name)
-        txt = open(file_name, "r")
-        out_dict_reg = {}
-
-        # Iterate rows in txt file
-        for row in txt:
-            row_split = re.split('\s+', row)
-
-            if row_split[0] == str(base_yr):
-                for month in range(12):
-                    out_dict_reg[month] = float(row_split[month + 1]) #:because first entry is year in txt
-
-        out_dict[reg_name] = out_dict_reg
-
-    return out_dict
-'''
 def convert_out_format_es(data, object_country, enduses):
     """Adds total hourly fuel data into nested dict
 
@@ -101,7 +55,7 @@ def convert_out_format_es(data, object_country, enduses):
         results[fueltype] = []
 
         for reg_name in data['lu_reg']:
-            reg = getattr(object_country, str(reg_name))
+            reg = getattr(object_country, reg_name)
             region_name = reg.reg_name
             hourly_all_fuels = reg.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
 
@@ -235,11 +189,9 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                     cnt += 1
 
         return end_uses_dict, list(all_sectors), list(all_enduses)
-            
+
     except (KeyError, ValueError):
         sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
-
-    return end_uses_dict
 
 def read_csv_base_data_resid(path_to_csv):
     """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
@@ -315,8 +267,15 @@ def read_technologies(path_to_csv, data):
         # Iterate rows
         for row in read_lines:
             technology = row[0]
+            print("TechnologyL " + str(technology))
+            # Because for hybrid technologies, none needs to be defined
+            if row[1] == 'hybrid':
+                fueltype = 'None'
+            else:
+                fueltype = data['lu_fueltype'][str(row[1])]
+
             dict_technologies[technology] = {
-                'fuel_type': data['lu_fueltype'][str(row[1])],
+                'fuel_type': fueltype,
                 'eff_by': float(row[2]),
                 'eff_ey': float(row[3]),
                 'eff_achieved': float(row[4]),
@@ -474,7 +433,6 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                 enduse_tech_by_p[enduse][tech] = line['service_share_ey']
                 rs_enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
                 #rs_service_switch_enduse_crit[enduse] = True
-    
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -1321,7 +1279,7 @@ def generate_sig_diffusion(data, service_switches, fuel_switches, enduse_sector,
                 enduse_sector,
                 installed_tech,
                 service_fueltype_by_p,
-                service_tech_by_p, 
+                service_tech_by_p,
                 fuel_enduse_tech_p_by
                 )
 
@@ -1384,7 +1342,6 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
     service_tech_by_p = init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_by_p = init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
     service_fueltype_by_p = init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
-    
 
     for enduse in fuels:
         for fueltype_input_data, fuel_fueltype in enumerate(fuels[enduse]):
@@ -1736,7 +1693,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, data, 
                         '''
                         fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
                         #print("fit_parameter: " + str(fit_parameter))
-                        
+
                         # Criteria when fit did not work
                         if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or fit_parameter[1] > fit_crit_A or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
                             successfull = False
@@ -2240,31 +2197,6 @@ def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
 
     return service_fueltype_tech_by_p
 
-
-def TEST_GET_MAX(yh_shape, beschreibung):
-    print("-------------------------")
-    print("Name of variable: " + str(beschreibung))
-    print("Maximum value: " + str(np.amax(yh_shape)))
-    #print("Shape: " + str(yh_shape.shape))
-
-    max_val = 0
-    cnt = 0
-    for day in yh_shape:
-        for h_val in day:
-            cnt += 1
-            if h_val > max_val:
-                max_val = h_val
-                pos = cnt
-                day_values = day
-
-    #print("Day: "  + str(pos))
-    print("SUME DAY: " + str(np.sum(day_values)))
-    #print("Daily Values * 1000" + str(day_values*1000))
-    ##print("Test: " + str(max_val))
-
-    #plt.plot(day_values)
-    #plt.show()
-
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative
 
@@ -2303,7 +2235,7 @@ def ss_summarise_fuel_per_enduse_all_sectors(ss_fuel_raw_data_enduses, ss_enduse
         aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
 
     # Iterate and sum fuel per enduse
-    for sector, fuels_sector in ss_fuel_raw_data_enduses.items():
+    for _, fuels_sector in ss_fuel_raw_data_enduses.items():
         for enduse, fuels_enduse in fuels_sector.items():
             aggregated_fuel_enduse[enduse] += fuels_enduse
 

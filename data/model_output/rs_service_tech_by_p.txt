@@ -4,15 +4,30 @@ Base year energy service (as share of total per enduse)
  
 Enduse  rs_space_heating
 ----------
-hybrid_gas_elec			0.0339673913043
-boiler_gas			0.466032608696
-boiler_elec			0.466032608696
+hybrid_gas_elec			0.00637500865598
+boiler_gas			0.844600098631
+boiler_elec			0.08746511876
 av_heat_pump_electricity			0.0
 boiler_biomass			0.0
 boiler_hydrogen			0.0
  
+Enduse  rs_water_heating
+----------
+ 
+Enduse  rs_cooking
+----------
+ 
 Enduse  rs_lighting
 ----------
  
+Enduse  rs_cold
+----------
+ 
+Enduse  rs_wet
+----------
+ 
 Enduse  rs_consumer_electronics
+----------
+ 
+Enduse  rs_home_computing
 ----------

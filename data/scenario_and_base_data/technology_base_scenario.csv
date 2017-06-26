@@ -5,7 +5,7 @@ fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2010,Relative der
 energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2010,Relative derived eff: 70% efficiency gain to standard lightingbulg
 LED,electricity,0.048,0.048,1,linear,2010,40% savings compared to energy saving lighting bulb
 cooling_tech_lin,electricity,0.048,0.048,1,linear,2010,
-boiler_coal,coal,0.6,0.6,1,linear,2015,
+boiler_coal,solid_fuel,0.6,0.6,1,linear,2015,
 boiler_gas,gas,0.7,0.7,1,linear,2015,
 boiler_elec,electricity,0.7,0.7,1,linear,2015,
 boiler_oil,oil,0.7,0.7,1,linear,2015,
