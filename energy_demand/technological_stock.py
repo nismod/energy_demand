@@ -20,9 +20,6 @@ class ResidTechStock(object):
         temp_cy : int
             Temperatures of current year
         """
-        #self.base_yr = data['base_yr']
-        #self.end_yr = data['end_yr']
-        #self.current_yr = data['curr_yr']
 
         # Crate all technologies and add as attribute
         for technology in technologies:

@@ -51,6 +51,8 @@ class RegionClass(object):
         # Calculate HDD and CDD for calculating heating and cooling service demand
         rs_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'rs_t_base_heating')
         rs_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'rs_t_base_heating')
+        #ss_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'rs_t_base_heating')
+
         cdd_by = self.get_reg_cdd(data, temp_by, data['base_yr'], 'rs_t_base_cooling')
         cdd_cy = self.get_reg_cdd(data, temp_cy, data['curr_yr'], 'rs_t_base_cooling')
 
@@ -93,11 +95,14 @@ class RegionClass(object):
         fuel_shape_hp_yh, fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # Residential heating, heat pumps, non-peak
         fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling, linear tech (such as boilers)
         fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid
-        
+
         # Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
-        #ss_fuel_shape_boilers_yh, ss_fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh') # Residential heating, boiler, non-peak
-
-
+        ss_fuel_shape_boilers_yh, ss_fuel_shape_boilers_y_dh = self.ss_get_sector_enduse_shape(data, fuel_shape_heating_yd, 'offices', 'ss_space_heating')
+        ss_fuel_shape_hp_yh, ss_fuel_shape_hp_y_dh =  self.ss_get_sector_enduse_shape(data, fuel_shape_heating_yd, 'offices', 'ss_space_heating')
+        ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, fuel_shape_cooling_yd, 'offices', 'ss_other_electricity')
+        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(ss_fuel_shape_boilers_y_dh, ss_fuel_shape_hp_y_dh, fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid
+        
+        #prnt(".")
         # OTHER TECHNOLOGIES?
         #fuel_shape_lighting = data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'] * data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh']
 
@@ -111,9 +116,9 @@ class RegionClass(object):
             fuel_shape_hp_yh,
             fuel_shape_hybrid_gas_elec_yh
             )
-        
+
         # Assign shapes to technologs in technological stock (service sector)
-        '''self.ss_assign_fuel_shapes_tech_stock(
+        self.ss_assign_fuel_shapes_tech_stock(
             data['assumptions']['tech_lu'],
             data['assumptions'],
             fuel_shape_heating_yd, #same
@@ -122,8 +127,7 @@ class RegionClass(object):
             ss_fuel_shape_hp_yh, # not same
             ss_fuel_shape_hybrid_gas_elec_yh # not same
             )
-        '''
-        
+
         # ------------
         # Residential
         # ------------
@@ -131,7 +135,7 @@ class RegionClass(object):
         self.rs_create_enduse(
             data['rs_all_enduses'],
             data)
-        '''
+
         # ------------
         # Service
         # ------------
@@ -140,7 +144,7 @@ class RegionClass(object):
             data,
             data['ss_all_enduses']
         )
-        '''
+
         # ------------
         # Industry
         # ------------
@@ -914,7 +918,42 @@ class RegionClass(object):
 
         for day in range(365):
             shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
+
         return shape_yd_cooling_tech
+    
+    def ss_get_sector_enduse_shape(self, data, heating_shape, sector, enduse):
+        """
+
+        Parameters
+        ---------
+        data : dict
+            data
+        heating_shape : array
+            Daily (yd) service demand shape for heat (percentage of yearly heat demand for every day)
+
+        Returns
+        -------
+        shape_yh_boilers : array
+            Shape how yearly fuel can be distributed to hourly (yh) (total sum == 1)
+        shape_y_dh_boilers : array
+            Shape of distribution of fuel within every day of a year (total sum == 365)
+
+        Info
+        ----
+        """
+        shape_yh_boilers = np.zeros((365, 24))
+        shape_y_dh_boilers = np.zeros((365, 24))
+
+        # Select day from sector 'offices'
+        #data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+        #data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        shape_non_peak_dh = data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh']
+
+        for day in range(365):
+            shape_yh_boilers[day] = heating_shape[day] * shape_non_peak_dh[day] #yd shape
+            shape_y_dh_boilers[day] = shape_non_peak_dh[day]  #dh shape
+
+        return shape_yh_boilers, shape_y_dh_boilers
 
     def get_shape_heating_boilers_yh(self, data, heating_shape, tech_to_get_shape):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers

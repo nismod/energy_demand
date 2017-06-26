@@ -360,12 +360,12 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
     data['ss_shapes_dh'] = {}
     data['ss_shapes_yd'] = {}
 
+
     # Iterate sectors and read in shape
     for sector in data['all_service_sectors']:
         #print("Read in shape {}".format(sector))
         data['ss_shapes_dh'][sector] = {}
         data['ss_shapes_yd'][sector] = {}
-
 
         # Match electricity shapes for every sector
         if sector == 'community_arts_leisure':
@@ -388,6 +388,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             sector_folder_path_elec = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
         else:
             sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
+        
 
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
@@ -396,7 +397,7 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
             #print("Enduse service: {}  in sector '{}'".format(end_use, sector))
 
             # Select shape depending on enduse
-            if end_use in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']:
+            if end_use in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']:
                 folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
             else:
                 if end_use == 'ss_other_electricity':
@@ -404,8 +405,10 @@ def generate_data(data, rs_raw_fuel, ss_raw_fuel):
                 else:
                     folder_path = sector_folder_path_elec
 
+            # -------------
             #TODO: SCRAP IMPROVE AND DOCUMENT (INSERT IF YOU WANT FAST VERSION)
             folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\Health')
+            # -------------
 
             # Read in shape from carbon trust metering trial dataset #TODO: NOT SO FAST BECAUSE REad in multiple times
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = df.read_raw_carbon_trust_data(folder_path)
