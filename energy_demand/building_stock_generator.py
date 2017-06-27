@@ -328,7 +328,6 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
                     reg_name=reg_name,
                     longitude=data['region_coordinates'][reg_name]['longitude'],
                     latitude=data['region_coordinates'][reg_name]['latitude'],
-                    
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],

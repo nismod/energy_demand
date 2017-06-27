@@ -11,12 +11,9 @@ class ServiceSectorClass(object):
         self.sector_name = sector_name
         self.fuels_all_enduses = fuels_all_enduses[sector_name]
 
-        # Get all service enduses
-        ss_all_enduses = data['ss_all_enduses']
-
         # Set all endueses of service sector as attribute to sector
         self.create_enduses_service(
-            ss_all_enduses,
+            data['ss_all_enduses'],
             data,
             reg_name,
             tech_stock,
@@ -39,10 +36,10 @@ class ServiceSectorClass(object):
         for enduse in enduses:
 
             # Enduse specific parameters
-            if enduse == 'ss_space_heating':
-                enduse_peak_yd_factor = reg_peak_yd_heating_factor # Regional yd factor for heating
-            elif enduse == 'ss_space_cooling': #TODO: MAKE SHARED LIST FOR ALL HEATING ENDUSES
-                enduse_peak_yd_factor = reg_peak_yd_cooling_factor # Regional yd factor for cooling
+            if enduse in data['assumptions']['enduse_space_heating']:
+                enduse_peak_yd_factor = reg_peak_yd_heating_factor
+            elif enduse in data['assumptions']['enduse_space_cooling']:
+                enduse_peak_yd_factor = reg_peak_yd_cooling_factor
             else:
                 enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor']
 

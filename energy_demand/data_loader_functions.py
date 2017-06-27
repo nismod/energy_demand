@@ -13,8 +13,6 @@ import energy_demand.plot_functions as pf
 ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-#TODO: NOT ALL FUNCTIONS ARE CLEANED
-
 def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
     '''Read in HES raw csv files and provide for every day in a year (yearday) all fuels
 

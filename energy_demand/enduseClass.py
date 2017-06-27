@@ -85,7 +85,7 @@ class EnduseClass(object):
         self.enduse_fuel_y_new_y = copy.deepcopy(enduse_fuel)
         print("Fuel train A: " + str(np.sum(self.enduse_fuel_y_new_y)))
         # Change fuel consumption based on climate change induced temperature differences
-        self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y)
+        self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y, data['assumptions'])
         print("Fuel train B: " + str(np.sum(self.enduse_fuel_y_new_y)))
 
         # Calcualte smart meter induced general savings
@@ -179,9 +179,6 @@ class EnduseClass(object):
             # for space heating, reduce service by percentage
 
 
-            #TODO
-
-
             # -----------------------------
             ##
             ## NEW: SERVICE SECTOR: NO TECHNOLOGY SPECIFIC SHAPES. Therefore distribute fuel for technologies
@@ -189,8 +186,6 @@ class EnduseClass(object):
             ##
             #TODO: IMRPOVE
             #if ss_calculations == True:
-                
-
 
             # --------
             # NON-PEAK
@@ -202,7 +197,7 @@ class EnduseClass(object):
             print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
 
             # --------
-            # PEAK (Peak is not defined by yd factor so far but read out from real data!) #TODO
+            # PEAK (Peak is not defined by yd factor so far but read out from real data!)
             # --------
             # Get day with most fuel across all fueltypes (this is selected as max day)
             peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
@@ -244,8 +239,6 @@ class EnduseClass(object):
         This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
         and then calculates the fraction of an invidual technology to which it contributes to total energy
         service (e.g. how much of total heat demand condensing boilers contribute).
-
-        #TODO
 
         Parameters
         ----------
@@ -992,7 +985,7 @@ class EnduseClass(object):
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
-    def temp_correction_hdd_cdd(self, cooling_factor_y, heating_factor_y):
+    def temp_correction_hdd_cdd(self, cooling_factor_y, heating_factor_y, assumptions):
         """Change fuel demand for heat and cooling service depending on changes in HDD and CDD within a region (e.g. climate change induced)
 
         Paramters
@@ -1015,13 +1008,13 @@ class EnduseClass(object):
         """
         new_fuels = np.zeros((self.enduse_fuel_y_new_y.shape[0]))
 
-        if self.enduse == 'rs_space_heating': #TODO
+        if self.enduse in assumptions['enduse_space_heating']:
             for fueltype, fuel in enumerate(self.enduse_fuel_y_new_y):
                 new_fuels[fueltype] = fuel * heating_factor_y
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
-        elif self.enduse == 'cooling':
+        elif self.enduse == 'cooling': #TODO
             for fueltype, fuel in enumerate(self.enduse_fuel_y_new_y):
                 new_fuels[fueltype] = fuel * cooling_factor_y
 
@@ -1033,7 +1026,7 @@ class EnduseClass(object):
         # TODO: MAYBE ALSO USE BUILDING STOCK TO SEE HOW ELASTICITY CHANGES WITH FLOOR AREA
         Maybe implement rs_elasticities with floor area
 
-        # TODO: Non-linear elasticity. Then for cy the elasticity needs to be calculated
+        # W: Non-linear elasticity. Then for cy the elasticity needs to be calculated
 
         Info
         ----------
@@ -1189,7 +1182,7 @@ class EnduseClass(object):
         ASSERTIONS.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
 
         return fuels_h
-    
+
     def calc_enduse_fuel_peak_yd_factor(self, fuels, factor_d):
         """Disaggregate yearly absolute fuel data to the peak day.
 

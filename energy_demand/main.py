@@ -135,8 +135,7 @@ if __name__ == "__main__":
 
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
-    #all_sectors = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-    all_sectors = ['offices', 'storage']
+    all_sectors = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
     ss_floorarea_sector_by_dummy = {}
 
     ss_floorarea_sector_by_dummy['Wales'] = {}
@@ -192,12 +191,15 @@ if __name__ == "__main__":
     data_external['end_yr'] = end_yr
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
+
+    data_external['factcalculationcrit'] = False
     # ------------------- DUMMY END
 
 
     # ----------------------------------------
     # Model calculations outside main function
     # ----------------------------------------
+    print("... start model calculations outside main function")
     base_data = {}
 
     # Copy external data into data container
@@ -206,9 +208,8 @@ if __name__ == "__main__":
 
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 
-    # Path to local files (#Z:\01-Data_NISMOD\data_energy_demand\)
-    #base_data['local_data_path'] = r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
-    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand'
+    # Path to local files
+    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' #r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
@@ -228,7 +229,7 @@ if __name__ == "__main__":
         base_data['assumptions']['technologies']
         )
 
-    # SERVICE Sector:
+    # SERVICE:
     fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
         base_data['assumptions'],

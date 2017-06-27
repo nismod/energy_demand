@@ -1358,10 +1358,14 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year #TODO: WRITE AS SEPARATE FUNCTION
                 # --------------------------------------------------------------
                 if tech in assumptions['list_tech_heating_hybrid']:
-                    eff_tech = assumptions['hybrid_gas_elec']['average_efficiency_national_by']
+                    eff_tech = assumptions['technologies']['hybrid_tech']['hybrid_gas_elec']['average_efficiency_national_by']
                 elif tech in assumptions['list_tech_heating_temp_dep']:
-                    average_h_diff_by = 0 #TODO: HEAT PUMP IF PROVIDED nXX
-                    eff_tech = eff_heat_pump(assumptions['hp_slope_assumpt'], average_h_diff_by, tech_stock[tech]['eff_by'])
+                    average_h_diff_by = 10
+                    eff_tech = eff_heat_pump(
+                        m_slope=assumptions['hp_slope_assumpt'],
+                        h_diff=average_h_diff_by,
+                        b=tech_stock[tech]['eff_by']
+                    )
                 else:
                     eff_tech = tech_stock[tech]['eff_by']
 
@@ -1716,7 +1720,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, data, 
                 sigmoid_parameters[technology]['l_parameter'] = L_values[enduse][technology]
 
                 #plot sigmoid curve
-                ###plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
+                plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter)
 
     print("finished...")
     return sigmoid_parameters

@@ -14,11 +14,11 @@ import energy_demand.serviceSector as ssClass
 ASSERTIONS = unittest.TestCase('__init__')
 
 class RegionClass(object):
-    """Region Class for the residential model
+    """Region
 
-    The main class of the residential model. For every region, a Region object needs to be generated.
-
-    A. In Region the shape of individ technologies get assigned to technology stock
+    For every region, a Region object needs to be generated. For each region,
+    a technology stock is defined, with help of regional temperature data technology specific
+    efficiency calculated and fuel cascade calculated
 
     Parameters
     ----------
@@ -26,14 +26,17 @@ class RegionClass(object):
         Unique identifyer of region
     data : dict
         Dictionary containing data
+
+    Info
+    ----
+    A. In Region the shape of individ technologies get assigned to technology stock
+
     """
     def __init__(self, reg_name, data):
         """Constructor of RegionClass
         """
         print("--------------------------------")
-        print(" ")
         print("REGION NAME: " + str(reg_name))
-        print(" ")
         print("--------------------------------")
         self.reg_name = reg_name
 
@@ -48,7 +51,7 @@ class RegionClass(object):
         temp_by = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
         temp_cy = data['temperature_data'][closest_weatherstation_id][data['curr_yr']]
 
-        # Calculate HDD and CDD for calculating heating and cooling service demand
+        # Calculate HDD and CDD for calculating heating and cooling service demand (for rs and ss)
         rs_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'rs_t_base_heating')
         rs_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'rs_t_base_heating')
         ss_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'ss_t_base_heating')
@@ -67,16 +70,16 @@ class RegionClass(object):
         self.ss_reg_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(ss_cdd_cy)
 
         # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel)
-        self.rs_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy) #Yearly factor
-        self.rs_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy) #Yearly factor
+        self.rs_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
+        self.rs_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
 
-        self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy) #Yearly factor
-        self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy) #Yearly factor
+        self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
+        self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
         # yd shapes cy - Heating and cooling
         rs_fuel_shape_heating_yd = mf.absolute_to_relative(rs_hdd_cy)
         rs_fuel_shape_cooling_yd = mf.absolute_to_relative(rs_cdd_cy)
-        
+
         ss_fuel_shape_heating_yd = mf.absolute_to_relative(ss_hdd_cy)
         ss_fuel_shape_cooling_yd = mf.absolute_to_relative(ss_cdd_cy)
 
@@ -100,14 +103,13 @@ class RegionClass(object):
         # Load and calculate fuel shapes for different technologies and assign to technological stock for every region
         # -------------------------------------------------------------------------------------------------------------------------------------
 
-        # Heating technologies for residential sector
+        # --Heating technologies for residential sector
         rs_fuel_shape_boilers_yh, rs_fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh') # boiler, non-peak
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # heat pumps, non-peak
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
-        rs_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid gas electric
+        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid gas electric
 
-        # Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
-
+        # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_boilers_yh, ss_fuel_shape_boilers_y_dh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating') #boiler
         ss_fuel_shape_hp_yh, ss_fuel_shape_hp_y_dh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating') #heat pump
         ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_cooling_yd, 'ss_cooling_and_ventilation')
@@ -124,7 +126,7 @@ class RegionClass(object):
             rs_fuel_shape_boilers_yh,
             rs_fuel_get_shape_cooling_yh,
             rs_fuel_shape_hp_yh,
-            rs_fuel_shape_hybrid_gas_elec_yh
+            rs_fuel_shape_hybrid_tech_yh
             )
 
         # Assign shapes to technologs in technological stock (service sector)
@@ -149,9 +151,9 @@ class RegionClass(object):
         # Service
         # ------------
         self.ss_create_enduse(
+            data['ss_all_enduses'],
             data['all_service_sectors'],
-            data,
-            data['ss_all_enduses']
+            data
         )
 
         # ------------
@@ -164,15 +166,15 @@ class RegionClass(object):
 
 
         # --------------------
-        # -- summing functions
+        # NON PEAK - summing functions
         # --------------------
         # Sum final 'yearly' fuels (summarised over all enduses)
-        #self.rs_fuels_new = self.tot_all_enduses_y(data['rs_all_enduses'], 'enduse_fuel_yh') #TODO: IF NO defined, skip
-        self.ss_fuels_new = self.tot_all_enduses_y(data['ss_all_enduses'], 'enduse_fuel_yh')
+        #self.rs_fuels_new = self.tot_all_enduses_y(data['rs_all_enduses'], 'enduse_fuel_yh')
+        #self.ss_fuels_new = self.tot_all_enduses_y(data['ss_all_enduses'], 'enduse_fuel_yh')
 
         # Get sum of fuels for each fueltype across fueltypes
-        self.rs_tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['rs_all_enduses'], 'enduse_fuel_yh') #NEW
-        self.ss_tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['ss_all_enduses'], 'enduse_fuel_yh') #NEW
+        self.rs_tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['rs_all_enduses'], 'enduse_fuel_yh')
+        self.ss_tot_fuels_all_enduses_yh = self.tot_all_enduses_yh(data, data['ss_all_enduses'], 'enduse_fuel_yh')
 
         #self.rs_fuels_new_enduse_specific_y = self.enduse_specific_y(data, data['rs_all_enduses'], 'enduse_fuel_new_y')
         self.rs_fuels_new_enduse_specific_h = self.enduse_specific_h(data, data['rs_all_enduses'])
@@ -186,8 +188,9 @@ class RegionClass(object):
         self.ss_max_fuel_peak = self.max_fuel_fueltype_allenduses(data, data['ss_all_enduses'], 'enduse_fuel_peak_h')
 
         print("MAX PEAK: " + str(np.sum(self.rs_max_fuel_peak)))
+        
         # ----
-        # PEAK summaries
+        # PEAK - summaries
         # ----
         # Get 'peak demand day' (summarised over all enduses)
         ##self.fuels_peak_d = self.get_calc_enduse_fuel_peak_yd_factor(data, data['rs_all_enduses'])
@@ -229,7 +232,12 @@ class RegionClass(object):
         fuel_shape_yh : array
             Share of yearly fuel for hybrid technology
 
-        Note: This is for hybrid_gas_elec technology
+        Note
+        -----
+        This is for hybrid_gas_elec technology
+
+        The shapes are the same for any hybrid technology with boiler and heat pump???TODO: 
+
         """
         fuel_shape_yh = np.zeros((365, 24))
 
@@ -311,9 +319,9 @@ class RegionClass(object):
             elif technology in assumptions['list_tech_heating_hybrid']:
 
                 # Hybrid
-                if technology == 'hybrid_gas_elec':
-                    self.rs_tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
-                    self.rs_tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
+                ##if technology == 'hybrid_gas_elec': #TODO: EV STANDARDISIEREN MOEGLICH?
+                self.rs_tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
+                self.rs_tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
 
             #elif technology in assumptions['list_tech_rs_lighting']:
                 #self.rs_tech_stock.set_tech_attribute(technology, 'shape_yd', self.rs_fuel_shape_heating_yd)
@@ -369,14 +377,14 @@ class RegionClass(object):
                 if technology == 'hybrid_gas_elec':
                     self.ss_tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
                     self.ss_tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
-    
-    def ss_create_enduse(self, service_sectors, data, all_enduses):
+
+    def ss_create_enduse(self, all_enduses, service_sectors, data):
         """Create instance of service sector
 
         Parameters
         ----------
-        reg_name : list
-            All regions
+        all_enduses : list
+            All enduses
         service_sectors : list
             All service sectors
         data : dict
@@ -927,9 +935,9 @@ class RegionClass(object):
             shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
 
         return shape_yd_cooling_tech
-    
+
     def ss_get_sector_enduse_shape(self, data, heating_shape, enduse):
-        """
+        """Read generic shape for all technologies in a service sector enduse
 
         Parameters
         ---------
@@ -937,6 +945,8 @@ class RegionClass(object):
             data
         heating_shape : array
             Daily (yd) service demand shape for heat (percentage of yearly heat demand for every day)
+        enduse : str
+            Enduse where technology is used
 
         Returns
         -------
@@ -948,20 +958,19 @@ class RegionClass(object):
         Info
         ----
         """
-        shape_yh_boilers = np.zeros((365, 24))
-        shape_y_dh_boilers = np.zeros((365, 24))
+        shape_yh_generic_tech = np.zeros((365, 24))
+        shape_y_dh_generic_tech = np.zeros((365, 24))
 
         if enduse not in data['ss_all_tech_shapes_dh']:
             print("ENDUSE {} not uuuuuuuuuuuuuuuu".format(enduse))
         else:
-    
             shape_non_peak_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_dh']
 
             for day in range(365):
-                shape_yh_boilers[day] = heating_shape[day] * shape_non_peak_dh[day] #yd shape
-                shape_y_dh_boilers[day] = shape_non_peak_dh[day]  #dh shape
+                shape_yh_generic_tech[day] = heating_shape[day] * shape_non_peak_dh[day] #yd shape
+                shape_y_dh_generic_tech[day] = shape_non_peak_dh[day] #dh shape
 
-        return shape_yh_boilers, shape_y_dh_boilers
+        return shape_yh_generic_tech, shape_y_dh_generic_tech
 
     def get_shape_heating_boilers_yh(self, data, heating_shape, tech_to_get_shape):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
@@ -1041,7 +1050,7 @@ class RegionClass(object):
         1: 1-2
         2:
 
-        #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+        For nice plot make that 24 --> shift averaged 30 into middle of bins.
         """
         fig, ax = plt.subplots() #fig is needed
         nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?
@@ -1102,13 +1111,6 @@ class RegionClass(object):
 def plot_stacked_regional_end_use(self, nr_of_day_to_plot, fueltype, yearday, reg_name):
     """Plots stacked end_use for a region
 
-    #TODO: Make that end_uses can be sorted, improve legend...
-
-    0: 0-1
-    1: 1-2
-    2:
-
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     """
     fig, ax = plt.subplots() #fig is needed
     nr_hours_to_plot = nr_of_day_to_plot * 24 #WHY 2?

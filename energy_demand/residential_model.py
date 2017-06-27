@@ -113,7 +113,7 @@ class CountryClass(object):
             # Set each region as an attribute of the CountryClass
             CountryClass.__setattr__(
                 self,
-                str(reg_name),
+                reg_name,
                 reg.RegionClass(
                     reg_name=reg_name,
                     data=data
