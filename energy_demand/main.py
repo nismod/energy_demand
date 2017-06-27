@@ -192,7 +192,7 @@ if __name__ == "__main__":
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
 
-    data_external['factcalculationcrit'] = False
+    data_external['factcalculationcrit'] = True
     # ------------------- DUMMY END
 
 

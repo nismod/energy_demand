@@ -121,7 +121,7 @@ def load_data(path_main, data):
     # Weather stations
     data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations']) # Read all weater stations properties
 
-
+    # Temperature data
     if data['factcalculationcrit']:
         # SCRAP DUMMY DATA FOR FAST CALCULATION
         data['temperature_data'] = {}
@@ -174,11 +174,11 @@ def load_data(path_main, data):
     # ---------------------------------------------------------------------------------------------
     # Generate load shapes
     # ---------------------------------------------------------------------------------------------
-    if data['factcalculationcrit'] == False: #NO SCRAP
+    if data['factcalculationcrit'] == False:
 
         # Read raw files - Generate data from raw files
         data = generate_data(data, data['rs_all_enduses'], data['ss_all_enduses'])
-        
+
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
@@ -270,8 +270,13 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
         enduses.add(enduse)
         sectors.add(sector)
 
+    data['ss_shapes_dh'] = {}
+    data['ss_shapes_yd'] = {}
     # Read load shapes from txt files for enduses
     for sector in sectors:
+        data['ss_shapes_dh'][sector] = {}
+        data['ss_shapes_yd'][sector] = {}
+
         for end_use in enduses:
             print("Read in txt file sector: {}  enduse: {}".format(sector, enduse))
             joint_string_name = str(sector) + "__" + str(end_use)

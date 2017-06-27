@@ -2,21 +2,18 @@
 import os
 import sys
 import csv
-#import re
 from datetime import date
 from datetime import timedelta as td
 import math as m
 import copy
-#import pprint
 import numpy as np
 import yaml
 import pylab
 import matplotlib.pyplot as plt
-from haversine import haversine # PAckage to calculate distance between two long/lat points
+from haversine import haversine # Package to calculate distance between two long/lat points
 from scipy.optimize import curve_fit
 import unittest
 ASSERTIONS = unittest.TestCase('__init__')
-
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def add_yearly_external_fuel_data(data, dict_to_add_data):
@@ -432,7 +429,6 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
                 tech = line['tech']
                 enduse_tech_by_p[enduse][tech] = line['service_share_ey']
                 rs_enduse_tech_maxL_by_p[enduse][tech] = line['tech_assum_max_share']
-                #rs_service_switch_enduse_crit[enduse] = True
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -1358,7 +1354,7 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year #TODO: WRITE AS SEPARATE FUNCTION
                 # --------------------------------------------------------------
                 if tech in assumptions['list_tech_heating_hybrid']:
-                    eff_tech = assumptions['technologies']['hybrid_tech']['hybrid_gas_elec']['average_efficiency_national_by']
+                    eff_tech = assumptions['technologies']['hybrid_gas_elec']['average_efficiency_national_by']
                 elif tech in assumptions['list_tech_heating_temp_dep']:
                     average_h_diff_by = 10
                     eff_tech = eff_heat_pump(
@@ -1926,10 +1922,10 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
         for heat_pump_type in heat_pump_assump[fueltype]:
             share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
-            eff_heat_pump_by = technologies[heat_pump_type]['eff_by'] #Base year efficiency
-            eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey'] #End year efficiency
-            eff_achieved = technologies[heat_pump_type]['eff_achieved'] #End year efficiency
-            market_entry = technologies[heat_pump_type]['market_entry'] #End year efficiency
+            eff_heat_pump_by = technologies[heat_pump_type]['eff_by']
+            eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey']
+            eff_achieved = technologies[heat_pump_type]['eff_achieved']
+            market_entry = technologies[heat_pump_type]['market_entry']
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
