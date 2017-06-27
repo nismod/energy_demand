@@ -210,9 +210,11 @@ if __name__ == "__main__":
 
     # Path to local files
     base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' #r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
+    print("... load data")
 
     # Load and generate general data
     base_data = dl.load_data(path_main, base_data)
+    print("... load assumptions")
 
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)

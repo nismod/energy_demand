@@ -1358,14 +1358,14 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
                 elif tech in assumptions['list_tech_heating_temp_dep']:
                     average_h_diff_by = 10
                     eff_tech = eff_heat_pump(
-                        m_slope=assumptions['hp_slope_assumpt'],
+                        m_slope=assumptions['hp_slope_assumption'],
                         h_diff=average_h_diff_by,
                         b=tech_stock[tech]['eff_by']
                     )
                 else:
                     eff_tech = tech_stock[tech]['eff_by']
 
-                # Energy service of end use: Fuel of technoloy * efficiency == Service (e.g.heat demand in Joules)
+                # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
 
                 # Add energy service demand

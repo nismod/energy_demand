@@ -27,6 +27,53 @@ def load_data(path_main, data):
     data : list
         Returns a list where storing all data
     """
+    # ------------------------------------------------------------------------------------------
+    # Paths
+    # ------------------------------------------------------------------------------------------
+    data['path_dict'] = {
+
+        # Local paths
+        # -----------
+        'path_bd_e_load_profiles': os.path.join(data['local_data_path'], r'01-HES_data/HES_base_appliances_eletricity_load_profiles.csv'),
+        'folder_path_weater_data': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'),
+        'folder_path_weater_stations': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv'),
+
+        # Residential
+        # -----------
+        'path_main': path_main,
+
+        'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
+
+        'path_hourly_gas_shape_resid': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
+        'path_hourly_gas_shape_hp': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape_hp.csv'),
+        'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
+        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
+        'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
+        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/rs_service_tech_by_p.txt'),
+
+        'path_shape_rs_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
+        'path_out_stats_cProfile': os.path.join(path_main, '/model_output/stats_cProfile.txt'),
+
+        # Path to all technologies
+        'path_technologies': os.path.join(path_main, 'scenario_and_base_data/technology_base_scenario.csv'),
+
+        # Fuel switches
+        'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
+        'ss_path_fuel_switches': os.path.join(path_main, 'service_model/switches_fuel_scenaric.csv'),
+
+        # Path to service switches
+        'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
+        'ss_path_service_switch': os.path.join(path_main, 'service_model/switches_service_scenaric.csv'),
+
+        # Paths to fuels
+        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
+        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'service_model/data_service_by_fuel_end_uses.csv'),
+
+        # Paths to txt shapes
+        'path_rs_txt_shapes': os.path.join(path_main, 'residential_model/txt_load_shapes'),
+        'path_ss_txt_shapes': os.path.join(path_main, 'service_model/txt_load_shapes')
+        }
+    
     # ------------------------------------------------
     # Very basic look up tables
     # ------------------------------------------------
@@ -53,6 +100,9 @@ def load_data(path_main, data):
     # Number of fueltypes
     data['nr_of_fueltypes'] = len(data['lu_fueltype'])
 
+    # Dwelling types lookup table
+    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu']) 
+
     # -----------------------------
     # Read in floor area of all regions and store in dict
     # TODO: REPLACE WITH Newcastle if ready
@@ -67,63 +117,15 @@ def load_data(path_main, data):
     for reg_name in data['population'][data['base_yr']]:
         data['reg_floorarea_resid'][reg_name] = 100000
 
-    # Paths
-    data['path_dict'] = {
-
-
-        # Local paths
-        # -----------
-        'path_bd_e_load_profiles': os.path.join(data['local_data_path'], r'01-HES_data/HES_base_appliances_eletricity_load_profiles.csv'),
-        'folder_path_weater_data': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'),
-        'folder_path_weater_stations': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv'),
-
-        # Residential
-        # -----------
-        'path_main': path_main,
-        'path_temp_txt': os.path.join(path_main, 'scenario_and_base_data/mean_temp_data'),
-
-        'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
-
-        'path_hourly_gas_shape_resid': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
-        'path_hourly_gas_shape_hp': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape_hp.csv'),
-        'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
-        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
-        'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
-        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/rs_service_tech_by_p.txt'),
-
-        'path_shape_rs_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv'),
-        'path_out_stats_cProfile': os.path.join(path_main, '/model_output/stats_cProfile.txt'),
-
-        # All technologies
-        'path_technologies': os.path.join(path_main, 'scenario_and_base_data/technology_base_scenario.csv'),
-
-        # Fuel switches
-        'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
-        'ss_path_fuel_switches': os.path.join(path_main, 'service_model/switches_fuel_scenaric.csv'),
-
-        # Path to excel with ss service switch
-        'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
-        'ss_path_service_switch': os.path.join(path_main, 'service_model/switches_service_scenaric.csv'),
-
-        # Paths to fuels
-        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
-        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'service_model/data_service_by_fuel_end_uses.csv'),
-
-        # Paths to txt shapes
-        'path_rs_txt_shapes': os.path.join(path_main, 'residential_model/txt_load_shapes'),
-        'path_ss_txt_shapes': os.path.join(path_main, 'service_model/txt_load_shapes')
-        }
-
     # ----------------------------------------------------------
     # Read in weather data and clean data
     # ----------------------------------------------------------
 
     # Weather stations
-    data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations']) # Read all weater stations properties
+    data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'])
 
     # Temperature data
     if data['factcalculationcrit']:
-        # SCRAP DUMMY DATA FOR FAST CALCULATION
         data['temperature_data'] = {}
         temp_y = np.zeros((365, 24))
         for day in range(365):
@@ -151,11 +153,19 @@ def load_data(path_main, data):
 
     #ALL EXTERNAL ENDUSES?
 
-    # ------------------------------------------
-    # RESIDENTIAL SECTOR
-    # ------------------------------------------
 
-    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu']) # Dwelling types lookup table
+   # ----------------------------------------
+    # Convert units
+    # ----------------------------------------
+    # TODO: Check in what units external fuel data is provided
+    '''for enduse in rs_fuel_raw_data_enduses:
+        rs_fuel_raw_data_enduses[enduse] = mf.conversion_ktoe_gwh(rs_fuel_raw_data_enduses[enduse])
+    #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
+    '''
+    # Residential Sector (TODO)
+    data['rs_fuel_raw_data_enduses'] = data['rs_fuel_raw_data_enduses']
+    data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses']
+
 
     # ------------------------------------------
     # Technology shapes
@@ -191,18 +201,6 @@ def load_data(path_main, data):
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(data['ss_shapes_dh'], data['ss_shapes_yd'])
 
-   # ----------------------------------------
-    # Convert units
-    # ----------------------------------------
-    # TODO: Check in what units external fuel data is provided
-    '''for enduse in rs_fuel_raw_data_enduses:
-        rs_fuel_raw_data_enduses[enduse] = mf.conversion_ktoe_gwh(rs_fuel_raw_data_enduses[enduse])
-    #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
-    '''
-
-    # Residential Sector (TODO: REPLACE)
-    data['rs_fuel_raw_data_enduses'] = data['rs_fuel_raw_data_enduses']
-    data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses']
 
     return data
 

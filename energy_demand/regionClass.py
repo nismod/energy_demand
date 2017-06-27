@@ -54,11 +54,11 @@ class RegionClass(object):
         # Calculate HDD and CDD for calculating heating and cooling service demand (for rs and ss)
         rs_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'rs_t_base_heating')
         rs_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'rs_t_base_heating')
-        ss_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'ss_t_base_heating')
-        ss_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'ss_t_base_heating')
-
         rs_cdd_by = self.get_reg_cdd(data, temp_by, data['base_yr'], 'rs_t_base_cooling')
         rs_cdd_cy = self.get_reg_cdd(data, temp_cy, data['curr_yr'], 'rs_t_base_cooling')
+
+        ss_hdd_by = self.get_reg_hdd(data, temp_by, data['base_yr'], 'ss_t_base_heating')
+        ss_hdd_cy = self.get_reg_hdd(data, temp_cy, data['curr_yr'], 'ss_t_base_heating')
         ss_cdd_by = self.get_reg_cdd(data, temp_by, data['base_yr'], 'ss_t_base_cooling')
         ss_cdd_cy = self.get_reg_cdd(data, temp_cy, data['curr_yr'], 'ss_t_base_cooling')
 
@@ -188,7 +188,7 @@ class RegionClass(object):
         self.ss_max_fuel_peak = self.max_fuel_fueltype_allenduses(data, data['ss_all_enduses'], 'enduse_fuel_peak_h')
 
         print("MAX PEAK: " + str(np.sum(self.rs_max_fuel_peak)))
-        
+
         # ----
         # PEAK - summaries
         # ----
@@ -236,8 +236,7 @@ class RegionClass(object):
         -----
         This is for hybrid_gas_elec technology
 
-        The shapes are the same for any hybrid technology with boiler and heat pump???TODO: 
-
+        The shapes are the same for any hybrid technology with boiler and heat pump
         """
         fuel_shape_yh = np.zeros((365, 24))
 
