@@ -87,7 +87,7 @@ class Technology(object):
         self.tech_name = tech_name
 
         # Get technology type
-        self.tech_type = self.get_tech_type(data['assumptions'])
+        self.tech_type = mf.get_tech_type(tech_name, data['assumptions'])
 
         # Achieved factor
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
@@ -179,37 +179,6 @@ class Technology(object):
 
         # Get shape of peak dh where not read from values directly
         self.shape_peak_dh = self.get_shape_peak_dh(data)
-
-    def get_tech_type(self, assumptions):
-        """Get technology type of technology
-
-        Either a technology is a hybrid technology, a heat pump,
-        a constant heating technology or a regular technolgy
-
-        Parameters
-        ----------
-        assumptions : dict
-            All technology lists are defined in assumptions
-
-        Returns
-        ------
-        tech_type : string
-            Technology type
-        """
-        if self.tech_name in assumptions['list_tech_heating_hybrid']:
-            tech_type = 'hybrid_tech'
-        elif self.tech_name in assumptions['list_tech_heating_temp_dep']:
-            tech_type = 'heat_pump'
-        elif self.tech_name in assumptions['list_tech_heating_const']:
-            tech_type = 'boiler_heating_tech'
-        elif self.tech_name in assumptions['list_tech_cooling_temp_dep']:
-            tech_type = 'cooling_tech'
-        elif self.tech_name in assumptions['list_tech_cooling_const']:
-            tech_type = 'cooling_tech_temp_dependent'
-        else:
-            tech_type = 'regular_tech'
-
-        return tech_type
 
     def get_heatpump_eff(self, temp_yr, m_slope, b, t_base_heating):
         """Calculate efficiency according to temperatur difference of base year

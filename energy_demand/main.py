@@ -119,6 +119,7 @@ if __name__ == "__main__":
 
 
     # DUMMY DATA GENERATION----------------------
+
     #global base_yr
     base_yr = 2015
     end_yr = 2020 #includes this year
@@ -334,7 +335,8 @@ if __name__ == "__main__":
     #-----------
     # Profiler
     #-----------
-    """import cProfile
+    """
+    import cProfile
     import pstats
     cProfile.run('energy_demand_model(base_data)')
 

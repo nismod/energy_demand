@@ -14,20 +14,7 @@ boiler_hydrogen			0.0
 Enduse  rs_water_heating
 ----------
  
-Enduse  rs_cooking
-----------
- 
 Enduse  rs_lighting
 ----------
- 
-Enduse  rs_cold
-----------
- 
-Enduse  rs_wet
-----------
- 
-Enduse  rs_consumer_electronics
-----------
- 
-Enduse  rs_home_computing
-----------
+standard_resid_lighting_bulb			0.00750187546887
+fluorescent_strip_lightinging			0.992498124531

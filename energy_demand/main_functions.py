@@ -1295,6 +1295,36 @@ def generate_sig_diffusion(data, service_switches, fuel_switches, enduse_sector,
 
     return installed_tech, sigm_parameters_tech
 
+def get_tech_type(tech_name, assumptions):
+    """Get technology type of technology
+    Either a technology is a hybrid technology, a heat pump,
+    a constant heating technology or a regular technolgy
+    Parameters
+    ----------
+    assumptions : dict
+        All technology lists are defined in assumptions
+    Returns
+    ------
+    tech_type : string
+        Technology type
+    """
+    if tech_name in assumptions['list_tech_heating_hybrid']:
+        tech_type = 'hybrid_tech'
+    elif tech_name in assumptions['list_tech_heating_temp_dep']:
+        tech_type = 'heat_pump'
+    elif tech_name in assumptions['list_tech_heating_const']:
+        tech_type = 'boiler_heating_tech'
+    elif tech_name in assumptions['list_tech_cooling_temp_dep']:
+        tech_type = 'cooling_tech'
+    elif tech_name in assumptions['list_tech_cooling_const']:
+        tech_type = 'cooling_tech_temp_dependent'
+    elif tech_name in assumptions['list_tech_rs_lighting']:
+        tech_type = 'lighting_technology'
+    else:
+        tech_type = 'regular_tech'
+
+    return tech_type
+
 def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
@@ -1339,23 +1369,24 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
     service_fueltype_tech_by_p = init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
     service_fueltype_by_p = init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
 
-    for enduse in fuels:
-        for fueltype_input_data, fuel_fueltype in enumerate(fuels[enduse]):
+    for enduse, fuel in fuels.items():
+        for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
-            for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype_input_data].items():
+            for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
                 #print("------------Tech: " + str(tech))
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
 
-                # --------------------------------------------------------------
-                # Get efficiency depending whether hybrid or regular technology or heat pumps for base year #TODO: WRITE AS SEPARATE FUNCTION
-                # --------------------------------------------------------------
-                if tech in assumptions['list_tech_heating_hybrid']:
-                    eff_tech = assumptions['technologies']['hybrid_gas_elec']['average_efficiency_national_by']
-                elif tech in assumptions['list_tech_heating_temp_dep']:
+                # Get technology type
+                tech_type = get_tech_type(tech, assumptions)
+
+                # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
+                if tech_type == 'hybrid_tech':
+                    eff_tech = assumptions['technologies']['hybrid_gas_elec']['average_efficiency_national_by'] #TODO: CONTROL
+                elif tech_type == 'heat_pump':
                     average_h_diff_by = 10
                     eff_tech = eff_heat_pump(
                         m_slope=assumptions['hp_slope_assumption'],
@@ -1369,37 +1400,35 @@ def calc_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels,
                 service_fueltype_tech = fuel_tech * eff_tech
 
                 # Add energy service demand
-                service[enduse][fueltype_input_data][tech] = service_fueltype_tech
+                service[enduse][fueltype][tech] = service_fueltype_tech
 
                 # Total energy service demand within a fueltype
                 tot_service_fueltype += service_fueltype_tech
 
             # Calculate percentage of service enduse within fueltype
-            for tech in fuel_p_tech_by[enduse][fueltype_input_data]:
+            for tech in fuel_p_tech_by[enduse][fueltype]:
                 if tot_service_fueltype == 0: # No fuel in this fueltype
-                    service_fueltype_tech_by_p[enduse][fueltype_input_data][tech] = 0
-                    service_fueltype_by_p[enduse][fueltype_input_data] += 0
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = 0
+                    service_fueltype_by_p[enduse][fueltype] += 0
                 else:
-                    service_fueltype_tech_by_p[enduse][fueltype_input_data][tech] = np.divide(1, tot_service_fueltype) * service[enduse][fueltype_input_data][tech]
-                    service_fueltype_by_p[enduse][fueltype_input_data] += service[enduse][fueltype_input_data][tech]
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = np.divide(1, tot_service_fueltype) * service[enduse][fueltype][tech]
+                    service_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
         total_service = sum_2_level_dict(service[enduse])
 
         # Percentage of energy service per technology
-        #_a = 0
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
                 service_tech_by_p[enduse][technology] = np.divide(1, total_service) * service_tech
                 #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
-                #_a += service_tech
 
         #print("Total Service base year for enduse {}  :  {}".format(enduse, _a))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
             service_fueltype_by_p[enduse][fueltype] = np.divide(1, total_service) * service_fueltype_by_p[enduse][fueltype]
-    print("FINISHED")
+
     '''# Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
@@ -1704,7 +1733,7 @@ def tech_sigmoid_parameters(service_switch_crit, installed_tech, enduses, data, 
                             successfull = True
                             print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
                     except:
-                        print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+                        #print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                         cnt += 1
 
                         if cnt >= len(possible_start_parameters):
@@ -1751,11 +1780,21 @@ def sigmoid_function(x, L, midpoint, steepness):
 def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter):
     """Plot sigmoid diffusion
     """
+
+    # Timer to close window automatically
+    def close_event():
+        plt.close()
+
+
+
     L = L_values[enduse][technology]
     x = np.linspace(2015, 2100, 100)
     y = sigmoid_function(x, L, *fit_parameter)
 
     fig = plt.figure()
+
+    timer = fig.canvas.new_timer(interval = 1500) #creating a timer object and setting an interval
+    timer.add_callback(close_event)
 
     fig.set_size_inches(12, 8)
     pylab.plot(xdata, ydata, 'o', label='base year and future market share')
@@ -1768,6 +1807,8 @@ def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_pa
     pylab.ylabel('Market share of technology on energy service')
     pylab.title("Sigmoid diffusion of technology  {}  in enduse {}".format(technology, enduse))
 
+    timer.start()
+    
     pylab.show()
 
 def fit_sigmoid_diffusion(L, x_data, y_data, start_parameters):

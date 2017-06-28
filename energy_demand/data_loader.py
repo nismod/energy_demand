@@ -73,7 +73,7 @@ def load_data(path_main, data):
         'path_rs_txt_shapes': os.path.join(path_main, 'residential_model/txt_load_shapes'),
         'path_ss_txt_shapes': os.path.join(path_main, 'service_model/txt_load_shapes')
         }
-    
+
     # ------------------------------------------------
     # Very basic look up tables
     # ------------------------------------------------
@@ -101,7 +101,7 @@ def load_data(path_main, data):
     data['nr_of_fueltypes'] = len(data['lu_fueltype'])
 
     # Dwelling types lookup table
-    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu']) 
+    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])
 
     # -----------------------------
     # Read in floor area of all regions and store in dict
@@ -305,6 +305,8 @@ def generate_data(data, rs_enduses, ss_enduses):
     # ===========================================-
     # RESIDENTIAL MODEL - LOAD HES DATA
     # ===========================================
+    #def FunctionName(args):
+        
     appliances_HES_enduse_matching = {
         'rs_cold': 0,
         'rs_cooking': 1,

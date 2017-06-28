@@ -203,6 +203,7 @@ class EnduseClass(object):
             peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
             print("Peak day: " + str(peak_day_nr))
 
+
             # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
             self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, peak_day_nr)
             print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
@@ -283,7 +284,11 @@ class EnduseClass(object):
 
                 # Get fuel distribution yh
                 fueltype_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
-                #print("FUELTYPE  {}   tech   {}     {}    {}     {}".format(fueltype, tech, np.sum(fuel_tech_y), np.sum(fuel_tech_yh), np.sum(fueltype_share_yh)))
+                print("FUELTYPE  {}   tech   {}     {}    {}     {}".format(fueltype, tech, np.sum(fuel_tech_y), np.sum(fuel_tech_yh), np.sum(fueltype_share_yh)))
+
+                # Testing
+                if np.sum(tech_stock.get_tech_attribute(tech, 'shape_yh')) == 8760:
+                    sys.exit("Error: The fuel shape of technology is not defined...")
 
                 # Distribute service depending on fueltype distirbution
                 for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
@@ -601,7 +606,6 @@ class EnduseClass(object):
         fuels_peak_dh = np.zeros((self.enduse_fuel_y_new_y.shape[0], 24))
 
         for tech in self.technologies_enduse:
-            #print("Tech: " + str(tech) + "   " + str(enduse_fuel_tech[tech]))
 
             # Get yd fuel shape of technology
             fuel_shape_yd = tech_stock.get_tech_attribute(tech, 'shape_yd')
