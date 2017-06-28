@@ -424,25 +424,6 @@ def is_leap_year(year):
     """Determine whether a year is a leap year"""
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
-'''def non_residential_peak_h(dict_max_dh_shape):
-    """Returns the peak of the day """
-    # -----------------------------------------
-    # Calculate daily peak of maximum day
-    # If all_gas --> heating_gas demand peak
-    # -----------------------------------------
-    maxday_h_shape = np.zeros((24))
-
-    for shape_yd in dict_max_dh_shape:
-        maxday_h_shape += dict_max_dh_shape[shape_yd]
-
-    # Calc average
-    maxday_h_shape = maxday_h_shape / len(dict_max_dh_shape)
-    #print("maxday_h_shape: " + str(maxday_h_shape))
-    #print(len(dict_max_dh_shape))
-    #pf.plot_load_shape_yd(maxday_h_shape)
-    return maxday_h_shape
-'''
-
 def read_weather_data_raw(path_to_csv, placeholder_value):
     """Read in raw weather data
 

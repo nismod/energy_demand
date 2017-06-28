@@ -34,6 +34,10 @@
 # y = for total year
 # y_dh = for every day in a year, the dh is provided
 
+# -Global variables in passing around in data
+# -fitting scipy
+# -external data
+# - 
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)

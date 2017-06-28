@@ -88,7 +88,8 @@ class RegionClass(object):
             data,
             temp_by,
             temp_cy,
-            data['assumptions']['rs_t_base_heating']['base_yr']
+            data['assumptions']['rs_t_base_heating']['base_yr'],
+            data['rs_all_enduses']
             )
 
         # Create region specific technology stock for service sector
@@ -96,7 +97,8 @@ class RegionClass(object):
             data,
             temp_by,
             temp_cy,
-            data['assumptions']['ss_t_base_heating']['base_yr']
+            data['assumptions']['ss_t_base_heating']['base_yr'],
+            data['ss_all_enduses']
             )
 
         # -------------------------------------------------------------------------------------------------------------------------------------
@@ -118,7 +120,7 @@ class RegionClass(object):
         # Assign shapes to technologies in technological stock (residential sector)
         self.assign_fuel_shapes_tech_stock(
             data['rs_all_enduses'],
-            data['assumptions']['all_specified_tech_enduse_by'],
+            data['assumptions']['rs_all_specified_tech_enduse_by'],
             data,
             rs_fuel_shape_heating_yd,
             rs_fuel_shape_boilers_yh,
@@ -286,7 +288,7 @@ class RegionClass(object):
 
         return max_factor_yd
 
-    def assign_fuel_shapes_tech_stock(self, enduses, technologies_input, data, rs_fuel_shape_heating_yd, fuel_shape_boilers_yh, fuel_get_shape_cooling_yh, fuel_shape_hp_yh, fuel_shape_hybrid_gas_elec_yh, attribute_to_set):
+    def assign_fuel_shapes_tech_stock(self, enduses, technologies_input, data, rs_fuel_shape_heating_yd, fuel_shape_boilers_yh, fuel_get_shape_cooling_yh, fuel_shape_hp_yh, fuel_shape_hybrid_gas_elec_yh, tech_stock):
         """Assign fuel shapes to indidivdual technologies in technologicalStock
 
         The technologies are iterated and checked wheter they are part of
@@ -312,20 +314,26 @@ class RegionClass(object):
                 tech_type = mf.get_tech_type(technology, data['assumptions'])
 
                 if tech_type == 'boiler_heating_tech':
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd) # Non peak
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yh', fuel_shape_boilers_yh) # Non peak
+                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd) # Non peak
+                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_boilers_yh) # Non peak
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse) # Non peak
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse) # Non peak
 
                 elif tech_type == 'cooling_tech':
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yh', fuel_get_shape_cooling_yh) # Non peak
-
+                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_get_shape_cooling_yh) # Non peak
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_get_shape_cooling_yh) # Non peak
                 elif tech_type == 'heat_pump':
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yh', fuel_shape_hp_yh)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hp_yh)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hp_yh, enduse)
 
                 elif tech_type == 'hybrid_tech':
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
                     #TODO: WHY NOT tech_peak_dh and shape_peak_yd_factor
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh, enduse)
 
                 elif tech_type == 'lighting_technology': #TODO: SO FAR ONLY FOR RESIDENTIAL
                     enduse_shape_from_HES_yd = data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd']
@@ -338,11 +346,18 @@ class RegionClass(object):
                     for day, value_yd in enumerate(enduse_shape_from_HES_yd):
                         enduse_shape_from_HES_yh[day] = value_yd * enduse_shape_from_HES_dh[day]
 
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
-                    attribute_to_set.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
-                    attribute_to_set.set_tech_attribute(technology, 'shape_peak_dh', enduse_shape_from_HES_peak_dh)
-                    attribute_to_set.set_tech_attribute(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
+                    #tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
+                    #tech_stock.set_tech_attribute(technology, 'peak_dh', enduse_shape_from_HES_peak_dh)
+                    #tech_stock.set_tech_attribute(technology, 'peak_yd_factor', enduse_shape_from_HES_peak_yd_factor)
 
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'peak_dh', enduse_shape_from_HES_peak_dh, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
+
+                    #elif tech_type == 'water_heating':
+                    #WATER HEATING USE SAME TECH AS SPACE HEATING    
                 else:
                     sys.exit("Error: The technology '{}' techtype:'{}' was not defined in a TECHLISTE".format(technology, tech_type))
 

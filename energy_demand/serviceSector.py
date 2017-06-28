@@ -41,7 +41,8 @@ class ServiceSectorClass(object):
             elif enduse in data['assumptions']['enduse_space_cooling']:
                 enduse_peak_yd_factor = reg_peak_yd_cooling_factor
             else:
-                enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor']
+                #enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor']
+                enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor'][enduse] # NEW
 
             print(" ")
             print("-------------------")

@@ -8,7 +8,7 @@ class ResidTechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, temp_by, temp_cy, t_base_heating):
+    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -20,6 +20,7 @@ class ResidTechStock(object):
         temp_cy : int
             Temperatures of current year
         """
+        #TODO: CREATE RESID STOCK FOR EVERY ENDUSE?
 
         # Crate all technologies and add as attribute
         for technology in data['assumptions']['tech_lu']:
@@ -30,7 +31,8 @@ class ResidTechStock(object):
                 data,
                 temp_by,
                 temp_cy,
-                t_base_heating
+                t_base_heating,
+                potential_enduses
             )
 
             # Set technology object as attribute
@@ -50,9 +52,28 @@ class ResidTechStock(object):
 
     def set_tech_attribute(self, tech, attribute_to_set, value_to_set):
         """Set an attrribute from a technology in the technology stock
+
+        If the attribute does not exist, create new attribute
         """
         tech_object = getattr(self, str(tech))
+
+        # Set attribute
         setattr(tech_object, str(attribute_to_set), value_to_set)
+
+        return
+
+    def set_tech_attribute_enduse(self, tech, attribute_to_set, value_to_set, enduse):
+        """Set an attrribute from a technology in the technology stock
+
+        If the attribute does not exist, create new attribute
+        """
+        #tech_object = getattr(self, str(tech))
+        tech_object = getattr(self, str(tech))
+        shapes = getattr(tech_object, attribute_to_set)
+        shapes[enduse] = value_to_set
+        setattr(tech_object, str(attribute_to_set), shapes)
+
+        #setattr(tech_object, str(attribute_to_set), value_to_set)
 
         return
 
@@ -71,7 +92,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating):
+    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses):
         """Contructor of Technology
 
         Parameters
@@ -96,9 +117,24 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
-        self.shape_yd = np.ones((365))
+        shape_yd_dict_enduses = {}
+        shape_yh_dict_enduses = {}
+        shape_peak_yd_factor_dict_enduses = {}
+
+        for enduse in potential_enduses:
+            shape_yd_dict_enduses[enduse] = np.ones((365))
+            shape_yh_dict_enduses[enduse] = np.ones((365, 24))
+            shape_peak_yd_factor_dict_enduses[enduse] = 1
+        
+        self.shape_yd = shape_yd_dict_enduses
+        self.shape_yh = shape_yh_dict_enduses
+        self.shape_peak_yd_factor = shape_peak_yd_factor_dict_enduses
+        
+
+        '''self.shape_yd = np.ones((365))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
+        '''
 
         # Base temp assumptions for by and cy
         t_base_heating_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')

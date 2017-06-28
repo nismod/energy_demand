@@ -433,9 +433,9 @@ def read_csv_assumptions_service_switch(path_to_csv, assumptions):
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
-    for enduse in assumptions['all_specified_tech_enduse_by']:
+    for enduse in assumptions['rs_all_specified_tech_enduse_by']:
         if enduse in rs_service_switch_enduse_crit: #If switch is defined for this enduse
-            for tech in assumptions['all_specified_tech_enduse_by'][enduse]:
+            for tech in assumptions['rs_all_specified_tech_enduse_by'][enduse]:
                 if tech not in enduse_tech_by_p[enduse]:
                     sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
@@ -2057,7 +2057,7 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p)
         #assumptions['rs_tech_decreased_share'] = tech_decreased_share
         #assumptions['rs_tech_constant_share'] = tech_constant_share
         print("   ")
-        print("tech_increased_service:  " + str(tech_increased_service))
+        #print("tech_increased_service:  " + str(tech_increased_service))
         print("tech_decreased_share:    " + str(tech_decreased_share))
         print("tech_constant_share:     " + str(tech_constant_share))
     return tech_increased_service, tech_decreased_share, tech_constant_share
