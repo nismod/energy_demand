@@ -227,7 +227,7 @@ def load_assumptions(data):
     # Load all technologies
     assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_technologies'], data)
 
-    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012),  Fixed tech assumptions (do not change for scenario)
+    # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012), Fixed tech assumptions (do not change for scenario)
     assumptions['hp_slope_assumption'] = -.08
 
     # --Assumption how much of technological efficiency is reached
@@ -253,11 +253,14 @@ def load_assumptions(data):
     assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
     assumptions['list_tech_cooling_temp_dep'] = []
     assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
+    
+    #assumptions['list_water_heating'] = 
+    
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
     assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling']
-
+    #assumptions['enduse_water_heating'] = ['rs_water_heating', 'rs_water_heating']
 
     assumptions['technologies'] = define_identical_efficiencies_all_tech(assumptions['technologies'], efficiency_achieving_factor)
 

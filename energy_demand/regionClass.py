@@ -305,36 +305,27 @@ class RegionClass(object):
         ------
         tech_stock : attribute
             Updated attribute of `Region` class
+
+        #TODO: FOR RS SO FAR
         """
         for enduse in enduses:
             # Iterate all technologies and check if specific technology has a own shape
             for technology in technologies_input[enduse]:
-                print("TECHNOLOGY: " + str(technology))
-                # Get technology type
-                tech_type = mf.get_tech_type(technology, data['assumptions'])
 
+                tech_type = mf.get_tech_type(technology, data['assumptions'], enduse)
+                print("TT   {}   {}".format(technology, enduse, tech_type))
                 if tech_type == 'boiler_heating_tech':
-                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd) # Non peak
-                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_boilers_yh) # Non peak
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse) # Non peak
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse) # Non peak
-
                 elif tech_type == 'cooling_tech':
-                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_get_shape_cooling_yh) # Non peak
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_get_shape_cooling_yh) # Non peak
                 elif tech_type == 'heat_pump':
-                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
-                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hp_yh)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hp_yh, enduse)
-
                 elif tech_type == 'hybrid_tech':
-                    #tech_stock.set_tech_attribute(technology, 'shape_yd', rs_fuel_shape_heating_yd)
-                    #tech_stock.set_tech_attribute(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh)
                     #TODO: WHY NOT tech_peak_dh and shape_peak_yd_factor
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh, enduse)
-
                 elif tech_type == 'lighting_technology': #TODO: SO FAR ONLY FOR RESIDENTIAL
                     enduse_shape_from_HES_yd = data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd']
                     enduse_shape_from_HES_dh = data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh']
@@ -342,22 +333,28 @@ class RegionClass(object):
                     enduse_shape_from_HES_peak_yd_factor = data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor']
 
                     # Convert yd and dh to yh #TODO: OWN FUNCTION
-                    enduse_shape_from_HES_yh = np.zeros((365, 24))
-                    for day, value_yd in enumerate(enduse_shape_from_HES_yd):
-                        enduse_shape_from_HES_yh[day] = value_yd * enduse_shape_from_HES_dh[day]
-
-                    #tech_stock.set_tech_attribute(technology, 'shape_yh', enduse_shape_from_HES_yh)
-                    #tech_stock.set_tech_attribute(technology, 'shape_yd', enduse_shape_from_HES_yd)
-                    #tech_stock.set_tech_attribute(technology, 'peak_dh', enduse_shape_from_HES_peak_dh)
-                    #tech_stock.set_tech_attribute(technology, 'peak_yd_factor', enduse_shape_from_HES_peak_yd_factor)
+                    enduse_shape_from_HES_yh = mf.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
 
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'peak_dh', enduse_shape_from_HES_peak_dh, enduse)
+                    #tech_stock.set_tech_attribute_enduse(technology, 'peak_dh', enduse_shape_from_HES_peak_dh, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
+                elif tech_type == 'water_heating':
+                    #WATER HEATING USE SAME TECH AS SPACE HEATING
 
-                    #elif tech_type == 'water_heating':
-                    #WATER HEATING USE SAME TECH AS SPACE HEATING    
+                    enduse_shape_from_HES_yd = data['rs_shapes_yd']['rs_water_heating']['shape_non_peak_yd']
+                    enduse_shape_from_HES_dh = data['rs_shapes_dh']['rs_water_heating']['shape_non_peak_dh']
+                    enduse_shape_from_HES_peak_dh = data['rs_shapes_dh']['rs_water_heating']['shape_peak_dh']
+                    enduse_shape_from_HES_peak_yd_factor = data['rs_shapes_yd']['rs_water_heating']['shape_peak_yd_factor']
+
+                    # Convert yd and dh to yh #TODO: OWN FUNCTION
+                    enduse_shape_from_HES_yh = mf.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
+
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
+                    #tech_stock.set_tech_attribute_enduse(technology, 'peak_dh', enduse_shape_from_HES_peak_dh, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
+                
                 else:
                     sys.exit("Error: The technology '{}' techtype:'{}' was not defined in a TECHLISTE".format(technology, tech_type))
 

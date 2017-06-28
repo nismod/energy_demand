@@ -615,7 +615,7 @@ class EnduseClass(object):
         fuels_peak_dh = np.zeros((self.enduse_fuel_y_new_y.shape[0], 24))
 
         for tech in self.technologies_enduse:
-
+            print("TECH ENDUSE    {}   {}".format(tech, self.enduse))
             # Get yd fuel shape of technology
             fuel_shape_yd = tech_stock.get_tech_attribute(tech, 'shape_yd')[self.enduse] #NEW
 

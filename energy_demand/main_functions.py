@@ -16,6 +16,28 @@ import unittest
 ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
+def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
+    """Convert yd shape and shape for every day (y_dh) into yh
+
+    Parameters
+    ----------
+    shape_yd : array
+        Array with yd shape
+    shape_y_dh : array
+        Array with y_dh shape
+    
+    Return
+    ------
+    shape_yh : array
+        Array with yh shape
+    """
+    shape_yh = np.zeros((365, 24))
+    for day, value_yd in enumerate(shape_yd):
+        shape_yh[day] = value_yd * shape_y_dh[day]
+
+    return shape_yh
+
+
 def add_yearly_external_fuel_data(data, dict_to_add_data):
     """This data check what enduses are provided by wrapper
     and then adds the yearls fule data to data
@@ -1295,7 +1317,7 @@ def generate_sig_diffusion(data, service_switches, fuel_switches, enduse_sector,
 
     return installed_tech, sigm_parameters_tech
 
-def get_tech_type(tech_name, assumptions):
+def get_tech_type(tech_name, assumptions, enduse=''):
     """Get technology type of technology
     Either a technology is a hybrid technology, a heat pump,
     a constant heating technology or a regular technolgy
@@ -1308,20 +1330,26 @@ def get_tech_type(tech_name, assumptions):
     tech_type : string
         Technology type
     """
-    if tech_name in assumptions['list_tech_heating_hybrid']:
-        tech_type = 'hybrid_tech'
-    elif tech_name in assumptions['list_tech_heating_temp_dep']:
-        tech_type = 'heat_pump'
-    elif tech_name in assumptions['list_tech_heating_const']:
-        tech_type = 'boiler_heating_tech'
-    elif tech_name in assumptions['list_tech_cooling_temp_dep']:
-        tech_type = 'cooling_tech'
-    elif tech_name in assumptions['list_tech_cooling_const']:
-        tech_type = 'cooling_tech_temp_dependent'
-    elif tech_name in assumptions['list_tech_rs_lighting']:
-        tech_type = 'lighting_technology'
+    # If all technologies for enduse
+    if enduse == 'rs_water_heating':
+        tech_type = 'water_heating'
     else:
-        tech_type = 'regular_tech'
+        if tech_name in assumptions['list_tech_heating_hybrid']:
+            tech_type = 'hybrid_tech'
+        elif tech_name in assumptions['list_tech_heating_temp_dep']:
+            tech_type = 'heat_pump'
+        elif tech_name in assumptions['list_tech_heating_const']:
+            tech_type = 'boiler_heating_tech'
+        elif tech_name in assumptions['list_tech_cooling_temp_dep']:
+            tech_type = 'cooling_tech'
+        elif tech_name in assumptions['list_tech_cooling_const']:
+            tech_type = 'cooling_tech_temp_dependent'
+        elif tech_name in assumptions['list_tech_rs_lighting']:
+            tech_type = 'lighting_technology'
+        #elif tech_name in assumptions['list_water_heating']:
+        #    tech_type = 'water_heating'
+        else:
+            tech_type = 'regular_tech'
 
     return tech_type
 

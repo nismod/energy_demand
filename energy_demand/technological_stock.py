@@ -19,8 +19,12 @@ class ResidTechStock(object):
             Technologies of technology stock
         temp_cy : int
             Temperatures of current year
+        
+        Notes
+        -----
+        -   The shapes are given for different enduse as technology may be used in different enduses and either
+            a technology specific shape is assigned or an overall enduse shape
         """
-        #TODO: CREATE RESID STOCK FOR EVERY ENDUSE?
 
         # Crate all technologies and add as attribute
         for technology in data['assumptions']['tech_lu']:
