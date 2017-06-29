@@ -166,7 +166,6 @@ def get_hes_load_shapes(appliances_HES_enduse_matching, year_raw_values, hes_y_p
     # Total yearly demand of hes_app_id
     tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
 
-
     # ---Peak calculation Get peak daily load shape
 
     # Calculate amount of energy demand for peak day of hes_app_id
@@ -181,7 +180,6 @@ def get_hes_load_shapes(appliances_HES_enduse_matching, year_raw_values, hes_y_p
     # Factor to calculate daily peak demand from yearly demand
     shape_peak_yd_factor = (1.0 / tot_enduse_y) * tot_peak_demand_d
 
-
     # ---Calculate non-peak shapes
     shape_non_peak_yd = np.zeros((365))
     shape_non_peak_dh = np.zeros((365, 24))
@@ -194,30 +192,33 @@ def get_hes_load_shapes(appliances_HES_enduse_matching, year_raw_values, hes_y_p
 
     return shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
 
-
-
-# CARBON TRUST-----------------------------------
 def initialise_out_dict_av():
+    """Helper function to initialise dict
+    """
     out_dict_av = {0: {}, 1: {}}
     for dtype in out_dict_av:
         month_dict = {}
         for month in range(12):
             month_dict[month] = {k: 0 for k in range(24)}
         out_dict_av[dtype] = month_dict
+
     return out_dict_av
 
 def initialise_main_dict():
+    """Helper function to initialise dict
+    """
     out_dict_av = {0: {}, 1: {}}
     for dtype in out_dict_av:
         month_dict = {}
         for month in range(12):
             month_dict[month] = {k: [] for k in range(24)}
         out_dict_av[dtype] = month_dict
+
     return out_dict_av
 
-def dict_init_carbon_trunst():
-
-    # Initialise yearday dict
+def dict_init_carbon_trust():
+    """Helper function to initialise dict
+    """
     carbon_trust_raw = {}
     for day in range(365):
         day_dict_h = {k: [] for k in range(24)}
@@ -251,7 +252,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Get all files in folder
     all_csv_in_folder = os.listdir(folder_path)
     main_dict = initialise_main_dict()
-    carbon_trust_raw = dict_init_carbon_trunst()
+    carbon_trust_raw = dict_init_carbon_trust()
 
     nr_of_line_entries = 0
     dict_max_dh_shape = {}
@@ -564,8 +565,8 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
 
     return temp_stations_cleaned
 
-def read_weather_stations_raw(path_to_csv):
-    """Read in all weater stations from csv file
+def read_weather_stations_raw(path_to_csv, stations_with_data):
+    """Read in weather stations from csv file for which temp data are provided
 
     Parameter
     ---------
@@ -581,6 +582,8 @@ def read_weather_stations_raw(path_to_csv):
     ----
     Downloaded from MetOffice
     http://badc.nerc.ac.uk/cgi-bin/midas_stations/excel_list_station_details.cgi.py (09-05-2017)
+
+    The weater station data was cleand manually to guarantee error-free loading (e.g. remove & or numbers in names)
     """
     weather_stations = {}
 
@@ -593,46 +596,27 @@ def read_weather_stations_raw(path_to_csv):
 
             # Get only the float elements of each row
             all_float_values = []
+
+            # Add station ID which is always first element
+            all_float_values.append(float(row_split[0][1:]))
+
             for entry in row_split:
-                # Test if can be converted to float
-                try:
+                try: # Test if can be converted to float
                     all_float_values.append(float(entry))
                 except ValueError:
                     pass
 
-            station_id = int(all_float_values[0])
-            station_latitude = float(all_float_values[1])
-            station_longitude = float(all_float_values[2])
-
-            weather_stations[station_id] = {'station_latitude': station_latitude, 'station_longitude': station_longitude}
+            # Test if for weather station ID data is available
+            if all_float_values[0] not in stations_with_data:
+                continue
+            else:
+                station_id = int(all_float_values[0])
+                weather_stations[station_id] = {
+                    'station_latitude': float(all_float_values[1]),
+                    'station_longitude': float(all_float_values[2])
+                    }
 
     return weather_stations
-
-def reduce_weather_stations(station_ids, weather_stations):
-    """Get only those weather station information for which there is cleaned data available
-
-    Parameters
-    ----------
-    station_ids : list
-        Weather station ids with data
-    weather_stations : dict
-        Weather station information
-
-    Return
-    ------
-    stations_with_data : dict
-        Weather station information
-    """
-    stations_with_data = {}
-
-    # Iterate all stations containing data
-    for id_station in station_ids:
-
-        # If there are data for a station add them
-        if id_station in weather_stations.keys():
-            stations_with_data[id_station] = weather_stations[id_station]
-
-    return stations_with_data
 
 def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, other_string_info):
     """ Function collecting functions to write out txt files"""

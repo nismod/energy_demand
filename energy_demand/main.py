@@ -37,7 +37,7 @@
 # -Global variables in passing around in data
 # -fitting scipy
 # -external data
-# - 
+#
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         coord_dummy[str(i)] = {'longitude': 52.289288, 'latitude': -3.610933}
     print(a)
     '''
-    a = {'Wales': 3000000} #, 'Scotland': 5300000, 'England': 5300000}
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 5300000}
 
     for i in sim_years:
         y_data = {}
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
 
-    data_external['factcalculationcrit'] = True
+    data_external['factcalculationcrit'] = False
     # ------------------- DUMMY END
 
 

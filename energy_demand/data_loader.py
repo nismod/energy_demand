@@ -121,11 +121,12 @@ def load_data(path_main, data):
     # Read in weather data and clean data
     # ----------------------------------------------------------
 
-    # Weather stations
-    data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'])
-
     # Temperature data
     if data['factcalculationcrit']:
+        
+        # Weather stations
+        data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'])
+
         data['temperature_data'] = {}
         temp_y = np.zeros((365, 24))
         for day in range(365):
@@ -134,17 +135,21 @@ def load_data(path_main, data):
         data['weather_stations'] = {}
         data['weather_stations'][9] = data['weather_stations_raw'][9]
     else:
-        # Weather data
-        data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999) # Read in raw temperature data
+        # Read in raw temperature data
+        data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999)
 
-        data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) # Clean weather data
-        data['weather_stations'] = df.reduce_weather_stations(data['temperature_data'].keys(), data['weather_stations_raw']) # Reduce weater stations for which there is data provided
+        # Clean raw temperature data
+        data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) 
+        del data['temperature_data_raw']
+
+        # Weather stations
+        data['weather_stations'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'], data['temperature_data'].keys())
         print("Number of weater stations with cleaned data: " + str(len(data['weather_stations'].keys())))
 
-        del data['weather_stations_raw'] # Delete raw data from data
-        del data['temperature_data_raw'] # Delete raw data from data
-
-
+        # Print out all x y of weater data
+        '''for weather_station_nr in data['weather_stations']:
+            print("Weaterstation {}  X and Y:  {} {}".format(weather_station_nr, data['weather_stations'][weather_station_nr]['station_latitude'], data['weather_stations'][weather_station_nr]['station_longitude']))
+        '''
     # ------------------------------------------
     # FUEL DATA
     # ------------------------------------------
@@ -166,7 +171,6 @@ def load_data(path_main, data):
     data['rs_fuel_raw_data_enduses'] = data['rs_fuel_raw_data_enduses']
     data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses']
 
-
     # ------------------------------------------
     # Technology shapes
     # ------------------------------------------
@@ -174,16 +178,13 @@ def load_data(path_main, data):
     data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
 
-
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------
     # SERVICE SECTOR
 
-    # ---------------------------------------------------------------------------------------------
     # Generate load shapes
-    # ---------------------------------------------------------------------------------------------
     if data['factcalculationcrit'] == False:
 
         # Read raw files - Generate data from raw files
@@ -200,7 +201,6 @@ def load_data(path_main, data):
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(data['ss_shapes_dh'], data['ss_shapes_yd'])
-
 
     return data
 

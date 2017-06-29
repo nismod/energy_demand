@@ -206,11 +206,10 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                     sector = _secondLine[cnt]
                     end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
                     cnt += 1
-
-        return end_uses_dict, list(all_sectors), list(all_enduses)
-
-    except (KeyError, ValueError):
-        sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
+    except:
+        print("Error: Could not exectue read_csv_base_data_service")
+    
+    return end_uses_dict, list(all_sectors), list(all_enduses)
 
 def read_csv_base_data_resid(path_to_csv):
     """This function reads in base_data_CSV all fuel types (first row is fueltype, subkey), header is appliances
@@ -2309,3 +2308,39 @@ def ss_summarise_fuel_per_enduse_all_sectors(ss_fuel_raw_data_enduses, ss_enduse
             aggregated_fuel_enduse[enduse] += fuels_enduse
 
     return aggregated_fuel_enduse
+
+'''
+def lat_lon_to_decimal_deg(coordinate):
+    """Decimal Degrees = Degrees + (Minutes/60) + (Seconds/3600)
+    """
+    split_coord = coordinate.split('.')
+    
+    degrees = split_coord[0]
+
+    minutes = split_coord[1] * 60
+
+    split_min = minutes.split('.')
+
+    seconds = split_min * 60
+
+    dd = degrees + (minutes/60)
+
+    return decimal_deg
+
+
+def decdeg2dms(dd):
+    
+    """Convert deicmal degrees to to minutesseconds
+    """
+    mnt,sec = divmod(dd*3600,60)
+    deg,mnt = divmod(mnt,60)
+
+    return deg, mnt, sec
+
+def dms2decdeg(deg, mnt, sec):
+    """Convert deicmal degrees to to minutesseconds
+    """
+    dd = 
+
+    return dd
+'''

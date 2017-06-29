@@ -56,7 +56,7 @@ class EnduseClass(object):
     otherwise enduse load shapes are used.
     """
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey, dw_stock):
-        """CONSTRUCTOR
+        """Enduse class constructor
         """
         self.current_yr = data['curr_yr']
         self.base_yr = data['base_yr']
@@ -65,27 +65,14 @@ class EnduseClass(object):
 
         self.enduse = enduse
         self.enduse_fuel_y = enduse_fuel
-        self.enduse_fuel_yswitch_crit = self.get_fuel_switches_crit(fuel_switches)
-        self.enduseswitch_crit = self.get_service_switches_crit(service_switches)
+        self.fuel_switch_crit = self.get_fuel_switch_crit(fuel_switches)
+        self.service_switch_crit = self.get_service_switch_crit(service_switches)
 
         # Get technologies of enduse depending on assumptions on fuel switches or service switches
         self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by[enduse])
 
-        # if 
-        '''if self.enduse == 'rs_water_heating':
-            test_enduse_crit = 'rs_water_heating'
-        else:
-            test_enduse_crit = "other"
-        '''
-
-        # 
-        # --------
-        # Testing
-        # --------
-        if self.enduse_fuel_yswitch_crit and self.enduseswitch_crit:
-            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(enduse, self.enduse_fuel_yswitch_crit, self.enduseswitch_crit))
-        if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
-            sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(enduse))
+        # Switch criteria
+        self.testing_fuel_switch(data_shapes_yd)
 
         # -------------------------------
         # Yearly fuel calculation cascade
@@ -131,7 +118,7 @@ class EnduseClass(object):
             # ----------------
             # Energy service switches
             # ----------------
-            if self.enduseswitch_crit:
+            if self.service_switch_crit:
                 service_tech = self.switch_tech_service(
                     tot_service_h_by,
                     service_tech_by_p,
@@ -153,7 +140,7 @@ class EnduseClass(object):
             # ----------------
             # Fuel Switches
             # ----------------
-            if self.enduse_fuel_yswitch_crit:
+            if self.fuel_switch_crit:
                 service_tech = self.switch_tech_fuel(
                     installed_tech,
                     sigm_parameters_tech,
@@ -403,7 +390,7 @@ class EnduseClass(object):
 
         Depending on whether fuel swatches are implemented or services switches
         """
-        if self.enduseswitch_crit:
+        if self.service_switch_crit:
             technologies_enduse = service_tech_by_p.keys()
         else:
             # If no fuel switch and no service switch, read out base year technologies
@@ -519,7 +506,7 @@ class EnduseClass(object):
 
         return service_tech_cy_p
 
-    def get_fuel_switches_crit(self, fuelswitches):
+    def get_fuel_switch_crit(self, fuelswitches):
         """Test whether there is a fuelswitch for this enduse
 
         Parameters
@@ -548,7 +535,7 @@ class EnduseClass(object):
             else:
                 return False
 
-    def get_service_switches_crit(self, service_switches):
+    def get_service_switch_crit(self, service_switches):
         """Test whether there are defined service switches for this enduse
 
         Parameters
@@ -1260,3 +1247,14 @@ class EnduseClass(object):
             fuels_h_peak[fueltype] = shape_peak_dh * fuel
 
         return fuels_h_peak
+
+
+    def testing_fuel_switch(self, data_shapes_yd):
+        """Test if fuel switch and service switch is implementedc at the same time
+        """
+        if self.fuel_switch_crit and self.service_switch_crit:
+            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.fuel_switch_crit, self.service_switch_crit))
+        if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
+            sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
+
+        return
