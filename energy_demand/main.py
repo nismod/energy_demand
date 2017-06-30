@@ -56,7 +56,7 @@ import energy_demand.assumptions as assumpt
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
-import energy_demand.residential_model as rm # Import sub modules
+import energy_demand.residential_model as rm
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -82,19 +82,12 @@ def energy_demand_model(data):
     # --------------------------
     object_country = rm.model_main_function(data)
 
+
+
+
     # Convert to dict for energy_supply_model
     result_dict = mf.convert_out_format_es(data, object_country, data['ss_all_enduses'])
 
-
-
-    # --------------------------
-    # Industry Model
-    # --------------------------
-    #industry_object_country = im.service_model_main_function(data)
-
-    # --------------------------
-    # Transportation Model
-    # --------------------------
 
     # --- Write to csv and YAML
     # mf.write_final_result(data, result_dict, data['lu_reg'], False)
@@ -113,8 +106,6 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
     # ------------------------------------------------------------------
-    # Weather generater (change base_demand data)
-    # { 'population': [ obs, obs ]  }
     # obs.value == 3000000
     # obs.region == 1
     # obs.interval == 2
@@ -213,11 +204,11 @@ if __name__ == "__main__":
 
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
 
-    # Path to local files
-    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' #r'C:\01-Private\99-Dropbox\Dropbox\00-Office_oxford\07-Data'
+    # Path to local files which have restricted access
+    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand'
     print("... load data")
 
-    # Load and generate general data
+    # Load data
     base_data = dl.load_data(path_main, base_data)
     print("... load assumptions")
 
@@ -307,7 +298,6 @@ if __name__ == "__main__":
         results, object_country = energy_demand_model(base_data)
 
         results_every_year.append(object_country)
-
 
     # ------------------------------
     # Plotting

@@ -3,13 +3,13 @@ import csv
 import re
 import unittest
 import json
-import datetime
-import copy
+#import datetime
+#import copy
 from datetime import date
 import numpy as np
-import matplotlib.pyplot as plt
+##import matplotlib.pyplot as plt
 import energy_demand.main_functions as mf
-import energy_demand.plot_functions as pf
+#import energy_demand.plot_functions as pf
 ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -276,6 +276,7 @@ def read_raw_carbon_trust_data(folder_path):
 
             # Calc yearly demand based on one year data measurements
             if count_row > 365: # if more than one year is recorded in csv file TODO: All but then distored?
+                #if len(read_lines) > 365:
                 print("FILE covers a full year---------------------------")
 
                 for day, row in enumerate(row_data):
@@ -584,6 +585,8 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
     http://badc.nerc.ac.uk/cgi-bin/midas_stations/excel_list_station_details.cgi.py (09-05-2017)
 
     The weater station data was cleand manually to guarantee error-free loading (e.g. remove & or numbers in names)
+
+    Not for all data a weather station ID is provided. More would be available here: https://badc.nerc.ac.uk/search/midas_stations/
     """
     weather_stations = {}
 
@@ -611,6 +614,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
                 continue
             else:
                 station_id = int(all_float_values[0])
+                print("all_float_values: " + str(row_split))
                 weather_stations[station_id] = {
                     'station_latitude': float(all_float_values[1]),
                     'station_longitude': float(all_float_values[2])
@@ -618,7 +622,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
 
     return weather_stations
 
-def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, other_string_info):
+def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd):
     """ Function collecting functions to write out txt files"""
     jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
     jason_to_txt_shape_non_peak_dh(shape_non_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))

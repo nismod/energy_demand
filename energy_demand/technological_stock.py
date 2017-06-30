@@ -19,7 +19,7 @@ class ResidTechStock(object):
             Technologies of technology stock
         temp_cy : int
             Temperatures of current year
-        
+
         Notes
         -----
         -   The shapes are given for different enduse as technology may be used in different enduses and either
@@ -61,25 +61,18 @@ class ResidTechStock(object):
         """
         tech_object = getattr(self, str(tech))
 
-        # Set attribute
         setattr(tech_object, str(attribute_to_set), value_to_set)
-
-        return
 
     def set_tech_attribute_enduse(self, tech, attribute_to_set, value_to_set, enduse):
         """Set an attrribute from a technology in the technology stock
 
         If the attribute does not exist, create new attribute
         """
-        #tech_object = getattr(self, str(tech))
         tech_object = getattr(self, str(tech))
         shapes = getattr(tech_object, attribute_to_set)
         shapes[enduse] = value_to_set
+
         setattr(tech_object, str(attribute_to_set), shapes)
-
-        #setattr(tech_object, str(attribute_to_set), value_to_set)
-
-        return
 
 class Technology(object):
     """Technology Class for residential and service technology
@@ -121,6 +114,7 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
+        # TODO: WRITE AS FUNCTION
         shape_yd_dict_enduses = {}
         shape_yh_dict_enduses = {}
         shape_peak_yd_factor_dict_enduses = {}
@@ -129,12 +123,10 @@ class Technology(object):
             shape_yd_dict_enduses[enduse] = np.ones((365))
             shape_yh_dict_enduses[enduse] = np.ones((365, 24))
             shape_peak_yd_factor_dict_enduses[enduse] = 1
-        
-        self.shape_yd = shape_yd_dict_enduses
+
+        self.shape_yd = shape_yd_dict_enduses # Shape for every specifided enduse
         self.shape_yh = shape_yh_dict_enduses
         self.shape_peak_yd_factor = shape_peak_yd_factor_dict_enduses
-        
-
         '''self.shape_yd = np.ones((365))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1

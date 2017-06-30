@@ -123,9 +123,13 @@ def load_data(path_main, data):
 
     # Temperature data
     if data['factcalculationcrit']:
-        
+
+        data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999)
+
         # Weather stations
-        data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'])
+        data['weather_stations_raw'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'], data['temperature_data_raw'].keys())
+
+        print(data['weather_stations_raw'][9])
 
         data['temperature_data'] = {}
         temp_y = np.zeros((365, 24))
@@ -139,8 +143,7 @@ def load_data(path_main, data):
         data['temperature_data_raw'] = df.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999)
 
         # Clean raw temperature data
-        data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999) 
-        del data['temperature_data_raw']
+        data['temperature_data'] = df.clean_weather_data_raw(data['temperature_data_raw'], 9999)
 
         # Weather stations
         data['weather_stations'] = df.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'], data['temperature_data'].keys())
@@ -150,6 +153,9 @@ def load_data(path_main, data):
         '''for weather_station_nr in data['weather_stations']:
             print("Weaterstation {}  X and Y:  {} {}".format(weather_station_nr, data['weather_stations'][weather_station_nr]['station_latitude'], data['weather_stations'][weather_station_nr]['station_longitude']))
         '''
+
+        del data['temperature_data_raw']
+        #prnt(".")
     # ------------------------------------------
     # FUEL DATA
     # ------------------------------------------
@@ -172,7 +178,7 @@ def load_data(path_main, data):
     data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses']
 
     # ------------------------------------------
-    # Technology shapes
+    # Specific technology shapes
     # ------------------------------------------
     data['rs_shapes_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
     data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
@@ -305,8 +311,6 @@ def generate_data(data, rs_enduses, ss_enduses):
     # ===========================================-
     # RESIDENTIAL MODEL - LOAD HES DATA
     # ===========================================
-    #def FunctionName(args):
-        
     appliances_HES_enduse_matching = {
         'rs_cold': 0,
         'rs_cooking': 1,
@@ -349,8 +353,7 @@ def generate_data(data, rs_enduses, ss_enduses):
                 shape_peak_dh,
                 shape_non_peak_dh,
                 shape_peak_yd_factor,
-                shape_non_peak_yd,
-                ""
+                shape_non_peak_yd
                 )
 
     # ==========================================
@@ -417,7 +420,7 @@ def generate_data(data, rs_enduses, ss_enduses):
 
             # Write shapes to txt
             joint_string_name = str(sector) + "__" + str(end_use)
-            df.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, "")
+            df.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd)
 
     # ---------------------
     # Compare Jan and Jul

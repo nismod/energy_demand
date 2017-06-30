@@ -42,7 +42,7 @@ class ServiceSectorClass(object):
                 enduse_peak_yd_factor = reg_peak_yd_cooling_factor
             else:
                 enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor'] #[enduse] # NEW
-            
+
             # Add enduse to ServiceSector
             ServiceSectorClass.__setattr__(
                 self,

@@ -1112,7 +1112,7 @@ def change_temp_data_climate_change(data):
 
         # Iterate over simulation period
         for current_year in data['sim_period']:
-            temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24)) # Initialise
+            temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24))
 
             # Iterate every month and substract
             for yearday in range(365):

@@ -275,7 +275,8 @@ def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
     -----
     This calculation is necessary as the share of dwelling types may differ depending the year
     """
-    dw_floorarea_p = {} # Initialise percent of total floor area per dwelling type
+    # Initialise percent of total floor area per dwelling type
+    dw_floorarea_p = {}
 
     # Itreate simulation years
     for sim_yr in dwtype_distr_sim:
