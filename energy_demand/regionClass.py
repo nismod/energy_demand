@@ -86,13 +86,13 @@ class RegionClass(object):
         rs_fuel_shape_boilers_yh, rs_fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh') # boiler, non-peak
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # heat pumps, non-peak
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
-        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid gas electric
+        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
 
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
 
         ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_cooling_yd, 'ss_cooling_and_ventilation')
-        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'av_heat_pump_electricity') # Hybrid
+        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid
 
         # Assign shapes to technologies in technological stock (residential sector)
         self.assign_fuel_shapes_tech_stock(
@@ -447,7 +447,7 @@ class RegionClass(object):
                     tech_decreased_share=data['assumptions']['rs_tech_decreased_share'],
                     tech_constant_share=data['assumptions']['rs_tech_constant_share'],
                     installed_tech=data['assumptions']['rs_installed_tech'],
-                    sigm_parameters_tech=data['assumptions']['rs_sigm_parameters_tech'],
+                    sig_param_tech=data['assumptions']['rs_sig_param_tech'],
                     data_shapes_yd=data['rs_shapes_yd'],
                     data_shapes_dh=data['rs_shapes_dh'],
                     enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['residential_sector'],
@@ -835,7 +835,7 @@ class RegionClass(object):
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_object = getattr(tech_stock, 'av_heat_pump_gas') # Select gas heat pumps to calculate service shape
+                tech_object = getattr(tech_stock, 'gas_heat_pumps') # Select gas heat pumps to calculate service shape
                 average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)

@@ -65,7 +65,7 @@ class ServiceSectorClass(object):
                     tech_decreased_share=data['assumptions']['ss_tech_decreased_share'],
                     tech_constant_share=data['assumptions']['ss_tech_constant_share'],
                     installed_tech=data['assumptions']['ss_installed_tech'],
-                    sigm_parameters_tech=data['assumptions']['ss_sigm_parameters_tech'],
+                    sig_param_tech=data['assumptions']['ss_sig_param_tech'],
                     data_shapes_yd=data['ss_shapes_yd'][self.sector_name],
                     data_shapes_dh=data['ss_shapes_dh'][self.sector_name],
                     enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['service_sector'],

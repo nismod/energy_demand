@@ -55,7 +55,7 @@ class EnduseClass(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sigm_parameters_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey, dw_stock):
+    def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey, dw_stock):
         """Enduse class constructor
         """
         self.current_yr = data['curr_yr']
@@ -125,7 +125,7 @@ class EnduseClass(object):
                     tech_increased_service[enduse],
                     tech_decreased_share[enduse],
                     tech_constant_share[enduse],
-                    sigm_parameters_tech
+                    sig_param_tech
                     )
 
             #summe = 0
@@ -143,7 +143,7 @@ class EnduseClass(object):
             if self.fuel_switch_crit:
                 service_tech = self.switch_tech_fuel(
                     installed_tech,
-                    sigm_parameters_tech,
+                    sig_param_tech,
                     tot_service_h_by,
                     service_tech,
                     service_fueltype_tech_by_p,
@@ -401,7 +401,7 @@ class EnduseClass(object):
 
         return list(technologies_enduse)
 
-    def switch_tech_service(self, tot_service_h_by, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sigm_parameters_tech):
+    def switch_tech_service(self, tot_service_h_by, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sig_param_tech):
         """Scenaric service switches
 
         All diminishing technologies are proportionally to base year share diminished.
@@ -427,7 +427,7 @@ class EnduseClass(object):
         # Technology with increaseing service
         # -------------
         # Calculate diffusion of service for technology with increased service
-        service_tech_increase_cy_p = self.get_service_diffusion(tech_increase_service, sigm_parameters_tech)
+        service_tech_increase_cy_p = self.get_service_diffusion(tech_increase_service, sig_param_tech)
 
         for tech_increase, share_tech in service_tech_increase_cy_p.items():
             service_tech_cy_p[tech_increase] = share_tech # Add shares to output dict
@@ -478,7 +478,7 @@ class EnduseClass(object):
         print("...Finished service switch")
         return service_tech_cy
 
-    def get_service_diffusion(self, tech_increased_service, sigm_parameters_tech):
+    def get_service_diffusion(self, tech_increased_service, sig_param_tech):
         """Calculate energy service fraction of technologies with increased service
 
         Parameters
@@ -499,9 +499,9 @@ class EnduseClass(object):
             # Get service for current year based on sigmoid diffusion
             service_tech_cy_p[tech_installed] = mf.sigmoid_function(
                 self.current_yr,
-                sigm_parameters_tech[self.enduse][tech_installed]['l_parameter'],
-                sigm_parameters_tech[self.enduse][tech_installed]['midpoint'],
-                sigm_parameters_tech[self.enduse][tech_installed]['steepness']
+                sig_param_tech[self.enduse][tech_installed]['l_parameter'],
+                sig_param_tech[self.enduse][tech_installed]['midpoint'],
+                sig_param_tech[self.enduse][tech_installed]['steepness']
             )
 
         return service_tech_cy_p
@@ -728,7 +728,7 @@ class EnduseClass(object):
 
         return fuels_yh
 
-    def switch_tech_fuel(self, installed_tech, sigm_parameters_tech, tot_service_h_by, service_tech, service_fueltype_tech_by_p, service_fueltype_by_p, fuel_switches, fuel_enduse_tech_p_by):
+    def switch_tech_fuel(self, installed_tech, sig_param_tech, tot_service_h_by, service_tech, service_fueltype_tech_by_p, service_fueltype_by_p, fuel_switches, fuel_enduse_tech_p_by):
         """Scenaric fuel switches
 
         Based on assumptions about shares of fuels which are switched per enduse to specific
@@ -764,9 +764,9 @@ class EnduseClass(object):
             # Read out sigmoid diffusion of service of this technology for the current year
             diffusion_cy = mf.sigmoid_function(
                 self.current_yr,
-                sigm_parameters_tech[self.enduse][tech_installed]['l_parameter'],
-                sigm_parameters_tech[self.enduse][tech_installed]['midpoint'],
-                sigm_parameters_tech[self.enduse][tech_installed]['steepness'])
+                sig_param_tech[self.enduse][tech_installed]['l_parameter'],
+                sig_param_tech[self.enduse][tech_installed]['midpoint'],
+                sig_param_tech[self.enduse][tech_installed]['steepness'])
 
             # Calculate increase in service based on diffusion of installed technology (diff & total service== Todays demand) - already installed service
             print("eeeeeeeeeeeeeeeeee")

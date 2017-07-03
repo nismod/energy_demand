@@ -37,12 +37,16 @@
 # -Global variables in passing around in data
 # -fitting scipy
 # -external data
+# -global variables
 #
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - Heat recycling/reuse in percentage (lower heating demand accordingly)
 -
+TODO: Maybe take heat pump profiles from here instead of samson: http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
+
+
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -115,7 +119,6 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
 
-    #global base_yr
     base_yr = 2015
     end_yr = 2020 #includes this year
     sim_years = range(base_yr, end_yr + 1)
@@ -143,16 +146,7 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
 
 
-    '''ff = range(100, 102)
-
-    a = {}
-    for i in ff:
-        a[str(i)] = i * 1000
-        coord_dummy[str(i)] = {'longitude': 52.289288, 'latitude': -3.610933}
-    print(a)
-    '''
     a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 5300000}
-
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -188,7 +182,7 @@ if __name__ == "__main__":
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
 
-    data_external['factcalculationcrit'] = False
+    data_external['factcalculationcrit'] = True
     # ------------------- DUMMY END
 
 
@@ -201,11 +195,10 @@ if __name__ == "__main__":
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
         base_data[str(dataset_name)] = external_data
-
-    path_main = os.path.join(os.path.dirname(__file__), '..', 'data') # Main path
-
-    # Path to local files which have restricted access
-    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand'
+    
+    # Paths
+    path_main = os.path.join(os.path.dirname(__file__), '..', 'data') 
+    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' # Path to local files which have restricted access
     print("... load data")
 
     # Load data
@@ -219,7 +212,7 @@ if __name__ == "__main__":
     base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
+    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = mf.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
@@ -229,7 +222,7 @@ if __name__ == "__main__":
 
     # SERVICE:
     fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
-    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.calc_service_fueltype_tech(
+    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by'],
@@ -249,12 +242,11 @@ if __name__ == "__main__":
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # Residential
-    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sigm_parameters_tech'] = mf.generate_sig_diffusion(
+    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sig_param_tech'] = mf.get_sig_diffusion(
         base_data,
         base_data['assumptions']['rs_service_switches'],
         base_data['assumptions']['rs_fuel_switches'],
         base_data['rs_all_enduses'],
-        base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['rs_tech_increased_service'],
         base_data['assumptions']['rs_share_service_tech_ey_p'],
         base_data['assumptions']['rs_enduse_tech_maxL_by_p'],
@@ -264,12 +256,11 @@ if __name__ == "__main__":
         )
 
     # Service
-    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sigm_parameters_tech'] = mf.generate_sig_diffusion(
+    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = mf.get_sig_diffusion(
         base_data,
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],
         base_data['ss_all_enduses'],
-        fuels_aggregated_across_sectors,
         base_data['assumptions']['ss_tech_increased_service'],
         base_data['assumptions']['ss_share_service_tech_ey_p'],
         base_data['assumptions']['ss_enduse_tech_maxL_by_p'],

@@ -614,7 +614,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
                 continue
             else:
                 station_id = int(all_float_values[0])
-                print("all_float_values: " + str(row_split))
+                #print("all_float_values: " + str(row_split))
                 weather_stations[station_id] = {
                     'station_latitude': float(all_float_values[1]),
                     'station_longitude': float(all_float_values[2])

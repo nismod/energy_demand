@@ -1,16 +1,9 @@
 """Create chart of correlating HDD with gas demand
 
-For year 2015
+Calculate HDD with weather data from a asingle weather station for the whole of the UK.abs
+Correlate HDD with national gas data.
 
-Calculate HDD with weather data from weather station Nr. XY for whole of UK
-
-Load National Gas demand
-
-Correlate
-
-Link: 
-Seasonal Normal Demand Forecasts
-
+National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
 """
 import os
 from energy_demand import data_loader_functions as df
@@ -18,6 +11,15 @@ from energy_demand import main_functions as mf
 from scipy import stats
 import matplotlib.pyplot as plt
 import numpy as np
+
+def cm2inch(*tupl):
+    """Convert input cm to inches
+    """
+    inch = 2.54
+    if isinstance(tupl[0], tuple):
+        return tuple(i/inch for i in tupl[0])
+    else:
+        return tuple(i/inch for i in tupl)
 
 # ----------------------------------
 # Read temp data and weather station
@@ -39,16 +41,15 @@ weather_stations = df.read_weather_stations_raw(path_data_stations, temperature_
 
 # Temperature weather data weater station 
 # 595	CHURCH	LAWFORD	WARWICKSHIRE	COUNTY	01/01/1983	Current	52.3584	-1.32987	CV23	9
-#593	ELMDON	WEST	MIDLANDS	COUNTY	01/01/1949	Current	52.4524	-1.74099	B26	3									
-station_ID_churhc_lawford = 593 #593
-temperatures = temperature_data[station_ID_churhc_lawford]
+#593	ELMDON	WEST	MIDLANDS	COUNTY	01/01/1949	Current	52.4524	-1.74099	B26	3				--> slightly better correlation
+station_ID_ELMDON = 593 #593
+temperatures = temperature_data[station_ID_ELMDON]
 
 
 # Calculate average day temp
 averag_day_temp = []
 for day in temperatures:
     averag_day_temp.append(np.mean(day))
-
 
 # ----------------------------------
 # Calculate HDD
@@ -61,7 +62,13 @@ t_base_heating = 15.5 # Heating t_base temp
 # HDD
 hdd_reg = mf.calc_hdd(t_base_heating, temperatures)
 print("shape hdd  " + str(hdd_reg.shape))
-
+'''
+hdd_reg = np.zeros((365))
+for weaterstaion in temperature_data.keys():
+    print("Station: " + str(weaterstaion))
+    print(temperature_data[weaterstaion][:1])
+    hdd_reg += mf.calc_hdd(t_base_heating, temperature_data[weaterstaion])
+'''
 # Test if correlation with mean temp is better than with HDd
 #hdd_reg = averag_day_temp
 
@@ -453,9 +460,8 @@ print("r_value:       " + str(r_value))
 print("p_value:       " + str(p_value))
 print("std_err:       " + str(std_err))
 
-
-print("Len gas_demand_NDM_2015_2016: " + str(len(gas_demand_NDM_2015_2016)))
-print("Len hdd_reg: " + str(len(hdd_reg)))
+# Set figure size in cm
+plt.figure(figsize=cm2inch(10, 10))
 
 # plot points
 plt.plot(gas_demand_NDM_2015_2016, hdd_reg, 'ro', markersize=5, color='gray')
@@ -473,7 +479,9 @@ for x in X_plot:
 plt.plot(X_plot, Y_plot, color='k')
 #plt.axis([0, 6, 0, 20])
 
-plt.xlabel("National gas demand")
+
+
+plt.xlabel("National gas demand [GWh]")
 plt.ylabel("Heating degree days")
 plt.title("Correlation between national gas demand and hdd (r_value:  {}".format(r_value))
 plt.show()

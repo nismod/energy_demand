@@ -51,64 +51,27 @@
     You may include some math:
 
 """
-def fit_sigmoid_diffusion(L, x_data, y_data, start_parameters):
-    """Fit sigmoid curve based on two points on the diffusion curve
 
-    Parameters
-    ----------
-    L : float
-        The sigmoids curve maximum value (max consumption)
-    x_data : array
-        X coordinate of two points
-    y_data : array
-        X coordinate of two points
+def cm2inch(*tupl):
+    inch = 2.54
+    if isinstance(tupl[0], tuple):
+        return tuple(i/inch for i in tupl[0])
+    else:
+        return tuple(i/inch for i in tupl)
 
-    Returns
-    -------
-    popt : dict
-        Fitting parameters
-
-    Info
-    ----
-    The Sigmoid is substacted - 2000 to allow for better fit with low values
-
-    """
-    def sigmoid(x, x0, k):
-        """Sigmoid function used for fitting
-        """
-        y = L / (1 + np.exp(-k * ((x - 2000) - x0)))
-        return y
-
-    popt, _ = curve_fit(sigmoid, x_data, y_data, p0=start_parameters)
-
-    return popt
 
 import numpy as np
 import pylab
 from scipy.optimize import curve_fit
 
-def sigmoid(x, x0, k):
-     y = 0.9 / (1 + np.exp(-k*((x-2000)-x0)))
-     return y
+import matplotlib.pyplot as plt
 
-xdata = np.array([2015, 2040])
-ydata = np.array([0.5, 0.55])
+# plot points
+x = [1,2,3]
+y = [1,2,3]
+plt.figure(figsize=cm2inch(12.8, 9.6))
 
-# FIT
-startparameter = [0.1, 1]
-
-popt = fit_sigmoid_diffusion(0.9, xdata, ydata, startparameter)
-
-#popt, pcov = curve_fit(sigmoid, xdata, ydata, startparameter)
-print(popt)
-
-x = np.linspace(2015, 2040, 50)
-
-
-y = sigmoid(x, *popt)
-
-# Plot points
-pylab.plot(xdata, ydata, 'o', label='data')
+plt.plot(x, y, 'ro', markersize=5, color='gray')
 
 pylab.plot(x, y, label='fit')
 pylab.ylim(0, 1.05)
