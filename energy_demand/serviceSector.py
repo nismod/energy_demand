@@ -1,7 +1,7 @@
 import energy_demand.enduseClass as class_enduse
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
-class ServiceSectorClass(object):
+class ServiceSector(object):
     """Service Sector Class
     """
     def __init__(self, reg_name, sector_name, data, tech_stock, heating_factor_y, cooling_factor_y, reg_peak_yd_heating_factor, reg_peak_yd_cooling_factor, fuels_all_enduses):
@@ -44,11 +44,11 @@ class ServiceSectorClass(object):
                 enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][enduse]['shape_peak_yd_factor'] #[enduse] # NEW
 
             # Add enduse to ServiceSector
-            ServiceSectorClass.__setattr__(
+            ServiceSector.__setattr__(
                 self,
                 enduse,
 
-                class_enduse.EnduseClass(
+                class_enduse.Enduse(
                     reg_name=reg_name,
                     data=data,
                     enduse=enduse,

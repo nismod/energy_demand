@@ -27,8 +27,8 @@ def model_main_function(data):
     """
     fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
-    # Add all region instances as an attribute (region name) into the class `CountryClass`
-    rs_object = CountryClass(
+    # Add all region instances as an attribute (region name) into the class `EnergyModel`
+    rs_object = EnergyModel(
         reg_names=data['lu_reg'],
         data=data
     )
@@ -48,7 +48,7 @@ def model_main_function(data):
     print(" ")
     return rs_object
 
-class CountryClass(object):
+class EnergyModel(object):
     """Class of a country containing all regions as self.attributes
 
     The main class of the residential model. For every region, a Region object needs to be generated.
@@ -67,13 +67,16 @@ class CountryClass(object):
     def __init__(self, reg_names, data):
         """Constructor of the class which holds all regions of a country
         """
+
+        # 
+
         # Create object for every region and add as attribute
         self.create_regions(reg_names, data)
 
-
+        # self.regions = List of regions 
 
         # ---------------------------------------------------------------------
-        # Functions to summarise data for all Regions in the CountryClass class
+        # Functions to summarise data for all Regions in the EnergyModel class
         # ---------------------------------------------------------------------
         self.rs_tot_country_fuel = self.get_overall_sum(reg_names, 'rs_fuels_tot_enduses_h')
 
@@ -97,7 +100,7 @@ class CountryClass(object):
         np.testing.assert_almost_equal(np.sum(self.rs_tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
 
     def create_regions(self, reg_names, data):
-        """Create all regions and add them as attributes based on region name to the CountryClass Class
+        """Create all regions and add them as attributes based on region name to the EnergyModel Class
 
         Parameters
         ----------
@@ -107,11 +110,11 @@ class CountryClass(object):
         # Iterate all regions
         for reg_name in reg_names:
 
-            # Set each region as an attribute of the CountryClass
-            CountryClass.__setattr__(
+            # Set each region as an attribute of the EnergyModel
+            EnergyModel.__setattr__(
                 self,
                 reg_name,
-                reg.RegionClass(
+                reg.Region(
                     reg_name=reg_name,
                     data=data
                 )

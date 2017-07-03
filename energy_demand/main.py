@@ -34,11 +34,11 @@
 # y = for total year
 # y_dh = for every day in a year, the dh is provided
 
-# -Global variables in passing around in data
+# -Global variables in passing around in data (does it take more computational power?)
 # -fitting scipy
 # -external data
 # -global variables
-#
+# -speed with many regions
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
@@ -54,13 +54,15 @@ The docs can be found here: http://ed.readthedocs.io
 #!python3.6
 import os
 import sys
+import energy_demand.energy_model as energy_model
 import energy_demand.main_functions as mf
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
 import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
-import energy_demand.residential_model as rm
+from energy_demand.scripts_data import write_data
+from energy_demand.scripts_diffusion import diffusion_technologies
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -82,11 +84,9 @@ def energy_demand_model(data):
     """
 
     # -------------------------
-    # Residential model
+    # Model main function
     # --------------------------
-    object_country = rm.model_main_function(data)
-
-
+    object_country = energy_model.model_main_function(data)
 
 
     # Convert to dict for energy_supply_model
@@ -94,7 +94,7 @@ def energy_demand_model(data):
 
 
     # --- Write to csv and YAML
-    # mf.write_final_result(data, result_dict, data['lu_reg'], False)
+    # write_data.write_final_result(data, result_dict, data['lu_reg'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
@@ -195,9 +195,10 @@ if __name__ == "__main__":
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
         base_data[str(dataset_name)] = external_data
-    
+
     # Paths
-    path_main = os.path.join(os.path.dirname(__file__), '..', 'data') 
+    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+
     base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' # Path to local files which have restricted access
     print("... load data")
 
@@ -220,7 +221,7 @@ if __name__ == "__main__":
         base_data['assumptions']['technologies']
         )
 
-    # SERVICE:
+    # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.get_service_fueltype_tech(
         base_data['assumptions'],
@@ -231,7 +232,7 @@ if __name__ == "__main__":
         )
 
     # Write out txt file with service shares for each technology per enduse
-    mf.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
+    write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
@@ -241,8 +242,8 @@ if __name__ == "__main__":
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
-    # Residential
-    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sig_param_tech'] = mf.get_sig_diffusion(
+    # --Residential
+    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sig_param_tech'] = diffusion_technologies.get_sig_diffusion(
         base_data,
         base_data['assumptions']['rs_service_switches'],
         base_data['assumptions']['rs_fuel_switches'],
@@ -255,8 +256,8 @@ if __name__ == "__main__":
         base_data['assumptions']['rs_fuel_enduse_tech_p_by']
         )
 
-    # Service
-    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = mf.get_sig_diffusion(
+    # --Service
+    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = diffusion_technologies.get_sig_diffusion(
         base_data,
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],

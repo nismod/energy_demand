@@ -9,9 +9,11 @@ from datetime import date
 import numpy as np
 ##import matplotlib.pyplot as plt
 import energy_demand.main_functions as mf
-#import energy_demand.plot_functions as pf
+from energy_demand.scripts_data import read_data
+
 ASSERTIONS = unittest.TestCase('__init__')
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+
 
 def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
     '''Read in HES raw csv files and provide for every day in a year (yearday) all fuels
@@ -46,7 +48,7 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
     hes_y_warmest = np.zeros((24, nr_app_type_lu))
 
     # Read in raw HES data from CSV
-    raw_elec_data = mf.read_csv(paths_hes)
+    raw_elec_data = read_data.read_csv(paths_hes)
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:

@@ -1,6 +1,7 @@
 """The technological stock for every simulation year"""
 import numpy as np
 import energy_demand.main_functions as mf
+from energy_demand.scripts_diffusion import diffusion_technologies
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class ResidTechStock(object):
@@ -609,7 +610,7 @@ class Technology(object):
                 len(sim_period)
             )
         elif self.diff_method == 'sigmoid':
-            theor_max_eff = mf.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
+            theor_max_eff = diffusion_technologies.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
         # Consider actual achived efficiency
         actual_max_eff = theor_max_eff * self.eff_achieved_factor

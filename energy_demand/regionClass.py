@@ -12,7 +12,7 @@ import energy_demand.enduseClass as enduseClass
 import energy_demand.serviceSector as ssClass
 ASSERTIONS = unittest.TestCase('__init__')
 
-class RegionClass(object):
+class Region(object):
     """Region
 
     For every region, a Region object needs to be generated. For each region,
@@ -32,7 +32,7 @@ class RegionClass(object):
 
     """
     def __init__(self, reg_name, data):
-        """Constructor of RegionClass
+        """Constructor of Region
         """
         print("==============REGION NAME: " + str(reg_name))
         self.reg_name = reg_name
@@ -141,7 +141,7 @@ class RegionClass(object):
             data
         )
         #'''
-
+        #rs_services = []
         # ------------
         # Industry
         # ------------
@@ -345,12 +345,12 @@ class RegionClass(object):
         data : dict
             Data
         """
-        # Iterate over sectors and create 'ServiceSectorClass' instance
+        # Iterate over sectors and create 'ServiceSector' instance
         list_with_sectors = []
         for sector in service_sectors:
 
             # Service sector object
-            sector_object = ssClass.ServiceSectorClass(
+            sector_object = ssClass.ServiceSector(
                 reg_name=self.reg_name,
                 sector_name=sector,
                 data=data,
@@ -363,10 +363,10 @@ class RegionClass(object):
                 )
             list_with_sectors.append(sector_object)
 
-        # Iterate overall sectors and add summarised enduse to RegionClass
+        # Iterate overall sectors and add summarised enduse to Region
         for enduse in all_enduses:
 
-             # Assign summarised enduse to RegionClass with relevant attributes
+             # Assign summarised enduse to Region with relevant attributes
             enduse_fuel_yd = np.zeros((data['nr_of_fueltypes'], 365))
             enduse_fuel_yh = np.zeros((data['nr_of_fueltypes'], 365, 24))
             enduse_fuel_peak_dh = np.zeros((data['nr_of_fueltypes'], 24))
@@ -380,12 +380,12 @@ class RegionClass(object):
                 enduse_fuel_peak_h += self.getattr_summary_sector(sector_object, enduse, 'enduse_fuel_peak_h')
 
             # Set as attribute
-            RegionClass.__setattr__(
+            Region.__setattr__(
                 self,
                 enduse,
 
                 # Summed individual attribute
-                enduseClass.EnduseClassSummarySector(
+                enduseClass.EnduseSummarySector(
                     enduse_fuel_yd=enduse_fuel_yd,
                     enduse_fuel_yh=enduse_fuel_yh,
                     enduse_fuel_peak_dh=enduse_fuel_peak_dh,
@@ -427,10 +427,10 @@ class RegionClass(object):
                 enduse_peak_yd_factor = data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'] # Get parameters from loaded shapes for enduse
 
             # Add enduse to region
-            RegionClass.__setattr__(
+            Region.__setattr__(
                 self,
                 enduse,
-                enduseClass.EnduseClass(
+                enduseClass.Enduse(
                     reg_name=self.reg_name,
                     data=data,
                     enduse=enduse,

@@ -5,9 +5,8 @@ from random import randint
 import numpy as np
 import energy_demand.data_loader_functions as df
 import energy_demand.main_functions as mf
-# import energy_demand.plot_functions as pf
-#import matplotlib.pyplot as plt
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+from energy_demand.scripts_data import read_data
 
 def load_data(path_main, data):
     """All base data no provided externally are loaded
@@ -84,7 +83,7 @@ def load_data(path_main, data):
         'electricity': 2,
         'oil': 3,
         'heat_sold': 4,
-        'bioenergy_waste':5,
+        'biomass': 5,
         'hydrogen': 6,
         'other': 7
         }
@@ -101,7 +100,7 @@ def load_data(path_main, data):
     data['nr_of_fueltypes'] = len(data['lu_fueltype'])
 
     # Dwelling types lookup table
-    data['dwtype_lu'] = mf.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])
+    data['dwtype_lu'] = read_data.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])
 
     # -----------------------------
     # Read in floor area of all regions and store in dict
@@ -158,7 +157,7 @@ def load_data(path_main, data):
     # FUEL DATA
     # ------------------------------------------
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = mf.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
-    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = mf.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
+    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     #ALL EXTERNAL ENDUSES?
 
@@ -178,9 +177,9 @@ def load_data(path_main, data):
     # ------------------------------------------
     # Specific technology shapes
     # ------------------------------------------
-    data['rs_shapes_heating_boilers_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
-    data['rs_shapes_heating_heat_pump_dh'] = mf.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
-    data['rs_shapes_cooling_dh'] = mf.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
+    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
+    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
+    data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
