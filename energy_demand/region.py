@@ -17,7 +17,6 @@ from energy_demand.scripts_geography import weather_station_location as wl
 
 ASSERTIONS = unittest.TestCase('__init__')
 
-
 class Region(object):
     """Region
 
@@ -147,14 +146,7 @@ class Region(object):
             data
         )
         #'''
-        #rs_services = []
-        # ------------
-        # Industry
-        # ------------
 
-        # ------------
-        # Transport
-        # ------------
 
 
 

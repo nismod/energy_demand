@@ -39,10 +39,15 @@ def convert_out_format_es(data, object_country, enduses):
     for fueltype, fueltype_id in data['lu_fueltype'].items():
         results[fueltype] = []
 
-        for reg_name in data['lu_reg']:
-            reg = getattr(object_country, reg_name)
-            region_name = reg.reg_name
-            hourly_all_fuels = reg.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
+        for region_name in data['lu_reg']:
+
+            # Get correct model object
+            for region in object_country.regions:
+                if region.reg_name == region_name:
+                    region_object = region
+                    break
+
+            hourly_all_fuels = region_object.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
 
             for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour_in_day, demand in enumerate(hourly_demand):

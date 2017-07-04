@@ -194,7 +194,7 @@ def load_data(path_main, data):
     # SERVICE SECTOR
 
     # Generate load shapes
-    if data['factcalculationcrit'] == True: #False
+    if data['factcalculationcrit'] == False: #False
 
         # Read raw files - Generate data from raw files
         data = generate_data(data, data['rs_all_enduses'], data['ss_all_enduses'])
