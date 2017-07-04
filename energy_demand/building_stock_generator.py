@@ -2,8 +2,9 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913, R0914
 import sys
 import energy_demand.building_stock_functions as bf
-import energy_demand.main_functions as mf
+from energy_demand.scripts_plotting import plotting_results
 import numpy as np
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def ss_build_stock(data):
     """Create dwelling stock for service sector with service dwellings
@@ -64,7 +65,7 @@ def ss_build_stock(data):
                     sys.exit("Error: The virtual ss building stock sector floor area assumption is not defined")
 
                 # Floor area of sector in current year considering linear diffusion
-                lin_diff_factor = mf.linear_diff(data['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['sim_period']))
+                lin_diff_factor = diffusion.linear_diff(data['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['sim_period']))
 
                 floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
 
@@ -77,7 +78,7 @@ def ss_build_stock(data):
                     print(lin_diff_factor)
                     print(change_floorarea_p_ey)
                     sys.exit("ERROR: FLOORAREA CANNOT BE ZERO")
-        
+
                 # create building object
                 dw_stock.append(
                     bf.Dwelling(
@@ -390,13 +391,13 @@ def generate_dw_new(data, reg_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp
                 curr_yr=curr_yr,
                 reg_name=reg_name,
                 longitude=data['region_coordinates'][reg_name]['longitude'],
-                latitude=data['region_coordinates'][reg_name]['latitude'],  
+                latitude=data['region_coordinates'][reg_name]['latitude'],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],
                 pop=pop_dwtype_sim_yr_new_build,
                 age=curr_yr,
-                dw_type=dw_type_id
+                dwtype=dw_type_id
                 )
             )
 

@@ -11,6 +11,9 @@ from energy_demand import main_functions as mf
 from scipy import stats
 import matplotlib.pyplot as plt
 import numpy as np
+from energy_demand.scripts_shape_handling import hdd_cdd
+from energy_demand.scripts_data import read_weather_data
+from energy_demand.scripts_data import read_weather_data
 
 def cm2inch(*tupl):
     """Convert input cm to inches
@@ -29,15 +32,15 @@ path_data_stations = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-
 
 # Read temp data
 print("...read temp")
-temperature_data_raw = df.read_weather_data_raw(path_data_temp, 9999)
+temperature_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9999)
 
 # Clean raw temperature data
 print("...clean temp")
-temperature_data = df.clean_weather_data_raw(temperature_data_raw, 9999)
+temperature_data = read_weather_data.clean_weather_data_raw(temperature_data_raw, 9999)
         
 # Weather stations
 print("...weatherstations")
-weather_stations = df.read_weather_stations_raw(path_data_stations, temperature_data.keys())
+weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temperature_data.keys())
 
 # Temperature weather data weater station 
 # 595	CHURCH	LAWFORD	WARWICKSHIRE	COUNTY	01/01/1983	Current	52.3584	-1.32987	CV23	9
@@ -60,14 +63,14 @@ print(temperatures.shape)
 t_base_heating = 15.5 # Heating t_base temp
 
 # HDD
-hdd_reg = mf.calc_hdd(t_base_heating, temperatures)
+hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
 print("shape hdd  " + str(hdd_reg.shape))
 '''
 hdd_reg = np.zeros((365))
 for weaterstaion in temperature_data.keys():
     print("Station: " + str(weaterstaion))
     print(temperature_data[weaterstaion][:1])
-    hdd_reg += mf.calc_hdd(t_base_heating, temperature_data[weaterstaion])
+    hdd_reg += hdd_cdd.calc_hdd(t_base_heating, temperature_data[weaterstaion])
 '''
 # Test if correlation with mean temp is better than with HDd
 #hdd_reg = averag_day_temp

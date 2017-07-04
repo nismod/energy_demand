@@ -1,32 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-def sigmoid_function(x, L, midpoint, steepness):
-    """Sigmoid function
-
-    Paramters
-    ---------
-    x : float
-        X-Value
-    L : float
-        The durv'es maximum value
-    midpoint : float
-        The midpoint x-value of the sigmoid's midpoint
-    k : dict
-        The steepness of the curve
-
-    Return
-    ------
-    y : float
-        Y-Value
-
-    Notes
-    -----
-    This function is used for fitting and plotting
-
-    """
-    y = L / (1 + np.exp(-steepness * ((x - 2000) - midpoint)))
-    return y
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter, close_window_crit=True):
     """Plot sigmoid diffusion
@@ -38,7 +13,7 @@ def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_pa
 
     L = L_values[enduse][technology]
     x = np.linspace(2015, 2100, 100)
-    y = sigmoid_function(x, L, *fit_parameter)
+    y = diffusion.sigmoid_function(x, L, *fit_parameter)
 
     fig = plt.figure()
 

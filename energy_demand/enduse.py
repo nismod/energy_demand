@@ -4,10 +4,11 @@ import sys
 import unittest
 import copy
 import numpy as np
-import energy_demand.main_functions as mf
-from energy_demand.scripts_diffusion import diffusion_technologies
+from energy_demand.scripts_plotting import plotting_results
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_initalisations import initialisations as init
-
+from energy_demand.scripts_shape_handling import shape_handling
+from energy_demand.scripts_technologies import fuel_service_switch
 ASSERTIONS = unittest.TestCase('__init__')
 
 class EnduseSummarySector(object):
@@ -264,7 +265,7 @@ class Enduse(object):
         and thus changes the share of enery service in each region
         """
         service_tech_by = init.init_dict(self.technologies_enduse, 'zero')
-        service_fueltype_tech_by_p = init.initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
+        service_fueltype_tech_by_p = init.init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
         for fueltype, fuel_enduse in enumerate(self.enduse_fuel_y_new_y):
@@ -327,7 +328,7 @@ class Enduse(object):
                     service_fueltype_tech_by_p[fueltype][tech] = 0
 
         # Calculate service fraction per fueltype
-        service_fueltype_by_p = mf.init_dict(fueltypes_lu.values(), 'zero')
+        service_fueltype_by_p = init.init_dict(fueltypes_lu.values(), 'zero')
         for fueltype, service_fueltype in service_fueltype_tech_by_p.items():
             for tech, service_fueltype_tech in service_fueltype.items():
                 service_fueltype_by_p[fueltype] += service_fueltype_tech
@@ -439,7 +440,7 @@ class Enduse(object):
         # Technology with decreasing service
         # -------------
         # Calculate proportional share of technologies with decreasing service of base year (distribution in base year)
-        service_tech_decrease_by_rel = mf.get_service_rel_tech_decrease_by(
+        service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decrease_by(
             tech_decrease_service, service_tech_by_p)
 
         # Add shares to output dict
@@ -500,7 +501,7 @@ class Enduse(object):
 
         for tech_installed in tech_increased_service:
             # Get service for current year based on sigmoid diffusion
-            service_tech_cy_p[tech_installed] = mf.sigmoid_function(
+            service_tech_cy_p[tech_installed] = diffusion.sigmoid_function(
                 self.current_yr,
                 sig_param_tech[self.enduse][tech_installed]['l_parameter'],
                 sig_param_tech[self.enduse][tech_installed]['midpoint'],
@@ -624,7 +625,7 @@ class Enduse(object):
                 # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
                 #tech_peak_dh_absolute = tech_stock.get_tech_attribute(tech, 'shape_yh')[peak_day_nr]
                 tech_peak_dh_absolute = tech_stock.get_tech_attribute(tech, 'shape_yh')[self.enduse][peak_day_nr] #NEW
-                tech_peak_dh = mf.absolute_to_relative(tech_peak_dh_absolute)
+                tech_peak_dh = shape_handling.absolute_to_relative(tech_peak_dh_absolute)
 
             else:
                 # Assign Peak shape of a peak day of a technology
@@ -762,7 +763,7 @@ class Enduse(object):
         for tech_installed in installed_tech[self.enduse]:
 
             # Read out sigmoid diffusion of service of this technology for the current year
-            diffusion_cy = mf.sigmoid_function(
+            diffusion_cy = plotting_results.sigmoid_function(
                 self.current_yr,
                 sig_param_tech[self.enduse][tech_installed]['l_parameter'],
                 sig_param_tech[self.enduse][tech_installed]['midpoint'],
@@ -968,7 +969,7 @@ class Enduse(object):
 
             # Lineare diffusion up to cy
             if diffusion_choice == 'linear':
-                lin_diff_factor = mf.linear_diff(
+                lin_diff_factor = diffusion.linear_diff(
                     self.base_yr,
                     self.curr_yr,
                     percent_by,
@@ -979,7 +980,7 @@ class Enduse(object):
 
             # Sigmoid diffusion up to cy
             elif diffusion_choice == 'sigmoid':
-                sig_diff_factor = diffusion_technologies.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                sig_diff_factor = diffusion.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage
@@ -1047,7 +1048,7 @@ class Enduse(object):
                 if fuel != 0: # if fuel exists
                     fuelprice_by = data_ext['fuel_price'][self.base_yr][fueltype] # Fuel price by
                     fuelprice_cy = data_ext['fuel_price'][self.current_yr][fueltype] # Fuel price ey
-                    new_fuels[fueltype] = mf.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
+                    new_fuels[fueltype] = plotting_results.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
                 else:
                     new_fuels[fueltype] = fuel
 
@@ -1076,7 +1077,7 @@ class Enduse(object):
             new_fuels = np.zeros((self.enduse_fuel_y_new_y.shape[0]))
 
             # Sigmoid diffusion up to current year
-            sigm_factor = diffusion_technologies.sigmoid_diffusion(
+            sigm_factor = diffusion.sigmoid_diffusion(
                 self.base_yr,
                 self.current_yr,
                 self.end_yr,

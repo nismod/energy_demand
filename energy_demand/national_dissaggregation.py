@@ -1,7 +1,8 @@
 """ This File disaggregates total national demand """
 import unittest
 import numpy as np
-import energy_demand.main_functions as mf
+from energy_demand.scripts_plotting import plotting_results
+from energy_demand.scripts_shape_handling import hdd_cdd
 ASSERTIONS = unittest.TestCase('__init__')
 
 def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
@@ -72,7 +73,7 @@ def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
     test_sum_before = sum_fuels_before(rs_national_fuel)
 
     # Calculate heating degree days in whole country for base year
-    rs_hdd_individ_region = mf.get_hdd_country(regions, data, 'rs_t_base_heating')
+    rs_hdd_individ_region = hdd_cdd.get_hdd_country(regions, data, 'rs_t_base_heating')
 
     # Total heated days for all person sum of
     tot_hdd_popreg = 0

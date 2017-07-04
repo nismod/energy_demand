@@ -1,3 +1,7 @@
+"""Weather data manipulation
+"""
+from haversine import haversine # Package to calculate distance between two long/lat points
+
 def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
     """Calculate distance between two points
 
@@ -23,7 +27,7 @@ def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
 
     return distance
 
-def get_closest_weather_station(longitude_reg, latitue_reg, weather_stations):
+def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     """Search ID of closest weater station
 
     Parameters

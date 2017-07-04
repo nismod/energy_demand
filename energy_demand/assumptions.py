@@ -1,6 +1,8 @@
 """ This file contains all assumptions of the energy demand model"""
 import sys
-import energy_demand.main_functions as mf
+from energy_demand.scripts_data import read_data
+from energy_demand.scripts_shape_handling import shape_handling
+from energy_demand.scripts_technologies import technologies_related
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_assumptions(data):
@@ -39,7 +41,7 @@ def load_assumptions(data):
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
     #assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    #assumptions['dwtype_age_distr'] = mf.calc_age_distribution()
+    #assumptions['dwtype_age_distr'] = plotting_results.calc_age_distribution()
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
     # ============================================================
@@ -57,7 +59,6 @@ def load_assumptions(data):
         'rs_consumer_electronics': ['pop'],
         'rs_home_computing': ['pop'],
     }
-
 
 
     # ..SERVICE SECTOR
@@ -96,23 +97,23 @@ def load_assumptions(data):
     # Climate Change assumptions
     #     Temperature changes for every month until end year for every month
     # ========================================================================================================================
-    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
-
-    '''# Hotter winter, cooler summers
     assumptions['climate_change_temp_diff_month'] = [
-        1, # January
-        1, # February
-        1, # March
-        1, # April
-        1, # May
-        1, # June
-        -1, # July
-        -1, # August
-        -1, # September
-        -1, # October
-        -1, # November
-        -1 # December
-    ]'''
+        0, # January (can be plus or minus)
+        0, # February
+        0, # March
+        0, # April
+        0, # May
+        0, # June
+        0, # July
+        0, # August
+        0, # September
+        0, # October
+        0, # November
+        0 # December
+    ]
+    '''
+    assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
+    '''
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
@@ -176,7 +177,7 @@ def load_assumptions(data):
     # ============================================================
     #assumptions['rs_heat_recovered] = 0.0
     #assumptions['rs_heat_recovered] =
-    
+
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------------------------------------------------------------------
@@ -225,7 +226,7 @@ def load_assumptions(data):
     # Technologies & efficiencies
     # ============================================================
     # Load all technologies
-    assumptions['technologies'] = mf.read_technologies(data['path_dict']['path_technologies'], data)
+    assumptions['technologies'] = read_data.read_technologies(data['path_dict']['path_technologies'], data)
 
     # Temperature dependency of heat pumps (slope). Derived from Staffell et al. (2012), Fixed tech assumptions (do not change for scenario)
     assumptions['hp_slope_assumption'] = -.08
@@ -239,7 +240,7 @@ def load_assumptions(data):
     # Create av heat pump technologies and list with heat pumps
 
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
-    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = mf.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
+    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
 
     # Definde and read in hybrid technologies (TODO)
     assumptions['technologies'], assumptions['list_tech_heating_hybrid'], testing_hybrid_tech = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'])
@@ -260,7 +261,7 @@ def load_assumptions(data):
     # Lighting technologies
     assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
 
-    #assumptions['list_water_heating'] = 
+    #assumptions['list_water_heating'] =
 
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
@@ -331,14 +332,14 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['rs_path_fuel_switches'], data)
-    assumptions['ss_fuel_switches'] = mf.read_csv_assumptions_fuel_switches(data['path_dict']['ss_path_fuel_switches'], data)
+    assumptions['rs_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['rs_path_fuel_switches'], data)
+    assumptions['ss_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['ss_path_fuel_switches'], data)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = mf.read_csv_assumptions_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
 
 
     # ============================================================
@@ -604,19 +605,19 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     service_share_high_temp_tech = 1 - assump_service_share_low_tech
 
     # Get technology type
-    ##tech_type_low_temp = mf.get_tech_type(tech_low_temp, assumptions)
-    ##tech_type_high_temp = mf.get_tech_type(tech_high_temp, assumptions)
+    ##tech_type_low_temp = technologies_related.get_tech_type(tech_low_temp, assumptions)
+    ##tech_type_high_temp = technologies_related.get_tech_type(tech_high_temp, assumptions)
 
     # Efficiencies of technologies of hybrid tech
     if tech_low_temp in assumptions['list_tech_heating_temp_dep']:
         ##if tech_type_low_temp == 'heat_pump':
-        eff_tech_low_temp = mf.eff_heat_pump(assumptions['hp_slope_assumption'], average_h_diff_by, assumptions['technologies'][tech_low_temp]['eff_by'])
+        eff_tech_low_temp = shape_handling.eff_heat_pump(assumptions['hp_slope_assumption'], average_h_diff_by, assumptions['technologies'][tech_low_temp]['eff_by'])
     else:
         eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
 
     if tech_high_temp in assumptions['list_tech_heating_temp_dep']:
         ##if tech_type_high_temp == 'heat_pump':
-        eff_tech_high_temp = mf.eff_heat_pump(m_slope=assumptions['hp_slope_assumption'], h_diff=average_h_diff_by, b=assumptions['technologies'][tech_high_temp]['eff_by'])
+        eff_tech_high_temp = shape_handling.eff_heat_pump(m_slope=assumptions['hp_slope_assumption'], h_diff=average_h_diff_by, intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
     else:
         eff_tech_high_temp = assumptions['technologies'][tech_high_temp]['eff_by']
 
@@ -649,8 +650,8 @@ def testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, f
     return
 
 def testing_correct_service_switch_entered(tech_stock_definition, switches):
-
-
+    """
+    """
     for enduse in tech_stock_definition:
 
         #get all switchess

@@ -44,8 +44,8 @@ Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - Heat recycling/reuse in percentage (lower heating demand accordingly)
 -
-TODO: Maybe take heat pump profiles from here instead of samson: http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
-
+TODO: Maybe take heat pump profiles from here instead of samson:
+http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
 The docs can be found here: http://ed.readthedocs.io
 '''
@@ -55,14 +55,16 @@ The docs can be found here: http://ed.readthedocs.io
 import os
 import sys
 import energy_demand.energy_model as energy_model
-import energy_demand.main_functions as mf
+from energy_demand.scripts_plotting import plotting_results
 import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
-import energy_demand.plot_functions as pf
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 from energy_demand.scripts_data import write_data
-from energy_demand.scripts_diffusion import diffusion_technologies
+from energy_demand.scripts_data import read_data
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
+from energy_demand.scripts_technologies import fuel_service_switch
+from energy_demand.scripts_calculations import enduse_scenario
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -90,7 +92,7 @@ def energy_demand_model(data):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = mf.convert_out_format_es(data, object_country, data['ss_all_enduses'])
+    result_dict = read_data.convert_out_format_es(data, object_country, data['ss_all_enduses'])
 
 
     # --- Write to csv and YAML
@@ -182,7 +184,7 @@ if __name__ == "__main__":
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
 
-    data_external['factcalculationcrit'] = True
+    data_external['factcalculationcrit'] = False
     # ------------------- DUMMY END
 
 
@@ -210,10 +212,10 @@ if __name__ == "__main__":
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
 
     # Change temperature data according to simple assumptions about climate change
-    base_data['temperature_data'] = mf.change_temp_data_climate_change(base_data)
+    base_data['temperature_data'] = enduse_scenario.change_temp_data_climate_change(base_data)
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = mf.get_service_fueltype_tech(
+    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
@@ -222,8 +224,8 @@ if __name__ == "__main__":
         )
 
     # SERVICE: Convert base year fuel input assumptions to energy service
-    fuels_aggregated_across_sectors = mf.ss_summarise_fuel_per_enduse_all_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
-    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = mf.get_service_fueltype_tech(
+    fuels_aggregated_across_sectors = fuel_service_switch.ss_summarise_fuel_enduse_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
+    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by'],
@@ -236,14 +238,14 @@ if __name__ == "__main__":
     print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
-    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = mf.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
+    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
+    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
 
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # --Residential
-    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sig_param_tech'] = diffusion_technologies.get_sig_diffusion(
+    base_data['assumptions']['rs_installed_tech'], base_data['assumptions']['rs_sig_param_tech'] = diffusion.get_sig_diffusion(
         base_data,
         base_data['assumptions']['rs_service_switches'],
         base_data['assumptions']['rs_fuel_switches'],
@@ -257,7 +259,7 @@ if __name__ == "__main__":
         )
 
     # --Service
-    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = diffusion_technologies.get_sig_diffusion(
+    base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = diffusion.get_sig_diffusion(
         base_data,
         base_data['assumptions']['ss_service_switches'],
         base_data['assumptions']['ss_fuel_switches'],
@@ -298,20 +300,20 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot results for every year
-    pf.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
-    pf.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
-    pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
-    pf.plot_fuels_tot_all_enduses(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
+    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Plot peak demand (h) for every fueltype
-    pf.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
-    pf.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_max_allenduse_fueltyp')
+    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
+    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_max_allenduse_fueltyp')
 
     # Plot a full week
-    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
-    pf.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
+    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
+    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
     # Run main function
     #results = energy_demand_model(base_data)

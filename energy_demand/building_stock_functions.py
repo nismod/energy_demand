@@ -1,8 +1,9 @@
 """ Functions for building stock"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 import numpy as np
-import energy_demand.main_functions as mf
+from energy_demand.scripts_plotting import plotting_results
 import energy_demand.assumptions as assumpt
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 class Dwelling(object):
     """Class of a single dwelling or of a aggregated group of dwelling
@@ -117,8 +118,7 @@ class DwStockRegion(object):
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += getattr(dwelling, enduse)
-            #sum_driver += dwelling.enduse
-            
+
         return sum_driver
 
     def get_tot_pop(self):
@@ -174,7 +174,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
                 #print(assump_final_diff_floorarea_pp)
                 #print(sim_period)
                 #print(len(sim_period))
-                lin_diff_factor = mf.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
+                lin_diff_factor = diffusion.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
                 #print("lin_diff_factor: " + str(lin_diff_factor))
                 #diff_cy = lin_diff_factor #(1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
                 #print("diff_cy: " + str(diff_cy))

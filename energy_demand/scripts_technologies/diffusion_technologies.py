@@ -1,13 +1,75 @@
-
+"""Funtions related to the diffusion of technologies
+"""
 import sys
+import math
+import copy
 import numpy as np
+from scipy.optimize import curve_fit
 from energy_demand.scripts_initalisations import initialisations as init
 from energy_demand.scripts_plotting import plotting_program as plotting
 
-from scipy.optimize import curve_fit
+def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
+    """This function assumes a linear fuel_enduse_switch diffusion.
+
+    All necessary data to run energy demand model is loaded.
+    This data is loaded in the wrapper.
+    Parameters
+    ----------
+    base_yr : int
+        The year of the current simulation.
+    curr_yr : int
+        The year of the current simulation.
+    value_start : float
+        Fraction of population served with fuel_enduse_switch in base year
+    value_end : float
+        Fraction of population served with fuel_enduse_switch in end year
+    sim_years : str
+        Total number of simulated years.
+
+    Returns
+    -------
+    fract_sy : float
+        The fraction of the fuel_enduse_switch in the simulation year
+    """
+    # If current year is base year, return zero
+    if curr_yr == base_yr or sim_years == 0:
+        fract_sy = 0
+    else:
+        fract_sy = np.divide((value_end - value_start), (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
+
+    return fract_sy
+
+def sigmoid_function(x_value, l_value, midpoint, steepness):
+    """Sigmoid function
+
+    Paramters
+    ---------
+    x_value : float
+        X-Value
+    l_value : float
+        The durv'es maximum value
+    midpoint : float
+        The midpoint x-value of the sigmoid's midpoint
+    k : dict
+        The steepness of the curve
+
+    Return
+    ------
+    y : float
+        Y-Value
+
+    Notes
+    -----
+    This function is used for fitting and plotting
+
+    """
+    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
+
+    return y_value
 
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
-    """Calculates a sigmoid diffusion path of a lower to a higher value where saturation is assumed at the endyear
+    """Calculates a sigmoid diffusion path of a lower to a higher value with
+    assumed saturation at the end year
 
     Parameters
     ----------
@@ -18,9 +80,11 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     end_yr : int
         The year a fuel_enduse_switch saturaes
     sig_midpoint : float
-        Mid point of sigmoid diffusion function can be used to shift curve to the left or right (standard value: 0)
+        Mid point of sigmoid diffusion function can be used to shift
+        curve to the left or right (standard value: 0)
     sig_steeppness : float
-        Steepness of sigmoid diffusion function The steepness of the sigmoid curve (standard value: 1)
+        Steepness of sigmoid diffusion function The steepness of the
+        sigmoid curve (standard value: 1)
 
     Returns
     -------
@@ -50,16 +114,16 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
             y_trans = -6.0 + (12.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
         # Get a value between 0 and 1 (sigmoid curve ranging from 0 to 1)
-        cy_p = np.divide(1, (1 + m.exp(-1 * sig_steeppness * (y_trans - sig_midpoint))))
+        cy_p = np.divide(1, (1 + math.exp(-1 * sig_steeppness * (y_trans - sig_midpoint))))
 
         return cy_p
 
-def fit_sigmoid_diffusion(L, x_data, y_data, start_parameters):
+def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """Fit sigmoid curve based on two points on the diffusion curve
 
     Parameters
     ----------
-    L : float
+    l_value : float
         The sigmoids curve maximum value (max consumption)
     x_data : array
         X coordinate of two points
@@ -78,18 +142,18 @@ def fit_sigmoid_diffusion(L, x_data, y_data, start_parameters):
     RuntimeWarning is ignored
 
     """
-    def sigmoid_fitting_function(x, x0, k):
+    def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
         """
-        y = np.divide(L, 1 + np.exp(-k * ((x - 2000) - x0)))
-        return y
+        y_value = np.divide(l_value, 1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
+
+        return y_value
 
     popt, _ = curve_fit(sigmoid_fitting_function, x_data, y_data, p0=start_parameters)
 
     return popt
 
-
-def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxL_by_p, service_fueltype_by_p, service_tech_by_p, fuel_enduse_tech_p_by):
+def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_enduse_tech_p_by):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
 
     Parameters
@@ -135,7 +199,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
             service_tech_switched_p = share_service_tech_ey_p
 
             # Maximum shares of each technology
-            l_values_sig = enduse_tech_maxL_by_p
+            l_values_sig = enduse_tech_maxl_by_p
 
         else: # Sigmoid calculation in case of 'fuel switch'
 
@@ -154,7 +218,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
             )
 
             # Calculate L for every technology for sigmod diffusion
-            l_values_sig = tech_L_sigmoid(
+            l_values_sig = tech_l_sigmoid(
                 enduses,
                 fuel_switches,
                 installed_tech,
@@ -179,7 +243,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
 
     return installed_tech, sig_param_tech
 
-def tech_L_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by):
+def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by):
     """Calculate L value for every installed technology with maximum theoretical replacement value
 
     Parameters
@@ -225,7 +289,7 @@ def tech_L_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 
     return l_values_sig
 
-def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, L_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
+def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches. A sigmoid diffusion is fitted.
@@ -242,7 +306,7 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
         Technologies for enduses with fuel switch
     installed_tech : dict
         List with installed technologies in fuel switches
-    L_values : dict
+    l_values : dict
         L values for maximum possible diffusion of technologies
     service_tech_by_p : dict
         Energy service demand for base year (1.sigmoid point)
@@ -260,7 +324,7 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
     -----
     NTH: improve fitting
 
-    Manually the fitting parameters can be defined which are not considered as a good fit: fit_crit_A, fit_crit_B
+    Manually the fitting parameters can be defined which are not considered as a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
 
     """
@@ -269,8 +333,8 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
     #-----------------
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     #-----------------
-    fit_crit_A = 200
-    fit_crit_B = 0.001
+    fit_crit_a = 200
+    fit_crit_b = 0.001
 
     for enduse in enduses:
         # Only continue if technologies are specified for enduse
@@ -292,7 +356,7 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                                 year_until_switched = switch['year_fuel_consumption_switched']
 
                     market_entry = data['assumptions']['technologies'][technology]['market_entry']
-                
+
                 # --------
                 # Test whether technology has the market entry before or after base year, If afterwards, set very small number in market entry year
                 # --------
@@ -336,14 +400,14 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                         print("--------------- Technology " + str(technology) + str("  ") + str(cnt))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
-                        print("Lvalue: " + str(L_values[enduse][technology]))
+                        print("Lvalue: " + str(l_values[enduse][technology]))
                         print("start_parameters: " + str(start_parameters))
                         #'''
-                        fit_parameter = fit_sigmoid_diffusion(L_values[enduse][technology], xdata, ydata, start_parameters)
+                        fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
                         #print("fit_parameter: " + str(fit_parameter))
 
                         # Criteria when fit did not work
-                        if fit_parameter[0] > fit_crit_A or fit_parameter[0] < fit_crit_B or fit_parameter[1] > fit_crit_A or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
+                        if fit_parameter[0] > fit_crit_a or fit_parameter[0] < fit_crit_b or fit_parameter[1] > fit_crit_a or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
                             successfull = False
                             cnt += 1
                             if cnt >= len(possible_start_parameters):
@@ -356,15 +420,15 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                         cnt += 1
 
                         if cnt >= len(possible_start_parameters):
-                            sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_A and fit_crit_B")
+                            sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_a and fit_crit_b")
 
                 # Insert parameters
                 sigmoid_parameters[technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
                 sigmoid_parameters[technology]['steepness'] = fit_parameter[1] #Steepnes (k)
-                sigmoid_parameters[technology]['l_parameter'] = L_values[enduse][technology]
+                sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
 
                 #plot sigmoid curve
-                plotting.plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter, True)
+                plotting.plotout_sigmoid_tech_diff(l_values, technology, enduse, xdata, ydata, fit_parameter, True)
 
     print("finished...")
     return sigmoid_parameters

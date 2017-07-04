@@ -1,3 +1,86 @@
+"""Functions which are writing data
+"""
+import os
+import unittest
+import csv
+import json
+import yaml
+import numpy as np
+ASSERTIONS = unittest.TestCase('__init__')
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
+
+def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd):
+    """Function collecting functions to write out txt files"""
+    jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
+    jason_to_txt_shape_non_peak_dh(shape_non_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+    jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+    jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+
+    return
+
+def jason_to_txt_shape_peak_dh(input_array, outfile_path):
+    """Wrte to txt. Array with shape: (24,)
+    """
+    np_dict = dict(enumerate(input_array))
+    with open(outfile_path, 'w') as outfile:
+        json.dump(np_dict, outfile)
+
+def jason_to_txt_shape_non_peak_dh(input_array, outfile_path):
+    """Wrte to txt. Array with shape: (365, 24)
+    """
+    out_dict = {}
+    for k, row in enumerate(input_array):
+        out_dict[k] = dict(enumerate(row))
+    with open(outfile_path, 'w') as outfile:
+        json.dump(out_dict, outfile)
+
+def jason_to_txt_shape_peak_yd_factor(input_array, outfile_path):
+    """Wrte to txt. Array with shape: ()
+    """
+    with open(outfile_path, 'w') as outfile:
+        json.dump(input_array, outfile)
+
+def jason_to_txt_shape_non_peak_yd(input_array, outfile_path):
+    """Wrte to txt. Array with shape: (365)"""
+    out_dict = {}
+    for k, row in enumerate(input_array):
+        out_dict[k] = row
+    with open(outfile_path, 'w') as outfile:
+        json.dump(out_dict, outfile)
+
+def read_txt_shape_peak_dh(file_path):
+    """Read to txt. Array with shape: (24,)
+    """
+    read_dict = json.load(open(file_path))
+    read_dict_list = list(read_dict.values())
+    out_dict = np.array(read_dict_list, dtype=float)
+    return out_dict
+
+def read_txt_shape_non_peak_yh(file_path):
+    """Read to txt. Array with shape: (365, 24)"""
+    out_dict = np.zeros((365, 24))
+    read_dict = json.load(open(file_path))
+    read_dict_list = list(read_dict.values())
+    for day, row in enumerate(read_dict_list):
+        out_dict[day] = np.array(list(row.values()), dtype=float)
+    return out_dict
+
+def read_txt_shape_peak_yd_factor(file_path):
+    """Read to txt. Array with shape: (365, 24)
+    """
+    out_dict = json.load(open(file_path))
+    return out_dict
+
+def read_txt_shape_non_peak_yd(file_path):
+    """Read to txt. Array with shape: (365, 1)
+    """
+    out_dict = np.zeros((365))
+    read_dict = json.load(open(file_path))
+    read_dict_list = list(read_dict.values())
+    for day, row in enumerate(read_dict_list):
+        out_dict[day] = np.array(row, dtype=float)
+    return out_dict
+
 def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
 

@@ -6,11 +6,17 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import energy_demand.main_functions as mf
 import energy_demand.technological_stock as ts
-import energy_demand.enduseClass as enduseClass
+import energy_demand.enduse as endusefunctions
 import energy_demand.serviceSector as ssClass
+from energy_demand.scripts_basic import date_handling
+from energy_demand.scripts_shape_handling import shape_handling
+from energy_demand.scripts_shape_handling import hdd_cdd
+from energy_demand.scripts_technologies import technologies_related
+from energy_demand.scripts_geography import weather_station_location as wl
+
 ASSERTIONS = unittest.TestCase('__init__')
+
 
 class Region(object):
     """Region
@@ -44,7 +50,7 @@ class Region(object):
         # Get closest weather station and temperatures
         longitude = data['region_coordinates'][reg_name]['longitude']
         latitude = data['region_coordinates'][reg_name]['latitude']
-        closest_weatherstation_id = mf.get_closest_weather_station(longitude, latitude, data['weather_stations'])
+        closest_weatherstation_id = wl.get_closest_station(longitude, latitude, data['weather_stations'])
         temp_by = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
         temp_cy = data['temperature_data'][closest_weatherstation_id][data['curr_yr']]
 
@@ -230,7 +236,7 @@ class Region(object):
         fuel_shape_yh = np.zeros((365, 24))
 
         # Create dh shapes for every day from relative dh shape of hybrid technologies
-        fuel_shape_hybrid_y_dh = mf.calc_hybrid_fuel_shapes_y_dh(
+        fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
             fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
             tech_low_high_p=tech_stock.get_tech_attribute(hybrid_tech, 'service_distr_hybrid_h_p_cy'),
@@ -293,7 +299,7 @@ class Region(object):
             # Iterate all technologies and check if specific technology has a own shape
             for technology in technologies_input[enduse]:
 
-                tech_type = mf.get_tech_type(technology, data['assumptions'], enduse)
+                tech_type = technologies_related.get_tech_type(technology, data['assumptions'], enduse)
 
                 if tech_type == 'boiler_heating_tech':
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', rs_fuel_shape_heating_yd, enduse) # Non peak
@@ -312,7 +318,7 @@ class Region(object):
                     enduse_shape_from_HES_peak_yd_factor = data['{}_shapes_yd'.format(abr)]['{}_lighting'.format(abr)]['shape_peak_yd_factor']
 
                     # Convert yd and dh to yh
-                    enduse_shape_from_HES_yh = mf.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
+                    enduse_shape_from_HES_yh = shape_handling.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
 
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
@@ -323,7 +329,7 @@ class Region(object):
                     enduse_shape_from_HES_peak_yd_factor = data['{}_shapes_yd'.format(abr)]['{}_water_heating'.format(abr)]['shape_peak_yd_factor']
 
                     # Convert yd and dh to yh
-                    enduse_shape_from_HES_yh = mf.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
+                    enduse_shape_from_HES_yh = shape_handling.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
 
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
@@ -385,7 +391,7 @@ class Region(object):
                 enduse,
 
                 # Summed individual attribute
-                enduseClass.EnduseSummarySector(
+                endusefunctions.EnduseSummarySector(
                     enduse_fuel_yd=enduse_fuel_yd,
                     enduse_fuel_yh=enduse_fuel_yh,
                     enduse_fuel_peak_dh=enduse_fuel_peak_dh,
@@ -430,7 +436,7 @@ class Region(object):
             Region.__setattr__(
                 self,
                 enduse,
-                enduseClass.Enduse(
+                endusefunctions.Enduse(
                     reg_name=self.reg_name,
                     data=data,
                     enduse=enduse,
@@ -740,12 +746,12 @@ class Region(object):
         The diffusion is assumed to be sigmoid
         """
         # Calculate base temperature for heating of current year
-        t_base_heating_cy = mf.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], t_base_type)
+        t_base_heating_cy = hdd_cdd.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], t_base_type)
 
         # Calculate hdd for every day (365, 1)
-        hdd_d = mf.calc_hdd(t_base_heating_cy, temperatures)
+        hdd_d = hdd_cdd.calc_hdd(t_base_heating_cy, temperatures)
 
-        shape_hdd_d = mf.absolute_to_relative(hdd_d)
+        shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
 
         # Error testing
         if np.sum(hdd_d) == 0:
@@ -775,12 +781,12 @@ class Region(object):
         shape_yd : array
             Fraction of heat for every day. Array-shape: 365, 1
         """
-        t_base_cooling = mf.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], t_base_type)
+        t_base_cooling = hdd_cdd.t_base_sigm(year, data['assumptions'], data['base_yr'], data['end_yr'], t_base_type)
 
         # Calculate cdd for every day (365, 1)
-        cdd_d = mf.calc_cdd(t_base_cooling, temperatures)
+        cdd_d = hdd_cdd.calc_cdd(t_base_cooling, temperatures)
 
-        shape_cdd_d = mf.absolute_to_relative(cdd_d)
+        shape_cdd_d = shape_handling.absolute_to_relative(cdd_d)
 
         return cdd_d, shape_cdd_d
 
@@ -819,7 +825,7 @@ class Region(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -852,7 +858,7 @@ class Region(object):
 
             # Add normalised daily fuel curve
             #shape_y_dh[day] = np.divide(1, np.sum(fuel_shape_d)) * fuel_shape_d
-            shape_y_dh[day] = mf.absolute_to_relative(fuel_shape_d)
+            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp
@@ -965,7 +971,7 @@ class Region(object):
         shape_yh_boilers = np.zeros((365, 24))
         shape_y_dh_boilers = np.zeros((365, 24))
 
-        list_dates = mf.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 

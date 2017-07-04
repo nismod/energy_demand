@@ -1,7 +1,11 @@
 """The technological stock for every simulation year"""
 import numpy as np
-import energy_demand.main_functions as mf
-from energy_demand.scripts_diffusion import diffusion_technologies
+from energy_demand.scripts_plotting import plotting_results
+from energy_demand.scripts_technologies import diffusion_technologies as diffusion
+from energy_demand.scripts_shape_handling import shape_handling
+from energy_demand.scripts_shape_handling import hdd_cdd
+from energy_demand.scripts_technologies import technologies_related
+
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class ResidTechStock(object):
@@ -106,7 +110,7 @@ class Technology(object):
         self.tech_name = tech_name
 
         # Get technology type
-        self.tech_type = mf.get_tech_type(tech_name, data['assumptions'])
+        self.tech_type = technologies_related.get_tech_type(tech_name, data['assumptions'])
 
         # Achieved factor
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
@@ -134,7 +138,7 @@ class Technology(object):
         '''
 
         # Base temp assumptions for by and cy
-        t_base_heating_cy = mf.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
+        t_base_heating_cy = hdd_cdd.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
 
         # Market entry
         self.market_entry = data['assumptions']['technologies'][self.tech_name]['market_entry']
@@ -254,7 +258,7 @@ class Technology(object):
                     else:
                         h_diff = abs(t_base_heating - temp_h)
 
-                eff_hp_yh[day][h_nr] = mf.eff_heat_pump(m_slope, h_diff, b)
+                eff_hp_yh[day][h_nr] = shape_handling.eff_heat_pump(m_slope, h_diff, b)
 
                 #--Testing
                 assert eff_hp_yh[day][h_nr] > 0
@@ -602,7 +606,7 @@ class Technology(object):
         """
         # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
         if self.diff_method == 'linear':
-            theor_max_eff = mf.linear_diff(
+            theor_max_eff = diffusion.linear_diff(
                 base_yr,
                 current_yr,
                 assumptions['technologies'][technology]['eff_by'],
@@ -610,7 +614,7 @@ class Technology(object):
                 len(sim_period)
             )
         elif self.diff_method == 'sigmoid':
-            theor_max_eff = diffusion_technologies.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
+            theor_max_eff = diffusion.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
         # Consider actual achived efficiency
         actual_max_eff = theor_max_eff * self.eff_achieved_factor

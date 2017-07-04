@@ -1,3 +1,5 @@
+"""Helper initialising functions
+"""
 def init_dict(first_level_keys, crit):
     """Initialise a  dictionary with one level
 
@@ -73,7 +75,9 @@ def sum_2_level_dict(two_level_dict):
 
     return tot_sum
 
-def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
+def init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
+    """Initialise dict
+    """
     service_fueltype_tech_by_p = {}
 
     for fueltype_int in fueltypes_lu.values():
@@ -82,3 +86,27 @@ def initialise_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
             service_fueltype_tech_by_p[fueltype_int][tech] = 0
 
     return service_fueltype_tech_by_p
+
+def initialise_out_dict_av():
+    """Helper function to initialise dict
+    """
+    out_dict_av = {0: {}, 1: {}}
+    for dtype in out_dict_av:
+        month_dict = {}
+        for month in range(12):
+            month_dict[month] = {k: 0 for k in range(24)}
+        out_dict_av[dtype] = month_dict
+
+    return out_dict_av
+
+def initialise_main_dict():
+    """Helper function to initialise dict
+    """
+    out_dict_av = {0: {}, 1: {}}
+    for dtype in out_dict_av:
+        month_dict = {}
+        for month in range(12):
+            month_dict[month] = {k: [] for k in range(24)}
+        out_dict_av[dtype] = month_dict
+
+    return out_dict_av
