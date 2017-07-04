@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import energy_demand.technological_stock as ts
 import energy_demand.enduse as endusefunctions
-import energy_demand.serviceSector as ssClass
+import energy_demand.submodule_service as ssClass
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
@@ -146,9 +146,6 @@ class Region(object):
             data
         )
         #'''
-
-
-
 
 
 

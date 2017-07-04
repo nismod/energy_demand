@@ -3,6 +3,9 @@
 import unittest
 import numpy as np
 import energy_demand.region as reg
+import energy_demand.submodule_residential as submodule_residential
+import energy_demand.submodule_service as submodule_service
+
 ASSERTIONS = unittest.TestCase('__init__')
 
 def model_main_function(data):
@@ -69,8 +72,13 @@ class EnergyModel(object):
         # --------------
         # Residential SubModel
         # --------------
-        self.residential_submodel(data['rs_all_enduses'])
+        self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'])
 
+        # --------------
+        # Service SubModel
+        # --------------
+        self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['all_service_sectors'])
+        print("EEEEEEEEEEEEEEEEERFOLGREICH")
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
@@ -95,15 +103,39 @@ class EnergyModel(object):
             test_sum += self.rs_tot_country_fuel_enduse_specific_h[enduse]
         np.testing.assert_almost_equal(np.sum(self.rs_tot_country_fuel), test_sum, decimal=5, err_msg='', verbose=True)
         '''
-    
-    def residential_submodel(self, enduses):
-        """
-        """
-        # Regions
-        # Enduses
-        # Asumptions
 
-        pass
+    def residential_submodel(self, data, enduses):
+        """
+        """
+        rs_submodules = []
+
+        for region_object in self.regions:
+            for enduse in enduses:
+
+                # Assumptions
+
+                # Create submodule
+                submodule = submodule_residential.ResidentialModel(data, region_object, enduse)
+
+                rs_submodules.append(submodule)
+
+        return rs_submodules
+
+    def service_submodel(self, data, enduses, sectors):
+        """
+        """
+        ss_submodules = []
+
+        for region_object in self.regions:
+            for sector in sectors:
+                for enduse in enduses:
+
+                    # Create submodule
+                    submodule = submodule_service.ServiceModel(data, region_object, enduse, sector)
+
+                    ss_submodules.append(submodule)
+
+        return ss_submodules
 
     def create_regions(self, reg_names, data):
         """Create all regions and add them as attributes based on region name to the EnergyModel Class
