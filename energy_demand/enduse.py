@@ -11,20 +11,6 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import fuel_service_switch
 ASSERTIONS = unittest.TestCase('__init__')
 
-class EnduseSummarySector(object):
-    """Class which is used to store summarised fuels across all sectors of an enduse
-
-    The fuel attributes in the 'Enduse' within each sector which want to be transferred need to be entered here
-    The fuels are summed across all sectors (e.g. all space heating across all sectors)
-    """
-    def __init__(self, enduse_fuel_yd, enduse_fuel_yh, enduse_fuel_peak_dh, enduse_fuel_peak_h):
-        """Same attributes as in 'Enduse'
-        """
-        self.enduse_fuel_yd = enduse_fuel_yd
-        self.enduse_fuel_yh = enduse_fuel_yh
-        self.enduse_fuel_peak_dh = enduse_fuel_peak_dh
-        self.enduse_fuel_peak_h = enduse_fuel_peak_h
-
 class Enduse(object):
     """Class of an end use of the residential sector
 
@@ -222,7 +208,7 @@ class Enduse(object):
             # --------
             self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_y_new_y, data_shapes_yd[enduse]['shape_non_peak_yd'])
             self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[enduse]['shape_non_peak_dh'])
-            print("--SUMME2 enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+            #print("--SUMME2 enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
 
             # --------
             # PEAK
@@ -573,7 +559,7 @@ class Enduse(object):
             #print("--peakfinidng: " + str(fueltype) + str("  ") + str(np.max(fuel_dh)))
             peak_fueltype_h[fueltype] = np.max(fuel_dh) # Get hour with maximum fuel in a day of fueltype
 
-        print("TESTSUM: " + str(np.sum(peak_fueltype_h)))
+        #print("TESTSUM: " + str(np.sum(peak_fueltype_h)))
         return peak_fueltype_h
 
     def calc_enduse_fuel_peak_tech_dh(self, assumptions, enduse_fuel_tech, tech_stock, peak_day_nr):

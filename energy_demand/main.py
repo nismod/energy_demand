@@ -92,14 +92,15 @@ def energy_demand_model(data):
 
 
     # Convert to dict for energy_supply_model
-    result_dict = read_data.convert_out_format_es(data, object_country, data['ss_all_enduses'])
-
+    #TODO: read out for every REGION per FUELTYPE
+    #result_dict = read_data.convert_out_format_es(data, object_country, data['ss_all_enduses'])
+    result_dict = {}
 
     # --- Write to csv and YAML
     # write_data.write_final_result(data, result_dict, data['lu_reg'], False)
 
-    print("FINAL Fueltype:  " + str(len(result_dict)))
-    print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
+    #print("FINAL Fueltype:  " + str(len(result_dict)))
+    #print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
     print("Finished energy demand model")
 
     # Plot Region 0 for half a year
@@ -283,6 +284,7 @@ if __name__ == "__main__":
 
     # If several years are run:
     results_every_year = []
+    sim_years = [2015, 2020]
     for sim_yr in sim_years:
         base_data['curr_yr'] = sim_yr
         print("                           ")
@@ -299,15 +301,16 @@ if __name__ == "__main__":
     # Plot load factors
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
-    # Plot results for every year
-    plotting_results.plot_stacked_Country_end_use(results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
-    plotting_results.plot_stacked_Country_end_use(results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
+    # Plot total fuel (y) per enduse
+    #plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
     plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses')
     plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'ss_tot_country_fuels_all_enduses')
 
-    # Plot peak demand (h) for every fueltype
+    # Plot peak demand (h) per fueltype
     plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_max_allenduse_fueltyp')
     plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_max_allenduse_fueltyp')
 

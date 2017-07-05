@@ -1,6 +1,6 @@
 """The technological stock for every simulation year"""
 import numpy as np
-from energy_demand.scripts_plotting import plotting_results
+#from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
@@ -201,9 +201,9 @@ class Technology(object):
             self.eff_cy = self.calc_hybrid_eff(eff_tech_low_cy, eff_tech_high_cy) # Current year efficiency (weighted according to service for hybrid technologies)
 
             '''elif self.tech_type == 'cooling_tech':
-                #TODO: DEFINE 
-                self.eff_by = 
-                self.eff_cy = 
+                #TODO: DEFINE
+                self.eff_by =
+                self.eff_cy =
             '''
         else:
             self.eff_by = self.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])

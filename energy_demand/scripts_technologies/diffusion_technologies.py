@@ -96,7 +96,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     It is always assuemed that for the simulation year the share is
     replaced with technologies having the efficencies of the current year. For technologies
     which get replaced fast (e.g. lightbulb) this is corret assumption, for longer lasting
-    technologies, thie is more problematic (in this case, over every year would need to be iterated
+    technologies, this is more problematic (in this case, over every year would need to be iterated
     and calculate share replaced with efficiency of technology in each year).
 
     TODO: Always return positive value. Needs to be considered for changes in negative
@@ -109,9 +109,9 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     else:
         # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
         if end_yr == base_yr:
-            y_trans = 6.0
+            y_trans = 5.0
         else:
-            y_trans = -6.0 + (12.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
+            y_trans = -5.0 + (10.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
         # Get a value between 0 and 1 (sigmoid curve ranging from 0 to 1)
         cy_p = np.divide(1, (1 + math.exp(-1 * sig_steeppness * (y_trans - sig_midpoint))))
@@ -324,7 +324,8 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
     -----
     NTH: improve fitting
 
-    Manually the fitting parameters can be defined which are not considered as a good fit: fit_crit_a, fit_crit_b
+    Manually the fitting parameters can be defined which are not considered as
+    a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
 
     """
@@ -358,7 +359,8 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                     market_entry = data['assumptions']['technologies'][technology]['market_entry']
 
                 # --------
-                # Test whether technology has the market entry before or after base year, If afterwards, set very small number in market entry year
+                # Test whether technology has the market entry before or after base year, 
+                # If afterwards, set very small number in market entry year
                 # --------
                 if market_entry > data['base_yr']:
                     point_x_by = market_entry
@@ -367,7 +369,7 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                     point_x_by = data['base_yr']
                     point_y_by = service_tech_by_p[enduse][technology] # current service share
 
-                    #If the base year is the market entry year use a very small number (as otherwise the fit does not work)
+                    #If the base year is the market entry year use a very small number
                     if point_y_by == 0:
                         point_y_by = 0.001
 
@@ -393,11 +395,14 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                 cnt = 0
                 successfull = False
                 while not successfull:
-                    start_parameters = [possible_start_parameters[cnt], possible_start_parameters[cnt]]
+                    start_parameters = [
+                        possible_start_parameters[cnt],
+                        possible_start_parameters[cnt]
+                        ]
 
                     try:
                         #'''
-                        print("--------------- Technology " + str(technology) + str("  ") + str(cnt))
+                        print("----------- Technology " + str(technology) + str("  ") + str(cnt))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(l_values[enduse][technology]))
@@ -428,7 +433,15 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                 sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
 
                 #plot sigmoid curve
-                plotting.plotout_sigmoid_tech_diff(l_values, technology, enduse, xdata, ydata, fit_parameter, True)
+                plotting.plotout_sigmoid_tech_diff(
+                    l_values,
+                    technology,
+                    enduse,
+                    xdata,
+                    ydata,
+                    fit_parameter,
+                    True
+                    )
 
     print("finished...")
     return sigmoid_parameters
