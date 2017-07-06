@@ -63,9 +63,10 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     This function is used for fitting and plotting
 
     """
-    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
+    y_value = np.divide(l_value, 1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
 
     return y_value
+
 
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value with
@@ -178,22 +179,22 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """
+    # Test is Service Switch is implemented
+    if len(service_switches) > 0:
+        service_switch_crit = True
+    else:
+        service_switch_crit = False
+    print("...service_switch_crit  " + str(service_switch_crit))
+
     installed_tech = {}
     sig_param_tech = {}
 
     for enduse in enduses:
-
-        # Test is Service Switch is implemented
-        if len(service_switches) > 0:
-            service_switch_crit = True
-        else:
-            service_switch_crit = False
-        print("SERVICE SWITHC IS IMPEMENTED OR NOT: " + str(service_switch_crit))
-
         if service_switch_crit: # Sigmoid calculation in case of 'service switch'
 
             # Tech with lager service shares in end year
-            installed_tech[enduse] = tech_increased_service
+            #installed_tech[enduse] = tech_increased_service
+            installed_tech = tech_increased_service
 
             # End year service shares (scenaric input)
             service_tech_switched_p = share_service_tech_ey_p
@@ -204,7 +205,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
         else: # Sigmoid calculation in case of 'fuel switch'
 
             # Tech with lager service shares in end year (installed in fuel switch)
-            installed_tech[enduse] = get_tech_installed(fuel_switches)
+            installed_tech = get_tech_installed(enduses, fuel_switches)
 
             # Calculate future service demand after fuel switches for each technology
             service_tech_switched_p = calc_service_fuel_switched(
@@ -213,9 +214,14 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
                 service_fueltype_by_p,
                 service_tech_by_p,
                 fuel_enduse_tech_p_by,
-                installed_tech[enduse],
+                installed_tech,
                 'actual_switch'
             )
+            print("fffffffff {}".format(enduse))
+            #print(installed_tech)
+            print(service_tech_by_p)
+            print(service_tech_switched_p)
+
 
             # Calculate L for every technology for sigmod diffusion
             l_values_sig = tech_l_sigmoid(
@@ -230,11 +236,13 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
         # -------------------------------------------------------------
         # Calclulate sigmoid parameters for every installed technology
         # -------------------------------------------------------------
+        print("bbbbbbbb ")
+        print(installed_tech)
         sig_param_tech[enduse] = tech_sigmoid_parameters(
             data,
-            enduses,
+            enduse,
             service_switch_crit,
-            installed_tech[enduse],
+            installed_tech, #[enduse],
             l_values_sig,
             service_tech_by_p,
             service_tech_switched_p,
@@ -266,13 +274,15 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
-        if enduse not in installed_tech:
-            print("No technologies to calculate sigmoid")
+        #if enduse not in installed_tech:
+        if installed_tech[enduse] == []:
+            print("No technologies to calculate sigmoid  {}".format(enduse))
         else:
+            print("Technologes it calculate sigmoid  {}  {} ".format(enduse, installed_tech[enduse]))
 
             # Iterite list with enduses where fuel switches are defined
             for technology in installed_tech[enduse]:
-
+                print("Technology: {} Enduse:  {}".format(technology, enduse))
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     enduses,
@@ -284,12 +294,14 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
                     'max_switch'
                     )
 
-                # Read out L-values with calculating sigmoid diffusion with maximum theoretical replacement
+                # Read L-values with calculating maximum sigmoid theoretical diffusion
                 l_values_sig[enduse][technology] = tech_install_p[enduse][technology]
+
+                print("EGG {}".format(l_values_sig[enduse][technology]))
 
     return l_values_sig
 
-def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
+def tech_sigmoid_parameters(data, enduse, service_switch_crit, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches. A sigmoid diffusion is fitted.
@@ -329,18 +341,28 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
     If service definition, the year until switched is the end model year
 
     """
-    sigmoid_parameters = init.init_nested_dict(enduses, installed_tech, 'brackets')
+    #sigmoid_parameters = init.init_nested_dict(enduses, installed_tech, 'brackets')
+    sigmoid_parameters = {}
 
+    print("OPEE_: {}".format(installed_tech))
     #-----------------
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     #-----------------
     fit_crit_a = 200
     fit_crit_b = 0.001
+    print("installed_tech")
+    print(installed_tech)
 
-    for enduse in enduses:
+    #for enduse in enduses:
+    if 1 == 1:
         # Only continue if technologies are specified for enduse
-        if enduse in installed_tech:
+        #if enduse in installed_tech:
+
+        if installed_tech[enduse] == []: #enduse in installed_tech:
+            print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
+        else:
             for technology in installed_tech[enduse]:
+                print("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
                 sigmoid_parameters[technology] = {}
 
                 # If service switch
@@ -380,7 +402,10 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                 # Data of the two points
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])
-
+                
+                print("DATA TO FIT")
+                print(xdata)
+                print(ydata)
                 ##point_x_projected = 2050 #scrap TODO: REMOVE
                 # ----------------
                 # Parameter fitting
@@ -401,13 +426,13 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
                         ]
 
                     try:
-                        #'''
+                        '''
                         print("----------- Technology " + str(technology) + str("  ") + str(cnt))
                         print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
                         print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
                         print("Lvalue: " + str(l_values[enduse][technology]))
                         print("start_parameters: " + str(start_parameters))
-                        #'''
+                        '''
                         fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
                         #print("fit_parameter: " + str(fit_parameter))
 
@@ -446,7 +471,7 @@ def tech_sigmoid_parameters(data, enduses, service_switch_crit, installed_tech, 
     print("finished...")
     return sigmoid_parameters
 
-def get_tech_installed(fuel_switches):
+def get_tech_installed(enduses, fuel_switches):
     """Read out all technologies which are specifically switched to
 
     Parameter
@@ -459,20 +484,25 @@ def get_tech_installed(fuel_switches):
     installed_tech : list
         List with all technologies where a fuel share is switched to
     """
-
-    # Add technology list for every enduse with affected switches
     installed_tech = {}
-    for switch in fuel_switches:
-        installed_tech[switch['enduse']] = set([])
+
+    for enduse in enduses:
+        # Add technology list for every enduse with affected switches
+        installed_tech[enduse] = set([])
+        #for switch in fuel_switches:
+        #    installed_tech[switch['enduse']] = set([])
 
     for switch in fuel_switches:
         enduse_fuelswitch = switch['enduse']
         installed_tech[enduse_fuelswitch].add(switch['technology_install'])
+        #installed_tech.add(switch['technology_install'])
 
+    #print("SD " + str(installed_tech))
     # Convert set to lists
     for enduse in installed_tech:
         installed_tech[enduse] = list(installed_tech[enduse])
-
+        #installed_tech = list(installed_tech)
+    print("SDd" + str(installed_tech))
     return installed_tech
 
 def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by, installed_tech_switches, switch_type):

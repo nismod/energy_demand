@@ -73,14 +73,7 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p)
                     tech_decreased_share[enduse].append(tech)
                 else:
                     tech_constant_share[enduse].append(tech)
-        # Add to data
-        #assumptions['rs_tech_increased_service'] = tech_increased_service
-        #assumptions['rs_tech_decreased_share'] = tech_decreased_share
-        #assumptions['rs_tech_constant_share'] = tech_constant_share
-        print("   ")
-        #print("tech_increased_service:  " + str(tech_increased_service))
-        print("tech_decreased_share:    " + str(tech_decreased_share))
-        print("tech_constant_share:     " + str(tech_constant_share))
+
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
 def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
@@ -155,18 +148,25 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     service_tech_by_p = init.init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_by_p = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
     service_fueltype_by_p = init.init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
+    print("START:")
+    print(fuels)
 
     for enduse, fuel in fuels.items():
+        #print("ENDUSE: " + str(enduse))
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 
+            #Initiate NEW
+            for tech_dicts in fuel_p_tech_by[enduse].values():
+                for tech in tech_dicts:
+                    service[enduse][fueltype][tech] = 0
+
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
-                #print("------------Tech: " + str(tech))
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
-
+                print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
                 # Get technology type
                 tech_type = technologies_related.get_tech_type(tech, assumptions)
 
@@ -184,9 +184,10 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
+                print("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
 
                 # Add energy service demand
-                service[enduse][fueltype][tech] = service_fueltype_tech
+                service[enduse][fueltype][tech] += service_fueltype_tech
 
                 # Total energy service demand within a fueltype
                 tot_service_fueltype += service_fueltype_tech
@@ -209,7 +210,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
                 service_tech_by_p[enduse][technology] = np.divide(1, total_service) * service_tech
                 #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
 
-        #print("Total Service base year for enduse {}  :  {}".format(enduse, _a))
+        print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
@@ -220,6 +221,18 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
     '''
+    print("TEST")
+    print(service)
+    try:
+        summe = 0
+        for i in service['rs_space_heating']:
+            if service['rs_space_heating'][i] != {}:
+                for j in service['rs_space_heating'][i]:
+                    summe += service['rs_space_heating'][i][j]
+        print("TEST: SUMME: " + str(summe))
+        #prnt(".")
+    except:
+        print("TT")
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
 '''def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):

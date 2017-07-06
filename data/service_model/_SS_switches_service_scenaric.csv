@@ -1,0 +1,7 @@
+enduse,tech,service_share_ey,tech_assum_max_share
+ss_space_heating,boiler_elec,0,0.9
+ss_space_heating,electricity_heat_pumps,0,1
+ss_space_heating,boiler_gas,0,0.9
+ss_space_heating,boiler_biomass,0,0.9
+ss_space_heating,boiler_hydrogen,0,0.9
+ss_space_heating,hybrid_gas_elec,1,1

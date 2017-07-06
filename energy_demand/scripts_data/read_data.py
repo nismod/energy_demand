@@ -50,7 +50,7 @@ def convert_out_format_es(data, object_country, enduses):
             #for sub_nmodel in object_country.rs_submodel:
                 
             for region in regions:
-                if region_name == object_country.rs_tot_country_fuel_enduse_specific_h
+                if region_name == object_country.rs_tot_country_fuel_y_enduse_specific_h
 
             #hourly_all_fuels = region_object.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
             hourly_all_fuels = region_object.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')

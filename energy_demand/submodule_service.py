@@ -4,7 +4,8 @@ import energy_demand.enduse as endusefunctions
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 class ServiceModel(object):
-
+    """
+    """
     def __init__(self, data, region_object, enduse_name, sector):
         """Constructor of ResidentialModel
         """
@@ -16,7 +17,8 @@ class ServiceModel(object):
         self.enduse_object = self.create_enduse(region_object, data)
 
     def create_enduse(self, region_object, data):
-
+        """
+        """
         #print("...Create Enduse {} in sector {} in Region {}".format(self.enduse_name, self.sector_name, reg_name))
         # Enduse specific parameters
         if self.enduse_name in data['assumptions']['enduse_space_heating']:

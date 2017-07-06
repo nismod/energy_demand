@@ -67,7 +67,7 @@ def plot_stacked_Country_end_use_NEW(data, results_resid, enduses_data, attribut
     fig, ax = plt.subplots() #fig is needed
     nr_y_to_plot = len(data['sim_period'])
 
-    nr_y_to_plot = len([2015, 2020]) #SCRAP
+    #nr_y_to_plot = len([2015, 2020]) #SCRAP
     x = range(nr_y_to_plot)
     legend_entries = []
 
@@ -218,19 +218,20 @@ def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
     Y_init = np.zeros((data['nr_of_fueltypes'], nr_of_h_to_plot))
 
     for fueltype, _ in enumerate(data['lu_fueltype']):
-
         # Legend
         fueltype_in_string = technologies_related.get_fueltype_str(data['lu_fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
-        # Read out fueltype specific max h load
-        tot_fuels = getattr(results_resid[year_to_plot], attribute_to_get)
-        print("TEESTFUL : " + str(np.sum(tot_fuels[fueltype])))
-        data_over_day = []
-        for day, daily_values in enumerate(tot_fuels[fueltype]):
-            if day in days_to_plot:
-                for hour in daily_values:
-                    data_over_day.append(hour)
+        for model_year_object in results_resid:
+
+            # Read out fueltype specific max h load
+            tot_fuels = getattr(model_year_object, attribute_to_get)
+
+            data_over_day = []
+            for day, daily_values in enumerate(tot_fuels[fueltype]):
+                if day in days_to_plot:
+                    for hour in daily_values:
+                        data_over_day.append(hour)
 
         Y_init[fueltype] = data_over_day
 
