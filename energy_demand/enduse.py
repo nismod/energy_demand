@@ -105,15 +105,17 @@ class Enduse(object):
                 data['lu_fueltype']
                 )
 
-            #print("service_tech")
-            #print(service_tech)
+            print("A service_tech")
+            for tech in service_tech:
+                print("Tech A: {} {}".format(tech, np.sum(service_tech[tech])))
+
             # ----------------
             # Energy service switches
             # ----------------
             if self.service_switch_crit:
                 service_tech = self.switch_tech_service(
                     tot_service_h_cy,
-                    service_tech_cy_p, #HETER BASE YEAR NECESSARY service_tech_by_p
+                    service_tech_cy_p,
                     tech_increased_service[enduse],
                     tech_decreased_share[enduse],
                     tech_constant_share[enduse],
@@ -127,7 +129,7 @@ class Enduse(object):
             print(" ")
             print("COMPARIOSN summe           :          " + str(summe))
             print("COMPARIOSN tot_service_h_cy:          " + str(np.sum(tot_service_h_cy))) #ARE ALL TECH ASSIFNED FOR WHICN FUEL IS PROVIDED?
-
+            #IMPLEMENT THIS ASSERT assert if summe != tot_service_h_cy then not all technologies were specieified for each provided fueltype
             # ----------------
             # Fuel Switches
             # ----------------
@@ -393,12 +395,12 @@ class Enduse(object):
 
         return list(technologies_enduse)
 
-    def switch_tech_service(self, tot_service_h_by, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sig_param_tech):
+    def switch_tech_service(self, tot_service_h_cy, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sig_param_tech):
         """Scenaric service switches
         All diminishing technologies are proportionally to base year share diminished.
         Paramters
         ---------
-        tot_service_h_by : array
+        tot_service_h_cy : array
             Hourly service of all technologies
         tech_stock : object
             Technology stock
@@ -432,7 +434,6 @@ class Enduse(object):
         for tech_decrease in service_tech_decrease_by_rel:
             service_tech_cy_p[tech_decrease] = service_tech_by_p[tech_decrease]
 
-
         # Iterate service switches for increase tech, calculated gained service and substract this gained service proportionally for all decreasing technologies
         for tech_increase in service_tech_increase_cy_p:
 
@@ -462,7 +463,7 @@ class Enduse(object):
 
         # Multiply share of each tech with hourly service
         for tech, enduse_share in service_tech_cy_p.items():
-            service_tech_cy[tech] = tot_service_h_by * enduse_share  # Total yearly hourly service * share of enduse
+            service_tech_cy[tech] = tot_service_h_cy * enduse_share  # Total yearly hourly service * share of enduse
 
         print("...Finished service switch")
         return service_tech_cy
@@ -711,7 +712,7 @@ class Enduse(object):
 
         return fuels_yh
 
-    def switch_tech_fuel(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech_by, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_enduse_tech_p_by):
+    def switch_tech_fuel(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_enduse_tech_p_by):
         """Scenaric fuel switches
 
         Based on assumptions about shares of fuels which are switched per enduse to specific
@@ -738,7 +739,7 @@ class Enduse(object):
         """
         print("... fuel_switch is implemented")
 
-        service_tech_after_switch = copy.deepcopy(service_tech_by)
+        service_tech_after_switch = copy.deepcopy(service_tech)
 
         # Iterate all technologies which are installed in fuel switches
         for tech_installed in installed_tech[self.enduse]:
@@ -754,15 +755,16 @@ class Enduse(object):
             print("eeeeeeeeeeeeeeeeee")
             print(sig_param_tech[self.enduse][tech_installed])
             print(tech_installed)
-            print(np.sum(service_tech_by[tech_installed]))
+            print(np.sum(service_tech[tech_installed]))
             print(diffusion_cy)
             print(np.sum(tot_service_h_cy))
 
             #OLD
-            service_tech_installed_cy = (diffusion_cy * tot_service_h_cy) - service_tech_by[tech_installed]
+            service_tech_installed_cy = (diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]
 
             #NEW
-            ##service_tech_installed_cy = (diffusion_cy * tot_service_h_cy)
+            service_tech_installed_cy = (diffusion_cy * tot_service_h_cy)
+
             print("-----------Tech_installed:  "  + str(tech_installed) + str(self.current_yr))
             print(" service_tech_installed_cy: {}".format(np.sum(service_tech_installed_cy)))
             print("diffusion_cy  " + str(diffusion_cy))
@@ -770,15 +772,16 @@ class Enduse(object):
             print(" Tot service after  " + str(np.sum(service_tech_after_switch[tech_installed])))
             print("----")
             print(np.sum(diffusion_cy * tot_service_h_cy))
-            print(np.sum(service_tech_by[tech_installed]))
-            print(np.sum((diffusion_cy * tot_service_h_cy) - service_tech_by[tech_installed]))
-            print("TODAY SHARE (fraciton): " + str(np.sum((1 / np.sum(tot_service_h_cy)) * service_tech_by[tech_installed])))
+            print(np.sum(service_tech[tech_installed]))
+            print(np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]))
+            print("TODAY SHARE (fraciton): " + str(np.sum((1 / np.sum(tot_service_h_cy)) * service_tech[tech_installed])))
 
             # Assert if minus demand
-            assert np.sum((diffusion_cy * tot_service_h_cy) - service_tech_by[tech_installed]) >= 0
+            ##assert np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]) >= 0
 
             # Get service for current year for technologies
-            service_tech_after_switch[tech_installed] += service_tech_installed_cy
+            #service_tech_after_switch[tech_installed] += service_tech_installed_cy
+            service_tech_after_switch[tech_installed] = service_tech_installed_cy #NEW
             print("service_tech_after_switch:  " + str(np.sum(service_tech_after_switch[tech_installed])))
 
             # ------------

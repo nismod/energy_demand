@@ -157,9 +157,8 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
             tot_service_fueltype = 0
 
             #Initiate NEW
-            for tech_dicts in fuel_p_tech_by[enduse].values():
-                for tech in tech_dicts:
-                    service[enduse][fueltype][tech] = 0
+            for tech in fuel_p_tech_by[enduse][fueltype]:
+                service[enduse][fueltype][tech] = 0
 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
