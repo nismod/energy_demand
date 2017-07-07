@@ -99,7 +99,7 @@ def write_YAML(crit_write, path_YAML, yaml_list):
 
     return
 
-def write_final_result(data, result_dict, lu_reg, crit_YAML):
+def write_final_result(data, result_dict, year, lu_reg, crit_YAML):
     """Write reults for energy supply model
 
     Parameters
@@ -119,9 +119,11 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
 
         england, P0H, P1H, 139.42, 123.49
     """
-    main_path = data['path_dict']['path_main'][:-5] # Remove data from path_main
+    print("...write data to YAML")
+    # Remove data from path_main
+    main_path = data['path_dict']['path_main'][:-5]
 
-    for fueltype in data['lu_fueltype'].values():
+    for fueltype in data['lu_fueltype'].keys():
 
         # Path to create csv file
         path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype))
@@ -132,13 +134,21 @@ def write_final_result(data, result_dict, lu_reg, crit_YAML):
             yaml_list_fuel_type = []
 
             # Iterate fueltypes
-            for reg in result_dict[fueltype]:
+            for reg, hour_day, obs_value, _ in result_dict[fueltype]:
+                hour = int(hour_day.split("_")[0]) * 24 + int(hour_day.split("_")[1])
 
-                for reg, hour, obs_value, _ in result_dict[fueltype]:
-                    start_id = "P{}H".format(hour)
-                    end_id = "P{}H".format(hour + 1)
-                    data.append((lu_reg[reg], start_id, end_id, obs_value))
-                    yaml_list_fuel_type.append({'region':  lu_reg[reg], 'start': start_id, 'end': end_id, 'value': float(obs_value), 'units': 'CHECK GWH', 'year': 'XXXX'})
+                start_id = "P{}H".format(hour)
+                end_id = "P{}H".format(hour + 1)
+                data.append((lu_reg[reg], start_id, end_id, obs_value))
+                yaml_list_fuel_type.append({
+                    'region': lu_reg[reg],
+                    'start': start_id,
+                    'end': end_id,
+                    'value': float(obs_value),
+                    'units': 'CHECK GWH',
+                    'year': year
+                    }
+                )
 
             csv_writer.writerows(data)
 

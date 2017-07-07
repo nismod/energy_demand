@@ -6,7 +6,6 @@ import energy_demand.region as reg
 import energy_demand.submodule_residential as submodule_residential
 import energy_demand.submodule_service as submodule_service
 from energy_demand.scripts_shape_handling import load_factors as load_factors
-
 ASSERTIONS = unittest.TestCase('__init__')
 
 def model_main_function(data):
@@ -32,14 +31,16 @@ def model_main_function(data):
         data=data,
     )
 
-
     # ----------------------------
-    fueltot = energ_demand_object.tot_country_fuel_all_enduses_y # Total fuel of country
+    # Summing
+    # ----------------------------
+    fueltot = energ_demand_object.sum_uk_fueltypes_enduses_y # Total fuel of country
 
+    print("================================================")
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
     print("FUEL DIFFERENCE:     " + str(fueltot - fuel_in))
-    print(" ")
+    print("================================================")
     return energ_demand_object
 
 class EnergyModel(object):
@@ -78,22 +79,28 @@ class EnergyModel(object):
         # --------------
         self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['all_service_sectors'])
 
+        # --------------
+        # Industry SubModel
+        # --------------
 
-
+        # --------------
+        # Other data (rest) SubModel
+        # --------------
+        
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
 
         # Sum across all regions, all enduse and sectors
-        self.tot_country_fuel_all_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel], 'sum', 'non_peak')
 
         self.rs_tot_country_fuels_all_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_tot_country_fuels_all_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
 
         # Sum across all regions for enduse
-        self.rs_tot_country_fuel_y_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', data, [self.rs_submodel])
-        self.ss_tot_country_fuel_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', data, [self.ss_submodel])
+        self.rs_tot_country_fuel_y_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', [self.rs_submodel])
+        self.ss_tot_country_fuel_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', [self.ss_submodel])
 
 
         # Sum across all regions, enduses for peak hour
@@ -144,7 +151,12 @@ class EnergyModel(object):
                 for enduse in enduses:
 
                     # Create submodule
-                    submodule = submodule_service.ServiceModel(data, region_object, enduse, sector)
+                    submodule = submodule_service.ServiceModel(
+                        data,
+                        region_object,
+                        enduse,
+                        sector
+                        )
 
                     # Add to list
                     ss_submodules.append(submodule)
@@ -175,7 +187,7 @@ class EnergyModel(object):
 
         return regions
 
-    def get_country_enduse(self, attribute_to_get, data, sector_models):
+    def get_country_enduse(self, attribute_to_get, sector_models):
 
         enduse_dict = {}
         # Get sector models

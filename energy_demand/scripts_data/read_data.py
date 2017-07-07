@@ -17,22 +17,22 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
         dict_to_add_data[external_enduse] = new_fuel_array
 
     return data
-'''
-def convert_out_format_es(data, object_country, enduses):
+
+def convert_out_format_es(data, country_object):
     """Adds total hourly fuel data into nested dict
 
     Parameters
     ----------
     data : dict
         Dict with own data
-    object_country : object
+    country_object : object
         Contains objects of the region
 
     Returns
     -------
     results : dict
         Returns a list for energy supply model with fueltype, region, hour"""
-
+    print("...Convert to dict for energy_supply_model")
     # Create timesteps for full year (wrapper-timesteps)
     results = {}
 
@@ -41,19 +41,10 @@ def convert_out_format_es(data, object_country, enduses):
 
         for region_name in data['lu_reg']:
 
-            # Get correct model object
-            for region in object_country.regions:
-                if region.reg_name == region_name:
-                    region_object = region
-                    break
-
-            #for sub_nmodel in object_country.rs_submodel:
-                
-            for region in regions:
-                if region_name == object_country.rs_tot_country_fuel_y_enduse_specific_h
-
-            #hourly_all_fuels = region_object.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
-            hourly_all_fuels = region_object.tot_all_enduses_h(data, enduses, 'enduse_fuel_yh')
+            # Get sub moduels - Service
+            for sub_model_obj in country_object.ss_submodel:
+                if sub_model_obj.reg_name == region_name:
+                    hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh #enduse_fuel_yh
 
             for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour_in_day, demand in enumerate(hourly_demand):
@@ -62,7 +53,7 @@ def convert_out_format_es(data, object_country, enduses):
                     results[fueltype].append(result)
 
     return results
-'''
+
 def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     """This function reads in base_data_CSV all fuel types
     (first row is fueltype, subkey), header is appliances

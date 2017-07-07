@@ -5,13 +5,22 @@ class ResidentialModel(object):
     """
     def __init__(self, data, region_object, enduse_name):
         """Constructor of ResidentialModel
+
+        Parameters
+        ----------
+        data : dict
+            Data
+        region_object : dict
+            Object of region
+        enduse_name : string
+            Enduse
         """
         self.reg_name = region_object.reg_name
         self.enduse_name = enduse_name
         self.enduse_object = self.create_enduse(region_object, data)
 
     def create_enduse(self, region_object, data):
-        """create enduse object
+        """Create enduse objects and add to 
         """
         if self.enduse_name in data['assumptions']['enduse_space_heating']:
             # Regional yd factor for heating
@@ -44,7 +53,7 @@ class ResidentialModel(object):
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
             data_shapes_yd=data['rs_shapes_yd'],
             data_shapes_dh=data['rs_shapes_dh'],
-            enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['residential_sector'],
+            enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
             dw_stock=data['rs_dw_stock']
             )
 

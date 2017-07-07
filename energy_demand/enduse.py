@@ -109,6 +109,21 @@ class Enduse(object):
             for tech in service_tech:
                 print("Tech A: {} {}".format(tech, np.sum(service_tech[tech])))
 
+            # -----------------------------
+            # Reduction through heat recovery
+            # for space heating, reduce service by percentage
+            # -----------------------------
+            print("SERVICE: " + str(np.sum(tot_service_h_cy)))
+            tot_service_h_cy = self.enduse_reduce_heat_recovery(data['assumptions'], tot_service_h_cy, 'tot_service_h_cy')
+            service_tech = self.enduse_reduce_heat_recovery(data['assumptions'], service_tech, 'service_tech')
+            print("SERVICEafter: " + str(np.sum(tot_service_h_cy)))
+            ## NEW: SERVICE SECTOR: NO TECHNOLOGY SPECIFIC SHAPES. Therefore distribute fuel for technologies
+            ## according to overall sector shape
+            ##
+            #TODO: IMRPOVE
+            #if ss_calculations == True:
+
+
             # ----------------
             # Energy service switches
             # ----------------
@@ -122,14 +137,12 @@ class Enduse(object):
                     sig_param_tech
                     )
 
-            summe = 0
-            for tech in service_tech:
-                print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(service_tech[tech])))
-                summe += np.sum(service_tech[tech])
-            print(" ")
-            print("COMPARIOSN summe           :          " + str(summe))
-            print("COMPARIOSN tot_service_h_cy:          " + str(np.sum(tot_service_h_cy))) #ARE ALL TECH ASSIFNED FOR WHICN FUEL IS PROVIDED?
-            #IMPLEMENT THIS ASSERT assert if summe != tot_service_h_cy then not all technologies were specieified for each provided fueltype
+            control_tot_service = 0
+            for tech, fuel in service_tech.items():
+                #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
+                control_tot_service += np.sum(fuel)
+            np.testing.assert_almost_equal(control_tot_service, np.sum(tot_service_h_cy), err_msg="not all technologies were specieified for each provided fuelty")
+
             # ----------------
             # Fuel Switches
             # ----------------
@@ -156,24 +169,7 @@ class Enduse(object):
             enduse_fuel_tech_y = self.enduse_to_fuel_per_tech(service_tech, tech_stock)
             #print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_y)))
 
-            '''summe = 0
-            for tech in enduse_fuel_tech_y:
-                print("Technologie {}  und fuel {} ".format(tech, np.sum(service_tech[tech])))
-                summe += np.sum(service_tech[tech])
-            print("TOTAL FUEL TO REDISRIBUTE " + str(summe))
-            '''
 
-            # -----------------------------
-            # Reduction through heat recovery
-            # for space heating, reduce service by percentage
-
-            # -----------------------------
-            ##
-            ## NEW: SERVICE SECTOR: NO TECHNOLOGY SPECIFIC SHAPES. Therefore distribute fuel for technologies
-            ## according to overall sector shape
-            ##
-            #TODO: IMRPOVE
-            #if ss_calculations == True:
 
             # ---NON-PEAK
 
@@ -213,6 +209,52 @@ class Enduse(object):
         # Testing
         np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
+    def enduse_reduce_heat_recovery(self, assumptions, service_to_reduce, crit_dict):
+        """Reduce heating demand according to assumption on heat reuse
+
+        Parameters
+        ----------
+        assumptions : dict
+            Assumptions
+        service_to_reduce : dict or array
+            Service of current year
+        crit_dict :
+
+        Returns
+        -------
+
+
+        """
+        if self.enduse == 'rs_space_heating':
+
+            # Fraction of heat recovered until end_year
+            heat_recovered_p_by = assumptions['rs_heat_recovered']
+
+            # Fraction of heat recovered in current year
+            sig_diff_factor = diffusion.sigmoid_diffusion(
+                self.base_yr,
+                self.curr_yr,
+                self.end_yr,
+                assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
+            )
+
+            heat_recovered_p_cy = sig_diff_factor * heat_recovered_p_by
+
+            if crit_dict == 'service_tech':
+                service_to_reduce_new = {}
+                for tech, service_tech in service_to_reduce.items():
+                    service_to_reduce_new[tech] = service_tech * (1.0 - heat_recovered_p_cy)
+
+            if crit_dict == 'tot_service_h_cy':
+                service_to_reduce_new = service_to_reduce * (1.0 - heat_recovered_p_cy)
+
+            return service_to_reduce_new
+
+        else:
+            return service_to_reduce
+
+
     def calc_enduse_service_by(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu):
         """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
@@ -249,7 +291,7 @@ class Enduse(object):
         service_tech_cy = init.init_dict(self.technologies_enduse, 'zero')
         service_fueltype_tech_p = init.init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
 
-        # enduse_fuel_new_y can be used if the service wants to be calculed which is newly used e.g. after 
+        # enduse_fuel_new_y can be used if the service wants to be calculed which is newly used e.g. after
         # temperature chantes eg.... --> But does not provide by service
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
@@ -264,7 +306,7 @@ class Enduse(object):
                 fuel_tech_yh = fuel_tech_y * tech_stock.get_tech_attribute(tech, 'shape_yh')[self.enduse]
 
                 # ------------------------------
-                # Convert to energy service 
+                # Convert to energy service
                 # - The base year efficiency is taken because the actual service can only be calculated with base year efficiny.
                 # - However, the enduse_fuel_y is taken because the actual service was reduced e.g. due to smart meters or temperatur changes
                 # - The actual base year service demand (without any other changes for base year) must be calulated with enduse_fuel_y
@@ -970,7 +1012,13 @@ class Enduse(object):
 
             # Sigmoid diffusion up to cy
             elif diffusion_choice == 'sigmoid':
-                sig_diff_factor = diffusion.sigmoid_diffusion(self.base_yr, self.curr_yr, self.end_yr, assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'], assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                sig_diff_factor = diffusion.sigmoid_diffusion(
+                    self.base_yr,
+                    self.curr_yr,
+                    self.end_yr,
+                    assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                    assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
+                    )
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage

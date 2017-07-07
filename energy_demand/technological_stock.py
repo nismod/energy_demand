@@ -5,10 +5,9 @@ from energy_demand.scripts_technologies import diffusion_technologies as diffusi
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_technologies import technologies_related
-
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
-class ResidTechStock(object):
+class TechStock(object):
     """Class of a technological stock of a year of the residential model
 
     The main class of the residential model.
@@ -45,7 +44,7 @@ class ResidTechStock(object):
             )
 
             # Set technology object as attribute
-            ResidTechStock.__setattr__(
+            TechStock.__setattr__(
                 self,
                 technology,
                 technology_object
@@ -132,10 +131,6 @@ class Technology(object):
         self.shape_yd = shape_yd_dict_enduses # Shape for every specifided enduse
         self.shape_yh = shape_yh_dict_enduses
         self.shape_peak_yd_factor = shape_peak_yd_factor_dict_enduses
-        '''self.shape_yd = np.ones((365))
-        self.shape_yh = np.ones((365, 24))
-        self.shape_peak_yd_factor = 1
-        '''
 
         # Base temp assumptions for by and cy
         t_base_heating_cy = hdd_cdd.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')

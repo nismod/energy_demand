@@ -64,6 +64,7 @@ from energy_demand.scripts_data import write_data
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_calculations import enduse_scenario
+from energy_demand.scripts_data import read_data
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -87,25 +88,22 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    object_country = energy_model.model_main_function(data)
+    country_object = energy_model.model_main_function(data)
 
-
-    # Convert to dict for energy_supply_model
-    #TODO: read out for every REGION per FUELTYPE
-    #result_dict = read_data.convert_out_format_es(data, object_country, data['ss_all_enduses'])
-    result_dict = {}
+    #Convert data according to region and fueltype
+    result_dict = read_data.convert_out_format_es(data, country_object)
 
     # --- Write to csv and YAML
-    # write_data.write_final_result(data, result_dict, data['lu_reg'], False)
+    #write_data.write_final_result(data, result_dict, country_object.curr_yr, data['lu_reg'], False)
 
-    #print("FINAL Fueltype:  " + str(len(result_dict)))
-    #print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
+    print("FINAL Fueltype:  " + str(len(result_dict)))
+    print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
     print("Finished energy demand model")
 
     # Plot Region 0 for half a year
     #pf.plot_x_days(result_dict[2], 0, 2)
 
-    return result_dict, object_country #MULTIPLE YEARS
+    return result_dict, country_object #MULTIPLE YEARS
 
 # Run
 if __name__ == "__main__":
@@ -245,7 +243,6 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
     base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
 
-
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # --Residential
@@ -276,7 +273,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_service_tech_by_p'],
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
-    
+
     #print("TESTER")
     #print(base_data['assumptions']['ss_sig_param_tech'])
     #print(base_data['assumptions']['ss_sig_param_tech']['ss_space_heating'])
@@ -299,9 +296,9 @@ if __name__ == "__main__":
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
-        results, object_country = energy_demand_model(base_data)
+        results, country_object = energy_demand_model(base_data)
 
-        results_every_year.append(object_country)
+        results_every_year.append(country_object)
 
     # ------------------------------
     # Plotting
@@ -324,9 +321,6 @@ if __name__ == "__main__":
     # Plot a full week
     plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
     plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
-
-    # Run main function
-    #results = energy_demand_model(base_data)
 
     print("Finished running Energy Demand Model")
 

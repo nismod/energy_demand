@@ -175,7 +175,7 @@ def load_assumptions(data):
     # ============================================================
     # HEAT RECYCLING
     # ============================================================
-    #assumptions['rs_heat_recovered] = 0.0
+    assumptions['rs_heat_recovered'] = 0.5 # e.g. 0.2 = 20% reduction
     #assumptions['rs_heat_recovered] =
 
     # ---------------------------------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ def load_assumptions(data):
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
-        'residential_sector': {
+        'rs_model': {
             'rs_space_heating': 1,
             'rs_water_heating': 1,
             'rs_lighting': 1,
@@ -198,7 +198,7 @@ def load_assumptions(data):
             'rs_consumer_electronics': 1,
             'rs_home_computing': 1
         },
-        'service_sector': {
+        'ss_model': {
             'ss_catering': 1,
             'ss_computing': 1,
             'ss_cooling_ventilation': 1, #Cooling and ventilation

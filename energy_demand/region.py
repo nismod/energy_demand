@@ -38,7 +38,6 @@ class Region(object):
     def __init__(self, reg_name, data):
         """Constructor of Region
         """
-        print("==============REGION NAME: " + str(reg_name))
         self.reg_name = reg_name
 
         # Fuels of resid and service sector
@@ -46,11 +45,13 @@ class Region(object):
         self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
-        longitude = data['region_coordinates'][reg_name]['longitude']
-        latitude = data['region_coordinates'][reg_name]['latitude']
-        closest_weatherstation_id = wl.get_closest_station(longitude, latitude, data['weather_stations'])
-        temp_by = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
-        temp_cy = data['temperature_data'][closest_weatherstation_id][data['curr_yr']]
+        closest_station_id = wl.get_closest_station(
+            data['region_coordinates'][reg_name]['longitude'],
+            data['region_coordinates'][reg_name]['latitude'],
+            data['weather_stations']
+            )
+        temp_by = data['temperature_data'][closest_station_id][data['base_yr']]
+        temp_cy = data['temperature_data'][closest_station_id][data['curr_yr']]
 
         # Calculate HDD and CDD for calculating heating and cooling service demand (for rs and ss)
         rs_hdd_by, _ = self.get_reg_hdd(data, temp_by, data['base_yr'], 'rs_t_base_heating')
@@ -80,8 +81,8 @@ class Region(object):
         self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
         # Create region specific technological stock
-        self.rs_tech_stock = ts.ResidTechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'])
-        self.ss_tech_stock = ts.ResidTechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'])
+        self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'])
+        self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'])
 
         # -------------------------------------------------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock for every region
