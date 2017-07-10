@@ -88,7 +88,24 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    model_run_object = energy_model.model_main_function(data)
+    fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
+
+    # Add all region instances as an attribute (region name) into the class `EnergyModel`
+    model_run_object = EnergyModel(
+        reg_names=data['lu_reg'],
+        data=data,
+    )
+
+    # ----------------------------
+    # Summing
+    # ----------------------------
+    fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
+
+    print("================================================")
+    print("Fuel input:          " + str(fuel_in))
+    print("Fuel output:         " + str(fueltot))
+    print("FUEL DIFFERENCE:     " + str(fueltot - fuel_in))
+    print("================================================")
 
     # Convert data according to region and fueltype
     result_dict = read_data.convert_out_format_es(data, model_run_object, ['ss_submodel', 'rs_submodel'])

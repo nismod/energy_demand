@@ -47,7 +47,7 @@ class Region(object):
         temp_by = data['temperature_data'][closest_station_id][data['base_yr']]
         temp_cy = data['temperature_data'][closest_station_id][data['curr_yr']]
 
-        # Get base temperatures for current year
+        # Get base temperatures for base and current year
         rs_t_base_heating_cy = hdd_cdd.t_base_sigm(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
         rs_t_base_cooling_cy = hdd_cdd.t_base_sigm(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_cooling')
 
@@ -60,8 +60,9 @@ class Region(object):
         ss_t_base_heating_by = hdd_cdd.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_heating')
         ss_t_base_cooling_by = hdd_cdd.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_cooling')
 
+        # ----------------------------------------------------------------------------------------
         # Calculate HDD and CDD for calculating heating and cooling service demand (for rs and ss)
-
+        # ----------------------------------------------------------------------------------------
         # Residential
         rs_hdd_by, _ = self.get_reg_hdd(data, temp_by, rs_t_base_heating_by)
         rs_cdd_by, _ = self.get_reg_cdd(data, temp_by, rs_t_base_cooling_by)

@@ -3,6 +3,7 @@
 import sys
 import csv
 import numpy as np
+from energy_demand.scripts_technologies import technologies_related
 
 def add_yearly_external_fuel_data(data, dict_to_add_data):
     """This data check what enduses are provided by wrapper
@@ -108,12 +109,11 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                 lines.append(row)
 
             for cnt_fueltype, row in enumerate(lines):
-                cnt = 1 #skip first
-                for entry in row[1:]:
+
+                for cnt, entry in enumerate(row[1:], 1):
                     enduse = _headings[cnt]
                     sector = _secondline[cnt]
                     end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
-                    cnt += 1
     except:
         print("Error: Could not exectue read_csv_base_data_service")
 
@@ -480,79 +480,66 @@ def read_csv_base_data_resid(path_to_csv):
 
     return end_uses_dict, rs_all_enduses
 
-'''def read_csv_dict(path_to_csv):
-    """Read in csv file into a dict (with header)
-
-    The function tests if a value is a string or float
-    Parameters
-    ----------
-    path_to_csv : str
-        Path to csv file
-
-    Returns
-    -------
-    out_dict : dict
-        Dictionary with first row element as main key and headers as key for nested dict.
-        All entries and main key are returned as float
-
-    Info
-    -------
-    Example:
-
-        Year    Header1 Header2
-        1990    Val1    Val2
-
-        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
-    """
-    out_dict = {}
-    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines)                      # Skip first row
-
-        for row in read_lines: # Iterate rows
-            for k, i in enumerate(row): # Iterate row entries
-                try: # Test if float or string
-                    out_dict[_headings[k]] = float(i)
-                except ValueError:
-                    out_dict[_headings[k]] = str(i)
-
-    return out_dict
-'''
-'''def read_csv_nested_dict(path_to_csv):
-    """Read in csv file into nested dictionary with first row element as main key
+def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
+    """This function reads in base_data_CSV all fuel types
 
     Parameters
     ----------
     path_to_csv : str
         Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
 
     Returns
     -------
-    out_dict : dict
-        Dictionary with first row element as main key and headers as key for nested dict.
-        All entries and main key are returned as float
+    elements_array : dict
+        Returns an dict with arrays
 
-    Info
-    -------
-    Example:
-
-        Year    Header1 Header2
-        1990    Val1    Val2
-
-        returns {float(1990): {str(Header1): float(Val1), str(Header2): Val2}}
+    Notes
+    -----
+    the first row is the fuel_ID
+    The header is the sub_key
     """
-    out_dict = {}
-    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines)                      # Skip first row
+    try:
+        lines = []
+        end_uses_dict = {}
 
-        # Iterate rows
-        for row in read_lines:
-            out_dict[float(row[0])] = {}
-            cnt = 1 # because skip first element
-            for i in row[1:]:
-                out_dict[float(row[0])][_headings[cnt]] = float(i)
-                cnt += 1
+        with open(path_to_csv, 'r') as csvfile:
+            read_lines = csv.reader(csvfile, delimiter=',')
+            _headings = next(read_lines)
+            _secondline = next(read_lines)
 
-    return out_dict
-'''
+            # All sectors
+            all_enduses = set([])
+            for enduse in _headings[1:]:
+                if enduse is not '':
+                    all_enduses.add(enduse)
+
+            # All enduses
+            all_sectors = set([])
+            for line in read_lines:
+                lines.append(line)
+                all_sectors.add(line[0])
+
+            # Initialise dict
+            for sector in all_sectors:
+                end_uses_dict[sector] = {}
+                for enduse in all_enduses:
+                    end_uses_dict[str(sector)][str(enduse)] = np.zeros((nr_of_fueltypes))
+
+            for row in lines:
+                sector = row[0]
+                for position, entry in enumerate(row[1:], 1): # Start with position 1
+
+                    if entry != '':
+                        enduse = str(_headings[position])
+
+                        fueltype = _secondline[position]
+
+                        fueltype_int = technologies_related.get_fueltype_int(lu_fueltypes, fueltype)
+
+                        end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
+    except:
+        print("Error: Could not exectue read_csv_base_data_service")
+
+    return end_uses_dict, list(all_sectors), list(all_enduses)

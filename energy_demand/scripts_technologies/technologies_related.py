@@ -23,6 +23,24 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
 
     return fueltype_in_string
 
+def get_fueltype_int(fueltype_lu, fueltype_string):
+    """Read from dict the fueltype string based on fueltype KeyError
+
+    Inputs
+    ------
+    fueltype_lu : dict
+        Fueltype lookup dictionary
+    fueltype_nr : int
+        Key which is to be found in lookup dict
+
+    Returns
+    -------
+    fueltype_in_string : str
+        Fueltype string
+    """
+
+    return fueltype_lu[fueltype_string]
+
 def get_tech_type(tech_name, assumptions, enduse=''):
     """Get technology type of technology
     Either a technology is a hybrid technology, a heat pump,
@@ -37,7 +55,7 @@ def get_tech_type(tech_name, assumptions, enduse=''):
         Technology type
     """
     # If all technologies for enduse
-    if enduse == 'rs_water_heating':
+    if enduse == 'rs_water_heating': #TODO: IMPROVE: STILL FOR RESIDENTIAL ONLY
         tech_type = 'water_heating'
     else:
         if tech_name in assumptions['list_tech_heating_hybrid']:

@@ -8,40 +8,6 @@ import energy_demand.submodule_service as submodule_service
 from energy_demand.scripts_shape_handling import load_factors as load_factors
 ASSERTIONS = unittest.TestCase('__init__')
 
-def model_main_function(data):
-    """Main function of residential model
-
-    This function is executed in the wrapper.
-
-    Parameters
-    ----------
-    data : dict
-        Contains all data not provided externally
-
-    Returns
-    -------
-    energ_demand_object : object
-
-    """
-    fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
-
-    # Add all region instances as an attribute (region name) into the class `EnergyModel`
-    energ_demand_object = EnergyModel(
-        reg_names=data['lu_reg'],
-        data=data,
-    )
-
-    # ----------------------------
-    # Summing
-    # ----------------------------
-    fueltot = energ_demand_object.sum_uk_fueltypes_enduses_y # Total fuel of country
-
-    print("================================================")
-    print("Fuel input:          " + str(fuel_in))
-    print("Fuel output:         " + str(fueltot))
-    print("FUEL DIFFERENCE:     " + str(fueltot - fuel_in))
-    print("================================================")
-    return energ_demand_object
 
 class EnergyModel(object):
     """Class of a country containing all regions as self.attributes

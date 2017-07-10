@@ -68,7 +68,8 @@ def load_data(path_main, data):
         # Paths to fuel raw data
         'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_residential/data_residential_by_fuel_end_uses.csv'),
         'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv'),
-
+        'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_industry/data_industry_by_fuel_end_uses.csv'),
+        
         # Paths to txt shapes
         'path_rs_txt_shapes': os.path.join(path_main, 'submodel_residential/txt_load_shapes'),
         'path_ss_txt_shapes': os.path.join(path_main, 'submodel_service/txt_load_shapes'),
@@ -165,13 +166,16 @@ def load_data(path_main, data):
     # Residential Sector (Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
     
-    #
+    # Service Sector
     data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     # Industry fuel (Table 4.04)
-    #ALL EXTERNAL ENDUSES?
+    data['is_fuel_raw_data_enduses'], data['all_industry_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry( data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
 
-   # ----------------------------------------
+    print(data['is_fuel_raw_data_enduses']['rubber_plastics']['drying_separation'])
+    ort("L:")
+    #ALL EXTERNAL ENDUSES?
+    # ----------------------------------------
     # Convert units # TODO: Check in what units external fuel data is provided
     # ----------------------------------------
     '''for enduse in rs_fuel_raw_data_enduses:
