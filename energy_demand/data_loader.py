@@ -1,7 +1,6 @@
 """Loads all necessary data"""
 import os
 import sys
-import csv
 from random import randint
 import numpy as np
 from energy_demand.scripts_data import read_data
@@ -45,11 +44,11 @@ def load_data(path_main, data):
         'path_main': path_main,
 
         # Path for building stock assumptions
-        'path_dwtype_lu': os.path.join(path_main, 'residential_model/lookup_dwelling_type.csv'),
-        'path_hourly_gas_shape_resid': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape.csv'),
-        'path_dwtype_age': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_age.csv'),
-        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'residential_model/data_residential_model_dwtype_floorarea.csv'),
-        'path_reg_floorarea_resid': os.path.join(path_main, 'residential_model/data_residential_model_floorarea.csv'),
+        'path_dwtype_lu': os.path.join(path_main, 'submodel_residential/lookup_dwelling_type.csv'),
+        'path_hourly_gas_shape_resid': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape.csv'),
+        'path_dwtype_age': os.path.join(path_main, 'submodel_residential/data_submodel_residential_dwtype_age.csv'),
+        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'submodel_residential/data_submodel_residential_dwtype_floorarea.csv'),
+        'path_reg_floorarea_resid': os.path.join(path_main, 'submodel_residential/data_submodel_residential_floorarea.csv'),
 
         # Path for model outputs
         'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/rs_service_tech_by_p.txt'),
@@ -59,24 +58,24 @@ def load_data(path_main, data):
         'path_technologies': os.path.join(path_main, 'scenario_and_base_data/technology_base_scenario.csv'),
 
         # Fuel switches
-        'rs_path_fuel_switches': os.path.join(path_main, 'residential_model/switches_fuel_scenaric.csv'),
-        'ss_path_fuel_switches': os.path.join(path_main, 'service_model/switches_fuel_scenaric.csv'),
+        'rs_path_fuel_switches': os.path.join(path_main, 'submodel_residential/switches_fuel_scenaric.csv'),
+        'ss_path_fuel_switches': os.path.join(path_main, 'submodel_service/switches_fuel_scenaric.csv'),
 
         # Path to service switches
-        'rs_path_service_switch': os.path.join(path_main, 'residential_model/switches_service_scenaric.csv'),
-        'ss_path_service_switch': os.path.join(path_main, 'service_model/switches_service_scenaric.csv'),
+        'rs_path_service_switch': os.path.join(path_main, 'submodel_residential/switches_service_scenaric.csv'),
+        'ss_path_service_switch': os.path.join(path_main, 'submodel_service/switches_service_scenaric.csv'),
 
         # Paths to fuel raw data
-        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'residential_model/data_residential_by_fuel_end_uses.csv'),
-        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'service_model/data_service_by_fuel_end_uses.csv'),
+        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_residential/data_residential_by_fuel_end_uses.csv'),
+        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv'),
 
         # Paths to txt shapes
-        'path_rs_txt_shapes': os.path.join(path_main, 'residential_model/txt_load_shapes'),
-        'path_ss_txt_shapes': os.path.join(path_main, 'service_model/txt_load_shapes'),
+        'path_rs_txt_shapes': os.path.join(path_main, 'submodel_residential/txt_load_shapes'),
+        'path_ss_txt_shapes': os.path.join(path_main, 'submodel_service/txt_load_shapes'),
 
         #Technologies load shapes
-        'path_hourly_gas_shape_hp': os.path.join(path_main, 'residential_model/SANSOM_residential_gas_hourly_shape_hp.csv'),
-        'path_shape_rs_cooling': os.path.join(path_main, 'residential_model/shape_residential_cooling.csv')
+        'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
+        'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv')
         }
 
     # ------------------------------------------------
@@ -94,7 +93,7 @@ def load_data(path_main, data):
         'other': 7
         }
 
-    #Daytypes
+    # Daytypes
     data['day_type_lu'] = {
         0: 'weekend_day',
         1: 'working_day',
@@ -162,16 +161,19 @@ def load_data(path_main, data):
     # ------------------------------------------
     # FUEL DATA
     # ------------------------------------------
+
+    # Residential Sector (Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
+    
+    #
     data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
+    # Industry fuel (Table 4.04)
     #ALL EXTERNAL ENDUSES?
 
-
    # ----------------------------------------
-    # Convert units
+    # Convert units # TODO: Check in what units external fuel data is provided
     # ----------------------------------------
-    # TODO: Check in what units external fuel data is provided
     '''for enduse in rs_fuel_raw_data_enduses:
         rs_fuel_raw_data_enduses[enduse] = plotting_results.convert_ktoe_gwh(rs_fuel_raw_data_enduses[enduse])
     #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
@@ -190,14 +192,11 @@ def load_data(path_main, data):
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
-    # ---------------------------------------------------------------------------------------------------------------------------------------------------------
-    # SERVICE SECTOR
-
     # Generate load shapes
     if data['factcalculationcrit'] == False: #False
 
         # Read raw files - Generate data from raw files
-        data = generate_data(data, data['rs_all_enduses'], data['ss_all_enduses'])
+        data = load_shapes_from_raw(data, data['rs_all_enduses'], data['ss_all_enduses'])
 
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
@@ -299,7 +298,7 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
 
     return data
 
-def generate_data(data, rs_enduses, ss_enduses):
+def load_shapes_from_raw(data, rs_enduses, ss_enduses):
     """Reads in raw data files and generates txt files
 
     HES data, Carbon Trust data area read in. This only needs to be run once

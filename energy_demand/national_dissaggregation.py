@@ -5,6 +5,23 @@ from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_shape_handling import hdd_cdd
 ASSERTIONS = unittest.TestCase('__init__')
 
+'''
+============================================
+MEthod to derive GVA/POP SERVICE FLOOR AREAS
+============================================
+
+1. Step
+Get correlation between regional GVA and (regional floor area/reg pop) of every sector of base year
+-- Get this correlation for every region and build national correlation
+
+
+2. Step
+Calculate future regional floor area demand based on GVA and pop projection
+
+
+
+'''
+
 def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
     """This function disaggregates fuel demand based on region specific parameters
     for the base year
@@ -129,7 +146,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     #control_sum2 = 0
 
     # Iterate regions
-    for region in data['lu_reg']: 
+    for region in data['lu_reg']:
         ss_fueldata_disagg[region] = {}
         print("Region: " + str(region))
         # Iterate sector
@@ -139,7 +156,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
 
             # Calculate total national floor area of this sector
             national_floorarea_sector = 0
-            for regionLocal in data['lu_reg']:
+            for _ in data['lu_reg']:
                 national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region].values())
             # Calculate total national GVA
             # todo national_GVA = 100
@@ -180,7 +197,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     control_sum2 = 0
     for reg in ss_fueldata_disagg:
         for sector in ss_fueldata_disagg[reg]:
-            for enduse in ss_fueldata_disagg[reg][sector]: 
+            for enduse in ss_fueldata_disagg[reg][sector]:
                 control_sum1 += np.sum(ss_fueldata_disagg[reg][sector][enduse])
 
     for sector in data['all_service_sectors']:

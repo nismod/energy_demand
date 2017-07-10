@@ -60,7 +60,6 @@ def load_assumptions(data):
         'rs_home_computing': ['pop'],
     }
 
-
     # ..SERVICE SECTOR
 
     # Scenario drivers
@@ -77,6 +76,7 @@ def load_assumptions(data):
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # TODO: READ IN FROM READL BUILDING SCENARIOS...
+    # TODO: Project future demand based on seperate methodology
     assumptions['ss_floorarea_change_ey_p'] = {
         'community_arts_leisure': 1,
         'education': 1,
@@ -89,7 +89,6 @@ def load_assumptions(data):
         'storage': 1,
         'other': 1
         }
-
 
     #Testing (test if all provided fueltypes)
     #test_if_enduses_are_assigneddata['rs_all_enduses']
@@ -173,10 +172,12 @@ def load_assumptions(data):
     }
 
     # ============================================================
-    # HEAT RECYCLING
+    # HEAT RECYCLING & Reuse
     # ============================================================
-    assumptions['rs_heat_recovered'] = 0.5 # e.g. 0.2 = 20% reduction
-    #assumptions['rs_heat_recovered] =
+    assumptions['heat_recovered'] = {
+        'rs_space_heating': 0.0, # e.g. 0.2 = 20% reduction
+        'ss_space_heating': 0.0
+    }
 
     # ---------------------------------------------------------------------------------------------------------------------
     # General change in fuel consumption for specific enduses

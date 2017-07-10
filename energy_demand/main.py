@@ -88,22 +88,19 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    country_object = energy_model.model_main_function(data)
+    model_run_object = energy_model.model_main_function(data)
 
-    #Convert data according to region and fueltype
-    result_dict = read_data.convert_out_format_es(data, country_object)
+    # Convert data according to region and fueltype
+    result_dict = read_data.convert_out_format_es(data, model_run_object, ['ss_submodel', 'rs_submodel'])
 
     # --- Write to csv and YAML
-    #write_data.write_final_result(data, result_dict, country_object.curr_yr, data['lu_reg'], False)
+    #write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
     print("Finished energy demand model")
 
-    # Plot Region 0 for half a year
-    #pf.plot_x_days(result_dict[2], 0, 2)
-
-    return result_dict, country_object #MULTIPLE YEARS
+    return result_dict, model_run_object
 
 # Run
 if __name__ == "__main__":
@@ -147,7 +144,7 @@ if __name__ == "__main__":
 
 
     #a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 5300000}
-    a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
+    a = {'Wales': 500000, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -232,9 +229,6 @@ if __name__ == "__main__":
         base_data['assumptions']['technologies']
         )
 
-    print("dddd")
-    print(base_data['assumptions']['ss_service_tech_by_p'])
-
     # Write out txt file with service shares for each technology per enduse
     write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     print("... a file has been generated which shows the shares of each technology per enduse")
@@ -260,7 +254,6 @@ if __name__ == "__main__":
         )
 
     # --Service
-    print("====================SERVICE")
     base_data['assumptions']['ss_installed_tech'], base_data['assumptions']['ss_sig_param_tech'] = diffusion.get_sig_diffusion(
         base_data,
         base_data['assumptions']['ss_service_switches'],
@@ -274,31 +267,26 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
 
-    #print("TESTER")
-    #print(base_data['assumptions']['ss_sig_param_tech'])
-    #print(base_data['assumptions']['ss_sig_param_tech']['ss_space_heating'])
-
     # Disaggregate national data into regional data
     base_data = nd.disaggregate_reg_base_demand(base_data, 1)
 
     # Generate building stocks over whole simulation period
     print("...created dwelling stocks for service and residential model")
     base_data['rs_dw_stock'] = bg.rs_build_stock(base_data)
-
     base_data['ss_dw_stock'] = bg.ss_build_stock(base_data)
 
     # If several years are run:
     results_every_year = []
-    #sim_years = [2015, 2020]
+
     for sim_yr in sim_years:
         base_data['curr_yr'] = sim_yr
         print("                           ")
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
-        results, country_object = energy_demand_model(base_data)
+        results, model_run_object = energy_demand_model(base_data)
 
-        results_every_year.append(country_object)
+        results_every_year.append(model_run_object)
 
     # ------------------------------
     # Plotting
@@ -307,20 +295,20 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot total fuel (y) per enduse
-    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_country_fuel_y_enduse_specific_h')
-    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_country_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
-    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
-    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     # Plot peak demand (h) per fueltype
-    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_country_fuel_y_max_allenduse_fueltyp')
-    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_country_fuel_y_max_allenduse_fueltyp')
+    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_fuel_y_max_allenduse_fueltyp')
+    plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_fuel_y_max_allenduse_fueltyp')
 
     # Plot a full week
-    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
-    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_country_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     print("Finished running Energy Demand Model")
 

@@ -67,83 +67,103 @@ class EnergyModel(object):
         # Create object for every region and add into list
         self.regions = self.create_regions(reg_names, data)
 
-        # Generate different energy sub_models
-
-        # --------------
-        # Residential SubModel
-        # --------------
+        # --Residential SubModel
         self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'])
 
-        # --------------
-        # Service SubModel
-        # --------------
+        # --Service SubModel
         self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['all_service_sectors'])
 
-        # --------------
-        # Industry SubModel
-        # --------------
+        # --Industry SubModel
+        self.is_submodel = self.industry_submodel(data)
 
-        # --------------
-        # Other data (rest) SubModel
-        # --------------
-        
+        # --Other SubModels
+
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
 
         # Sum across all regions, all enduse and sectors
-        self.sum_uk_fueltypes_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel], 'sum', 'non_peak')
 
-        self.rs_tot_country_fuels_all_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
-        self.ss_tot_country_fuels_all_enduses_y = self.summing_reg('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
+        self.rs_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
 
         # Sum across all regions for enduse
-        self.rs_tot_country_fuel_y_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', [self.rs_submodel])
-        self.ss_tot_country_fuel_enduse_specific_h = self.get_country_enduse('enduse_fuel_yh', [self.ss_submodel])
+        self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel])
+        self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.ss_submodel])
 
 
         # Sum across all regions, enduses for peak hour
-        self.rs_tot_country_fuel_y_max_allenduse_fueltyp = self.summing_reg('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_tot_country_fuel_y_max_allenduse_fueltyp = self.summing_reg('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
 
         # Functions for load calculations
         # ---------------------------
-        print("PEAK CALCULATIONS")
-        self.rs_fuels_peak_h = self.summing_reg('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_fuels_peak_h = self.summing_reg('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_fuels_peak_h = self.sum_regions('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_fuels_peak_h = self.sum_regions('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
 
         # ACross all enduses calc_load_factor_h
-        self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_country_fuels_all_enduses_y, self.rs_fuels_peak_h)
-        self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.ss_tot_country_fuels_all_enduses_y, self.ss_fuels_peak_h)
+        self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, self.rs_fuels_peak_h)
+        self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.ss_tot_fuels_all_enduses_y, self.ss_fuels_peak_h)
 
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
-        #TODO: TESTING
-        #
+    def industry_submodel(self, data):
+
+        pass
 
     def residential_submodel(self, data, enduses):
-        """Create the residential submodules
+        """Create the residential submodules (per enduse and region) and add them to list
+
+        Parameters
+        ----------
+        data : dict
+            Data container
+        enduses : list
+            All residential enduses
+
+        Returns
+        -------
+        submodule_list : list
+            List with submodules
         """
-        rs_submodules = []
+        submodule_list = []
 
         # Iterate regions and enduses
         for region_object in self.regions:
             for enduse in enduses:
 
                 # Create submodule
-                submodule = submodule_residential.ResidentialModel(data, region_object, enduse)
+                submodel_object = submodule_residential.ResidentialModel(
+                    data,
+                    region_object,
+                    enduse
+                    )
 
-                # Add to list
-                rs_submodules.append(submodule)
+                submodule_list.append(submodel_object)
 
-        return rs_submodules
+        return submodule_list
 
     def service_submodel(self, data, enduses, sectors):
-        """Create the service submodules
+        """Create the service submodules per enduse, sector and region and add to list
+
+        Parameters
+        ----------
+        data : dict
+            Data container
+        enduses : list
+            All residential enduses
+        sectors : list
+            Service sectors
+
+        Returns
+        -------
+        submodule_list : list
+            List with submodules
         """
-        ss_submodules = []
+        submodule_list = []
 
         # Iterate regions, sectors and enduses
         for region_object in self.regions:
@@ -159,12 +179,12 @@ class EnergyModel(object):
                         )
 
                     # Add to list
-                    ss_submodules.append(submodule)
+                    submodule_list.append(submodule)
 
-        return ss_submodules
+        return submodule_list
 
     def create_regions(self, reg_names, data):
-        """Create all regions and add them as attributes based on region name to the EnergyModel Class
+        """Create all regions and add them in a list
 
         Parameters
         ----------
@@ -187,22 +207,36 @@ class EnergyModel(object):
 
         return regions
 
-    def get_country_enduse(self, attribute_to_get, sector_models):
+    def sum_enduse_all_regions(self, attribute_to_get, sector_models):
+        """Summarise an enduse attribute across all regions
 
+        Parameters
+        ----------
+        attribute_to_get : string
+            Enduse attribute to summarise
+        sector_models : List
+            List with sector models
+
+        Return
+        ------
+        enduse_dict : dict
+            Summarise enduses across all regions
+        """
         enduse_dict = {}
-        # Get sector models
-        for sector_model_enduse in sector_models:
-            # Iterate enduse
-            for region_enduse_object in sector_model_enduse:
 
+        for sector_model_enduse in sector_models: # Iterate sector models
+            for region_enduse_object in sector_model_enduse: # Iterate enduse
+
+                # Get regional enduse object
                 if region_enduse_object.enduse_name not in enduse_dict:
                     enduse_dict[region_enduse_object.enduse_name] = 0
 
+                # Summarise enduse attribute
                 enduse_dict[region_enduse_object.enduse_name] += np.sum(getattr(region_enduse_object.enduse_object, attribute_to_get))
 
         return enduse_dict
 
-    def summing_reg(self, attribute_to_get, data, sector_models, crit, crit2):
+    def sum_regions(self, attribute_to_get, data, sector_models, crit, crit2):
         """Collect hourly data from all regions and sum across all fuel types and enduses
         """
         if crit2 == 'peak_h':

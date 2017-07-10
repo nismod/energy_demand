@@ -12,7 +12,7 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses):
+    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -29,7 +29,6 @@ class TechStock(object):
         -   The shapes are given for different enduse as technology may be used in different enduses and either
             a technology specific shape is assigned or an overall enduse shape
         """
-
         # Crate all technologies and add as attribute
         for technology in data['assumptions']['tech_lu']:
 
@@ -40,7 +39,8 @@ class TechStock(object):
                 temp_by,
                 temp_cy,
                 t_base_heating,
-                potential_enduses
+                potential_enduses,
+                t_base_heating_cy
             )
 
             # Set technology object as attribute
@@ -93,7 +93,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses):
+    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy):
         """Contructor of Technology
 
         Parameters
@@ -105,38 +105,25 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
-        # Technology name
         self.tech_name = tech_name
-
-        # Get technology type
+        self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.tech_type = technologies_related.get_tech_type(tech_name, data['assumptions'])
-
-        # Achieved factor
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         # Diffusion method
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
-        # TODO: WRITE AS FUNCTION
-        shape_yd_dict_enduses = {}
-        shape_yh_dict_enduses = {}
-        shape_peak_yd_factor_dict_enduses = {}
+        shape_yd_enduses, shape_yh_enduses, shape_peak_yd_factor_enduses = {}, {}, {}
 
         for enduse in potential_enduses:
-            shape_yd_dict_enduses[enduse] = np.ones((365))
-            shape_yh_dict_enduses[enduse] = np.ones((365, 24))
-            shape_peak_yd_factor_dict_enduses[enduse] = 1
+            shape_yd_enduses[enduse] = np.ones((365))
+            shape_yh_enduses[enduse] = np.ones((365, 24))
+            shape_peak_yd_factor_enduses[enduse] = 1
 
-        self.shape_yd = shape_yd_dict_enduses # Shape for every specifided enduse
-        self.shape_yh = shape_yh_dict_enduses
-        self.shape_peak_yd_factor = shape_peak_yd_factor_dict_enduses
-
-        # Base temp assumptions for by and cy
-        t_base_heating_cy = hdd_cdd.t_base_sigm(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
-
-        # Market entry
-        self.market_entry = data['assumptions']['technologies'][self.tech_name]['market_entry']
+        self.shape_yd = shape_yd_enduses # Shape for every specifided enduse
+        self.shape_yh = shape_yh_enduses
+        self.shape_peak_yd_factor = shape_peak_yd_factor_enduses
 
         # Calculate fuel types and distribution
         if self.tech_type == 'hybrid_tech':

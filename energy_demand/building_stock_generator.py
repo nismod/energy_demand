@@ -1,9 +1,9 @@
 """ Building Generator"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913, R0914
 import sys
+import numpy as np
 import energy_demand.building_stock_functions as bf
 from energy_demand.scripts_plotting import plotting_results
-import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def ss_build_stock(data):
@@ -29,7 +29,6 @@ def ss_build_stock(data):
     # --data['ss_dw_input_data'][sim_yr][reg_name][sector]['age']
     # ..
     # ------------
-
 
     dw_stock_every_year = {}
 
@@ -70,13 +69,14 @@ def ss_build_stock(data):
                 floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
 
                 if floorarea_sector_cy == 0:
-                    print(data['base_yr'])
+                    '''print(data['base_yr'])
                     print(sim_yr)
                     print(change_floorarea_p_ey)
                     print(len(data['sim_period']))
                     print(floorarea_sector_by)
                     print(lin_diff_factor)
                     print(change_floorarea_p_ey)
+                    '''
                     sys.exit("ERROR: FLOORAREA CANNOT BE ZERO")
 
                 # create building object

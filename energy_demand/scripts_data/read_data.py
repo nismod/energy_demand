@@ -18,7 +18,7 @@ def add_yearly_external_fuel_data(data, dict_to_add_data):
 
     return data
 
-def convert_out_format_es(data, country_object):
+def convert_out_format_es(data, country_object, sub_modules):
     """Adds total hourly fuel data into nested dict
 
     Parameters
@@ -33,7 +33,6 @@ def convert_out_format_es(data, country_object):
     results : dict
         Returns a list for energy supply model with fueltype, region, hour"""
     print("...Convert to dict for energy_supply_model")
-    # Create timesteps for full year (wrapper-timesteps)
     results = {}
 
     for fueltype, fueltype_id in data['lu_fueltype'].items():
@@ -41,16 +40,18 @@ def convert_out_format_es(data, country_object):
 
         for region_name in data['lu_reg']:
 
-            # Get sub moduels - Service
-            for sub_model_obj in country_object.ss_submodel:
-                if sub_model_obj.reg_name == region_name:
-                    hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh #enduse_fuel_yh
+            for sub_model in sub_modules:
+                
+                # Get sub moduels - Service
+                for sub_model_obj in getattr(country_object, sub_model): #ss_submodel:
+                    if sub_model_obj.reg_name == region_name:
+                        hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh #enduse_fuel_yh
 
-            for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
-                for hour_in_day, demand in enumerate(hourly_demand):
-                    hour_in_year = "{}_{}".format(day, hour_in_day)
-                    result = (region_name, hour_in_year, float(demand), "units")
-                    results[fueltype].append(result)
+                for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
+                    for hour_in_day, demand in enumerate(hourly_demand):
+                        hour_in_year = "{}_{}".format(day, hour_in_day)
+                        result = (region_name, hour_in_year, float(demand), "units")
+                        results[fueltype].append(result)
 
     return results
 
@@ -363,7 +364,6 @@ def read_assump_fuel_switches(path_to_csv, data):
         tot_share_fueltype_switched = 0
         # Do check for every entry
         for element_iter in service_switches:
-
             if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
                 # Found same fueltypes which is switched
                 tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
@@ -375,8 +375,7 @@ def read_assump_fuel_switches(path_to_csv, data):
     # Test whether defined enduse exist
     for element in service_switches:
         if element['enduse'] in data['ss_all_enduses'] or element['enduse'] in data['rs_all_enduses']:
-            _ = 0
-            #print("allgood")
+            pass
         else:
             print("enduses")
             print(data['ss_all_enduses'])
