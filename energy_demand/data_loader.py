@@ -8,6 +8,8 @@ from energy_demand.scripts_data import rs_read_data
 from energy_demand.scripts_data import ss_read_data
 from energy_demand.scripts_data import read_weather_data
 from energy_demand.scripts_data import write_data
+from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
+from energy_demand.scripts_basic import unit_conversions
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -39,6 +41,9 @@ def load_data(path_main, data):
         'folder_path_weater_data': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(data['local_data_path'], r'16-Met_office_weather_data\excel_list_station_details.csv'),
 
+        'folder_validation_national_elec_data': os.path.join(data['local_data_path'], r'04-validation\03_national_elec_demand_2015\elec_demand_2015.csv'),
+
+
         # Residential
         # -----------
         'path_main': path_main,
@@ -60,23 +65,29 @@ def load_data(path_main, data):
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(path_main, 'submodel_residential/switches_fuel_scenaric.csv'),
         'ss_path_fuel_switches': os.path.join(path_main, 'submodel_service/switches_fuel_scenaric.csv'),
+        'is_path_fuel_switches': os.path.join(path_main, 'submodel_industry/switches_fuel_scenaric.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(path_main, 'submodel_residential/switches_service_scenaric.csv'),
         'ss_path_service_switch': os.path.join(path_main, 'submodel_service/switches_service_scenaric.csv'),
+        'is_path_industry_switch': os.path.join(path_main, 'submodel_industry/switches_industry_scenaric.csv'),
 
         # Paths to fuel raw data
         'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_residential/data_residential_by_fuel_end_uses.csv'),
         'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv'),
         'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_industry/data_industry_by_fuel_end_uses.csv'),
-        
+
         # Paths to txt shapes
         'path_rs_txt_shapes': os.path.join(path_main, 'submodel_residential/txt_load_shapes'),
         'path_ss_txt_shapes': os.path.join(path_main, 'submodel_service/txt_load_shapes'),
+        'path_is_txt_shapes': os.path.join(path_main, 'submodel_industry/txt_load_shapes'),
 
         #Technologies load shapes
         'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
         'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv')
+
+
+
         }
 
     # ------------------------------------------------
@@ -127,7 +138,7 @@ def load_data(path_main, data):
     # ----------------------------------------------------------
 
     # Temperature data
-    if data['factcalculationcrit']:
+    if data['factcalculationcrit'] == False: #Scrap, eigentlich True
         print("read in fake weater data")
 
         temp_scrap = [12, 9, 10, 17, 23, 18903, 54, 67, 52, 19172, 30270, 103, 44, 105, 79, 113, 117, 132, 137, 145, 32, 150, 177, 161, 170, 18974, 23417, 908, 1039, 24125, 1007, 212, 17336, 1033, 987, 268, 1023, 19260, 235, 251, 1046, 1055, 1060, 1078, 1070, 1076, 1083, 1074, 1085, 16589, 30523, 315, 17314, 342, 16596, 346, 17344, 358, 373, 56486, 1145, 1171, 1137, 17309, 1090, 1144, 30690, 513, 56958, 527, 57199, 556, 381, 384, 386, 370, 405, 56216, 393, 16725, 1161, 1180, 1190, 643, 583, 409, 421, 432, 1198, 1209, 16611, 669, 24996, 657, 19187, 595, 461, 440, 1215, 1226, 1255, 676, 674, 692, 605, 613, 17176, 709, 471, 19188, 498, 504, 1346, 1285, 19206, 886, 888, 889, 847, 862, 869, 30620, 697, 708, 726, 16588, 743, 775, 1386, 1395, 1393, 1415, 1336, 1378, 1383, 1302, 1319, 842, 876, 779, 858, 795, 811, 1572, 1575, 57063, 1543, 56963, 1435, 1448, 1467, 1450, 1534, 48, 56905, 17089, 17090, 17091, 56370, 56906, 17094, 56907, 56908, 24089, 17097, 17098, 17099, 24090, 17101, 24275, 56909, 17102, 19211, 66, 14093, 56451, 110, 111, 114, 1585, 55827, 148, 159, 160, 195, 253, 1588, 285, 289, 57254, 16031, 310, 326, 339, 30750, 360, 367, 56986, 382, 61843, 4911, 30476, 413, 426, 61915, 435, 436, 442, 455, 456, 458, 481, 487, 516, 25726, 525, 529, 534, 61973, 542, 554, 19204, 30529, 578, 56424, 596, 24102, 57093, 607, 61948, 622, 61949, 634, 651, 61844, 658, 660, 10268, 691, 695, 711, 719, 723, 742, 56904, 744, 16769, 23450, 19159, 830, 61846, 25727, 855, 57247, 56962, 61847, 868, 17224, 918, 940, 1605, 1603, 982, 1005, 1035, 13343, 19203, 1067, 1073, 1080, 16851, 1111, 1112, 1119, 1125, 1132, 1166, 1204, 1205, 1221, 1223, 1238, 1249, 1272, 1276, 56939, 1326, 1345, 1352, 1367, 61743, 61737, 1609, 61744, 57250, 1418, 1431, 56937, 1452, 19192, 1488, 1502, 1504, 1507, 1517, 1523, 1529, 24103, 56810, 593, 1135, 1267, 18912, 1101, 466, 18929, 18923, 18927, 18931, 18919, 4, 116, 971, 246, 1006, 18909, 18936, 484, 18930, 18920, 18942, 1607, 725, 18925, 18937, 18908, 854, 25315, 38, 50, 60, 55890, 64, 55896, 118, 19193, 56463, 176, 181, 208, 30810, 214, 226, 15381, 237, 249, 262, 56130, 279, 286, 30747, 300, 17182, 347, 359, 57266, 4934, 445, 454, 55536, 509, 2515, 535, 56423, 539, 606, 609, 636, 638, 61908, 671, 24218, 688, 720, 757, 782, 818, 825, 843, 7621, 878, 883, 24795, 926, 57118, 949, 996, 13298, 1066, 25618, 61875, 24793, 1105, 25318, 1141, 1149, 56339, 1217, 1222, 30448, 1243, 9280, 9092, 1304, 1314, 1324, 8898, 1362, 23510, 8231, 1412, 1494, 1508, 1551, 600, 18921, 18911, 18946, 18941, 1574, 18918, 18913, 18916, 403, 863, 963, 1371, 25353, 759, 15045, 1291, 18914, 972, 25069, 18907, 219, 232, 18985, 439, 915, 1148, 57233, 457, 395, 1611, 1214, 1606, 24998, 18915, 56229, 30286, 3, 1489, 40, 19259, 1245, 17177, 1563, 1047, 61938, 61986, 30127, 407, 1475, 1530, 61937, 954, 62004, 808, 2710, 57268, 14444, 980, 57267, 62031, 62033, 16612, 62039, 267, 30084, 2, 62034, 62015, 8605, 62057, 9529, 62037]
@@ -165,26 +176,21 @@ def load_data(path_main, data):
 
     # Residential Sector (Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
-    
+
     # Service Sector
-    data['ss_fuel_raw_data_enduses'], data['all_service_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
+    data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
 
     # Industry fuel (Table 4.04)
-    data['is_fuel_raw_data_enduses'], data['all_industry_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry( data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
+    data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
 
-    print(data['is_fuel_raw_data_enduses']['rubber_plastics']['drying_separation'])
-    ort("L:")
     #ALL EXTERNAL ENDUSES?
+
     # ----------------------------------------
     # Convert units # TODO: Check in what units external fuel data is provided
     # ----------------------------------------
-    '''for enduse in rs_fuel_raw_data_enduses:
-        rs_fuel_raw_data_enduses[enduse] = plotting_results.convert_ktoe_gwh(rs_fuel_raw_data_enduses[enduse])
-    #print("ENDUSES: " + str(rs_fuel_raw_data_enduses))
-    '''
-    # Residential Sector (TODO)
-    data['rs_fuel_raw_data_enduses'] = data['rs_fuel_raw_data_enduses']
-    data['ss_fuel_raw_data_enduses'] = data['ss_fuel_raw_data_enduses']
+    data['rs_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
+    data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
+    data['is_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
 
     # ------------------------------------------
     # Specific technology shapes
@@ -200,17 +206,19 @@ def load_data(path_main, data):
     if data['factcalculationcrit'] == False: #False
 
         # Read raw files - Generate data from raw files
-        data = load_shapes_from_raw(data, data['rs_all_enduses'], data['ss_all_enduses'])
+        data = load_shapes_from_raw(data, data['rs_all_enduses'], data['ss_all_enduses'], data['is_all_enduses'], data['is_sectors'])
 
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
+        data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'],  data['is_sectors'], data['is_all_enduses'])
 
     else:
         print("...read in load shapes from txt files")
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
+        data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(data['ss_shapes_dh'], data['ss_shapes_yd'])
@@ -246,14 +254,14 @@ def rs_collect_shapes_from_txts(data, path_to_txts):
         enduses.add(enduse)
 
     # Read load shapes from txt files for enduses
-    for end_use in enduses:
-        shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
-        shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+    for enduse in enduses:
+        shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
+        shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+        shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+        shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        data['rs_shapes_dh'][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
-        data['rs_shapes_yd'][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        data['rs_shapes_dh'][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+        data['rs_shapes_yd'][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return data
 
@@ -283,26 +291,95 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
 
     data['ss_shapes_dh'] = {}
     data['ss_shapes_yd'] = {}
+
     # Read load shapes from txt files for enduses
     for sector in sectors:
         data['ss_shapes_dh'][sector] = {}
         data['ss_shapes_yd'][sector] = {}
 
-        for end_use in enduses:
-            print("Read in txt file sector: {}  enduse: {}".format(sector, enduse))
-            joint_string_name = str(sector) + "__" + str(end_use)
+        for enduse in enduses:
+            joint_string_name = str(sector) + "__" + str(enduse)
+            print("Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
 
             shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
             shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
             shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
             shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
-            data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+            data['ss_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+            data['ss_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return data
 
-def load_shapes_from_raw(data, rs_enduses, ss_enduses):
+def is_collect_shapes_from_txts(data, path_to_txts, is_sectors, is_enduses):
+    """Collect service shapes from txt files for every setor and enduse
+
+    Parameters
+    ----------
+    path_to_txts : string
+        Path to txt shapes files
+
+    Return
+    ------
+    data : dict
+        Data
+    """
+
+    # IF NO REAL DATA ARE READ IN; ALSO DIRECTL GENERATED HERE
+    
+    print("...read in raw industry data") 
+    data['is_shapes_yd'] = {}
+    data['is_shapes_dh'] = {}
+    for sector in is_sectors:
+        data['is_shapes_yd'][sector] = {}
+        data['is_shapes_dh'][sector] = {}
+        for enduse in is_enduses:
+            print("Create industry shapes   {}    {}".format(sector, enduse))
+            data['is_shapes_yd'][sector][enduse] = {}
+            data['is_shapes_dh'][sector][enduse] = {}
+
+            # Industry Sector specific shape_peak_yd_factor
+            shape_peak_yd_factor = 1 #TODO: MAYBE SPECIFY FOR DIFFERENT SECTORS
+
+            # Generate generic shape
+            data['is_shapes_dh'][sector][enduse]['shape_peak_dh'], data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'], data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'] = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
+
+
+    '''
+    # Iterate folders and get all sectors and enduse from file names
+    all_csv_in_folder = os.listdir(path_to_txts)
+
+    enduses = set([])
+    sectors = set([])
+    for file_name in all_csv_in_folder:
+        sector = file_name.split("__")[0]
+        enduse = file_name.split("__")[1] # two dashes because individual enduses may contain a single slash
+        enduses.add(enduse)
+        sectors.add(sector)
+
+    data['is_shapes_dh'] = {}
+    data['is_shapes_yd'] = {}
+
+    # Read load shapes from txt files for enduses
+    for sector in sectors:
+        data['is_shapes_dh'][sector] = {}
+        data['is_shapes_yd'][sector] = {}
+
+        for enduse in enduses:
+            print("Read in txt file sector: {}  enduse: {}".format(sector, enduse))
+            joint_string_name = str(sector) + "__" + str(enduse)
+
+            shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
+            shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+            shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+            shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+
+            data['is_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+            data['is_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+    '''
+    return data
+
+def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
     """Reads in raw data files and generates txt files
 
     HES data, Carbon Trust data area read in. This only needs to be run once
@@ -315,6 +392,36 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses):
         Provided fuel input of ss
 
     """
+    print("...read in raw data")
+
+    # ==========================================
+    # Submodel Industry Data
+    # ===========================================
+    data['is_shapes_yd'] = {}
+    data['is_shapes_dh'] = {}
+    for sector in is_sectors:
+        data['is_shapes_yd'][sector] = {}
+        data['is_shapes_dh'][sector] = {}
+        for enduse in is_enduses:
+            data['is_shapes_yd'][sector][enduse] = {}
+            data['is_shapes_dh'][sector][enduse] = {}
+
+            # Industry Sector specific shape_peak_yd_factor
+            shape_peak_yd_factor = 1 #TODO: MAYBE SPECIFY
+
+            # Generate generic shape (so far flat)
+            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
+
+            # Write txt files
+            write_data.create_txt_shapes(
+                enduse,
+                data['path_dict']['path_is_txt_shapes'],
+                shape_peak_dh,
+                shape_non_peak_dh,
+                shape_peak_yd_factor,
+                shape_non_peak_yd
+                )
+
     # ===========================================-
     # RESIDENTIAL MODEL - LOAD HES DATA
     # ===========================================
@@ -338,24 +445,23 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses):
     # Assign read in raw data to the base year
     year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['base_yr'])
 
-    # Load shape for all end_uses
-    for end_use in rs_enduses:
-        print("Enduse:  " + str(end_use))
+    # Load shape for all enduses
+    for enduse in rs_enduses:
 
-        if end_use not in appliances_HES_enduse_matching:
-            print("Warning: The enduse {} is not defined in appliances_HES_enduse_matching, i.e. no generic shape is loades from HES data but enduse needs to be defined with technologies".format(end_use))
+        if enduse not in appliances_HES_enduse_matching:
+            print("Warning: The enduse {} is not defined in appliances_HES_enduse_matching, i.e. no generic shape is loades from HES data but enduse needs to be defined with technologies".format(enduse))
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = rs_read_data.get_hes_load_shapes(
                 appliances_HES_enduse_matching,
                 year_raw_values_hes,
                 hes_y_peak,
-                end_use
+                enduse
                 )
 
             # Write txt files
             write_data.create_txt_shapes(
-                end_use,
+                enduse,
                 data['path_dict']['path_rs_txt_shapes'],
                 shape_peak_dh,
                 shape_non_peak_dh,
@@ -366,14 +472,9 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses):
     # ==========================================
     # SERVICE MODEL - Load Carbon Trust data (Could be writte nfaster because rea in multiple times)
     # ===========================================
-    data['ss_shapes_dh'] = {}
-    data['ss_shapes_yd'] = {}
 
     # Iterate sectors and read in shape
-    for sector in data['all_service_sectors']:
-        #print("Read in shape {}".format(sector))
-        data['ss_shapes_dh'][sector] = {}
-        data['ss_shapes_yd'][sector] = {}
+    for sector in data['ss_sectors']:
 
         # Match electricity shapes for every sector
         if sector == 'community_arts_leisure':
@@ -400,14 +501,14 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses):
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
-        for end_use in ss_enduses:
-            #print("Enduse service: {}  in sector '{}'".format(end_use, sector))
+        for enduse in ss_enduses:
+            #print("Enduse service: {}  in sector '{}'".format(enduse, sector))
 
             # Select shape depending on enduse
-            if end_use in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']:
+            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']: #TODO: IMPROVE
                 folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
             else:
-                if end_use == 'ss_other_electricity':
+                if enduse == 'ss_other_electricity':
                     folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
                 else:
                     folder_path = sector_folder_path_elec
@@ -421,19 +522,15 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses):
             # Read in shape from carbon trust metering trial dataset
             shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = ss_read_data.read_raw_carbon_trust_data(folder_path)
 
-            # Assign shapes
-            data['ss_shapes_dh'][sector][end_use] = {'shape_peak_dh': load_peak_shape_dh, 'shape_non_peak_dh': shape_non_peak_dh}
-            data['ss_shapes_yd'][sector][end_use] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
-
             # Write shapes to txt
-            joint_string_name = str(sector) + "__" + str(end_use)
+            joint_string_name = str(sector) + "__" + str(enduse)
             write_data.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd)
 
     # ---------------------
     # Compare Jan and Jul
     # ---------------------
     #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
-
+    
     return data
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

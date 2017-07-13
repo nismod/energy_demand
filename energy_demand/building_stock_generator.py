@@ -45,7 +45,7 @@ def ss_build_stock(data):
             dw_stock = []
 
             # Iterate sectors
-            for sector in data['all_service_sectors']:
+            for sector in data['ss_sectors']:
 
                 # -------------------------
                 #TODO: READ FROM Newcastle DATASET
@@ -84,8 +84,8 @@ def ss_build_stock(data):
                     bf.Dwelling(
                         curr_yr=sim_yr,
                         reg_name=reg_name,
-                        longitude=data['region_coordinates'][reg_name]['longitude'],
-                        latitude=data['region_coordinates'][reg_name]['latitude'],
+                        longitude=data['reg_coordinates'][reg_name]['longitude'],
+                        latitude=data['reg_coordinates'][reg_name]['latitude'],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['ss_scen_driver_assumptions'],
@@ -328,8 +328,8 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
                 bf.Dwelling(
                     curr_yr=curr_yr,
                     reg_name=reg_name,
-                    longitude=data['region_coordinates'][reg_name]['longitude'],
-                    latitude=data['region_coordinates'][reg_name]['latitude'],
+                    longitude=data['reg_coordinates'][reg_name]['longitude'],
+                    latitude=data['reg_coordinates'][reg_name]['latitude'],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],
@@ -390,8 +390,8 @@ def generate_dw_new(data, reg_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp
             bf.Dwelling(
                 curr_yr=curr_yr,
                 reg_name=reg_name,
-                longitude=data['region_coordinates'][reg_name]['longitude'],
-                latitude=data['region_coordinates'][reg_name]['latitude'],
+                longitude=data['reg_coordinates'][reg_name]['longitude'],
+                latitude=data['reg_coordinates'][reg_name]['latitude'],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],

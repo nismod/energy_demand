@@ -43,7 +43,7 @@
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - Heat recycling/reuse in percentage (lower heating demand accordingly)
--
+- "scenario teller": istead of diffusion path, type in known path
 TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
@@ -54,6 +54,7 @@ The docs can be found here: http://ed.readthedocs.io
 #!python3.6
 import os
 import sys
+import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.scripts_plotting import plotting_results
 import energy_demand.building_stock_generator as bg
@@ -65,6 +66,8 @@ from energy_demand.scripts_technologies import diffusion_technologies as diffusi
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_calculations import enduse_scenario
 from energy_demand.scripts_data import read_data
+from energy_demand.scripts_basic import testing_functions as testing
+from energy_demand.scripts_validation import elec_national_data as validation
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -88,10 +91,10 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    fuel_in = test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
+    fuel_in = testing.test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
-    model_run_object = EnergyModel(
+    model_run_object = energy_model.EnergyModel(
         reg_names=data['lu_reg'],
         data=data,
     )
@@ -101,6 +104,7 @@ def energy_demand_model(data):
     # ----------------------------
     fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
 
+    #fueltot_specific_fueltype = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
     print("================================================")
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
@@ -112,6 +116,12 @@ def energy_demand_model(data):
 
     # --- Write to csv and YAML
     #write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
+
+    # -----------------------------------------
+    # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
+    # -----------------------------------------
+    # Read in 2015 base elec national data
+
 
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
@@ -160,7 +170,6 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
 
 
-    #a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 5300000}
     a = {'Wales': 500000, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
@@ -182,7 +191,7 @@ if __name__ == "__main__":
     # Reg Floor Area? Reg lookup?
     data_external = {
         'population': pop_dummy,
-        'region_coordinates': coord_dummy,
+        'reg_coordinates': coord_dummy,
         'glob_var' : {},
         'fuel_price': fuel_price_dummy,
         'ss_sector_floor_area_by': ss_floorarea_sector_by_dummy,
@@ -214,7 +223,8 @@ if __name__ == "__main__":
     # Paths
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-    base_data['local_data_path'] = r'Z:\01-Data_NISMOD\data_energy_demand' # Path to local files which have restricted access
+
+    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand' # Path to local files which have restricted access
     print("... load data")
 
     # Load data
@@ -246,6 +256,16 @@ if __name__ == "__main__":
         base_data['assumptions']['technologies']
         )
 
+    # INDUSTRY
+    fuels_aggregated_across_sectors = fuel_service_switch.ss_summarise_fuel_enduse_sectors(base_data['is_fuel_raw_data_enduses'], base_data['is_all_enduses'], base_data['nr_of_fueltypes'])
+    base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
+        base_data['assumptions'],
+        base_data['lu_fueltype'],
+        base_data['assumptions']['is_fuel_enduse_tech_p_by'],
+        fuels_aggregated_across_sectors,
+        base_data['assumptions']['technologies']
+        )
+
     # Write out txt file with service shares for each technology per enduse
     write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     print("... a file has been generated which shows the shares of each technology per enduse")
@@ -253,6 +273,7 @@ if __name__ == "__main__":
     # Calculate technologies with more, less and constant service based on service switch assumptions
     base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
     base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
+    base_data['assumptions']['is_tech_increased_service'], base_data['assumptions']['is_tech_decreased_share'], base_data['assumptions']['is_tech_constant_share'] = fuel_service_switch.get_technology_services_scenario(base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_share_service_tech_ey_p'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
@@ -284,8 +305,23 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_fuel_enduse_tech_p_by']
         )
 
+    # --Industry
+    base_data['assumptions']['is_installed_tech'], base_data['assumptions']['is_sig_param_tech'] = diffusion.get_sig_diffusion(
+        base_data,
+        base_data['assumptions']['is_service_switches'],
+        base_data['assumptions']['is_fuel_switches'],
+        base_data['is_all_enduses'],
+        base_data['assumptions']['is_tech_increased_service'],
+        base_data['assumptions']['is_share_service_tech_ey_p'],
+        base_data['assumptions']['is_enduse_tech_maxL_by_p'],
+        base_data['assumptions']['is_service_fueltype_by_p'],
+        base_data['assumptions']['is_service_tech_by_p'],
+        base_data['assumptions']['is_fuel_enduse_tech_p_by']
+        )
+    # ---------------------------------------------
     # Disaggregate national data into regional data
-    base_data = nd.disaggregate_reg_base_demand(base_data, 1)
+    # ---------------------------------------------
+    base_data = nd.disaggregate_base_demand(base_data)
 
     # Generate building stocks over whole simulation period
     print("...created dwelling stocks for service and residential model")
@@ -294,6 +330,9 @@ if __name__ == "__main__":
 
     # If several years are run:
     results_every_year = []
+
+    #scrap
+    #validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
 
     for sim_yr in sim_years:
         base_data['curr_yr'] = sim_yr
@@ -304,6 +343,22 @@ if __name__ == "__main__":
         results, model_run_object = energy_demand_model(base_data)
 
         results_every_year.append(model_run_object)
+
+
+
+        # -----------------
+        # VALIDATION STEPS
+        # -----------------
+        # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
+        validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
+        calculated_elec_data_2015 = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
+
+        print("TEST")
+
+        print(np.sum(validation_elec_data_2015))
+        print(np.sum(calculated_elec_data_2015))
+        validation.compare_results(validation_elec_data_2015, calculated_elec_data_2015)
+
 
     # ------------------------------
     # Plotting

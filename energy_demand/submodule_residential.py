@@ -20,15 +20,15 @@ class ResidentialModel(object):
         self.enduse_object = self.create_enduse(region_object, data)
 
     def create_enduse(self, region_object, data):
-        """Create enduse objects and add to 
+        """Create enduse objects and add to list
         """
         if self.enduse_name in data['assumptions']['enduse_space_heating']:
             # Regional yd factor for heating
-            enduse_peak_yd_factor = region_object.rs_reg_peak_yd_heating_factor
+            enduse_peak_yd_factor = region_object.rs_peak_yd_heating_factor
 
         elif self.enduse_name in data['assumptions']['enduse_space_cooling']:
             # Regional yd factor for cooling
-            enduse_peak_yd_factor = region_object.rs_reg_peak_yd_cooling_factor
+            enduse_peak_yd_factor = region_object.rs_peak_yd_cooling_factor
         else:
             # Get parameters from loaded shapes for enduse
             enduse_peak_yd_factor = data['rs_shapes_yd'][self.enduse_name]['shape_peak_yd_factor']

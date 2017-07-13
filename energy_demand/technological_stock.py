@@ -116,6 +116,7 @@ class Technology(object):
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
         shape_yd_enduses, shape_yh_enduses, shape_peak_yd_factor_enduses = {}, {}, {}
 
+        # Assign potential shapes for every enduse
         for enduse in potential_enduses:
             shape_yd_enduses[enduse] = np.ones((365))
             shape_yh_enduses[enduse] = np.ones((365, 24))
@@ -269,10 +270,6 @@ class Technology(object):
         ------
         tech_low_high_p : dict
             Share of lower and higher service fraction for every hour
-
-        Info
-        ----
-        TODO: Plot chart in INDESIGN OF SHARE OF USAGE FOR HYBRID TECH
         """
         tech_low_high_p = {}
 

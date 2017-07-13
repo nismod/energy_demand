@@ -86,8 +86,8 @@ def get_hdd_country(regions, data, t_base_type):
     hdd_regions = {}
 
     for region in regions:
-        longitude = data['region_coordinates'][region]['longitude']
-        latitude = data['region_coordinates'][region]['latitude']
+        longitude = data['reg_coordinates'][region]['longitude']
+        latitude = data['reg_coordinates'][region]['latitude']
 
         # Get closest weather station and temperatures
         closest_weatherstation_id = weather_station.get_closest_station(
@@ -100,7 +100,7 @@ def get_hdd_country(regions, data, t_base_type):
         temperatures = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = t_base_sigm(
+        t_base_heating_cy = sigm_t_base(
             data['base_yr'],
             data['assumptions'],
             data['base_yr'],
@@ -114,7 +114,7 @@ def get_hdd_country(regions, data, t_base_type):
 
     return hdd_regions
 
-def t_base_sigm(curr_y, assumptions, base_yr, end_yr, t_base_type):
+def sigm_t_base(curr_y, assumptions, base_yr, end_yr, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year

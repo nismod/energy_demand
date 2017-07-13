@@ -9,6 +9,7 @@ from energy_demand.scripts_technologies import diffusion_technologies as diffusi
 from energy_demand.scripts_initalisations import initialisations as init
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import fuel_service_switch
+from energy_demand.scripts_basic import testing_functions as testing
 ASSERTIONS = unittest.TestCase('__init__')
 
 class Enduse(object):
@@ -48,156 +49,165 @@ class Enduse(object):
     def __init__(self, reg_name, data, enduse, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, enduse_peak_yd_factor, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, data_shapes_yd, data_shapes_dh, enduse_overall_change_ey, dw_stock):
         """Enduse class constructor
         """
+        print("..create enduse {}".format(enduse))
         self.enduse = enduse
+
         self.curr_yr = data['curr_yr']
         self.base_yr = data['base_yr']
         self.end_yr = data['end_yr']
         self.sim_period = data['sim_period']
+
         self.enduse_fuel_y = enduse_fuel
-        self.fuel_switch_crit = self.get_fuel_switch_crit(fuel_switches)
-        self.service_switch_crit = self.get_service_switch_crit(service_switches)
 
-        # Get technologies of enduse depending on assumptions on fuel switches or service switches
-        self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by[enduse])
+        # Test whether fuel is provided for enduse
+        if np.sum(enduse_fuel) == 0:
+            #print("Enduse has no fuel. Create empty shapes")
+            self.enduse_fuel_yd = np.zeros((365, 24))
+            self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
+            self.enduse_fuel_y_peak_yd = np.zeros((self.enduse_fuel_y.shape[0]))
+            self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
+            self.enduse_fuel_peak_h = np.zeros((self.enduse_fuel_y.shape[0]))
+        else:
+            self.crit_switch_fuel = self.get_crit_switch_fuel(fuel_switches)
+            self.crit_switch_service = self.get_crit_switch_service(service_switches)
 
-        # Switch criteria
-        self.testing_fuel_switch(data_shapes_yd)
+            testing.testing_switch_criteria(self.crit_switch_fuel, self.crit_switch_service)
 
-        # -------------------------------
-        # Yearly fuel calculation cascade
-        # --------------------------------
-        self.enduse_fuel_new_y = copy.deepcopy(enduse_fuel)
-        print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # Change fuel consumption based on climate change induced temperature differences
-        self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y, data['assumptions'])
-        print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # Calcualte smart meter induced general savings
-        self.smart_meter_eff_gain(data['assumptions'])
-        print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-        self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey)
-        print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # Calculate new fuel demands after scenario drivers
-        self.enduse_building_stock_driver(dw_stock, reg_name)
-        print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # Calculate demand with changing elasticity (elasticity maybe on household level with floor area)
-        ##self.enduse_elasticity(data, data['assumptions'])
-        #print("Fuel train F: " + str(np.sum(self.enduse_fuel_new_y)))
-
-        # ----------------------------------
-        # Hourly fuel calculation cascade
-        # ----------------------------------
-        # Check if enduse is defined with technologies
-        if self.technologies_enduse != []:
-            print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
-
-            # ------------------------------------------------------------------------
-            # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution) MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
-            # ------------------------------------------------------------------------
-            tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.calc_enduse_service_by(
-                fuel_enduse_tech_p_by[self.enduse],
-                tech_stock,
-                data['lu_fueltype']
-                )
-
-            print("A service_tech")
-            for tech in service_tech:
-                print("Tech A: {} {}".format(tech, np.sum(service_tech[tech])))
-
-            # ---------------------------------------------------------------------------------------
-            # Reduction of service because of heat recovery (standard sigmoid diffusion)
-            # ---------------------------------------------------------------------------------------
-            tot_service_h_cy = self.service_reduction_heat_recovery(data['assumptions'], tot_service_h_cy, 'tot_service_h_cy', data['assumptions']['heat_recovered'])
-            service_tech = self.service_reduction_heat_recovery(data['assumptions'], service_tech, 'service_tech', data['assumptions']['heat_recovered'])
+            # Get technologies of enduse depending on assumptions on fuel switches or service switches
+            self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by[enduse])
 
 
+
+            # -------------------------------
+            # Yearly fuel calculation cascade
             # --------------------------------
-            # Energy service switches
-            # --------------------------------
-            if self.service_switch_crit:
-                service_tech = self.switch_tech_service(
-                    tot_service_h_cy,
-                    service_tech_cy_p,
-                    tech_increased_service[enduse],
-                    tech_decreased_share[enduse],
-                    tech_constant_share[enduse],
-                    sig_param_tech
+            self.enduse_fuel_new_y = copy.deepcopy(enduse_fuel)
+            print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_y)))
+
+            # Change fuel consumption based on climate change induced temperature differences
+            self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y, data['assumptions'])
+            print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_y)))
+
+            # Calcualte smart meter induced general savings
+            self.smart_meter_eff_gain(data['assumptions'])
+            print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y)))
+
+            # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
+            self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey)
+            print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
+
+            # Calculate new fuel demands after scenario drivers
+            self.enduse_building_stock_driver(dw_stock, reg_name)
+            print("Fuel train E: " + str(np.sum(self.enduse_fuel_new_y)))
+
+            # ----------------------------------
+            # Hourly fuel calculation cascade
+            # ----------------------------------
+            # Check if enduse is defined with technologies
+            if self.technologies_enduse != []:
+                print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
+
+                # ------------------------------------------------------------------------
+                # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution) MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
+                # ------------------------------------------------------------------------
+                tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.calc_enduse_service_by(
+                    fuel_enduse_tech_p_by[self.enduse],
+                    tech_stock,
+                    data['lu_fueltype']
                     )
 
-            control_tot_service = 0
-            for tech, fuel in service_tech.items():
-                #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
-                control_tot_service += np.sum(fuel)
-            np.testing.assert_almost_equal(control_tot_service, np.sum(tot_service_h_cy), err_msg="not all technologies were specieified for each provided fuelty")
+                print("A service_tech")
+                for tech in service_tech:
+                    print("Tech A: {} {}".format(tech, np.sum(service_tech[tech])))
 
-            # --------------------------------
-            # Fuel Switches
-            # --------------------------------
-            if self.fuel_switch_crit:
-                service_tech = self.switch_tech_fuel(
-                    installed_tech,
-                    sig_param_tech,
-                    tot_service_h_cy,
-                    service_tech,
-                    service_fueltype_tech_cy_p,
-                    service_fueltype_cy_p,
-                    fuel_switches,
-                    fuel_enduse_tech_p_by
-                    )
+                # ---------------------------------------------------------------------------------------
+                # Reduction of service because of heat recovery (standard sigmoid diffusion)
+                # ---------------------------------------------------------------------------------------
+                tot_service_h_cy = self.service_reduction_heat_recovery(data['assumptions'], tot_service_h_cy, 'tot_service_h_cy', data['assumptions']['heat_recovered'])
+                service_tech = self.service_reduction_heat_recovery(data['assumptions'], service_tech, 'service_tech', data['assumptions']['heat_recovered'])
 
-            # -------------------------------------------------------
-            # Convert Service to Fuel
-            # -------------------------------------------------------
-            # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
-            self.enduse_to_fuel_fueltype_y(service_tech, tech_stock)
-            #print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_y)))
+                # --------------------------------
+                # Energy service switches
+                # --------------------------------
+                if self.crit_switch_service:
+                    service_tech = self.switch_tech_service(
+                        tot_service_h_cy,
+                        service_tech_cy_p,
+                        tech_increased_service[enduse],
+                        tech_decreased_share[enduse],
+                        tech_constant_share[enduse],
+                        sig_param_tech
+                        )
 
-            # Convert service to fuel per tech (y) for each technology depending on technological efficiences in current year
-            enduse_fuel_tech_y = self.enduse_to_fuel_per_tech(service_tech, tech_stock)
-            #print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_y)))
+                control_tot_service = 0
+                for tech, fuel in service_tech.items():
+                    #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
+                    control_tot_service += np.sum(fuel)
+                np.testing.assert_almost_equal(control_tot_service, np.sum(tot_service_h_cy), err_msg="not all technologies were specieified for each provided fuelty")
 
-            # ---NON-PEAK
+                # --------------------------------
+                # Fuel Switches
+                # --------------------------------
+                if self.crit_switch_fuel:
+                    service_tech = self.switch_tech_fuel(
+                        installed_tech,
+                        sig_param_tech,
+                        tot_service_h_cy,
+                        service_tech,
+                        service_fueltype_tech_cy_p,
+                        service_fueltype_cy_p,
+                        fuel_switches,
+                        fuel_enduse_tech_p_by
+                        )
 
-            # Iterate technologies in enduse and assign technology specific shape for respective fuels
-            self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, tech_stock)
-            self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
-            #self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh)# Get maximum hour demand per fueltype
-            print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+                # -------------------------------------------------------
+                # Convert Service to Fuel
+                # -------------------------------------------------------
+                # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
+                self.enduse_to_fuel_fueltype_y(service_tech, tech_stock)
+                print("Fuel train G: " + str(np.sum(self.enduse_fuel_new_y)))
 
-            # ---PEAK (Peak is not defined by yd factor so far but read out from real data!)
+                # Convert service to fuel per tech (y) for each technology depending on technological efficiences in current year
+                enduse_fuel_tech_y = self.enduse_to_fuel_per_tech(service_tech, tech_stock)
+                print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_y)))
 
-            # Get day with most fuel across all fueltypes (this is selected as max day)
-            peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
-            print("Peak day: " + str(peak_day_nr))
+                # ---NON-PEAK
 
-            # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, peak_day_nr)
-            print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
+                # Iterate technologies in enduse and assign technology specific shape for respective fuels
+                self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, tech_stock)
+                self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
+                #self.enduse_fuel_peak_h = self.get_peak_h_from_dh(self.enduse_fuel_peak_dh)# Get maximum hour demand per fueltype
+                print("--SUMME enduse_fuel_yd: " + str(np.sum(self.enduse_fuel_yd)))
+                print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+                # ---PEAK (Peak is not defined by yd factor so far but read out from real data!)
 
-            # Get maximum hour demand per of peak day
-            self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
-            print("enduse_fuel_peak_h: " + str(np.sum(self.enduse_fuel_peak_h)))
+                # Get day with most fuel across all fueltypes (this is selected as max day)
+                peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
+                print("Peak day: " + str(peak_day_nr))
 
-            #print("Proportion von day: " + str((100/np.sum(self.enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
-        else: # No technologies specified in enduse
-            print("enduse is not defined with technologies: " + str(enduse))
+                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
+                self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, peak_day_nr)
+                print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
 
-            # ---NON-PEAK
-            self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_y, data_shapes_yd[enduse]['shape_non_peak_yd'])
-            self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[enduse]['shape_non_peak_dh'])
+                # Get maximum hour demand per of peak day
+                self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
+                print("enduse_fuel_peak_h: " + str(np.sum(self.enduse_fuel_peak_h)))
 
-            # ---PEAK
-            self.enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(enduse_fuel, enduse_peak_yd_factor)
-            self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'])
-            self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
+                #print("Proportion von day: " + str((100/np.sum(self.enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
+            else:
+                print("...enduse is not defined with technologies: {} ".format(enduse))
 
-        # Testing
-        np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
+                # ---NON-PEAK
+                self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_y, data_shapes_yd[enduse]['shape_non_peak_yd'])
+                self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[enduse]['shape_non_peak_dh'])
+
+                # ---PEAK
+                self.enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(enduse_fuel, enduse_peak_yd_factor)
+                self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'])
+                self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
+
+            # Testing
+            np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
     def service_reduction_heat_recovery(self, assumptions, service_to_reduce, crit_dict, assumption_heat_recovered):
         """Reduce heating demand according to assumption on heat reuse
@@ -313,7 +323,7 @@ class Enduse(object):
 
                 # Testing
                 if np.sum(tech_stock.get_tech_attribute(tech, 'shape_yh')[self.enduse]) == 8760:
-                    sys.exit("Error: The fuel shape of technology is not defined...")
+                    sys.exit("Error: The fuel shape of technology is not defined... {}  {}  ".format(tech, self.enduse))
 
                 # Distribute service depending on fueltype distirbution
                 for fueltype_installed_tech_yh, fueltype_share in enumerate(fueltype_share_yh):
@@ -387,7 +397,8 @@ class Enduse(object):
 
         # Sum all fuely across all fueltypes for every day and hour in a year
         all_fueltypes_tot_h = np.sum(enduse_fuel_yh, axis=0) #shape (365, 24)
-
+        #print("dddd")
+        #print(all_fueltypes_tot_h)
         # Iterate summed fueltypes to read out maximum fuel
         for day_nr, services_dh in enumerate(all_fueltypes_tot_h):
             day_sum = np.sum(services_dh)
@@ -401,7 +412,7 @@ class Enduse(object):
                 max_fuel_day = day_sum
                 peak_day_nr = day_nr
 
-        print("Peak Day Number {}  with peak fuel demand (across all fueltypes): {}        ".format(peak_day_nr, max_fuel_day))
+        print("Peak Day Number {}  with peak fuel demand (across all fueltypes): {}   {}      ".format(peak_day_nr, max_fuel_day, self.enduse))
         return peak_day_nr
 
     def get_enduse_tech(self, service_tech_cy_p, fuel_enduse_tech_p_by):
@@ -421,7 +432,7 @@ class Enduse(object):
 
         Depending on whether fuel swatches are implemented or services switches
         """
-        if self.service_switch_crit:
+        if self.crit_switch_service:
             technologies_enduse = service_tech_cy_p.keys()
         else:
             # If no fuel switch and no service switch, read out base year technologies
@@ -533,7 +544,7 @@ class Enduse(object):
 
         return service_tech_cy_p
 
-    def get_fuel_switch_crit(self, fuelswitches):
+    def get_crit_switch_fuel(self, fuelswitches):
         """Test whether there is a fuelswitch for this enduse
 
         Parameters
@@ -559,7 +570,7 @@ class Enduse(object):
             else:
                 return False
 
-    def get_service_switch_crit(self, service_switches):
+    def get_crit_switch_service(self, service_switches):
         """Test whether there are defined service switches for this enduse
 
         Parameters
@@ -735,7 +746,7 @@ class Enduse(object):
 
             # Shape of fuel of technology for every hour in year
             fuel_tech_yh = enduse_fuel_tech[tech] * tech_stock.get_tech_attribute(tech, 'shape_yh')[self.enduse]
-
+            print("DDDDDD: " + str(np.sum(fuel_tech_yh)))
             # Get distribution of fuel for every hour
             fueltypes_tech_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
 
@@ -879,11 +890,13 @@ class Enduse(object):
                     # -------
                     # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                     # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
+                    #error_rounding_margin = 0.1 #TODO:
                     if np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech) < 0:
                         print("Warning: blblablab")
                         print(np.sum(service_tech_after_switch[technology_replaced]))
                         print(np.sum(service_demand_tech))
-                        sys.exit("ERROR: Service cant be minus")
+                        print(np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech))
+                        #sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
                         service_tech_after_switch[technology_replaced] = 0
                     else:
                         # Substract technology specific servide demand
@@ -984,7 +997,7 @@ class Enduse(object):
         """
         # Fuel consumption shares in base and end year
         percent_by = 1.0
-        percent_ey = enduse_overall_change_ey[self.enduse] #assumptions['enduse_overall_change_ey']
+        percent_ey = enduse_overall_change_ey[self.enduse]
 
         # Share of fuel consumption difference
         diff_fuel_consump = percent_ey - percent_by
@@ -1053,36 +1066,6 @@ class Enduse(object):
         elif self.enduse == 'cooling': #TODO
             for fueltype, fuel in enumerate(self.enduse_fuel_new_y):
                 new_fuels[fueltype] = fuel * cooling_factor_y
-
-            setattr(self, 'enduse_fuel_new_y', new_fuels)
-
-    def enduse_elasticity(self, data_ext, assumptions):
-        """Adapts yearls fuel use depending on elasticity
-
-        # TODO: MAYBE ALSO USE BUILDING STOCK TO SEE HOW ELASTICITY CHANGES WITH FLOOR AREA
-        Maybe implement rs_elasticities with floor area
-
-        # W: Non-linear elasticity. Then for cy the elasticity needs to be calculated
-
-        Info
-        ----------
-        Every enduse can only have on shape independently of the fueltype
-        """
-        if self.curr_yr != self.base_yr: # if not base year
-
-            new_fuels = np.zeros((self.enduse_fuel_new_y.shape[0])) #fueltypes, days, hours
-
-            # End use elasticity
-            elasticity_enduse = assumptions['rs_elasticities'][self.enduse]
-
-            for fueltype, fuel in enumerate(self.enduse_fuel_new_y):
-
-                if fuel != 0: # if fuel exists
-                    fuelprice_by = data_ext['fuel_price'][self.base_yr][fueltype] # Fuel price by
-                    fuelprice_cy = data_ext['fuel_price'][self.curr_yr][fueltype] # Fuel price ey
-                    new_fuels[fueltype] = plotting_results.apply_elasticity(fuel, elasticity_enduse, fuelprice_by, fuelprice_cy)
-                else:
-                    new_fuels[fueltype] = fuel
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
@@ -1178,7 +1161,7 @@ class Enduse(object):
         Returns
         -------
         fuels_d : array
-            Hourly fuel data (365, 1)
+            Hourly fuel data (fuelnr, 365)
 
         """
         fuels_d = np.zeros((fuels.shape[0], 365))
@@ -1279,12 +1262,4 @@ class Enduse(object):
 
         return fuels_h_peak
 
-    def testing_fuel_switch(self, data_shapes_yd):
-        """Test if fuel switch and service switch is implementedc at the same time
-        """
-        if self.fuel_switch_crit and self.service_switch_crit:
-            sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.fuel_switch_crit, self.service_switch_crit))
-        if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
-            sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
 
-        return

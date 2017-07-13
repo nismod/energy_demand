@@ -148,8 +148,6 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     service_tech_by_p = init.init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_by_p = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
     service_fueltype_by_p = init.init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
-    print("START:")
-    print(fuels)
 
     for enduse, fuel in fuels.items():
         #print("ENDUSE: " + str(enduse))

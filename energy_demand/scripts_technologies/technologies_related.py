@@ -55,7 +55,7 @@ def get_tech_type(tech_name, assumptions, enduse=''):
         Technology type
     """
     # If all technologies for enduse
-    if enduse == 'rs_water_heating': #TODO: IMPROVE: STILL FOR RESIDENTIAL ONLY
+    if enduse in assumptions['enduse_water_heating']:
         tech_type = 'water_heating'
     else:
         if tech_name in assumptions['list_tech_heating_hybrid']:
@@ -68,10 +68,8 @@ def get_tech_type(tech_name, assumptions, enduse=''):
             tech_type = 'cooling_tech'
         elif tech_name in assumptions['list_tech_cooling_const']:
             tech_type = 'cooling_tech_temp_dependent'
-        elif tech_name in assumptions['list_tech_rs_lighting']:
-            tech_type = 'lighting_technology'
-        #elif tech_name in assumptions['list_water_heating']:
-        #    tech_type = 'water_heating'
+        #elif tech_name in assumptions['list_tech_rs_lighting']: #TODO
+        #    tech_type = 'lighting_technology'
         else:
             tech_type = 'regular_tech'
 

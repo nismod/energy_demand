@@ -77,11 +77,11 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     the first row is the fuel_ID
     The header is the sub_key
     """
-    try:
-        lines = []
-        end_uses_dict = {}
+    #try:
+    lines = []
+    end_uses_dict = {}
 
-        with open(path_to_csv, 'r') as csvfile:
+    with open(path_to_csv, 'r') as csvfile:
             read_lines = csv.reader(csvfile, delimiter=',')
             _headings = next(read_lines) # Skip first row
             _secondline = next(read_lines) # Skip first row
@@ -114,8 +114,8 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                     enduse = _headings[cnt]
                     sector = _secondline[cnt]
                     end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
-    except:
-        print("Error: Could not exectue read_csv_base_data_service")
+    #except:
+    #    print("Error: Could not exectue read_csv_base_data_service")
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -374,17 +374,12 @@ def read_assump_fuel_switches(path_to_csv, data):
 
     # Test whether defined enduse exist
     for element in service_switches:
-        if element['enduse'] in data['ss_all_enduses'] or element['enduse'] in data['rs_all_enduses']:
+        if element['enduse'] in data['ss_all_enduses'] or element['enduse'] in data['rs_all_enduses'] or element['enduse'] in data['is_all_enduses']:
             pass
         else:
-            print("enduses")
-            print(data['ss_all_enduses'])
-            print("  ")
-            print(data['rs_all_enduses'])
             sys.exit("ERROR: The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
 
     return service_switches
-
 
 def read_technologies(path_to_csv, data):
     """This function reads in CSV files and skips header row.

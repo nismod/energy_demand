@@ -5,9 +5,11 @@ import numpy as np
 import energy_demand.region as reg
 import energy_demand.submodule_residential as submodule_residential
 import energy_demand.submodule_service as submodule_service
+import energy_demand.submodule_industry as submodule_industry
 from energy_demand.scripts_shape_handling import load_factors as load_factors
-ASSERTIONS = unittest.TestCase('__init__')
 
+
+ASSERTIONS = unittest.TestCase('__init__')
 
 class EnergyModel(object):
     """Class of a country containing all regions as self.attributes
@@ -37,10 +39,10 @@ class EnergyModel(object):
         self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'])
 
         # --Service SubModel
-        self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['all_service_sectors'])
+        self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['ss_sectors'])
 
         # --Industry SubModel
-        self.is_submodel = self.industry_submodel(data)
+        self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
 
         # --Other SubModels
 
@@ -50,7 +52,8 @@ class EnergyModel(object):
         #  ---------------------------------------------------------------------
 
         # Sum across all regions, all enduse and sectors
-        self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel], 'sum', 'non_peak')
+        self.sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel], 'no_sum', 'non_peak')
 
         self.rs_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
@@ -76,9 +79,28 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
-    def industry_submodel(self, data):
+    def industry_submodel(self, data, enduses, sectors):
+        """Industry subsector model
+        """
+        submodule_list = []
 
-        pass
+        # Iterate regions, sectors and enduses
+        for region_object in self.regions:
+            for sector in sectors:
+                for enduse in enduses:
+
+                    # Create submodule
+                    submodule = submodule_industry.IndustryModel(
+                        data,
+                        region_object,
+                        enduse,
+                        sector
+                        )
+
+                    # Add to list
+                    submodule_list.append(submodule)
+
+        return submodule_list
 
     def residential_submodel(self, data, enduses):
         """Create the residential submodules (per enduse and region) and add them to list
@@ -162,13 +184,13 @@ class EnergyModel(object):
         # Iterate all regions
         for reg_name in reg_names:
 
-            # Generate region objects
+            # Generate region object
             region_object = reg.Region(
                 reg_name=reg_name,
                 data=data
                 )
 
-            # Add regions to list
+            # Add region to list
             regions.append(region_object)
 
         return regions
@@ -221,7 +243,7 @@ class EnergyModel(object):
 
         return tot_fuels_all_enduse
 
-    def peak_loads_per_fueltype_NEW(self, data, regions, attribute_to_get):
+    '''def peak_loads_per_fueltype_NEW(self, data, regions, attribute_to_get):
         """Get peak loads for fueltype per maximum h
         """
         peak_loads_fueltype_max_h = np.zeros((data['nr_of_fueltypes']))
@@ -235,24 +257,4 @@ class EnergyModel(object):
                 peak_loads_fueltype_max_h[fueltype] += load_max_h
 
         return peak_loads_fueltype_max_h
-
-
-
-
-
-
-
-# ------------- Testing functions
-def test_function_fuel_sum(data):
-    """ Sum raw disaggregated fuel data """
-    fuel_in = 0
-    for region in data['rs_fueldata_disagg']:
-        for enduse in data['rs_fueldata_disagg'][region]:
-            fuel_in += np.sum(data['rs_fueldata_disagg'][region][enduse])
-
-    for region in data['ss_fueldata_disagg']:
-        for sector in data['ss_fueldata_disagg'][region]:
-            for enduse in data['ss_fueldata_disagg'][region][sector]:
-                fuel_in += np.sum(data['ss_fueldata_disagg'][region][sector][enduse])
-
-    return fuel_in
+    '''

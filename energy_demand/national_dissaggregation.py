@@ -18,11 +18,9 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection
 
-
-
 '''
 
-def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
+def disaggregate_base_demand(data):
     """This function disaggregates fuel demand based on region specific parameters
     for the base year
 
@@ -63,27 +61,25 @@ def disaggregate_reg_base_demand(data, reg_data_assump_disaggreg):
         return tot
 
     # TODO: COOLING DG DAYS to disaggregate regionaly
+    regions = data['lu_reg']
+    base_yr = data['base_yr']
 
-    # ------------------
     # SS Disaggregate all fuel across sector and enduses for service sector
-    print("DISAGGREGATE SERVICE")
-
+    print("...disaggregate service demand")
     data['ss_fueldata_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
+
     # ------------------
+    # Disaggregate indusry data
+    # ------------------
+    data['is_fueldata_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
 
 
     # ------------------
     # RS Disaggregateion #TODO: IMPROVE
     # ------------------
-    regions = data['lu_reg']
-    base_yr = data['base_yr']
-
+    print("...disagreggate residential demand")
+    
     rs_national_fuel = data['rs_fuel_raw_data_enduses']
-
-
-    #reg_data_assump_disaggreg = reg_data_assump_disaggreg
-
-
 
     data['rs_fueldata_disagg'] = {}
     # Sum national fuel before disaggregation for testing purposes
@@ -150,14 +146,14 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         ss_fueldata_disagg[region] = {}
         print("Region: " + str(region))
         # Iterate sector
-        for sector in data['all_service_sectors']:
+        for sector in data['ss_sectors']:
             print("sector: " + str(sector))
             ss_fueldata_disagg[region][sector] = {}
 
             # Calculate total national floor area of this sector
             national_floorarea_sector = 0
-            for _ in data['lu_reg']:
-                national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region].values())
+            for _reg in data['lu_reg']:
+                national_floorarea_sector += sum(data['ss_sector_floor_area_by'][_reg].values())
             # Calculate total national GVA
             # todo national_GVA = 100
 
@@ -200,10 +196,52 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in ss_fueldata_disagg[reg][sector]:
                 control_sum1 += np.sum(ss_fueldata_disagg[reg][sector][enduse])
 
-    for sector in data['all_service_sectors']:
+    for sector in data['ss_sectors']:
         for enduse in data['ss_all_enduses']:
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     ASSERTIONS.assertAlmostEqual(control_sum1, control_sum2, places=2, msg=None, delta=None) #The loaded floor area must correspond to provided fuel sectors numers
 
     return ss_fueldata_disagg
+
+def is_disaggregate(data, raw_fuel_sectors_enduses):
+    """TODO: Disaggregate fuel for sector and enduses with floor area and GVA for sectors and enduses (IMPROVE)
+
+
+    #TODO: DISAGGREGATE WITH OTHER DATA
+    """
+
+
+    is_fueldata_disagg = {}
+
+    national_floorarea_sector = 0
+    for region in data['lu_reg']:
+        national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region].values())
+
+    # Iterate regions
+    for region in data['lu_reg']:
+        is_fueldata_disagg[region] = {}
+
+        # Iterate sector
+        for sector in data['is_sectors']:
+            is_fueldata_disagg[region][sector] = {}
+
+
+            # Sector specifid info
+            regional_floorarea_sector = sum(data['ss_sector_floor_area_by'][region].values())
+            # Iterate enduse
+            for enduse in data['is_all_enduses']:
+                national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
+
+                #print("national_fuel_sector_by: " + str(national_fuel_sector_by))
+                # ----------------------
+                # Disaggregating factors
+                # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
+                reg_disaggregation_factor = (1 / national_floorarea_sector) * regional_floorarea_sector
+
+                # Disaggregated national fuel
+                reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
+
+                is_fueldata_disagg[region][sector][enduse] = reg_fuel_sector_enduse
+
+    return is_fueldata_disagg

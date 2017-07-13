@@ -36,9 +36,9 @@ class ServiceModel(object):
         # Enduse specific parameters
         # --------------------------
         if self.enduse_name in data['assumptions']['enduse_space_heating']:
-            enduse_peak_yd_factor = region_object.reg_peak_yd_heating_factor
+            enduse_peak_yd_factor = region_object.ss_peak_yd_heating_factor #reg_peak_yd_heating_factor
         elif self.enduse_name in data['assumptions']['enduse_space_cooling']:
-            enduse_peak_yd_factor = region_object.reg_peak_yd_cooling_factor
+            enduse_peak_yd_factor = region_object.rs_peak_yd_cooling_factor #reg_peak_yd_cooling_factor
         else:
             enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][self.enduse_name]['shape_peak_yd_factor']
 

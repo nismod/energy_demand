@@ -1,8 +1,8 @@
 """ This file contains all assumptions of the energy demand model"""
-import sys
 from energy_demand.scripts_data import read_data
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import technologies_related
+from energy_demand.scripts_basic import testing_functions as testing
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_assumptions(data):
@@ -132,22 +132,6 @@ def load_assumptions(data):
     # Assumption on recovered heat (lower heat demand based on heat recovery)
 
     # ============================================================
-    # Demand elasticities (Long-term rs_elasticities)
-    # https://en.wikipedia.org/wiki/Price_elasticity_of_demand (e.g. -5 is much more sensitive to change than -0.2)
-    # ============================================================
-    assumptions['rs_elasticities'] = {
-        'rs_space_heating': 0,
-        'rs_water_heating' : 0,
-        'rs_cooking' : 0,                  #-0.05, -0.1. - 0.3 #Pye et al. 2014
-        'rs_lighting': 0,
-        'rs_cold': 0,
-        'rs_wet': 0,
-        'rs_consumer_electronics': 0,      #-0.01, -0.1. - 0.15 #Pye et al. 2014
-        'rs_home_computing': 0,            #-0.01, -0.1. - 0.15 #Pye et al. 2014
-    }
-    #TODO: ADD FOR SERVICE SECTOR
-
-    # ============================================================
     # Smart meter assumptions (Residential)
     #
     # DECC 2015: Smart Metering Early Learning Project: Synthesis report
@@ -156,19 +140,26 @@ def load_assumptions(data):
     # NTH: saturation year
     # ============================================================
 
-    # Fraction of population with smart meters
+    # Fraction of population with smart meters (Across all sectors. If wants to be spedified, needs some extra code. Easily possible)
     assumptions['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_p_ey'] = 0.1
 
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['general_savings_smart_meter'] = {
+        # Residential
         'rs_cold': -0.03,
         'rs_cooking': -0.03,
         'rs_lighting': -0.03,
         'rs_wet': -0.03,
         'rs_consumer_electronics': -0.03,
         'rs_home_computing': -0.03,
-        'rs_space_heating': -0.03
+        'rs_space_heating': -0.03,
+
+        # Service
+        'ss_space_heating': -0.03,
+
+        # Industry
+        'is_space_heating': -0.03
     }
 
     # ============================================================
@@ -189,6 +180,8 @@ def load_assumptions(data):
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
+
+        # Submodel Residential
         'rs_model': {
             'rs_space_heating': 1,
             'rs_water_heating': 1,
@@ -199,19 +192,34 @@ def load_assumptions(data):
             'rs_consumer_electronics': 1,
             'rs_home_computing': 1
         },
+
+        # Submodel Service
         'ss_model': {
             'ss_catering': 1,
             'ss_computing': 1,
-            'ss_cooling_ventilation': 1, #Cooling and ventilation
+            'ss_cooling_ventilation': 1,
             'ss_water_heating': 1,
             'ss_space_heating': 1,
             'ss_lighting': 1,
             'ss_other_gas': 1,
             'ss_other_electricity': 1
+        },
+
+        # Submodel Industry
+        'is_model': {
+            'high_temp_process': 1,
+            'low_temp_process': 1,
+            'drying_separation': 1,
+            'motors': 1,
+            'compressed_air': 1,
+            'is_lighting': 1,
+            'is_space_heating': 1,
+            'is_other': 1,
+            'refrigeration': 1
         }
     }
 
-    # Specific diffusion information
+    # Specific diffusion information for the diffusion of enduses
     assumptions['other_enduse_mode_info'] = {
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
@@ -260,7 +268,7 @@ def load_assumptions(data):
     assumptions['list_tech_cooling_temp_dep'] = []
 
     # Lighting technologies
-    assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
+    #assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
 
     #assumptions['list_water_heating'] =
 
@@ -269,9 +277,9 @@ def load_assumptions(data):
     # ----------
     # Enduse definition list
     # ----------
-    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating']
-    assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling']
-    #assumptions['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
+    assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
+    assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
+    assumptions['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # Helper function
     assumptions['technologies'] = helper_set_same_eff_all_tech(assumptions['technologies'], efficiency_achieving_factor)
@@ -280,14 +288,16 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
+
     assumptions['rs_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['rs_all_enduses'], data['nr_of_fueltypes'])
     assumptions['ss_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['ss_all_enduses'], data['nr_of_fueltypes'])
+    assumptions['is_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['is_all_enduses'], data['nr_of_fueltypes'])
 
     # ------------------
-    # RESIDENTIAL SECTOR
+    # Residential subModel - Fuel shares of technologies in enduse
     # ------------------
 
-    #---Residential space heating
+    #---space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'electricity_heat_pumps': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
@@ -295,7 +305,7 @@ def load_assumptions(data):
     #except:
     #    print("No fuel for rs space heating provided")
 
-    # ---Residential water heating
+    '''# ---water heating
     try:
         assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
         assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.98, 'electricity_heat_pumps': 0}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
@@ -304,7 +314,7 @@ def load_assumptions(data):
     except:
         print("No fuel for rs space heating provided")
 
-    # ---Residential lighting
+    # ---lighting
     try:
         assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
             'standard_resid_lighting_bulb': 0.02,
@@ -312,23 +322,44 @@ def load_assumptions(data):
             }
     except:
         print("No fuel for rs_lighting provided")
+    '''
 
 
-    assumptions['rs_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
+
 
     # ------------------
-    # SERVICE SECTOR
+    # Service subModel - Fuel shares of technologies in enduse
     # ------------------
     #'''
+    # ---Space heating
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
 
-    #'''
-
-
     assumptions['ss_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['ss_fuel_enduse_tech_p_by'])
+
+    # ------------------
+    # Industry subModel  - Fuel shares of technologies in enduse
+    # ------------------
+
+    # ---Space heating
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
+
+
+    # Helper functions
+    assumptions['rs_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
+    assumptions['is_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['is_fuel_enduse_tech_p_by'])
+    '''combined_dict = assumptions['rs_all_specified_tech_enduse_by']
+    for enduse, technologies in assumptions['is_all_specified_tech_enduse_by'].items():
+        combined_dict[enduse] = technologies
+    assumptions['rs_is_all_specified_tech_enduse_by'] = combined_dict
+    '''
+
+
 
 
     # ============================================================
@@ -336,25 +367,26 @@ def load_assumptions(data):
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['rs_path_fuel_switches'], data)
     assumptions['ss_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['ss_path_fuel_switches'], data)
+    assumptions['is_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['is_path_fuel_switches'], data)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
     assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['rs_path_service_switch'], assumptions)
     assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['ss_path_service_switch'], assumptions)
-
+    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['is_path_industry_switch'], assumptions)
 
     # ============================================================
     # Helper functions
     # ============================================================
     #TODO: TESTING IF ALL TECHNOLOGIES Available are assigned in service switch
-    ##testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_fuel_switches'])
+    ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['rs_fuel_switches'])
+    ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_fuel_switches'])
     #also for fuel
 
     # Testing
-    testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
+    testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
+    testing.testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
 
     return assumptions
 
@@ -566,15 +598,6 @@ def helper_get_all_specified_tech(fuel_enduse_tech_p_by):
 
     return all_defined_tech_service_ey
 
-def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_enduse_by):
-    """Test if all defined technologies of fuels are also defined in technology stock
-    """
-    for enduse in all_specified_tech_enduse_by:
-        for tech in all_specified_tech_enduse_by[enduse]:
-            if tech not in technologies:
-                sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
-    return
-
 def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_tech, assumptions):
     """Calculate average efficiency for base year of hybrid technologies for overall national energy service calculation
 
@@ -627,44 +650,3 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     av_eff = service_share_low_temp_tech * eff_tech_low_temp + service_share_high_temp_tech * eff_tech_high_temp
 
     return av_eff
-
-def testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, fuel_enduse_tech_p_by, share_service_tech_ey_p, technologies, assumptions):
-    """Test if there is a technology share defined in end year which is not listed in technology fuel stock definition
-    """
-    for enduse, technology_enduse in share_service_tech_ey_p.items():
-        for technology in technology_enduse:
-            # If hybrid tech
-            if technology in testing_hybrid_tech:
-                tech_high = testing_hybrid_tech[technology]['tech_high_temp']
-                tech_low = testing_hybrid_tech[technology]['tech_low_temp']
-                fueltype_tech_low = technologies[tech_low]['fuel_type']
-                fueltype_tech_high = technologies[tech_high]['fuel_type']
-
-                if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech_low].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
-                if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech_high].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
-            else:
-                fueltype_tech = technologies[technology]['fuel_type']
-
-                if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
-    return
-
-def testing_correct_service_switch_entered(tech_stock_definition, switches):
-    """
-    """
-    for enduse in tech_stock_definition:
-
-        #get all switchess
-        switches_enduse_tech_defined = []
-        for switch in switches:
-            if switch['enduse'] == enduse:
-                switches_enduse_tech_defined.append(switch['tech'])
-
-        if len(switches) >= 1:
-            # Test if all defined tech are defined in switch
-            for fueltype in tech_stock_definition[enduse]:
-                for tech in tech_stock_definition[enduse][fueltype]:
-                    if tech not in switches_enduse_tech_defined:
-                        sys.exit("ERROR: IN service switch the technology {} is not defined".format(tech))
