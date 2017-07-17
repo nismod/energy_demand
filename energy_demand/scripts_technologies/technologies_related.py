@@ -107,6 +107,8 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
       (the lowest is selected if different years)
     - diff method is linear
     """
+    heat_pumps = []
+
     # Calculate average efficiency of heat pump depending on installed ratio
     for fueltype in heat_pump_assump:
 
@@ -143,9 +145,10 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         technologies[name_av_hp]['diff_method'] = 'linear'
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
 
+        heat_pumps.append(name_av_hp)
     # Remove all heat pumps from tech dict
     for fueltype in heat_pump_assump:
         for heat_pump_type in heat_pump_assump[fueltype]:
             del technologies[heat_pump_type]
 
-    return technologies, temp_dependent_tech_list
+    return technologies, temp_dependent_tech_list, heat_pumps

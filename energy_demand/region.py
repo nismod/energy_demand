@@ -91,10 +91,19 @@ class Region(object):
         self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
         self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
+
+        
+
+        self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
+        
+
+        self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
+        self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
+
         # Create region specific technological stock
-        self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy)
-        self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy)
-        self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy)
+        #self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy)
+        #self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy)
+        #self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy)
 
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
@@ -110,15 +119,16 @@ class Region(object):
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # heat pumps, non-peak
 
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
-        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
+        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, 'rs_space_heating', rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
 
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
         ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_cooling_yd, 'ss_cooling_and_ventilation')
-        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid
+        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid
 
 
-       '''# Read shapes for enduses and technologies
+        '''
+        # Read shapes for enduses and technologies
         self.TEST_assign_shapes(
             self.rs_tech_stock,
             technologies,
@@ -178,15 +188,15 @@ class Region(object):
             self.is_tech_stock
         )
 
-    def TEST_assign_shapes(tech_stock, technologies, enduses, shape_yd, shape_yh):
+    '''def TEST_assign_shapes(tech_stock, technologies, enduses, shape_yd, shape_yh):
         """
         """
         for enduse in enduses:
             for technology in technologies:
                 tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', shape_yd, enduse)
                 tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', shape_yh, enduse)
-
-    def get_shape_heating_hybrid_yh(self, tech_stock, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech, tech_low_temp, tech_high_temp):
+    '''
+    def get_shape_heating_hybrid_yh(self, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech, tech_low_temp, tech_high_temp):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
         Parameters
@@ -219,9 +229,14 @@ class Region(object):
         fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
             fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
-            tech_low_high_p=tech_stock.get_tech_attribute(hybrid_tech, 'service_distr_hybrid_h_p_cy'),
-            eff_low_tech=tech_stock.get_tech_attribute(tech_low_temp, 'eff_cy'),
-            eff_high_tech=tech_stock.get_tech_attribute(tech_high_temp, 'eff_cy')
+            #tech_low_high_p=tech_stock.get_tech_attribute(hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            #eff_low_tech=tech_stock.get_tech_attribute(tech_low_temp, 'eff_cy'),
+            #eff_high_tech=tech_stock.get_tech_attribute(tech_high_temp, 'eff_cy')
+            # REMODEL
+            tech_low_high_p=tech_stock.TEST_get_tech_attribute_from_list(enduse, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            eff_low_tech=tech_stock.TEST_get_tech_attribute_from_list(enduse, tech_low_temp, 'eff_cy'),
+            eff_high_tech=tech_stock.TEST_get_tech_attribute_from_list(enduse, tech_high_temp, 'eff_cy')
+            
             )
 
         # Calculate yh fuel shape
@@ -284,26 +299,28 @@ class Region(object):
                 tech_type = technologies_related.get_tech_type(technology, data['assumptions'], enduse)
 
                 if tech_type == 'boiler_heating_tech':
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
-
+                    #tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    #tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
+                    
                 elif tech_type == 'storage_heating_elec': # NEW
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_storage_heater_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', rs_fuel_shape_storage_heater_yh, enduse)
                 elif tech_type == 'secondary_elec_heating':
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_elec_heater_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', rs_fuel_shape_elec_heater_yh, enduse)
 
                 elif tech_type == 'cooling_tech':
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_get_shape_cooling_yh)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', fuel_get_shape_cooling_yh)
 
                 elif tech_type == 'heat_pump':
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hp_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', fuel_shape_hp_yh, enduse)
 
                 elif tech_type == 'hybrid_tech':
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', fuel_shape_hybrid_gas_elec_yh, enduse)
 
                 elif tech_type == 'lighting_technology':
                     enduse_shape_from_HES_yd = data['{}_shapes_yd'.format(abr)]['{}_lighting'.format(abr)]['shape_non_peak_yd']
@@ -313,9 +330,9 @@ class Region(object):
                     # Convert yd and dh to yh
                     enduse_shape_from_HES_yh = shape_handling.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
 
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
 
                 elif tech_type == 'water_heating':
                     enduse_shape_from_HES_yd = data['{}_shapes_yd'.format(abr)]['{}_water_heating'.format(abr)]['shape_non_peak_yd']
@@ -325,9 +342,9 @@ class Region(object):
                     # Convert yd and dh to yh
                     enduse_shape_from_HES_yh = shape_handling.convert_dh_yd_to_yh(enduse_shape_from_HES_yd, enduse_shape_from_HES_dh)
 
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yh', enduse_shape_from_HES_yh, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_yd', enduse_shape_from_HES_yd, enduse)
+                    tech_stock.TESTset_tech_attribute_enduse_LIST(technology, 'shape_peak_yd_factor', enduse_shape_from_HES_peak_yd_factor, enduse)
                 else:
                     sys.exit("Error: The technology '{}' techtype:'{}' was not defined in a TECHLISTE".format(technology, tech_type))
 
@@ -448,7 +465,10 @@ class Region(object):
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_object = getattr(tech_stock, 'gas_heat_pumps') # Select gas heat pumps to calculate service shape
+                #tech_object = getattr(tech_stock, 'gas_heat_pumps') # Select gas heat pumps to calculate service shape
+
+                tech_object = tech_stock.TEST_get_tech_from_list('rs_space_heating', 'gas_heat_pumps')
+
                 average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)

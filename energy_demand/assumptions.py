@@ -245,10 +245,11 @@ def load_assumptions(data):
     # Create av heat pump technologies and list with heat pumps
 
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
-    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
-
+    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
+    print("assumptions['heat_pumps']")
+    print(assumptions['heat_pumps'])
     # Definde and read in hybrid technologies (TODO)
-    assumptions['technologies'], assumptions['list_tech_heating_hybrid'], testing_hybrid_tech = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'])
+    assumptions['technologies'], assumptions['list_tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'])
 
     # Generate technology dict
     assumptions['tech_lu'] = create_lu_technologies(assumptions['technologies'])
@@ -336,7 +337,7 @@ def load_assumptions(data):
     # Service subModel - Fuel shares of technologies in enduse
     # ------------------
 
-    # ---Space heating
+    # ---Space heating #TODO: Check that all defined technologies are inserted here, even if not defined
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
@@ -358,6 +359,14 @@ def load_assumptions(data):
     # Helper functions
     assumptions['rs_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
     assumptions['is_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['is_fuel_enduse_tech_p_by'])
+
+    assumptions['rs_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['heat_pumps'], assumptions['rs_all_specified_tech_enduse_by'], 'rs_space_heating')
+    assumptions['as_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['heat_pumps'], assumptions['ss_all_specified_tech_enduse_by'], 'ss_space_heating')
+    assumptions['is_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['heat_pumps'], assumptions['is_all_specified_tech_enduse_by'], 'is_space_heating')
+
+    assumptions['rs_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['hybrid_technologies'], assumptions['rs_all_specified_tech_enduse_by'], 'rs_space_heating')
+    assumptions['as_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['hybrid_technologies'], assumptions['ss_all_specified_tech_enduse_by'], 'ss_space_heating')
+    assumptions['is_all_specified_tech_enduse_by'] = helper_add_not_defined_technologies(assumptions['hybrid_technologies'], assumptions['is_all_specified_tech_enduse_by'], 'is_space_heating')
 
     # ============================================================
     # Scenaric FUEL switches
@@ -383,7 +392,7 @@ def load_assumptions(data):
 
     # Testing
     testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing.testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
+    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
 
     return assumptions
 
@@ -581,6 +590,14 @@ def helper_set_same_eff_all_tech(tech_assump, eff_achieved_factor=1):
     for technology in tech_assump:
         tech_assump[technology]['eff_achieved'] = eff_achieved_factor
     return tech_assump
+
+def helper_add_not_defined_technologies(heat_pumps, all_specified_tech_enduse_by, enduse):
+
+    for heat_pump in heat_pumps:
+        if heat_pump not in all_specified_tech_enduse_by[enduse]:
+            all_specified_tech_enduse_by[enduse].append(heat_pump)
+
+    return all_specified_tech_enduse_by
 
 def helper_get_all_specified_tech(fuel_enduse_tech_p_by):
     """Collect all technologies across all fueltypes for all endueses where a service share is defined for the end_year

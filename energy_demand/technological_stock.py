@@ -11,7 +11,7 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy):
+    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy, enduse_technologies):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -28,6 +28,29 @@ class TechStock(object):
         -   The shapes are given for different enduse as technology may be used in different enduses and either
             a technology specific shape is assigned or an overall enduse shape
         """
+        #NEW: ITERATE ONLY TECHNOLOGIES OF ENDUSE
+        for enduse in potential_enduses:
+            list_with_technologies_per_enduse = []
+            for technology in enduse_technologies[enduse]:
+                # Technology object
+                technology_object = Technology(
+                    technology,
+                    data,
+                    temp_by,
+                    temp_cy,
+                    t_base_heating,
+                    potential_enduses,
+                    t_base_heating_cy
+                )
+                list_with_technologies_per_enduse.append(technology_object)
+
+            # Set technology object as attribute
+            TechStock.__setattr__(
+                self,
+                enduse,
+                list_with_technologies_per_enduse
+            )
+        '''
         # Crate all technologies and add as attribute
         for technology in data['assumptions']['tech_lu']:
 
@@ -48,6 +71,22 @@ class TechStock(object):
                 technology,
                 technology_object
             )
+        '''
+    def TEST_get_tech_from_list(self, enduse, tech):
+        tech_list = getattr(self, str(enduse))
+
+        for tech_object in tech_list:
+            if tech_object.tech_name == tech:
+                return tech_object
+
+    def TEST_get_tech_attribute_from_list(self, enduse, tech, attribute_to_get):
+        tech_objects = getattr(self, str(enduse))
+
+        for tech_object in tech_objects:
+            if tech_object.tech_name == tech:
+                tech_attribute = getattr(tech_object, str(attribute_to_get))
+
+        return tech_attribute
 
     def get_tech_attribute(self, tech, attribute_to_get):
         """Read an attrribute from a technology in the technology stock
@@ -76,6 +115,20 @@ class TechStock(object):
         shapes[enduse] = value_to_set
 
         setattr(tech_object, str(attribute_to_set), shapes)
+    
+    def TESTset_tech_attribute_enduse_LIST(self, tech, attribute_to_set, value_to_set, enduse):
+        """Set an attrribute from a technology in the technology stock
+
+        If the attribute does not exist, create new attribute
+        """
+        tech_objects = getattr(self, str(enduse))
+        for tech_object in tech_objects:
+            if tech_object.tech_name == tech:
+
+                shapes = getattr(tech_object, attribute_to_set)
+                #shapes[enduse] = value_to_set
+                setattr(tech_object, str(attribute_to_set), value_to_set)
+
 
 class Technology(object):
     """Technology Class for residential and service technology
@@ -116,14 +169,21 @@ class Technology(object):
         shape_yd_enduses, shape_yh_enduses, shape_peak_yd_factor_enduses = {}, {}, {}
 
         # Assign potential shapes for every enduse
-        for enduse in potential_enduses:
+        '''for enduse in potential_enduses:
             shape_yd_enduses[enduse] = np.ones((365))
             shape_yh_enduses[enduse] = np.ones((365, 24))
             shape_peak_yd_factor_enduses[enduse] = 1
+        
 
         self.shape_yd = shape_yd_enduses # Shape for every specifided enduse
         self.shape_yh = shape_yh_enduses
         self.shape_peak_yd_factor = shape_peak_yd_factor_enduses
+        '''
+
+        # NEW REMODEL
+        self.shape_yd = np.ones((365))
+        self.shape_yh = np.ones((365, 24))
+        self.shape_peak_yd_factor = 1
 
         # Calculate fuel types and distribution
         if self.tech_type == 'hybrid_tech':
