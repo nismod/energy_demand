@@ -20,5 +20,3 @@ def generic_flat_shape(shape_peak_yd_factor):
     shape_non_peak_yd = np.ones((365)) / 365
 
     return shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
-
-# SIGMOID S

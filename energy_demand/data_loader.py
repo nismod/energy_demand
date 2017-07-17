@@ -10,6 +10,7 @@ from energy_demand.scripts_data import read_weather_data
 from energy_demand.scripts_data import write_data
 from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
 from energy_demand.scripts_basic import unit_conversions
+from energy_demand.scripts_plotting import plotting_results
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -30,6 +31,7 @@ def load_data(path_main, data):
     data : list
         Returns a list where storing all data
     """
+    print("... load data")
     # ------------------------------------------------------------------------------------------
     # Paths
     # ------------------------------------------------------------------------------------------
@@ -84,9 +86,9 @@ def load_data(path_main, data):
 
         #Technologies load shapes
         'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
-        'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv')
-
-
+        'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv'),
+        'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'submodel_residential/HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
+        'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'submodel_residential/HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
 
         }
 
@@ -186,20 +188,29 @@ def load_data(path_main, data):
     #ALL EXTERNAL ENDUSES?
 
     # ----------------------------------------
-    # Convert units # TODO: Check in what units external fuel data is provided
+    # Convert units 
+    # TODO: Check in what units external fuel data is provided
     # ----------------------------------------
     data['rs_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
-    data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
-    data['is_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
+    data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
+    data['is_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
 
     # ------------------------------------------
     # Specific technology shapes
     # ------------------------------------------
+    # Regular day, weekday, weekend (across all months)
     data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
 
+    '''plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
+    '''
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
+    data['rs_shapes_space_heating_storage_heater_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
+    data['rs_shapes_space_heating_second_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
+    
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Generate load shapes

@@ -1,6 +1,8 @@
 """TEsting functions
 """
+import sys
 import numpy as np
+# pylint: disable=I0011,C0301,C0103, C0325
 
 def test_function_fuel_sum(data):
     """ Sum raw disaggregated fuel data """
@@ -66,11 +68,11 @@ def testing_correct_service_switch_entered(tech_stock_definition, switches):
                     if tech not in switches_enduse_tech_defined:
                         sys.exit("ERROR: IN service switch the technology {} is not defined".format(tech))
 
-def testing_switch_criteria(crit_switch_fuel, crit_switch_service):
+def testing_switch_criteria(crit_switch_fuel, crit_switch_service, enduse):
     """Test if fuel switch and service switch is implemented at the same time
     """
     if crit_switch_fuel and crit_switch_service:
-        sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(self.enduse, self.crit_switch_fuel, self.crit_switch_service))
+        sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(enduse, crit_switch_fuel, crit_switch_service))
     #if self.enduse not in data_shapes_yd and self.technologies_enduse == []:
     #    sys.exit("Error: The enduse is not defined with technologies and no generic yd shape is provided for the enduse '{}' ".format(self.enduse))
 

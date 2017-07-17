@@ -47,6 +47,7 @@ Down the line
 TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
+- ADD TRANSPORT 385 fuel
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -223,9 +224,8 @@ if __name__ == "__main__":
     # Paths
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-
-    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand' # Path to local files which have restricted access
-    print("... load data")
+    # Path to local files which have restricted access
+    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand' 
 
     # Load data
     base_data = dl.load_data(path_main, base_data)
@@ -345,19 +345,28 @@ if __name__ == "__main__":
         results_every_year.append(model_run_object)
 
 
-
         # -----------------
-        # VALIDATION STEPS
+        # VALIDATION OF NATIONAL ELECTRICITY DEMAND
         # -----------------
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-        calculated_elec_data_2015 = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
 
-        print("TEST")
+        all_submodels_calculated_elec_data_2015 = model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2] #Elec
+        rs_calculated_elec_data_2015 = model_run_object.rs_sum_uk_specfuelype_enduses_y[2] #Elec
+        ss_calculated_elec_data_2015 = model_run_object.ss_sum_uk_specfuelype_enduses_y[2] #Elec
+        is_calculated_elec_data_2015 = model_run_object.is_sum_uk_specfuelype_enduses_y[2] #Elec
+        
 
-        print(np.sum(validation_elec_data_2015))
-        print(np.sum(calculated_elec_data_2015))
-        validation.compare_results(validation_elec_data_2015, calculated_elec_data_2015)
+        print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(rs_calculated_elec_data_2015)))
+
+        # Compare different models
+        validation.compare_results(validation_elec_data_2015, all_submodels_calculated_elec_data_2015, 'all_submodels') 
+        validation.compare_results(validation_elec_data_2015, rs_calculated_elec_data_2015, 'rs_model')
+        validation.compare_results(validation_elec_data_2015, ss_calculated_elec_data_2015, 'ss_model')
+        validation.compare_results(validation_elec_data_2015, is_calculated_elec_data_2015, 'is_model')
+
+
+
 
 
     # ------------------------------

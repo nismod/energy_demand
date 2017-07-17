@@ -38,15 +38,13 @@ def convert_out_format_es(data, country_object, sub_modules):
 
     for fueltype, fueltype_id in data['lu_fueltype'].items():
         results[fueltype] = []
-
         for region_name in data['lu_reg']:
-
             for sub_model in sub_modules:
-                
+
                 # Get sub moduels - Service
-                for sub_model_obj in getattr(country_object, sub_model): #ss_submodel:
+                for sub_model_obj in getattr(country_object, sub_model):
                     if sub_model_obj.reg_name == region_name:
-                        hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh #enduse_fuel_yh
+                        hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh
 
                 for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
                     for hour_in_day, demand in enumerate(hourly_demand):
@@ -82,38 +80,37 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     end_uses_dict = {}
 
     with open(path_to_csv, 'r') as csvfile:
-            read_lines = csv.reader(csvfile, delimiter=',')
-            _headings = next(read_lines) # Skip first row
-            _secondline = next(read_lines) # Skip first row
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+        _secondline = next(read_lines) # Skip first row
 
-            # All sectors
-            all_sectors = set([])
-            for sector in _secondline[1:]: #skip fuel ID:
-                #if sector not in all_sectors:
-                all_sectors.add(sector)
+        # All sectors
+        all_sectors = set([])
+        for sector in _secondline[1:]: #skip fuel ID:
+            #if sector not in all_sectors:
+            all_sectors.add(sector)
 
-            # All enduses
-            all_enduses = set([])
-            for enduse in _headings[1:]: #skip fuel ID:
-                #if enduse not in all_enduses:
-                all_enduses.add(enduse)
+        # All enduses
+        all_enduses = set([])
+        for enduse in _headings[1:]: #skip fuel ID:
+            #if enduse not in all_enduses:
+            all_enduses.add(enduse)
 
-            # Initialise dict
-            for sector in all_sectors:
-                end_uses_dict[sector] = {}
-                for enduse in all_enduses:
-                    end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes)) #{}
+        # Initialise dict
+        for sector in all_sectors:
+            end_uses_dict[sector] = {}
+            for enduse in all_enduses:
+                end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes)) #{}
 
-            # Iterate rows
-            for row in read_lines:
-                lines.append(row)
+        # Iterate rows
+        for row in read_lines:
+            lines.append(row)
 
-            for cnt_fueltype, row in enumerate(lines):
-
-                for cnt, entry in enumerate(row[1:], 1):
-                    enduse = _headings[cnt]
-                    sector = _secondline[cnt]
-                    end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
+        for cnt_fueltype, row in enumerate(lines):
+            for cnt, entry in enumerate(row[1:], 1):
+                enduse = _headings[cnt]
+                sector = _secondline[cnt]
+                end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
     #except:
     #    print("Error: Could not exectue read_csv_base_data_service")
 
@@ -185,7 +182,7 @@ def read_csv_float(path_to_csv):
         for row in read_lines:
             service_switches.append(row)
 
-    return np.array(service_switches, float) # Convert list into array
+    return np.array(service_switches, float)
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -404,7 +401,7 @@ def read_technologies(path_to_csv, data):
         # Iterate rows
         for row in read_lines:
             technology = row[0]
-            print("TechnologyL " + str(technology))
+
             # Because for hybrid technologies, none needs to be defined
             if row[1] == 'hybrid':
                 fueltype = 'None'

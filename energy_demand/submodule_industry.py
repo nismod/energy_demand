@@ -35,9 +35,9 @@ class IndustryModel(object):
         # Enduse specific parameters
         # --------------------------
         if self.enduse_name in data['assumptions']['enduse_space_heating']:
-            enduse_peak_yd_factor = region_object.ss_peak_yd_heating_factor
+            enduse_peak_yd_factor = region_object.ss_peak_yd_heating_factor #Take heatin factor from service sector data
         elif self.enduse_name in data['assumptions']['enduse_space_cooling']:
-            enduse_peak_yd_factor = region_object.rs_peak_yd_cooling_factor
+            enduse_peak_yd_factor = region_object.ss_peak_yd_cooling_factor #Take heatin factor from service sector data
         else:
             enduse_peak_yd_factor = data['is_shapes_yd'][self.sector_name][self.enduse_name]['shape_peak_yd_factor']
 

@@ -1,12 +1,11 @@
 """This scripts reads the national electricity data for the base year"""
+import sys
 import csv
 import numpy as np
-from energy_demand.scripts_basic import date_handling
-from energy_demand.scripts_basic import unit_conversions
-
-
 import matplotlib.pyplot as plt
 import pylab
+from energy_demand.scripts_basic import date_handling
+from energy_demand.scripts_basic import unit_conversions
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def get_month_from_string(month_string):
@@ -42,15 +41,14 @@ def get_month_from_string(month_string):
     return int(month_int)
 
 def read_raw_elec_2015_data(path_to_csv):
-    """
-
-    Read in values are provided in MW and convert to GWh
+    """Read in national electricity values provided in MW and convert to GWh
 
     Info
     -----
+    Half hourly measurements are aggregated to hourly values
+
     Necessary data preparation: On 29 March and 25 Octobre there are 46 and 48 values because of the changing of the clocks
     The 25 Octobre value is omitted, the 29 March hour interpolated in the csv file
-
     """
     year = 2015
     total_MW = 0
@@ -81,7 +79,6 @@ def read_raw_elec_2015_data(path_to_csv):
                 hour_elec_demand = half_hour_demand + float(line[2]) 
                 total_MW += hour_elec_demand
 
-
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
                 hour_elec_demand_gwh = unit_conversions.convert_mw_gwh(hour_elec_demand, 0.5) #1)
@@ -98,44 +95,53 @@ def read_raw_elec_2015_data(path_to_csv):
 
             if hour == 24:
                 hour = 0
-    
-    print("TOTAL MW: " + str(total_MW))
+
     return elec_data
 
-def compare_results(y_real_array, y_calculated_array):
+def compare_results(y_real_array, y_calculated_array, title_left):
     """plot full year
 
+    Info
+    ----
     RMSE fit criteria : Lower values of RMSE indicate better fit
+    https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python
     """
+    def rmse(predictions, targets):
+        """RMSE calculations
+        """
+        return np.sqrt(((predictions - targets) ** 2).mean())
+
     print("plot and compare calculated and real for year 2015")
     # Set figure size in cm
     #plt.scatter(x, y)
 
-    
+    # Number of days to plot
+    #days_to_plot = range(70, 100) #range(0,365)
+    days_to_plot = list(range(0, 14)) + list(range(100, 114)) + list(range(200, 214)) + list(range(300, 314))
 
-    x = range(8760)
+    nr_of_h_to_plot = len(days_to_plot) * 24
+
+    x = range(nr_of_h_to_plot)
 
     y_real = []
     y_calculated = []
-    for day in range(365):
+
+    for day in days_to_plot:
         for hour in range(24):
             y_real.append(y_real_array[day][hour])
             y_calculated.append(y_calculated_array[day][hour])
 
-    # CALCULATE RMSE https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python
-    def rmse(predictions, targets):
-        return np.sqrt(((predictions - targets) ** 2).mean())
-
+    # RMSE
     rmse_val = rmse(np.array(y_real), np.array(y_calculated))
-    print("rms error is: " + str(rmse_val))
 
     # plot points
-    plt.plot(x, y_real, 'ro', markersize=1, color='green') #'ro', markersize=1, 
-    plt.plot(x, y_calculated, 'ro', markersize=1, color='red') #'ro', markersize=1
+    plt.plot(x, y_real, color='green', label='real') #'ro', markersize=1, # REAL DATA
+    plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1 #Calculated
 
     plt.title('RMSE Value: {}'.format(rmse_val))
-    #plt.title('Left Title', loc='left')
+    plt.title(title_left, loc='left')
     #plt.title('Right Title', loc='right')
+    plt.legend()
 
     plt.show()
     

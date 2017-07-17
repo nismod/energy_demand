@@ -2,9 +2,8 @@
 """
 import numpy as np
 
-
 def convert_mw_gwh(megawatt, number_of_hours):
-    """
+    """"Conversion of MW to GWh
     """
     # Convert MW to MWh
     megawatt_hour = megawatt * number_of_hours
@@ -54,33 +53,23 @@ def convert_ktoe_twh(data_ktoe):
     data_twh = data_ktoe * 0.0116300000
     return data_twh
 
-def convert_ktoe_twh(data_ktoe):
-    """Conversion of ktoe to TWh
+def convert_across_all_fueltypes(fuel_dict):
+    """Iterature ktoe in fueltypes and convert to GWh
 
     Parameters
     ----------
-    data_ktoe : float
-        Energy demand in ktoe
+    fuel_dict : dict
+        Dictionary with stored ktoe for different fueltypes
 
     Returns
     -------
-    data_gwh : float
-        Energy demand in TWh
-
-    Notes
-    -----
-    https://www.iea.org/statistics/resources/unitconverter/
-    """
-    data_gwh = data_ktoe * 0.0116300000
-    return data_gwh
-
-
-def convert_across_all_fueltypes(fuel_dict):
-    """ITerature ktoe in fueltypes and convert #TODO: WRITE NICER
+    fuel_converted : dict
+        Dictionary with converted energy demand in GWh
     """
     fuel_converted = {}
 
     for enduse, fuels in fuel_dict.items():
+
         nr_of_fueltypes = len(fuels)
 
         fuel_converted[enduse] = np.zeros((nr_of_fueltypes))
@@ -90,7 +79,7 @@ def convert_across_all_fueltypes(fuel_dict):
 
     return fuel_converted
 
-def convert_across_all_fueltypes_sector(fuel_dict):
+def convert_all_fueltypes_sector(fuel_dict):
     """ITerature ktoe in fueltypes and convert
     """
     fuel_converted = {}

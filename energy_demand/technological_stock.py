@@ -111,7 +111,7 @@ class Technology(object):
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
 
         # Diffusion method
-        self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
+        self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method'] #Not used
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
         shape_yd_enduses, shape_yh_enduses, shape_peak_yd_factor_enduses = {}, {}, {}
@@ -129,8 +129,8 @@ class Technology(object):
         # Calculate fuel types and distribution
         if self.tech_type == 'hybrid_tech':
 
-            tech_low_temp = data['assumptions']['technologies'][self.tech_name]['tech_low_temp']
-            tech_high_temp = data['assumptions']['technologies'][self.tech_name]['tech_high_temp']
+            tech_low_temp = data['assumptions']['technologies'][tech_name]['tech_low_temp']
+            tech_high_temp = data['assumptions']['technologies'][tech_name]['tech_high_temp']
 
             eff_tech_low_by = self.const_eff_yh(data['assumptions']['technologies'][tech_low_temp]['eff_by'])
             eff_tech_high_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumption'], data['assumptions']['technologies'][tech_high_temp]['eff_by'], t_base_heating)
@@ -146,8 +146,8 @@ class Technology(object):
             # Get fraction of service for hybrid technologies for every hour
             self.service_distr_hybrid_h_p_cy = self.service_hybrid_tech_low_high_h_p(
                 temp_cy,
-                data['assumptions']['technologies'][self.tech_name]['hybrid_cutoff_temp_low'],
-                data['assumptions']['technologies'][self.tech_name]['hybrid_cutoff_temp_high']
+                data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_low'],
+                data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_high']
                 )
 
             # Shares of fueltype for every hour for multiple fueltypes
@@ -159,7 +159,7 @@ class Technology(object):
                 data['assumptions']['technologies'][tech_high_temp]['fuel_type'])
         else:
             # Shares of fueltype for every hour for single fueltype
-            self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][self.tech_name]['fuel_type'], data['nr_of_fueltypes'])
+            self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
         # -------------------------------
         # Base and current year efficiencies
@@ -170,13 +170,13 @@ class Technology(object):
             self.eff_by = self.get_heatpump_eff(
                 temp_by,
                 data['assumptions']['hp_slope_assumption'],
-                data['assumptions']['technologies'][self.tech_name]['eff_by'],
+                data['assumptions']['technologies'][tech_name]['eff_by'],
                 t_base_heating)
 
             self.eff_cy = self.get_heatpump_eff(
                 temp_cy,
                 data['assumptions']['hp_slope_assumption'],
-                self.calc_eff_cy(data['assumptions']['technologies'][self.tech_name]['eff_by'], self.tech_name, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions']),
+                self.calc_eff_cy(data['assumptions']['technologies'][tech_name]['eff_by'], tech_name, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions']),
                 t_base_heating_cy)
 
         elif self.tech_type == 'hybrid_tech':
@@ -189,15 +189,15 @@ class Technology(object):
                 self.eff_cy =
             '''
         else:
-            self.eff_by = self.const_eff_yh(data['assumptions']['technologies'][self.tech_name]['eff_by'])
+            self.eff_by = self.const_eff_yh(data['assumptions']['technologies'][tech_name]['eff_by'])
             self.eff_cy = self.const_eff_yh(
-                self.calc_eff_cy(data['assumptions']['technologies'][self.tech_name]['eff_by'], self.tech_name, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
+                self.calc_eff_cy(data['assumptions']['technologies'][tech_name]['eff_by'], tech_name, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
             )
 
         # Convert hourly fuel type shares to daily fuel type shares
         self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
-        # Get shape of peak dh where not read from values directly
+        # Get shape of peak dh where not read from values directly (TODO: IMPROVE THAT SHAPE IS BETTER ASSIGNED)
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
     def get_heatpump_eff(self, temp_yr, m_slope, b, t_base_heating):
@@ -543,13 +543,23 @@ class Technology(object):
         -   If no specific peak shape is defined, the peak is read out from shape_yh and initiated here with zeros
         """
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
-        if self.tech_type == 'boiler_heating_tech':
+
+        if self.tech_type == 'storage_heating_elec':
+            shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2]
+        elif self.tech_type == 'secondary_elec_heating':
+            shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh'][2]
+            
+        elif self.tech_type == 'boiler_heating_tech':
              # Peak curve robert sansom
-            shape_peak_dh = np.divide(data['rs_shapes_heating_boilers_dh'][3], np.sum(data['rs_shapes_heating_boilers_dh'][3]))
+            #shape_peak_dh = np.divide(data['rs_shapes_heating_boilers_dh'][3], np.sum(data['rs_shapes_heating_boilers_dh'][3]))
+            #shape_handling.absolute_to_relative(data['rs_shapes_heating_boilers_dh'][3])
+            shape_peak_dh = data['rs_shapes_heating_boilers_dh'][2]
 
         elif self.tech_type == 'heat_pump':
              # Peak curve robert sansom
-            shape_peak_dh = np.divide(data['rs_shapes_heating_heat_pump_dh'][3], np.sum(data['rs_shapes_heating_heat_pump_dh'][3]))
+            #shape_peak_dh = np.divide(data['rs_shapes_heating_heat_pump_dh'][3], np.sum(data['rs_shapes_heating_heat_pump_dh'][3]))
+            #shape_handling.absolute_to_relative(data['rs_shapes_heating_heat_pump_dh'][3])
+            shape_peak_dh = data['rs_shapes_heating_heat_pump_dh'][2]
 
         elif self.tech_type == 'hybrid_tech':
 

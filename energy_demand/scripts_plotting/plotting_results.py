@@ -344,3 +344,11 @@ def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     plt.xlabel("Simulation years")
     plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
+
+def plot_load_profile_dh(array_dh):
+
+    x_values = range(24)
+
+    plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
+    
+    plt.show()

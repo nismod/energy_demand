@@ -135,8 +135,7 @@ def read_raw_carbon_trust_data(folder_path):
                         max_dh_shape = load_shape_dh
 
                     # Check if 100 %
-                    ASSERTIONS = unittest.TestCase('__init__')
-                    ASSERTIONS.assertAlmostEqual(control_sum, daily_sum, places=7, msg=None, delta=None)
+                    np.testing.assert_almost_equal(control_sum, daily_sum, decimal=7, err_msg="")
 
                 # Add load shape of maximum day in csv file
                 dict_max_dh_shape[path_csv_file] = max_dh_shape
@@ -203,7 +202,7 @@ def read_raw_carbon_trust_data(folder_path):
     for day, dh_values in enumerate(year_data):
         load_shape_dh[day] = shape_handling.absolute_to_relative(dh_values) #np.divide(1.0, np.sum(dh_values)) * dh_values # daily shape
 
-    ASSERTIONS.assertAlmostEqual(np.sum(load_shape_dh), 365.0, places=2, msg=None, delta=None)
+    np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
     # Calculate shape_non_peak_yd
     shape_non_peak_yd = np.zeros((365))
@@ -211,7 +210,7 @@ def read_raw_carbon_trust_data(folder_path):
         shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
     shape_non_peak_yd = np.divide(1, yearly_demand) * shape_non_peak_yd
 
-    ASSERTIONS.assertAlmostEqual(np.sum(np.sum(shape_non_peak_yd)), 1.0, places=2, msg=None, delta=None)
+    np.testing.assert_almost_equal(np.sum(shape_non_peak_yd), 1, decimal=2, err_msg="")
 
     return load_shape_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd
 

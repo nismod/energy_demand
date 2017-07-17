@@ -10,7 +10,7 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_technologies import technologies_related
 from energy_demand.scripts_geography import weather_station_location as wl
-ASSERTIONS = unittest.TestCase('__init__')
+
 
 class Region(object):
     """Region class
@@ -38,6 +38,8 @@ class Region(object):
         self.rs_enduses_fuel = data['rs_fueldata_disagg'][reg_name]
         self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][reg_name]
         self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][reg_name]
+
+        self.ts_enduses_sectors_fuels = data['ts_fueldata_disagg'][reg_name]
 
         # Get closest weather station and temperatures
         closest_station_id = wl.get_closest_station(data['reg_coordinates'][reg_name]['longitude'], data['reg_coordinates'][reg_name]['latitude'], data['weather_stations'])
@@ -97,12 +99,21 @@ class Region(object):
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
         # -------------------------------------------------------------------------------------------
+        # IMRPVE SHAPE ASSGINEENT(TODO: MYBE MOVE ALL THIS TO ASSIGN FUEL SHAPES)
+        # --Heating technologies for residential sector 
 
-        # --Heating technologies for residential sector
+        # Read shapes for enduses and technologies
+        #assign_shapes(tech_stock, technologies, enduse)
+        # NEW
+        rs_fuel_shape_storage_heater_yh, rs_fuel_shape_storage_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_storage_heater_elec_heating_dh')
+        rs_fuel_shape_elec_heater_yh, rs_fuel_shape_elec_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_second_elec_heating_dh')
+
         rs_fuel_shape_boilers_yh, rs_fuel_shape_boilers_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh') # boiler, non-peak
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # heat pumps, non-peak
+
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
         rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
+
 
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
@@ -113,13 +124,15 @@ class Region(object):
         self.assign_fuel_shapes_tech_stock(
             'rs',
             data['rs_all_enduses'],
-            data['assumptions']['rs_all_specified_tech_enduse_by'], #data['assumptions']['rs_is_all_specified_tech_enduse_by'], #data['assumptions']['rs_all_specified_tech_enduse_by']
+            data['assumptions']['rs_all_specified_tech_enduse_by'],
             data,
             rs_fuel_shape_heating_yd,
             rs_fuel_shape_boilers_yh,
             rs_fuel_get_shape_cooling_yh,
             rs_fuel_shape_hp_yh,
             rs_fuel_shape_hybrid_tech_yh,
+            rs_fuel_shape_storage_heater_yh,
+            rs_fuel_shape_elec_heater_yh,
             self.rs_tech_stock
             )
 
@@ -134,6 +147,8 @@ class Region(object):
             ss_fuel_get_shape_cooling_yh,
             ss_fuel_shape_any_tech,
             ss_fuel_shape_hybrid_gas_elec_yh,
+            '', #Elec shape for storage heater
+            '', #Elec shape for secondary elec heating
             self.ss_tech_stock
             )
 
@@ -144,11 +159,13 @@ class Region(object):
             data['is_all_enduses'],
             data['assumptions']['is_all_specified_tech_enduse_by'],
             data,
-            ss_fuel_shape_heating_yd,
+            ss_fuel_shape_heating_yd, #Assing all heating shapes of service sector to industry model
             ss_fuel_shape_any_tech,
             ss_fuel_get_shape_cooling_yh,
             ss_fuel_shape_any_tech,
             ss_fuel_shape_hybrid_gas_elec_yh,
+            '', #Elec shape for storage heater
+            '', #Elec shape for secondary elec heating
             self.is_tech_stock
         )
 
@@ -223,7 +240,7 @@ class Region(object):
 
         return max_factor_yd
 
-    def assign_fuel_shapes_tech_stock(self, abr, enduses, technologies_input, data, fuel_shape_heating_yd, fuel_shape_boilers_yh, fuel_get_shape_cooling_yh, fuel_shape_hp_yh, fuel_shape_hybrid_gas_elec_yh, tech_stock):
+    def assign_fuel_shapes_tech_stock(self, abr, enduses, technologies_input, data, fuel_shape_heating_yd, fuel_shape_boilers_yh, fuel_get_shape_cooling_yh, fuel_shape_hp_yh, fuel_shape_hybrid_gas_elec_yh, rs_fuel_shape_storage_heater_yh, rs_fuel_shape_elec_heater_yh, tech_stock):
         """Assign fuel shapes to indidivdual technologies in technologicalStock
 
         The technologies are iterated and checked wheter they are part of
@@ -252,6 +269,13 @@ class Region(object):
                 if tech_type == 'boiler_heating_tech':
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
+
+                elif tech_type == 'storage_heating_elec': # NEW
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_storage_heater_yh, enduse)
+                elif tech_type == 'secondary_elec_heating':
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
+                    tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_elec_heater_yh, enduse)
 
                 elif tech_type == 'cooling_tech':
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_get_shape_cooling_yh)
@@ -529,6 +553,8 @@ class Region(object):
         fuel demand curve for boilers from:
 
         Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Dissertation, Imperial College London.
+
+        #TODO: IMPROVE, make daytype explicit
         """
         shape_yh_boilers = np.zeros((365, 24))
         shape_y_dh_boilers = np.zeros((365, 24))
@@ -542,20 +568,19 @@ class Region(object):
 
             # Take respectve daily fuel curve depending on weekday or weekend
             if weekday == 5 or weekday == 6:
-
                 # -----
                 # The percentage of totaly yearly heat demand (heating_shape[day]) is distributed with daily fuel shape of boilers
                 # Because boiler eff is constant, the shape_yh_boilers reflects the needed heat per hour
                 # ------
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_yh_boilers[day] = heating_shape[day] * (data[tech_to_get_shape][2] / np.sum(data[tech_to_get_shape][2]))
+                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape][1]
 
-                shape_y_dh_boilers[day] = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2]))
+                shape_y_dh_boilers[day] = data[tech_to_get_shape][1]
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve
-                shape_yh_boilers[day] = heating_shape[day] * (data[tech_to_get_shape][1] / np.sum(data[tech_to_get_shape][1])) #yd shape
+                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape][0] #yd shape
 
-                shape_y_dh_boilers[day] = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) #dh shape
+                shape_y_dh_boilers[day] = data[tech_to_get_shape][0] #dh shape
 
         # Testing
         np.testing.assert_almost_equal(np.sum(shape_yh_boilers), 1, err_msg="Error in shape_yh_boilers: The sum of hourly shape is not 1: {}".format(np.sum(shape_yh_boilers)))

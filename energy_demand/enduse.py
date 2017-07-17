@@ -10,7 +10,47 @@ from energy_demand.scripts_initalisations import initialisations as init
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_basic import testing_functions as testing
-ASSERTIONS = unittest.TestCase('__init__')
+
+from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
+
+# --------------SCRAO FPR GENERAL ENDUSE
+class genericEnduse(object):
+    "SCRAP - generic enduse, flat shapes"
+    def __init__(self, enduse_fuel):
+
+        self.enduse_fuel_y = enduse_fuel
+
+        # Generate generic shape
+        shape_peak_yd_factor = 1.2
+        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
+
+        self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365))
+        for fueltype in range(len(enduse_fuel)):
+            self.enduse_fuel_yd[fueltype] = shape_non_peak_yd
+
+        self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
+        for fueltype in range(len(enduse_fuel)):
+            self.enduse_fuel_yh[fueltype] = shape_non_peak_dh * self.enduse_fuel_y[fueltype]
+
+        self.enduse_fuel_peak_dh = shape_peak_dh #np.zeros((self.enduse_fuel_y.shape[0], 24))
+
+        self.enduse_fuel_peak_h = self.get_peak_h_from_dh() #np.zeros((self.enduse_fuel_y.shape[0]))
+# --------------SCRAO FPR GENERAL ENDUSE
+
+
+    def get_peak_h_from_dh(self):
+        """Iterate peak day fuels and select peak hour
+
+        # The peak of the individual fueltypes may not be all in the same hour of the day
+        """
+        peak_fueltype_h = np.zeros((self.enduse_fuel_peak_dh.shape[0]))
+
+        # Peak values for every fueltype
+        for fueltype, fuel_dh in enumerate(self.enduse_fuel_peak_dh):
+            peak_fueltype_h[fueltype] = np.max(fuel_dh) # Get hour with maximum fuel in a day of fueltype
+
+        return peak_fueltype_h
+
 
 class Enduse(object):
     """Class of an end use of the residential sector
@@ -62,16 +102,16 @@ class Enduse(object):
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0:
             #print("Enduse has no fuel. Create empty shapes")
-            self.enduse_fuel_yd = np.zeros((365, 24))
+            self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365)) #fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
             self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
-            self.enduse_fuel_y_peak_yd = np.zeros((self.enduse_fuel_y.shape[0]))
+            enduse_fuel_y_peak_yd = np.zeros((self.enduse_fuel_y.shape[0])) #TODO: BRAUCHT DAS WIRKLICH
             self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
             self.enduse_fuel_peak_h = np.zeros((self.enduse_fuel_y.shape[0]))
         else:
             self.crit_switch_fuel = self.get_crit_switch_fuel(fuel_switches)
             self.crit_switch_service = self.get_crit_switch_service(service_switches)
 
-            testing.testing_switch_criteria(self.crit_switch_fuel, self.crit_switch_service)
+            testing.testing_switch_criteria(self.crit_switch_fuel, self.crit_switch_service, self.enduse)
 
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by[enduse])
@@ -202,8 +242,8 @@ class Enduse(object):
                 self.enduse_fuel_yh = self.enduse_d_to_h(self.enduse_fuel_yd, data_shapes_dh[enduse]['shape_non_peak_dh'])
 
                 # ---PEAK
-                self.enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(enduse_fuel, enduse_peak_yd_factor)
-                self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'])
+                enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(enduse_fuel, enduse_peak_yd_factor)
+                self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'], enduse_fuel_y_peak_yd)
                 self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
 
             # Testing
@@ -336,7 +376,7 @@ class Enduse(object):
                         service_fueltype_tech_p[fueltype_installed_tech_yh][tech] += np.sum(service_fueltype)
 
                 # Testing
-                ASSERTIONS.assertAlmostEqual(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), places=7, msg="The fuel to service y to h went wrong {}  {}  ".format(np.sum(fuel_tech_yh), np.sum(fuel_tech_y)), delta=None)
+                np.testing.assert_almost_equal(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), decimal=4, err_msg="The fuel to service y to h went wrong {}  {}  ".format(np.sum(fuel_tech_yh), np.sum(fuel_tech_y)))
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -746,7 +786,7 @@ class Enduse(object):
 
             # Shape of fuel of technology for every hour in year
             fuel_tech_yh = enduse_fuel_tech[tech] * tech_stock.get_tech_attribute(tech, 'shape_yh')[self.enduse]
-            print("DDDDDD: " + str(np.sum(fuel_tech_yh)))
+
             # Get distribution of fuel for every hour
             fueltypes_tech_share_yh = tech_stock.get_tech_attribute(tech, 'fueltypes_yh_p_cy')
 
@@ -1198,7 +1238,7 @@ class Enduse(object):
             for day in range(365):
                 fuels_h[fueltype][day] = enduse_shape_dh[day] * fuel[day]
 
-        ASSERTIONS.assertAlmostEqual(np.sum(fuels), np.sum(fuels_h), places=2, msg="The function Day to h tranfsormation failed", delta=None)
+        np.testing.assert_almost_equal(np.sum(fuels), np.sum(fuels_h), decimal=2, err_msg="The function Day to h tranfsormation failed")
 
         return fuels_h
 
@@ -1235,7 +1275,7 @@ class Enduse(object):
 
         return fuels_d_peak
 
-    def calc_enduse_fuel_peak_dh(self, shape_peak_dh):
+    def calc_enduse_fuel_peak_dh(self, shape_peak_dh, enduse_fuel_y_peak_yd):
         """Disaggregate daily peak day fuel data to the peak hours.
 
         Parameters
@@ -1254,12 +1294,10 @@ class Enduse(object):
         Notes
         -----
         """
-        fuels_h_peak = np.zeros((self.enduse_fuel_y_peak_yd.shape[0], 24))
+        fuels_h_peak = np.zeros((enduse_fuel_y_peak_yd.shape[0], 24))
 
         # Iterate fueltypes and day and multiply daily fuel data with daily shape
-        for fueltype, fuel in enumerate(self.enduse_fuel_y_peak_yd):
+        for fueltype, fuel in enumerate(enduse_fuel_y_peak_yd):
             fuels_h_peak[fueltype] = shape_peak_dh * fuel
 
         return fuels_h_peak
-
-

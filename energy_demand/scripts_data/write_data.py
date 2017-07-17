@@ -6,7 +6,7 @@ import csv
 import json
 import yaml
 import numpy as np
-ASSERTIONS = unittest.TestCase('__init__')
+
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd):

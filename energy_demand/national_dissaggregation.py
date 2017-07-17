@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_shape_handling import hdd_cdd
-ASSERTIONS = unittest.TestCase('__init__')
+
 
 '''
 ============================================
@@ -73,15 +73,21 @@ def disaggregate_base_demand(data):
     # ------------------
     data['is_fueldata_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
 
+    # TRANSPORTAIONT SCRAP
+    from energy_demand.scripts_basic import unit_conversions
+    fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
+    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)  #Elec demand from ECUK for transport sector
+    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, fuel_national_tranport)
 
     # ------------------
     # RS Disaggregateion #TODO: IMPROVE
     # ------------------
     print("...disagreggate residential demand")
-    
+
     rs_national_fuel = data['rs_fuel_raw_data_enduses']
 
     data['rs_fueldata_disagg'] = {}
+
     # Sum national fuel before disaggregation for testing purposes
     test_sum_before = sum_fuels_before(rs_national_fuel)
 
@@ -128,8 +134,7 @@ def disaggregate_base_demand(data):
     test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
 
     # Check if total fuel is the same before and after aggregation
-    ASSERTIONS.assertAlmostEqual(test_sum_before, test_sum_after, places=2, msg=None, delta=None)
-
+    np.testing.assert_almost_equal(test_sum_before, test_sum_after, decimal=2, err_msg="")
     return data
 
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
@@ -200,9 +205,32 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         for enduse in data['ss_all_enduses']:
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
-    ASSERTIONS.assertAlmostEqual(control_sum1, control_sum2, places=2, msg=None, delta=None) #The loaded floor area must correspond to provided fuel sectors numers
-
+    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="") #The loaded floor area must correspond to provided fuel sectors numers
     return ss_fueldata_disagg
+
+def scrap_ts_disaggregate(data, fuel_national):
+    
+    is_fueldata_disagg = {}
+
+    national_floorarea_sector = 0
+    for region in data['lu_reg']:
+        national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region].values())
+
+    # Iterate regions
+    for region in data['lu_reg']:
+        is_fueldata_disagg[region] = {}
+
+        regional_floorarea_sector = sum(data['ss_sector_floor_area_by'][region].values())
+        
+        national_fuel_sector_by = fuel_national
+
+        reg_disaggregation_factor = (1 / national_floorarea_sector) * regional_floorarea_sector
+
+        reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
+
+        is_fueldata_disagg[region] = reg_fuel_sector_enduse
+
+    return is_fueldata_disagg
 
 def is_disaggregate(data, raw_fuel_sectors_enduses):
     """TODO: Disaggregate fuel for sector and enduses with floor area and GVA for sectors and enduses (IMPROVE)
@@ -210,8 +238,6 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
     #TODO: DISAGGREGATE WITH OTHER DATA
     """
-
-
     is_fueldata_disagg = {}
 
     national_floorarea_sector = 0
