@@ -63,10 +63,11 @@ class EnergyModel(object):
         self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel, self.ss_submodel, self.rs_submodel, self.is_submodel], 'sum', 'non_peak')
 
         self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel], 'no_sum', 'non_peak')
-        self.rs_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak') #self.ss_submodel, self.is_submodel
-        self.ss_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak') #self.ss_submodel, self.is_submodel
+        self.rs_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
         self.is_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.is_submodel], 'no_sum', 'non_peak')
-
+        self.ts_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel], 'no_sum', 'non_peak')
+        
         self.rs_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
 

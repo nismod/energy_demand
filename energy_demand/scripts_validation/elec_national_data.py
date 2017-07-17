@@ -1,9 +1,9 @@
 """This scripts reads the national electricity data for the base year"""
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import sys
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_basic import unit_conversions
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
@@ -72,7 +72,6 @@ def read_raw_elec_2015_data(path_to_csv):
             yearday = date_handling.convert_date_to_yearday(year, month, day)
 
             if counter_half_hour == 1:
-
                 counter_half_hour = 0
 
                 # Sum value of first and second half hour
@@ -81,7 +80,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
-                hour_elec_demand_gwh = unit_conversions.convert_mw_gwh(hour_elec_demand, 0.5) #1)
+                hour_elec_demand_gwh = unit_conversions.convert_mw_gwh(hour_elec_demand, 0.5)
 
                 # Add to array
                 #print(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))
@@ -91,7 +90,7 @@ def read_raw_elec_2015_data(path_to_csv):
             else:
                 counter_half_hour += 1
 
-            half_hour_demand = float(line[2])
+                half_hour_demand = float(line[2])
 
             if hour == 24:
                 hour = 0
@@ -99,7 +98,7 @@ def read_raw_elec_2015_data(path_to_csv):
     return elec_data
 
 def compare_results(y_real_array, y_calculated_array, title_left):
-    """plot full year
+    """Compare national electrictiy demand data with model results
 
     Info
     ----
@@ -111,12 +110,7 @@ def compare_results(y_real_array, y_calculated_array, title_left):
         """
         return np.sqrt(((predictions - targets) ** 2).mean())
 
-    print("plot and compare calculated and real for year 2015")
-    # Set figure size in cm
-    #plt.scatter(x, y)
-
     # Number of days to plot
-    #days_to_plot = range(70, 100) #range(0,365)
     days_to_plot = list(range(0, 14)) + list(range(100, 114)) + list(range(200, 214)) + list(range(300, 314))
 
     nr_of_h_to_plot = len(days_to_plot) * 24
@@ -135,8 +129,8 @@ def compare_results(y_real_array, y_calculated_array, title_left):
     rmse_val = rmse(np.array(y_real), np.array(y_calculated))
 
     # plot points
-    plt.plot(x, y_real, color='green', label='real') #'ro', markersize=1, # REAL DATA
-    plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1 #Calculated
+    plt.plot(x, y_real, color='green', label='real') #'ro', markersize=1
+    plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1 
 
     plt.title('RMSE Value: {}'.format(rmse_val))
     plt.title(title_left, loc='left')

@@ -331,9 +331,6 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
 
-    #scrap
-    #validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-
     for sim_yr in sim_years:
         base_data['curr_yr'] = sim_yr
         print("                           ")
@@ -345,26 +342,20 @@ if __name__ == "__main__":
         results_every_year.append(model_run_object)
 
 
-        # -----------------
-        # VALIDATION OF NATIONAL ELECTRICITY DEMAND
-        # -----------------
+        # ---------------------------------------------------
+        # Validation of national electrictiy demand for base year
+        # ---------------------------------------------------
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
 
-        all_submodels_calculated_elec_data_2015 = model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2] #Elec
-        rs_calculated_elec_data_2015 = model_run_object.rs_sum_uk_specfuelype_enduses_y[2] #Elec
-        ss_calculated_elec_data_2015 = model_run_object.ss_sum_uk_specfuelype_enduses_y[2] #Elec
-        is_calculated_elec_data_2015 = model_run_object.is_sum_uk_specfuelype_enduses_y[2] #Elec
-        
-
-        print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(rs_calculated_elec_data_2015)))
-
         # Compare different models
-        validation.compare_results(validation_elec_data_2015, all_submodels_calculated_elec_data_2015, 'all_submodels') 
-        validation.compare_results(validation_elec_data_2015, rs_calculated_elec_data_2015, 'rs_model')
-        validation.compare_results(validation_elec_data_2015, ss_calculated_elec_data_2015, 'ss_model')
-        validation.compare_results(validation_elec_data_2015, is_calculated_elec_data_2015, 'is_model')
-
+        validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels')
+        validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model')
+        validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model')
+        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model')
+        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'ts_model')
+        
+        print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
 
 
 

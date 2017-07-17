@@ -1,6 +1,5 @@
 """The technological stock for every simulation year"""
 import numpy as np
-#from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
@@ -548,17 +547,12 @@ class Technology(object):
             shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2]
         elif self.tech_type == 'secondary_elec_heating':
             shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh'][2]
-            
         elif self.tech_type == 'boiler_heating_tech':
              # Peak curve robert sansom
-            #shape_peak_dh = np.divide(data['rs_shapes_heating_boilers_dh'][3], np.sum(data['rs_shapes_heating_boilers_dh'][3]))
-            #shape_handling.absolute_to_relative(data['rs_shapes_heating_boilers_dh'][3])
             shape_peak_dh = data['rs_shapes_heating_boilers_dh'][2]
 
         elif self.tech_type == 'heat_pump':
              # Peak curve robert sansom
-            #shape_peak_dh = np.divide(data['rs_shapes_heating_heat_pump_dh'][3], np.sum(data['rs_shapes_heating_heat_pump_dh'][3]))
-            #shape_handling.absolute_to_relative(data['rs_shapes_heating_heat_pump_dh'][3])
             shape_peak_dh = data['rs_shapes_heating_heat_pump_dh'][2]
 
         elif self.tech_type == 'hybrid_tech':

@@ -1,3 +1,5 @@
+"""Dummy transportation model
+"""
 import energy_demand.enduse as enduse_functions
 
 class TransportModel(object):

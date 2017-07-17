@@ -35,7 +35,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0
     else:
-        fract_sy = np.divide((value_end - value_start), (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
+        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
 
     return fract_sy
 
@@ -63,7 +63,7 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     This function is used for fitting and plotting
 
     """
-    y_value = np.divide(l_value, 1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
+    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
 
     return y_value
 
@@ -115,7 +115,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
             y_trans = -5.0 + (10.0 / (end_yr - base_yr)) * (curr_yr - base_yr)
 
         # Get a value between 0 and 1 (sigmoid curve ranging from 0 to 1)
-        cy_p = np.divide(1, (1 + math.exp(-1 * sig_steeppness * (y_trans - sig_midpoint))))
+        cy_p = 1.0 / (1 + math.exp(-1 * sig_steeppness * (y_trans - sig_midpoint)))
 
         return cy_p
 
@@ -146,7 +146,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
         """
-        y_value = np.divide(l_value, 1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
+        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
 
         return y_value
 
@@ -392,11 +392,11 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
                 # Data of the two points
                 xdata = np.array([point_x_by, point_x_projected])
                 ydata = np.array([point_y_by, point_y_projected])
-                
+
                 print("DATA TO FIT")
                 print(xdata)
                 print(ydata)
-                ##point_x_projected = 2050 #scrap TODO: REMOVE
+
                 # ----------------
                 # Parameter fitting
                 # ----------------

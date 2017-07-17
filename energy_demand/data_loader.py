@@ -164,7 +164,7 @@ def load_data(path_main, data):
 
         # Weather stations
         data['weather_stations'] = read_weather_data.read_weather_stations_raw(data['path_dict']['folder_path_weater_stations'], data['temperature_data'].keys())
-        print("Number of weater stations with cleaned data: " + str(len(data['weather_stations'].keys())))
+        #print("...number of weater stations with cleaned data: " + str(len(data['weather_stations'].keys())))
 
         # Print out all x y of weater data
         '''for weather_station_nr in data['weather_stations']:
@@ -173,7 +173,7 @@ def load_data(path_main, data):
         del data['temperature_data_raw']
 
     # ------------------------------------------
-    # FUEL DATA
+    # Load ECUK fuel data
     # ------------------------------------------
 
     # Residential Sector (Table XY and Table XY )
@@ -185,11 +185,9 @@ def load_data(path_main, data):
     # Industry fuel (Table 4.04)
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
 
-    #ALL EXTERNAL ENDUSES?
 
     # ----------------------------------------
-    # Convert units 
-    # TODO: Check in what units external fuel data is provided
+    # Convert units
     # ----------------------------------------
     data['rs_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
     data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
@@ -203,14 +201,21 @@ def load_data(path_main, data):
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
 
-    '''plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
-    '''
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
+    #print("=============")
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     data['rs_shapes_space_heating_storage_heater_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
     data['rs_shapes_space_heating_second_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
-    
+
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][0] * 45.8)
+    ##plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][1] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][0] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][1] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][2] * 45.8)
+
     ###data = add_yearly_external_fuel_data(data, rs_fuel_raw_data_enduses) #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
 
     # Generate load shapes

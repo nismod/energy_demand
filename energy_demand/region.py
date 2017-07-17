@@ -100,10 +100,8 @@ class Region(object):
         # Load and calculate fuel shapes for different technologies and assign to technological stock
         # -------------------------------------------------------------------------------------------
         # IMRPVE SHAPE ASSGINEENT(TODO: MYBE MOVE ALL THIS TO ASSIGN FUEL SHAPES)
-        # --Heating technologies for residential sector 
+        # --Heating technologies for residential sector
 
-        # Read shapes for enduses and technologies
-        #assign_shapes(tech_stock, technologies, enduse)
         # NEW
         rs_fuel_shape_storage_heater_yh, rs_fuel_shape_storage_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_storage_heater_elec_heating_dh')
         rs_fuel_shape_elec_heater_yh, rs_fuel_shape_elec_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_second_elec_heating_dh')
@@ -114,11 +112,22 @@ class Region(object):
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
         rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
 
-
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
         ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_cooling_yd, 'ss_cooling_and_ventilation')
         ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid
+
+
+       '''# Read shapes for enduses and technologies
+        self.TEST_assign_shapes(
+            self.rs_tech_stock,
+            technologies,
+            enduses,
+            shape_yd,
+            shape_yh
+            )
+        '''
+
 
         # Assign shapes to technologies in technological stock (residential Submodel)
         self.assign_fuel_shapes_tech_stock(
@@ -168,6 +177,14 @@ class Region(object):
             '', #Elec shape for secondary elec heating
             self.is_tech_stock
         )
+
+    def TEST_assign_shapes(tech_stock, technologies, enduses, shape_yd, shape_yh):
+        """
+        """
+        for enduse in enduses:
+            for technology in technologies:
+                tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', shape_yd, enduse)
+                tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', shape_yh, enduse)
 
     def get_shape_heating_hybrid_yh(self, tech_stock, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech, tech_low_temp, tech_high_temp):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape

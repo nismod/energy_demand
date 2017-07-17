@@ -205,11 +205,13 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         for enduse in data['ss_all_enduses']:
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
-    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="") #The loaded floor area must correspond to provided fuel sectors numers
+    #The loaded floor area must correspond to provided fuel sectors numers
+    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="")
+
     return ss_fueldata_disagg
 
 def scrap_ts_disaggregate(data, fuel_national):
-    
+
     is_fueldata_disagg = {}
 
     national_floorarea_sector = 0
@@ -221,7 +223,7 @@ def scrap_ts_disaggregate(data, fuel_national):
         is_fueldata_disagg[region] = {}
 
         regional_floorarea_sector = sum(data['ss_sector_floor_area_by'][region].values())
-        
+
         national_fuel_sector_by = fuel_national
 
         reg_disaggregation_factor = (1 / national_floorarea_sector) * regional_floorarea_sector
