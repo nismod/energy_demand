@@ -4,7 +4,6 @@ import sys
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_basic import unit_conversions
 #from energy_demand.scripts_technologies import diffusion_technologies as diffusion
@@ -148,8 +147,6 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     # -------------------------------
     # Find maximumg peak in real data
     # -------------------------------
-    peak_day_real = np.zeros((24))
-
     max_h_year = 0
     max_day = "None"
 
@@ -189,33 +186,48 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     plt.show()
 
 def compare_results_hour_boxplots(data_real, data_calculated):
+    """Calculate differences for every hour and plot according to hour
+    for the full year
 
-    data_months_real = {}
-    data_months_calculated = {}
 
-    for i in range(12):
-        data_months_real[i] = []
-        data_months_calculated[i] = []
+    """
+    data_h_full_year = {}
+
+    for i in range(24):
+        data_h_full_year[i] = []
 
     for yearday_python in range(365):
+        #date_object = date_handling.convert_yearday_to_date(2015, yearday_python) # Yerday
+        #month = date_object.timetuple().tm_mon - 1 # Month
 
-        # Yerday
-        date_object = date_handling.convert_yearday_to_date(2015, yearday_python)
+        for hour in range(24):
 
-        # Month
-        month = date_object.timetuple().tm_mon - 1
+            # Calculate difference in electricity use
+            diff = data_real[yearday_python][hour] - data_calculated[yearday_python][hour]
 
-
-        # Dict with real data
-        data_months_real[month] += list(data_real[yearday_python])
-        data_months_calculated[month] +=  list(data_calculated[yearday_python])
+            # Differenc in % of real value
+            diff_percent = (100 / data_real[yearday_python][hour]) * data_calculated[yearday_python][hour]
+            # Add differene to list of specific hour
+            #data_h_full_year[hour].append(diff)
+            data_h_full_year[hour].append(diff_percent)
 
     fig = plt.figure()
+
+
+
     ax = fig.add_subplot(111)
 
-    months_real = data_months_real.items()
-    months_calculated = data_months_calculated.items()
+    # Add a horizontal grid to the plot, but make it very light in color so we can use it for reading data values but not be distracting
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
+    ax.axhline(y=100, xmin=0, xmax=3,c="red", linewidth=1, zorder=0)
 
-    ax.boxplot(months_real)
-    ax.boxplot(months_calculated)
+    diff_values = []
+    for hour in range(24):
+        diff_values.append(np.asarray(data_h_full_year[hour]))
+
+    ax.boxplot(diff_values)
+    plt.xlabel("Hour")
+    #plt.ylabel("Modelled electricity difference (real-modelled) [GWh]")
+    plt.ylabel("Modelled electricity difference (real-modelled) [%]")
+
     plt.show()

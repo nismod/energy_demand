@@ -1,5 +1,6 @@
 """Funtions related to the diffusion of technologies
 """
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import sys
 import math
 import copy
@@ -35,7 +36,8 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0
     else:
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) #-1 because in base year no change
+        #-1 because in base year no change
+        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)
 
     return fract_sy
 
@@ -296,7 +298,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
-    The future energy servie demand is calculated based on fuel switches. 
+    The future energy servie demand is calculated based on fuel switches.
     A sigmoid diffusion is fitted.
 
     Parameters
@@ -343,120 +345,112 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
     fit_crit_a = 200
     fit_crit_b = 0.001
 
-    #for enduse in enduses:
-    if 1 == 1: #TODO
-        # Only continue if technologies are specified for enduse
-        #if enduse in installed_tech:
+    if installed_tech[enduse] == []:
+        print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
+    else:
+        for technology in installed_tech[enduse]:
+            print("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
+            sigmoid_parameters[technology] = {}
 
-        if installed_tech[enduse] == []: #enduse in installed_tech:
-            print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
-        else:
-            for technology in installed_tech[enduse]:
-                print("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
-                sigmoid_parameters[technology] = {}
+            # If service switch
+            if crit_switch_service:
+                year_until_switched = data['end_yr'] # Year until service is switched
+                market_entry = data['assumptions']['technologies'][technology]['market_entry']
+            else:
 
-                # If service switch
-                if crit_switch_service:
-                    year_until_switched = data['end_yr'] # Year until service is switched
-                    market_entry = data['assumptions']['technologies'][technology]['market_entry']
-                else:
+                # Get the most future year of the technology in the enduse which is switched to
+                year_until_switched = 0
+                for switch in fuel_switches:
+                    if switch['enduse'] == enduse and switch['technology_install'] == technology:
+                        if year_until_switched < switch['year_fuel_consumption_switched']:
+                            year_until_switched = switch['year_fuel_consumption_switched']
 
-                    # Get the most future year of the technology in the enduse which is switched to
-                    year_until_switched = 0
-                    for switch in fuel_switches:
-                        if switch['enduse'] == enduse and switch['technology_install'] == technology:
-                            if year_until_switched < switch['year_fuel_consumption_switched']:
-                                year_until_switched = switch['year_fuel_consumption_switched']
+                market_entry = data['assumptions']['technologies'][technology]['market_entry']
 
-                    market_entry = data['assumptions']['technologies'][technology]['market_entry']
+            # --------
+            # Test whether technology has the market entry before or after base year,
+            # If afterwards, set very small number in market entry year
+            # --------
+            if market_entry > data['base_yr']:
+                point_x_by = market_entry
+                point_y_by = 0.001 # very small service share if market entry in a future year
+            else: # If market entry before, set to 2015
+                point_x_by = data['base_yr']
+                point_y_by = service_tech_by_p[enduse][technology] # current service share
 
-                # --------
-                # Test whether technology has the market entry before or after base year, 
-                # If afterwards, set very small number in market entry year
-                # --------
-                if market_entry > data['base_yr']:
-                    point_x_by = market_entry
-                    point_y_by = 0.001 # very small service share if market entry in a future year
-                else: # If market entry before, set to 2015
-                    point_x_by = data['base_yr']
-                    point_y_by = service_tech_by_p[enduse][technology] # current service share
+                #If the base year is the market entry year use a very small number
+                if point_y_by == 0:
+                    point_y_by = 0.001
 
-                    #If the base year is the market entry year use a very small number
-                    if point_y_by == 0:
-                        point_y_by = 0.001
+            # Future energy service demand (second point on sigmoid curve for fitting)
+            point_x_projected = year_until_switched
+            point_y_projected = service_tech_switched_p[enduse][technology]
 
-                # Future energy service demand (second point on sigmoid curve for fitting)
-                point_x_projected = year_until_switched
-                point_y_projected = service_tech_switched_p[enduse][technology]
+            # Data of the two points
+            xdata = np.array([point_x_by, point_x_projected])
+            ydata = np.array([point_y_by, point_y_projected])
 
-                # Data of the two points
-                xdata = np.array([point_x_by, point_x_projected])
-                ydata = np.array([point_y_by, point_y_projected])
+            print("DATA TO FIT:   {}   {}".format(xdata, ydata))
 
-                print("DATA TO FIT")
-                print(xdata)
-                print(ydata)
+            # ----------------
+            # Parameter fitting
+            # ----------------
+            # Generate possible starting parameters for fit
+            possible_start_parameters = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
+            for start in [x * 0.05 for x in range(0, 100)]:
+                possible_start_parameters.append(start)
+            for start in range(1, 59):
+                possible_start_parameters.append(start)
 
-                # ----------------
-                # Parameter fitting
-                # ----------------
-                # Generate possible starting parameters for fit
-                possible_start_parameters = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
-                for start in [x * 0.05 for x in range(0, 100)]:
-                    possible_start_parameters.append(start)
-                for start in range(1, 59):
-                    possible_start_parameters.append(start)
+            cnt = 0
+            successfull = False
+            while not successfull:
+                start_parameters = [
+                    possible_start_parameters[cnt],
+                    possible_start_parameters[cnt]
+                    ]
+                try:
+                    '''
+                    print("----------- Technology " + str(technology) + str("  ") + str(cnt))
+                    print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
+                    print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
+                    print("Lvalue: " + str(l_values[enduse][technology]))
+                    print("start_parameters: " + str(start_parameters))
+                    '''
+                    fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
+                    #print("fit_parameter: " + str(fit_parameter))
 
-                cnt = 0
-                successfull = False
-                while not successfull:
-                    start_parameters = [
-                        possible_start_parameters[cnt],
-                        possible_start_parameters[cnt]
-                        ]
-
-                    try:
-                        '''
-                        print("----------- Technology " + str(technology) + str("  ") + str(cnt))
-                        print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
-                        print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
-                        print("Lvalue: " + str(l_values[enduse][technology]))
-                        print("start_parameters: " + str(start_parameters))
-                        '''
-                        fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
-                        #print("fit_parameter: " + str(fit_parameter))
-
-                        # Criteria when fit did not work
-                        if fit_parameter[0] > fit_crit_a or fit_parameter[0] < fit_crit_b or fit_parameter[1] > fit_crit_a or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
-                            successfull = False
-                            cnt += 1
-                            if cnt >= len(possible_start_parameters):
-                                sys.exit("Error2: CURVE FITTING DID NOT WORK")
-                        else:
-                            successfull = True
-                            print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
-                    except:
-                        #print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+                    # Criteria when fit did not work
+                    if fit_parameter[0] > fit_crit_a or fit_parameter[0] < fit_crit_b or fit_parameter[1] > fit_crit_a or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
+                        successfull = False
                         cnt += 1
-
                         if cnt >= len(possible_start_parameters):
-                            sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_a and fit_crit_b")
+                            sys.exit("Error2: CURVE FITTING DID NOT WORK")
+                    else:
+                        successfull = True
+                        print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
+                except:
+                    #print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+                    cnt += 1
 
-                # Insert parameters
-                sigmoid_parameters[technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
-                sigmoid_parameters[technology]['steepness'] = fit_parameter[1] #Steepnes (k)
-                sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
+                    if cnt >= len(possible_start_parameters):
+                        sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_a and fit_crit_b")
 
-                #plot sigmoid curve
-                plotting.plotout_sigmoid_tech_diff(
-                    l_values,
-                    technology,
-                    enduse,
-                    xdata,
-                    ydata,
-                    fit_parameter,
-                    True
-                    )
+            # Insert parameters
+            sigmoid_parameters[technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
+            sigmoid_parameters[technology]['steepness'] = fit_parameter[1] #Steepnes (k)
+            sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
+
+            #plot sigmoid curve
+            plotting.plotout_sigmoid_tech_diff(
+                l_values,
+                technology,
+                enduse,
+                xdata,
+                ydata,
+                fit_parameter,
+                True
+                )
 
     print("finished...")
     return sigmoid_parameters
@@ -476,23 +470,18 @@ def get_tech_installed(enduses, fuel_switches):
     """
     installed_tech = {}
 
+    # Add technology list for every enduse with affected switches
     for enduse in enduses:
-        # Add technology list for every enduse with affected switches
         installed_tech[enduse] = set([])
-        #for switch in fuel_switches:
-        #    installed_tech[switch['enduse']] = set([])
 
     for switch in fuel_switches:
         enduse_fuelswitch = switch['enduse']
         installed_tech[enduse_fuelswitch].add(switch['technology_install'])
-        #installed_tech.add(switch['technology_install'])
 
-    #print("SD " + str(installed_tech))
     # Convert set to lists
     for enduse in installed_tech:
         installed_tech[enduse] = list(installed_tech[enduse])
-        #installed_tech = list(installed_tech)
-    print("SDd" + str(installed_tech))
+
     return installed_tech
 
 def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by, installed_tech_switches, switch_type):

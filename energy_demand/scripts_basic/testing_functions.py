@@ -15,7 +15,12 @@ def test_function_fuel_sum(data):
         for sector in data['ss_fueldata_disagg'][region]:
             for enduse in data['ss_fueldata_disagg'][region][sector]:
                 fuel_in += np.sum(data['ss_fueldata_disagg'][region][sector][enduse])
-
+    
+    for region in data['is_fueldata_disagg']:
+            for enduse in data['rs_fueldata_disagg'][region]:
+                fuel_in += np.sum(data['ss_fueldata_disagg'][region][enduse])
+    
+    fuel_in += 385 #transport
     return fuel_in
 
 def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_enduse_by):

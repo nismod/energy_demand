@@ -360,7 +360,7 @@ if __name__ == "__main__":
         validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
         validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
-        print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+        print("FUEL COMPARISON TOTAL  {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         validation.compare_results_hour_boxplots(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-    
+
     # ------------------------------
     # Plotting
     # ------------------------------

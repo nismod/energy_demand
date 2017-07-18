@@ -134,7 +134,7 @@ class Enduse(object):
                         )
 
                 control_tot_service = 0
-                for tech, fuel in service_tech.items():
+                for _, fuel in service_tech.items():
                     #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
                     control_tot_service += np.sum(fuel)
                 np.testing.assert_almost_equal(control_tot_service, np.sum(tot_service_h_cy), err_msg="not all technologies were specieified for each provided fuelty")
@@ -170,8 +170,7 @@ class Enduse(object):
                 # Iterate technologies in enduse and assign technology specific shape for respective fuels
                 self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, tech_stock)
                 self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
-                #print("--SUMME enduse_fuel_yd: " + str(np.sum(self.enduse_fuel_yd)))
-                #print("--SUMME enduse_fuel_yh: " + str(np.sum(self.enduse_fuel_yh)))
+
                 # ---PEAK (Peak is not defined by yd factor so far but read out from real data!)
 
                 # Get day with most fuel across all fueltypes (this is selected as max day)
@@ -218,7 +217,6 @@ class Enduse(object):
         Returns
         -------
         service_to_reduce or service_to_reduce
-
         """
         if self.enduse in assumption_heat_recovered:
 
@@ -878,7 +876,6 @@ class Enduse(object):
                     # -------
                     # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                     # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
-                    #error_rounding_margin = 0.1 #TODO:
                     if np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech) < 0:
                         print("Warning: blblablab")
                         print(np.sum(service_tech_after_switch[technology_replaced]))
@@ -1256,7 +1253,7 @@ class genericFlatEnduse(object):
     def __init__(self, enduse_fuel):
         self.enduse_fuel_y = enduse_fuel
 
-        # Generate flat shapes (i.e. same amount of fuel for every hour in a year) 
+        # Generate flat shapes (i.e. same amount of fuel for every hour in a year)
         shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
 
         # Convert shape_peak_dh into fuel per day

@@ -18,7 +18,7 @@ def boxplots_month():
     plt.show()
 
 
-'''def boxplots_month():
+def boxplots_month():
 
 
     x_labels_ticks = ['A', ' B']
@@ -104,5 +104,5 @@ def boxplots_month():
     plt.figtext(0.80, 0.08, 'test', backgroundcolor=boxColors[0], color='black', weight='roman', size='x-small')
 
     plt.show()
-'''
+
 boxplots_month()
