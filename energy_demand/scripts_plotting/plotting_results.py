@@ -67,10 +67,8 @@ def plot_stacked_Country_end_use_NEW(data, results_resid, enduses_data, attribut
     fig, ax = plt.subplots() #fig is needed
     nr_y_to_plot = len(data['sim_period'])
 
-    #nr_y_to_plot = len([2015, 2020]) #SCRAP
     x = range(nr_y_to_plot)
     legend_entries = []
-
 
     Y_init = np.zeros((len(enduses_data), nr_y_to_plot))
 
@@ -79,9 +77,7 @@ def plot_stacked_Country_end_use_NEW(data, results_resid, enduses_data, attribut
         data_over_years = []
 
         for model_year_object in results_resid:
-
             country_enduse_y = getattr(model_year_object, attribute_to_get)
-
             data_over_years.append(country_enduse_y[enduse])
 
         Y_init[k] = data_over_years

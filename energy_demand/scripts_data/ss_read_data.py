@@ -3,7 +3,6 @@
 import os
 import csv
 from datetime import date
-import unittest
 import numpy as np
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling

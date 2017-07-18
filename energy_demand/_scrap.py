@@ -4,39 +4,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
-
 def boxplots_month():
-    """
-    Thanks Josh Hemann for the example
-    """
 
-    # Generate some data from five different probability distributions,
-    # each with different characteristics. We want to play with how an IID
-    # bootstrap resample of the data preserves the distributional
-    # properties of the original sample, and a boxplot is one visual tool
-    # to make this assessment
-    numDists = 5
-    randomDists = ['Normal(1,1)', ' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
-                'Triangular(2,9,11)']
-    N = 500
-    np.random.seed(0)
-    norm = np.random.normal(1, 1, N)
-    logn = np.random.lognormal(1, 1, N)
-    expo = np.random.exponential(1, N)
-    gumb = np.random.gumbel(6, 4, N)
-    tria = np.random.triangular(2, 9, 11, N)
 
-    # Generate some random indices that we'll use to resample the original data
-    # arrays. For code brevity, just use the same random indices for each array
-    bootstrapIndices = np.random.random_integers(0, N - 1, N)
-    normBoot = norm[bootstrapIndices]
-    expoBoot = expo[bootstrapIndices]
-    gumbBoot = gumb[bootstrapIndices]
-    lognBoot = logn[bootstrapIndices]
-    triaBoot = tria[bootstrapIndices]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
 
-    data = [norm, normBoot, logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
-            tria, triaBoot]
+    x1 = np.random.normal(0,1,50)
+    x2 = np.random.normal(1,1,50)
+    x3 = np.random.normal(2,1,50)
+
+    ax.boxplot([x1,x2,x3])
+    plt.show()
+
+
+'''def boxplots_month():
+
+
+    x_labels_ticks = ['A', ' B']
+
+    norm = np.random.normal(1, 1, 500)
+    norm2 = np.random.normal(1, 1, 500)
+
+    data = [norm, norm2]
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
     fig.canvas.set_window_title('A Boxplot Example')
@@ -47,20 +37,20 @@ def boxplots_month():
     plt.setp(bp['whiskers'], color='black')
     plt.setp(bp['fliers'], color='red', marker='+')
 
-    # Add a horizontal grid to the plot, but make it very light in color
-    # so we can use it for reading data values but not be distracting
-    ax1.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
-                alpha=0.5)
+    # Add a horizontal grid to the plot, but make it very light in color so we can use it for reading data values but not be distracting
+    ax1.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
 
     # Hide these grid behind plot objects
     ax1.set_axisbelow(True)
-    ax1.set_title('Comparison of IID Bootstrap Resampling Across Five Distributions')
-    ax1.set_xlabel('Distribution')
-    ax1.set_ylabel('Value')
+    ax1.set_title('Comparison of deviation according to hour')
+    ax1.set_xlabel('Hours')
+    ax1.set_ylabel('GWh')
 
     # Now fill the boxes with desired colors
     boxColors = ['darkkhaki', 'royalblue']
-    numBoxes = numDists*2
+
+    numBoxes = len(data)
+
     medians = list(range(numBoxes))
     for i in range(numBoxes):
         box = bp['boxes'][i]
@@ -70,10 +60,12 @@ def boxplots_month():
             boxX.append(box.get_xdata()[j])
             boxY.append(box.get_ydata()[j])
         boxCoords = list(zip(boxX, boxY))
+
         # Alternate between Dark Khaki and Royal Blue
-        k = i % 2
-        boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
+
+        boxPolygon = Polygon(boxCoords, facecolor=boxColors[i])
         ax1.add_patch(boxPolygon)
+
         # Now draw the median lines back over what we just filled in
         med = bp['medians'][i]
         medianX = []
@@ -83,18 +75,17 @@ def boxplots_month():
             medianY.append(med.get_ydata()[j])
             plt.plot(medianX, medianY, 'k')
             medians[i] = medianY[0]
-        # Finally, overplot the sample averages, with horizontal alignment
-        # in the center of each box
-        plt.plot([np.average(med.get_xdata())], [np.average(data[i])],
-                color='w', marker='*', markeredgecolor='k')
+
+        # Finally, overplot the sample averages, with horizontal alignment in the center of each box
+        plt.plot([np.average(med.get_xdata())], [np.average(data[i])], color='w', marker='*', markeredgecolor='k')
 
     # Set the axes ranges and axes labels
     ax1.set_xlim(0.5, numBoxes + 0.5)
     top = 40
     bottom = -5
     ax1.set_ylim(bottom, top)
-    xtickNames = plt.setp(ax1, xticklabels=np.repeat(randomDists, 2))
-    plt.setp(xtickNames, rotation=45, fontsize=8)
+    xtickNames = plt.setp(ax1, xticklabels=np.repeat(x_labels_ticks, 2))
+    plt.setp(xtickNames, rotation=0, fontsize=8)
 
     # Due to the Y-axis scale being different across samples, it can be
     # hard to compare differences in medians across the samples. Add upper
@@ -110,17 +101,8 @@ def boxplots_month():
                 color=boxColors[k])
 
     # Finally, add a basic legend
-    plt.figtext(0.80, 0.08, str(N) + ' Random Numbers',
-                backgroundcolor=boxColors[0], color='black', weight='roman',
-                size='x-small')
-    plt.figtext(0.80, 0.045, 'IID Bootstrap Resample',
-                backgroundcolor=boxColors[1],
-                color='white', weight='roman', size='x-small')
-    plt.figtext(0.80, 0.015, '*', color='white', backgroundcolor='silver',
-                weight='roman', size='medium')
-    plt.figtext(0.815, 0.013, ' Average Value', color='black', weight='roman',
-                size='x-small')
+    plt.figtext(0.80, 0.08, 'test', backgroundcolor=boxColors[0], color='black', weight='roman', size='x-small')
 
     plt.show()
-
+'''
 boxplots_month()

@@ -1,6 +1,5 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-import unittest
 import numpy as np
 import energy_demand.region as reg
 import energy_demand.submodule_residential as submodule_residential
@@ -43,21 +42,12 @@ class EnergyModel(object):
         self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
 
         # --Transport SubModel
-        self.ts_submodel = self.transport_submodel(data)
-
-        # --Other SubModels
-
-
-
-
-
-
-
-
+        self.ts_submodel = self.transport_submodel()
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
+        # TODO: Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors
         self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel, self.ss_submodel, self.rs_submodel, self.is_submodel], 'sum', 'non_peak')
@@ -68,11 +58,12 @@ class EnergyModel(object):
         self.is_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.is_submodel], 'no_sum', 'non_peak')
         self.ts_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel], 'no_sum', 'non_peak')
 
-        print("TRANSPORT SUM: " + str(np.sum(self.ts_sum_uk_specfuelype_enduses_y)))
         self.rs_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
 
         # Sum across all regions for enduse
+        self.all_models_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel])
+
         self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel])
         self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.ss_submodel])
 
@@ -99,7 +90,7 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
-    def transport_submodel(self, data):
+    def transport_submodel(self):
         """Industry subsector model
         """
         submodule_list = []

@@ -5,20 +5,6 @@ import csv
 import numpy as np
 from energy_demand.scripts_technologies import technologies_related
 
-def add_yearly_external_fuel_data(data, dict_to_add_data):
-    """This data check what enduses are provided by wrapper
-    and then adds the yearls fule data to data
-
-    #TODO: ALSO IMPORT ALL OTHER END USE RELATED THINS SUCH AS SHAPE
-    """
-    for external_enduse in data['external_enduses_resid']:
-        new_fuel_array = np.zeros((data['nr_of_fueltypes']))
-        for fueltype in data['external_enduses_resid'][external_enduse]:
-            new_fuel_array[fueltype] = data['external_enduses_resid'][external_enduse][fueltype]
-        dict_to_add_data[external_enduse] = new_fuel_array
-
-    return data
-
 def convert_out_format_es(data, country_object, sub_modules):
     """Adds total hourly fuel data into nested dict
 

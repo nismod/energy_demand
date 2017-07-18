@@ -226,7 +226,7 @@ if __name__ == "__main__":
     path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
 
     # Path to local files which have restricted access
-    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand' 
+    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data
     base_data = dl.load_data(path_main, base_data)
@@ -334,7 +334,7 @@ if __name__ == "__main__":
 
     for sim_yr in sim_years:
         base_data['curr_yr'] = sim_yr
-        print("                           ")
+
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
@@ -346,28 +346,40 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
+        days_to_plot = list(range(0, 14)) + list(range(100, 114)) + list(range(200, 214)) + list(range(300, 314))
+        days_to_plot_full_year = list(range(0, 365))
+
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         validation_elec_data_2015 = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
 
         # Compare different models
-        validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels')
-        validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model')
-        validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model')
-        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model')
-        validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model')
+        validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
+        validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
+        validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
+        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
+        validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
         print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
         # ---------------------------------------------------
+        validation.compare_peak(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2][18]) #SCRAP: NOT PEAK BUT PEAK DAY
         validation.compare_peak(validation_elec_data_2015, model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
 
+        # ---------------------------------------------------
+        # Validate boxplots for every hour
+        # ---------------------------------------------------
+        validation.compare_results_hour_boxplots(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
+    
     # ------------------------------
     # Plotting
     # ------------------------------
     # Plot load factors
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
+
+
 
     # Plot total fuel (y) per enduse
     plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
@@ -384,6 +396,9 @@ if __name__ == "__main__":
     # Plot a full week
     plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
     plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+
+    # Plot all enduses
+    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
 
     print("Finished running Energy Demand Model")
 

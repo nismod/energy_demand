@@ -1,5 +1,4 @@
 """ This File disaggregates total national demand """
-import unittest
 import numpy as np
 from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_shape_handling import hdd_cdd
@@ -69,12 +68,13 @@ def disaggregate_base_demand(data):
     data['ss_fueldata_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
 
     # ------------------
-    # Disaggregate indusry data
+    # Disaggregate industry data
     # ------------------
     data['is_fueldata_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
 
-    # TRANSPORTAIONT SCRAP
-    
+    # ------------------
+    # Disaggregate transportation sector
+    # ------------------
     fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
 
     #Elec demand from ECUK for transport sector
@@ -214,7 +214,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     return ss_fueldata_disagg
 
 def scrap_ts_disaggregate(data, fuel_national):
-
+    """Disaggregate transport sector
+    """
     is_fueldata_disagg = {}
 
     national_floorarea_sector = 0
@@ -259,7 +260,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
             # Sector specifid info
             regional_floorarea_sector = sum(data['ss_sector_floor_area_by'][region].values())
-            
+
             # Iterate enduse
             for enduse in data['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]

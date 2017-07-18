@@ -32,6 +32,7 @@ class TechStock(object):
         for enduse in potential_enduses:
             list_with_technologies_per_enduse = []
             for technology in enduse_technologies[enduse]:
+
                 # Technology object
                 technology_object = Technology(
                     technology,
@@ -50,36 +51,24 @@ class TechStock(object):
                 enduse,
                 list_with_technologies_per_enduse
             )
-        '''
-        # Crate all technologies and add as attribute
-        for technology in data['assumptions']['tech_lu']:
 
-            # Technology object
-            technology_object = Technology(
-                technology,
-                data,
-                temp_by,
-                temp_cy,
-                t_base_heating,
-                potential_enduses,
-                t_base_heating_cy
-            )
+    def get_tech_attr(self, enduse, tech, attribute_to_get):
+        """Get a technology attribute from a technology object stored in a list
 
-            # Set technology object as attribute
-            TechStock.__setattr__(
-                self,
-                technology,
-                technology_object
-            )
-        '''
-    def TEST_get_tech_from_list(self, enduse, tech):
-        tech_list = getattr(self, str(enduse))
+        Parameters
+        ----------
+        enduse : string
+            Enduse to read technology specified for this enduse
+        tech : list
+            List with stored technologies
+        attribute_to_get : string
+            Attribute of technology to get
 
-        for tech_object in tech_list:
-            if tech_object.tech_name == tech:
-                return tech_object
-
-    def TEST_get_tech_attribute_from_list(self, enduse, tech, attribute_to_get):
+        Return
+        -----
+        tech_attribute : attribute
+            Technology attribute
+        """
         tech_objects = getattr(self, str(enduse))
 
         for tech_object in tech_objects:
@@ -88,47 +77,15 @@ class TechStock(object):
 
         return tech_attribute
 
-    def get_tech_attribute(self, tech, attribute_to_get):
-        """Read an attrribute from a technology in the technology stock
-        """
-        tech_object = getattr(self, str(tech))
-        tech_attribute = getattr(tech_object, str(attribute_to_get))
-
-        return tech_attribute
-
-    def set_tech_attribute(self, tech, attribute_to_set, value_to_set):
-        """Set an attrribute from a technology in the technology stock
-
-        If the attribute does not exist, create new attribute
-        """
-        tech_object = getattr(self, str(tech))
-
-        setattr(tech_object, str(attribute_to_set), value_to_set)
-
     def set_tech_attribute_enduse(self, tech, attribute_to_set, value_to_set, enduse):
-        """Set an attrribute from a technology in the technology stock
-
-        If the attribute does not exist, create new attribute
-        """
-        tech_object = getattr(self, str(tech))
-        shapes = getattr(tech_object, attribute_to_set)
-        shapes[enduse] = value_to_set
-
-        setattr(tech_object, str(attribute_to_set), shapes)
-    
-    def TESTset_tech_attribute_enduse_LIST(self, tech, attribute_to_set, value_to_set, enduse):
-        """Set an attrribute from a technology in the technology stock
+        """Set an attrribute of a technology (stored in a list) in the technology stock
 
         If the attribute does not exist, create new attribute
         """
         tech_objects = getattr(self, str(enduse))
         for tech_object in tech_objects:
             if tech_object.tech_name == tech:
-
-                shapes = getattr(tech_object, attribute_to_set)
-                #shapes[enduse] = value_to_set
                 setattr(tech_object, str(attribute_to_set), value_to_set)
-
 
 class Technology(object):
     """Technology Class for residential and service technology
@@ -173,7 +130,7 @@ class Technology(object):
             shape_yd_enduses[enduse] = np.ones((365))
             shape_yh_enduses[enduse] = np.ones((365, 24))
             shape_peak_yd_factor_enduses[enduse] = 1
-        
+
 
         self.shape_yd = shape_yd_enduses # Shape for every specifided enduse
         self.shape_yh = shape_yh_enduses

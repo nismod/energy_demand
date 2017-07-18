@@ -1,7 +1,6 @@
 """Functions which are writing data
 """
 import os
-import unittest
 import csv
 import json
 import yaml
