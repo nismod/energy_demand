@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_shape_handling import hdd_cdd
-
+from energy_demand.scripts_basic import unit_conversions
 
 '''
 ============================================
@@ -74,10 +74,13 @@ def disaggregate_base_demand(data):
     data['is_fueldata_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
 
     # TRANSPORTAIONT SCRAP
-    from energy_demand.scripts_basic import unit_conversions
+    
     fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
-    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)  #Elec demand from ECUK for transport sector
-    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, fuel_national_tranport)
+
+    #Elec demand from ECUK for transport sector
+    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)
+
+    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, fuel_national_tranport) #ok
 
     # ------------------
     # RS Disaggregateion #TODO: IMPROVE
@@ -254,9 +257,9 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
         for sector in data['is_sectors']:
             is_fueldata_disagg[region][sector] = {}
 
-
             # Sector specifid info
             regional_floorarea_sector = sum(data['ss_sector_floor_area_by'][region].values())
+            
             # Iterate enduse
             for enduse in data['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]

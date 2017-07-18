@@ -13,30 +13,44 @@ from energy_demand.scripts_basic import testing_functions as testing
 
 from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
 
-# --------------SCRAO FPR GENERAL ENDUSE
-class genericEnduse(object):
+class genericFlatEnduse(object):
     "SCRAP - generic enduse, flat shapes"
     def __init__(self, enduse_fuel):
-
         self.enduse_fuel_y = enduse_fuel
 
         # Generate generic shape
-        shape_peak_yd_factor = 1.2
-        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
+        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
 
+        # Convert shape_peak_dh into fuel per day
+        max_fuel_d = np.zeros((self.enduse_fuel_y.shape[0]))
+        for fueltype in range(len(enduse_fuel)):
+            # Multiply average daily fuel demand for flat shape * peak factor
+            max_fuel_d[fueltype] = (np.sum(self.enduse_fuel_y[fueltype]) / 365.0) * shape_peak_yd_factor
+
+        # Yd fuel shape per fueltype (non-peak)
         self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365))
         for fueltype in range(len(enduse_fuel)):
-            self.enduse_fuel_yd[fueltype] = shape_non_peak_yd
+            self.enduse_fuel_yd[fueltype] = shape_non_peak_yd * self.enduse_fuel_y[fueltype]
 
+        # Yh fuel shape per fueltype (non-peak)
         self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
         for fueltype in range(len(enduse_fuel)):
-            self.enduse_fuel_yh[fueltype] = shape_non_peak_dh * self.enduse_fuel_y[fueltype]
+            for day in range(365):
+                self.enduse_fuel_yh[fueltype][day] = (shape_non_peak_yd[day] * shape_non_peak_dh[day]) * self.enduse_fuel_y[fueltype]
 
-        self.enduse_fuel_peak_dh = shape_peak_dh #np.zeros((self.enduse_fuel_y.shape[0], 24))
+        # Dh fuel shape per fueltype (peak)
+        self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
+        for fueltype in range(len(enduse_fuel)):
+            # day shape (sum= 1) * (yearly_fuel * shape_peak_yd_factor)
+            self.enduse_fuel_peak_dh[fueltype] = shape_peak_dh * max_fuel_d[fueltype]
 
-        self.enduse_fuel_peak_h = self.get_peak_h_from_dh() #np.zeros((self.enduse_fuel_y.shape[0]))
-# --------------SCRAO FPR GENERAL ENDUSE
-
+        # h fuel shape per fueltype (peak)
+        self.enduse_fuel_peak_h = self.get_peak_h_from_dh()
+        print("DDDDDDDDD")
+        print(str(shape_peak_dh))
+        print(str(np.sum(shape_peak_dh)))
+        print(str(np.sum(self.enduse_fuel_peak_dh)))
+        print(str(self.enduse_fuel_peak_h))
 
     def get_peak_h_from_dh(self):
         """Iterate peak day fuels and select peak hour
@@ -104,7 +118,7 @@ class Enduse(object):
             #print("Enduse has no fuel. Create empty shapes")
             self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365)) #fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
             self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
-            enduse_fuel_y_peak_yd = np.zeros((self.enduse_fuel_y.shape[0])) #TODO: BRAUCHT DAS WIRKLICH
+            #enduse_fuel_y_peak_yd = np.zeros((self.enduse_fuel_y.shape[0])) #TODO: BRAUCHT DAS WIRKLICH
             self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
             self.enduse_fuel_peak_h = np.zeros((self.enduse_fuel_y.shape[0]))
         else:
@@ -115,7 +129,6 @@ class Enduse(object):
 
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by[enduse])
-
 
 
             # -------------------------------

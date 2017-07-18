@@ -67,7 +67,8 @@ class EnergyModel(object):
         self.ss_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
         self.is_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.is_submodel], 'no_sum', 'non_peak')
         self.ts_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel], 'no_sum', 'non_peak')
-        
+
+        print("TRANSPORT SUM: " + str(np.sum(self.ts_sum_uk_specfuelype_enduses_y)))
         self.rs_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_tot_fuels_all_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
 
@@ -77,6 +78,12 @@ class EnergyModel(object):
 
 
         # Sum across all regions, enduses for peak hour
+
+        # NEW
+        print("......PEAK SUMMING") #self.rs_submodel, self.ss_submodel, self.is_submodel, 
+        self.peak_all_models_all_enduses_fueltype = self.sum_regions('enduse_fuel_peak_dh', data, [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
+        print(np.sum(self.peak_all_models_all_enduses_fueltype))
+
         self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
         self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
 
@@ -99,9 +106,9 @@ class EnergyModel(object):
 
         # Iterate regions, sectors and enduses
         for region_object in self.regions:
+
             # Create submodule
             submodule = submodule_transport.TransportModel(
-                data,
                 region_object,
                 'generic_transport_enduse'
             )
@@ -263,6 +270,8 @@ class EnergyModel(object):
             tot_fuels_all_enduse = np.zeros((data['nr_of_fueltypes'], ))
         if crit2 == 'non_peak':
             tot_fuels_all_enduse = np.zeros((data['nr_of_fueltypes'], 365, 24))
+        if crit2 == 'peak_dh':
+            tot_fuels_all_enduse = np.zeros((data['nr_of_fueltypes'], 24))
 
         for sector_model in sector_models:
             for model_object in sector_model:

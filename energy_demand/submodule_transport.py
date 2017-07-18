@@ -1,11 +1,12 @@
 """Dummy transportation model
 """
 import energy_demand.enduse as enduse_functions
+import numpy as np
 
 class TransportModel(object):
     """Industry Submodel
     """
-    def __init__(self, data, region_object, enduse_name):
+    def __init__(self, region_object, enduse_name):
         """Constructor of industry submodel
 
         Parameters
@@ -22,14 +23,13 @@ class TransportModel(object):
         self.reg_name = region_object.reg_name
         self.enduse_name = enduse_name
 
-        self.enduse_object = self.create_enduse(data)
+        self.fuels_reg = region_object.ts_fuels
 
-    def create_enduse(self, data):
+        self.enduse_object = self.ts_create_enduse()
+
+    def ts_create_enduse(self):
         """Create enduse for industry sector
         """
-
-        fuels_tranpsort_reg = data['ts_fueldata_disagg'][self.reg_name]
-
-        transport_object = enduse_functions.genericEnduse(fuels_tranpsort_reg)
+        transport_object = enduse_functions.genericFlatEnduse(self.fuels_reg)
 
         return transport_object

@@ -44,6 +44,7 @@ Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - Heat recycling/reuse in percentage (lower heating demand accordingly)
 - "scenario teller": istead of diffusion path, type in known path
+- "storage heaters": Night, classical, New, daily...
 TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
@@ -353,12 +354,14 @@ if __name__ == "__main__":
         validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model')
         validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model')
         validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model')
-        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'ts_model')
-        
+        validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model')
+
         print("COMPARISON {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
 
-
-
+        # ---------------------------------------------------
+        # Validation of national electrictiy demand for peak
+        # ---------------------------------------------------
+        validation.compare_peak(validation_elec_data_2015, model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
 
     # ------------------------------
     # Plotting

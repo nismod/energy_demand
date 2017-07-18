@@ -1,10 +1,23 @@
 import numpy as np
 
 def generic_flat_shape(shape_peak_yd_factor):
-    """Create flat shape #TODO: SHAPE FACTORS
+    """Create completely flat shape for peak and non-peak
 
-    This is a completly flat profile
+    Parameters
+    ---------
+    shape_peak_yd_factor : float
+        Factor for peak yd
 
+    Returns
+    -------
+    shape_peak_dh : array
+        Dh shape for peak day
+    shape_non_peak_dh : array
+        Shape non peak dh
+    shape_peak_yd_factor : float
+        Factor peak yd (is only passed through)
+    shape_non_peak_yd : array
+        Shape yd for non peak
     """
     # linear shape_peak_dh
     shape_peak_dh = np.ones((24))
