@@ -258,7 +258,7 @@ def load_assumptions(data):
     # --Technology list definition
     # ------------------
     # Regular heating technologies which are not dependent on temperature
-    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass']
+    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_elec', 'boiler_hydrogen', 'boiler_biomass', 'boiler_solid_fuel', 'boiler_oil', 'boiler_heat_sold']
 
     assumptions['primary_elec_heating'] = ['storage_heater_elec'] # FROM HES Electricity heating
     assumptions['secondary_elec_heating'] = ['secondary_elec_heater_elec'] # FROM HES Electricity heating
@@ -298,14 +298,17 @@ def load_assumptions(data):
     # ------------------
 
     #---space heating
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.96, 'electricity_heat_pumps': 0.2}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
 
     # Share of electric heating taken from ?? ECUK
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'storage_heater_elec': 0.125, 'secondary_elec_heater_elec': 0.973}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'storage_heater_elec': 0.89, 'secondary_elec_heater_elec': 0.108} #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
     #except:
     #    print("No fuel for rs space heating provided")
     #TODO: HES secondary_boiler_elec
@@ -339,11 +342,15 @@ def load_assumptions(data):
     # ------------------
 
     # ---Space heating #TODO: Check that all defined technologies are inserted here, even if not defined
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0} # {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 1.0} #{'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
-
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    
     assumptions['ss_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['ss_fuel_enduse_tech_p_by'])
 
     # ------------------
@@ -351,10 +358,13 @@ def load_assumptions(data):
     # ------------------
 
     # ---Space heating
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
 
 
     # Helper functions
@@ -393,7 +403,7 @@ def load_assumptions(data):
 
     # Testing
     testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'], assumptions)
+    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     return assumptions
 
@@ -593,7 +603,8 @@ def helper_set_same_eff_all_tech(tech_assump, eff_achieved_factor=1):
     return tech_assump
 
 def helper_add_not_defined_technologies(heat_pumps, all_specified_tech_enduse_by, enduse):
-
+    """Helper function
+    """
     for heat_pump in heat_pumps:
         if heat_pump not in all_specified_tech_enduse_by[enduse]:
             all_specified_tech_enduse_by[enduse].append(heat_pump)

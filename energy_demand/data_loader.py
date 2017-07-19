@@ -192,6 +192,26 @@ def load_data(path_main, data):
     data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
     data['is_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
 
+    fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
+
+    #Elec demand from ECUK for transport sector
+    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)
+    data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
+
+    #scrap sum electricity
+    scrap_elec = 0
+    for enduse in data['rs_fuel_raw_data_enduses']:
+        scrap_elec += np.sum(data['rs_fuel_raw_data_enduses'][enduse][2])
+    for enduse in data['ss_fuel_raw_data_enduses']:
+        for sector in data['ss_fuel_raw_data_enduses'][enduse]:
+            scrap_elec += np.sum(data['ss_fuel_raw_data_enduses'][enduse][sector][2])
+    for enduse in data['is_fuel_raw_data_enduses']:
+        for sector in data['is_fuel_raw_data_enduses'][enduse]:
+            scrap_elec += np.sum(data['is_fuel_raw_data_enduses'][enduse][sector][2])
+    scrap_elec += np.sum(data['ts_fuel_raw_data_enduses'][2]) #Add transport
+
+    print("TOTAL SUMME ELEC: " + str(np.sum(scrap_elec)))
+
     # ------------------------------------------
     # Specific technology shapes
     # ------------------------------------------
@@ -199,7 +219,6 @@ def load_data(path_main, data):
     data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
-
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)

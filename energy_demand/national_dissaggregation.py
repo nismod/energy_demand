@@ -74,12 +74,7 @@ def disaggregate_base_demand(data):
     # ------------------
     # Disaggregate transportation sector
     # ------------------
-    fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
-
-    #Elec demand from ECUK for transport sector
-    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)
-
-    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, fuel_national_tranport) #ok
+    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses']) #fuel_national_tranport) #ok
 
     # ------------------
     # RS Disaggregateion #TODO: IMPROVE
@@ -171,7 +166,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in data['ss_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
                 #control_sum2 += np.sum(national_fuel_sector_by)
-                print("national_fuel_sector_by: " + str(national_fuel_sector_by))
+                #print("national_fuel_sector_by: " + str(national_fuel_sector_by))
                 # ----------------------
                 # Disaggregating factors
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
@@ -184,8 +179,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                     reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
                     #regional_GVA
 
-                print("reg_disaggregation_factor: " + str(reg_disaggregation_factor))
-                print(national_floorarea_sector)
+                #print("reg_disaggregation_factor: " + str(reg_disaggregation_factor))
 
                 # Disaggregated national fuel
                 reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by

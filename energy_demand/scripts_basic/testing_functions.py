@@ -15,12 +15,15 @@ def test_function_fuel_sum(data):
         for sector in data['ss_fueldata_disagg'][region]:
             for enduse in data['ss_fueldata_disagg'][region][sector]:
                 fuel_in += np.sum(data['ss_fueldata_disagg'][region][sector][enduse])
-    
+
     for region in data['is_fueldata_disagg']:
-            for enduse in data['rs_fueldata_disagg'][region]:
-                fuel_in += np.sum(data['ss_fueldata_disagg'][region][enduse])
+        for sector in data['is_fueldata_disagg'][region]:
+            for enduse in data['is_fueldata_disagg'][region][sector]:
+                fuel_in += np.sum(data['is_fueldata_disagg'][region][sector][enduse])
     
-    fuel_in += 385 #transport
+    for region in data['is_fueldata_disagg']:          
+        fuel_in += np.sum(data['ts_fueldata_disagg'][region][2])
+
     return fuel_in
 
 def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_enduse_by):
@@ -32,7 +35,7 @@ def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_endu
                 sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
     return
 
-def testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, fuel_enduse_tech_p_by, share_service_tech_ey_p, technologies, assumptions):
+def testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, fuel_enduse_tech_p_by, share_service_tech_ey_p, technologies):
     """Test if there is a technology share defined in end year which is not listed in technology fuel stock definition
     """
     for enduse, technology_enduse in share_service_tech_ey_p.items():

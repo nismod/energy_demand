@@ -34,10 +34,7 @@
 # y = for total year
 # y_dh = for every day in a year, the dh is provided
 
-# -Global variables in passing around in data (does it take more computational power?)
 # -fitting scipy
-# -external data
-# -global variables
 # -speed with many regions
 
 Down the line
@@ -48,7 +45,6 @@ Down the line
 TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
-- ADD TRANSPORT 385 fuel
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -123,12 +119,9 @@ def energy_demand_model(data):
     # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
     # -----------------------------------------
     # Read in 2015 base elec national data
-
-
     print("FINAL Fueltype:  " + str(len(result_dict)))
     print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
     print("Finished energy demand model")
-
     return result_dict, model_run_object
 
 # Run
@@ -168,11 +161,12 @@ if __name__ == "__main__":
     ss_floorarea_sector_by_dummy['England'] = {}
     for sector in all_sectors:
         ss_floorarea_sector_by_dummy['Wales'][sector] = 10000 #[m2]
-        ss_floorarea_sector_by_dummy['Scotland'][sector] = 10000 #[m2]
-        ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
+        #ss_floorarea_sector_by_dummy['Scotland'][sector] = 10000 #[m2]
+        #ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
 
 
-    a = {'Wales': 500000, 'Scotland': 500000, 'England': 500000}
+    #a = a = 'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
+    a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
         for reg in a:
