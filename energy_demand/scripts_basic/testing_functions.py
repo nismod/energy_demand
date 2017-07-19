@@ -4,8 +4,18 @@ import sys
 import numpy as np
 # pylint: disable=I0011,C0301,C0103, C0325
 
+def testing_all_fuel_tech_shares_by(assumption_fuel_tech_fueltype_p_by):
+    """Test if assigned fuel share add up to 1 within each fuletype
+    """
+    for enduse in assumption_fuel_tech_fueltype_p_by:
+        for fueltype in assumption_fuel_tech_fueltype_p_by[enduse]:
+            if assumption_fuel_tech_fueltype_p_by[enduse][fueltype] != {}:
+                if sum(assumption_fuel_tech_fueltype_p_by[enduse][fueltype].values()) != 1.0:
+                    sys.exit("Error: The fuel shares assumptions are wrong for enduse  {}  and fueltype {}".format(enduse, fueltype))
+
 def test_function_fuel_sum(data):
-    """ Sum raw disaggregated fuel data """
+    """ Sum raw disaggregated fuel data
+    """
     fuel_in = 0
     for region in data['rs_fueldata_disagg']:
         for enduse in data['rs_fueldata_disagg'][region]:
@@ -20,8 +30,8 @@ def test_function_fuel_sum(data):
         for sector in data['is_fueldata_disagg'][region]:
             for enduse in data['is_fueldata_disagg'][region][sector]:
                 fuel_in += np.sum(data['is_fueldata_disagg'][region][sector][enduse])
-    
-    for region in data['is_fueldata_disagg']:          
+
+    for region in data['is_fueldata_disagg']:
         fuel_in += np.sum(data['ts_fueldata_disagg'][region][2])
 
     return fuel_in

@@ -120,14 +120,14 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     """
     fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
-    for day in tech_low_high_p:
+    for day in range(365): #tech_low_high_p:
         dh_fuel_hybrid = np.zeros(24)
 
         for hour in range(24):
 
             # Shares of each technology for every hour
-            low_p = tech_low_high_p[day][hour]['low']
-            high_p = tech_low_high_p[day][hour]['high']
+            low_p = tech_low_high_p['low'][day][hour]
+            high_p = tech_low_high_p['high'][day][hour]
 
             # Efficiencies to weight dh shape
             eff_low = eff_low_tech[day][hour]
@@ -137,7 +137,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
             if low_p == 0:
                 fuel_boiler = 0
             else:
-                fuel_boiler = np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low)
+                fuel_boiler = (low_p * fuel_shape_boilers_y_dh[day][hour]) / eff_low
 
             if high_p == 0:
                 fuel_hp = 0
