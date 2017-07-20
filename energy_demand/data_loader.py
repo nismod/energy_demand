@@ -195,7 +195,7 @@ def load_data(path_main, data):
     fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
 
     #Elec demand from ECUK for transport sector
-    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)
+    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385) #1) #385)
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
 
     #scrap sum electricity
@@ -332,7 +332,7 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
 
         for enduse in enduses:
             joint_string_name = str(sector) + "__" + str(enduse)
-            print("Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
+            #print("...Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
 
             shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
             shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
@@ -365,7 +365,7 @@ def is_collect_shapes_from_txts(data, path_to_txts, is_sectors, is_enduses):
         data['is_shapes_yd'][sector] = {}
         data['is_shapes_dh'][sector] = {}
         for enduse in is_enduses:
-            print("Create industry shapes   {}    {}".format(sector, enduse))
+            #print("Create industry shapes   {}    {}".format(sector, enduse))
             data['is_shapes_yd'][sector][enduse] = {}
             data['is_shapes_dh'][sector][enduse] = {}
 

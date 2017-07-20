@@ -243,11 +243,9 @@ def load_assumptions(data):
     split_heat_pump_ASHP_GSHP = 0.7
 
     # Create av heat pump technologies and list with heat pumps
-
     assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['list_tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
-    print("assumptions['heat_pumps']")
-    print(assumptions['heat_pumps'])
+
     # Definde and read in hybrid technologies (TODO)
     assumptions['technologies'], assumptions['list_tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'])
 
@@ -269,7 +267,6 @@ def load_assumptions(data):
 
     # Lighting technologies
     #assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
-
     #assumptions['list_water_heating'] =
 
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
@@ -299,7 +296,7 @@ def load_assumptions(data):
 
     #---space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.1, 'boiler_gas': 0.9}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.96, 'electricity_heat_pumps': 0.2}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
 
     # Share of electric heating taken from ?? ECUK
@@ -345,12 +342,12 @@ def load_assumptions(data):
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0} # {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 1.0} #{'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    
+
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
-    
+
     assumptions['ss_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['ss_fuel_enduse_tech_p_by'])
 
     # ------------------
@@ -399,14 +396,15 @@ def load_assumptions(data):
     #TODO: TESTING IF ALL TECHNOLOGIES Available are assigned in service switch
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['rs_fuel_switches'])
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_fuel_switches'])
-    #also for fuel
 
     # Testing
     testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
     testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
+    # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_all_fuel_tech_shares_by(assumptions['rs_fuel_enduse_tech_p_by'])
     testing.testing_all_fuel_tech_shares_by(assumptions['ss_fuel_enduse_tech_p_by'])
+
     return assumptions
 
 def get_all_defined_hybrid_technologies(assumptions, technologies):
@@ -491,7 +489,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
         else:
             technologies[tech_name]['market_entry'] = entry_tech_low
 
-    return technologies, hybrid_technologies, hybrid_tech
+    return technologies, list(hybrid_technologies), hybrid_tech
 
 def helper_assign_ASHP_GSHP_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies

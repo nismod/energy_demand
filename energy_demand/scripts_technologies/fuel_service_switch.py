@@ -195,7 +195,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
                     service_fueltype_tech_by_p[enduse][fueltype][tech] = 0
                     service_fueltype_by_p[enduse][fueltype] += 0
                 else:
-                    service_fueltype_tech_by_p[enduse][fueltype][tech] = np.divide(1, tot_service_fueltype) * service[enduse][fueltype][tech]
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = (1 / tot_service_fueltype) * service[enduse][fueltype][tech]
                     service_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
@@ -204,7 +204,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
         # Percentage of energy service per technology
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
-                service_tech_by_p[enduse][technology] = np.divide(1, total_service) * service_tech
+                service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
                 #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
 
         print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))

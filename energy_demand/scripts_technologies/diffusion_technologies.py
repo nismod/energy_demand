@@ -270,7 +270,8 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
         # Check wheter there are technologies in this enduse which are switched
 
         if installed_tech[enduse] == []:
-            print("No technologies to calculate sigmoid  {}".format(enduse))
+            #print("No technologies to calculate sigmoid  {}".format(enduse))
+            pass
         else:
             print("Technologes it calculate sigmoid  {}  {}".format(enduse, installed_tech[enduse]))
 
@@ -290,8 +291,6 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 
                 # Read L-values with calculating maximum sigmoid theoretical diffusion
                 l_values_sig[enduse][technology] = tech_install_p[enduse][technology]
-
-                print("EGG {}".format(l_values_sig[enduse][technology]))
 
     return l_values_sig
 
@@ -452,7 +451,6 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
                 True
                 )
 
-    print("finished...")
     return sigmoid_parameters
 
 def get_tech_installed(enduses, fuel_switches):

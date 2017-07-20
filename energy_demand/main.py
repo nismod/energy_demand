@@ -376,8 +376,8 @@ if __name__ == "__main__":
 
 
     # Plot total fuel (y) per enduse
-    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
-    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
     plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
@@ -392,7 +392,7 @@ if __name__ == "__main__":
     plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     # Plot all enduses
-    plotting_results.plot_stacked_Country_end_use_NEW(base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
 
     print("Finished running Energy Demand Model")
 
