@@ -111,13 +111,13 @@ class Enduse(object):
                     tech_stock,
                     data['lu_fueltype']
                     )
-                print("SSSSSSSSSSSSSS:  " + str(np.sum(service_tech['hybrid_gas_elec'])))
+                #print("SSSSSSSSSSSSSS:  " + str(np.sum(service_tech['hybrid_gas_elec'])))
                 testsum = 0
                 for tech in service_tech:
                     testsum += np.sum(service_tech[tech])
-                print(" ")
-                print("Tech testsum: {}".format(testsum))
-                print(" ")
+                #print(" ")
+                #print("Tech testsum: {}".format(testsum))
+                # print(" ")
 
 
                 # ---------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ class Enduse(object):
                 for tech, fuel in service_tech.items():
                     #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
                     control_tot_service += np.sum(fuel)
-                print("control_tot_service A: " + str(control_tot_service))
+                #print("control_tot_service A: " + str(control_tot_service))
 
                 # --------------------------------
                 # Energy service switches
@@ -180,18 +180,27 @@ class Enduse(object):
                 self.service_to_fuel_fueltype_y(service_tech, tech_stock)
                 print("Fuel train G ele : " + str(np.sum(self.enduse_fuel_new_y[2])))
                 print("Fuel train G all: " + str(np.sum(self.enduse_fuel_new_y)))
+
                 # Convert service to fuel per tech (y) for each technology depending on technological efficiences in current year
                 enduse_fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
-                print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_y[2])))
-                print("Fuel train H: " + str(np.sum(self.enduse_fuel_new_y[2])))
+
                 # -------------------------------------------------------
                 # PEAK HANDLING
                 # -------------------------------------------------------
+
                 #---NON-PEAK
                 # Iterate technologies in enduse and assign technology specific shape for respective fuels
                 self.enduse_fuel_yd = self.calc_enduse_fuel_tech_yd(enduse_fuel_tech_y, tech_stock)
-                self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
+
+                print("Fuel train Gb ele : " + str(np.sum(self.enduse_fuel_new_y[2])))
+                print("Fuel train Gb all: " + str(np.sum(self.enduse_fuel_new_y)))
+                print("Fuel train I: " + str(np.sum(self.enduse_fuel_yd)))
                 print("Fuel train I: " + str(np.sum(self.enduse_fuel_yd[2])))
+
+                self.enduse_fuel_yh = self.calc_enduse_fuel_tech_yh(enduse_fuel_tech_y, tech_stock)
+                print("Fuel train aa ele : " + str(np.sum(self.enduse_fuel_new_y[2])))
+                print("Fuel train aa all: " + str(np.sum(self.enduse_fuel_new_y)))
+                print("Fuel train K: " + str(np.sum(self.enduse_fuel_yh)))
                 print("Fuel train K: " + str(np.sum(self.enduse_fuel_yh[2])))
 
                 # ---PEAK (Peak is not defined by yd factor so far but read out from real data!)
@@ -200,7 +209,7 @@ class Enduse(object):
                 peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
                 print("Peak day: " + str(peak_day_nr))
 
-                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
+                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels #TODO BELUGA
                 self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, peak_day_nr)
                 print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
 
@@ -310,6 +319,7 @@ class Enduse(object):
         such as e.g. due to changes in temperatures or similar)
         """
 
+
         print("A: fuel_enduse_tech_p_by  " + str(fuel_enduse_tech_p_by))
         # NEW BELUGA - Substract fuel demand in percentage for hybrdi technologies
         fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_gas_elec', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y)
@@ -345,7 +355,7 @@ class Enduse(object):
                 # service_distr_hybrid_h_p_cy
                 service_tech_cy[tech] += service_tech_yh_by
 
-                print("fuel to service:  {}      fuel enduse: {}       fuel tech: {}        service: {}  fueltype:  {}".format(tech, np.sum(fuel_enduse), np.sum(fuel_tech_y), np.sum(service_tech_yh_by), fueltype))
+                #print("fuel to service:  {}  {}    fuel enduse: {}       fuel tech: {}        service: {}  fueltype:  {}".format(tech, np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')), np.sum(fuel_enduse), np.sum(fuel_tech_y), np.sum(service_tech_yh_by), fueltype))
 
                 # NEW SHARK
                 service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech_yh_by)
@@ -371,8 +381,8 @@ class Enduse(object):
                 # Testing
                 np.testing.assert_almost_equal(np.sum(fuel_tech_yh), np.sum(fuel_tech_y), decimal=4, err_msg="The fuel to service y to h went wrong {}  {}  ".format(np.sum(fuel_tech_yh), np.sum(fuel_tech_y)))
                 '''
-        print("SUMME FULE FUEL all fueltypes: " + str(np.sum(testsum))) #fuel
-        print("SUMME Service VORCALCULATION4: " + str(np.sum(testsum4))) # SERIVC
+        #print("SUMME FULE FUEL all fueltypes: " + str(np.sum(testsum))) #fuel
+        #print("SUMME Service VORCALCULATION4: " + str(np.sum(testsum4))) # SERIVC
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -428,22 +438,25 @@ class Enduse(object):
             # Convert Electricity share into service
             if tech in fuel_enduse_tech_p_by[tech_high_temp_fueltype]: #test where in electricity
 
-                elec_fuel_high = fuel_enduse_tech_p_by[tech_high_temp_fueltype]['hybrid_gas_elec'] * enduse_fuel_new_y[2]
-                #print("A:  " + str(np.sum(elec_fuel_high)))
+                fuel_high_tech = fuel_enduse_tech_p_by[tech_high_temp_fueltype]['hybrid_gas_elec'] * enduse_fuel_new_y[2]
+                #print("A:  " + str(np.sum(fuel_high_tech)))
 
                 #BELUGA 2
                 total_fuels = np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')[tech_low_temp_fueltype]) + np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')[tech_high_temp_fueltype])
+                
                 share_fuel_high_temp_tech = (1 / total_fuels) * np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')[tech_high_temp_fueltype])
                 share_fuel_low_temp_tech = (1 / total_fuels) * np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')[tech_low_temp_fueltype])
-                print("SHARE OF FUEL HYBRIDHIGH:     " + str(share_fuel_high_temp_tech))
-                print("SHARE OF FUEL HYBRID LOW:     " + str(share_fuel_low_temp_tech))
+                #print("SHARE OF FUEL HYBRIDHIGH:     " + str(share_fuel_high_temp_tech))
+                #print("SHARE OF FUEL HYBRID LOW:     " + str(share_fuel_low_temp_tech))
 
-                fuel_low_tech = share_fuel_low_temp_tech  * elec_fuel_high
-                print("fuel_low_tech: " + str(fuel_low_tech))
+                #fuel_low_tech = fuel_high_tech * (share_fuel_low_temp_tech )
+                # Calculate fuel with given fuel of hp and share of hp/other fuel
+                fuel_low_tech = fuel_high_tech * (share_fuel_low_temp_tech / share_fuel_high_temp_tech )
+                #print("fuel_low_tech: " + str(fuel_low_tech))
                 '''
 
 
-                service_tech_high = (elec_fuel_high * shape_tech_low_yh) * tech_stock.get_tech_attr(self.enduse, tech, 'eff_tech_high_by')
+                service_tech_high = (fuel_high_tech * shape_tech_low_yh) * tech_stock.get_tech_attr(self.enduse, tech, 'eff_tech_high_by')
                 #print("B:  " + str(np.sum(service_tech_high)))
                 # fueltypes_yh_p_cy
                 service_distr_hybrid_h_p_cy = tech_stock.get_tech_attr(self.enduse, tech, 'service_distr_hybrid_h_p_cy')
@@ -792,26 +805,53 @@ class Enduse(object):
         """
         fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
         control_sum = 0
-
+        control_sum2 = 0
         for tech in self.technologies_enduse:
 
             # Multiply shape with fuel
             fuel_tech_yd = enduse_fuel_tech[tech] * tech_stock.get_tech_attr(self.enduse, tech, 'shape_yd')
 
+            control_sum2 +=  np.sum(enduse_fuel_tech[tech])
+
             # Get fueltypes of tech for every day
             fueltype_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fuel_types_shares_yd') #TODO: WHY DIFFERENT?
+            #fueltype_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
 
             # Iterate shares of fueltypes, calculate share of fuel and add to fuels
-            for fueltype_hybrid, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
-                fuels_yd[fueltype_hybrid] += fuel_tech_yd * fuel_shares_dh
+            for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
+                '''if tech == 'hybrid_gas_elec':
+                    print("FUELTYPE: " + str(fueltype))
+                    print(fuel_shares_dh.shape)
+                    print("AA " + str(np.sum(fuel_shares_dh)))
+                    print("AA " + str(np.sum(fuel_tech_yd)))
+                    print("CC: " + str(np.sum(fuel_tech_yd * fuel_shares_dh)))
+                    print(((1.0 / np.sum(fuel_tech_yd)) * np.sum(fuel_shares_dh)))
+                    print(np.sum(fuel_tech_yd * ((1.0 / np.sum(fuel_tech_yd)) * np.sum(fuel_shares_dh))))
+                '''
+                
+                #print("ess  {}   {}   {}  ".format(fueltype, np.sum(fuel_tech_yd), np.sum(fuel_shares_dh)))
 
-                control_sum += np.sum(fuel_tech_yd * fuel_shares_dh)
+                if np.sum(fuel_shares_dh) != 0:
+                    share_of_fuel = (1.0 / 8760) * np.sum(fuel_shares_dh)
+                else:
+                    share_of_fuel = np.zeros((365))
+
+                #fuels_yd[fueltype] += fuel_tech_yd * fuel_shares_dh #OLD
+                fuels_yd[fueltype] += fuel_tech_yd * share_of_fuel #OLD
+                # total fuels * (share of fuel of fueltype)
+                #fuels_yd[fueltype] += fuel_tech_yd * ((1.0 / np.sum(fuel_tech_yd)) * np.sum(fuel_shares_dh)) #BELUGA
+
+                control_sum += np.sum( fuel_tech_yd * share_of_fuel)
+                #control_sum += np.sum(fuel_tech_yd * ((1.0 / np.sum(fuel_tech_yd)) * np.sum(fuel_shares_dh)) #BELUGA
 
             # Testing
             np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
         # Testing
+        #print("TOTAL FUEL   DDDD :  " + str(np.sum(control_sum2)))
+        #print("control_sum:         " + str(control_sum))
         np.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
+
 
         return fuels_yd
 
@@ -839,12 +879,28 @@ class Enduse(object):
             fuel_tech_yh = enduse_fuel_tech[tech] * tech_stock.get_tech_attr(self.enduse, tech, 'shape_yh')
 
             # Get distribution of fuel for every hour
-            fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy') #SHARK
+            fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy') #BELUGA
 
-            for fueltype, fuel_tech_share_h in enumerate(fueltypes_tech_share_yh):
-                fuels_yh[fueltype] += fuel_tech_share_h * fuel_tech_yh
+            for fueltype, fuel_tech_share in enumerate(fueltypes_tech_share_yh):
+                #OLD
+                #fuels_yh[fueltype] += fuel_tech_share * fuel_tech_yh
+                #control_sum += fuel_tech_share * fuel_tech_yh
 
-                control_sum += fuel_tech_share_h * fuel_tech_yh
+                #BELUGA
+                if np.sum(fuel_tech_share) != 0:
+                    share_of_fuel = (1.0 / 8760) * np.sum(fuel_tech_share)
+                else:
+                    share_of_fuel = np.zeros((365, 24))
+
+                #print("-d---------  " + str(fueltype) + str(" ") + str(tech))
+                #print(" -- " + str(np.sum(fuel_tech_yh)))
+                #print(" -- " + str(np.sum(share_of_fuel)))
+                #print(np.sum(fuel_tech_share))
+                #print(share_of_fuel.shape)
+
+                fuels_yh[fueltype] += fuel_tech_yh * share_of_fuel
+
+                control_sum += fuel_tech_yh * share_of_fuel
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
         np.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
@@ -1021,6 +1077,7 @@ class Enduse(object):
         the overall share stays the same. Because assignin initial shares of gas or electricity for individual technologies is anyway difficult.
         """
         enduse_fuels = np.zeros((self.enduse_fuel_new_y.shape))
+        ctrolsum = 0
 
         # Convert service to fuel
         for tech, service in service_tech.items():
@@ -1059,22 +1116,20 @@ class Enduse(object):
             '''
             if 1 == 1:
                 fuel_tech = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
-
+                ctrolsum += np.sum(fuel_tech)
                 fueltype_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
 
                 for fueltype, fuel_share in enumerate(fueltype_share_yh):
-                    if tech == 'hybrid_gas_elec':
-                        print("percent im fueltype {}   {}  ".format(fueltype, 1 / (np.sum(fueltype_share_yh)) * np.sum(fuel_share)))
-                        print(np.sum(fuel_share))
+
                     share_of_fuel = (1.0 / np.sum(fueltype_share_yh)) * np.sum(fuel_share)
                     #fuel_fueltype = fuel_share * fuel_tech
-                    fuel_fueltype = share_of_fuel * fuel_tech
+                    fuel_fueltype = share_of_fuel * np.sum(fuel_tech)
 
-                    print("-- service to fuel: {} service:  {} fuel_tech: {} fueltyp: {}  fuel_fueltype: {}".format(tech, np.sum(service), np.sum(fuel_tech), fueltype, np.sum(fuel_fueltype)))
+                    #print("-- service to fuel: {} service:  {} fuel_tech: {} fueltyp: {}  fuel_fueltype: {}".format(tech, np.sum(service), np.sum(fuel_tech), fueltype, np.sum(fuel_fueltype)))
                     enduse_fuels[fueltype] += np.sum(fuel_fueltype) # Share of fuel of fueltype_hybrid * fuel
 
         print("FUEL  BACKCALCUATION: " + str(np.sum(enduse_fuels[2])))
-
+        print("control: df" + str(ctrolsum))
         setattr(self, 'enduse_fuel_new_y', enduse_fuels)
 
     def service_to_fuel_per_tech(self, service_tech, tech_stock):
@@ -1097,11 +1152,11 @@ class Enduse(object):
         Fuel = Energy service / efficiency
         """
         fuel_tech = {}
-
+        control_sum = 0
         # Convert service to fuel
         for tech, service in service_tech.items():
             fuel = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
-             
+            control_sum += np.sum(fuel)
             fuel_tech[tech] = np.sum(fuel)
             '''#TODO: BELUGA
             fueltype_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
@@ -1110,7 +1165,10 @@ class Enduse(object):
                 fuel_tech_ = fuel_share * fuel_tech
                 fuel_tech[tech] = np.sum(fuel_tech)
             '''
+            '''
 
+            '''
+        print("CONTRO   : " + str(control_sum))
         return fuel_tech
 
     def enduse_specific_change(self, assumptions, enduse_overall_change_ey):

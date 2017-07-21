@@ -454,13 +454,21 @@ class Technology(object):
         array((8fueltype, 365days, 24)) is converted into array((8fueltypes, 365days with average))
         """
         fuel_yd_shares = np.zeros((nr_fueltypes, 365))
-
+        #print("fueltypes_yh_p_cy")
+        #print(fueltypes_yh_p_cy.shape)
         for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
-            fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row in array
+            #print("  {}   {}   {} {}".format(fueltype, fueltype_yh.shape, fueltype_yh.mean(axis=1).shape, np.sum(fueltype_yh.mean(axis=1))))
+            #fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row (day) in array BELuGA
+
+            # Calculate share of fuel per fueltype in day (If all fueltypes in one day == 24 (because 24 * 1.0)
+            fuel_yd_shares[fueltype] = fueltype_yh.sum(axis=1) #Calculate percentage for a day
+            #print("fueltype {}  {}   {} ".format(self.tech_name, fueltype, np.sum(fueltype_yh.sum(axis=1))))
+            #print("dd" + str(np.sum((1.0 / 24.0 ) * fueltype_yh.sum(axis=1))))
+            #print((1.0 / 24.0 ) * fueltype_yh.sum(axis=1))
 
         #Testing
-        np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 365, decimal=3, err_msg='Error XY')
-
+        #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 365, decimal=3, err_msg='Error XY')
+        #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
         return fuel_yd_shares
 
     def calc_hybrid_fueltypes_p(self, nr_fueltypes, fueltype_low_temp, fueltype_high_temp):
@@ -497,6 +505,9 @@ class Technology(object):
         """
         fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
 
+        #BELUGA
+        beluga_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
+
         for day in range(365):
             for hour in range(24):
                 service_low_h, service_high_h = 0, 0
@@ -506,15 +517,17 @@ class Technology(object):
                 service_high_h_p = self.service_distr_hybrid_h_p_cy['high'][day][hour]
 
                 # Efficiency of low and high tech
-                eff_tech_low = self.eff_tech_low_cy[day][hour]
+                eff_tech_low = self.eff_tech_low_cy[day][hour] #cy or by?
                 eff_tech_high_hp = self.eff_tech_high_cy[day][hour]
 
                 #dummy_service = 100.0 #BELUGA
                 #CALCULATE AVERAGE EFF
                 hybrid_eff = (service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
+                #tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
 
+                if beluga_eff_yh[day][hour] != beluga_eff_yh[day][hour]:
+                    prit("BELUgAPROBLEM")
 
-                
                 # Calculate fuel fractions: (frac_tech * dummy_service) / eff_tech
                 if service_low_h_p > 0:
                     #service_low_h = dummy_service * service_low_h_p #BELUGA

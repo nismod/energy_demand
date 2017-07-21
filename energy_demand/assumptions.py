@@ -358,8 +358,8 @@ def load_assumptions(data):
 
     # ---Space heating
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
-    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
-    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.48, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_elec': 0.5, 'electricity_heat_pumps': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
