@@ -7,7 +7,7 @@ import energy_demand.technological_stock as ts
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
-from energy_demand.scripts_technologies import technologies_related
+#from energy_demand.scripts_technologies import technologies_related
 from energy_demand.scripts_geography import weather_station_location as wl
 
 class Region(object):
@@ -106,13 +106,13 @@ class Region(object):
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh') # heat pumps, non-peak
 
         rs_fuel_get_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
-        
-        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, 'rs_space_heating', rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid gas electric
+
+        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, 'rs_space_heating', rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_electricity', 'boiler_gas', 'heat_pumps_electricity') # Hybrid gas electric
 
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
         ss_fuel_get_shape_cooling_yh = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_cooling_yd, 'ss_cooling_and_ventilation')
-        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_elec', 'boiler_gas', 'electricity_heat_pumps') # Hybrid
+        ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_electricity', 'boiler_gas', 'heat_pumps_electricity') # Hybrid
 
         # Read shapes for enduses and technologies
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_heating_const'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_boilers_yh)
@@ -120,15 +120,15 @@ class Region(object):
         self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['list_tech_heating_const'], ['is_space_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
 
         # Electric heating, secondary...
-        self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['primary_elec_heating'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_storage_heater_yh)
-        self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['primary_elec_heating'], ['ss_space_heating', 'ss_water_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
-        self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['primary_elec_heating'], ['is_space_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
+        self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['primary_heating_electricity'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_storage_heater_yh)
+        self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['primary_heating_electricity'], ['ss_space_heating', 'ss_water_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
+        self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['primary_heating_electricity'], ['is_space_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
 
         # Electric heating, primary...
-        self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['secondary_elec_heating'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_elec_heater_yh)
-        self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['secondary_elec_heating'], ['ss_space_heating', 'ss_water_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
+        self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['secondary_heating_electricity'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_elec_heater_yh)
+        self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['secondary_heating_electricity'], ['ss_space_heating', 'ss_water_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
         #self.assign_fuel_shape_tech_stock(self.rs_tech_stock,['list_tech_cooling_const'], ['rs_space_cooling'], rs_fuel_get_shape_cooling_yh, rs_fuel_shape_elec_heater_yh)
-        self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['secondary_elec_heating'], ['is_space_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
+        self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['secondary_heating_electricity'], ['is_space_heating'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
 
         # Hybrid heating
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_heating_hybrid'], ['rs_space_heating', 'rs_water_heating'], rs_fuel_shape_heating_yd, rs_fuel_shape_hybrid_tech_yh)
@@ -349,7 +349,7 @@ class Region(object):
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'gas_heat_pumps', 'eff_cy')
+                tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
                 average_eff_d += heat_share_h * tech_eff[day][hour] # Hourly heat demand * heat pump efficiency
 
@@ -592,10 +592,10 @@ class Region(object):
                     #tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', fuel_shape_boilers_yh, enduse)
-                elif tech_type == 'storage_heating_elec': # NEW
+                elif tech_type == 'storage_heating_electricity': # NEW
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_storage_heater_yh, enduse)
-                elif tech_type == 'secondary_elec_heating':
+                elif tech_type == 'secondary_heating_electricity':
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', fuel_shape_heating_yd, enduse)
                     tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', rs_fuel_shape_elec_heater_yh, enduse)
 

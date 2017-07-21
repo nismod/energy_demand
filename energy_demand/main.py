@@ -89,7 +89,7 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
+    fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
     model_run_object = energy_model.EnergyModel(
@@ -104,12 +104,14 @@ def energy_demand_model(data):
 
     #fueltot_specific_fueltype = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
     print("================================================")
+    print(np.sum(model_run_object.ts_sum_uk_specfuelype_enduses_y))
+    print(np.sum(model_run_object.ts_sum_uk_specfuelype_enduses_y[2]))
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
     print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
     print("elec fuel in:        " + str(fuel_in_elec))
     print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-    print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])), 4)) #ithout transport
+    print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
     print("================================================")
 
     # Convert data according to region and fueltype

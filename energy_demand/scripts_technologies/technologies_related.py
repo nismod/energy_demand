@@ -68,10 +68,10 @@ def get_tech_type(tech_name, assumptions, enduse=''):
             tech_type = 'cooling_tech'
         elif tech_name in assumptions['list_tech_cooling_const']:
             tech_type = 'cooling_tech_temp_dependent'
-        elif tech_name in assumptions['primary_elec_heating']: #ok
-            tech_type = 'storage_heating_elec'
-        elif tech_name in assumptions['secondary_elec_heating']: #ok
-            tech_type = 'secondary_elec_heating'
+        elif tech_name in assumptions['primary_heating_electricity']: #ok
+            tech_type = 'storage_heating_electricity'
+        elif tech_name in assumptions['secondary_heating_electricity']: #ok
+            tech_type = 'secondary_heating_electricity'
         #elif tech_name in assumptions['list_tech_rs_lighting']: #TODO
         #    tech_type = 'lighting_technology'
         else:
@@ -130,8 +130,9 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
                 market_entry_lowest = market_entry
 
         # Add average 'av_heat_pumps' to technology dict
-        name_av_hp = "{}_heat_pumps".format(str(get_fueltype_str(data['lu_fueltype'], fueltype)))
-        print("Create new averaged heat pump technology: " + str(name_av_hp))
+        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lu_fueltype'], fueltype)))
+        
+        print("...create new averaged heat pump technology: " + str(name_av_hp))
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
@@ -146,6 +147,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
 
         heat_pumps.append(name_av_hp)
+
     # Remove all heat pumps from tech dict
     for fueltype in heat_pump_assump:
         for heat_pump_type in heat_pump_assump[fueltype]:

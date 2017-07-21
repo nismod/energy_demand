@@ -1,4 +1,5 @@
 """The technological stock for every simulation year"""
+import sys
 import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_shape_handling import shape_handling
@@ -69,12 +70,15 @@ class TechStock(object):
             Technology attribute
         """
         tech_objects = getattr(self, str(enduse))
+        try:
+            for tech_object in tech_objects:
+                if tech_object.tech_name == tech:
+                    tech_attribute = getattr(tech_object, str(attribute_to_get))
 
-        for tech_object in tech_objects:
-            if tech_object.tech_name == tech:
-                tech_attribute = getattr(tech_object, str(attribute_to_get))
+            return tech_attribute
+        except:
+            sys.exit("could not get technology attribute {}  {}  {} ".format(enduse, tech, attribute_to_get))
 
-        return tech_attribute
 
     def set_tech_attribute_enduse(self, tech, attribute_to_set, value_to_set, enduse):
         """Set an attrribute of a technology (stored in a list) in the technology stock
@@ -152,8 +156,6 @@ class Technology(object):
                 data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_low'],
                 data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_high']
                 )
-
-            # TODO: MAYBE CALCULATE SHARE OF SERVICE OF TOTAL YEAR
 
             # Shares of fueltype for every hour for multiple fueltypes
             self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(
@@ -421,8 +423,6 @@ class Technology(object):
                 service_high_p = self.service_distr_hybrid_h_p_cy['high'][day][hour]
                 service_low_p = self.service_distr_hybrid_h_p_cy['low'][day][hour]
 
-                #fueltypes_yh_p_cy
-
                 # Efficiencies
                 eff_low = eff_tech_low[day][hour]
                 eff_high = eff_tech_high[day][hour]
@@ -437,7 +437,7 @@ class Technology(object):
     def convert_yh_to_yd_fueltype_shares(self, nr_fueltypes, fueltypes_yh_p_cy):
         """Take share of fueltypes for every yh and calculate the mean share of every day
 
-        The daily mean is calculated for every row of an array.
+        The daily sum is calculated for every row of an array.
 
         Parameters
         ----------
@@ -454,21 +454,15 @@ class Technology(object):
         array((8fueltype, 365days, 24)) is converted into array((8fueltypes, 365days with average))
         """
         fuel_yd_shares = np.zeros((nr_fueltypes, 365))
-        #print("fueltypes_yh_p_cy")
-        #print(fueltypes_yh_p_cy.shape)
+
         for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
             #print("  {}   {}   {} {}".format(fueltype, fueltype_yh.shape, fueltype_yh.mean(axis=1).shape, np.sum(fueltype_yh.mean(axis=1))))
-            #fuel_yd_shares[fueltype] = fueltype_yh.mean(axis=1) #Calculate mean for every row (day) in array BELuGA
 
             # Calculate share of fuel per fueltype in day (If all fueltypes in one day == 24 (because 24 * 1.0)
             fuel_yd_shares[fueltype] = fueltype_yh.sum(axis=1) #Calculate percentage for a day
-            #print("fueltype {}  {}   {} ".format(self.tech_name, fueltype, np.sum(fueltype_yh.sum(axis=1))))
-            #print("dd" + str(np.sum((1.0 / 24.0 ) * fueltype_yh.sum(axis=1))))
-            #print((1.0 / 24.0 ) * fueltype_yh.sum(axis=1))
 
         #Testing
-        #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 365, decimal=3, err_msg='Error XY')
-        #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
+        np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
         return fuel_yd_shares
 
     def calc_hybrid_fueltypes_p(self, nr_fueltypes, fueltype_low_temp, fueltype_high_temp):
@@ -505,7 +499,7 @@ class Technology(object):
         """
         fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
 
-        #BELUGA
+        # CAlculate hybrid efficiency
         beluga_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
 
         for day in range(365):
@@ -520,27 +514,18 @@ class Technology(object):
                 eff_tech_low = self.eff_tech_low_cy[day][hour] #cy or by?
                 eff_tech_high_hp = self.eff_tech_high_cy[day][hour]
 
-                #dummy_service = 100.0 #BELUGA
-                #CALCULATE AVERAGE EFF
-                hybrid_eff = (service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
-                #tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
-
-                if beluga_eff_yh[day][hour] != beluga_eff_yh[day][hour]:
-                    prit("BELUgAPROBLEM")
+                # Get hybrid efficiency
+                hybrid_eff = beluga_eff_yh[day][hour] #(service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
 
                 # Calculate fuel fractions: (frac_tech * dummy_service) / eff_tech
                 if service_low_h_p > 0:
-                    #service_low_h = dummy_service * service_low_h_p #BELUGA
                     service_low_h = service_low_h_p
-                    #fuel_low_h = np.divide(service_low_h, eff_tech_low)
                     fuel_low_h = np.divide(service_low_h, hybrid_eff)
                 else:
                     fuel_low_h = 0
 
                 if service_high_h_p > 0:
-                    #service_high_h = dummy_service * service_high_h_p #BELUGA
                     service_high_h = service_high_h_p
-                    #fuel_high_h = np.divide(service_high_h, eff_tech_high_hp)
                     fuel_high_h = np.divide(service_high_h, hybrid_eff)
                 else:
                     fuel_high_h = 0
@@ -574,10 +559,9 @@ class Technology(object):
         -   If no specific peak shape is defined, the peak is read out from shape_yh and initiated here with zeros
         """
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
-
-        if self.tech_type == 'storage_heating_elec':
+        if self.tech_type == 'storage_heating_electricity':
             shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2]
-        elif self.tech_type == 'secondary_elec_heating':
+        elif self.tech_type == 'secondary_heating_electricity':
             shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh'][2]
         elif self.tech_type == 'boiler_heating_tech':
              # Peak curve robert sansom

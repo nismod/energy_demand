@@ -35,13 +35,15 @@ def test_function_fuel_sum(data):
             for enduse in data['is_fueldata_disagg'][region][sector]:
                 fuel_in += np.sum(data['is_fueldata_disagg'][region][sector][enduse])
                 fuel_in_elec += np.sum(data['is_fueldata_disagg'][region][sector][enduse][2])
-
-    '''for region in data['ts_fueldata_disagg']:
+    
+    fuel_elec_transport = 0
+    for region in data['ts_fueldata_disagg']:
         fuel_in += np.sum(data['ts_fueldata_disagg'][region])
-        fuel_in_elec += np.sum(data['ts_fueldata_disagg'][region][2])
-    '''
+        #fuel_in_elec += np.sum(data['ts_fueldata_disagg'][region][2])
+        fuel_elec_transport += np.sum(data['ts_fueldata_disagg'][region])
+    
 
-    return fuel_in, fuel_in_elec
+    return fuel_in, fuel_in_elec, fuel_elec_transport
 
 def testing_all_defined_tech_in_tech_stock(technologies, all_specified_tech_enduse_by):
     """Test if all defined technologies of fuels are also defined in technology stock
@@ -56,16 +58,17 @@ def testing_all_defined_tech_in_switch_in_fuel_definition(testing_hybrid_tech, f
     """Test if there is a technology share defined in end year which is not listed in technology fuel stock definition
     """
     for enduse, technology_enduse in share_service_tech_ey_p.items():
+
         for technology in technology_enduse:
             # If hybrid tech
             if technology in testing_hybrid_tech:
                 tech_high = testing_hybrid_tech[technology]['tech_high_temp']
-                tech_low = testing_hybrid_tech[technology]['tech_low_temp']
-                fueltype_tech_low = technologies[tech_low]['fuel_type']
+                #tech_low = testing_hybrid_tech[technology]['tech_low_temp']
+                #fueltype_tech_low = technologies[tech_low]['fuel_type']
                 fueltype_tech_high = technologies[tech_high]['fuel_type']
 
-                if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech_low].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
+                #if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech_low].keys():
+                #    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
                 if technology not in fuel_enduse_tech_p_by[enduse][fueltype_tech_high].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
             else:

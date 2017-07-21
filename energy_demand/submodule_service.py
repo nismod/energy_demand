@@ -55,7 +55,7 @@ class ServiceModel(object):
             fuel_switches=data['assumptions']['ss_fuel_switches'],
             service_switches=data['assumptions']['ss_service_switches'],
             fuel_enduse_tech_p_by=data['assumptions']['ss_fuel_enduse_tech_p_by'][self.enduse_name],
-            service_tech_by_p=data['assumptions']['ss_service_tech_by_p'],
+            service_tech_by_p=data['assumptions']['ss_service_tech_by_p'][self.enduse_name],
             tech_increased_service=data['assumptions']['ss_tech_increased_service'],
             tech_decreased_share=data['assumptions']['ss_tech_decreased_share'],
             tech_constant_share=data['assumptions']['ss_tech_constant_share'],
