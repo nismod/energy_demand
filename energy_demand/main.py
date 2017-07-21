@@ -109,7 +109,7 @@ def energy_demand_model(data):
     print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
     print("elec fuel in:        " + str(fuel_in_elec))
     print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-    print("ele fueld diff:      " + str(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+    print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])), 4)) #ithout transport
     print("================================================")
 
     # Convert data according to region and fueltype
