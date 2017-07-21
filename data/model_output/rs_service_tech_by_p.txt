@@ -22,14 +22,14 @@ Enduse  rs_cooking
  
 Enduse  rs_space_heating
 ----------
-boiler_solid_fuel			0.0136037855017
-hybrid_gas_elec			0.0183136219961
-boiler_gas			0.598987954236
-storage_heater_elec			0.03150730666
-secondary_elec_heater_elec			0.039384133325
-boiler_oil			0.0707559441136
-boiler_heat_sold			0.00140915706392
-boiler_biomass			0.0491940344239
+boiler_solid_fuel			0.0154349805033
+boiler_gas			0.755130286199
+hybrid_gas_elec			0.00415576088612
+storage_heater_elec			0.0357484807408
+secondary_elec_heater_elec			0.0518352970742
+boiler_oil			0.0802803468013
+boiler_heat_sold			0.00159884260194
+boiler_biomass			0.0558160051934
 boiler_hydrogen			0.0
  
 Enduse  rs_water_heating

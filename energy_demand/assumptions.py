@@ -296,11 +296,11 @@ def load_assumptions(data):
 
     #---space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'hybrid_gas_elec': 0.1, 'boiler_gas': 0.9}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}# {'hybrid_gas_elec': 0.02, 'boiler_gas': 0.98}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'boiler_elec': 0.96, 'electricity_heat_pumps': 0.2}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
 
     # Share of electric heating taken from ?? ECUK
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.1, 'storage_heater_elec': 0.4, 'secondary_elec_heater_elec': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'storage_heater_elec': 0.40, 'secondary_elec_heater_elec': 0.58}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_elec': 0.02, 'storage_heater_elec': 0.89, 'secondary_elec_heater_elec': 0.108} #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
@@ -312,6 +312,8 @@ def load_assumptions(data):
     # HES primary_elec_heating_tech_storage_heater: , seondary_elec_heating_tech_
     #
     #
+
+    #assumptions['rs_fuel_enduse_tech_p_by'] = beluga_mutate_fuel_enduse_tech_p_by('hybrid_gas_elec', assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'], assumptions['technologies'], data['rs_fuel_raw_data_enduses']['rs_space_heating'])
 
     '''# ---water heating
     try:
@@ -674,3 +676,48 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     av_eff = service_share_low_temp_tech * eff_tech_low_temp + service_share_high_temp_tech * eff_tech_high_temp
 
     return av_eff
+
+'''
+def beluga_mutate_fuel_enduse_tech_p_by(tech, fuel_enduse_tech_p_by, technologies, enduse_fuel_new_y):
+        """ BELUGA: Change the fuel share of boilers for hybrid tech
+
+        ('hybrid_gas_elec', assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'], assumptions['technologies'], data['rs_fuel_raw_data_enduses'])
+        """
+        if tech == 'hybrid_gas_elec':
+
+            #Hybrid info
+            tech_low = technologies[tech]['tech_low_temp']
+            tech_high = technologies[tech]['tech_high_temp']
+            tech_low_temp_fueltype = technologies[tech_low]['fuel_type']
+            tech_high_temp_fueltype = technologies[tech_high]['fuel_type']
+
+            # Convert Electricity share into service
+            if tech in fuel_enduse_tech_p_by[tech_high_temp_fueltype]: #test where in electricity
+
+                elec_fuel_high = fuel_enduse_tech_p_by[tech_high_temp_fueltype]['hybrid_gas_elec'] * enduse_fuel_new_y[tech_high_temp_fueltype]
+                print("A:  " + str(elec_fuel_high))
+
+                service_tech_high = (elec_fuel_high ) *  technologies[tech_high]['eff_by'] #TODO: CALCULATE AVERAGE HEAT PUMP EFFICIENCY
+                #print("B:  " + str(np.sum(service_tech_high)))
+
+                # assumption 
+
+                service_distr_hybrid_h_p_cy = tech_stock.get_tech_attr(self.enduse, tech, 'service_distr_hybrid_h_p_cy')
+
+                service_low_tech = np.sum(service_tech_high) * (np.sum(service_distr_hybrid_h_p_cy['low']) / np.sum(service_distr_hybrid_h_p_cy['high']))
+                #print("C:  " + str(np.sum(service_low_tech)))
+
+                # Convert service into gas
+                gas_fuel_low_tech = (service_low_tech) / tech_stock.get_tech_attr(self.enduse, tech, 'eff_tech_low_by')
+                #print("D:  " + str(np.sum(gas_fuel_low_tech)))
+
+                # calculate % of total gas
+                gas_fuel_hyrid_p = (1.0 / enduse_fuel_new_y[tech_low_temp_fueltype]) * np.sum(gas_fuel_low_tech)
+                #print("E:  " + str(np.sum(gas_fuel_hyrid_p)))
+
+                # Substract % from gas boiler
+                fuel_enduse_tech_p_by[tech_low_temp_fueltype]['hybrid_gas_elec'] = gas_fuel_hyrid_p
+                fuel_enduse_tech_p_by[tech_low_temp_fueltype][str(tech_low)] -= gas_fuel_hyrid_p #substract from gas bioler #'boiler_gas'
+
+        return fuel_enduse_tech_p_by
+'''

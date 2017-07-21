@@ -126,7 +126,7 @@ def disaggregate_base_demand(data):
             inter_dict[enduse] = rs_national_fuel[enduse] * reg_diasg_factor
 
         data['rs_fueldata_disagg'][region] = inter_dict
-
+    
     # Sum total fuel of all regions for testing purposes
     test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
 
@@ -137,7 +137,6 @@ def disaggregate_base_demand(data):
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
     """TODO: Disaggregate fuel for sector and enduses with floor area and GVA for sectors and enduses (IMPROVE)
     """
-
     ss_fueldata_disagg = {}
 
     #control_sum = 0

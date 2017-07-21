@@ -4,19 +4,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
-def boxplots_month():
+array_dh = np.random.rand(24)
 
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
 
-    x1 = np.random.normal(0,1,50)
-    x2 = np.random.normal(1,1,50)
-    x3 = np.random.normal(2,1,50)
+def plot_load_profile_dh(array_dh):
 
-    ax.boxplot([x1,x2,x3])
+    hours = range(1, 25)
+    x_values = []
+    for hour in hours:
+        x_values.append(hour - 0.5)
+
+    plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
+    #plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='green')
+    plt.axis('tight')
+    #fig, ax = ax.set_xlim(ymin=0)
+    #ax.set_ylim(ymin=0)
+    plt.xlim(xmin=0)
+    plt.ylim(ymin=0)
+    #plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    plt.xticks(np.arange(0, 24, 4.0))
     plt.show()
 
+plot_load_profile_dh(array_dh)
+
+
+'''
 
 def boxplots_month():
 
@@ -106,3 +119,5 @@ def boxplots_month():
     plt.show()
 
 boxplots_month()
+
+'''

@@ -64,7 +64,6 @@ def read_raw_elec_2015_data(path_to_csv):
         counter_half_hour = 0
         # Iterate rows
         for line in read_lines:
-
             month = get_month_from_string(line[0].split("-")[1])
             day = int(line[0].split("-")[0])
 
@@ -75,7 +74,9 @@ def read_raw_elec_2015_data(path_to_csv):
                 counter_half_hour = 0
 
                 # Sum value of first and second half hour
-                hour_elec_demand = half_hour_demand + float(line[2])
+                #hour_elec_demand = half_hour_demand + float(line[2]) # INDO - National Demand
+                hour_elec_demand = half_hour_demand + float(line[4]) # ITSDO - Transmission System Demand
+
                 total_MW += hour_elec_demand
 
                 # Convert MW to GWH (input is MW aggregated for two half
@@ -90,7 +91,8 @@ def read_raw_elec_2015_data(path_to_csv):
             else:
                 counter_half_hour += 1
 
-                half_hour_demand = float(line[2])
+                #half_hour_demand = float(line[2]) # INDO - National Demand
+                half_hour_demand = float(line[4]) # Transmission System Demand
 
             if hour == 24:
                 hour = 0

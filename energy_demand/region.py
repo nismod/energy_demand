@@ -349,12 +349,9 @@ class Region(object):
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                #tech_object = getattr(tech_stock, 'gas_heat_pumps') # Select gas heat pumps to calculate service shape
-                #tech_object = tech_stock.TEST_get_tech_from_list('rs_space_heating', 'gas_heat_pumps')
                 tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'gas_heat_pumps', 'eff_cy')
 
                 average_eff_d += heat_share_h * tech_eff[day][hour] # Hourly heat demand * heat pump efficiency
-                #average_eff_d += heat_share_h * getattr(tech_object, 'eff_cy')[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = np.divide(rs_hdd_cy[day], average_eff_d)

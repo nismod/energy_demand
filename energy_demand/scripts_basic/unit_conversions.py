@@ -66,33 +66,43 @@ def convert_across_all_fueltypes(fuel_dict):
     fuel_converted : dict
         Dictionary with converted energy demand in GWh
     """
+    testsumkteo, testsumgwh = 0, 0
+
     fuel_converted = {}
 
     for enduse, fuels in fuel_dict.items():
-
         nr_of_fueltypes = len(fuels)
-
         fuel_converted[enduse] = np.zeros((nr_of_fueltypes))
 
         for fueltype in range(nr_of_fueltypes):
             fuel_converted[enduse][fueltype] = convert_ktoe_gwh(fuels[fueltype])
+            
+            if fueltype == 2:
+                testsumkteo += fuels[fueltype]
+                testsumgwh += convert_ktoe_gwh(fuels[fueltype])
 
+    print("Converted electricity {} ktoe to {} GWh".format(testsumkteo, testsumgwh))
     return fuel_converted
 
 def convert_all_fueltypes_sector(fuel_dict):
     """ITerature ktoe in fueltypes and convert
     """
+    testsumkteo, testsumgwh = 0, 0
+
     fuel_converted = {}
 
     for enduse in fuel_dict:
         fuel_converted[enduse] = {}
         for sector, fuels in fuel_dict[enduse].items():
-
             nr_of_fueltypes = len(fuels)
-
             fuel_converted[enduse][sector] = np.zeros((nr_of_fueltypes))
 
             for fueltype in range(nr_of_fueltypes):
                 fuel_converted[enduse][sector][fueltype] = convert_ktoe_gwh(fuels[fueltype])
 
+                if fueltype == 2:
+                    testsumkteo += fuels[fueltype]
+                    testsumgwh += convert_ktoe_gwh(fuels[fueltype])
+
+    print("Converted electricity {} ktoe to {} GWh".format(testsumkteo, testsumgwh))
     return fuel_converted

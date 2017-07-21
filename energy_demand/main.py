@@ -89,7 +89,7 @@ def energy_demand_model(data):
     # -------------------------
     # Model main function
     # --------------------------
-    fuel_in = testing.test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
+    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data) #SCRAP_ TEST FUEL SUM
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
     model_run_object = energy_model.EnergyModel(
@@ -106,7 +106,10 @@ def energy_demand_model(data):
     print("================================================")
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
-    print("FUEL DIFFERENCE:     " + str(fueltot - fuel_in))
+    print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
+    print("elec fuel in:        " + str(fuel_in_elec))
+    print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+    print("ele fueld diff:      " + str(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
     print("================================================")
 
     # Convert data according to region and fueltype
@@ -202,7 +205,7 @@ if __name__ == "__main__":
     data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_yr'] = base_yr
 
-    data_external['factcalculationcrit'] = True
+    data_external['fastcalculationcrit'] = True
     # ------------------- DUMMY END
 
 
@@ -349,12 +352,13 @@ if __name__ == "__main__":
         # Compare different models
         validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
         validation.compare_results(validation_elec_data_2015, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
-        validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
+        #validation.compare_results(validation_elec_data_2015, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        #validation.compare_results(validation_elec_data_2015, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
+        #validation.compare_results(validation_elec_data_2015, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
+        #validation.compare_results(validation_elec_data_2015, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
-        print("FUEL COMPARISON TOTAL  {}   {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+        print("FUEL gwh TOTAL  validation_elec_data_2015: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+        print("FUEL ktoe TOTAL  validation_elec_data_2015: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak

@@ -129,18 +129,18 @@ class Technology(object):
         # Calculate fuel types and distribution
         if self.tech_type == 'hybrid_tech':
 
-            tech_low_temp = data['assumptions']['technologies'][tech_name]['tech_low_temp']
-            tech_high_temp = data['assumptions']['technologies'][tech_name]['tech_high_temp']
+            self.tech_low_temp = data['assumptions']['technologies'][tech_name]['tech_low_temp']
+            self.tech_high_temp = data['assumptions']['technologies'][tech_name]['tech_high_temp']
 
-            self.tech_low_temp_fueltype = data['assumptions']['technologies'][tech_low_temp]['fuel_type']
-            self.tech_high_temp_fueltype = data['assumptions']['technologies'][tech_high_temp]['fuel_type']
+            self.tech_low_temp_fueltype = data['assumptions']['technologies'][self.tech_low_temp]['fuel_type']
+            self.tech_high_temp_fueltype = data['assumptions']['technologies'][self.tech_high_temp]['fuel_type']
 
-            self.eff_tech_low_by = self.const_eff_yh(data['assumptions']['technologies'][tech_low_temp]['eff_by'])
-            self.eff_tech_high_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumption'], data['assumptions']['technologies'][tech_high_temp]['eff_by'], t_base_heating)
+            self.eff_tech_low_by = self.const_eff_yh(data['assumptions']['technologies'][self.tech_low_temp]['eff_by'])
+            self.eff_tech_high_by = self.get_heatpump_eff(temp_by, data['assumptions']['hp_slope_assumption'], data['assumptions']['technologies'][self.tech_high_temp]['eff_by'], t_base_heating)
 
             # Consider efficincy improvements
-            eff_tech_low_cy = self.calc_eff_cy(data['assumptions']['technologies'][tech_low_temp]['eff_by'], tech_low_temp, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
-            eff_tech_high_cy = self.calc_eff_cy(data['assumptions']['technologies'][tech_high_temp]['eff_by'], tech_high_temp, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
+            eff_tech_low_cy = self.calc_eff_cy(data['assumptions']['technologies'][self.tech_low_temp]['eff_by'], self.tech_low_temp, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
+            eff_tech_high_cy = self.calc_eff_cy(data['assumptions']['technologies'][self.tech_high_temp]['eff_by'], self.tech_high_temp, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
 
             # Efficiencies
             self.eff_tech_low_cy = self.const_eff_yh(eff_tech_low_cy)
@@ -156,10 +156,10 @@ class Technology(object):
             # TODO: MAYBE CALCULATE SHARE OF SERVICE OF TOTAL YEAR
 
             # Shares of fueltype for every hour for multiple fueltypes
-            self.fueltypes_yh_p_cy = self.calc_hybrid_fueltype(
+            self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(
                 data['nr_of_fueltypes'],
-                self.tech_low_temp_fueltype, #data['assumptions']['technologies'][tech_low_temp]['fuel_type'],
-                self.tech_high_temp_fueltype) #data['assumptions']['technologies'][tech_high_temp]['fuel_type'])
+                self.tech_low_temp_fueltype,
+                self.tech_high_temp_fueltype)
         else:
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
@@ -421,6 +421,8 @@ class Technology(object):
                 service_high_p = self.service_distr_hybrid_h_p_cy['high'][day][hour]
                 service_low_p = self.service_distr_hybrid_h_p_cy['low'][day][hour]
 
+                #fueltypes_yh_p_cy
+
                 # Efficiencies
                 eff_low = eff_tech_low[day][hour]
                 eff_high = eff_tech_high[day][hour]
@@ -461,7 +463,7 @@ class Technology(object):
 
         return fuel_yd_shares
 
-    def calc_hybrid_fueltype(self, nr_fueltypes, fueltype_low_temp, fueltype_high_temp):
+    def calc_hybrid_fueltypes_p(self, nr_fueltypes, fueltype_low_temp, fueltype_high_temp):
         """Calculate share of fueltypes for every hour for hybrid technology
 
         Parameters
@@ -491,13 +493,13 @@ class Technology(object):
         TODO: SEE if based on daily share of each service the hourly distribution can be made: Improve
         fuel = Energy service / efficiency
 
-        # TODO: PROBABLY WRONG
+        The overall service share defined for either technology overrules the input fuel shares for hybrid technologies
         """
         fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
 
         for day in range(365):
             for hour in range(24):
-                service_low_h, service_high_h = 0, 0 
+                service_low_h, service_high_h = 0, 0
 
                 # Fraction of service of low and high temp technology
                 service_low_h_p = self.service_distr_hybrid_h_p_cy['low'][day][hour]
@@ -507,18 +509,26 @@ class Technology(object):
                 eff_tech_low = self.eff_tech_low_cy[day][hour]
                 eff_tech_high_hp = self.eff_tech_high_cy[day][hour]
 
-                dummy_service = 100.0
+                #dummy_service = 100.0 #BELUGA
+                #CALCULATE AVERAGE EFF
+                hybrid_eff = (service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
 
+
+                
                 # Calculate fuel fractions: (frac_tech * dummy_service) / eff_tech
                 if service_low_h_p > 0:
-                    service_low_h = dummy_service * service_low_h_p
-                    fuel_low_h = np.divide(service_low_h, eff_tech_low)
+                    #service_low_h = dummy_service * service_low_h_p #BELUGA
+                    service_low_h = service_low_h_p
+                    #fuel_low_h = np.divide(service_low_h, eff_tech_low)
+                    fuel_low_h = np.divide(service_low_h, hybrid_eff)
                 else:
                     fuel_low_h = 0
 
                 if service_high_h_p > 0:
-                    service_high_h = dummy_service * service_high_h_p
-                    fuel_high_h = np.divide(service_high_h, eff_tech_high_hp)
+                    #service_high_h = dummy_service * service_high_h_p #BELUGA
+                    service_high_h = service_high_h_p
+                    #fuel_high_h = np.divide(service_high_h, eff_tech_high_hp)
+                    fuel_high_h = np.divide(service_high_h, hybrid_eff)
                 else:
                     fuel_high_h = 0
 

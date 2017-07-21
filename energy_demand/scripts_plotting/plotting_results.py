@@ -242,7 +242,7 @@ def plot_fuels_tot_all_enduses(results_resid, data, attribute_to_get):
     ax.legend(legend_entries)
 
     plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='green')
-    plt.axis('tight')
+    
 
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
