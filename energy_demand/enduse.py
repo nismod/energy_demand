@@ -69,11 +69,14 @@ class Enduse(object):
             testing.testing_switch_criteria(self.crit_switch_fuel, self.crit_switch_service, self.enduse)
 
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
-            #self.technologies_enduse = self.get_enduse_tech(service_tech_by_p[enduse], fuel_enduse_tech_p_by)
             self.technologies_enduse = self.get_enduse_tech(service_tech_by_p, fuel_enduse_tech_p_by)
+
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
             fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_gas_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
-
+            #fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_hydrogen_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
+            #fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_biomass_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
+           
+            #TODO: FOR ALL OTHER HYBRDI TECHNOLOGIES
             # -------------------------------
             # Yearly fuel calculation cascade
             # --------------------------------

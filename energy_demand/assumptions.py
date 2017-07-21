@@ -299,7 +299,7 @@ def load_assumptions(data):
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}# {'hybrid_gas_electricity': 0.02, 'boiler_gas': 0.98}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.96, 'heat_pumps_electricity': 0.2}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
 
-    # Share of electric heating taken from ?? ECUK
+    # Share of electric heating taken from ?? ECUK Must contain hybrid_gas_elec
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'heat_pumps_electricity': 0.1, 'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.40, 'secondary_heater_electricity': 0.48}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.89, 'secondary_heater_electricity': 0.108} #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
@@ -446,18 +446,6 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
                 assumptions
                 )
             },
-        'hybrid_oil_electricity': {
-            "tech_low_temp": 'boiler_oil',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": -5,
-            "hybrid_cutoff_temp_high": 7,
-            "average_efficiency_national_by": get_average_eff_by(
-                'boiler_oil', #Provide same tech as above
-                'heat_pumps_electricity',
-                0.2, #Assumption on share of service provided by lower temperature technology on a national scale in by
-                assumptions
-                )
-            }, #
         'hybrid_biomass_electricity': {
             "tech_low_temp": 'boiler_biomass',
             "tech_high_temp": 'heat_pumps_electricity',

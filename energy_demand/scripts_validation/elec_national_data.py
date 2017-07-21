@@ -51,9 +51,10 @@ def read_raw_elec_2015_data(path_to_csv):
     The 25 Octobre value is omitted, the 29 March hour interpolated in the csv file
     """
     year = 2015
-    total_MW = 0
+    #total_MW = 0
 
-    elec_data = np.zeros((365, 24))
+    elec_data_INDO = np.zeros((365, 24))
+    elec_data_ITSDO = np.zeros((365, 24))
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -74,32 +75,35 @@ def read_raw_elec_2015_data(path_to_csv):
                 counter_half_hour = 0
 
                 # Sum value of first and second half hour
-                #hour_elec_demand = half_hour_demand + float(line[2]) # INDO - National Demand
-                hour_elec_demand = half_hour_demand + float(line[4]) # ITSDO - Transmission System Demand
+                hour_elec_demand_INDO = half_hour_demand_INDO + float(line[2]) # INDO - National Demand
+                hour_elec_demand_ITSDO  = half_hour_demand_ITSDO + float(line[4]) # ITSDO - Transmission System Demand
 
-                total_MW += hour_elec_demand
+                #total_MW += hour_elec_demand_ITSDO
+                #total_MW_INDO += hour_elec_demand_INDO
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
-                hour_elec_demand_gwh = unit_conversions.convert_mw_gwh(hour_elec_demand, 0.5)
+                hour_elec_demand_gwh_INDO = unit_conversions.convert_mw_gwh(hour_elec_demand_INDO, 0.5)
+                hour_elec_demand_gwh_ITSDO = unit_conversions.convert_mw_gwh(hour_elec_demand_ITSDO, 0.5)
 
                 # Add to array
                 #print(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))
-                elec_data[yearday][hour] = hour_elec_demand_gwh
+                elec_data_INDO[yearday][hour] = hour_elec_demand_gwh_INDO
+                elec_data_ITSDO[yearday][hour] = hour_elec_demand_gwh_ITSDO
 
                 hour += 1
             else:
                 counter_half_hour += 1
 
-                #half_hour_demand = float(line[2]) # INDO - National Demand
-                half_hour_demand = float(line[4]) # Transmission System Demand
+                half_hour_demand_INDO = float(line[2]) # INDO - National Demand
+                half_hour_demand_ITSDO = float(line[4]) # Transmission System Demand
 
             if hour == 24:
                 hour = 0
 
-    return elec_data
+    return elec_data_INDO, elec_data_ITSDO
 
-def compare_results(y_real_array, y_calculated_array, title_left, days_to_plot):
+def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_calculated_array, title_left, days_to_plot):
     """Compare national electrictiy demand data with model results
 
     Info
@@ -120,19 +124,22 @@ def compare_results(y_real_array, y_calculated_array, title_left, days_to_plot):
 
     x = range(nr_of_h_to_plot)
 
-    y_real = []
+    y_real_INDO = []
+    y_real_ITSDO = []
     y_calculated = []
 
     for day in days_to_plot:
         for hour in range(24):
-            y_real.append(y_real_array[day][hour])
+            y_real_INDO.append(y_real_array_INDO[day][hour])
+            y_real_ITSDO.append(y_real_array_ITSDO[day][hour])
             y_calculated.append(y_calculated_array[day][hour])
 
     # RMSE
-    rmse_val = rmse(np.array(y_real), np.array(y_calculated))
+    rmse_val = rmse(np.array(y_real_INDO), np.array(y_calculated))
 
     # plot points
-    plt.plot(x, y_real, color='green', label='real') #'ro', markersize=1
+    plt.plot(x, y_real_INDO, color='green', label='INDO') #'ro', markersize=1
+    plt.plot(x, y_real_ITSDO, color='grey', label='ITSDO') #'ro', markersize=1
     plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1
 
     plt.title('RMSE Value: {}'.format(rmse_val))
