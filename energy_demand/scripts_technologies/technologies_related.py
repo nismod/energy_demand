@@ -64,10 +64,10 @@ def get_tech_type(tech_name, assumptions, enduse=''):
             tech_type = 'heat_pump'
         elif tech_name in assumptions['list_tech_heating_const']: #ok
             tech_type = 'boiler_heating_tech'
-        elif tech_name in assumptions['list_tech_cooling_temp_dep']:
-            tech_type = 'cooling_tech'
-        elif tech_name in assumptions['list_tech_cooling_const']:
-            tech_type = 'cooling_tech_temp_dependent'
+        #elif tech_name in assumptions['list_tech_cooling_temp_dep']:
+        #    tech_type = 'cooling_tech'
+        #elif tech_name in assumptions['list_tech_cooling_const']:
+        #    tech_type = 'cooling_tech_temp_dependent'
         elif tech_name in assumptions['primary_heating_electricity']: #ok
             tech_type = 'storage_heating_electricity'
         elif tech_name in assumptions['secondary_heating_electricity']: #ok

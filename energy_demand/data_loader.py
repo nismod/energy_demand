@@ -87,6 +87,7 @@ def load_data(path_main, data):
         #Technologies load shapes
         'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
         'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv'),
+        'path_shape_ss_cooling': os.path.join(path_main, 'submodel_service/shape_service_cooling.csv'),
         'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'submodel_residential/HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
         'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'submodel_residential/HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
 
@@ -220,6 +221,7 @@ def load_data(path_main, data):
     data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
+    data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_ss_cooling']) # ??
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
@@ -237,21 +239,25 @@ def load_data(path_main, data):
     '''
 
     # Generate load shapes
-    if data['fastcalculationcrit'] == False: #False
+    if data['fastcalculationcrit'] == False:
 
         # Read raw files - Generate data from raw files
         data = load_shapes_from_raw(data, data['rs_all_enduses'], data['ss_all_enduses'], data['is_all_enduses'], data['is_sectors'])
 
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
+
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
+
         data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
 
     else:
         print("...read in load shapes from txt files")
         # Read txt files - Generate data from txt files
         data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_txt_shapes'])
+
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
+
         data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
@@ -530,14 +536,17 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
         # ------------------------------------------------------
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
+        ss_enduses.append('ss_space_cooling') #NEW
+        ss_enduses.append('ss_ventilation')
+
         for enduse in ss_enduses:
-            #print("Enduse service: {}  in sector '{}'".format(enduse, sector))
+            print("Enduse service: {}  in sector '{}'".format(enduse, sector))
 
             # Select shape depending on enduse
             if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']: #TODO: IMPROVE
                 folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
             else:
-                if enduse == 'ss_other_electricity':
+                if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation': #NEW
                     folder_path = os.path.join(data['local_data_path'], r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
                 else:
                     folder_path = sector_folder_path_elec

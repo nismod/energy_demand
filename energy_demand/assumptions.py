@@ -120,7 +120,7 @@ def load_assumptions(data):
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {'base_yr': 21.0, 'end_yr': 21.0}
-    assumptions['ss_t_base_cooling'] = {'base_yr': 15.5, 'end_yr': 15.5}
+    assumptions['ss_t_base_cooling'] = {'base_yr': 15.5, 'end_yr': 21.0}
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -194,8 +194,10 @@ def load_assumptions(data):
             'ss_catering': 1,
             'ss_computing': 1,
             'ss_cooling_ventilation': 1,
-            'ss_water_heating': 1,
+            'ss_space_cooling': 1, #TODO
+            'ss_ventilation': 1, #TODO
             'ss_space_heating': 1,
+            'ss_water_heating': 1,
             'ss_lighting': 1,
             'ss_other_gas': 1,
             'ss_other_electricity': 1
@@ -262,8 +264,11 @@ def load_assumptions(data):
     assumptions['secondary_heating_electricity'] = ['secondary_heater_electricity'] # FROM HES Electricity heating
 
     # Regular cooling technlogies...
-    assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
-    assumptions['list_tech_cooling_temp_dep'] = []
+    assumptions['list_tech_cooling_ventilation'] = ['air_fans_electricity', 'air_condition_electricity', 'air_condition_gas', 'air_condition_oil']
+    assumptions['list_tech_ventilation'] = ['air_fans_electricity']
+    assumptions['list_tech_cooling'] = ['air_condition_electricity', 'air_condition_gas', 'air_condition_oil'] #[ 'air_condition_electricity']
+    #assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
+    #assumptions['list_tech_cooling_temp_dep'] = []
 
     # Lighting technologies
     #assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
@@ -298,6 +303,7 @@ def load_assumptions(data):
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}# {'hybrid_gas_electricity': 0.02, 'boiler_gas': 0.98}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.96, 'heat_pumps_electricity': 0.2}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+
 
     # Share of electric heating taken from ?? ECUK Must contain hybrid_gas_elec
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'heat_pumps_electricity': 0.1, 'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.40, 'secondary_heater_electricity': 0.48}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
@@ -344,11 +350,39 @@ def load_assumptions(data):
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0} # {'hybrid_gas_electricity': 0.02, 'boiler_gas': 0.98}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_electricity': 1.0} #{'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.48, 'heat_pumps_electricity': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
+
+
+    '''# -- Space cooling and ventilation
+    share_cooling_not_ventilation = 0.5
+
+    #------------------------------
+    # Split Cooling and Ventilation
+    #------------------------------
+    for sector in data['ss_fuel_raw_data_enduses']:
+        data['ss_fuel_raw_data_enduses'][sector]['ss_space_cooling'] = data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation'] * share_cooling_not_ventilation
+        data['ss_fuel_raw_data_enduses'][sector]['ss_ventilation'] = data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation'] * (1 - share_cooling_not_ventilation)
+
+        assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'] = dict.fromkeys(range(data['nr_of_fueltypes']), {})
+        assumptions['ss_fuel_enduse_tech_p_by']['ss_ventilation'] = dict.fromkeys(range(data['nr_of_fueltypes']), {})
+        del data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation']
+
+    data['ss_all_enduses'].remove('ss_cooling_ventilation') #delete enduse
+    data['ss_all_enduses'].append('ss_space_cooling')
+    data['ss_all_enduses'].append('ss_ventilation')
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['electricity']] = {'air_condition_electricity': 1.0} 
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
+    '''
+
+    #assumptions['ss_fuel_enduse_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
+    #assumptions['ss_fuel_enduse_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['electricity']] = {'air_fans_electricity': 0.8, 'air_condition_electricity': 0.2} 
+    #assumptions['ss_fuel_enduse_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
+
+
 
     assumptions['ss_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['ss_fuel_enduse_tech_p_by'])
 
@@ -579,9 +613,11 @@ def initialise_dict_fuel_enduse_tech_p_by(all_enduses_with_fuels, nr_of_fueltype
     fuel_enduse_tech_p_by = {}
 
     for enduse in all_enduses_with_fuels:
-        fuel_enduse_tech_p_by[enduse] = {}
-        for fueltype in range(nr_of_fueltypes):
-            fuel_enduse_tech_p_by[enduse][fueltype] = {}
+        #fuel_enduse_tech_p_by[enduse] = {}
+        fuel_enduse_tech_p_by[enduse] = dict.fromkeys(range(nr_of_fueltypes), {})
+
+        #for fueltype in range(nr_of_fueltypes):
+            #fuel_enduse_tech_p_by[enduse][fueltype] = {}
 
     return fuel_enduse_tech_p_by
 

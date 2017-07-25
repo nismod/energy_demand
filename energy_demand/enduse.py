@@ -70,12 +70,12 @@ class Enduse(object):
 
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(service_tech_by_p, fuel_enduse_tech_p_by)
-
+            print("dd")
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
             fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_gas_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
             #fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_hydrogen_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
             #fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_biomass_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
-           
+
             #TODO: FOR ALL OTHER HYBRDI TECHNOLOGIES
             # -------------------------------
             # Yearly fuel calculation cascade
@@ -107,6 +107,9 @@ class Enduse(object):
             # Check if enduse is defined with technologies
             if self.technologies_enduse != []:
                 print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
+
+                for fueltype in range(self.enduse_fuel_y.shape[0]):
+                    print("FUELTYPEdd  {} ".format(np.sum(self.enduse_fuel_y[fueltype])))
 
                 # ------------------------------------------------------------------------
                 # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution)
@@ -209,13 +212,14 @@ class Enduse(object):
                     print(testsumme)
                     print(np.sum(self.enduse_fuel_yh[2]))
                     sys.exit("ERRROR")
+
                 # ---PEAK (Peak is not defined by yd factor so far but read out from real data!)
 
                 # Get day with most fuel across all fueltypes (this is selected as max day)
                 peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
                 print("Peak day: " + str(peak_day_nr))
 
-                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels #TODO BELUGA
+                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
                 self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, peak_day_nr)
                 print("enduse_fuel_peak_dh: " + str(np.sum(self.enduse_fuel_peak_dh)))
 
@@ -225,7 +229,7 @@ class Enduse(object):
 
                 #print("Proportion von day: " + str((100/np.sum(self.enduse_fuel_peak_dh)) * np.sum(self.enduse_fuel_peak_h)))
             else:
-                #print("...enduse is not defined with technologies: {} ".format(enduse))
+                print("...enduse is not defined with technologies: {} ".format(enduse))
 
                 # ---NON-PEAK
                 self.enduse_fuel_yd = self.enduse_y_to_d(self.enduse_fuel_new_y, data_shapes_yd[enduse]['shape_non_peak_yd'])
@@ -698,8 +702,8 @@ class Enduse(object):
             fuel_tech_peak_d = fuel_tech_y_d[peak_day_nr]
             #print("FUEL PEAK DAY 2: " + str(fuel_tech_peak_d))
 
-            # If hybrid technology
-            if tech in assumptions['list_tech_heating_hybrid']:
+            # If shape is read directly from yh (e.g. hybrid technology, service cooling and ventilation)
+            if tech in assumptions['list_tech_heating_hybrid'] or tech in assumptions['list_tech_cooling_ventilation']: #assumptions['list_tech_cooling']:
 
                 # The 'shape_peak_dh'is not defined in technology stock because in the 'Region' the peak day is not yet known
                 # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
@@ -990,7 +994,7 @@ class Enduse(object):
 
         # Convert service to fuel
         for tech, service in service_tech.items():
-            #print("SERVICE TO CONVERT: {}  ".format(tech) + str(np.sum(service)))
+            print("SERVICE TO CONVERT: {}  ".format(tech) + str(np.sum(service)))
 
             # If hybrid tech, calculate share of service for each technology
             fuel_tech = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))

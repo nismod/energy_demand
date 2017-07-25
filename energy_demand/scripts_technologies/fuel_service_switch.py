@@ -150,7 +150,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     service_fueltype_by_p = init.init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
 
     for enduse, fuel in fuels.items():
-        #print("ENDUSE: " + str(enduse))
+
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 

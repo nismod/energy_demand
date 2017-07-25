@@ -20,8 +20,7 @@ def generic_flat_shape(shape_peak_yd_factor):
         Shape yd for non peak
     """
     # linear shape_peak_dh
-    shape_peak_dh = np.ones((24))
-    shape_peak_dh = shape_peak_dh / 24
+    shape_peak_dh = np.ones((24)) / 24
 
     # linear shape_non_peak_dh
     shape_non_peak_dh = np.zeros((365, 24))

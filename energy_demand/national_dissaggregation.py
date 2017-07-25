@@ -145,10 +145,10 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # Iterate regions
     for region in data['lu_reg']:
         ss_fueldata_disagg[region] = {}
-        print("Region: " + str(region))
+
         # Iterate sector
         for sector in data['ss_sectors']:
-            print("sector: " + str(sector))
+
             ss_fueldata_disagg[region][sector] = {}
 
             # Calculate total national floor area of this sector

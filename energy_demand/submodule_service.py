@@ -36,11 +36,26 @@ class ServiceModel(object):
         # Enduse specific parameters
         # --------------------------
         if self.enduse_name in data['assumptions']['enduse_space_heating']:
-            enduse_peak_yd_factor = region_object.ss_peak_yd_heating_factor #reg_peak_yd_heating_factor
+            enduse_peak_yd_factor = region_object.ss_peak_yd_heating_factor
         elif self.enduse_name in data['assumptions']['enduse_space_cooling']:
-            enduse_peak_yd_factor = region_object.rs_peak_yd_cooling_factor #reg_peak_yd_cooling_factor
+            enduse_peak_yd_factor = region_object.rs_peak_yd_cooling_factor
         else:
-            enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][self.enduse_name]['shape_peak_yd_factor']
+
+            # NEW #Because ventilation is newly created, assign shapes of any other sector for
+            if self.enduse_name == 'ss_ventilation':
+                any_sector = data['ss_sectors'][0]
+                enduse_peak_yd_factor = data['ss_shapes_yd'][any_sector]['ss_cooling_ventilation']['shape_peak_yd_factor']
+
+                data['ss_shapes_yd'][self.sector_name]['ss_ventilation'] = {}
+                data['ss_shapes_dh'][self.sector_name]['ss_ventilation'] = {}
+
+                data['ss_shapes_yd'][self.sector_name]['ss_ventilation']['shape_non_peak_yd'] = data['ss_shapes_yd'][any_sector]['ss_cooling_ventilation']['shape_non_peak_yd']
+                data['ss_shapes_yd'][self.sector_name]['ss_ventilation']['shape_peak_yd_factor'] = data['ss_shapes_yd'][any_sector]['ss_cooling_ventilation']['shape_peak_yd_factor']
+
+                data['ss_shapes_dh'][self.sector_name]['ss_ventilation']['shape_non_peak_dh'] = data['ss_shapes_dh'][any_sector]['ss_cooling_ventilation']['shape_non_peak_dh']
+                data['ss_shapes_dh'][self.sector_name]['ss_ventilation']['shape_peak_dh'] = data['ss_shapes_dh'][any_sector]['ss_cooling_ventilation']['shape_peak_dh']
+            else:
+                enduse_peak_yd_factor = data['ss_shapes_yd'][self.sector_name][self.enduse_name]['shape_peak_yd_factor']
 
         # Add enduse to ServiceSector
         service_object = endusefunctions.Enduse(
