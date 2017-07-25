@@ -306,8 +306,7 @@ def load_assumptions(data):
 
 
     # Share of electric heating taken from ?? ECUK Must contain hybrid_gas_elec
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'heat_pumps_electricity': 0.1, 'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.40, 'secondary_heater_electricity': 0.48}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    #assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.89, 'secondary_heater_electricity': 0.108} #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'heat_pumps_electricity': 0.02, 'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.40, 'secondary_heater_electricity': 0.56}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}

@@ -150,11 +150,14 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
     plt.plot(x, y_real_INDO_factored, color='green', label='TD_factored') #'ro', markersize=1
     plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1
 
+    plt.xlim([0, 8760])
     plt.title('RMSE (TD): {}  RMSE (TSD):  {} RMSE (factored TSD): {}'.format(rmse_val_INDO, rmse_val_ITSDO, rmse_val_corrected))
     plt.title(title_left, loc='left')
     #plt.title('Right Title', loc='right')
+    plt.xlabel("Hours")
+    plt.ylabel("National electrictiy use [GWh]")
     plt.axis('tight')
-    
+
     plt.legend()
 
     plt.show()

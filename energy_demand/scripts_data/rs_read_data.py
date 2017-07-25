@@ -98,7 +98,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
         daytype = date_handling.get_weekday_type(yearday)
 
         # Get day from HES raw data array
-        year_raw_values[yearday_python] = hes_data[daytype][month_python] 
+        year_raw_values[yearday_python] = hes_data[daytype][month_python]
 
     return year_raw_values
 
@@ -142,20 +142,21 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
         month, daytype, appliance_typ = int(row[0]), int(row[1]), int(row[2])
         k_header = 3 #Row in Excel where energy data start
 
-        for hour in range(24): # iterate over hour  = row in csv file
-            # [kWH electric] Converts the summed watt into kWH
+        for hour in range(24):
+
             # Note: This would actually not necessary as we are only calculating in relative terms
-            _value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000))
+            #hourly_value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000)) # [kWH electric] Converts the summed watt into kWH
+            hourly_value = float(row[k_header])
 
             # if coldest (see HES file)
             if daytype == 2:
-                hes_y_coldest[hour][appliance_typ] = _value
+                hes_y_coldest[hour][appliance_typ] = hourly_value
                 k_header += 1
             elif daytype == 3:
-                hes_y_warmest[hour][appliance_typ] = _value
+                hes_y_warmest[hour][appliance_typ] = hourly_value
                 k_header += 1
             else:
-                hes_data[daytype][month][hour][appliance_typ] = _value
+                hes_data[daytype][month][hour][appliance_typ] = hourly_value
                 k_header += 1
 
     return hes_data, hes_y_coldest, hes_y_warmest

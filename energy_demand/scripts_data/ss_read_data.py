@@ -67,12 +67,12 @@ def read_raw_carbon_trust_data(folder_path):
             #print("Number of lines in csv file: " + str(count_row))
 
             # Calc yearly demand based on one year data measurements
-            if count_row > 365: # if more than one year is recorded in csv file TODO: All but then distored?
-                #if len(read_lines) > 365:
+            if count_row > 365: # if more than one year is in csv file
                 print("FILE covers a full year---------------------------")
 
+                # Test if file has correct form and not more entries than 48 half-hourly entries
                 for day, row in enumerate(row_data):
-                    if len(row) != 49: # Test if file has correct form and not more entries than 48 half-hourly entries
+                    if len(row) != 49:
                         continue # Skip row
 
                     # Use only data of one year
@@ -109,20 +109,19 @@ def read_raw_carbon_trust_data(folder_path):
                             demand_h = first_data_h + data_h
                             control_sum += abs(demand_h)
 
-                            # Calc percent of total daily demand
+                            # Add demand
                             carbon_trust_raw[yearday_python][h_day].append(demand_h)
 
-                            # Stor demand according to daytype (aggregated by doing so)
+                            # Store demand according to daytype (aggregated by doing so)
                             main_dict[daytype][month_python][h_day].append(demand_h)
 
                             if daily_sum == 0: # Skip row if no demand of the day
                                 load_shape_dh[h_day] = 0
                                 continue
                             else:
-                                load_shape_dh[h_day] = demand_h * np.divide(1.0, daily_sum) # Load shape of this day
+                                load_shape_dh[h_day] = (1.0 / daily_sum) * demand_h
 
-                                cnt = 0
-
+                            cnt = 0 #sHARK
                             h_day += 1
 
                         # Value lagging behind one iteration
@@ -147,19 +146,19 @@ def read_raw_carbon_trust_data(folder_path):
     load_peak_average_dh = np.zeros((24))
     for peak_shape_dh in dict_max_dh_shape.values():
         load_peak_average_dh += peak_shape_dh
-    load_peak_shape_dh = np.divide(load_peak_average_dh, len(dict_max_dh_shape))
+    load_peak_shape_dh = load_peak_average_dh / len(dict_max_dh_shape)
 
     # Calculate average of for different csv files (sum of all entries / number of entries)
-    carbon_trust_raw_array = np.zeros((365, 24))
+    '''carbon_trust_raw_array = np.zeros((365, 24)) #TODO. irgendwie doppelt implementiert als array und dict
     for yearday in carbon_trust_raw:
         for h_day in carbon_trust_raw[yearday]:
 
             # Add average to array
-            carbon_trust_raw_array[yearday][h_day] = np.divide(sum(carbon_trust_raw[yearday][h_day]), len(carbon_trust_raw[yearday][h_day])) #average
+            carbon_trust_raw_array[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
 
             # Add average to dict
-            carbon_trust_raw[yearday][h_day] = np.divide(sum(carbon_trust_raw[yearday][h_day]), len(carbon_trust_raw[yearday][h_day])) #average
-
+            carbon_trust_raw[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
+    '''
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
@@ -173,14 +172,12 @@ def read_raw_carbon_trust_data(folder_path):
             for hour in main_dict[daytype][month]:
                 nr_of_entries = len(main_dict[daytype][month][hour])
                 if nr_of_entries != 0:
-                    out_dict_av[daytype][month][hour] = np.divide(sum(main_dict[daytype][month][hour]), nr_of_entries)
+                    out_dict_av[daytype][month][hour] = sum(main_dict[daytype][month][hour]) / nr_of_entries
 
     # ----------------------------------------------------------
     # Distribute raw data into base year depending on daytype
     # ----------------------------------------------------------
     year_data = assign_carbon_trust_data_to_year(out_dict_av, 2015)
-
-    #year_data_shape = shape_handling.absolute_to_relative(year_data) #np.divide(1, np.sum(year_data)) * year_data
 
     # Calculate yearly sum
     yearly_demand = np.sum(year_data)
@@ -191,15 +188,13 @@ def read_raw_carbon_trust_data(folder_path):
         daily_sum = np.sum(carbon_trust_d)
         if daily_sum > max_demand_d:
             max_demand_d = daily_sum
-            #max_day = yearday
 
-    shape_peak_yd_factor = np.divide(1, yearly_demand) * max_demand_d
-    print("shape_peak_yd_factor: " + str(shape_peak_yd_factor))
+    shape_peak_yd_factor = (1.0 / yearly_demand) * max_demand_d
 
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = shape_handling.absolute_to_relative(dh_values) #np.divide(1.0, np.sum(dh_values)) * dh_values # daily shape
+        load_shape_dh[day] = shape_handling.absolute_to_relative(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
@@ -207,7 +202,7 @@ def read_raw_carbon_trust_data(folder_path):
     shape_non_peak_yd = np.zeros((365))
     for yearday, carbon_trust_d in enumerate(year_data):
         shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
-    shape_non_peak_yd = np.divide(1, yearly_demand) * shape_non_peak_yd
+    shape_non_peak_yd = (1.0 / yearly_demand) * shape_non_peak_yd
 
     np.testing.assert_almost_equal(np.sum(shape_non_peak_yd), 1, decimal=2, err_msg="")
 
@@ -319,6 +314,6 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_non_peak_dh[yearday_python] = np.array(_data[:, 1], dtype=float)   # now [yearday][24 hours with relative shape]
+        shape_non_peak_dh[yearday_python] = np.array(_data[:, 1], dtype=float)
 
     return shape_non_peak_dh
