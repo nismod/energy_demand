@@ -560,16 +560,16 @@ class Technology(object):
         """
         # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
         if self.tech_type == 'storage_heating_electricity':
-            shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2]
+            shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh']['peakday']
         elif self.tech_type == 'secondary_heating_electricity':
-            shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh'][2]
+            shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh']['peakday']
         elif self.tech_type == 'boiler_heating_tech':
              # Peak curve robert sansom
-            shape_peak_dh = data['rs_shapes_heating_boilers_dh'][2]
+            shape_peak_dh = data['rs_shapes_heating_boilers_dh']['peakday']
 
         elif self.tech_type == 'heat_pump':
              # Peak curve robert sansom
-            shape_peak_dh = data['rs_shapes_heating_heat_pump_dh'][2]
+            shape_peak_dh = data['rs_shapes_heating_heat_pump_dh']['peakday']
 
         elif self.tech_type == 'hybrid_tech':
 

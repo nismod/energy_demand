@@ -85,7 +85,9 @@ def load_data(path_main, data):
         'path_is_txt_shapes': os.path.join(path_main, 'submodel_industry/txt_load_shapes'),
 
         #Technologies load shapes
-        'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
+        #'path_hourly_gas_shape_hp': os.path.join(path_main, 'submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
+        'path_hourly_elec_shape_hp': os.path.join(path_main, 'submodel_residential/LOVE_elec_shape_dh_hp.csv'),
+        
         'path_shape_rs_cooling': os.path.join(path_main, 'submodel_residential/shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(path_main, 'submodel_service/shape_service_cooling.csv'),
         'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'submodel_residential/HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
@@ -218,8 +220,9 @@ def load_data(path_main, data):
     # Specific technology shapes
     # ------------------------------------------
     # Regular day, weekday, weekend (across all months)
-    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
-    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_float(data['path_dict']['path_hourly_gas_shape_hp']) # Heat pump shape
+    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
+    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_elec_shape_hp']) # Heat pump shape from Love et al. 2017
+
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
     data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_ss_cooling']) # ??
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
@@ -227,8 +230,8 @@ def load_data(path_main, data):
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
-    data['rs_shapes_space_heating_storage_heater_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
-    data['rs_shapes_space_heating_second_elec_heating_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
+    data['rs_shapes_space_heating_storage_heater_elec_heating_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
+    data['rs_shapes_space_heating_second_elec_heating_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
 
     '''plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][0] * 45.8)
     plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][1] * 45.8)

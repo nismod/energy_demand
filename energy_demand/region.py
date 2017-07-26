@@ -362,9 +362,9 @@ class Region(object):
 
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
             if weekday_type == 'holiday':
-                daily_fuel_profile = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2])) # WkendHourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = np.divide(data[tech_to_get_shape]['holiday'], np.sum(data[tech_to_get_shape]['holiday'])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
-                daily_fuel_profile = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = np.divide(data[tech_to_get_shape]['workday'], np.sum(data[tech_to_get_shape]['workday'])) # Wkday Hourly gas shape. Robert Sansom hp curve
 
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
@@ -516,14 +516,14 @@ class Region(object):
                 # Because boiler eff is constant, the shape_yh_boilers reflects the needed heat per hour
                 # ------
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape][1]
+                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape]['holiday']
 
-                shape_y_dh_boilers[day] = data[tech_to_get_shape][1]
+                shape_y_dh_boilers[day] = data[tech_to_get_shape]['holiday']
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve
-                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape][0] #yd shape
+                shape_yh_boilers[day] = heating_shape[day] * data[tech_to_get_shape]['workday'] #yd shape
 
-                shape_y_dh_boilers[day] = data[tech_to_get_shape][0] #dh shape
+                shape_y_dh_boilers[day] = data[tech_to_get_shape]['workday'] #dh shape
 
         # Testing
         np.testing.assert_almost_equal(np.sum(shape_yh_boilers), 1, err_msg="Error in shape_yh_boilers: The sum of hourly shape is not 1: {}".format(np.sum(shape_yh_boilers)))

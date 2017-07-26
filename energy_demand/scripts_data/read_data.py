@@ -145,8 +145,6 @@ def read_csv_float(path_to_csv):
     ----------
     path_to_csv : str
         Path to csv file
-    _dt : str
-        Defines dtype of array to be read in (takes float)
 
     Returns
     -------
@@ -169,6 +167,31 @@ def read_csv_float(path_to_csv):
             service_switches.append(row)
 
     return np.array(service_switches, float)
+
+def read_csv_load_shapes_technology(path_to_csv):
+    """This function reads in csv technology shapes
+    #TODO:
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    """
+    load_shapes_dh = {}
+
+    # Read CSV file
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        _headings = next(read_lines) # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            dh_shape = np.zeros(24)
+            for cnt, row_entry in enumerate(row[1:], 1):
+                dh_shape[int(_headings[cnt])] = float(row_entry)
+
+            load_shapes_dh[str(row[0])] = dh_shape
+
+    return load_shapes_dh
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
