@@ -51,12 +51,14 @@ def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p)
     tech_decreased_share = {}
     tech_constant_share = {}
 
-    if share_service_tech_ey_p == {}: # If no service switch defined
-        tech_increased_service = []
-        tech_decreased_share = []
-        tech_constant_share = []
-    else:
-        for enduse in service_tech_by_p:
+    for enduse in service_tech_by_p:
+
+        # If no service switch defined
+        if share_service_tech_ey_p[enduse] == {}:
+            tech_increased_service[enduse] = []
+            tech_decreased_share[enduse] = []
+            tech_constant_share[enduse] = []
+        else:
             tech_increased_service[enduse] = []
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []

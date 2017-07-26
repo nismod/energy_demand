@@ -200,7 +200,7 @@ def read_csv(path_to_csv):
 
     return np.array(service_switches) # Convert list into array
 
-def read_assump_service_switch(path_to_csv, assumptions):
+def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_enduse_tech_p_by):
     """This function reads in service assumptions from csv file
 
     Parameters
@@ -230,7 +230,7 @@ def read_assump_service_switch(path_to_csv, assumptions):
     While not only loading in all rows, this function as well tests if inputs are plausible (e.g. sum up to 100%)
     """
     service_switches = []
-    enduse_tech_by_p = {}
+    enduse_tech_ey_p = {}
     rs_enduse_tech_maxl_by_p = {}
     rs_service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
@@ -241,7 +241,6 @@ def read_assump_service_switch(path_to_csv, assumptions):
 
         # Iterate rows
         for row in read_lines:
-            print(row)
             try:
                 service_switches.append(
                     {
@@ -260,25 +259,24 @@ def read_assump_service_switch(path_to_csv, assumptions):
         enduse = line['enduse']
         if enduse not in all_enduses:
             all_enduses.append(enduse)
-            enduse_tech_by_p[enduse] = {}
+            enduse_tech_ey_p[enduse] = {}
             rs_enduse_tech_maxl_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        #rs_service_switch_enduse_crit[enduse] = False #False by default
         for line in service_switches:
             if line['enduse'] == enduse:
                 tech = line['tech']
-                enduse_tech_by_p[enduse][tech] = line['service_share_ey']
+                enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
                 rs_enduse_tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
-    for enduse in assumptions['rs_all_specified_tech_enduse_by']:
+    for enduse in all_specified_tech_enduse_by:
         if enduse in rs_service_switch_enduse_crit: #If switch is defined for this enduse
-            for tech in assumptions['rs_all_specified_tech_enduse_by'][enduse]:
-                if tech not in enduse_tech_by_p[enduse]:
+            for tech in all_specified_tech_enduse_by[enduse]:
+                if tech not in enduse_tech_ey_p[enduse]:
                     sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     # Test if more service is provided as input than possible to maximum switch
@@ -287,11 +285,27 @@ def read_assump_service_switch(path_to_csv, assumptions):
             sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
 
     # Test if service of all provided technologies sums up to 100% in the end year
-    for enduse in enduse_tech_by_p:
-        if round(sum(enduse_tech_by_p[enduse].values()), 2) != 1.0:
+    for enduse in enduse_tech_ey_p:
+        if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
             sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, enduse_tech_by_p[enduse].values()))
 
-    return enduse_tech_by_p, rs_enduse_tech_maxl_by_p, service_switches
+    # ------------------------------------------------------
+    # Add all other enduses for which no switch is defined
+    # ------------------------------------------------------
+    for enduse in all_specified_tech_enduse_by:
+        if enduse not in enduse_tech_ey_p: #if not defined by switches
+            enduse_tech_ey_p[enduse] = {}
+    '''for enduse in all_specified_tech_enduse_by:
+        if enduse not in enduse_tech_ey_p: #if not defined by switches
+            if all_specified_tech_enduse_by[enduse] != []:
+                enduse_tech_ey_p[enduse] = {}
+                for tech in all_specified_tech_enduse_by[enduse]:
+                    for fueltype in fuel_enduse_tech_p_by[enduse]:
+                        if tech in fuel_enduse_tech_p_by[enduse][fueltype]:
+                            # Add unchaged enduse
+                            enduse_tech_ey_p[enduse][tech] = fuel_enduse_tech_p_by[enduse][fueltype][tech]  
+    '''
+    return enduse_tech_ey_p, rs_enduse_tech_maxl_by_p, service_switches
 
 def read_assump_fuel_switches(path_to_csv, data):
     """This function reads in from CSV file defined fuel switch assumptions

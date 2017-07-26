@@ -116,7 +116,8 @@ class Region(object):
 
         # Cooling service
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling N*""
-        ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, shape_handling.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
         ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_electricity', 'boiler_gas', 'heat_pumps_electricity') # Hybrid
 
@@ -151,8 +152,8 @@ class Region(object):
         ##self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_cooling'], ['ss_space_cooling'], ss_fuel_shape_cooling_yd, ss_fuel_shape_cooling_yh) #'ss_cooling_ventilation'
 
         # correlate
-        self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_cooling_ventilation'], ['ss_cooling_ventilation'], ss_fuel_shape_heating_yd, ss_fuel_shape_cooling_yh) # ss_fuel_shape_cooling_yd, ss_fuel_shape_cooling_yh) #
-
+        #self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_cooling_ventilation'], ['ss_cooling_ventilation'], ss_fuel_shape_heating_yd, ss_fuel_shape_cooling_yh) # ss_fuel_shape_cooling_yd, ss_fuel_shape_cooling_yh) #
+        #self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_cooling_ventilation'], ['ss_cooling_ventilation'], shape_handling.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), ss_fuel_shape_cooling_yh) # ss_fuel_shape_cooling_yd, ss_fuel_shape_cooling_yh) 
 
         #--Assign ss electricity shape to ventilation technology (pick any sector, which is here first in list)
         #self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_ventilation'], ['ss_ventilation'], data_shapes_yd[enduse]['shape_non_peak_yd'], data_shapes_dh[enduse]['shape_non_peak_dh'] * data_shapes_yd[enduse]['shape_non_peak_yd'])
@@ -357,10 +358,10 @@ class Region(object):
         for day, date_gasday in enumerate(list_dates):
 
             # See wether day is weekday or weekend
-            weekday = date_gasday.timetuple().tm_wday
+            weekday_type = date_handling.get_weekday_type(date_gasday)
 
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
-            if weekday == 5 or weekday == 6:
+            if weekday_type == 'holiday':
                 daily_fuel_profile = np.divide(data[tech_to_get_shape][2], np.sum(data[tech_to_get_shape][2])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
                 daily_fuel_profile = np.divide(data[tech_to_get_shape][1], np.sum(data[tech_to_get_shape][1])) # Wkday Hourly gas shape. Robert Sansom hp curve
@@ -506,10 +507,10 @@ class Region(object):
         for day, date_gasday in enumerate(list_dates):
 
             # See wether day is weekday or weekend
-            weekday = date_gasday.timetuple().tm_wday
+            weekday_type = date_handling.get_weekday_type(date_gasday)
 
             # Take respectve daily fuel curve depending on weekday or weekend
-            if weekday == 5 or weekday == 6:
+            if weekday_type == 'holiday':
                 # -----
                 # The percentage of totaly yearly heat demand (heating_shape[day]) is distributed with daily fuel shape of boilers
                 # Because boiler eff is constant, the shape_yh_boilers reflects the needed heat per hour

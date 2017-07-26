@@ -484,7 +484,7 @@ plt.plot(X_plot, Y_plot, color='k')
 
 
 
-plt.xlabel("National gas demand [GWh]")
+plt.xlabel("National gas demand [GWh / h]")
 plt.ylabel("Heating degree days")
 plt.title("Correlation between national gas demand and hdd (r_value:  {}".format(r_value))
 plt.show()

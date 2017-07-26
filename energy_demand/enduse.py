@@ -81,24 +81,24 @@ class Enduse(object):
             # Yearly fuel calculation cascade
             # --------------------------------
 
-            print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_y[2])))
+            print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_y)))
             testsumme = np.sum(self.enduse_fuel_new_y[2])
 
             # Change fuel consumption based on climate change induced temperature differences
             self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y, data['assumptions'])
-            print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_y[2])))
+            print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Calcualte smart meter induced general savings
             self.smart_meter_eff_gain(data['assumptions'])
-            print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y[2])))
+            print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
             self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey)
-            print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y[2])))
+            print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.enduse_building_stock_driver(dw_stock, reg_name)
-            print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y[2])))
+            print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # ----------------------------------
@@ -121,10 +121,6 @@ class Enduse(object):
                     data['lu_fueltype']
                     )
 
-                testsum = 0
-                for tech in service_tech:
-                    testsum += np.sum(service_tech[tech])
-
                 # ---------------------------------------------------------------------------------------
                 # Reduction of service because of heat recovery (standard sigmoid diffusion)
                 # ---------------------------------------------------------------------------------------
@@ -133,7 +129,6 @@ class Enduse(object):
 
                 control_tot_service = 0
                 for tech, fuel in service_tech.items():
-                    #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
                     control_tot_service += np.sum(fuel)
                 #print("control_tot_service A: " + str(control_tot_service))
 
@@ -403,7 +398,6 @@ class Enduse(object):
 
                 #Hybrid info
                 tech_low = tech_stock.get_tech_attr(self.enduse, tech, 'tech_low_temp')
-                #tech_high = tech_stock.get_tech_attr(self.enduse, tech, 'tech_high_temp')
 
                 tech_low_temp_fueltype = tech_stock.get_tech_attr(self.enduse, tech, 'tech_low_temp_fueltype')
                 tech_high_temp_fueltype = tech_stock.get_tech_attr(self.enduse, tech, 'tech_high_temp_fueltype')
@@ -1130,7 +1124,7 @@ class Enduse(object):
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
-        elif self.enduse == 'cooling': #TODO
+        elif self.enduse in assumptions['enduse_space_cooling']: # 'cooling': #TODO
             for fueltype, fuel in enumerate(self.enduse_fuel_new_y):
                 new_fuels[fueltype] = fuel * cooling_factor_y
 

@@ -155,7 +155,7 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
     plt.title(title_left, loc='left')
     #plt.title('Right Title', loc='right')
     plt.xlabel("Hours")
-    plt.ylabel("National electrictiy use [GWh]")
+    plt.ylabel("National electrictiy use [GWh / h]")
     plt.axis('tight')
 
     plt.legend()
@@ -203,7 +203,7 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     plt.axis('tight')
     plt.title("Peak day comparison", loc='left')
     plt.xlabel("Hours")
-    plt.ylabel("National electrictiy use [GWh]")
+    plt.ylabel("National electrictiy use [GWh / h]")
     plt.legend()
     plt.show()
 
@@ -235,20 +235,23 @@ def compare_results_hour_boxplots(data_real, data_calculated):
 
     fig = plt.figure()
 
-
     ax = fig.add_subplot(111)
 
     # Add a horizontal grid to the plot, but make it very light in color so we can use it for reading data values but not be distracting
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
-    ax.axhline(y=100, xmin=0, xmax=3,c="red", linewidth=1, zorder=0)
+    ax.axhline(y=100, xmin=0, xmax=3, c="red", linewidth=1, zorder=0)
 
     diff_values = []
     for hour in range(24):
         diff_values.append(np.asarray(data_h_full_year[hour]))
 
+
     ax.boxplot(diff_values)
+
+    plt.xticks(range(1, 25), range(24))
+
     plt.xlabel("Hour")
-    #plt.ylabel("Modelled electricity difference (real-modelled) [GWh]")
+    #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
     plt.show()

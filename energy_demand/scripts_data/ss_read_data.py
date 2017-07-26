@@ -94,6 +94,11 @@ def read_raw_carbon_trust_data(folder_path):
 
                     date_row = date(year, month, day)
                     daytype = date_handling.get_weekday_type(date_row)
+                    if daytype == 'holiday':
+                        daytype = 1
+                    else:
+                        daytype = 0
+
                     yearday_python = date_row.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
                     month_python = month - 1 # Month Python
 
@@ -310,6 +315,11 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = date_handling.get_weekday_type(yearday)
+        if daytype == 'holiday':
+            daytype = 1
+        else:
+            daytype = 0
+        
         _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
 
         # Add values to yearly

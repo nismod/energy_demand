@@ -35,3 +35,11 @@ boiler_hydrogen			0.0
  
 Enduse  rs_water_heating
 ----------
+boiler_solid_fuel			0.0138356530268
+boiler_gas			0.718694683752
+hybrid_gas_electricity			0.00442504678391
+boiler_electricity			0.115408074993
+boiler_oil			0.0429130213799
+boiler_heat_sold			0.0
+boiler_biomass			0.104723520065
+boiler_hydrogen			0.0

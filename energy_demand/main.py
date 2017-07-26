@@ -166,13 +166,13 @@ if __name__ == "__main__":
     ss_floorarea_sector_by_dummy['Scotland'] = {}
     ss_floorarea_sector_by_dummy['England'] = {}
     for sector in all_sectors:
-        ss_floorarea_sector_by_dummy['Wales'][sector] = 10000 #[m2]
-        #ss_floorarea_sector_by_dummy['Scotland'][sector] = 10000 #[m2]
-        #ss_floorarea_sector_by_dummy['England'][sector] = 10000 #[m2]
+        ss_floorarea_sector_by_dummy['Wales'][sector] = 3000000 * 1 #10000 #[m2]
+        ss_floorarea_sector_by_dummy['Scotland'][sector] = 5300000 * 1 #10000 #[m2]
+        ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
 
 
-    #a = a = 'Wales': 3000000, 'Scotland': 5300000, 'BERN': 5300000}
-    a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
+    #a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -369,7 +369,6 @@ if __name__ == "__main__":
 
         # Compare different models
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
