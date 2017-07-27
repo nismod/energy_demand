@@ -14,15 +14,7 @@ import numpy as np
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_data import read_weather_data
 from energy_demand.scripts_data import read_weather_data
-
-def cm2inch(*tupl):
-    """Convert input cm to inches
-    """
-    inch = 2.54
-    if isinstance(tupl[0], tuple):
-        return tuple(i/inch for i in tupl[0])
-    else:
-        return tuple(i/inch for i in tupl)
+from energy_demand.scripts_plotting import plotting_program
 
 # ----------------------------------
 # Read temp data and weather station
@@ -464,7 +456,7 @@ print("p_value:       " + str(p_value))
 print("std_err:       " + str(std_err))
 
 # Set figure size in cm
-plt.figure(figsize=cm2inch(10, 10))
+plt.figure(figsize=plotting_program.cm2inch(10, 10))
 
 # plot points
 plt.plot(gas_demand_NDM_2015_2016, hdd_reg, 'ro', markersize=5, color='gray')

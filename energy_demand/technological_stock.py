@@ -147,7 +147,7 @@ class Technology(object):
             eff_tech_high_cy = self.calc_eff_cy(data['assumptions']['technologies'][self.tech_high_temp]['eff_by'], self.tech_high_temp, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'])
 
             # Efficiencies
-            self.eff_tech_low_cy = self.const_eff_yh(eff_tech_low_cy)
+            self.eff_tech_low_cy = self.const_eff_yh(eff_tech_low_cy) #constant eff of low temp tech
             self.eff_tech_high_cy = self.get_heatpump_eff(temp_cy, data['assumptions']['hp_slope_assumption'], eff_tech_high_cy, t_base_heating_cy)
 
             # Get fraction of service for hybrid technologies for every hour
@@ -277,11 +277,9 @@ class Technology(object):
         tech_low_high_p = {
             'low': np.zeros((365, 24)),
             'high': np.zeros((365, 24))
-        }
+            }
 
         for day, temp_d in enumerate(temp_cy):
-            tech_low_high_p[day] = {}
-
             for hour, temp_h in enumerate(temp_d):
 
                 # Get share of service of high temp technology
@@ -292,7 +290,7 @@ class Technology(object):
                     )
 
                 # Calculate share of service of low temp technology
-                service_low_tech_p = 1 - service_high_tech_p
+                service_low_tech_p = 1.0 - service_high_tech_p
 
                 tech_low_high_p['low'][day][hour] = service_low_tech_p
                 tech_low_high_p['high'][day][hour] = service_high_tech_p
@@ -499,34 +497,33 @@ class Technology(object):
         """
         fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
 
-        # CAlculate hybrid efficiency
-        beluga_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
+        # Calculate hybrid efficiency
+        hybrid_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by) #or cy?
 
         for day in range(365):
             for hour in range(24):
-                service_low_h, service_high_h = 0, 0
+                #service_low_h, service_high_h = 0, 0
 
                 # Fraction of service of low and high temp technology
                 service_low_h_p = self.service_distr_hybrid_h_p_cy['low'][day][hour]
                 service_high_h_p = self.service_distr_hybrid_h_p_cy['high'][day][hour]
 
                 # Efficiency of low and high tech
-                eff_tech_low = self.eff_tech_low_cy[day][hour] #cy or by?
-                eff_tech_high_hp = self.eff_tech_high_cy[day][hour]
+                #eff_tech_low = self.eff_tech_low_by[day][hour] #cy or by?
+                #eff_tech_high_hp = self.eff_tech_high_by[day][hour] # cy or by?
+                #hybrid_eff = (service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
 
                 # Get hybrid efficiency
-                hybrid_eff = beluga_eff_yh[day][hour] #(service_high_h_p * eff_tech_high_hp) + (service_low_h_p * eff_tech_low)
+                hybrid_eff = hybrid_eff_yh[day][hour]
 
-                # Calculate fuel fractions: (frac_tech * dummy_service) / eff_tech
+                # Calculate fuel fractions
                 if service_low_h_p > 0:
-                    service_low_h = service_low_h_p
-                    fuel_low_h = np.divide(service_low_h, hybrid_eff)
+                    fuel_low_h = np.divide(service_low_h_p, hybrid_eff)
                 else:
                     fuel_low_h = 0
 
                 if service_high_h_p > 0:
-                    service_high_h = service_high_h_p
-                    fuel_high_h = np.divide(service_high_h, hybrid_eff)
+                    fuel_high_h = np.divide(service_high_h_p, hybrid_eff)
                 else:
                     fuel_high_h = 0
 
@@ -534,7 +531,7 @@ class Technology(object):
 
                 # The the low and high temp tech have same fueltype
                 if fueltype_low_temp == fueltype_high_temp:
-                    fueltypes_yh[fueltype_low_temp][day][hour] = 1.0
+                    fueltypes_yh[fueltype_high_temp][day][hour] = 1.0 # fueltype_low_temp
                 else:
                     # Assign share of total fuel for respective fueltypes
                     fueltypes_yh[fueltype_low_temp][day][hour] = np.divide(1.0, tot_fuel_h) * fuel_low_h

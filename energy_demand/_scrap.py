@@ -4,6 +4,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = [0,5,9,10,15]
+y = [0,1,2,3,4]
+plt.plot(x,y)
+#plt.xticks(np.arange(min(x), max(x)+1, 1.0))
+plt.yticks(range(0, 10, 2))
+plt.ylim(0, 10)
+
+plt.show()
+
+'''
+
 array_dh = np.random.rand(24)
 
 
@@ -119,5 +133,7 @@ def boxplots_month():
     plt.show()
 
 boxplots_month()
+
+'''
 
 '''

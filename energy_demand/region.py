@@ -160,6 +160,17 @@ class Region(object):
         #any_sector = data['ss_sectors'][0]
         #self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_ventilation'], ['ss_cooling_ventilation'], data['ss_shapes_yd'][any_sector]['ss_cooling_ventilation']['shape_non_peak_yd'], data['ss_shapes_dh'][any_sector]['ss_cooling_ventilation']['shape_non_peak_dh'] * data['ss_shapes_yd'][any_sector]['shape_non_peak_yd'])
 
+        # -------------------------------------------------------------------
+        # Lighting (alls HES shape for all technologies) data['rs_shapes_yd']
+        # -------------------------------------------------------------------
+        # peak shape
+        self.assign_fuel_peak_dh_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_rs_lighting'], ['rs_lighting'], data['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
+
+        # non-peak shape
+        shape_lighting_yh = data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis]
+
+        self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_rs_lighting'], ['rs_lighting'], data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'], shape_lighting_yh)
+
     def assign_fuel_shape_tech_stock(self, tech_stock, technologies, enduses, shape_yd, shape_yh):
         """Assign technology specific yd and yh shape
 
@@ -180,6 +191,24 @@ class Region(object):
             for technology in technologies:
                 tech_stock.set_tech_attribute_enduse(technology, 'shape_yd', shape_yd, enduse)
                 tech_stock.set_tech_attribute_enduse(technology, 'shape_yh', shape_yh, enduse)
+    
+    def assign_fuel_peak_dh_shape_tech_stock(self, tech_stock, technologies, enduses, shape_peak_dh):
+        """Assign technology specific yd and yh shape
+
+        Parameters
+        ----------
+        tech_stock : object
+            Technology stock to assign shape
+        technologies : list
+            Technologies to which the shape gets assigned
+        enduses : list
+            Enduses where the technologies are used
+        shape_peak_dh : array
+            Fuel shape
+        """
+        for enduse in enduses:
+            for technology in technologies:
+                tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_dh', shape_peak_dh, enduse)
 
     def get_shape_heating_hybrid_yh(self, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech, tech_low_temp, tech_high_temp):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape

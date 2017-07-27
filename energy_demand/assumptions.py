@@ -272,7 +272,7 @@ def load_assumptions(data):
     #assumptions['list_tech_cooling_temp_dep'] = []
 
     # Lighting technologies
-    #assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
+    assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
     #assumptions['list_water_heating'] =
     ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
@@ -296,40 +296,36 @@ def load_assumptions(data):
     assumptions['is_fuel_enduse_tech_p_by'] = initialise_dict_fuel_enduse_tech_p_by(data['is_all_enduses'], data['nr_of_fueltypes'])
 
     # ------------------
-    # Residential subModel - Fuel shares of technologies in enduse
+    # Residential subModel - Fuel shares of technologies in enduse for base year
     # ------------------
 
     #---space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {'heat_pumps_electricity': 0.02, 'hybrid_gas_electricity': 0.02, 'storage_heater_electricity': 0.40, 'secondary_heater_electricity': 0.56}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = {
+        'heat_pumps_electricity': 0.02,
+        'hybrid_gas_electricity': 0.02,
+        'storage_heater_electricity': 0.40,
+        'secondary_heater_electricity': 0.56}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk #According to OFGEM 1.7 out of 4 mio households use storage heating == 42.5%..Hoever, often more flats and more fuel poverty and some heatpumps, i.e. lower demands (e.g. redue certain percentage)
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
-    #except:
-    #    print("No fuel for rs space heating provided")
-    #TODO: HES secondary_boiler_elec
-    # HES primary_elec_heating_tech_storage_heater: , seondary_elec_heating_tech_
-    #
-    #
-
-    #assumptions['rs_fuel_enduse_tech_p_by'] = beluga_mutate_fuel_enduse_tech_p_by('hybrid_gas_electricity', assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'], assumptions['technologies'], data['rs_fuel_raw_data_enduses']['rs_space_heating'])
 
     # ---water heating
-    #try:
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
+    '''assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.98}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
-    #except:
-    #    print("No fuel for rs water heating provided")
-
-    '''# ---lighting
-    assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {'standard_resid_lighting_bulb': 0.02, 'fluorescent_strip_lightinging' : 0.98}
+    '''
+    # ---lighting
+    '''assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
+        'standard_resid_lighting_bulb': 0.02,
+        'fluorescent_strip_lightinging' : 0.98
+        }
     '''
 
 
@@ -340,8 +336,11 @@ def load_assumptions(data):
 
     # ---Space heating #TODO: Check that all defined technologies are inserted here, even if not defined
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0} # {'hybrid_gas_electricity': 0.02, 'boiler_gas': 0.98}
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_electricity': 1.0} #{'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.48, 'heat_pumps_electricity': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['electricity']] = {
+        'boiler_electricity': 0.98,
+        'hybrid_gas_electricity': 0.02
+        } #{'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.48, 'heat_pumps_electricity': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
@@ -387,8 +386,9 @@ def load_assumptions(data):
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['electricity']] = {'boiler_electricity': 0.5, 'heat_pumps_electricity': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
-    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 0.0}
-    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 0.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
+    assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
+
 
 
     # Helper functions
@@ -413,27 +413,13 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by']) 
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by'])
     assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['ss_fuel_enduse_tech_p_by'])
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
 
     # ========================================
     # Other
     # ========================================
-    assumptions['bank_holidays'] = [
-        date(2015, 1, 1),
-        date(2015, 4, 3),
-        date(2015, 4, 6),
-        date(2015, 5, 4),
-        date(2015, 5, 25),
-        date(2015, 8, 31),
-        date(2015, 12, 25),
-        date(2015, 12, 28),
-        date(2015, 12, 29),
-        date(2015, 12, 30),
-        date(2015, 12, 31),
-        date(2015, 12, 28)
-        ]
 
     # ============================================================
     # Helper functions

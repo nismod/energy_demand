@@ -171,8 +171,8 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
 
 
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
-    #a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
+    #a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
+    a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -370,7 +370,7 @@ if __name__ == "__main__":
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
         # Compare different models
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
+        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1], 'all_submodels', days_to_plot_full_year)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
         validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)

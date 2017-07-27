@@ -7,6 +7,7 @@ from math import factorial
 import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_basic import unit_conversions
+from energy_demand.scripts_plotting import plotting_program
 #from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def get_month_from_string(month_string):
@@ -151,6 +152,8 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
     plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1
 
     plt.xlim([0, 8760])
+    plt.margins(x=0) #remove white space
+
     plt.title('RMSE (TD): {}  RMSE (TSD):  {} RMSE (factored TSD): {}'.format(rmse_val_INDO, rmse_val_ITSDO, rmse_val_corrected))
     plt.title(title_left, loc='left')
     #plt.title('Right Title', loc='right')
@@ -197,10 +200,18 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     '''
 
     x = range(24)
+
+    plt.figure(figsize=plotting_program.cm2inch(9, 9))
+
     plt.plot(x, peak_all_models_all_enduses_fueltype, color='red', label='modelled')
     plt.plot(x, validation_elec_data_2015[max_day], color='green', label='real')
 
-    plt.axis('tight')
+    # Y-axis ticks
+    plt.ylim(0, 80)
+    plt.xlim(0, 25)
+    plt.yticks(range(0, 90, 10))
+    
+    #plt.axis('tight')
     plt.title("Peak day comparison", loc='left')
     plt.xlabel("Hours")
     plt.ylabel("National electrictiy use [GWh / h]")
@@ -249,6 +260,7 @@ def compare_results_hour_boxplots(data_real, data_calculated):
     ax.boxplot(diff_values)
 
     plt.xticks(range(1, 25), range(24))
+    #plt.margins(x=0) #remove white space
 
     plt.xlabel("Hour")
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")

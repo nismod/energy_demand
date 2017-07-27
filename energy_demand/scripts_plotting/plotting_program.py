@@ -3,6 +3,15 @@ import matplotlib.pyplot as plt
 import pylab
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
+def cm2inch(*tupl):
+    """Convert input cm to inches
+    """
+    inch = 2.54
+    if isinstance(tupl[0], tuple):
+        return tuple(i/inch for i in tupl[0])
+    else:
+        return tuple(i/inch for i in tupl)
+
 def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_parameter, close_window_crit=True):
     """Plot sigmoid diffusion
     """
