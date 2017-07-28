@@ -16,7 +16,6 @@ dummy__rs_cold__3__False__tech			0.0
 dummy__rs_cold__4__False__tech			0.0
 dummy__rs_cold__5__False__tech			0.0
 dummy__rs_cold__6__False__tech			0.0
-dummy__rs_cold__7__False__tech			0.0
  
 Enduse  rs_wet
 ----------
@@ -27,7 +26,6 @@ dummy__rs_wet__3__False__tech			0.0
 dummy__rs_wet__4__False__tech			0.0
 dummy__rs_wet__5__False__tech			0.0
 dummy__rs_wet__6__False__tech			0.0
-dummy__rs_wet__7__False__tech			0.0
  
 Enduse  rs_consumer_electronics
 ----------
@@ -38,7 +36,6 @@ dummy__rs_consumer_electronics__3__False__tech			0.0
 dummy__rs_consumer_electronics__4__False__tech			0.0
 dummy__rs_consumer_electronics__5__False__tech			0.0
 dummy__rs_consumer_electronics__6__False__tech			0.0
-dummy__rs_consumer_electronics__7__False__tech			0.0
  
 Enduse  rs_home_computing
 ----------
@@ -49,7 +46,6 @@ dummy__rs_home_computing__3__False__tech			0.0
 dummy__rs_home_computing__4__False__tech			0.0
 dummy__rs_home_computing__5__False__tech			0.0
 dummy__rs_home_computing__6__False__tech			0.0
-dummy__rs_home_computing__7__False__tech			0.0
  
 Enduse  rs_cooking
 ----------
@@ -60,7 +56,6 @@ dummy__rs_cooking__3__False__tech			0.0
 dummy__rs_cooking__4__False__tech			0.0
 dummy__rs_cooking__5__False__tech			0.0
 dummy__rs_cooking__6__False__tech			0.0
-dummy__rs_cooking__7__False__tech			0.0
  
 Enduse  rs_space_heating
 ----------

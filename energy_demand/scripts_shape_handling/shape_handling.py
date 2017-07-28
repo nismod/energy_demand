@@ -2,6 +2,50 @@
 """
 import numpy as np
 
+
+class LoadProfileStock(object):
+    """Collection of load shapes in a list
+    """
+    def __init__(self, name):
+        self.name = name
+        self.load_profile_list = []
+
+    def add_load_profile(self, technologies, enduses, sectors, shape_dh, shape_yh, shape_peak):
+
+        loadprofile_obj = LoadProfile(technologies, enduses, sectors, shape_dh, shape_yh, shape_peak)
+
+        self.load_profile_list.append(loadprofile_obj)
+
+    # Read out shape
+    def get_load_profile(self, technology, enduse, sector, shape):
+        """read corresponding shape if technology, enduse and sector are correct
+        """
+        for load_profile_obj in self.load_profile_list:
+            
+            if (technology in load_profile_obj.technologies and
+            enduse in load_profile_obj.enduses and
+            sector in load_profile_obj.sectors):
+
+                attr_to_get = getattr(load_profile_obj, shape)
+
+                return attr_to_get
+
+class LoadProfile(object):
+    """Load profile container
+    """
+    def __init__(self, technologies, enduses, sectors, shape_dh, shape_yh, shape_peak):
+        """Constructor
+        """
+        self.technologies = technologies
+        self.enduses = enduses
+        self.sectors = sectors
+        self.shape_dh = shape_dh
+        self.shape_yh = shape_yh
+        self.shape_peak = shape_peak
+
+
+
+
 def eff_heat_pump(m_slope, h_diff, intersect):
     """Calculate efficiency of heat pump
 

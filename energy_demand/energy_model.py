@@ -32,17 +32,26 @@ class EnergyModel(object):
         # Create object for every region and add into list
         self.regions = self.create_regions(reg_names, data)
 
-        # --Residential SubModel
-        self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'])
+        # --------------------
+        # Residential SubModel
+        # --------------------
+        self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'], data['rs_sectors'])
 
-        # --Service SubModel
+        # --------------------
+        # Service SubModel
+        # --------------------
         self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['ss_sectors'])
 
-        # --Industry SubModel
+        # --------------------
+        # Industry SubModel
+        # --------------------
         self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
 
-        # --Transport SubModel
+        # --------------------
+        # Transport SubModel
+        # --------------------
         self.ts_submodel = self.transport_submodel()
+
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
@@ -124,7 +133,7 @@ class EnergyModel(object):
                         data,
                         region_object,
                         enduse,
-                        sector
+                        sector=sector
                         )
 
                     # Add to list
@@ -132,7 +141,7 @@ class EnergyModel(object):
 
         return submodule_list
 
-    def residential_submodel(self, data, enduses):
+    def residential_submodel(self, data, enduses, sectors):
         """Create the residential submodules (per enduse and region) and add them to list
 
         Parameters
@@ -151,16 +160,18 @@ class EnergyModel(object):
 
         # Iterate regions and enduses
         for region_object in self.regions:
-            for enduse in enduses:
+            for sector in sectors:
+                for enduse in enduses:
 
-                # Create submodule
-                submodel_object = submodule_residential.ResidentialModel(
-                    data,
-                    region_object,
-                    enduse
-                    )
+                    # Create submodule
+                    submodel_object = submodule_residential.ResidentialModel(
+                        data,
+                        region_object,
+                        enduse,
+                        sector
+                        )
 
-                submodule_list.append(submodel_object)
+                    submodule_list.append(submodel_object)
 
         return submodule_list
 
@@ -213,7 +224,7 @@ class EnergyModel(object):
 
         # Iterate all regions
         for reg_name in reg_names:
-
+            print("...creating region: '{}'  ".format(reg_name))
             # Generate region object
             region_object = reg.Region(
                 reg_name=reg_name,
@@ -274,19 +285,3 @@ class EnergyModel(object):
             tot_fuels_all_enduse = np.sum(tot_fuels_all_enduse)
 
         return tot_fuels_all_enduse
-
-    '''def peak_loads_per_fueltype_NEW(self, data, regions, attribute_to_get):
-        """Get peak loads for fueltype per maximum h
-        """
-        peak_loads_fueltype_max_h = np.zeros((data['nr_of_fueltypes']))
-
-        for reg_object in regions:
-
-            # Get fuel data of region
-            load_max_h = getattr(reg_object, attribute_to_get)
-
-            for fueltype, load_max_h in enumerate(load_max_h):
-                peak_loads_fueltype_max_h[fueltype] += load_max_h
-
-        return peak_loads_fueltype_max_h
-    '''

@@ -417,9 +417,9 @@ def load_assumptions(data):
     # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
     #add dummy technology if no technologies are defined per enduse
-    assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], rs_dummy_techs = scrap_add_dumm_tech(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'])
-    assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], ss_dummy_techs = scrap_add_dumm_tech(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'])
-    assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], is_dummy_techs = scrap_add_dumm_tech(assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'])
+    assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], rs_dummy_techs = scrap_add_dumm_tech(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by'])
+    assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], ss_dummy_techs = scrap_add_dumm_tech(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['ss_fuel_enduse_tech_p_by'])
+    assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], is_dummy_techs = scrap_add_dumm_tech(assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
 
     # Add dummy technologies to technology stock
     assumptions['technologies'] = scrap_add_dummy_to_tech_stock(rs_dummy_techs, assumptions['technologies'])
@@ -708,7 +708,7 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
 
     return av_eff
 
-def scrap_add_dumm_tech(tech_p_by, all_specified_tech_enduse_by):
+def scrap_add_dumm_tech(tech_p_by, all_specified_tech_enduse_by, fuel_enduse_tech_p_by):
     dummpy_techs = []
 
     for end_use in tech_p_by:
@@ -718,13 +718,30 @@ def scrap_add_dumm_tech(tech_p_by, all_specified_tech_enduse_by):
                 installed_tech = True
 
         if not installed_tech:
+
             for ff in tech_p_by[end_use]:
+                create_dummy_tech = False
+
+                #if fuel provided, otherwise leave empty
+                '''fuels_enduse_sector = fuel_raw_data_enduses[end_use]
+                if isinstance(fuels_enduse_sector, dict):
+                    for sector in fuels_enduse_sector:
+                        if fuels_enduse_sector[sector] >= 0:
+                            create_dummy_tech == True
+                else:
+                    if fuels_enduse_sector > 0:
+                        create_dummy_tech == True
+                #if fuel_raw_data_enduses[end_use][ff] == 0: #data['rs_fuel_raw_data_enduses']
+                #    continue
+                if create_dummy_tech == True:
+                '''
+
                 dummpy_tech = "dummy__{}__{}__{}__tech".format(end_use, ff, installed_tech)
-                tech_p_by[end_use][ff]= {dummpy_tech: 1.0} # Whole fuel to dummy tech
+                tech_p_by[end_use][ff] = {dummpy_tech: 1.0} # Whole fuel to dummy tech
                 dummpy_techs.append(dummpy_tech)
                 all_specified_tech_enduse_by[end_use].append(dummpy_tech)
 
-    return tech_p_by,all_specified_tech_enduse_by, dummpy_techs
+    return tech_p_by, all_specified_tech_enduse_by, dummpy_techs
 
 def scrap_add_dummy_to_tech_stock(dummy_techs, technologies):
 

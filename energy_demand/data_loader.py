@@ -106,8 +106,8 @@ def load_data(path_main, data):
         'oil': 3,
         'heat_sold': 4,
         'biomass': 5,
-        'hydrogen': 6,
-        'other': 7
+        'hydrogen': 6
+        #'other': 7
         }
 
     # Daytypes
@@ -181,13 +181,15 @@ def load_data(path_main, data):
 
     # Residential Sector (ECUK Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
-
+    data['rs_sectors'] = ['dummy_sector']
+    print("RS Sectors: {}".format(data['rs_sectors']))
     # Service Sector (ECUK Table XY)
     data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
-
+    print("RS Sectors: {}".format(data['ss_sectors']))
+    print(data['ss_all_enduses'])
     # Industry fuel (ECUK Table 4.04)
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
-
+    print("RS Sectors: {}".format(data['is_sectors']))
     #scrap
     testsum = 0
     for sector in data['ss_fuel_raw_data_enduses']:

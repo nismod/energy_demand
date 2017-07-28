@@ -3,7 +3,7 @@ import energy_demand.enduse as endusefunctions
 class ResidentialModel(object):
     """
     """
-    def __init__(self, data, region_object, enduse_name):
+    def __init__(self, data, region_object, enduse_name, sector):
         """Constructor of ResidentialModel
 
         Parameters
@@ -17,8 +17,9 @@ class ResidentialModel(object):
         """
         self.reg_name = region_object.reg_name
         self.enduse_name = enduse_name
+        self.sector_name = sector
         self.enduse_object = self.create_enduse(region_object, data)
-
+        
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
         """
@@ -35,6 +36,7 @@ class ResidentialModel(object):
             reg_name=self.reg_name,
             data=data,
             enduse=self.enduse_name,
+            sector=self.sector_name,
             enduse_fuel=region_object.rs_enduses_fuel[self.enduse_name],
             tech_stock=region_object.rs_tech_stock,
             heating_factor_y=region_object.rs_heating_factor_y,

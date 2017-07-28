@@ -45,7 +45,7 @@ TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
 The docs can be found here: http://ed.readthedocs.io
-'''
+5'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 #!python3.6

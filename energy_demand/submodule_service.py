@@ -62,6 +62,7 @@ class ServiceModel(object):
             reg_name=self.reg_name,
             data=data,
             enduse=self.enduse_name,
+            sector=self.sector_name,
             enduse_fuel=self.fuels_all_enduses[self.enduse_name],
             tech_stock=region_object.ss_tech_stock,
             heating_factor_y=region_object.ss_heating_factor_y,
