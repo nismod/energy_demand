@@ -9,7 +9,7 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 #from energy_demand.scripts_technologies import technologies_related
 from energy_demand.scripts_geography import weather_station_location as wl
-
+from energy_demand.scripts_initalisations import helper_functions
 class Region(object):
     """Region class
 
@@ -89,9 +89,9 @@ class Region(object):
         self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
         # Create region specific technological stock
-        self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
-        self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
-        self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
+        self.rs_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'], sectors)
+        self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'], sectors)
+        self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'], sectors)
 
 
         # -------------------------------------------------------------------------------------------
@@ -170,6 +170,35 @@ class Region(object):
         shape_lighting_yh = data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis]
 
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_rs_lighting'], ['rs_lighting'], data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'], shape_lighting_yh)
+        
+
+        # -------------------------------------------------------------------
+        # -All dummy technologies in enduse
+        # -------------------------------------------------------------------
+        for enduse in data['assumptions']['rs_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
+            self.assign_fuel_peak_dh_shape_tech_stock(self.rs_tech_stock, tech_list, [enduse], data['rs_shapes_dh'][enduse]['shape_peak_dh']) #shape_yd
+            # non-peak shape
+            shape_enduse_yh = data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis]
+            self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['rs_all_specified_tech_enduse_by'][enduse], [enduse], data['rs_shapes_yd'][enduse]['shape_non_peak_yd'], shape_enduse_yh)
+
+        for enduse in data['assumptions']['ss_dummy_enduses']:
+            print("Enduse: " + str(enduse))
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
+            #TAKE ANY SECTOR: WHICH ONE?
+            self.assign_fuel_peak_dh_shape_tech_stock(self.ss_tech_stock, tech_list, [enduse], data['ss_shapes_dh'][enduse]['shape_peak_dh']) #shape_yd
+            # non-peak shape
+            shape_enduse_yh = data['ss_shapes_dh'][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis]
+            print(data['assumptions']['ss_all_specified_tech_enduse_by'][enduse])
+            print(data['ss_shapes_yd'][enduse])
+            self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['ss_all_specified_tech_enduse_by'][enduse], [enduse], data['ss_shapes_yd'][enduse]['shape_non_peak_yd'], shape_enduse_yh)
+
+        for enduse in data['assumptions']['is_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
+            self.assign_fuel_peak_dh_shape_tech_stock(self.is_tech_stock, tech_list, [enduse], data['is_shapes_dh'][enduse]['shape_peak_dh']) #shape_yd
+            # non-peak shape
+            shape_enduse_yh = data['is_shapes_dh'][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis]
+            self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['is_all_specified_tech_enduse_by'][enduse], [enduse], data['is_shapes_yd'][enduse]['shape_non_peak_yd'], shape_enduse_yh)
 
     def assign_fuel_shape_tech_stock(self, tech_stock, technologies, enduses, shape_yd, shape_yh):
         """Assign technology specific yd and yh shape

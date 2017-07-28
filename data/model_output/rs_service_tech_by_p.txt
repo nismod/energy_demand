@@ -4,21 +4,63 @@ Base year energy service (as share of total per enduse)
  
 Enduse  rs_lighting
 ----------
+standard_resid_lighting_bulb			0.00750187546887
+fluorescent_strip_lightinging			0.992498124531
  
 Enduse  rs_cold
 ----------
+dummy__rs_cold__0__False__tech			0.0
+dummy__rs_cold__1__False__tech			0.0
+dummy__rs_cold__2__False__tech			1.0
+dummy__rs_cold__3__False__tech			0.0
+dummy__rs_cold__4__False__tech			0.0
+dummy__rs_cold__5__False__tech			0.0
+dummy__rs_cold__6__False__tech			0.0
+dummy__rs_cold__7__False__tech			0.0
  
 Enduse  rs_wet
 ----------
+dummy__rs_wet__0__False__tech			0.0
+dummy__rs_wet__1__False__tech			0.0
+dummy__rs_wet__2__False__tech			1.0
+dummy__rs_wet__3__False__tech			0.0
+dummy__rs_wet__4__False__tech			0.0
+dummy__rs_wet__5__False__tech			0.0
+dummy__rs_wet__6__False__tech			0.0
+dummy__rs_wet__7__False__tech			0.0
  
 Enduse  rs_consumer_electronics
 ----------
+dummy__rs_consumer_electronics__0__False__tech			0.0
+dummy__rs_consumer_electronics__1__False__tech			0.0
+dummy__rs_consumer_electronics__2__False__tech			1.0
+dummy__rs_consumer_electronics__3__False__tech			0.0
+dummy__rs_consumer_electronics__4__False__tech			0.0
+dummy__rs_consumer_electronics__5__False__tech			0.0
+dummy__rs_consumer_electronics__6__False__tech			0.0
+dummy__rs_consumer_electronics__7__False__tech			0.0
  
 Enduse  rs_home_computing
 ----------
+dummy__rs_home_computing__0__False__tech			0.0
+dummy__rs_home_computing__1__False__tech			0.0
+dummy__rs_home_computing__2__False__tech			1.0
+dummy__rs_home_computing__3__False__tech			0.0
+dummy__rs_home_computing__4__False__tech			0.0
+dummy__rs_home_computing__5__False__tech			0.0
+dummy__rs_home_computing__6__False__tech			0.0
+dummy__rs_home_computing__7__False__tech			0.0
  
 Enduse  rs_cooking
 ----------
+dummy__rs_cooking__0__False__tech			0.0
+dummy__rs_cooking__1__False__tech			0.0
+dummy__rs_cooking__2__False__tech			1.0
+dummy__rs_cooking__3__False__tech			0.0
+dummy__rs_cooking__4__False__tech			0.0
+dummy__rs_cooking__5__False__tech			0.0
+dummy__rs_cooking__6__False__tech			0.0
+dummy__rs_cooking__7__False__tech			0.0
  
 Enduse  rs_space_heating
 ----------
@@ -35,3 +77,11 @@ boiler_hydrogen			0.0
  
 Enduse  rs_water_heating
 ----------
+boiler_solid_fuel			0.0138356530268
+boiler_gas			0.718694683752
+hybrid_gas_electricity			0.00442504678391
+boiler_electricity			0.115408074993
+boiler_oil			0.0429130213799
+boiler_heat_sold			0.0
+boiler_biomass			0.104723520065
+boiler_hydrogen			0.0

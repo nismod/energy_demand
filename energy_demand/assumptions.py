@@ -178,6 +178,7 @@ def load_assumptions(data):
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
+    # Lighting: E.g. how much floor area / % (social change - how much floor area is lighted (smart monitoring)) ( smart-lighting)
         # Submodel Residential
         'rs_model': {
             'rs_space_heating': 1,
@@ -195,8 +196,6 @@ def load_assumptions(data):
             'ss_catering': 1,
             'ss_computing': 1,
             'ss_cooling_ventilation': 1,
-            #'ss_space_cooling': 1, #TODO
-            #'ss_ventilation': 1, #TODO
             'ss_space_heating': 1,
             'ss_water_heating': 1,
             'ss_lighting': 1,
@@ -313,21 +312,19 @@ def load_assumptions(data):
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
 
     # ---water heating
-    '''assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['electricity']] = {'hybrid_gas_electricity': 0.02, 'boiler_electricity': 0.98}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['oil']] = {'boiler_oil': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_water_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
-    '''
+    
     # ---lighting
-    '''assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
         'standard_resid_lighting_bulb': 0.02,
         'fluorescent_strip_lightinging' : 0.98
         }
-    '''
-
 
 
     # ------------------
@@ -390,7 +387,6 @@ def load_assumptions(data):
     assumptions['is_fuel_enduse_tech_p_by']['is_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
 
 
-
     # Helper functions
     assumptions['rs_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['rs_fuel_enduse_tech_p_by'])
     assumptions['is_all_specified_tech_enduse_by'] = helper_get_all_specified_tech(assumptions['is_fuel_enduse_tech_p_by'])
@@ -418,8 +414,24 @@ def load_assumptions(data):
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
 
     # ========================================
-    # Other
+    # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
+    #add dummy technology if no technologies are defined per enduse
+    assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], rs_dummy_techs = scrap_add_dumm_tech(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'])
+    assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], ss_dummy_techs = scrap_add_dumm_tech(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'])
+    assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], is_dummy_techs = scrap_add_dumm_tech(assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'])
+
+    # Add dummy technologies to technology stock
+    assumptions['technologies'] = scrap_add_dummy_to_tech_stock(rs_dummy_techs, assumptions['technologies'])
+    assumptions['technologies'] = scrap_add_dummy_to_tech_stock(ss_dummy_techs, assumptions['technologies'])
+    assumptions['technologies'] = scrap_add_dummy_to_tech_stock(is_dummy_techs, assumptions['technologies'])
+
+    # All enduses with dummy technologies
+    assumptions['rs_dummy_enduses'] = scrap_get_dummy_enduses(assumptions['rs_fuel_enduse_tech_p_by'])
+    assumptions['ss_dummy_enduses'] = scrap_get_dummy_enduses(assumptions['ss_fuel_enduse_tech_p_by'])
+    assumptions['is_dummy_enduses'] = scrap_get_dummy_enduses(assumptions['is_fuel_enduse_tech_p_by'])
+
+
 
     # ============================================================
     # Helper functions
@@ -428,13 +440,19 @@ def load_assumptions(data):
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['rs_fuel_switches'])
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_fuel_switches'])
 
-    # Testing
-    testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_all_fuel_tech_shares_by(assumptions['rs_fuel_enduse_tech_p_by'])
     testing.testing_all_fuel_tech_shares_by(assumptions['ss_fuel_enduse_tech_p_by'])
+    testing.testing_all_fuel_tech_shares_by(assumptions['is_fuel_enduse_tech_p_by'])
+
+    
+    
+    # Testing
+    testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
+    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
+
+
 
     return assumptions
 
@@ -689,3 +707,46 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     av_eff = service_share_low_temp_tech * eff_tech_low_temp + service_share_high_temp_tech * eff_tech_high_temp
 
     return av_eff
+
+def scrap_add_dumm_tech(tech_p_by, all_specified_tech_enduse_by):
+    dummpy_techs = []
+
+    for end_use in tech_p_by:
+        installed_tech = False
+        for fueltype in tech_p_by[end_use]:
+            if tech_p_by[end_use][fueltype] != {}:
+                installed_tech = True
+
+        if not installed_tech:
+            for ff in tech_p_by[end_use]:
+                dummpy_tech = "dummy__{}__{}__{}__tech".format(end_use, ff, installed_tech)
+                tech_p_by[end_use][ff]= {dummpy_tech: 1.0} # Whole fuel to dummy tech
+                dummpy_techs.append(dummpy_tech)
+                all_specified_tech_enduse_by[end_use].append(dummpy_tech)
+
+    return tech_p_by,all_specified_tech_enduse_by, dummpy_techs
+
+def scrap_add_dummy_to_tech_stock(dummy_techs, technologies):
+
+    for dummy_tech in dummy_techs:
+        technologies[dummy_tech] = {
+            'fuel_type': int(dummy_tech.split("__")[2]),
+            'eff_by': 1.0,
+            'eff_ey': 1.0,
+            'eff_achieved': 1.0,
+            'diff_method': 'sigmoid',
+            'market_entry': 2015
+        }
+
+    return technologies
+
+def scrap_get_dummy_enduses(enduse_tech_p_by):
+    dummy_enduses = set([])
+    for enduse in enduse_tech_p_by:
+        for fueltype in enduse_tech_p_by[enduse]:
+            for tech in enduse_tech_p_by[enduse][fueltype]:
+                if tech[:5] == 'dummy':
+                    dummy_enduses.add(enduse)
+                    continue
+
+    return list(dummy_enduses)

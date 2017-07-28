@@ -63,7 +63,6 @@ class Enduse(object):
             self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
             self.enduse_fuel_peak_h = np.zeros((self.enduse_fuel_y.shape[0]))
         else:
-            
             self.crit_switch_fuel = self.get_crit_switch_fuel(fuel_switches) # Test whether switches are defined
             self.crit_switch_service = self.get_crit_switch_service(service_switches)
             testing.testing_switch_criteria(self.crit_switch_fuel, self.crit_switch_service, self.enduse)
@@ -77,11 +76,11 @@ class Enduse(object):
             #fuel_enduse_tech_p_by = self.beluga_mutate_fuel_enduse_tech_p_by('hybrid_biomass_electricity', fuel_enduse_tech_p_by, tech_stock, self.enduse_fuel_new_y, data['assumptions']['hybrid_technologies'])
             print("eeee: fuel_enduse_tech_p_by  {}".format(np.sum(self.enduse_fuel_new_y[1])))
             print(fuel_enduse_tech_p_by)
+
             #TODO: FOR ALL OTHER HYBRDI TECHNOLOGIES
             # -------------------------------
             # Yearly fuel calculation cascade
             # --------------------------------
-
             print("Fuel train A: " + str(np.sum(self.enduse_fuel_new_y)))
             testsumme = np.sum(self.enduse_fuel_new_y[2])
             testsumme2 = self.enduse_fuel_new_y
@@ -111,7 +110,7 @@ class Enduse(object):
                 print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
 
                 for fueltype in range(self.enduse_fuel_y.shape[0]):
-                    print("FUELTYPEdd  {} ".format(np.sum(self.enduse_fuel_y[fueltype])))
+                    print("FUELTYPE - enduse  {} ".format(np.sum(self.enduse_fuel_y[fueltype])))
 
                 # ------------------------------------------------------------------------
                 # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution)
@@ -132,7 +131,7 @@ class Enduse(object):
                 control_tot_service = 0
                 for tech, fuel in service_tech.items():
                     control_tot_service += np.sum(fuel)
-                #print("control_tot_service A: " + str(control_tot_service))
+                print("control_tot_service A: " + str(control_tot_service))
 
                 # --------------------------------
                 # Energy service switches
@@ -441,13 +440,10 @@ class Enduse(object):
 
         # ---------------------------------------------------------------------------------------------------------------------------------
         # Iterate all technologies and round that total sum within each fueltype is always 1 (needs to be done because of rounding errors)
-        #TODO: improve rounding method: https://stackoverflow.com/questions/13483430/how-to-make-rounded-percentages-add-up-to-100
+        # TODO: improve rounding method: https://stackoverflow.com/questions/13483430/how-to-make-rounded-percentages-add-up-to-100
         # ---------------------------------------------------------------------------------------------------------------------------------
         for fueltype in fuel_enduse_tech_p_by:
             if sum(fuel_enduse_tech_p_by[fueltype].values()) != 1.0 and fuel_enduse_tech_p_by[fueltype] != {}: #if rounding error
-                print("dsfdf")
-                print(sum(fuel_enduse_tech_p_by[fueltype].values()))
-                print(fuel_enduse_tech_p_by[fueltype])
                 for tech in fuel_enduse_tech_p_by[fueltype]:
                     fuel_enduse_tech_p_by[fueltype][tech] = (1.0 / sum(fuel_enduse_tech_p_by[fueltype].values())) * fuel_enduse_tech_p_by[fueltype][tech]
 
@@ -782,7 +778,7 @@ class Enduse(object):
 
             # Get fueltypes of tech for every day
             fueltype_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fuel_types_shares_yd')
-
+            
             # Iterate shares of fueltypes, calculate share of fuel and add to fuels
             for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
 

@@ -11,7 +11,7 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy, enduse_technologies):
+    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy, enduse_technologies, sectors):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -32,6 +32,8 @@ class TechStock(object):
         for enduse in potential_enduses:
             list_with_technologies_per_enduse = []
             for technology in enduse_technologies[enduse]:
+
+                #TODO: MAKE AN TECHNOLOGY OBJECT FOR EVERY SECTOR
 
                 # Technology object
                 technology_object = Technology(
@@ -76,7 +78,8 @@ class TechStock(object):
                     tech_attribute = getattr(tech_object, str(attribute_to_get))
 
             return tech_attribute
-        except:
+        except Exception as e:
+            print(e)
             sys.exit("could not get technology attribute {}  {}  {} ".format(enduse, tech, attribute_to_get))
 
 
@@ -105,7 +108,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy):
+    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy): #, sectors):
         """Contructor of Technology
 
         Parameters
@@ -126,6 +129,13 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method'] #Not used
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
+        '''self.shape_yd = {}
+        self.shape_yh = {}
+        for sector in sectors:
+            self.shape_yd[sector] = np.ones((365))
+            self.shape_yh[sector] = np.ones((365, 24))
+        '''
+            
         self.shape_yd = np.ones((365))
         self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
@@ -169,7 +179,7 @@ class Technology(object):
         # -------------------------------
         # Base and current year efficiencies
         # Depending what sort of technology, make temp dependent, hybrid or constant efficiencies
-        # -------------------------------        
+        # -------------------------------
         if self.tech_type == 'heat_pump':
             self.eff_by = self.get_heatpump_eff(
                 temp_by,
@@ -201,6 +211,7 @@ class Technology(object):
         self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
         # Get shape of peak dh where not read from values directly (TODO: IMPROVE THAT SHAPE IS BETTER ASSIGNED)
+        #TODO: ONLY FOR RESIDENTIAL SECTOR
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
     def get_heatpump_eff(self, temp_yr, m_slope, b, t_base_heating):
@@ -573,9 +584,7 @@ class Technology(object):
             # The shape is assigned in region from peak day
             shape_peak_dh = np.ones((24))
         elif self.tech_name == 'cooling_tech':
-
-            # TODO: DEfine peak curve for cooling
-            shape_peak_dh = np.ones((24))
+            shape_peak_dh = np.ones((24)) # TODO: DEfine peak curve for cooling
         else:
             # Technology is not part of defined enduse initiate with dummy data
             shape_peak_dh = np.ones((24))
