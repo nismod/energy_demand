@@ -19,7 +19,7 @@ class ResidentialModel(object):
         self.enduse_name = enduse_name
         self.sector_name = sector
         self.enduse_object = self.create_enduse(region_object, data)
-        
+
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
         """
@@ -54,7 +54,8 @@ class ResidentialModel(object):
             data_shapes_yd=data['rs_shapes_yd'],
             data_shapes_dh=data['rs_shapes_dh'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
-            dw_stock=data['rs_dw_stock']
+            dw_stock=data['rs_dw_stock'],
+            load_profiles=region_object.rs_load_profiles #Myabe not for region but global?
             )
 
         return enduse_object

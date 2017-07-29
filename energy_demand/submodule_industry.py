@@ -67,7 +67,8 @@ class IndustryModel(object):
             data_shapes_yd=data['is_shapes_yd'][self.sector_name],
             data_shapes_dh=data['is_shapes_dh'][self.sector_name],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
-            dw_stock=data['ss_dw_stock'] #INDUSTRY STOCK?
+            dw_stock=data['ss_dw_stock'], #INDUSTRY STOCK?
+            load_profiles=region_object.is_load_profiles
         )
 
         return industry_object

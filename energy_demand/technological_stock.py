@@ -32,7 +32,6 @@ class TechStock(object):
             print("       ...technology {}      {}".format(enduse, enduse_technologies[enduse]))
             list_with_technologies_per_enduse_all_sectors = []
             for sector in sectors:
-                
                 for technology in enduse_technologies[enduse]:
                     print("         ...{}   {}".format(sector, technology))
                     # Technology object
@@ -134,12 +133,12 @@ class Technology(object):
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method'] #Not used
 
         # Fuel shapes (specific shapes of technologes are filled with dummy data and real shape filled in Region Class)
-        self.shape_yd = np.ones((365))
-        self.shape_yh = np.ones((365, 24))
+        #self.shape_yd = np.ones((365))
+        #self.shape_yh = np.ones((365, 24))
         self.shape_peak_yd_factor = 1
 
         # Get shape of peak dh where not read from values directly (TODO: IMPROVE THAT SHAPE IS BETTER ASSIGNED)
-        #TODO: ONLY FOR RESIDENTIAL SECTOR
+        #TODO: ONLY FOR RESIDENTIAL SECTOR OCHS BIG BAUSTELLE
         self.shape_peak_dh = self.get_shape_peak_dh(data)
 
         # Calculate fuel types and distribution
@@ -573,20 +572,20 @@ class Technology(object):
 
             # --See wheter the technology is part of a defined enduse and if yes, get technology specific peak shape
             if self.tech_type == 'storage_heating_electricity':
-                shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh']['peakday']
+                shape_peak_dh = data['rs_shapes_space_heating_storage_heater_elec_heating_dh']['peakday'] #done
             elif self.tech_type == 'secondary_heating_electricity':
-                shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh']['peakday']
+                shape_peak_dh = data['rs_shapes_space_heating_second_elec_heating_dh']['peakday'] #done
             elif self.tech_type == 'boiler_heating_tech':
-                shape_peak_dh = data['rs_shapes_heating_boilers_dh']['peakday'] # Peak curve robert sansom
+                shape_peak_dh = data['rs_shapes_heating_boilers_dh']['peakday'] # Peak curve robert sansom done
             elif self.tech_type == 'heat_pump':
-                shape_peak_dh = data['rs_shapes_heating_heat_pump_dh']['peakday'] # Peak curve robert sansom
+                shape_peak_dh = data['rs_shapes_heating_heat_pump_dh']['peakday'] # Peak curve robert sansom done
             elif self.tech_type == 'hybrid_tech':
                 shape_peak_dh = np.ones((24)) # The shape is assigned in region from peak day
             elif self.tech_name == 'cooling_tech':
                 shape_peak_dh = np.ones((24)) # TODO: DEfine peak curve for cooling
             else:
                 shape_peak_dh = np.ones((24)) # Technology is not part of defined enduse initiate with dummy data
-        
+
         return shape_peak_dh
 
     def calc_eff_cy(self, eff_by, technology, base_yr, current_yr, end_yr, sim_period, assumptions): #data):data['base_yr'],data['end_yr'], data['curr_yr'], data['assumptions']
@@ -619,7 +618,7 @@ class Technology(object):
         elif self.diff_method == 'sigmoid':
             theor_max_eff = diffusion.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
 
-        # Consider actual achived efficiency
+        # Consider actual achieved efficiency
         actual_max_eff = theor_max_eff * self.eff_achieved_factor
 
         # Differencey in efficiency change

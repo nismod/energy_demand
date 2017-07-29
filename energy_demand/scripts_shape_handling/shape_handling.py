@@ -2,7 +2,6 @@
 """
 import numpy as np
 
-
 class LoadProfileStock(object):
     """Collection of load shapes in a list
     """
@@ -10,38 +9,106 @@ class LoadProfileStock(object):
         self.name = name
         self.load_profile_list = []
 
-    def add_load_profile(self, technologies, enduses, sectors, shape_dh, shape_yh, shape_peak):
-
-        loadprofile_obj = LoadProfile(technologies, enduses, sectors, shape_dh, shape_yh, shape_peak)
+    def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, shape_peak_dh=np.ones((24))):
+        """Add load profile
+        """
+        loadprofile_obj = LoadProfile(
+            technologies,
+            enduses,
+            sectors,
+            shape_yd,
+            shape_yh,
+            shape_peak_dh
+            )
 
         self.load_profile_list.append(loadprofile_obj)
 
     # Read out shape
-    def get_load_profile(self, technology, enduse, sector, shape):
+    def get_load_profile(self, enduse, sector, technology, shape):
         """read corresponding shape if technology, enduse and sector are correct
         """
         for load_profile_obj in self.load_profile_list:
-            
-            if (technology in load_profile_obj.technologies and
-            enduse in load_profile_obj.enduses and
-            sector in load_profile_obj.sectors):
+
+            if (technology in load_profile_obj.technologies
+                    and enduse in load_profile_obj.enduses
+                    and sector in load_profile_obj.sectors):
 
                 attr_to_get = getattr(load_profile_obj, shape)
 
                 return attr_to_get
 
+        print("Error..not found {} {} {} {}".format(enduse, sector, technology, shape))
+        return
+
+    def get_shape_peak_dh(self, enduse, sector, technology):
+        """read corresponding shape if technology, enduse and sector are correct
+        """
+        for load_profile_obj in self.load_profile_list:
+
+            if (technology in load_profile_obj.technologies
+                    and enduse in load_profile_obj.enduses
+                    and sector in load_profile_obj.sectors):
+
+                # Test if dummy sector and thus shape_peak not provided for different sectors
+                if sector == 'dummy_sector':
+                    print("...only one shape privded not for sectors")
+                    shape_peak_dh = getattr(load_profile_obj, 'shape_peak_dh')
+                else:
+                    print("read out sector shape_dh")
+                    attr_to_get_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
+                    shape_peak_dh = attr_to_get_all_sectors[sector][enduse]['shape_peak_dh']
+
+                #attr_to_get_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
+                #shape_peak_dh = attr_to_get_all_sectors[sector][enduse]['shape_peak_dh']
+                return shape_peak_dh
+
 class LoadProfile(object):
     """Load profile container
     """
-    def __init__(self, technologies, enduses, sectors, shape_dh, shape_yh, shape_peak):
+    def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, shape_peak_dh=np.ones((24))):
         """Constructor
         """
         self.technologies = technologies
         self.enduses = enduses
         self.sectors = sectors
-        self.shape_dh = shape_dh
+        self.shape_yd = shape_yd
         self.shape_yh = shape_yh
-        self.shape_peak = shape_peak
+        self.shape_peak_dh = shape_peak_dh
+
+
+        #self.shape_peak_dh = self.get_shape_peak_dh(sector_provided[1], sector_provided[2])
+        #self.shape_peak_dh_all_sectors = shape_peak_dh
+
+    '''def get_shape_peak_dh(self, enduse, sector):
+        if sector == 'dummy_sector':
+            shape_peak_dh = self.shape_peak_dh[sector][enduse]
+        else:
+            shape_peak_dh = self.shape_peak_dh
+        return shape_peak_dh
+    '''
+        
+    '''def get_peak_dh(self, fuels_yd, enduse_peak_yd_factor):
+        """ calc max fuel per day and assign shape
+
+        #enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_yd, enduse_peak_yd_factor)
+        #self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'], enduse_fuel_y_peak_yd)
+        """
+
+        fuel_peak_yd = fuels_yd * enduse_peak_yd_factor
+
+        enduse_fuel_peak_dh = np.zeros((enduse_fuel_y_peak_yd.shape[0], 24))
+
+        # Iterate fueltypes and day and multiply daily fuel data with daily shape
+        for fueltype, fuel in enumerate(enduse_fuel_y_peak_yd):
+            enduse_fuel_peak_dh[fueltype] = self.shape_peak_dh * fuel
+
+        return enduse_fuel_peak_dh
+    '''
+
+
+
+
+
 
 
 

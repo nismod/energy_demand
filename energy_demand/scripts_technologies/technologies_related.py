@@ -131,7 +131,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
         # Add average 'av_heat_pumps' to technology dict
         name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lu_fueltype'], fueltype)))
-        
+
         print("...create new averaged heat pump technology: " + str(name_av_hp))
 
         # Add technology to temperature dependent technology list

@@ -100,21 +100,6 @@ class Region(object):
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
         # -------------------------------------------------------------------------------------------
-
-        # ----- ALTERNATIVE APPROACH
-        rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
-
-        '''rs_load_profiles.add_load_profile(
-            technologies=technologies,
-            enduses=endues,
-            sectors=sectors,
-            shape_dh=shape_dh,
-            shape_yh=shape_yh,
-            shape_peak=shape_peak
-        )'''
-
-        # ----- ALTERNATIVE APPROACH
-
         print("   ...assign individual technology shapes")
         # --Heating technologies for residential sector
         rs_fuel_shape_storage_heater_yh, rs_fuel_shape_storage_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_storage_heater_elec_heating_dh')
@@ -139,17 +124,211 @@ class Region(object):
 
         ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', data['ss_sectors'][0], ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_electricity', 'boiler_gas', 'heat_pumps_electricity') # Hybrid
 
+
+
+        # ----- ALTERNATIVE APPROACH
+        self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
+        self.ss_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
+        self.is_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
+
+        #heating boiler
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_const'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=data['rs_sectors'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_boilers_yh,
+            shape_peak_dh=data['rs_shapes_heating_boilers_dh']['peakday']
+            )
+
+        self.ss_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_const'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=data['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            shape_peak_dh=data['ss_shapes_dh'] # peak for multiple sectors
+            )
+
+        self.is_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_const'],
+            enduses=['is_space_heating'],
+            sectors=data['is_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            shape_peak_dh=data['is_shapes_dh'] # peak for multiple sectors
+            )
+
+        # Electric heating, primary...(storage)
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['primary_heating_electricity'],
+            enduses=['rs_space_heating'],
+            sectors=data['rs_sectors'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_storage_heater_yh,
+            shape_peak_dh=data['rs_shapes_space_heating_storage_heater_elec_heating_dh']['peakday']
+            )
+
+        self.ss_load_profiles.add_load_profile(
+            technologies=data['assumptions']['primary_heating_electricity'],
+            enduses=['ss_space_heating'],
+            sectors=data['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            shape_peak_dh=data['rs_shapes_space_heating_storage_heater_elec_heating_dh']['peakday']
+            )
+
+        self.is_load_profiles.add_load_profile(
+            technologies=data['assumptions']['primary_heating_electricity'],
+            enduses=['is_space_heating'],
+            sectors=data['is_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech
+            )
+
+        # Electric heating, secondary...
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=data['rs_sectors'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_elec_heater_yh,
+            shape_peak_dh=data['rs_shapes_space_heating_second_elec_heating_dh']['peakday']
+            )
+
+        self.ss_load_profiles.add_load_profile(
+            technologies=data['assumptions']['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=data['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech
+            #shape_peak_dh=data['rs_shapes_space_heating_second_elec_heating_dh']['peakday']
+            )
+
+        self.is_load_profiles.add_load_profile(
+            technologies=data['assumptions']['secondary_heating_electricity'],
+            enduses=['is_space_heating'],
+            sectors=data['is_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech
+            )
+
+        # Hybrid heating
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=data['rs_sectors'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_hybrid_tech_yh
+            #shape_peak_dh=   #OTHERdata['rs_shapes_heating_heat_pump_dh']['peakday']
+            )
+
+        self.ss_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=data['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_hybrid_gas_elec_yh
+            )
+
+        self.is_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            enduses=['is_space_heating'],
+            sectors=data['is_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech
+            )
+
+        # Heat pump heating
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=data['rs_sectors'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_hp_yh,
+            shape_peak_dh=data['rs_shapes_heating_heat_pump_dh']['peakday']
+            )
+
+        self.ss_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=data['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech
+            #shape_peak_dh=data['rs_shapes_heating_heat_pump_dh']['peakday']
+            )
+
+        self.is_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            enduses=['is_space_heating'],
+            sectors=data['is_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            shape_peak_dh=data['is_shapes_dh'] #   data['rs_shapes_heating_heat_pump_dh']['peakday']
+            )
+
+        # Lighting (residential)
+        self.rs_load_profiles.add_load_profile(
+            technologies=data['assumptions']['list_tech_rs_lighting'],
+            enduses=['rs_lighting'],
+            sectors=data['rs_sectors'],
+            shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+            shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+            shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
+            )
+
+        # -- dummy rs technologies
+        for enduse in data['assumptions']['rs_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
+
+            self.rs_load_profiles.add_load_profile(
+                technologies=tech_list,
+                enduses=enduse,
+                sectors=data['rs_sectors'],
+                shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
+                )
+
+        # - dummy is technologies
+        for enduse in data['assumptions']['ss_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
+            for sector in data['ss_sectors']:
+                self.ss_load_profiles.add_load_profile(
+                    technologies=tech_list,
+                    enduses=enduse,
+                    sectors=sector,
+                    shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
+                    )
+
+        # dummy is
+        for enduse in data['assumptions']['is_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
+            for sector in data['is_sectors']:
+                self.is_load_profiles.add_load_profile(
+                    technologies=tech_list,
+                    enduses=enduse,
+                    sectors=sector,
+                    shape_yd=data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_peak_dh=data['is_shapes_dh']#[sector][enduse]['shape_peak_dh']
+                    )
+
+        # ----- ALTERNATIVE APPROACH
+        '''
         # Read shapes for enduses and technologies
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_heating_const'], ['rs_space_heating', 'rs_water_heating'], data['rs_sectors'], rs_fuel_shape_heating_yd, rs_fuel_shape_boilers_yh)
         self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_heating_const'], ['ss_space_heating', 'ss_water_heating'], data['ss_sectors'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
         self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['list_tech_heating_const'], ['is_space_heating'], data['is_sectors'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
 
-        # Electric heating, secondary...
+        # Electric heating, primary...
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['primary_heating_electricity'], ['rs_space_heating', 'rs_water_heating'], data['rs_sectors'], rs_fuel_shape_heating_yd, rs_fuel_shape_storage_heater_yh)
         self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['primary_heating_electricity'], ['ss_space_heating', 'ss_water_heating'], data['ss_sectors'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
         self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['primary_heating_electricity'], ['is_space_heating'], data['is_sectors'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
 
-        # Electric heating, primary...
+        # Electric heating, secondary...
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['secondary_heating_electricity'], ['rs_space_heating', 'rs_water_heating'], data['rs_sectors'], rs_fuel_shape_heating_yd, rs_fuel_shape_elec_heater_yh)
         self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['secondary_heating_electricity'], ['ss_space_heating', 'ss_water_heating'], data['ss_sectors'], ss_fuel_shape_heating_yd, ss_fuel_shape_any_tech)
         #self.assign_fuel_shape_tech_stock(self.rs_tech_stock,['list_tech_cooling_const'], ['rs_space_cooling'], rs_fuel_shape_cooling_yh, rs_fuel_shape_elec_heater_yh)
@@ -179,14 +358,13 @@ class Region(object):
         #self.assign_fuel_shape_tech_stock(self.ss_tech_stock, data['assumptions']['list_tech_ventilation'], ['ss_cooling_ventilation'], data['ss_shapes_yd'][any_sector]['ss_cooling_ventilation']['shape_non_peak_yd'], data['ss_shapes_dh'][any_sector]['ss_cooling_ventilation']['shape_non_peak_dh'] * data['ss_shapes_yd'][any_sector]['shape_non_peak_yd'])
 
         # -------------------------------------------------------------------
-        # Lighting (alls HES shape for all technologies) data['rs_shapes_yd']
+        # Lighting (alls HES shape for all technologies)
         # -------------------------------------------------------------------
         # peak shape
         self.assign_fuel_peak_dh_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_rs_lighting'], ['rs_lighting'], data['rs_sectors'], data['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
         # non-peak shape
         shape_lighting_yh = data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis]
-
         self.assign_fuel_shape_tech_stock(self.rs_tech_stock, data['assumptions']['list_tech_rs_lighting'], ['rs_lighting'], data['rs_sectors'], data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'], shape_lighting_yh)
 
         # -------------------------------------------------------------------
@@ -212,14 +390,14 @@ class Region(object):
 
         for enduse in data['assumptions']['is_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
-            
+
             for sector in data['is_sectors']:
                 shape_peak_dh = data['is_shapes_dh'][sector][enduse]['shape_peak_dh']
                 self.assign_fuel_peak_dh_shape_tech_stock(self.is_tech_stock, tech_list, [enduse], data['is_sectors'], shape_peak_dh) #data['is_shapes_dh'][enduse]['shape_peak_dh']) #shape_yd
                 # non-peak shape
                 shape_enduse_yh = data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis]
                 self.assign_fuel_shape_tech_stock(self.is_tech_stock, data['assumptions']['is_all_specified_tech_enduse_by'][enduse], [enduse], [sector], data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'], shape_enduse_yh)
-
+        '''
     def assign_fuel_shape_tech_stock(self, tech_stock, technologies, enduses, sectors, shape_yd, shape_yh):
         """Assign technology specific yd and yh shape
 
@@ -297,6 +475,9 @@ class Region(object):
             tech_low_high_p=tech_stock.get_tech_attr(enduse, sector, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
             eff_low_tech=tech_stock.get_tech_attr(enduse, sector, tech_low_temp, 'eff_cy'),
             eff_high_tech=tech_stock.get_tech_attr(enduse, sector, tech_high_temp, 'eff_cy')
+            #tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            #eff_low_tech=tech_stock.get_tech_attr(enduse, tech_low_temp, 'eff_cy'),
+            #eff_high_tech=tech_stock.get_tech_attr(enduse, tech_high_temp, 'eff_cy')
             )
 
         # Calculate yh fuel shape
