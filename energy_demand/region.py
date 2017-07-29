@@ -472,12 +472,12 @@ class Region(object):
         fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
             fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
-            tech_low_high_p=tech_stock.get_tech_attr(enduse, sector, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
-            eff_low_tech=tech_stock.get_tech_attr(enduse, sector, tech_low_temp, 'eff_cy'),
-            eff_high_tech=tech_stock.get_tech_attr(enduse, sector, tech_high_temp, 'eff_cy')
-            #tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
-            #eff_low_tech=tech_stock.get_tech_attr(enduse, tech_low_temp, 'eff_cy'),
-            #eff_high_tech=tech_stock.get_tech_attr(enduse, tech_high_temp, 'eff_cy')
+            #tech_low_high_p=tech_stock.get_tech_attr(enduse, sector, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            #eff_low_tech=tech_stock.get_tech_attr(enduse, sector, tech_low_temp, 'eff_cy'),
+            #eff_high_tech=tech_stock.get_tech_attr(enduse, sector, tech_high_temp, 'eff_cy')
+            tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p_cy'),
+            eff_low_tech=tech_stock.get_tech_attr(enduse, tech_low_temp, 'eff_cy'),
+            eff_high_tech=tech_stock.get_tech_attr(enduse, tech_high_temp, 'eff_cy')
             )
 
         # Calculate yh fuel shape
@@ -630,8 +630,8 @@ class Region(object):
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_eff = tech_stock.get_tech_attr('rs_space_heating', data['rs_sectors'][0], 'heat_pumps_gas', 'eff_cy')
-
+                #tech_eff = tech_stock.get_tech_attr('rs_space_heating', data['rs_sectors'][0], 'heat_pumps_gas', 'eff_cy')
+                tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
                 average_eff_d += heat_share_h * tech_eff[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)

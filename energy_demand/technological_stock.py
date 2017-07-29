@@ -29,15 +29,16 @@ class TechStock(object):
             a technology specific shape is assigned or an overall enduse shape
         """
         for enduse in potential_enduses:
-            print("       ...technology {}      {}".format(enduse, enduse_technologies[enduse]))
             list_with_technologies_per_enduse_all_sectors = []
-            for sector in sectors:
-                for technology in enduse_technologies[enduse]:
-                    print("         ...{}   {}".format(sector, technology))
+        #   print("       ...technology {}      {}".format(enduse, enduse_technologies[enduse]))
+
+        #    for sector in sectors:
+            for technology in enduse_technologies[enduse]:
+                    #print("         ...{}   {}".format(sector, technology))
                     # Technology object
                     technology_object = Technology(
                         enduse,
-                        sector,
+                        #sector,
                         technology,
                         data,
                         temp_by,
@@ -55,7 +56,7 @@ class TechStock(object):
                 list_with_technologies_per_enduse_all_sectors
             )
 
-    def get_tech_attr(self, enduse, sector, tech, attribute_to_get):
+    def get_tech_attr(self, enduse, tech, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
 
         Parameters
@@ -75,7 +76,7 @@ class TechStock(object):
         tech_objects = getattr(self, str(enduse))
         #try:
         for tech_object in tech_objects:
-            if tech_object.tech_name == tech and tech_object.sector == sector:
+            if tech_object.tech_name == tech: # and tech_object.sector == sector:
                 tech_attribute = getattr(tech_object, str(attribute_to_get))
 
         return tech_attribute
@@ -92,7 +93,7 @@ class TechStock(object):
         """
         tech_objects = getattr(self, str(enduse))
         for tech_object in tech_objects:
-            if tech_object.tech_name == tech and tech_object.sector == sector:
+            if tech_object.tech_name == tech: # and tech_object.sector == sector:
                 setattr(tech_object, str(attribute_to_set), value_to_set)
 
 class Technology(object):
@@ -110,7 +111,7 @@ class Technology(object):
     Only the yd shapes are provided on a technology level and not dh shapes
 
     """
-    def __init__(self, enduse, sector, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy): #, sectors):
+    def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy): #, sectors):
         """Contructor of Technology
 
         Parameters
@@ -123,7 +124,7 @@ class Technology(object):
             Temperatures of current year
         """
         self.enduse = enduse
-        self.sector = sector
+        #self.sector = sector
         self.tech_name = tech_name
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.tech_type = technologies_related.get_tech_type(tech_name, data['assumptions'])
@@ -139,7 +140,7 @@ class Technology(object):
 
         # Get shape of peak dh where not read from values directly (TODO: IMPROVE THAT SHAPE IS BETTER ASSIGNED)
         #TODO: ONLY FOR RESIDENTIAL SECTOR OCHS BIG BAUSTELLE
-        self.shape_peak_dh = self.get_shape_peak_dh(data)
+        #self.shape_peak_dh = self.get_shape_peak_dh(data)
 
         # Calculate fuel types and distribution
         if self.tech_type == 'hybrid_tech':
