@@ -62,22 +62,18 @@ class LoadProfileStock(object):
         attr_to_get : array
             Required shape
         """
-        #try:
         function_run_crit = False
         for load_profile_obj in self.load_profile_list:
+            if (technology in load_profile_obj.technologies
+                    and enduse in load_profile_obj.enduses
+                    and sector in load_profile_obj.sectors):
+                attr_to_get = getattr(load_profile_obj, shape)
+                function_run_crit = True
 
-                if (technology in load_profile_obj.technologies
-                        and enduse in load_profile_obj.enduses
-                        and sector in load_profile_obj.sectors):
-                    attr_to_get = getattr(load_profile_obj, shape)
-                    function_run_crit = True
         if function_run_crit:
             return attr_to_get
         else:
             sys.exit("Error in get_load_profile: {} {} {} {}".format(enduse, sector, technology, shape))
-        #except Exception as e:
-        #    
-        #    raise e
 
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
@@ -172,8 +168,6 @@ def absolute_to_relative(absolute_array):
     -------
     relative_array : array
         Contains relative numbers
-
-
     """
     if np.sum(absolute_array) == 0:
         # If the total sum is zero, return same array
@@ -264,20 +258,6 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
                 fuel_hp = 0
             else:
                 fuel_hp = high_p * fuel_shape_hp_y_dh[day][hour]
-
-            '''print("****hour")
-            print(low_p)
-            print(high_p)
-            print(eff_low)
-            print(eff_high)
-            print(fuel_shape_boilers_y_dh[day][hour])
-            print(fuel_shape_hp_y_dh[day][hour])
-            print(np.divide(low_p * fuel_shape_boilers_y_dh[day][hour], eff_low))
-            print(np.divide(high_p * fuel_shape_hp_y_dh[day][hour], eff_high))
-            print("iff")
-            print(fuel_boiler)
-            print(fuel_hp)
-            '''
 
             # Weighted hourly dh shape with efficiencies
             dh_fuel_hybrid[hour] = fuel_boiler + fuel_hp

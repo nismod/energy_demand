@@ -45,7 +45,7 @@ class ResidentialModel(object):
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
             dw_stock=data['rs_dw_stock'],
-            load_profiles=region_object.rs_load_profiles #Myabe not for region but global?
+            load_profiles=region_object.rs_load_profiles
             )
 
         return enduse_object

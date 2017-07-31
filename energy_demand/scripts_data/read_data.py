@@ -5,39 +5,47 @@ import csv
 import numpy as np
 from energy_demand.scripts_technologies import technologies_related
 
-def convert_out_format_es(data, country_object, sub_modules):
+def convert_out_format_es(data, model_run_object, sub_modules):
     """Adds total hourly fuel data into nested dict
 
     Parameters
     ----------
     data : dict
         Dict with own data
-    country_object : object
+    model_run_object : object
         Contains objects of the region
 
     Returns
     -------
     results : dict
-        Returns a list for energy supply model with fueltype, region, hour"""
+        Returns a list for energy supply model with fueltype, region, hour
+    """
     print("...Convert to dict for energy_supply_model")
+    control_total_sum = 0
     results = {}
 
     for fueltype, fueltype_id in data['lu_fueltype'].items():
         results[fueltype] = []
+        control_sum = 0
         for region_name in data['lu_reg']:
-            for sub_model in sub_modules:
 
-                # Get sub moduels - Service
-                for sub_model_obj in getattr(country_object, sub_model):
-                    if sub_model_obj.reg_name == region_name:
-                        hourly_all_fuels = sub_model_obj.enduse_object.enduse_fuel_yh
+            hourly_all_fuels = model_run_object.get_fuel_region_all_models_yh(
+                data,
+                region_name,
+                sub_modules,
+                'enduse_fuel_yh')
 
-                for day, hourly_demand in enumerate(hourly_all_fuels[fueltype_id]):
-                    for hour_in_day, demand in enumerate(hourly_demand):
-                        hour_in_year = "{}_{}".format(day, hour_in_day)
-                        result = (region_name, hour_in_year, float(demand), "units")
-                        results[fueltype].append(result)
+            for day, day_demand in enumerate(hourly_all_fuels[fueltype_id]):
+                for hour, hour_demand in enumerate(day_demand):
+                    result = (region_name, "{}_{}".format(day, hour), float(hour_demand), "units")
+                    results[fueltype].append(result)
 
+                    control_sum += hour_demand
+
+        print("Model output: fueltype {}   {}".format(fueltype, control_sum))
+        control_total_sum += control_sum
+    print(" ----------")
+    print("Total Sum  {} ".format(control_total_sum))
     return results
 
 def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):

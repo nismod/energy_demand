@@ -1,5 +1,4 @@
 """The technological stock for every simulation year"""
-#import sys
 import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_shape_handling import shape_handling
@@ -11,7 +10,7 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy, enduse_technologies):
+    def __init__(self, stock_name, data, temp_by, temp_cy, t_base_heating, potential_enduses, t_base_heating_cy, enduse_technologies):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -28,13 +27,28 @@ class TechStock(object):
         -   The shapes are given for different enduse as technology may be used in different enduses and either
             a technology specific shape is assigned or an overall enduse shape
         """
-        for enduse in potential_enduses:
-            list_with_technologies_per_enduse_all_sectors = []
+        self.stock_name = stock_name
 
+        self.list_tech_enduse_sectors = self.create_tech_stock(
+            data,
+            temp_by,
+            temp_cy,
+            t_base_heating,
+            t_base_heating_cy,
+            potential_enduses,
+            enduse_technologies
+            )
+
+    def create_tech_stock(self, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, potential_enduses, enduse_technologies):
+        """Create technologies and add to technology list
+        """
+        list_tech_enduse_sectors = []
+
+        for enduse in potential_enduses:
             for technology in enduse_technologies[enduse]:
                 #print("         ...{}   {}".format(sector, technology))
 
-                list_with_technologies_per_enduse_all_sectors.append(
+                list_tech_enduse_sectors.append(
 
                     # Technology object
                     Technology(
@@ -48,21 +62,16 @@ class TechStock(object):
                     )
                 )
 
-            # Set technology object as attribute
-            TechStock.__setattr__(
-                self,
-                enduse,
-                list_with_technologies_per_enduse_all_sectors
-            )
+        return list_tech_enduse_sectors
 
-    def get_tech_attr(self, enduse, tech, attribute_to_get):
+    def get_tech_attr(self, enduse, tech_name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
 
         Parameters
         ----------
         enduse : string
             Enduse to read technology specified for this enduse
-        tech : list
+        tech_name : string
             List with stored technologies
         attribute_to_get : string
             Attribute of technology to get
@@ -72,24 +81,11 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        tech_objects = getattr(self, str(enduse))
-
-        for tech_object in tech_objects:
-            if tech_object.tech_name == tech:
+        for tech_object in self.list_tech_enduse_sectors:
+            if tech_object.tech_name == tech_name and tech_object.enduse == enduse:
                 tech_attribute = getattr(tech_object, str(attribute_to_get))
 
-        return tech_attribute
-
-    '''def set_tech_attribute_enduse(self, tech, attribute_to_set, value_to_set, enduse, sector):
-        """Set an attrribute of a technology (stored in a list) in the technology stock
-
-        If the attribute does not exist, create new attribute
-        """
-        tech_objects = getattr(self, str(enduse))
-        for tech_object in tech_objects:
-            if tech_object.tech_name == tech:
-                setattr(tech_object, str(attribute_to_set), value_to_set)
-    '''
+                return tech_attribute
 
 class Technology(object):
     """Technology Class for residential and service technology
@@ -104,7 +100,6 @@ class Technology(object):
     are filled with real values.
 
     Only the yd shapes are provided on a technology level and not dh shapes
-
     """
     def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy): #, sectors):
         """Contructor of Technology

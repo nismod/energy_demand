@@ -55,7 +55,7 @@ import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.scripts_plotting import plotting_results
 import energy_demand.assumptions as assumpt
-import energy_demand.national_dissaggregation as nd
+from energy_demand.scripts_disaggregation import national_disaggregation
 from energy_demand.scripts_data import data_loader
 from energy_demand.scripts_data import write_data
 from energy_demand.scripts_building_stock import building_stock_generator
@@ -115,7 +115,7 @@ def energy_demand_model(data):
     print("================================================")
 
     # Convert data according to region and fueltype
-    result_dict = read_data.convert_out_format_es(data, model_run_object, ['ss_submodel', 'rs_submodel'])
+    result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
 
     # --- Write to csv and YAML
     write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
@@ -170,8 +170,8 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
 
 
-    #a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
-    a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
+    a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
+    #a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
     for i in sim_years:
         y_data = {}
         for reg in a:
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     # ---------------------------------------------
     # Disaggregate national data into regional data
     # ---------------------------------------------
-    base_data = nd.disaggregate_base_demand(base_data)
+    base_data = national_disaggregation.disaggregate_base_demand(base_data)
 
     # Generate building stocks over whole simulation period
     print("...created dwelling stocks for service and residential model")
@@ -357,7 +357,7 @@ if __name__ == "__main__":
 
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-
+        print("NATIONALGAS: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
 

@@ -440,9 +440,18 @@ def helper_assign_ASHP_GSHP_split(split_factor, data):
     GSHP_fraction = 1 - split_factor
 
     heat_pump_stock_install = {
-        data['lu_fueltype']['hydrogen']: {'heat_pump_ASHP_hydro': ASHP_fraction, 'heat_pump_GSHP_hydro': GSHP_fraction},
-        data['lu_fueltype']['electricity']: {'heat_pump_ASHP_electricity': ASHP_fraction, 'heat_pump_GSHP_electricity': GSHP_fraction},
-        data['lu_fueltype']['gas']: {'heat_pump_ASHP_gas': ASHP_fraction, 'heat_pump_GSHP_gas': GSHP_fraction},
+        data['lu_fueltype']['hydrogen']: {
+            'heat_pump_ASHP_hydro': ASHP_fraction,
+            'heat_pump_GSHP_hydro': GSHP_fraction
+            },
+        data['lu_fueltype']['electricity']: {
+            'heat_pump_ASHP_electricity': ASHP_fraction,
+            'heat_pump_GSHP_electricity': GSHP_fraction
+            },
+        data['lu_fueltype']['gas']: {
+            'heat_pump_ASHP_gas': ASHP_fraction,
+            'heat_pump_GSHP_gas': GSHP_fraction
+            },
     }
 
     return heat_pump_stock_install

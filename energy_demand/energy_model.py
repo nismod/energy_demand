@@ -99,6 +99,18 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
+    def get_fuel_region_all_models_yh(self, data, region_to_get, sector_models, attribute_to_get):
+        """Summarise fuel yh for a certain region
+        """
+        tot_fuels_all_enduse_yh = np.zeros((data['nr_of_fueltypes'], 365, 24))
+
+        for sector_model in sector_models:
+            sector_model_objects = getattr(self, sector_model)
+            for model_object in sector_model_objects:
+                if model_object.reg_name == region_to_get:
+                    tot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
+        return tot_fuels_all_enduse_yh
+
     def transport_submodel(self):
         """Industry subsector model
         """

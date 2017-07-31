@@ -119,18 +119,19 @@ def write_final_result(data, result_dict, year, lu_reg, crit_YAML):
         england, P0H, P1H, 139.42, 123.49
     """
     print("...write data to YAML")
+
     # Remove data from path_main
-    main_path = data['path_dict']['path_main'][:-5]
+    main_path = data['path_dict']['path_main'][:-21]
 
     for fueltype in data['lu_fueltype'].keys():
 
         # Path to create csv file
         path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype))
 
-        with open(path, 'w', newline='') as fp:
-            csv_writer = csv.writer(fp, delimiter=',')
-            data = []
-            yaml_list_fuel_type = []
+        with open(path, 'w', newline='') as file: #
+            csv_writer = csv.writer(file, delimiter=',')
+
+            data, yaml_list_fuel_type = [], []
 
             # Iterate fueltypes
             for reg, hour_day, obs_value, _ in result_dict[fueltype]:
@@ -138,16 +139,18 @@ def write_final_result(data, result_dict, year, lu_reg, crit_YAML):
 
                 start_id = "P{}H".format(hour)
                 end_id = "P{}H".format(hour + 1)
-                data.append((lu_reg[reg], start_id, end_id, obs_value))
-                yaml_list_fuel_type.append({
-                    'region': lu_reg[reg],
-                    'start': start_id,
-                    'end': end_id,
-                    'value': float(obs_value),
-                    'units': 'CHECK GWH',
-                    'year': year
+                data.append((lu_reg[reg], fueltype, start_id, end_id, obs_value, 'GW', 2015))
+
+                yaml_list_fuel_type.append(
+                    {
+                        'region': lu_reg[reg],
+                        'start': start_id,
+                        'end': end_id,
+                        'value': float(obs_value),
+                        'units': 'CHECK GWH',
+                        'year': year
                     }
-                )
+                    )
 
             csv_writer.writerows(data)
 
