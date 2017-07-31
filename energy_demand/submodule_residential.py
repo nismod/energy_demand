@@ -1,7 +1,9 @@
+"""Residential Submodel
+"""
 import energy_demand.enduse as endusefunctions
 
 class ResidentialModel(object):
-    """
+    """Residential Submodel
     """
     def __init__(self, data, region_object, enduse_name, sector):
         """Constructor of ResidentialModel
@@ -23,15 +25,6 @@ class ResidentialModel(object):
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
         """
-        if self.enduse_name in data['assumptions']['enduse_space_heating']:
-            enduse_peak_yd_factor = region_object.rs_peak_yd_heating_factor # Regional yd factor for residential space heating
-
-        elif self.enduse_name in data['assumptions']['enduse_space_cooling']:
-            enduse_peak_yd_factor = region_object.ss_peak_yd_cooling_factor # Regional yd factor for cooling for service sector
-        else:
-            # Get parameters from loaded shapes for enduse
-            enduse_peak_yd_factor = data['rs_shapes_yd'][self.enduse_name]['shape_peak_yd_factor']
-
         enduse_object = endusefunctions.Enduse(
             reg_name=self.reg_name,
             data=data,
@@ -41,7 +34,6 @@ class ResidentialModel(object):
             tech_stock=region_object.rs_tech_stock,
             heating_factor_y=region_object.rs_heating_factor_y,
             cooling_factor_y=region_object.rs_cooling_factor_y,
-            enduse_peak_yd_factor=enduse_peak_yd_factor,
             fuel_switches=data['assumptions']['rs_fuel_switches'],
             service_switches=data['assumptions']['rs_service_switches'],
             fuel_enduse_tech_p_by=data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse_name],
@@ -51,8 +43,6 @@ class ResidentialModel(object):
             tech_constant_share=data['assumptions']['rs_tech_constant_share'],
             installed_tech=data['assumptions']['rs_installed_tech'],
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
-            data_shapes_yd=data['rs_shapes_yd'],
-            data_shapes_dh=data['rs_shapes_dh'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
             dw_stock=data['rs_dw_stock'],
             load_profiles=region_object.rs_load_profiles #Myabe not for region but global?

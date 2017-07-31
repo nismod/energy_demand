@@ -9,7 +9,7 @@ class LoadProfileStock(object):
         self.name = name
         self.load_profile_list = []
 
-    def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, shape_peak_dh=np.ones((24))):
+    def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile
         """
         loadprofile_obj = LoadProfile(
@@ -18,6 +18,7 @@ class LoadProfileStock(object):
             sectors,
             shape_yd,
             shape_yh,
+            enduse_peak_yd_factor,
             shape_peak_dh
             )
 
@@ -50,22 +51,23 @@ class LoadProfileStock(object):
                     and sector in load_profile_obj.sectors):
 
                 # Test if dummy sector and thus shape_peak not provided for different sectors
-                if sector == 'dummy_sector':
-                    print("...only one shape privded not for sectors")
+                if sector == 'dummy_sector': #TODO: IMPROVE
                     shape_peak_dh = getattr(load_profile_obj, 'shape_peak_dh')
                 else:
-                    print("read out sector shape_dh")
                     attr_to_get_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
                     shape_peak_dh = attr_to_get_all_sectors[sector][enduse]['shape_peak_dh']
 
-                #attr_to_get_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
-                #shape_peak_dh = attr_to_get_all_sectors[sector][enduse]['shape_peak_dh']
                 return shape_peak_dh
 
 class LoadProfile(object):
     """Load profile container
+
+    Parameters
+    ----------
+    technologies : list
+        List of technologies with same shapes
     """
-    def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, shape_peak_dh=np.ones((24))):
+    def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
         """
         self.technologies = technologies
@@ -74,44 +76,7 @@ class LoadProfile(object):
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
         self.shape_peak_dh = shape_peak_dh
-
-
-        #self.shape_peak_dh = self.get_shape_peak_dh(sector_provided[1], sector_provided[2])
-        #self.shape_peak_dh_all_sectors = shape_peak_dh
-
-    '''def get_shape_peak_dh(self, enduse, sector):
-        if sector == 'dummy_sector':
-            shape_peak_dh = self.shape_peak_dh[sector][enduse]
-        else:
-            shape_peak_dh = self.shape_peak_dh
-        return shape_peak_dh
-    '''
-        
-    '''def get_peak_dh(self, fuels_yd, enduse_peak_yd_factor):
-        """ calc max fuel per day and assign shape
-
-        #enduse_fuel_y_peak_yd = self.calc_enduse_fuel_peak_yd_factor(self.enduse_fuel_yd, enduse_peak_yd_factor)
-        #self.enduse_fuel_peak_dh = self.calc_enduse_fuel_peak_dh(data_shapes_dh[enduse]['shape_peak_dh'], enduse_fuel_y_peak_yd)
-        """
-
-        fuel_peak_yd = fuels_yd * enduse_peak_yd_factor
-
-        enduse_fuel_peak_dh = np.zeros((enduse_fuel_y_peak_yd.shape[0], 24))
-
-        # Iterate fueltypes and day and multiply daily fuel data with daily shape
-        for fueltype, fuel in enumerate(enduse_fuel_y_peak_yd):
-            enduse_fuel_peak_dh[fueltype] = self.shape_peak_dh * fuel
-
-        return enduse_fuel_peak_dh
-    '''
-
-
-
-
-
-
-
-
+        self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
 def eff_heat_pump(m_slope, h_diff, intersect):
     """Calculate efficiency of heat pump
@@ -161,7 +126,6 @@ def absolute_to_relative(absolute_array):
     # If the total sum is zero, return same array
     if np.sum(absolute_array) == 0:
         relative_array = absolute_array
-        #print("Warning: The sum was zero")
     else:
         #relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
         relative_array = np.nan_to_num(np.divide(1, np.sum(absolute_array)) * absolute_array)
@@ -190,7 +154,7 @@ def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
 
     return shape_yh
 
-def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p, eff_low_tech, eff_high_tech):
+def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
     """Calculate y_dh fuel shapes for hybrid technologies for every day in a year
 
     Depending on the share of service each hybrid technology in every hour,
@@ -239,20 +203,16 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
             low_p = tech_low_high_p['low'][day][hour]
             high_p = tech_low_high_p['high'][day][hour]
 
-            # Efficiencies to weight dh shape
-            eff_low = eff_low_tech[day][hour]
-            eff_high = eff_high_tech[day][hour]
-
             # Calculate fuel for every hour
             if low_p == 0:
                 fuel_boiler = 0
             else:
-                fuel_boiler = low_p * fuel_shape_boilers_y_dh[day][hour] #SHARK / eff_low
+                fuel_boiler = low_p * fuel_shape_boilers_y_dh[day][hour]
 
             if high_p == 0:
                 fuel_hp = 0
             else:
-                fuel_hp = high_p * fuel_shape_hp_y_dh[day][hour] #SHARK / eff_high
+                fuel_hp = high_p * fuel_shape_hp_y_dh[day][hour]
 
             '''print("****hour")
             print(low_p)

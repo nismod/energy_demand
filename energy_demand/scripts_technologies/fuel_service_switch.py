@@ -163,13 +163,10 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
             # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
 
-                # SHARK
-                #if tech[:5] == 'dummy': #Dumm technology: TODO: Improve
-                #    continue #skip
-
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
-                print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
+                #print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
+
                 # Get technology type
                 tech_type = technologies_related.get_tech_type(tech, assumptions)
 

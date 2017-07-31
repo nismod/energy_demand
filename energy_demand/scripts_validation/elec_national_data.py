@@ -3,12 +3,12 @@
 import sys
 import csv
 import numpy as np
-from math import factorial
 import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_basic import unit_conversions
 from energy_demand.scripts_plotting import plotting_program
 #from energy_demand.scripts_technologies import diffusion_technologies as diffusion
+#from math import factorial
 
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
@@ -77,7 +77,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
                 # Sum value of first and second half hour
                 hour_elec_demand_INDO = half_hour_demand_INDO + float(line[2]) # INDO - National Demand
-                hour_elec_demand_ITSDO  = half_hour_demand_ITSDO + float(line[4]) # ITSDO - Transmission System Demand
+                hour_elec_demand_ITSDO = half_hour_demand_ITSDO + float(line[4]) # ITSDO - Transmission System Demand
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
@@ -187,6 +187,7 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     print("max_h_year (modelled):           " + str(np.max(peak_all_models_all_enduses_fueltype)))
     print("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
     print("Fuel max peak day (modelled):    " + str(np.sum(peak_all_models_all_enduses_fueltype)))
+    
     # -------------------------------
     # Compare values
     # -------------------------------
@@ -207,10 +208,10 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     plt.plot(x, validation_elec_data_2015[max_day], color='green', label='real')
 
     # Y-axis ticks
-    plt.ylim(0, 80)
+    #plt.ylim(0, 80)
     plt.xlim(0, 25)
     plt.yticks(range(0, 90, 10))
-    
+
     #plt.axis('tight')
     plt.title("Peak day comparison", loc='left')
     plt.xlabel("Hours")
@@ -230,9 +231,6 @@ def compare_results_hour_boxplots(data_real, data_calculated):
         data_h_full_year[i] = []
 
     for yearday_python in range(365):
-        #date_object = date_handling.convert_yearday_to_date(2015, yearday_python) # Yerday
-        #month = date_object.timetuple().tm_mon - 1 # Month
-
         for hour in range(24):
 
             # Calculate difference in electricity use
@@ -336,8 +334,8 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
     m = np.linalg.pinv(b).A[deriv] * rate**deriv * factorial(deriv)
     # pad the signal at the extremes with values taken from the signal itself
-    firstvals = y[0] - np.abs( y[1:half_window+1][::-1] - y[0] )
+    firstvals = y[0] - np.abs(y[1:half_window+1][::-1] - y[0])
     lastvals = y[-1] + np.abs(y[-half_window-1:-1][::-1] - y[-1])
     y = np.concatenate((firstvals, y, lastvals))
 
-    return np.convolve( m[::-1], y, mode='valid')
+    return np.convolve(m[::-1], y, mode='valid')

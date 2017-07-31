@@ -72,8 +72,6 @@ def get_tech_type(tech_name, assumptions, enduse=''):
             tech_type = 'storage_heating_electricity'
         elif tech_name in assumptions['secondary_heating_electricity']: #ok
             tech_type = 'secondary_heating_electricity'
-        #elif tech_name in assumptions['list_tech_rs_lighting']: #TODO
-        #    tech_type = 'lighting_technology'
         else:
             tech_type = 'regular_tech'
 

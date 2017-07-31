@@ -45,7 +45,7 @@ TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
 The docs can be found here: http://ed.readthedocs.io
-5'''
+'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 #!python3.6
@@ -59,12 +59,12 @@ import energy_demand.assumptions as assumpt
 import energy_demand.national_dissaggregation as nd
 import energy_demand.data_loader as dl
 from energy_demand.scripts_data import write_data
+from energy_demand.scripts_validation import elec_national_data
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_calculations import enduse_scenario
 from energy_demand.scripts_data import read_data
 from energy_demand.scripts_basic import testing_functions as testing
-from energy_demand.scripts_validation import elec_national_data as validation
 from energy_demand.scripts_basic import date_handling
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
@@ -356,7 +356,7 @@ if __name__ == "__main__":
         days_to_plot_full_year = list(range(0, 365))
 
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
-        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = validation.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
+        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
 
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
@@ -365,16 +365,15 @@ if __name__ == "__main__":
         print("FACTOR: " + str(diff_factor_TD_ECUK_Input))
 
         INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
-
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
         # Compare different models
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
-        validation.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
+        '''elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
         print("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
@@ -382,14 +381,14 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
         # ---------------------------------------------------
-        validation.compare_peak(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2][18]) #SCRAP: NOT PEAK BUT PEAK DAY
-        validation.compare_peak(validation_elec_data_2015_INDO, model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
+        elec_national_data.compare_peak(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2][18]) #SCRAP: NOT PEAK BUT PEAK DAY
+        elec_national_data.compare_peak(validation_elec_data_2015_INDO, model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
 
         # ---------------------------------------------------
         # Validate boxplots for every hour
         # ---------------------------------------------------
-        validation.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-
+        elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
+        '''
     # ------------------------------
     # Plotting
     # ------------------------------

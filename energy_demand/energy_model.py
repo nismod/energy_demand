@@ -80,9 +80,9 @@ class EnergyModel(object):
         # Sum across all regions, enduses for peak hour
 
         # NEW
-        print("......PEAK SUMMING") #self.rs_submodel, self.ss_submodel, self.is_submodel, 
         self.peak_all_models_all_enduses_fueltype = self.sum_regions('enduse_fuel_peak_dh', data, [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
-        print(np.sum(self.peak_all_models_all_enduses_fueltype))
+        print("......PEAK SUMMING")
+        print(np.sum(self.peak_all_models_all_enduses_fueltype[2]))
 
         self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
         self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_regions('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
