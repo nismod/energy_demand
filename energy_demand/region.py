@@ -13,33 +13,33 @@ from energy_demand.scripts_initalisations import helper_functions
 class Region(object):
     """Region class
 
-    For every region, a Region object needs to be generated.
+    For every Region, a Region object needs to be generated.
 
     Parameters
     ----------
-    reg_name : str
-        Unique identifyer of region
+    region_name : str
+        Unique identifyer of region_name
     data : dict
         Dictionary containing data
 
     Info
     -------------------------
-    - For each region, a technology stock is defined with help of regional temperature data technology specific
-    - Regional specific fuel shapes are assigned to technologies
+    - For each region_name, a technology stock is defined with help of regional temperature data technology specific
+    - regional specific fuel shapes are assigned to technologies
     """
-    def __init__(self, reg_name, data):
-        """Constructor of Region
+    def __init__(self, region_name, data):
+        """Constructor
         """
-        self.reg_name = reg_name
+        self.region_name = region_name
 
         # Fuels of different sectors
-        self.rs_enduses_fuel = data['rs_fueldata_disagg'][reg_name]
-        self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][reg_name]
-        self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][reg_name]
-        self.ts_fuels = data['ts_fueldata_disagg'][reg_name]
+        self.rs_enduses_fuel = data['rs_fueldata_disagg'][region_name]
+        self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][region_name]
+        self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][region_name]
+        self.ts_fuels = data['ts_fueldata_disagg'][region_name]
 
         # Get closest weather station and temperatures
-        closest_station_id = wl.get_closest_station(data['reg_coordinates'][reg_name]['longitude'], data['reg_coordinates'][reg_name]['latitude'], data['weather_stations'])
+        closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
         temp_by = data['temperature_data'][closest_station_id][data['base_yr']]
         temp_cy = data['temperature_data'][closest_station_id][data['curr_yr']]
 
@@ -88,13 +88,13 @@ class Region(object):
         self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
         self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
-        # Create region specific technological stock
-        print("   ...creating technology stocks in region")
+        # Create region_name specific technological stock
+        print("   ...creating technology stocks in region_name")
         self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
         self.ss_tech_stock = ts.TechStock('ss_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
         self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
 
-        # Create region specific shape stock
+        # Create region_name specific shape stock
         self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
         self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
         self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")

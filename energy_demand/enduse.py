@@ -18,7 +18,7 @@ class Enduse(object):
 
     Parameters
     ----------
-    reg_name : int
+    region_name : int
         The ID of the region. The actual region name is stored in `lu_reg`
     data : dict
         Dictionary containing data
@@ -42,7 +42,7 @@ class Enduse(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, reg_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, dw_stock, load_profiles):
+    def __init__(self, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, dw_stock, load_profiles):
         """Enduse class constructor
         """
         print("..create enduse {}".format(enduse))
@@ -95,14 +95,14 @@ class Enduse(object):
             print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
-            self.enduse_building_stock_driver(dw_stock, reg_name)
+            self.enduse_building_stock_driver(dw_stock, region_name)
             print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # ----------------------------------
             # Hourly fuel calculation cascade
             # ----------------------------------
-            print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
+            #print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
 
             #for fueltype in range(self.enduse_fuel_y.shape[0]):
             #    print("FUELTYPE - enduse  {} ".format(np.sum(self.enduse_fuel_y[fueltype])))
@@ -1167,7 +1167,7 @@ class Enduse(object):
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
-    def enduse_building_stock_driver(self, dw_stock, reg_name):
+    def enduse_building_stock_driver(self, dw_stock, region_name):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         If no building specific scenario driver is found, the identical fuel is returned.
@@ -1178,7 +1178,7 @@ class Enduse(object):
         ----------
         dw_stock : dict
             ff
-        reg_name : str
+        region_name : str
             Region
 
         Returns
@@ -1193,11 +1193,11 @@ class Enduse(object):
         new_fuels = copy.deepcopy(self.enduse_fuel_new_y)
 
         # Test if enduse has a building related scenario driver
-        if hasattr(dw_stock[reg_name][self.base_yr], self.enduse) and self.curr_yr != self.base_yr:
+        if hasattr(dw_stock[region_name][self.base_yr], self.enduse) and self.curr_yr != self.base_yr:
 
             # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(dw_stock[reg_name][self.base_yr], self.enduse)
-            cy_driver = getattr(dw_stock[reg_name][self.curr_yr], self.enduse)
+            by_driver = getattr(dw_stock[region_name][self.base_yr], self.enduse)
+            cy_driver = getattr(dw_stock[region_name][self.curr_yr], self.enduse)
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
             factor_driver = np.divide(cy_driver, by_driver) # FROZEN

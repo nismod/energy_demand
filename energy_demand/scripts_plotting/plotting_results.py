@@ -94,7 +94,7 @@ def plot_stacked_Country_end_use(data, results_resid, enduses_data, attribute_to
     plt.title("Stacked energy demand for simulation years for whole UK")
     plt.show()
 
-def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, reg_name):
+def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, region):
     """Plots stacked end_use for a region
 
 

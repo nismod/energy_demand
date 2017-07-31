@@ -547,12 +547,18 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
 
     # Efficiencies of technologies of hybrid tech
     if tech_low_temp in assumptions['list_tech_heating_temp_dep']:
-        eff_tech_low_temp = shape_handling.eff_heat_pump(assumptions['hp_slope_assumption'], average_h_diff_by, assumptions['technologies'][tech_low_temp]['eff_by'])
+        eff_tech_low_temp = technologies_related.eff_heat_pump(
+            assumptions['hp_slope_assumption'],
+            average_h_diff_by,
+            assumptions['technologies'][tech_low_temp]['eff_by'])
     else:
         eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
 
     if tech_high_temp in assumptions['list_tech_heating_temp_dep']:
-        eff_tech_high_temp = shape_handling.eff_heat_pump(m_slope=assumptions['hp_slope_assumption'], h_diff=average_h_diff_by, intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
+        eff_tech_high_temp = technologies_related.eff_heat_pump(
+            m_slope=assumptions['hp_slope_assumption'],
+            h_diff=average_h_diff_by,
+            intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
     else:
         eff_tech_high_temp = assumptions['technologies'][tech_high_temp]['eff_by']
 

@@ -25,16 +25,16 @@ def ss_build_stock(data):
     # ------------TODO: REPLACE Newcastle
     # Generate floor area data for service sector
     # All info is necessary with the following structure
-    # --data['ss_dw_input_data'][sim_yr][reg_name][sector]['floorarea']
-    # --data['ss_dw_input_data'][sim_yr][reg_name][sector]['age']
+    # --data['ss_dw_input_data'][sim_yr][region][sector]['floorarea']
+    # --data['ss_dw_input_data'][sim_yr][region][sector]['age']
     # ..
     # ------------
 
     dw_stock_every_year = {}
 
     # Iterate regions
-    for reg_name in data['lu_reg']:
-        dw_stock_every_year[reg_name] = {}
+    for region_name in data['lu_reg']:
+        dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
         for sim_yr in data['sim_period']:
@@ -55,7 +55,7 @@ def ss_build_stock(data):
                 # -- Virstual service stock (so far very simple, e.g. not age considered)
                 # -------------------------
                 # Base year floor area
-                floorarea_sector_by = data['ss_sector_floor_area_by'][reg_name][sector]
+                floorarea_sector_by = data['ss_sector_floor_area_by'][region_name][sector]
 
                 # Change in floor area up to end year
                 if sector in data['assumptions']['ss_floorarea_change_ey_p']:
@@ -83,9 +83,9 @@ def ss_build_stock(data):
                 dw_stock.append(
                     building_stock_functions.Dwelling(
                         curr_yr=sim_yr,
-                        reg_name=reg_name,
-                        longitude=data['reg_coordinates'][reg_name]['longitude'],
-                        latitude=data['reg_coordinates'][reg_name]['latitude'],
+                        region_name=region_name,
+                        longitude=data['reg_coordinates'][region_name]['longitude'],
+                        latitude=data['reg_coordinates'][region_name]['latitude'],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['ss_scen_driver_assumptions'],
@@ -94,8 +94,8 @@ def ss_build_stock(data):
                 )
 
             # Add regional base year dwelling to dwelling stock
-            dw_stock_every_year[reg_name][sim_yr] = building_stock_functions.DwStockRegion(
-                reg_name,
+            dw_stock_every_year[region_name][sim_yr] = building_stock_functions.DwellingStock(
+                region_name,
                 dw_stock,
                 data['ss_all_enduses']
                 )
@@ -158,27 +158,27 @@ def rs_build_stock(data):
         )
 
     # Iterate regions
-    for reg_name in data['lu_reg']:
-        floorarea_by = data['reg_floorarea_resid'][reg_name]
-        pop_by = data['population'][base_yr][reg_name]
+    for region_name in data['lu_reg']:
+        floorarea_by = data['reg_floorarea_resid'][region_name]
+        pop_by = data['population'][base_yr][region_name]
         floorarea_pp_by = np.divide(floorarea_by, pop_by) # Floor area per person [m2 / person]
-        dw_stock_every_year[reg_name] = {}
+        dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
         for sim_yr in data['sim_period']:
 
             # Calculate new necessary floor area of simulation year
-            floorarea_pp_sy = data_floorarea_pp[reg_name][sim_yr] # Get floor area per person of sim_yr
+            floorarea_pp_sy = data_floorarea_pp[region_name][sim_yr] # Get floor area per person of sim_yr
 
             # Floor area per person simulation year * population of simulation year in region
-            tot_floorarea_sy = floorarea_pp_sy * data['population'][sim_yr][reg_name] # TODO: WHy not + 1?
+            tot_floorarea_sy = floorarea_pp_sy * data['population'][sim_yr][region_name] # TODO: WHy not + 1?
             new_floorarea_sy = tot_floorarea_sy - floorarea_by # tot new floor area - area base year
 
             # Only calculate changing
             if sim_yr == base_yr:
                 dw_stock_base = generate_dw_existing(
                     data,
-                    reg_name,
+                    region_name,
                     sim_yr,
                     data['dwtype_lu'],
                     floorarea_p_sy[base_yr],
@@ -190,7 +190,7 @@ def rs_build_stock(data):
                     )
 
                 # Add regional base year building stock
-                dw_stock_every_year[reg_name][base_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+                dw_stock_every_year[region_name][base_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
@@ -204,10 +204,10 @@ def rs_build_stock(data):
                 new_area_minus_demolished = floorarea_by - demolished_area
                 pop_in_exist_dw_new_floor_area_pp = floorarea_by / floorarea_pp_sy #In existing building stock fewer people are living
 
-                #dw_stock_new_dw = generate_dw_existing(data, reg_name, sim_yr, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
+                #dw_stock_new_dw = generate_dw_existing(data, region, sim_yr, data['dwtype_lu'], floorarea_p_sy[base_yr], floorarea_by, assumptions['dwtype_age_distr'][base_yr], floorarea_pp_sy, new_area_minus_demolished, pop_in_exist_dw_new_floor_area_pp, assumptions, data_ext)
                 dw_stock_new_dw = generate_dw_existing(
                     data,
-                    reg_name,
+                    region_name,
                     sim_yr,
                     data['dwtype_lu'],
                     floorarea_p_sy[sim_yr],
@@ -229,22 +229,21 @@ def rs_build_stock(data):
                     #print("floorarea_pp_sy   " + str(floorarea_pp_sy))
                     dw_stock_new_dw = generate_dw_new(
                         data,
-                        reg_name,
+                        region_name,
                         sim_yr,
                         data['dwtype_lu'],
                         floorarea_p_sy[sim_yr],
                         floorarea_pp_sy,
                         dw_stock_new_dw,
                         new_floorarea_sy,
-                        data['assumptions'],
                         data
                         )
 
                 # Generate region and save it in dictionary
-                dw_stock_every_year[reg_name][sim_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
+                dw_stock_every_year[region_name][sim_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
 
         # Add regional base year building stock
-        #dw_stock_every_year[reg_name][base_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+        #dw_stock_every_year[region_name][base_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
 
     return dw_stock_every_year
 
@@ -300,7 +299,7 @@ def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
 
     return dw_floorarea_p
 
-def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_by, dwtype_age_distr_by, floorarea_pp, tot_floorarea_cy, pop_by):
+def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorarea_by, dwtype_age_distr_by, floorarea_pp, tot_floorarea_cy, pop_by):
     """Generates dwellings according to age, floor area and distribution assumptsion"""
 
     dw_stock_base, control_pop, control_floorarea = [], 0, 0
@@ -327,9 +326,9 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
             dw_stock_base.append(
                 building_stock_functions.Dwelling(
                     curr_yr=curr_yr,
-                    reg_name=reg_name,
-                    longitude=data['reg_coordinates'][reg_name]['longitude'],
-                    latitude=data['reg_coordinates'][reg_name]['latitude'],
+                    region_name=region_name,
+                    longitude=data['reg_coordinates'][region_name]['longitude'],
+                    latitude=data['reg_coordinates'][region_name]['latitude'],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],
@@ -348,7 +347,7 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
 
     return dw_stock_base
 
-def generate_dw_new(data, reg_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, assumptions, data_ext):
+def generate_dw_new(data, region_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, data_ext):
     """Generate objects for all new dwellings
 
     All new dwellings are appended to the existing building stock of the region
@@ -389,9 +388,9 @@ def generate_dw_new(data, reg_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp
         dw_stock_new_dw.append(
             building_stock_functions.Dwelling(
                 curr_yr=curr_yr,
-                reg_name=reg_name,
-                longitude=data['reg_coordinates'][reg_name]['longitude'],
-                latitude=data['reg_coordinates'][reg_name]['latitude'],
+                region_name=region_name,
+                longitude=data['reg_coordinates'][region_name]['longitude'],
+                latitude=data['reg_coordinates'][region_name]['latitude'],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],

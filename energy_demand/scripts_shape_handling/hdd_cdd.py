@@ -85,9 +85,9 @@ def get_hdd_country(regions, data, t_base_type):
     """
     hdd_regions = {}
 
-    for region in regions:
-        longitude = data['reg_coordinates'][region]['longitude']
-        latitude = data['reg_coordinates'][region]['latitude']
+    for region_name in regions:
+        longitude = data['reg_coordinates'][region_name]['longitude']
+        latitude = data['reg_coordinates'][region_name]['latitude']
 
         # Get closest weather station and temperatures
         closest_weatherstation_id = weather_station.get_closest_station(
@@ -110,7 +110,7 @@ def get_hdd_country(regions, data, t_base_type):
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
-        hdd_regions[region] = np.sum(hdd_reg) # get regional temp over year
+        hdd_regions[region_name] = np.sum(hdd_reg) # get regional temp over year
 
     return hdd_regions
 

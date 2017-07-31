@@ -6,7 +6,7 @@ import numpy as np
 class TransportModel(object):
     """Industry Submodel
     """
-    def __init__(self, region_object, enduse_name):
+    def __init__(self, region_object, enduse):
         """Constructor of industry submodel
 
         Parameters
@@ -15,13 +15,13 @@ class TransportModel(object):
             Data
         region_object : dict
             Object of region
-        enduse_name : string
+        enduse : string
             Enduse
         sector : string
             Service sector
         """
-        self.reg_name = region_object.reg_name
-        self.enduse_name = enduse_name
+        self.region_name = region_object.region_name
+        self.enduse = enduse
 
         self.fuels_reg = region_object.ts_fuels
 

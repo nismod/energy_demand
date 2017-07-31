@@ -15,7 +15,7 @@ class EnergyModel(object):
 
     Parameters
     ----------
-    reg_names : list
+    regions : list
         Dictionary containign the name of the Region (unique identifier)
     data : dict
         Main data dictionary
@@ -24,13 +24,15 @@ class EnergyModel(object):
     -----
     this class has as many attributes as regions (for evry rgion an attribute)
     """
-    def __init__(self, reg_names, data):
+    def __init__(self, region_names, data):
         """Constructor of the class which holds all regions of a country
         """
+        print("..start main energy demand function")
+
         self.curr_yr = data['curr_yr']
 
         # Create object for every region and add into list
-        self.regions = self.create_regions(reg_names, data)
+        self.regions = self.create_regions(region_names, data)
 
         # --------------------
         # Residential SubModel
@@ -99,7 +101,7 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
-    def get_fuel_region_all_models_yh(self, data, region_to_get, sector_models, attribute_to_get):
+    def get_fuel_region_all_models_yh(self, data, region_name_to_get, sector_models, attribute_to_get):
         """Summarise fuel yh for a certain region
         """
         tot_fuels_all_enduse_yh = np.zeros((data['nr_of_fueltypes'], 365, 24))
@@ -107,7 +109,7 @@ class EnergyModel(object):
         for sector_model in sector_models:
             sector_model_objects = getattr(self, sector_model)
             for model_object in sector_model_objects:
-                if model_object.reg_name == region_to_get:
+                if model_object.region_name == region_name_to_get:
                     tot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
         return tot_fuels_all_enduse_yh
 
@@ -224,22 +226,22 @@ class EnergyModel(object):
 
         return submodule_list
 
-    def create_regions(self, reg_names, data):
+    def create_regions(self, region_names, data):
         """Create all regions and add them in a list
 
         Parameters
         ----------
-        reg_names : list
+        regions : list
             The name of the Region (unique identifier)
         """
         regions = []
 
         # Iterate all regions
-        for reg_name in reg_names:
-            print("...creating region: '{}'  ".format(reg_name))
+        for region_name in region_names:
+            print("...creating region: '{}'  ".format(region_name))
             # Generate region object
             region_object = reg.Region(
-                reg_name=reg_name,
+                region_name=region_name,
                 data=data
                 )
 
@@ -269,11 +271,11 @@ class EnergyModel(object):
             for region_enduse_object in sector_model_enduse: # Iterate enduse
 
                 # Get regional enduse object
-                if region_enduse_object.enduse_name not in enduse_dict:
-                    enduse_dict[region_enduse_object.enduse_name] = 0
+                if region_enduse_object.enduse not in enduse_dict:
+                    enduse_dict[region_enduse_object.enduse] = 0
 
                 # Summarise enduse attribute
-                enduse_dict[region_enduse_object.enduse_name] += np.sum(getattr(region_enduse_object.enduse_object, attribute_to_get))
+                enduse_dict[region_enduse_object.enduse] += np.sum(getattr(region_enduse_object.enduse_object, attribute_to_get))
 
         return enduse_dict
 

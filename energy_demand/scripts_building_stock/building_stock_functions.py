@@ -36,11 +36,11 @@ class Dwelling(object):
     Depending on service or residential model, not all attributes are filled (then they are inistialised as None or zero)
 
     """
-    def __init__(self, curr_yr, reg_name, longitude, latitude, floorarea, enduses, driver_assumptions, pop=0, age=None, dwtype=None, sector_type=None):
+    def __init__(self, curr_yr, region_name, longitude, latitude, floorarea, enduses, driver_assumptions, pop=0, age=None, dwtype=None, sector_type=None):
         """Constructor of Dwelling Class
         """
         self.dw_ID = 'To_IMPEMENT'
-        self.dw_reg_name = reg_name
+        #self.dw_region_name = region_name
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = longitude
@@ -90,16 +90,16 @@ class Dwelling(object):
 
         return
 
-class DwStockRegion(object):
-    """Class of the building stock in a region"""
+class DwellingStock(object):
+    """Class of the building stock in a region_name"""
 
     def __init__(self, region_name, dwellings, enduses):
-        """Returns a new building stock region object.
+        """Returns a new building stock region_name object.
 
         Parameters
         ----------
         region_name : float
-            Region ID of building stock
+            region_name ID of building stock
         dwellings : list
             List containing all dwelling objects
         """
@@ -111,7 +111,7 @@ class DwStockRegion(object):
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
         for enduse in enduses:
-            DwStockRegion.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
+            DwellingStock.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
 
     def get_scenario_driver_enduse(self, enduse):
         """Sum all scenario driver for space heating"""
@@ -138,10 +138,10 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
     Parameters
     ----------
     reg_floorarea_resid : dict
-        Floor area base year for all region
+        Floor area base year for all region_name
 
     reg_pop_by : dict
-        Population of base year for all region
+        Population of base year for all region_name
 
     glob_var : dict
         Contains all global simulation variables
@@ -159,10 +159,10 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
     """
     data_floorarea_pp = {}
 
-    # Iterate regions
-    for reg_name in reg_pop_by:
+    # Iterate region_names
+    for region_name in reg_pop_by:
         sim_yrs = {}
-        floorarea_pp_by = reg_floorarea_resid[reg_name] / reg_pop_by[reg_name] # Floor area per person of base year
+        floorarea_pp_by = reg_floorarea_resid[region_name] / reg_pop_by[region_name] # Floor area per person of base year
 
         # Iterate simulation years
         for sim_yr in sim_period:
@@ -181,7 +181,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
 
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
-        data_floorarea_pp[reg_name] = sim_yrs  # Values for every simulation year
+        data_floorarea_pp[region_name] = sim_yrs  # Values for every simulation year
 
     return data_floorarea_pp
 

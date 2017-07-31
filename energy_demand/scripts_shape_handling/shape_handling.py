@@ -125,35 +125,6 @@ class LoadProfile(object):
         self.shape_peak_dh = shape_peak_dh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
-def eff_heat_pump(m_slope, h_diff, intersect):
-    """Calculate efficiency of heat pump
-
-    Parameters
-    ----------
-    m_slope : float
-        Slope of heat pump
-    h_diff : float
-        Temperature difference
-    intersect : float
-        Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
-
-    Returns
-    -------
-    efficiency_hp : float
-        Efficiency of heat pump
-
-    Notes
-    -----
-    Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
-    be calculated based on slope and intersect which is provided as input for temp difference 10
-    and treated as efficiency
-
-    The intersect at temp differenc 10 is for ASHP about 6, for GSHP about 9
-    """
-    efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope*10))
-
-    return efficiency_hp
-
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative
 
