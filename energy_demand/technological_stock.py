@@ -39,15 +39,16 @@ class TechStock(object):
             enduse_technologies
             )
 
-    def create_tech_stock(self, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, potential_enduses, enduse_technologies):
+    @classmethod
+    def create_tech_stock(cls, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, enduses, technologies):
         """Create technologies and add to technology list
         """
         list_tech_enduse_sectors = []
 
-        for enduse in potential_enduses:
-            for technology in enduse_technologies[enduse]:
+        for enduse in enduses:
+            for technology in technologies[enduse]:
                 #print("         ...{}   {}".format(sector, technology))
-
+                #TODO: Maybe create own "hybrid tech class"
                 list_tech_enduse_sectors.append(
 
                     # Technology object
@@ -192,7 +193,8 @@ class Technology(object):
         # Convert hourly fuel type shares to daily fuel type shares
         self.fuel_types_shares_yd = self.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
-    def get_heatpump_eff(self, temp_yr, m_slope, b, t_base_heating):
+    @classmethod
+    def get_heatpump_eff(cls, temp_yr, m_slope, b, t_base_heating):
         """Calculate efficiency according to temperatur difference of base year
 
         For every hour the temperature difference is calculated and the efficiency of the heat pump calculated
@@ -286,7 +288,8 @@ class Technology(object):
 
         return tech_low_high_p
 
-    def fraction_service_high_temp(self, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    @classmethod
+    def fraction_service_high_temp(cls, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
 
         Parameters
@@ -324,7 +327,8 @@ class Technology(object):
 
         return fraction_current_temp
 
-    def set_constant_fueltype(self, fueltype, len_fueltypes):
+    @staticmethod
+    def set_constant_fueltype(fueltype, len_fueltypes):
         """Create dictionary with constant single fueltype
 
         Parameters
@@ -356,7 +360,8 @@ class Technology(object):
 
         return fueltypes_yh
 
-    def const_eff_yh(self, input_eff):
+    @staticmethod
+    def const_eff_yh(input_eff):
         """Assing a constant efficiency to every hour in a year
 
         Parameters
@@ -421,7 +426,8 @@ class Technology(object):
 
         return eff_hybrid_yh
 
-    def convert_yh_to_yd_fueltype_shares(self, nr_fueltypes, fueltypes_yh_p_cy):
+    @classmethod
+    def convert_yh_to_yd_fueltype_shares(cls, nr_fueltypes, fueltypes_yh_p_cy):
         """Take share of fueltypes for every yh and calculate the mean share of every day
 
         The daily sum is calculated for every row of an array.
@@ -438,7 +444,7 @@ class Technology(object):
 
         Example
         -------
-        array((8fueltype, 365days, 24)) is converted into array((8fueltypes, 365days with average))
+        array((8, 365, 24)) is converted into array((8fueltypes, 365days with average))
         """
         fuel_yd_shares = np.zeros((nr_fueltypes, 365))
 
