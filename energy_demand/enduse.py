@@ -320,7 +320,7 @@ class Enduse(object):
                 fuel_tech_y = fuel_enduse_tech_p_by[fueltype][tech] * fuel_enduse
 
                 # Distribute y to yh by multiplying total fuel of technology with yh fuel shape
-                fuel_tech_yh = fuel_tech_y * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh') # OCHS
+                fuel_tech_yh = fuel_tech_y * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
                 # ------------------------------
                 # Convert to energy service for base year (because the actual service is provided in base year)
@@ -330,7 +330,6 @@ class Enduse(object):
                 # ------------------------------
                 service_tech_yh_by = fuel_tech_yh * tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
 
-                # service_distr_hybrid_h_p_cy
                 service_tech_cy[tech] += service_tech_yh_by
 
                 #print("fuel to service:  {}  {}    fuel enduse: {}       fuel tech: {}        service: {}  fueltype:  {}".format(tech, np.sum(tech_stock.get_tech_attr(self.enduse, self.sector, tech, 'eff_cy')), np.sum(fuel_enduse), np.sum(fuel_tech_y), np.sum(service_tech_yh_by), fueltype))
@@ -740,30 +739,37 @@ class Enduse(object):
             Fueltype storing daily fuel for every fueltype (fueltype, 365)
         """
         fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
+        control_sum = 0
 
         for tech in self.technologies_enduse:
 
             # Multiply shape with fuel
-            fuel_tech_yd = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yd') # OCHS
+            fuel_tech_yd = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yd')
+            #print("A: " + str(enduse_fuel_tech[tech]))
+            #print("B: " + str(np.sum(fuel_tech_yd)))
 
             # Get fueltypes of tech for every day
             fueltype_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fuel_types_shares_yd')
+            #print("B: " + str(np.sum(fueltype_tech_share_yd)))
 
             # Iterate shares of fueltypes, calculate share of fuel and add to fuels
             for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
 
                 if np.sum(fuel_shares_dh) != 0:
                     share_of_fuel = (1.0 / 8760) * np.sum(fuel_shares_dh)
+                    #share_of_fuel = (1.0 / 8760) * fuel_shares_dh #NEW
                 else:
                     share_of_fuel = np.zeros((365))
 
                 fuels_yd[fueltype] += fuel_tech_yd * share_of_fuel
+                control_sum += fuel_tech_yd * share_of_fuel
+                #print("sdf" + str(np.sum(control_sum)))
 
             # Testing
             np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
         # Testing
-        #np.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
+        np.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_yd
 
@@ -788,12 +794,13 @@ class Enduse(object):
         for tech in self.technologies_enduse:
 
             # Shape of fuel of technology for every hour in year
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh') # OCHS
+            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
             # Get distribution of fuel for every hour
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
 
             for fueltype, fuel_tech_share in enumerate(fueltypes_tech_share_yh):
+
                 if np.sum(fuel_tech_share) != 0:
                     share_of_fuel = (1.0 / 8760) * np.sum(fuel_tech_share)
                 else:

@@ -448,7 +448,7 @@ class Technology(object):
         fuel_yd_shares = np.zeros((nr_fueltypes, 365))
 
         for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
-            #print("  {}   {}   {} {}".format(fueltype, fueltype_yh.shape, fueltype_yh.mean(axis=1).shape, np.sum(fueltype_yh.mean(axis=1))))
+            #print("  {} {}   {}   {} {}".format(self.tech_name, fueltype, fueltype_yh.shape, np.sum(fueltype_yh.sum(axis=1)), np.sum(fueltype_yh.mean(axis=1))))
 
             # Calculate share of fuel per fueltype in day (If all fueltypes in one day == 24 (because 24 * 1.0)
             fuel_yd_shares[fueltype] = fueltype_yh.sum(axis=1) #Calculate percentage for a day

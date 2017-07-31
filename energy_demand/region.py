@@ -7,9 +7,9 @@ import energy_demand.technological_stock as ts
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
-#from energy_demand.scripts_technologies import technologies_related
 from energy_demand.scripts_geography import weather_station_location as wl
 from energy_demand.scripts_initalisations import helper_functions
+
 class Region(object):
     """Region class
 
@@ -94,6 +94,12 @@ class Region(object):
         self.ss_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
         self.is_tech_stock = ts.TechStock(data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
 
+        # Create region specific shape stock
+        self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
+        self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
+        self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
+
+
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
         # -------------------------------------------------------------------------------------------
@@ -108,24 +114,17 @@ class Region(object):
         rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(self.rs_tech_stock, 'rs_space_heating', rs_fuel_shape_boilers_y_dh, rs_fuel_shape_hp_y_dh, rs_fuel_shape_heating_yd, 'hybrid_gas_electricity') #, 'boiler_gas', 'heat_pumps_electricity') # Hybrid gas electric
 
         # Cooling residential
-        rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh') # Residential cooling
-
+        rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
 
         # Cooling service
-        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling N*""
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, shape_handling.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
         ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_electricity') #, 'boiler_gas', 'heat_pumps_electricity') # Hybrid
-
-
-        # --Assign load shapes for technologies, sector and enduses to loadProfileStock
-        self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
-        self.ss_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
-        self.is_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
 
         # Heating boiler
         self.rs_load_profiles.add_load_profile(
@@ -285,7 +284,7 @@ class Region(object):
             sectors=data['rs_sectors'],
             shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
             shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'], # * (1 / (365)),
+            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
             shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
 
@@ -657,8 +656,6 @@ class Region(object):
         fuel demand curve for boilers from:
 
         Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Dissertation, Imperial College London.
-
-        #TODO: IMPROVE, make daytype explicit
         """
         shape_boilers_yh = np.zeros((365, 24))
         shape_boilers_y_dh = np.zeros((365, 24))

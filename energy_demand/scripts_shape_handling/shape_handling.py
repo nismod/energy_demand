@@ -1,5 +1,6 @@
 """Functions related to load profiles
 """
+import sys
 import numpy as np
 
 class LoadProfileStock(object):
@@ -10,7 +11,25 @@ class LoadProfileStock(object):
         self.load_profile_list = []
 
     def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
-        """Add load profile
+        """Add load profile to stock
+
+        Parameters
+        ----------
+        technologies : list
+            Technologies for which the profile applies
+        enduses : list
+            Enduses for which the profile applies
+        sectors : list
+            Sectors for which the profile applies
+        shape_yd : array
+            Shape yd (from year to day)
+        shape_yh : array
+            Shape yh (from year to hour)
+        enduse_peak_yd_factor : float
+            Factor to calculate daily demand from yearly demand
+            Standard value is average daily amount
+        shape_peak_dh : array
+            Shape (dh), shape of a day for every hour
         """
         loadprofile_obj = LoadProfile(
             technologies,
@@ -24,25 +43,44 @@ class LoadProfileStock(object):
 
         self.load_profile_list.append(loadprofile_obj)
 
-    # Read out shape
     def get_load_profile(self, enduse, sector, technology, shape):
-        """read corresponding shape if technology, enduse and sector are correct
+        """Get shape for a certain technology, enduse and sector
+
+        Parameters
+        ----------
+        enduse : str
+            Enduse
+        sector : str
+            Sector
+        technology : str
+            technology
+        shape : str
+            Type of shape which is to be read out
+
+        Return
+        ------
+        attr_to_get : array
+            Required shape
         """
+        #try:
+        function_run_crit = False
         for load_profile_obj in self.load_profile_list:
 
-            if (technology in load_profile_obj.technologies
-                    and enduse in load_profile_obj.enduses
-                    and sector in load_profile_obj.sectors):
-
-                attr_to_get = getattr(load_profile_obj, shape)
-
-                return attr_to_get
-
-        print("Error..not found {} {} {} {}".format(enduse, sector, technology, shape))
-        return
+                if (technology in load_profile_obj.technologies
+                        and enduse in load_profile_obj.enduses
+                        and sector in load_profile_obj.sectors):
+                    attr_to_get = getattr(load_profile_obj, shape)
+                    function_run_crit = True
+        if function_run_crit:
+            return attr_to_get
+        else:
+            sys.exit("Error in get_load_profile: {} {} {} {}".format(enduse, sector, technology, shape))
+        #except Exception as e:
+        #    
+        #    raise e
 
     def get_shape_peak_dh(self, enduse, sector, technology):
-        """read corresponding shape if technology, enduse and sector are correct
+        """Get peak dh shape for a certain technology, enduse and sector
         """
         for load_profile_obj in self.load_profile_list:
 
@@ -54,18 +92,31 @@ class LoadProfileStock(object):
                 if sector == 'dummy_sector': #TODO: IMPROVE
                     shape_peak_dh = getattr(load_profile_obj, 'shape_peak_dh')
                 else:
-                    attr_to_get_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
-                    shape_peak_dh = attr_to_get_all_sectors[sector][enduse]['shape_peak_dh']
+                    attr_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
+                    shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
 
                 return shape_peak_dh
 
 class LoadProfile(object):
-    """Load profile container
+    """Load profile container to store different shapes
 
     Parameters
     ----------
     technologies : list
-        List of technologies with same shapes
+        Technologies for which the profile applies
+    enduses : list
+        Enduses for which the profile applies
+    sectors : list
+        Sectors for which the profile applies
+    shape_yd : array
+        Shape yd (from year to day)
+    shape_yh : array
+        Shape yh (from year to hour)
+    enduse_peak_yd_factor : float
+        Factor to calculate daily demand from yearly demand
+        Standard value is average daily amount
+    shape_peak_dh : array
+        Shape (dh), shape of a day for every hour
     """
     def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
@@ -91,6 +142,7 @@ def eff_heat_pump(m_slope, h_diff, intersect):
         Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
 
     Returns
+    -------
     efficiency_hp : float
         Efficiency of heat pump
 
@@ -123,14 +175,13 @@ def absolute_to_relative(absolute_array):
 
 
     """
-    # If the total sum is zero, return same array
     if np.sum(absolute_array) == 0:
+        # If the total sum is zero, return same array
         relative_array = absolute_array
     else:
         #relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
-        relative_array = np.nan_to_num(np.divide(1, np.sum(absolute_array)) * absolute_array)
+        relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
 
-    #assert np.sum(absolute_array) > 0
     return relative_array
 
 def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
@@ -234,7 +285,6 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
         # Normalise dh shape
         fuel_shapes_hybrid_y_dh[day] = absolute_to_relative(dh_fuel_hybrid)
 
-        ########
         '''plt.plot(dh_shape_hybrid)
         plt.show()
         '''

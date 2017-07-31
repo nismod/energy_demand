@@ -6,11 +6,9 @@ Correlate HDD with national gas data.
 National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
 """
 import os
-from energy_demand import data_loader_functions as df
-from energy_demand import main_functions as mf
+import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-import numpy as np
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_data import read_weather_data
 from energy_demand.scripts_data import read_weather_data

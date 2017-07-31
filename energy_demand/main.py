@@ -54,11 +54,11 @@ import sys
 import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.scripts_plotting import plotting_results
-import energy_demand.building_stock_generator as bg
 import energy_demand.assumptions as assumpt
 import energy_demand.national_dissaggregation as nd
-import energy_demand.data_loader as dl
+from energy_demand.scripts_data import data_loader
 from energy_demand.scripts_data import write_data
+from energy_demand.scripts_building_stock import building_stock_generator
 from energy_demand.scripts_validation import elec_national_data
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_technologies import fuel_service_switch
@@ -118,7 +118,7 @@ def energy_demand_model(data):
     result_dict = read_data.convert_out_format_es(data, model_run_object, ['ss_submodel', 'rs_submodel'])
 
     # --- Write to csv and YAML
-    #write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
+    write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
     # -----------------------------------------
     # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data
-    base_data = dl.load_data(path_main, base_data)
+    base_data = data_loader.load_data(path_main, base_data)
     print("... load assumptions")
 
     # Load assumptions
@@ -325,8 +325,8 @@ if __name__ == "__main__":
 
     # Generate building stocks over whole simulation period
     print("...created dwelling stocks for service and residential model")
-    base_data['rs_dw_stock'] = bg.rs_build_stock(base_data)
-    base_data['ss_dw_stock'] = bg.ss_build_stock(base_data)
+    base_data['rs_dw_stock'] = building_stock_generator.rs_build_stock(base_data)
+    base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data)
 
     # If several years are run:
     results_every_year = []

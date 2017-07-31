@@ -2,7 +2,7 @@
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913, R0914
 import sys
 import numpy as np
-import energy_demand.building_stock_functions as bf
+from energy_demand.scripts_building_stock import building_stock_functions
 from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
@@ -81,7 +81,7 @@ def ss_build_stock(data):
 
                 # create building object
                 dw_stock.append(
-                    bf.Dwelling(
+                    building_stock_functions.Dwelling(
                         curr_yr=sim_yr,
                         reg_name=reg_name,
                         longitude=data['reg_coordinates'][reg_name]['longitude'],
@@ -94,7 +94,7 @@ def ss_build_stock(data):
                 )
 
             # Add regional base year dwelling to dwelling stock
-            dw_stock_every_year[reg_name][sim_yr] = bf.DwStockRegion(
+            dw_stock_every_year[reg_name][sim_yr] = building_stock_functions.DwStockRegion(
                 reg_name,
                 dw_stock,
                 data['ss_all_enduses']
@@ -134,7 +134,7 @@ def rs_build_stock(data):
     dw_stock_every_year = {}
 
     # Get distribution of dwelling types of all simulation years
-    dwtype_distr_sim = bf.get_dwtype_dist(
+    dwtype_distr_sim = building_stock_functions.get_dwtype_dist(
         data['assumptions']['assump_dwtype_distr_by'],
         data['assumptions']['assump_dwtype_distr_ey'],
         base_yr,
@@ -142,7 +142,7 @@ def rs_build_stock(data):
         )
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = bf.calc_floorarea_pp(
+    data_floorarea_pp = building_stock_functions.calc_floorarea_pp(
         data['reg_floorarea_resid'],
         data['population'][base_yr],
         base_yr,
@@ -190,7 +190,7 @@ def rs_build_stock(data):
                     )
 
                 # Add regional base year building stock
-                dw_stock_every_year[reg_name][base_yr] = bf.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+                dw_stock_every_year[reg_name][base_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
@@ -241,10 +241,10 @@ def rs_build_stock(data):
                         )
 
                 # Generate region and save it in dictionary
-                dw_stock_every_year[reg_name][sim_yr] = bf.DwStockRegion(reg_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
+                dw_stock_every_year[reg_name][sim_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
 
         # Add regional base year building stock
-        #dw_stock_every_year[reg_name][base_yr] = bf.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+        #dw_stock_every_year[reg_name][base_yr] = building_stock_functions.DwStockRegion(reg_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
 
     return dw_stock_every_year
 
@@ -325,7 +325,7 @@ def generate_dw_existing(data, reg_name, curr_yr, dw_lu, floorarea_p, floorarea_
 
             # create building object
             dw_stock_base.append(
-                bf.Dwelling(
+                building_stock_functions.Dwelling(
                     curr_yr=curr_yr,
                     reg_name=reg_name,
                     longitude=data['reg_coordinates'][reg_name]['longitude'],
@@ -387,7 +387,7 @@ def generate_dw_new(data, reg_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp
 
         # create building object
         dw_stock_new_dw.append(
-            bf.Dwelling(
+            building_stock_functions.Dwelling(
                 curr_yr=curr_yr,
                 reg_name=reg_name,
                 longitude=data['reg_coordinates'][reg_name]['longitude'],
