@@ -5,3 +5,4 @@ recommonmark
 matplotlib
 haversine
 scipy
+isoweek

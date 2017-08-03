@@ -1,7 +1,36 @@
 """Functions related to dates
 """
 from datetime import date
-from datetime import timedelta as td
+from datetime import timedelta
+from isoweek import Week
+
+def get_dates_week_nr(year, week_nr):
+    """Get all dates from a week_nr in a list (for base year)
+
+    Parameters
+    ----------
+    year : int
+        Year
+    week_nr : int
+        ISO week number
+
+    Returns
+    -------
+    list_days : list
+        Constaings date objects for ISO week
+
+    Note
+    -----
+    if year is a leap year, funciton may not work properly
+    """
+    list_days = []
+
+    monday_in_week = Week(year, week_nr).monday()
+
+    for day in range(1, 8):
+        list_days.append(monday_in_week + timedelta(days=day))
+
+    return list_days
 
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
@@ -37,7 +66,7 @@ def convert_yearday_to_date(year, yearday_python):
         Yearday - 1
     """
     date_first_jan = date(year, 1, 1)
-    date_new = date_first_jan + td(yearday_python)
+    date_new = date_first_jan + timedelta(yearday_python)
 
     return date_new
 
@@ -73,7 +102,6 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
     year = date_from_yearday.timetuple().tm_year
 
     if bank_holidays == 'not_globally_defined':
-
         if year == 2015:
             bank_holidays = [
                 date(2015, 1, 1),
@@ -223,7 +251,7 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
                 date(2006, 12, 28),
                 date(2006, 12, 29),
                 date(2006, 12, 30)]
-        elif year == 2005:    
+        elif year == 2005:
             bank_holidays = [
                 date(2005, 1, 1),
                 date(2005, 1, 2),
@@ -239,7 +267,7 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
                 date(2005, 12, 28),
                 date(2005, 12, 29),
                 date(2005, 12, 30)]
-        elif year == 2004:    
+        elif year == 2004:
             bank_holidays = [
                 date(2004, 1, 1),
                 date(2004, 4, 9),
@@ -254,7 +282,7 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
                 date(2004, 12, 28),
                 date(2004, 12, 29),
                 date(2004, 12, 30)]
-        elif year == 2003:    
+        elif year == 2003:
             bank_holidays = [
                 date(2003, 1, 1),
                 date(2003, 4, 21),
@@ -283,7 +311,7 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
                 date(2002, 12, 30)]
         else:
             bank_holidays = []
-        
+
     if date_from_yearday in bank_holidays:
         return 'holiday'
     else:
@@ -311,7 +339,7 @@ def fullyear_dates(start=None, end=None):
     list_dates = []
     span = end - start
     for day in range(span.days + 1):
-        list_dates.append(start + td(days=day))
+        list_dates.append(start + timedelta(days=day))
 
     return list(list_dates)
 

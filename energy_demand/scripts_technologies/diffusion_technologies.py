@@ -49,7 +49,7 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     x_value : float
         X-Value
     l_value : float
-        The durv'es maximum value
+        The curv'es maximum value
     midpoint : float
         The midpoint x-value of the sigmoid's midpoint
     k : dict
@@ -68,7 +68,6 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
 
     return y_value
-
 
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value with

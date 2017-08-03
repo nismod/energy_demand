@@ -20,7 +20,10 @@ class ResidentialModel(object):
         self.region_name = region_object.region_name
         self.enduse = enduse
         self.sector = sector
-        self.enduse_object = self.create_enduse(region_object, data)
+        self.enduse_object = self.create_enduse(
+            region_object,
+            data
+            )
 
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list

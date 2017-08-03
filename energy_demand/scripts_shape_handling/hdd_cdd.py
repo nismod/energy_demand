@@ -3,6 +3,8 @@
 import numpy as np
 from energy_demand.scripts_geography import weather_station_location as weather_station
 from energy_demand.scripts_technologies import diffusion_technologies
+from energy_demand.scripts_shape_handling import shape_handling
+
 
 def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
@@ -158,3 +160,67 @@ def sigm_t_base(curr_y, assumptions, base_yr, end_yr, t_base_type):
     t_base_cy = t_diff_cy + assumptions[t_base_type]['base_yr']
 
     return t_base_cy
+
+def get_reg_hdd(temperatures, t_base_heating):
+        """Calculate HDD for every day and daily yd shape of cooling demand
+
+        Based on temperatures of a year, the HDD are calculated for every
+        day in a year. Based on the sum of all HDD of all days, the relative
+        share of heat used for any day is calculated.
+
+        The Heating Degree Days are calculated based on assumptions of
+        the base temperature of the current year.
+
+        Parameters
+        ----------
+        temperatures : array
+            Temperatures
+        t_base_heating : float
+            Base temperature for heating
+
+        Return
+        ------
+        hdd_d : array
+            Heating degree days for every day in a year (365, 1)
+
+        Info
+        -----
+        The shape_yd can be calcuated as follows: 1/ np.sum(hdd_d) * hdd_d
+
+        The diffusion is assumed to be sigmoid
+        """
+        hdd_d = calc_hdd(t_base_heating, temperatures)
+        shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
+
+        # Error testing
+        if np.sum(hdd_d) == 0:
+            sys.exit("Error: No heating degree days means no fuel for heating is necessary")
+
+        return hdd_d, shape_hdd_d
+
+def get_reg_cdd(temperatures, t_base_cooling):
+        """Calculate CDD for every day and daily yd shape of cooling demand
+
+        Based on temperatures of a year, the CDD are calculated for every
+        day in a year. Based on the sum of all CDD of all days, the relative
+        share of heat used for any day is calculated.
+
+        The Cooling Degree Days are calculated based on assumptions of
+        the base temperature of the current year.
+
+        Parameters
+        ----------
+        temperatures : array
+            Temperatures
+        t_base_cooling : array
+            Base temperature cooling
+
+        Return
+        ------
+        shape_yd : array
+            Fraction of heat for every day. Array-shape: 365, 1
+        """
+        cdd_d = calc_cdd(t_base_cooling, temperatures)
+        shape_cdd_d = shape_handling.absolute_to_relative(cdd_d)
+
+        return cdd_d, shape_cdd_d

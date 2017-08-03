@@ -29,7 +29,7 @@ class TechStock(object):
         """
         self.stock_name = stock_name
 
-        self.list_tech_enduse_sectors = self.create_tech_stock(
+        self.stock_technologies = self.create_tech_stock(
             data,
             temp_by,
             temp_cy,
@@ -43,7 +43,7 @@ class TechStock(object):
     def create_tech_stock(cls, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, enduses, technologies):
         """Create technologies and add to technology list
         """
-        list_tech_enduse_sectors = []
+        stock_technologies = []
 
         for enduse in enduses:
             for technology_name in technologies[enduse]:
@@ -75,9 +75,9 @@ class TechStock(object):
                         tech_type
                     )
 
-                list_tech_enduse_sectors.append(tech_object)
+                stock_technologies.append(tech_object)
 
-        return list_tech_enduse_sectors
+        return stock_technologies
 
     def get_tech_attr(self, enduse, tech_name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
@@ -96,7 +96,7 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        for tech_object in self.list_tech_enduse_sectors:
+        for tech_object in self.stock_technologies:
             if tech_object.tech_name == tech_name and tech_object.enduse == enduse:
                 tech_attribute = getattr(tech_object, str(attribute_to_get))
 
@@ -116,7 +116,7 @@ class Technology(object):
 
     Only the yd shapes are provided on a technology level and not dh shapes
     """
-    def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type): #, sectors):
+    def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
         """Contructor of Technology
 
         Parameters
@@ -133,8 +133,6 @@ class Technology(object):
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.tech_type = tech_type
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
-
-        # Diffusion method
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method'] #Not used yet
 
         # Shares of fueltype for every hour for single fueltype
@@ -154,14 +152,18 @@ class Technology(object):
             self.eff_cy = technologies_related.get_heatpump_eff(
                 temp_cy,
                 data['assumptions']['hp_slope_assumption'],
-                technologies_related.calc_eff_cy(data['assumptions']['technologies'][tech_name]['eff_by'], tech_name, data['base_yr'], data['end_yr'], data['curr_yr'], data['sim_period'], data['assumptions'], self.eff_achieved_factor, self.diff_method),
+                technologies_related.calc_eff_cy(
+                    data['assumptions']['technologies'][tech_name]['eff_by'],
+                    tech_name,
+                    data['base_yr'],
+                    data['end_yr'],
+                    data['curr_yr'],
+                    data['sim_period'],
+                    data['assumptions'],
+                    self.eff_achieved_factor,
+                    self.diff_method
+                    ),
                 t_base_heating_cy)
-
-            '''elif self.tech_type == 'cooling_tech':
-                #TODO: DEFINE
-                self.eff_by =
-                self.eff_cy =
-            '''
         else:
             self.eff_by = technologies_related.const_eff_yh(data['assumptions']['technologies'][tech_name]['eff_by'])
             self.eff_cy = technologies_related.const_eff_yh(
@@ -169,7 +171,10 @@ class Technology(object):
             )
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fuel_types_shares_yd = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
+        self.fuel_per_type_yd = technologies_related.convert_yh_to_yd_fueltype_shares(
+            data['nr_of_fueltypes'],
+            self.fueltypes_yh_p_cy
+            )
 
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):
@@ -204,7 +209,7 @@ class Technology(object):
 
         return fueltypes_yh
 
-class HybridTechnology(object): #HybridTechnology(enduse, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy))
+class HybridTechnology(object):
     """Hybrid technology which consist of two different technologies
 
     Parameters
@@ -213,7 +218,7 @@ class HybridTechnology(object): #HybridTechnology(enduse, tech_name, data, temp_
 
     Returns
     -------
-    enduse : 
+    enduse : TODO
 
 
 
@@ -286,7 +291,7 @@ class HybridTechnology(object): #HybridTechnology(enduse, tech_name, data, temp_
         self.eff_cy = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fuel_types_shares_yd = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
+        self.fuel_per_type_yd = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
 
     def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour

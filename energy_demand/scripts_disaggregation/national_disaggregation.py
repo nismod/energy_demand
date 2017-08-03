@@ -1,8 +1,8 @@
 """ This File disaggregates total national demand """
 import numpy as np
-from energy_demand.scripts_plotting import plotting_results
+#from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_shape_handling import hdd_cdd
-from energy_demand.scripts_basic import unit_conversions
+#from energy_demand.scripts_basic import unit_conversions
 
 '''
 ============================================

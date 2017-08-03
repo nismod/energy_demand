@@ -7,6 +7,31 @@ from matplotlib.patches import Polygon
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+from isoweek import Week
+from datetime import timedelta
+
+d = Week(2011, 40).monday
+
+def get_dates_week_nr(year, week_nr):
+    """Get all dates from a week_nr in a list (for base year)
+    """
+    list_days = []
+
+    monday_in_week = Week(year, week_nr).monday()
+
+    for day in range(1, 8):
+        list_days.append(monday_in_week + timedelta(days=day))
+
+    return list_days
+
+week_days = get_dates_week_nr(2015, 2)
+print(week_days)
+for day in week_days:
+    print(str(day))
+prnt(":")
+
+
 x = [0,5,9,10,15]
 y = [0,1,2,3,4]
 plt.plot(x,y)

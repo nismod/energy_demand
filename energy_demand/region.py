@@ -61,18 +61,18 @@ class Region(object):
         # ----------------------------------------------------------------------------------------
         print("   ...calculating weather related variables")
         # Residential
-        rs_hdd_by, _ = self.get_reg_hdd(temp_by, rs_t_base_heating_by)
-        rs_cdd_by, _ = self.get_reg_cdd(temp_by, rs_t_base_cooling_by)
+        rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by)
+        rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by)
 
-        rs_hdd_cy, rs_fuel_shape_heating_yd = self.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
-        rs_cdd_cy, rs_fuel_shape_cooling_yd = self.get_reg_cdd(temp_cy, rs_t_base_cooling_cy)
+        rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
+        rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy)
 
         # Service
-        ss_hdd_by, _ = self.get_reg_hdd(temp_by, ss_t_base_heating_by)
-        ss_cdd_by, _ = self.get_reg_cdd(temp_by, ss_t_base_cooling_by)
+        ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by)
+        ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by)
 
-        ss_hdd_cy, ss_fuel_shape_heating_yd = self.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
-        ss_cdd_cy, ss_fuel_shape_cooling_yd = self.get_reg_cdd(temp_cy, ss_t_base_cooling_cy)
+        ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
+        ss_cdd_cy, ss_fuel_shape_cooling_yd = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy)
 
         # yd peak factors for heating and cooling (factor to calculate max daily demand from yearly demand)
         rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
@@ -418,7 +418,7 @@ class Region(object):
 
         return max_factor_yd
 
-    def get_reg_hdd(self, temperatures, t_base_heating_cy):
+    '''def get_reg_hdd(self, temperatures, t_base_heating):
         """Calculate HDD for every day and daily yd shape of cooling demand
 
         Based on temperatures of a year, the HDD are calculated for every
@@ -432,7 +432,7 @@ class Region(object):
         ----------
         temperatures : array
             Temperatures
-        t_base_heating_cy : float
+        t_base_heating : float
             Base temperature for heating
 
         Return
@@ -446,7 +446,7 @@ class Region(object):
 
         The diffusion is assumed to be sigmoid
         """
-        hdd_d = hdd_cdd.calc_hdd(t_base_heating_cy, temperatures)
+        hdd_d = hdd_cdd.calc_hdd(t_base_heating, temperatures)
         shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
 
         # Error testing
@@ -454,8 +454,9 @@ class Region(object):
             sys.exit("Error: No heating degree days means no fuel for heating is necessary")
 
         return hdd_d, shape_hdd_d
+    '''
 
-    def get_reg_cdd(self, temperatures, t_base_cooling):
+    '''def get_reg_cdd(self, temperatures, t_base_cooling):
         """Calculate CDD for every day and daily yd shape of cooling demand
 
         Based on temperatures of a year, the CDD are calculated for every
@@ -481,6 +482,7 @@ class Region(object):
         shape_cdd_d = shape_handling.absolute_to_relative(cdd_d)
 
         return cdd_d, shape_cdd_d
+    '''
 
     def get_fuel_shape_heating_hp_yh(self, data, tech_stock, rs_hdd_cy, tech_to_get_shape):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump
@@ -521,11 +523,8 @@ class Region(object):
 
         for day, date_gasday in enumerate(list_dates):
 
-            # See wether day is weekday or weekend
-            weekday_type = date_handling.get_weekday_type(date_gasday)
-
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
-            if weekday_type == 'holiday':
+            if date_handling.get_weekday_type(date_gasday) == 'holiday':
                 daily_fuel_profile = np.divide(data[tech_to_get_shape]['holiday'], np.sum(data[tech_to_get_shape]['holiday'])) # WkendHourly gas shape. Robert Sansom hp curve
             else:
                 daily_fuel_profile = np.divide(data[tech_to_get_shape]['workday'], np.sum(data[tech_to_get_shape]['workday'])) # Wkday Hourly gas shape. Robert Sansom hp curve
@@ -539,14 +538,9 @@ class Region(object):
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = np.divide(rs_hdd_cy[day], average_eff_d)
 
-            # Fuel distribution within day
-            fuel_shape_d = hp_daily_fuel * daily_fuel_profile
-
-            # Distribute fuel of day according to fuel load curve
-            shape_yh_hp[day] = fuel_shape_d
-
-            # Add normalised daily fuel curve
-            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d)
+            fuel_shape_d = hp_daily_fuel * daily_fuel_profile # Fuel distribution within day
+            shape_yh_hp[day] = fuel_shape_d  # Distribute fuel of day according to fuel load curve
+            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d) # Add normalised daily fuel curve
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp

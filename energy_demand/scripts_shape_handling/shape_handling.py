@@ -6,8 +6,8 @@ import numpy as np
 class LoadProfileStock(object):
     """Collection of load shapes in a list
     """
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, stock_name):
+        self.stock_name = stock_name
         self.load_profile_list = []
 
     def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):

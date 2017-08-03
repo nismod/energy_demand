@@ -25,12 +25,19 @@
 # y = year
 # yearday = Day in a year ranging from 0 to 364
 
+
+#SUM ALL THESE
+
+                    data['base_yr'],
+                    data['end_yr'],
+                    data['curr_yr'],
+                    data['sim_period'],
+
 # Shapes
 # ------
 # yd = for every year the day
 # yh = for every hour in a year
 # dh = every hour in day
-
 # y = for total year
 # y_dh = for every day in a year, the dh is provided
 
@@ -45,6 +52,8 @@ TODO: Maybe take heat pump profiles from here instead of samson:
 http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
 The docs can be found here: http://ed.readthedocs.io
+
+# Does every region need a technology stock?
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
@@ -55,9 +64,9 @@ import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.scripts_plotting import plotting_results
 import energy_demand.assumptions as assumpt
-from energy_demand.scripts_disaggregation import national_disaggregation
 from energy_demand.scripts_data import data_loader
 from energy_demand.scripts_data import write_data
+from energy_demand.scripts_disaggregation import national_disaggregation
 from energy_demand.scripts_building_stock import building_stock_generator
 from energy_demand.scripts_validation import elec_national_data
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
