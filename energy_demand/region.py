@@ -40,21 +40,21 @@ class Region(object):
 
         # Get closest weather station and temperatures
         closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
-        temp_by = data['temperature_data'][closest_station_id][data['base_yr']]
-        temp_cy = data['temperature_data'][closest_station_id][data['curr_yr']]
+        temp_by = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
+        temp_cy = data['temperature_data'][closest_station_id][data['base_sim_param']['curr_yr']]
 
         # Get base temperatures for base and current year
-        rs_t_base_heating_cy = hdd_cdd.sigm_t_base(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
-        rs_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_cooling')
+        rs_t_base_heating_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_heating')
+        rs_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_cooling')
 
-        ss_t_base_heating_cy = hdd_cdd.sigm_t_base(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_heating')
-        ss_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['curr_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_cooling')
+        ss_t_base_heating_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_heating')
+        ss_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_cooling')
 
-        rs_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_heating')
-        rs_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'rs_t_base_cooling')
+        rs_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_heating')
+        rs_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_cooling')
 
-        ss_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_heating')
-        ss_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_yr'], data['assumptions'], data['base_yr'], data['end_yr'], 'ss_t_base_cooling')
+        ss_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_heating')
+        ss_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_cooling')
 
         # ----------------------------------------------------------------------------------------
         # Calculate HDD and CDD for calculating heating and cooling service demand (for rs and ss)
@@ -128,7 +128,7 @@ class Region(object):
 
         # Heating boiler
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_const'],
+            technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
             shape_yd=rs_fuel_shape_heating_yd,
@@ -138,7 +138,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_const'],
+            technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -148,7 +148,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_const'],
+            technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -159,7 +159,7 @@ class Region(object):
 
         # Electric heating, primary...(storage)
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['primary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['rs_space_heating'],
             sectors=data['rs_sectors'],
             shape_yd=rs_fuel_shape_heating_yd,
@@ -169,7 +169,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
-            technologies=data['assumptions']['primary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['ss_space_heating'],
             sectors=data['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -179,7 +179,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
-            technologies=data['assumptions']['primary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -189,7 +189,7 @@ class Region(object):
 
         # Electric heating, secondary...
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['secondary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
             shape_yd=rs_fuel_shape_heating_yd,
@@ -199,7 +199,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
-            technologies=data['assumptions']['secondary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -209,7 +209,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
-            technologies=data['assumptions']['secondary_heating_electricity'],
+            technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -219,7 +219,7 @@ class Region(object):
 
         # Hybrid heating
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
             shape_yd=rs_fuel_shape_heating_yd,
@@ -229,7 +229,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -238,7 +238,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_hybrid'],
+            technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -248,7 +248,7 @@ class Region(object):
 
         # Heat pump heating
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
             shape_yd=rs_fuel_shape_heating_yd,
@@ -258,7 +258,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -268,7 +268,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_heating_temp_dep'],
+            technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
@@ -279,7 +279,7 @@ class Region(object):
 
         # Lighting (residential)
         self.rs_load_profiles.add_load_profile(
-            technologies=data['assumptions']['list_tech_rs_lighting'],
+            technologies=data['assumptions']['technology_list']['rs_lighting'],
             enduses=['rs_lighting'],
             sectors=data['rs_sectors'],
             shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
@@ -382,7 +382,7 @@ class Region(object):
         fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
             fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
-            tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p_cy')
+            tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p')
             )
 
         # Calculate yh fuel shape
@@ -519,7 +519,7 @@ class Region(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        list_dates = date_handling.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(start=date(data['base_sim_param']['base_yr'], 1, 1), end=date(data['base_sim_param']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -654,7 +654,7 @@ class Region(object):
         shape_boilers_yh = np.zeros((365, 24))
         shape_boilers_y_dh = np.zeros((365, 24))
 
-        list_dates = date_handling.fullyear_dates(start=date(data['base_yr'], 1, 1), end=date(data['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(start=date(data['base_sim_param']['base_yr'], 1, 1), end=date(data['base_sim_param']['base_yr'], 12, 31))
 
         for day, date_gasday in enumerate(list_dates):
 

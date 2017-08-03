@@ -130,12 +130,12 @@ def load_data(path_main, data):
     # -----------------------------
     #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
     data['lu_reg'] = {}
-    for region_name in data['population'][data['base_yr']]:
+    for region_name in data['population'][data['base_sim_param']['base_yr']]:
         data['lu_reg'][region_name] = region_name
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
-    for region_name in data['population'][data['base_yr']]:
+    for region_name in data['population'][data['base_sim_param']['base_yr']]:
         data['reg_floorarea_resid'][region_name] = 100000
 
     # ----------------------------------------------------------
@@ -512,7 +512,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
     # Compare Jan and Jul
     # ---------------------
     #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
-    
+
     # ===========================================-
     # RESIDENTIAL MODEL - LOAD HES DATA
     # ===========================================
@@ -524,8 +524,8 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
         'rs_home_computing': 4,
         'rs_wet': 5,
         'rs_water_heating': 6,
-        'NOT_USED_heating': 7,
-        'NOT_USED_other':8,
+        #'rs_cooking_kettle': 1,
+        #'rs_cooking_microwave': 1,
         'NOT_USED_unkown': 9,
         'NOT_USED_showers': 10
         }
@@ -534,7 +534,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
     hes_data, hes_y_peak, _ = rs_read_data.read_hes_data(data['path_dict']['path_bd_e_load_profiles'], len(appliances_HES_enduse_matching), data['day_type_lu'])
 
     # Assign read in raw data to the base year
-    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['base_yr'])
+    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['base_sim_param']['base_yr'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:

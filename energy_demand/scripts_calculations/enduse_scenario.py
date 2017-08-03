@@ -22,14 +22,17 @@ def change_temp_data_climate_change(data):
         temp_data_climate_change[weather_station_id] = {}
 
         # Iterate over simulation period
-        for current_year in data['sim_period']:
+        for current_year in data['base_sim_param']['sim_period']:
             temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24))
 
             # Iterate every month and substract
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = date_handling.convert_yearday_to_date(data['base_yr'], yearday)
+                date_object = date_handling.convert_yearday_to_date(
+                    data['base_sim_param']['base_yr'],
+                    yearday
+                    )
 
                 # Get month of yearday
                 month_yearday = date_object.timetuple().tm_mon - 1
@@ -39,11 +42,11 @@ def change_temp_data_climate_change(data):
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
                 lin_diff_current_year = diffusion.linear_diff(
-                    data['base_yr'],
+                    data['base_sim_param']['base_yr'],
                     current_year,
                     temp_by,
                     temp_ey,
-                    len(data['sim_period'])
+                    len(data['base_sim_param']['sim_period'])
                 )
 
                 # Iterate hours of base year
@@ -116,14 +119,14 @@ def change_temp_climate_change(data):
         temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
-        for curr_yr in data['sim_period']:
+        for curr_yr in data['base_sim_param']['sim_period']:
             temp_climate_change[station_id][curr_yr] = np.zeros((365, 24))
 
             # Iterate every month and substract
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = date_handling.convert_yearday_to_date(data['base_yr'], yearday)
+                date_object = date_handling.convert_yearday_to_date(data['base_sim_param']['base_yr'], yearday)
 
                 # Get month of yearday
                 month_yearday = date_object.timetuple().tm_mon - 1
@@ -133,11 +136,11 @@ def change_temp_climate_change(data):
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
                 lin_diff_cy = diffusion.linear_diff(
-                    data['base_yr'],
+                    data['base_sim_param']['base_yr'],
                     curr_yr,
                     temp_by,
                     temp_ey,
-                    len(data['sim_period'])
+                    len(data['base_sim_param']['sim_period'])
                 )
 
                 # Iterate hours of base year

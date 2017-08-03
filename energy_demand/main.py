@@ -25,13 +25,7 @@
 # y = year
 # yearday = Day in a year ranging from 0 to 364
 
-
-#SUM ALL THESE
-
-                    data['base_yr'],
-                    data['end_yr'],
-                    data['curr_yr'],
-                    data['sim_period'],
+# Write function that any amount of demand can be added up to any year
 
 # Shapes
 # ------
@@ -46,14 +40,9 @@
 
 Down the line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
-- Heat recycling/reuse in percentage (lower heating demand accordingly)
 - "scenario teller": istead of diffusion path, type in known path
-TODO: Maybe take heat pump profiles from here instead of samson:
-http://www.networkrevolution.co.uk/wp-content/uploads/2015/01/CLNR-L091-Insight-Report-Domestic-Heat-Pumps.pdf
 
 The docs can be found here: http://ed.readthedocs.io
-
-# Does every region need a technology stock?
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
@@ -212,9 +201,15 @@ if __name__ == "__main__":
             #'ICT_model': {}
         }
     }
-    data_external['end_yr'] = end_yr
-    data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
-    data_external['base_yr'] = base_yr
+    #data_external['end_yr'] = end_yr
+    #data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    #data_external['base_yr'] = base_yr
+
+    data_external['base_sim_param'] = {}
+    data_external['base_sim_param']['end_yr'] = end_yr
+    data_external['base_sim_param']['base_yr'] = base_yr
+    data_external['base_sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['base_sim_param']['curr_yr'] = 2015
 
     data_external['fastcalculationcrit'] = True
     # ------------------- DUMMY END
@@ -341,7 +336,7 @@ if __name__ == "__main__":
     results_every_year = []
 
     for sim_yr in sim_years:
-        base_data['curr_yr'] = sim_yr
+        data_external['base_sim_param']['curr_yr'] = sim_yr
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))

@@ -10,7 +10,6 @@ def ss_summarise_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fu
     """
     aggregated_fuel_enduse = {}
 
-    # Initialise
     for enduse in ss_enduses:
         aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
 
@@ -145,7 +144,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     Because regional efficiencies may differ within regions, the fuel distribution within
     the fueltypes may also differ
     """
-    # Initialise
+
     service = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year
     service_tech_by_p = init.init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
     service_fueltype_tech_by_p = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
@@ -168,7 +167,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
                 #print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
-                tech_type = technologies_related.get_tech_type(tech, assumptions)
+                tech_type = technologies_related.get_tech_type(tech, assumptions['technology_list'])
 
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
                 if tech_type == 'hybrid_tech':
@@ -232,57 +231,3 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     except:
         print("TT")
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
-
-'''def calc_service_fueltype(lu_fueltype, service_tech_by_p, technologies_assumptions):
-    """Calculate service per fueltype in percentage of total service
-
-    Parameters
-    ----------
-    service_tech_by_p : dict
-        Service demand per technology
-    technologies_assumptions : dict
-        Technologies with all attributes
-
-    Return
-    ------
-    energy_service_fueltype : dict
-        Percentage of total (iterate over all technologis with this fueltype) service per fueltype
-
-    Example
-    -----
-    (e.g. 0.5 gas, 0.5 electricity)
-
-    """
-    service_fueltype = init_nested_dict(service_tech_by_p.keys(), range(len(lu_fueltype)), 'zero') # Energy service per technology for base year (e.g. heat demand in joules)
-
-    # Iterate technologies for each enduse and their percentage of total service demand
-    for enduse in service_tech_by_p:
-        for technology in service_tech_by_p[enduse]:
-
-            # Add percentage of total enduse to fueltype
-            fueltype = technologies_assumptions[technology]['fuel_type']
-            service_fueltype[enduse][fueltype] += service_tech_by_p[enduse][technology]
-
-            # TODO:  Add dependingon fueltype HYBRID --> If hybrid, get base year assumption split--> Assumption how much service for each fueltype
-            ##fueltypes_tech = technology]['fuel_type']
-
-            #service_fueltype[enduse][fueltype]
-
-    return service_fueltype
-
-def generate_service_distribution_by(service_tech_by_p, technologies, lu_fueltype):
-    """Calculate percentage of service for every fueltype
-    """
-    service_p = {}
-
-    for enduse in service_tech_by_p:
-        service_p[enduse] = {}
-        for fueltype in lu_fueltype:
-            service_p[enduse][lu_fueltype[fueltype]] = 0
-
-        for tech in service_tech_by_p[enduse]:
-            fueltype_tech = technologies[tech]['fuel_type']
-            service_p[enduse][fueltype_tech] += service_tech_by_p[enduse][tech]
-
-    return service_p
-'''

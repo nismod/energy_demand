@@ -65,7 +65,7 @@ def plot_stacked_Country_end_use(data, results_resid, enduses_data, attribute_to
     # INFO Cannot plot a single year?
     """
     fig, ax = plt.subplots() #fig is needed
-    nr_y_to_plot = len(data['sim_period'])
+    nr_y_to_plot = len(data['base_sim_param']['sim_period'])
 
     x = range(nr_y_to_plot)
     legend_entries = []

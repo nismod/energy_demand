@@ -233,6 +233,8 @@ def load_assumptions(data):
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
+    assumptions['technology_list'] = {}
+
     # Load all technologies
     assumptions['technologies'] = read_data.read_technologies(data['path_dict']['path_technologies'], data)
 
@@ -245,12 +247,15 @@ def load_assumptions(data):
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
 
-    # Create av heat pump technologies and list with heat pumps
-    assumptions['heat_pump_stock_install'] = helper_assign_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
-    assumptions['technologies'], assumptions['list_tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['heat_pump_stock_install'])
+    # --Heat pumps
+    assumptions['installed_heat_pump'] = generate_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
+    assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['installed_heat_pump'])
 
-    # Definde and read in hybrid technologies (TODO)
-    assumptions['technologies'], assumptions['list_tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'])
+    # --Hybrid technologies 
+    hybrid_cutoff_temp_low = -5 # Temperature from which below only the low temp sytem is working
+    hybrid_cutoff_temp_high = -7 # Temperature from which above only the high temp sytem is working
+
+    assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'], hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
 
     # Generate technology dict
     assumptions['tech_lu'] = create_lu_technologies(assumptions['technologies'])
@@ -259,10 +264,17 @@ def load_assumptions(data):
     # --Technology list definition
     # ------------------
     # Regular heating technologies which are not dependent on temperature
-    assumptions['list_tech_heating_const'] = ['boiler_gas', 'boiler_electricity', 'boiler_hydrogen', 'boiler_biomass', 'boiler_solid_fuel', 'boiler_oil', 'boiler_heat_sold']
+    assumptions['technology_list']['tech_heating_const'] = [
+        'boiler_gas',
+        'boiler_electricity',
+        'boiler_hydrogen',
+        'boiler_biomass',
+        'boiler_solid_fuel',
+        'boiler_oil',
+        'boiler_heat_sold']
 
-    assumptions['primary_heating_electricity'] = ['storage_heater_electricity'] # FROM HES Electricity heating
-    assumptions['secondary_heating_electricity'] = ['secondary_heater_electricity'] # FROM HES Electricity heating
+    assumptions['technology_list']['primary_heating_electricity'] = ['storage_heater_electricity'] # FROM HES Electricity heating
+    assumptions['technology_list']['secondary_heating_electricity'] = ['secondary_heater_electricity'] # FROM HES Electricity heating
 
     # Regular cooling technlogies...
     assumptions['list_tech_cooling_ventilation'] = ['air_fans_electricity', 'air_condition_electricity', 'air_condition_gas', 'air_condition_oil']
@@ -272,15 +284,18 @@ def load_assumptions(data):
     #assumptions['list_tech_cooling_temp_dep'] = []
 
     # Lighting technologies
-    assumptions['list_tech_rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
-    ## Is assumptions['list_tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
+    assumptions['technology_list']['rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
+    ## Is assumptions['technology_list']['tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
+    # Cooking
+    #assumptions['list_tech_rs_cooking_kettle'] = ['kettler']
+    #assumptions['list_tech_rs_cooking_microwave'] = ['microwave']
     # ----------
     # Enduse definition list
     # ----------
     assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
-    assumptions['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
+    assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # Helper function
     assumptions['technologies'] = helper_set_same_eff_all_tech(assumptions['technologies'], efficiency_achieving_factor)
@@ -324,7 +339,6 @@ def load_assumptions(data):
     assumptions['is_dummy_enduses'] = scrap_get_dummy_enduses(assumptions['is_fuel_enduse_tech_p_by'])
 
 
-
     # ============================================================
     # Helper functions
     # ============================================================
@@ -344,7 +358,7 @@ def load_assumptions(data):
 
     return assumptions
 
-def get_all_defined_hybrid_technologies(assumptions, technologies):
+def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
     """All hybrid technologies and their charactersitics are defined
 
     The low and high temperature technology is defined, whereby the high temperature technology
@@ -355,42 +369,49 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
 
     So far, the standard heat pump is only electricity. Can be changed however
     #TODO: DEFINE WITH REAL VALUES
+
+    #Assumption on share of service provided by lower temperature technology on a national scale in by
+
+    Notes
+    ------
+
     """
+
     hybrid_tech = {
         'hybrid_gas_electricity': {
             "tech_low_temp": 'boiler_gas',
             "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": -5,
-            "hybrid_cutoff_temp_high": 7,
+            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
+            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
             "average_efficiency_national_by": get_average_eff_by(
-                'boiler_gas', #Provide same tech as above
-                'heat_pumps_electricity',
-                0.2, #Assumption on share of service provided by lower temperature technology on a national scale in by
-                assumptions
+                tech_low_temp='boiler_gas',
+                tech_high_temp='heat_pumps_electricity',
+                assump_service_share_low_tech=0.2,
+                assumptions=assumptions
                 )
             },
         'hybrid_hydrogen_electricity': {
             "tech_low_temp": 'boiler_hydrogen',
             "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": -5,
-            "hybrid_cutoff_temp_high": 7,
+            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
+            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
             "average_efficiency_national_by": get_average_eff_by(
-                'boiler_hydrogen', #Provide same tech as above
-                'heat_pumps_electricity',
-                0.2, #Assumption on share of service provided by lower temperature technology on a national scale in by
-                assumptions
+                tech_low_temp='boiler_hydrogen',
+                tech_high_temp='heat_pumps_electricity',
+                assump_service_share_low_tech=0.2,
+                assumptions=assumptions
                 )
             },
         'hybrid_biomass_electricity': {
             "tech_low_temp": 'boiler_biomass',
             "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": -5,
-            "hybrid_cutoff_temp_high": 7,
+            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
+            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
             "average_efficiency_national_by": get_average_eff_by(
-                'boiler_biomass', #Provide same tech as above
-                'heat_pumps_electricity',
-                0.2, #Assumption on share of service provided by lower temperature technology on a national scale in by
-                assumptions
+                tech_low_temp='boiler_biomass',
+                tech_high_temp='heat_pumps_electricity',
+                assump_service_share_low_tech=0.2,
+                assumptions=assumptions
                 )
             },
     }
@@ -400,6 +421,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
 
     # Add hybrid technologies to technological stock and define other attributes
     for tech_name, tech in hybrid_tech.items():
+
         print("Add hybrid technology to technology stock {}".format(tech_name))
         # Add other technology attributes
         technologies[tech_name] = tech
@@ -409,6 +431,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
         # Select market entry of later appearing technology
         entry_tech_low = assumptions['technologies'][tech['tech_low_temp']]['market_entry']
         entry_tech_high = assumptions['technologies'][tech['tech_high_temp']]['market_entry']
+
         if entry_tech_low < entry_tech_high:
             technologies[tech_name]['market_entry'] = entry_tech_high
         else:
@@ -416,7 +439,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies):
 
     return technologies, list(hybrid_technologies), hybrid_tech
 
-def helper_assign_ASHP_GSHP_split(split_factor, data):
+def generate_ASHP_GSHP_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies
 
     Parameters
@@ -428,7 +451,7 @@ def helper_assign_ASHP_GSHP_split(split_factor, data):
 
     Returns
     --------
-    heat_pump_stock_install : dict
+    installed_heat_pump : dict
         Ditionary with split of heat pumps for every fueltype
 
     Info
@@ -439,7 +462,7 @@ def helper_assign_ASHP_GSHP_split(split_factor, data):
     ASHP_fraction = split_factor
     GSHP_fraction = 1 - split_factor
 
-    heat_pump_stock_install = {
+    installed_heat_pump = {
         data['lu_fueltype']['hydrogen']: {
             'heat_pump_ASHP_hydro': ASHP_fraction,
             'heat_pump_GSHP_hydro': GSHP_fraction
@@ -454,7 +477,7 @@ def helper_assign_ASHP_GSHP_split(split_factor, data):
             },
     }
 
-    return heat_pump_stock_install
+    return installed_heat_pump
 
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
@@ -524,7 +547,9 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     tech_high_temp : str
         Technology for higher temperatures
     assump_service_share_low_tech : float
-        Assumption about the overall share of the service provided by the technology used for lower temperatures (needs to be between 1.0 and 0)
+        Assumption about the overall share of the service provided
+        by the technology used for lower temperatures
+        (needs to be between 1.0 and 0)
 
     Returns
     -------
@@ -546,7 +571,7 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     service_share_high_temp_tech = 1 - assump_service_share_low_tech
 
     # Efficiencies of technologies of hybrid tech
-    if tech_low_temp in assumptions['list_tech_heating_temp_dep']:
+    if tech_low_temp in assumptions['technology_list']['tech_heating_temp_dep']:
         eff_tech_low_temp = technologies_related.eff_heat_pump(
             assumptions['hp_slope_assumption'],
             average_h_diff_by,
@@ -554,7 +579,7 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     else:
         eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
 
-    if tech_high_temp in assumptions['list_tech_heating_temp_dep']:
+    if tech_high_temp in assumptions['technology_list']['tech_heating_temp_dep']:
         eff_tech_high_temp = technologies_related.eff_heat_pump(
             m_slope=assumptions['hp_slope_assumption'],
             h_diff=average_h_diff_by,

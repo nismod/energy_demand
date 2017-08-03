@@ -60,7 +60,7 @@ def disaggregate_base_demand(data):
 
     # TODO: COOLING DG DAYS to disaggregate regionaly
     regions = data['lu_reg']
-    base_yr = data['base_yr']
+    base_yr = data['base_sim_param']['base_yr']
 
     # SS Disaggregate all fuel across sector and enduses for service sector
     print("...disaggregate service demand")

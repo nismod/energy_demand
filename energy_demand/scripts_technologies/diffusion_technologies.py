@@ -352,7 +352,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
             # If service switch
             if crit_switch_service:
-                year_until_switched = data['end_yr'] # Year until service is switched
+                year_until_switched = data['base_sim_param']['end_yr'] # Year until service is switched
                 market_entry = data['assumptions']['technologies'][technology]['market_entry']
             else:
 
@@ -369,11 +369,11 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
             # --------
-            if market_entry > data['base_yr']:
+            if market_entry > data['base_sim_param']['base_yr']:
                 point_x_by = market_entry
                 point_y_by = 0.001 # very small service share if market entry in a future year
             else: # If market entry before, set to 2015
-                point_x_by = data['base_yr']
+                point_x_by = data['base_sim_param']['base_yr']
                 point_y_by = service_tech_by_p[enduse][technology] # current service share
 
                 #If the base year is the market entry year use a very small number

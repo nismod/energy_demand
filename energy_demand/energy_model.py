@@ -29,7 +29,7 @@ class EnergyModel(object):
         """
         print("..start main energy demand function")
 
-        self.curr_yr = data['curr_yr']
+        self.curr_yr = data['base_sim_param']['curr_yr']
 
         # Create object for every region and add into list
         self.regions = self.create_regions(region_names, data)
@@ -58,7 +58,7 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
-        # TODO: Sum according to weekend, working day
+        # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors
         self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel, self.ss_submodel, self.rs_submodel, self.is_submodel], 'sum', 'non_peak')

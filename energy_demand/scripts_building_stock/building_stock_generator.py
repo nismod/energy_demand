@@ -37,7 +37,7 @@ def ss_build_stock(data):
         dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
-        for sim_yr in data['sim_period']:
+        for sim_yr in data['base_sim_param']['sim_period']:
 
             # ------------------
             # Generate serivce dwellings
@@ -64,15 +64,15 @@ def ss_build_stock(data):
                     sys.exit("Error: The virtual ss building stock sector floor area assumption is not defined")
 
                 # Floor area of sector in current year considering linear diffusion
-                lin_diff_factor = diffusion.linear_diff(data['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['sim_period']))
+                lin_diff_factor = diffusion.linear_diff(data['base_sim_param']['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['base_sim_param']['sim_period']))
 
                 floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
 
                 if floorarea_sector_cy == 0:
-                    '''print(data['base_yr'])
+                    '''print(data['base_sim_param']['base_yr'])
                     print(sim_yr)
                     print(change_floorarea_p_ey)
-                    print(len(data['sim_period']))
+                    print(len(data['base_sim_param']['sim_period']))
                     print(floorarea_sector_by)
                     print(lin_diff_factor)
                     print(change_floorarea_p_ey)
@@ -129,7 +129,7 @@ def rs_build_stock(data):
     Needs as an input all population changes up to simulation period....(to calculate built housing)
 
     """
-    base_yr = data['base_yr']
+    base_yr = data['base_sim_param']['base_yr']
 
     dw_stock_every_year = {}
 
@@ -138,7 +138,7 @@ def rs_build_stock(data):
         data['assumptions']['assump_dwtype_distr_by'],
         data['assumptions']['assump_dwtype_distr_ey'],
         base_yr,
-        data['sim_period']
+        data['base_sim_param']['sim_period']
         )
 
     # Get floor area per person for every simulation year
@@ -146,7 +146,7 @@ def rs_build_stock(data):
         data['reg_floorarea_resid'],
         data['population'][base_yr],
         base_yr,
-        data['sim_period'],
+        data['base_sim_param']['sim_period'],
         data['assumptions']['assump_diff_floorarea_pp']
         )
 
@@ -165,7 +165,7 @@ def rs_build_stock(data):
         dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
-        for sim_yr in data['sim_period']:
+        for sim_yr in data['base_sim_param']['sim_period']:
 
             # Calculate new necessary floor area of simulation year
             floorarea_pp_sy = data_floorarea_pp[region_name][sim_yr] # Get floor area per person of sim_yr

@@ -178,7 +178,7 @@ def read_csv_float(path_to_csv):
 
 def read_csv_load_shapes_technology(path_to_csv):
     """This function reads in csv technology shapes
-    #TODO:
+
     Parameters
     ----------
     path_to_csv : str
@@ -447,7 +447,7 @@ def read_technologies(path_to_csv, data):
                 'diff_method': str(row[5]),
                 'market_entry': float(row[6])
             }
-    #If this function does not work, check if in excel empty rows are loaded in
+
     return dict_technologies
 
 def read_csv_base_data_resid(path_to_csv):

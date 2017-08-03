@@ -99,14 +99,12 @@ def get_hdd_country(regions, data, t_base_type):
             )
 
         # Temp data
-        temperatures = data['temperature_data'][closest_weatherstation_id][data['base_yr']]
+        temperatures = data['temperature_data'][closest_weatherstation_id][data['base_sim_param']['base_yr']]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_t_base(
-            data['base_yr'],
+            data['base_sim_param'],
             data['assumptions'],
-            data['base_yr'],
-            data['end_yr'],
             t_base_type
             )
 
@@ -116,7 +114,7 @@ def get_hdd_country(regions, data, t_base_type):
 
     return hdd_regions
 
-def sigm_t_base(curr_y, assumptions, base_yr, end_yr, t_base_type):
+def sigm_t_base(base_sim_param, assumptions, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location
 
     Depending on the base temperature in the base and end year
@@ -127,14 +125,10 @@ def sigm_t_base(curr_y, assumptions, base_yr, end_yr, t_base_type):
 
     Parameters
     ----------
-    curr_y : float
-        Current Year
+    base_sim_param : dict
+        Base simulation assumptions
     assumptions : dict
         Dictionary with assumptions
-    base_yr : float
-        Base year
-    end_yr : float
-        Simulation End year
 
     Return
     ------
@@ -146,9 +140,9 @@ def sigm_t_base(curr_y, assumptions, base_yr, end_yr, t_base_type):
 
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
-        base_yr,
-        curr_y,
-        end_yr,
+        base_sim_param['base_yr'],
+        base_sim_param['curr_yr'],
+        base_sim_param['end_yr'],
         assumptions['sig_midpoint'],
         assumptions['sig_steeppness']
         )

@@ -30,6 +30,12 @@ def get_fuel_stock_definition(assumptions, data):
     # Residential subModel - Fuel shares of technologies in enduse for base year
     # ------------------
 
+    # Coooking 
+    #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {'hob_electricity': 0.5, oven_electricity: 0.5}
+    #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['gas']] = {'hob_gas': 0.5, oven_gas: 0.5}
+    #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking_microwave'][data['lu_fueltype']['electricity']] = {'microwave': 1.0}
+
+
     #---Space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['gas']] = {'boiler_gas': 1.0}

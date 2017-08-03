@@ -32,8 +32,8 @@ def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
 
     #Testing
     np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
+    
     return fuel_yd_shares
-
 
 def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
     """Calculate efficiency according to temperatur difference of base year
@@ -79,7 +79,6 @@ def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):
 
             eff_hp_yh[day][h_nr] = eff_heat_pump(m_slope, h_diff, b)
 
-            #--Testing
             assert eff_hp_yh[day][h_nr] > 0
 
     return eff_hp_yh
@@ -147,10 +146,7 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
     """
     for fueltype_str in fueltype_lu:
         if fueltype_lu[fueltype_str] == fueltype_nr:
-            fueltype_in_string = fueltype_str
-            break
-
-    return fueltype_in_string
+            return fueltype_str
 
 def get_fueltype_int(fueltype_lu, fueltype_string):
     """Read from dict the fueltype string based on fueltype KeyError
@@ -167,42 +163,39 @@ def get_fueltype_int(fueltype_lu, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-
     return fueltype_lu[fueltype_string]
 
-def get_tech_type(tech_name, assumptions, enduse=''):
+def get_tech_type(tech_name, technology_list):
     """Get technology type of technology
+
     Either a technology is a hybrid technology, a heat pump,
     a constant heating technology or a regular technolgy
+
     Parameters
     ----------
-    assumptions : dict
+    tech_name : string
+        Technology name
+
+    technology_list : dict
         All technology lists are defined in assumptions
+
     Returns
     ------
     tech_type : string
         Technology type
     """
-    # If all technologies for enduse
-    if enduse in assumptions['enduse_water_heating']:
-        tech_type = 'water_heating'
+    if tech_name in technology_list['tech_heating_hybrid']:
+        tech_type = 'hybrid_tech'
+    elif tech_name in technology_list['tech_heating_temp_dep']:
+        tech_type = 'heat_pump'
+    elif tech_name in technology_list['tech_heating_const']:
+        tech_type = 'boiler_heating_tech'
+    elif tech_name in technology_list['primary_heating_electricity']:
+        tech_type = 'storage_heating_electricity'
+    elif tech_name in technology_list['secondary_heating_electricity']:
+        tech_type = 'secondary_heating_electricity'
     else:
-        if tech_name in assumptions['list_tech_heating_hybrid']: #ok
-            tech_type = 'hybrid_tech'
-        elif tech_name in assumptions['list_tech_heating_temp_dep']: #ok
-            tech_type = 'heat_pump'
-        elif tech_name in assumptions['list_tech_heating_const']: #ok
-            tech_type = 'boiler_heating_tech'
-        #elif tech_name in assumptions['list_tech_cooling_temp_dep']:
-        #    tech_type = 'cooling_tech'
-        #elif tech_name in assumptions['list_tech_cooling_const']:
-        #    tech_type = 'cooling_tech_temp_dependent'
-        elif tech_name in assumptions['primary_heating_electricity']: #ok
-            tech_type = 'storage_heating_electricity'
-        elif tech_name in assumptions['secondary_heating_electricity']: #ok
-            tech_type = 'secondary_heating_electricity'
-        else:
-            tech_type = 'regular_tech'
+        tech_type = 'regular_tech'
 
     return tech_type
 
@@ -274,15 +267,17 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
 
         heat_pumps.append(name_av_hp)
-
+    
+    # -----------------------------------
     # Remove all heat pumps from tech dict
+    # -----------------------------------
     for fueltype in heat_pump_assump:
         for heat_pump_type in heat_pump_assump[fueltype]:
             del technologies[heat_pump_type]
 
     return technologies, temp_dependent_tech_list, heat_pumps
 
-def calc_eff_cy(eff_by, technology, base_yr, current_yr, end_yr, sim_period, assumptions, eff_achieved_factor, diff_method):
+def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_factor, diff_method):
     """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
     Parameters
@@ -303,14 +298,19 @@ def calc_eff_cy(eff_by, technology, base_yr, current_yr, end_yr, sim_period, ass
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
         theor_max_eff = diffusion.linear_diff(
-            base_yr,
-            current_yr,
+            base_sim_param['base_yr'],
+            base_sim_param['curr_yr'],
             assumptions['technologies'][technology]['eff_by'],
             assumptions['technologies'][technology]['eff_ey'],
-            len(sim_period)
+            len(base_sim_param['sim_period'])
         )
     elif diff_method == 'sigmoid':
-        theor_max_eff = diffusion.sigmoid_diffusion(base_yr, current_yr, end_yr, assumptions['sig_midpoint'], assumptions['sig_steeppness'])
+        theor_max_eff = diffusion.sigmoid_diffusion(
+            base_sim_param['base_yr'],
+            base_sim_param['curr_yr'],
+            base_sim_param['end_yr'],
+            assumptions['sig_midpoint'],
+            assumptions['sig_steeppness'])
 
     # Consider actual achieved efficiency
     actual_max_eff = theor_max_eff * eff_achieved_factor #self.eff_achieved_factor
