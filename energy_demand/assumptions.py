@@ -348,13 +348,17 @@ def load_assumptions(data):
 
 
     # Test if fuel shares sum up to 1 within each fueltype
-    testing.testing_all_fuel_tech_shares_by(assumptions['rs_fuel_enduse_tech_p_by'])
-    testing.testing_all_fuel_tech_shares_by(assumptions['ss_fuel_enduse_tech_p_by'])
-    testing.testing_all_fuel_tech_shares_by(assumptions['is_fuel_enduse_tech_p_by'])
+    testing.testing_fuel_tech_shares(assumptions['rs_fuel_enduse_tech_p_by'])
+    testing.testing_fuel_tech_shares(assumptions['ss_fuel_enduse_tech_p_by'])
+    testing.testing_fuel_tech_shares(assumptions['is_fuel_enduse_tech_p_by'])
 
+    # ----------
     # Testing
-    testing.testing_all_defined_tech_in_tech_stock(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing.testing_all_defined_tech_in_switch_in_fuel_definition(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
+    # ----------
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_all_specified_tech_enduse_by'])
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['is_all_specified_tech_enduse_by'])
+    testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     return assumptions
 
@@ -481,44 +485,7 @@ def generate_ASHP_GSHP_split(split_factor, data):
 
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
-def get_hlc(dw_type, age):
-    """Calculates the linearly derived hlc depending on age and dwelling type
 
-    Parameters
-    ----------
-    dw_type : int
-        Dwelling type
-    age : int
-        Age of dwelling
-
-    Returns
-    -------
-    hls : Heat loss coefficient [W/m2 * K]
-
-    Notes
-    -----
-    Source: Linear trends derived from Table 3.17 ECUK Tables
-    https://www.gov.uk/government/collections/energy-consumption-in-the-uk
-    """
-
-    if dw_type is None or age is None:
-        print("The HLC could not be calculated of a dwelling")
-
-        return None
-
-    # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
-    linear_fits_hlc = {
-        0: [-0.0223, 48.292],       # Detached
-        1: [-0.0223, 48.251],       # Semi-Detached
-        2: [-0.0223, 48.063],       # Terraced Average
-        3: [-0.0223, 47.02],        # Flats
-        4: [-0.0223, 48.261],       # Bungalow
-        }
-
-    # Get linearly fitted value
-    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
-
-    return hlc
 
 def create_lu_technologies(technologies):
     """Helper function: Create lookup-table for technologies

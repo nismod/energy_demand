@@ -4,26 +4,28 @@ import numpy as np
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
-def change_temp_data_climate_change(data):
+def change_temp_climate_change(data):
     """Change temperature data for every year depending on simple climate change assumptions
+
     Parameters
     ---------
     data : dict
         Data
+
     Returns
     -------
-    temp_data_climate_change : dict
+    temp_climate_change : dict
         Adapted temperatures for all weather stations depending on climate change assumptions
     """
-    temp_data_climate_change = {}
+    temp_climate_change = {}
 
     # Change weather for all weater stations
-    for weather_station_id in data['temperature_data']:
-        temp_data_climate_change[weather_station_id] = {}
+    for station_id in data['temperature_data']:
+        temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
-        for current_year in data['base_sim_param']['sim_period']:
-            temp_data_climate_change[weather_station_id][current_year] = np.zeros((365, 24))
+        for curr_yr in data['base_sim_param']['sim_period']:
+            temp_climate_change[station_id][curr_yr] = np.zeros((365, 24))
 
             # Iterate every month and substract
             for yearday in range(365):
@@ -41,19 +43,19 @@ def change_temp_data_climate_change(data):
                 temp_by = 0
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
-                lin_diff_current_year = diffusion.linear_diff(
+                lin_diff_f = diffusion.linear_diff(
                     data['base_sim_param']['base_yr'],
-                    current_year,
+                    curr_yr,
                     temp_by,
                     temp_ey,
                     len(data['base_sim_param']['sim_period'])
                 )
 
                 # Iterate hours of base year
-                for h, temp_old in enumerate(data['temperature_data'][weather_station_id][yearday]):
-                    temp_data_climate_change[weather_station_id][current_year][yearday][h] = temp_old + lin_diff_current_year
+                for hour, temp_old in enumerate(data['temperature_data'][station_id][yearday]):
+                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
 
-    return temp_data_climate_change
+    return temp_climate_change
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
@@ -98,53 +100,3 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
         return 0
     else:
         return current_demand
-
-def change_temp_climate_change(data):
-    """Change temperature data for every year depending on simple climate change assumptions
-
-    Parameters
-    ---------
-    data : dict
-        Data
-
-    Returns
-    -------
-    temp_climate_change : dict
-        Adapted temperatures for all weather stations depending on climate change assumptions
-    """
-    temp_climate_change = {}
-
-    # Change weather for all weater stations
-    for station_id in data['temperature_data']:
-        temp_climate_change[station_id] = {}
-
-        # Iterate over simulation period
-        for curr_yr in data['base_sim_param']['sim_period']:
-            temp_climate_change[station_id][curr_yr] = np.zeros((365, 24))
-
-            # Iterate every month and substract
-            for yearday in range(365):
-
-                # Create datetime object
-                date_object = date_handling.convert_yearday_to_date(data['base_sim_param']['base_yr'], yearday)
-
-                # Get month of yearday
-                month_yearday = date_object.timetuple().tm_mon - 1
-
-                # Get linear diffusion of current year
-                temp_by = 0
-                temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
-
-                lin_diff_cy = diffusion.linear_diff(
-                    data['base_sim_param']['base_yr'],
-                    curr_yr,
-                    temp_by,
-                    temp_ey,
-                    len(data['base_sim_param']['sim_period'])
-                )
-
-                # Iterate hours of base year
-                for hour, temp_old in enumerate(data['temperature_data'][station_id][yearday]):
-                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_cy
-
-    return temp_climate_change

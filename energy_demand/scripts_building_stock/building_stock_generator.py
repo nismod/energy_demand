@@ -3,12 +3,11 @@
 import sys
 import numpy as np
 from energy_demand.scripts_building_stock import building_stock_functions
-from energy_demand.scripts_plotting import plotting_results
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 def ss_build_stock(data):
     """Create dwelling stock for service sector with service dwellings
-
+ 
     Iterate years and change floor area depending on assumption on
     linear change up to ey
 
@@ -150,7 +149,10 @@ def rs_build_stock(data):
         data['assumptions']['assump_diff_floorarea_pp']
         )
 
-    # Todo if necessary: Possible to implement that absolute size of households changes #floorarea_by_pd_cy = floorarea_by_pd  ### #TODO:floor area per dwelling get new floorarea_by_pd (if not constant over time, cann't extrapolate for any year)
+    # Todo if necessary: Possible to implement that absolute size of
+    #  households changes #floorarea_by_pd_cy = floorarea_by_pd
+    # TODO:floor area per dwelling get new floorarea_by_pd
+    # (if not constant over time, cann't extrapolate for any year)
     floorarea_p_sy = p_floorarea_dwtype(
         data['dwtype_lu'],
         data['assumptions']['assump_dwtype_floorarea'],
@@ -161,7 +163,12 @@ def rs_build_stock(data):
     for region_name in data['lu_reg']:
         floorarea_by = data['reg_floorarea_resid'][region_name]
         pop_by = data['population'][base_yr][region_name]
-        floorarea_pp_by = np.divide(floorarea_by, pop_by) # Floor area per person [m2 / person]
+
+        if pop_by != 0:
+            floorarea_pp_by = floorarea_by / pop_by # Floor area per person [m2 / person]
+        else:
+            floorarea_pp_by = 0
+
         dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
@@ -231,12 +238,10 @@ def rs_build_stock(data):
                         data,
                         region_name,
                         sim_yr,
-                        data['dwtype_lu'],
                         floorarea_p_sy[sim_yr],
                         floorarea_pp_sy,
                         dw_stock_new_dw,
-                        new_floorarea_sy,
-                        data
+                        new_floorarea_sy
                         )
 
                 # Generate region and save it in dictionary
@@ -310,7 +315,7 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
 
         # Distribute according to age
         for dwtype_age_id in dwtype_age_distr_by:
-            age_class_p = np.divide(dwtype_age_distr_by[dwtype_age_id], 100) # Percent of dw of age class
+            age_class_p = dwtype_age_distr_by[dwtype_age_id] / 100 # Percent of dw of age class #TODO:
 
             # Floor area of dwelling_class_age
             dw_type_age_class_floorarea = dw_type_floorarea * age_class_p # Distribute proportionally floor area
@@ -318,7 +323,10 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
             control_floorarea += dw_type_age_class_floorarea
 
             # Pop
-            pop_dwtype_age_class = np.divide(dw_type_age_class_floorarea, floorarea_pp) # Floor area is divided by base area value
+            if floorarea_pp != 0:
+                pop_dwtype_age_class = dw_type_age_class_floorarea / floorarea_pp # Floor area is divided by base area value
+            else:
+                pop_dwtype_age_class = 0
 
             control_pop += pop_dwtype_age_class
 
@@ -347,7 +355,7 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
 
     return dw_stock_base
 
-def generate_dw_new(data, region_name, curr_yr, dw_lu, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy, data_ext):
+def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy, dw_stock_new_dw, new_floorarea_sy):
     """Generate objects for all new dwellings
 
     All new dwellings are appended to the existing building stock of the region
@@ -373,8 +381,8 @@ def generate_dw_new(data, region_name, curr_yr, dw_lu, floorarea_p_by, floorarea
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for dw in dw_lu:
-        dw_type_id, dw_type_name = dw, dw_lu[dw]
+    for dw in data['dwtype_lu']:
+        dw_type_id, dw_type_name = dw, data['dwtype_lu'][dw]
 
         # Floor area
         dw_type_floorarea_new_build = floorarea_p_by[dw_type_name] * new_floorarea_sy # Floor area of existing buildlings

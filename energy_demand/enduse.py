@@ -66,7 +66,11 @@ class Enduse(object):
             testing.testing_switch_criteria(crit_switch_fuel, crit_switch_service, self.enduse)
 
             # Get technologies of enduse depending on assumptions on fuel switches or service switches (SHARK: CHANGED STUFF)
-            self.technologies_enduse = self.get_enduse_tech(service_tech_by_p, fuel_enduse_tech_p_by, crit_switch_service)
+            self.technologies_enduse = self.get_enduse_tech(
+                service_tech_by_p,
+                fuel_enduse_tech_p_by,
+                crit_switch_service
+                )
 
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
             fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(
@@ -82,11 +86,11 @@ class Enduse(object):
             testsumme = np.sum(self.enduse_fuel_new_y[2])
             testsumme2 = self.enduse_fuel_new_y
 
-            # Change fuel consumption based on climate change induced temperature differences
+            # Change fuel consumption based on climate change induced temperature differences (MAYBE SHIFT TO TECH STOCK)
             self.temp_correction_hdd_cdd(cooling_factor_y, heating_factor_y, data['assumptions'])
             print("Fuel train B: " + str(np.sum(self.enduse_fuel_new_y)))
 
-            # Calcualte smart meter induced general savings
+            # Change fuel consumption based on smart meter induced general savings
             self.smart_meter_eff_gain(data['assumptions'])
             print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y)))
 

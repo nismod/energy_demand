@@ -3,6 +3,7 @@
 from datetime import date
 from datetime import timedelta
 from isoweek import Week
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,R0912
 
 def get_dates_week_nr(year, week_nr):
     """Get all dates from a week_nr in a list (for base year)
@@ -316,9 +317,9 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
         return 'holiday'
     else:
         if weekday == 5 or weekday == 6:
-            return 'holiday' # Holiday 1
+            return 'holiday'
         else:
-            return 'working_day' # Working day 0
+            return 'working_day'
 
 def fullyear_dates(start=None, end=None):
     """Calculates all dates between a star and end date.
@@ -342,46 +343,4 @@ def fullyear_dates(start=None, end=None):
         list_dates.append(start + timedelta(days=day))
 
     return list(list_dates)
-
-'''def timesteps_full_year(base_yr):
-    """A list is generated from the first hour of the base year to the last hour of teh base year
-
-    This function generates a single list from a list with
-    containg start and end dates of the base year
-
-    Parameters
-    ----------
-    base_yr : int
-        Year used to generate timesteps.
-
-    Returns
-    -------
-    timesteps : dict
-        Contains every yearday and the start and end time_ID
-
-    Note
-    ----
-    The base year must be identical to the input energy data
-
-    """
-    # List with all dates of the base year
-    list_dates = fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31)) # List with every date in a year
-
-    timesteps = {}
-
-    #Add to list
-    for day_date in list_dates:
-        yearday = day_date.timetuple().tm_yday - 1 # -1 because in _info yearday 1: 1. Jan    ((tm_year=2015, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=3, tm_yday=1, tm_isdst=-1))
-
-        # Iterate hours
-        for h_id in range(24):
-            start_period = "P{}H".format(yearday * 24 + h_id) # Start intervall ID
-            end_period = "P{}H".format(yearday * 24 + h_id + 1) # End intervall ID
-            yearday_h_id = str(str(yearday) + str("_") + str(h_id)) # Timestep ID
-
-            # Add to dict
-            timesteps[yearday_h_id] = {'start': start_period, 'end': end_period}
-
-    return timesteps
-
-'''
+ 

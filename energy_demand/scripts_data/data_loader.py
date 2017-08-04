@@ -235,9 +235,11 @@ def load_data(path_main, data):
     # ------------------------------------------
     # Specific technology shapes
     # ------------------------------------------
-    # Regular day, weekday, weekend (across all months)
-    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_gas_shape_resid']) # Boiler shape from Robert Sansom
-    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_elec_shape_hp']) # Heat pump shape from Love et al. 2017
+    #   # Boiler shape from Robert Sansom
+    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
+
+    # Heat pump shape from Love et al. (2017)
+    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_hourly_elec_shape_hp']) 
 
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
     data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_ss_cooling']) # ??

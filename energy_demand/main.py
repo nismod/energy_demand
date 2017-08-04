@@ -239,7 +239,7 @@ if __name__ == "__main__":
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
 
     # Change temperature data according to simple assumptions about climate change
-    base_data['temperature_data'] = enduse_scenario.change_temp_data_climate_change(base_data)
+    base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(

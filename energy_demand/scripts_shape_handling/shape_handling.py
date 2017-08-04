@@ -85,7 +85,7 @@ class LoadProfileStock(object):
                     and sector in load_profile_obj.sectors):
 
                 # Test if dummy sector and thus shape_peak not provided for different sectors
-                if sector == 'dummy_sector': #TODO: IMPROVE
+                if sector == 'dummy_sector':
                     shape_peak_dh = getattr(load_profile_obj, 'shape_peak_dh')
                 else:
                     attr_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')

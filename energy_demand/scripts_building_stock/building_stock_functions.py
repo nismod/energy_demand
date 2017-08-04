@@ -1,14 +1,12 @@
 """ Functions for building stock"""
 # pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 import numpy as np
-from energy_demand.scripts_plotting import plotting_results
-import energy_demand.assumptions as assumpt
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
 class Dwelling(object):
-    """Class of a single dwelling or of a aggregated group of dwelling
+    """Class of a single dwelling or of a aggregated group of dwellings
 
-    For every dwelling, the scenario drivers are calculated for each residential end_use.
+    For every dwelling, the scenario drivers are calculated for each enduse
 
     Parameters
     ----------
@@ -40,7 +38,7 @@ class Dwelling(object):
         """Constructor of Dwelling Class
         """
         self.dw_ID = 'To_IMPEMENT'
-        #self.dw_region_name = region_name
+        self.dw_region_name = region_name
         self.curr_yr = curr_yr
         self.enduses = enduses
         self.longitude = longitude
@@ -51,7 +49,7 @@ class Dwelling(object):
         self.floorarea = floorarea
         self.sector_type = sector_type
 
-        self.hlc = assumpt.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type if possible
+        self.hlc = self.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type if possible
 
         # Testing
         assert floorarea != 0
@@ -60,48 +58,87 @@ class Dwelling(object):
         self.calc_scenario_driver(driver_assumptions)
 
     def calc_scenario_driver(self, driver_assumptions):
-        """ Summen driver values for dwellign depending on enduse and dfined assumptions and add as attribute
+        """Sum scenario drivers per enduse and add as attribute
         IMPORTANT FUNCTION
-        e.g. assumptION. {'re_space_heating': ['pop', 'floorarea', 'hdd', 'hlc']}
         """
-        # Set for the dwelling stock attributes for every enduse
         for enduse in self.enduses:
-            driver_value = 1 #used to sum (not zero!)
+            scenario_driver_value = 1 #used to sum (not zero!)
 
-            # If there are scenario drivers for enduse
+            # If there is no scenario drivers for enduse, set to standard value 1
             if enduse not in driver_assumptions:
-                Dwelling.__setattr__(self, enduse, driver_value)
+                Dwelling.__setattr__(self, enduse, scenario_driver_value)
             else:
-                drivers = driver_assumptions[enduse]
+                scenario_drivers = driver_assumptions[enduse]
 
                 # Iterate scenario driver and get attriute to multiply values
-                for driver in drivers:
-                    driver_value *= getattr(self, driver) # sum drivers
+                for scenario_driver in scenario_drivers:
+                    scenario_driver_value *= getattr(self, scenario_driver) # sum drivers
 
                 # Set attribute
                 Dwelling.__setattr__(
                     self,
                     enduse,
-                    driver_value
+                    scenario_driver_value
                     )
 
             # Testing
-            assert driver_value != 0
+            assert scenario_driver_value != 0
 
         return
 
-class DwellingStock(object):
-    """Class of the building stock in a region_name"""
+    @classmethod
+    def get_hlc(cls, dw_type, age):
+        """Calculates the linearly derived heat loss coeeficients depending on age and dwelling type
 
+        Parameters
+        ----------
+        dw_type : int
+            Dwelling type
+        age : int
+            Age of dwelling
+
+        Returns
+        -------
+        hls : Heat loss coefficient [W/m2 * K]
+
+        Notes
+        -----
+        Source: Linear trends derived from Table 3.17 ECUK Tables
+        https://www.gov.uk/government/collections/energy-consumption-in-the-uk
+        """
+
+        if dw_type is None or age is None:
+            print("The HLC could not be calculated of a dwelling")
+            return None
+
+        # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
+        linear_fits_hlc = {
+            0: [-0.0223, 48.292], # Detached
+            1: [-0.0223, 48.251], # Semi-Detached
+            2: [-0.0223, 48.063], # Terraced Average
+            3: [-0.0223, 47.02], # Flats
+            4: [-0.0223, 48.261], # Bungalow
+            }
+
+        # Get linearly fitted value
+        hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
+
+        return hlc
+
+class DwellingStock(object):
+    """Class of the building stock in a region_name
+    """
     def __init__(self, region_name, dwellings, enduses):
         """Returns a new building stock region_name object.
 
         Parameters
         ----------
         region_name : float
-            region_name ID of building stock
+            Region of the dwelling
         dwellings : list
             List containing all dwelling objects
+        enduses : list
+            Enduses
         """
         self.region_name = region_name
         self.dwellings = dwellings
@@ -111,10 +148,20 @@ class DwellingStock(object):
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
         for enduse in enduses:
-            DwellingStock.__setattr__(self, enduse, self.get_scenario_driver_enduse(enduse))
+            DwellingStock.__setattr__(
+                self,
+                enduse,
+                self.get_scenario_driver_enduse(enduse)
+                )
 
     def get_scenario_driver_enduse(self, enduse):
-        """Sum all scenario driver for space heating"""
+        """Sum all scenario driver for space heating
+
+        Parameters
+        ----------
+        enduse: string
+            Enduse
+        """
         sum_driver = 0
         for dwelling in self.dwellings:
             sum_driver += getattr(dwelling, enduse)
@@ -122,30 +169,31 @@ class DwellingStock(object):
         return sum_driver
 
     def get_tot_pop(self):
-        """Get total population of all dwellings"""
-        totpop = 0
+        """Get total population of all dwellings
+        """
+        tot_pop = 0
         for dwelling in self.dwellings:
-            totpop += dwelling.pop
+            tot_pop += dwelling.pop
 
-        return round(totpop, 3)
+        return tot_pop
 
 def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assump_final_diff_floorarea_pp):
-    """ Calculates future floor area per person depending on assumptions on final change and base year data
+    """Calculate future floor area per person depending on assumptions on final change and base year data
 
-    Assumption: Linear Change of floor area per person
-
+    Assumption: Linear change of floor area per person
 
     Parameters
     ----------
     reg_floorarea_resid : dict
         Floor area base year for all region_name
-
     reg_pop_by : dict
         Population of base year for all region_name
-
+    base_yr : int
+        Base year
+    sim_period : int
+        Simulation period
     glob_var : dict
         Contains all global simulation variables
-
     assump_final_diff_floorarea_pp : float
         Assumption of change in floor area up to end of simulation
 
@@ -159,7 +207,6 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
     """
     data_floorarea_pp = {}
 
-    # Iterate region_names
     for region_name in reg_pop_by:
         sim_yrs = {}
         floorarea_pp_by = reg_floorarea_resid[region_name] / reg_pop_by[region_name] # Floor area per person of base year
@@ -175,13 +222,11 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
                 #print(sim_period)
                 #print(len(sim_period))
                 lin_diff_factor = diffusion.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
-                #print("lin_diff_factor: " + str(lin_diff_factor))
-                #diff_cy = lin_diff_factor #(1 + assump_final_diff_floorarea_pp) + lin_diff_factor # NEW
-                #print("diff_cy: " + str(diff_cy))
 
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
-        data_floorarea_pp[region_name] = sim_yrs  # Values for every simulation year
+
+        data_floorarea_pp[region_name] = sim_yrs
 
     return data_floorarea_pp
 
@@ -195,14 +240,14 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period
 
     Parameters
     ----------
-    base_dwtype_distr : dict
+    dwtype_distr_by : dict
         Distribution of dwelling types base year
-
     assump_dwtype_distr_ey : dict
         Distribution of dwelling types end year
-
-    data : dict
-        Contains all global simulation variables
+    base_yr : int
+        Base year
+    sim_period : list
+        Simlulation period
 
     Returns
     -------
@@ -211,7 +256,6 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period
 
     Example
     -------
-
     out = {year: {'dwtype': 0.3}}
     """
     dwtype_distr = {}
