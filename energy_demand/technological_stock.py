@@ -100,6 +100,9 @@ class TechStock(object):
 
                 return tech_attribute
 
+
+
+
 class Technology(object):
     """Technology Class
 
@@ -223,7 +226,7 @@ class HybridTechnology(object):
     temp_by : array
         Temperature base year
     temp_cy : array
-        Temperature current year  
+        Temperature current year
     t_base_heating_by : flaot
         Base temperature heating
     t_base_heating_cy : flaot

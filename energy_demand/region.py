@@ -98,12 +98,27 @@ class Region(object):
         self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
         self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
         self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
-
+        #self.rs_load_profiles = data['loac_profile_stocks']['rs_load_profiles']
+        #self.ss_load_profiles = data['loac_profile_stocks']['ss_load_profiles']
+        #self.is_load_profiles = data['loac_profile_stocks']['is_load_profiles']
 
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
         # -------------------------------------------------------------------------------------------
-        print("   ...assign individual technology shapes")
+        self.create_load_profiles(
+            data,
+            rs_fuel_shape_heating_yd,
+            ss_fuel_shape_heating_yd,
+            rs_fuel_shape_cooling_yd,
+            rs_hdd_cy,
+            ss_peak_yd_heating_factor,
+            rs_peak_yd_heating_factor
+            )
+
+    def create_load_profiles(self, data, rs_fuel_shape_heating_yd, ss_fuel_shape_heating_yd, rs_fuel_shape_cooling_yd, rs_hdd_cy, ss_peak_yd_heating_factor, rs_peak_yd_heating_factor):
+        """asdf
+        """
+        print("   ...creating load profiles in region")
         # --Heating technologies for residential sector
         rs_fuel_shape_storage_heater_yh, rs_fuel_shape_storage_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_storage_heater_elec_heating_dh')
         rs_fuel_shape_elec_heater_yh, rs_fuel_shape_elec_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_second_elec_heating_dh')

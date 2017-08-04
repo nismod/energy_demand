@@ -47,31 +47,45 @@ def load_assumptions(data):
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
 
     # ============================================================
-    #  Dwelling stock related scenario driver assumptions
+    #  Scenario driver assumptions (for dwelling stocks where available or per enduse)
     # ============================================================
+    assumptions['scenario_drivers'] = {}
 
     # --Residential SubModel
-    assumptions['rs_scen_driver_assumptions'] = {
+    assumptions['scenario_drivers']['rs_submodule'] = {
         'rs_space_heating': ['floorarea', 'hlc'], #Do not use also pop because otherwise problems that e.g. existing stock + new has smaller scen value than... floorarea already contains pop, Do not use HDD because otherweise double count
-        'rs_water_heating': ['pop'],
-        'rs_lighting': ['pop', 'floorarea'],
-        'rs_cooking': ['pop'],
-        'rs_cold': ['pop'],
-        'rs_wet': ['pop'],
-        'rs_consumer_electronics': ['pop'],
-        'rs_home_computing': ['pop'],
+        'rs_water_heating': ['population'],
+        'rs_lighting': ['population', 'floorarea'],
+        'rs_cooking': ['population'],
+        'rs_cold': ['population'],
+        'rs_wet': ['population'],
+        'rs_consumer_electronics': ['population'],
+        'rs_home_computing': ['population']
     }
 
-    # --Servide Submodel
-    assumptions['ss_scen_driver_assumptions'] = {
-        'sscatering': [],
+    # --Servicse Submodel
+    assumptions['scenario_drivers']['ss_submodule'] = {
+        'ss_space_heating': ['floorarea'],
+        'ss_water_heating': [],
+        'ss_lighting': ['floorarea'],
+        'ss_catering': [],
         'ss_computing': [],
         'ss_space_cooling': ['floorarea'],
-        'ss_water_heating': [],
-        'ss_space_heating': ['floorarea'],
-        'ss_lighting': ['floorarea'],
         'ss_other_gas': ['floorarea'],
         'ss_other_electricity': ['floorarea']
+    }
+
+    # --Industry Submodel
+    assumptions['scenario_drivers']['is_submodule'] = {
+        'is_high_temp_process': [],
+        'is_low_temp_process': [],
+        'is_drying_separation': [],
+        'is_motors': [],
+        'is_compressed_air': [],
+        'is_lighting': [],
+        'is_space_heating': [],
+        'is_other': [],
+        'is_refrigeration': []
     }
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
@@ -89,6 +103,7 @@ def load_assumptions(data):
         'storage': 1,
         'other': 1
         }
+    
 
     #Testing (test if all provided fueltypes)
     #test_if_enduses_are_assigneddata['rs_all_enduses']
@@ -206,15 +221,15 @@ def load_assumptions(data):
 
         # Submodel Industry
         'is_model': {
-            'high_temp_process': 1,
-            'low_temp_process': 1,
-            'drying_separation': 1,
-            'motors': 1,
-            'compressed_air': 1,
+            'is_high_temp_process': 1,
+            'is_low_temp_process': 1,
+            'is_drying_separation': 1,
+            'is_motors': 1,
+            'is_compressed_air': 1,
             'is_lighting': 1,
             'is_space_heating': 1,
             'is_other': 1,
-            'refrigeration': 1
+            'is_refrigeration': 1
         }
     }
 

@@ -47,8 +47,8 @@ class IndustryModel(object):
             installed_tech=data['assumptions']['is_installed_tech'],
             sig_param_tech=data['assumptions']['is_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
-            dw_stock=data['ss_dw_stock'], #INDUSTRY STOCK?
-            load_profiles=region_object.is_load_profiles
+            load_profiles=region_object.is_load_profiles,
+            reg_scenario_drivers=data['assumptions']['scenario_drivers']['is_submodule']
         )
 
         return industry_object

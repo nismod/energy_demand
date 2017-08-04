@@ -34,7 +34,7 @@ class Dwelling(object):
     Depending on service or residential model, not all attributes are filled (then they are inistialised as None or zero)
 
     """
-    def __init__(self, curr_yr, region_name, longitude, latitude, floorarea, enduses, driver_assumptions, pop=0, age=None, dwtype=None, sector_type=None):
+    def __init__(self, curr_yr, region_name, longitude, latitude, floorarea, enduses, driver_assumptions, population=0, age=None, dwtype=None, sector_type=None):
         """Constructor of Dwelling Class
         """
         self.dw_ID = 'To_IMPEMENT'
@@ -45,7 +45,7 @@ class Dwelling(object):
         self.latitude = latitude
         self.dwtype = dwtype
         self.age = age
-        self.pop = pop
+        self.population = population
         self.floorarea = floorarea
         self.sector_type = sector_type
 
@@ -143,7 +143,7 @@ class DwellingStock(object):
         self.region_name = region_name
         self.dwellings = dwellings
 
-        self.pop = self.get_tot_pop()
+        self.population = self.get_tot_pop()
 
         # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
         # Set for the dwelling stock attributes for every enduse
@@ -173,7 +173,7 @@ class DwellingStock(object):
         """
         tot_pop = 0
         for dwelling in self.dwellings:
-            tot_pop += dwelling.pop
+            tot_pop += dwelling.population
 
         return tot_pop
 

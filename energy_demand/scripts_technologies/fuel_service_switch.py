@@ -171,7 +171,8 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
 
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
                 if tech_type == 'hybrid_tech':
-                    eff_tech = assumptions['technologies']['hybrid_gas_electricity']['average_efficiency_national_by'] #TODO: CONTROL
+                    #eff_tech = assumptions['technologies']['hybrid_gas_electricity']['average_efficiency_national_by'] #TODO: CONTROL
+                    eff_tech = assumptions['hybrid_technologies'][tech]['average_efficiency_national_by'] #TODO: CONTROL
                 elif tech_type == 'heat_pump':
                     eff_tech = technologies_related.eff_heat_pump(
                         m_slope=assumptions['hp_slope_assumption'],

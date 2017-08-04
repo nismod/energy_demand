@@ -42,7 +42,7 @@ class Enduse(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, dw_stock, load_profiles):
+    def __init__(self, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, service_tech_by_p, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}):
         """Enduse class constructor
         """
         print("..create enduse {}".format(enduse))
@@ -95,11 +95,11 @@ class Enduse(object):
             print("Fuel train C: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Enduse specific consumption change in % (due e.g. to other efficiciency gains). No technology considered
-            self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey, data['base_sim_param']['sim_period'])
+            self.enduse_specific_change(data['assumptions'], enduse_overall_change_ey, data['base_sim_param']['sim_period'], dw_stock)
             print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
-            self.enduse_building_stock_driver(dw_stock, region_name)
+            self.enduse_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers)
             print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
 
@@ -1032,7 +1032,7 @@ class Enduse(object):
 
         return fuel_tech
 
-    def enduse_specific_change(self, assumptions, enduse_overall_change_ey, sim_period):
+    def enduse_specific_change(self, assumptions, enduse_overall_change_ey, sim_period, dw_stock):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
         Because for enduses where no technology stock is defined (and may consist of many different)
@@ -1062,6 +1062,13 @@ class Enduse(object):
         # Share of fuel consumption difference
         diff_fuel_consump = percent_ey - percent_by
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
+
+        '''if not dw_stock: # == False:
+            print("adf")
+            print(assumptions['scenario_drivers']['is_submodule'])
+            change_cy =
+        '''
+            
 
         if diff_fuel_consump != 0: # If change in fuel consumption
             new_fuels = np.zeros((self.enduse_fuel_new_y.shape[0])) # fueltypes, days, hours
@@ -1169,7 +1176,7 @@ class Enduse(object):
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
 
-    def enduse_building_stock_driver(self, dw_stock, region_name):
+    def enduse_scenario_drivers(self, dw_stock, region_name, driver_data, reg_scenario_drivers):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         If no building specific scenario driver is found, the identical fuel is returned.
@@ -1192,21 +1199,45 @@ class Enduse(object):
         -----
         This is the energy end use used for disaggregating to daily and hourly
         """
-        new_fuels = copy.deepcopy(self.enduse_fuel_new_y)
+        new_fuels = copy.deepcopy(self.enduse_fuel_new_y) #TODO (rename buillding)
+        if not dw_stock: # == False:
+            # Calculate non-building related scenario drivers
+            #print("       Info: No dwelling stock is defined for this submodel")
+            #TODO: PREPARE DATA: POP, GVA, ... --> from disaggregated data probably
+            scenario_drivers = reg_scenario_drivers[self.enduse]
 
-        # Test if enduse has a building related scenario driver
-        if hasattr(dw_stock[region_name][self.base_yr], self.enduse) and self.curr_yr != self.base_yr:
+            by_driver = 1 #not 0
+            cy_driver = 1 #not 0
 
-            # Scenariodriver of building stock base year and new stock
-            by_driver = getattr(dw_stock[region_name][self.base_yr], self.enduse)
-            cy_driver = getattr(dw_stock[region_name][self.curr_yr], self.enduse)
+            '''for scenario_driver in scenario_drivers:
+                by_driver *= driver_data[region_name][self.sector][self.base_yr][scenario_driver] #getattr(dw_stock[region_name][self.base_yr], self.enduse) #multiply drivers
+                cy_driver *= driver_data[region_name][self.sector][self.curr_yr][scenario_driver] #getattr(dw_stock[region_name][self.curr_yr], self.enduse)
 
             # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+            '''
             factor_driver = np.divide(cy_driver, by_driver) # FROZEN
+            factor_driver = 1
 
             new_fuels *= factor_driver
 
             setattr(self, 'enduse_fuel_new_y', new_fuels)
+        else:
+            # Test if enduse has a building related scenario driver
+            if hasattr(dw_stock[region_name][self.base_yr], self.enduse) and self.curr_yr != self.base_yr:
+
+                # Scenariodriver of building stock base year and new stock
+                by_driver = getattr(dw_stock[region_name][self.base_yr], self.enduse)
+                cy_driver = getattr(dw_stock[region_name][self.curr_yr], self.enduse)
+
+                # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
+                factor_driver = np.divide(cy_driver, by_driver) # FROZEN
+
+                new_fuels *= factor_driver
+
+                setattr(self, 'enduse_fuel_new_y', new_fuels)
+            else:
+                #print("enduse not define with scenario drivers")
+                pass
 
 class genericFlatEnduse(object):
     """Class for generic enduses with flat shapes

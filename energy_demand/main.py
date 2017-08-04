@@ -201,9 +201,6 @@ if __name__ == "__main__":
             #'ICT_model': {}
         }
     }
-    #data_external['end_yr'] = end_yr
-    #data_external['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
-    #data_external['base_yr'] = base_yr
 
     data_external['base_sim_param'] = {}
     data_external['base_sim_param']['end_yr'] = end_yr
@@ -237,6 +234,11 @@ if __name__ == "__main__":
 
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
+
+    # ----TODO
+
+    #TODO: Prepare all dissagregated data for [region][sector][]
+    base_data['driver_data'] = {}
 
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
@@ -453,3 +455,18 @@ if __name__ == "__main__":
     with PyCallGraph(output=graphviz):
         energy_demand_model(base_data)
     """
+
+
+def get_scenario_drivers(all_potential_scenario_drivers):
+    """Prepare data for scenario drivers
+    """
+    reg_scenario_drivers[region_name][self.base_yr][scenario_driver]
+    reg_scenario_drivers = {}
+
+    for driver in all_potential_scenario_drivers:
+            
+        if driver == 'GVA':
+                reg_scenario_drivers[driver]
+        #if driver ==
+    #data['driver_data']
+    return reg_scenario_drivers

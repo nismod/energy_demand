@@ -87,7 +87,7 @@ def ss_build_stock(data):
                         latitude=data['reg_coordinates'][region_name]['latitude'],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
-                        driver_assumptions=data['assumptions']['ss_scen_driver_assumptions'],
+                        driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
                         sector_type=sector
                     )
                 )
@@ -339,8 +339,8 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
                     latitude=data['reg_coordinates'][region_name]['latitude'],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
-                    driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],
-                    pop=pop_dwtype_age_class,
+                    driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
+                    population=pop_dwtype_age_class,
                     age=float(dwtype_age_id),
                     dwtype=dw_type
                     )
@@ -401,7 +401,7 @@ def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy,
                 latitude=data['reg_coordinates'][region_name]['latitude'],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
-                driver_assumptions=data['assumptions']['rs_scen_driver_assumptions'],
+                driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                 pop=pop_dwtype_sim_yr_new_build,
                 age=curr_yr,
                 dwtype=dw_type_id

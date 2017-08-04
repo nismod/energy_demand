@@ -32,7 +32,7 @@ def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
 
     #Testing
     np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
-    
+
     return fuel_yd_shares
 
 def get_heatpump_eff(temp_yr, m_slope, b, t_base_heating):

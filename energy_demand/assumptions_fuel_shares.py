@@ -1,6 +1,8 @@
 """File to define fuel share for base year
 """
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
+from energy_demand.scripts_technologies import technologies_related
+
 
 def get_fuel_stock_definition(assumptions, data):
     """Assigning fuel shares per enduse for different technologies for base year
@@ -35,6 +37,18 @@ def get_fuel_stock_definition(assumptions, data):
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['gas']] = {'hob_gas': 0.5, oven_gas: 0.5}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking_microwave'][data['lu_fueltype']['electricity']] = {'microwave': 1.0}
 
+
+    tech_share_of_total_service = {
+        'heat_pumps_electricity': 0.02,
+        'hybrid_gas_electricity': 0.02,
+        'storage_heater_electricity': 0.40,
+        'secondary_heater_electricity': 0.56}
+
+    assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = service_share_input_to_fuel(
+        total_share_fueltype=0.0572,
+        tech_share_of_total_service=tech_share_of_total_service,
+        tech_stock=assumptions['technologies'],
+        assumptions=assumptions)
 
     #---Space heating
     assumptions['rs_fuel_enduse_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
@@ -193,3 +207,52 @@ def helper_add_not_defined_technologies(heat_pumps, all_specified_tech_enduse_by
             all_specified_tech_enduse_by[enduse].append(heat_pump)
 
     return all_specified_tech_enduse_by
+
+def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_service, tech_stock, assumptions):
+    """Share of total service per technologies are provided for a fueltype
+
+    Parameters
+    ----------
+    tech_share_of_total_service : dict
+        Service share of technologies of a fueltype
+        service_share_tech = {'tech_A': 0.4, 'tech_B': 0.6}
+    """
+    fuel_share_tech_within_fueltype = {}
+
+    for technology, service_share_tech in tech_share_of_total_service.items():
+
+        # --------------
+        # Get efficiency
+        # --------------
+        tech_type = technologies_related.get_tech_type(technology, assumptions['technology_list'])
+
+        # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
+        if tech_type == 'hybrid_tech':
+            eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
+        elif tech_type == 'heat_pump':
+            eff_tech_by = technologies_related.eff_heat_pump(
+                m_slope=assumptions['hp_slope_assumption'],
+                h_diff=10,
+                intersect=tech_stock[technology]['eff_by']
+                )
+        else:
+            eff_tech_by = tech_stock[technology]['eff_by']
+
+        # ---------------------
+        # Convert to fuel_share
+        # ---------------------
+        fueltype_tech_share = (total_share_fueltype * service_share_tech) / eff_tech_by
+
+        fuel_share_tech_within_fueltype[technology] = fueltype_tech_share
+
+    # -----------------------------------
+    # Make that fuel shares sum up to 1
+    # -----------------------------------
+    total_fuel = 0
+    for tech in fuel_share_tech_within_fueltype:
+        total_fuel += fuel_share_tech_within_fueltype[tech]
+
+    for tech, fuel in fuel_share_tech_within_fueltype.items():
+        fuel_share_tech_within_fueltype[tech] = (1.0 / total_fuel) * fuel
+
+    return fuel_share_tech_within_fueltype

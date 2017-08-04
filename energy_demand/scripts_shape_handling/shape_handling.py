@@ -10,7 +10,7 @@ class LoadProfileStock(object):
         self.stock_name = stock_name
         self.load_profile_list = []
 
-    def add_load_profile(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
+    def add_load_profile(self, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
 
         Parameters
@@ -32,6 +32,7 @@ class LoadProfileStock(object):
             Shape (dh), shape of a day for every hour
         """
         loadprofile_obj = LoadProfile(
+            #region,
             technologies,
             enduses,
             sectors,
@@ -117,6 +118,7 @@ class LoadProfile(object):
     def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
         """
+        #self.region
         self.technologies = technologies
         self.enduses = enduses
         self.sectors = sectors

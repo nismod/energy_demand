@@ -51,8 +51,8 @@ class ServiceModel(object):
             installed_tech=data['assumptions']['ss_installed_tech'],
             sig_param_tech=data['assumptions']['ss_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['ss_model'],
-            dw_stock=data['ss_dw_stock'],
-            load_profiles=region_object.ss_load_profiles
+            load_profiles=region_object.ss_load_profiles,
+            dw_stock=data['ss_dw_stock']
         )
 
         return service_object
