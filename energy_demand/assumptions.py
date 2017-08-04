@@ -1,10 +1,9 @@
 """ This file contains all assumptions of the energy demand model"""
 from energy_demand.scripts_data import read_data
-from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import technologies_related
 from energy_demand.scripts_basic import testing_functions as testing
-
 from energy_demand import assumptions_fuel_shares
+from energy_demand.scripts_initalisations import helper_functions
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_assumptions(data):
@@ -266,14 +265,12 @@ def load_assumptions(data):
     assumptions['installed_heat_pump'] = generate_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['installed_heat_pump'])
 
-    # --Hybrid technologies 
-    hybrid_cutoff_temp_low = -5 # Temperature from which below only the low temp sytem is working
-    hybrid_cutoff_temp_high = -7 # Temperature from which above only the high temp sytem is working
-
-    assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(assumptions, assumptions['technologies'], hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
-
-    # Generate technology dict
-    assumptions['tech_lu'] = create_lu_technologies(assumptions['technologies'])
+    # --Hybrid technologies
+    assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = get_all_defined_hybrid_technologies(
+        assumptions,
+        assumptions['technologies'],
+        hybrid_cutoff_temp_low=-5, #Input parameters
+        hybrid_cutoff_temp_high=7)
 
     # ------------------
     # --Technology list definition
@@ -313,7 +310,7 @@ def load_assumptions(data):
     assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # Helper function
-    assumptions['technologies'] = helper_set_same_eff_all_tech(assumptions['technologies'], efficiency_achieving_factor)
+    assumptions['technologies'] = helper_functions.helper_set_same_eff_all_tech(assumptions['technologies'], efficiency_achieving_factor)
 
     # ============================================================
     # Fuel Stock Definition (necessary to define before model run)
@@ -331,9 +328,9 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by'])
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['ss_fuel_enduse_tech_p_by'])
-    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_assump_service_switch(data['path_dict']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['path_dict']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'])
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['path_dict']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'])
+    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['path_dict']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
@@ -501,23 +498,6 @@ def generate_ASHP_GSHP_split(split_factor, data):
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
-
-def create_lu_technologies(technologies):
-    """Helper function: Create lookup-table for technologies
-    """
-    out_dict = {}
-    for tech_id, technology in enumerate(technologies, 1000):
-        out_dict[technology] = tech_id
-    return out_dict
-
-
-
-def helper_set_same_eff_all_tech(tech_assump, eff_achieved_factor=1):
-    """Helper function to assing same achieved efficiency
-    """
-    for technology in tech_assump:
-        tech_assump[technology]['eff_achieved'] = eff_achieved_factor
-    return tech_assump
 
 def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_tech, assumptions):
     """Calculate average efficiency for base year of hybrid technologies for overall national energy service calculation

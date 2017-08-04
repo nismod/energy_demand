@@ -84,7 +84,7 @@ def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
 
     https://en.wikipedia.org/wiki/ISO_8601#Duration
-    
+
     Parameters
     ----------
     crit_write : int

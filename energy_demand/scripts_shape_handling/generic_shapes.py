@@ -1,3 +1,5 @@
+"""Flat shape definition
+"""
 import numpy as np
 
 def generic_flat_shape(shape_peak_yd_factor):

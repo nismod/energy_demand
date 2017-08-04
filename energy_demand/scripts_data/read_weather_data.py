@@ -1,9 +1,10 @@
-"""
+"""Loading weather data (temp)
 """
 import re
 import csv
 import numpy as np
 from energy_demand.scripts_basic import date_handling
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def read_weather_data_raw(path_to_csv, placeholder_value):
     """Read in raw weather data
@@ -70,7 +71,6 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
     ----------
     temp_stations : dict
         Raw data of temperature measurements
-
     placeholder_value : int
         Placeholder value for missing measurement point
 
@@ -102,8 +102,8 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
 
             # Count number of zeros in a day
             cnt_zeros = 0
-            for h in day:
-                if h == 0:
+            for hour in day:
+                if hour == 0:
                     cnt_zeros += 1
 
             if cnt_zeros > zeros_day_crit:
@@ -120,23 +120,23 @@ def clean_weather_data_raw(temp_stations, placeholder_value):
 
                 # check number of missing values
                 nr_of_missing_values = 0
-                for h in day:
-                    if h == placeholder_value:
+                for hour in day:
+                    if hour == placeholder_value:
                         nr_of_missing_values += 1
 
                 # If only one placeholder
                 if nr_of_missing_values == 1:
 
                     # Interpolate depending on hour
-                    for h, temp in enumerate(day):
+                    for hour, temp in enumerate(day):
                         if temp == placeholder_value:
-                            if h == 0 or h == 23:
-                                if h == 0: #If value of hours hour in day is missing
-                                    temp_stations_cleaned[station_id][day_nr][h] = day[h + 1] #Replace with temperature of next hour
-                                if h == 23:
-                                    temp_stations_cleaned[station_id][day_nr][h] = day[h - 1] # Replace with temperature of previos hour
+                            if hour == 0 or hour == 23:
+                                if hour == 0: #If value of hours hour in day is missing
+                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour + 1] #Replace with temperature of next hour
+                                if hour == 23:
+                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour - 1] # Replace with temperature of previos hour
                             else:
-                                temp_stations_cleaned[station_id][day_nr][h] = (day[h - 1] + day[h + 1]) / 2 # Interpolate
+                                temp_stations_cleaned[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2 # Interpolate
 
                 # if more than one temperture data point is missing in a day, remove weather station
                 if nr_of_missing_values > 1:
@@ -193,7 +193,6 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
                 continue
             else:
                 station_id = int(all_float_values[0])
-                #print("all_float_values: " + str(row_split))
                 weather_stations[station_id] = {
                     'station_latitude': float(all_float_values[1]),
                     'station_longitude': float(all_float_values[2])

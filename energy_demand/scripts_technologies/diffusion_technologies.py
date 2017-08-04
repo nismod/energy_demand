@@ -518,7 +518,8 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
     for enduse in enduses:
         for fuel_switch in fuel_switches:
-            if fuel_switch['enduse'] == enduse: # If fuel is switched in this enduse
+            if fuel_switch['enduse'] == enduse:
+
                 tech_install = fuel_switch['technology_install']
                 fueltype_tech_replace = fuel_switch['enduse_fueltype_replace']
 

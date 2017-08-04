@@ -96,7 +96,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
         daytype = date_handling.get_weekday_type(yearday)
-        
+
         if daytype == 'holiday':
             daytype = 1
         else:
@@ -133,6 +133,8 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
 
     Info
     ----
+        -   As only shapes are generated, the absolute
+            values are irrelevant, i.e. the unit of energy
     '''
     hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
 
@@ -148,9 +150,6 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
         k_header = 3 #Row in Excel where energy data start
 
         for hour in range(24):
-
-            # Note: This would actually not necessary as we are only calculating in relative terms
-            #hourly_value = float(row[k_header]) * (float(1)/float(6)) * (float(1)/float(1000)) # [kWH electric] Converts the summed watt into kWH
             hourly_value = float(row[k_header])
 
             # if coldest (see HES file)

@@ -10,7 +10,16 @@ class LoadProfileStock(object):
         self.stock_name = stock_name
         self.load_profile_list = []
 
-    def add_load_profile(self, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
+    def add_load_profile(
+            self,
+            technologies,
+            enduses,
+            sectors,
+            shape_yd=np.zeros((365)),
+            shape_yh=np.zeros((365, 24)),
+            enduse_peak_yd_factor=1/365,
+            shape_peak_dh=np.ones((24))
+        ):
         """Add load profile to stock
 
         Parameters
@@ -32,7 +41,6 @@ class LoadProfileStock(object):
             Shape (dh), shape of a day for every hour
         """
         loadprofile_obj = LoadProfile(
-            #region,
             technologies,
             enduses,
             sectors,
@@ -74,7 +82,11 @@ class LoadProfileStock(object):
         if function_run_crit:
             return attr_to_get
         else:
-            sys.exit("Error in get_load_profile: {} {} {} {}".format(enduse, sector, technology, shape))
+            sys.exit("Error in get_load_profile: {} {} {} {}".format(
+                enduse,
+                sector,
+                technology,
+                shape))
 
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
@@ -115,7 +127,16 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(self, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
+    def __init__(
+            self,
+            technologies,
+            enduses,
+            sectors,
+            shape_yd,
+            shape_yh,
+            enduse_peak_yd_factor,
+            shape_peak_dh=np.ones((24))
+        ):
         """Constructor
         """
         #self.region
@@ -143,8 +164,7 @@ def absolute_to_relative(absolute_array):
         Contains relative numbers
     """
     if np.sum(absolute_array) == 0:
-        # If the total sum is zero, return same array
-        relative_array = absolute_array
+        relative_array = absolute_array # If the total sum is zero, return same array
     else:
         #relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
         relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
@@ -173,7 +193,7 @@ def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
     return shape_yh
 
 def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
-    """Calculate y_dh fuel shapes for hybrid technologies for every day in a year
+    """Calculate  fuel shapes for hybrid technologies for every day in a year (y_dh)
 
     Depending on the share of service each hybrid technology in every hour,
     the daily fuelshapes of each technology are taken for every hour respectively
@@ -183,15 +203,11 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     Parameters
     ----------
     fuel_shape_boilers_y_dh : array
-        Fuel shape of low temperature technology (boiler technology)
+        Fuel shape of low temperature technology (e.g. boiler technology)
     fuel_shape_hp_y_dh : array
         Fuel shape of high temp technology (y_dh) (heat pump technology)
     tech_low_high_p : array
         Share of service of technology in every hour (heat pump technology)
-    eff_low_tech : array
-        Efficiency of low temperature technology
-    eff_high_tech : array
-        Efficiency of high temperature technology
 
     Return
     ------
@@ -241,9 +257,4 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
         '''plt.plot(dh_shape_hybrid)
         plt.show()
         '''
-    # Testing
-    #np.testing.assert_array_almost_equal(
-    # np.sum(fuel_shapes_hybrid_y_dh),
-    # 365, decimal=4, err_msg='Error in shapes')
-
     return fuel_shapes_hybrid_y_dh

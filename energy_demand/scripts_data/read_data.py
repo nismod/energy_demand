@@ -4,6 +4,7 @@ import sys
 import csv
 import numpy as np
 from energy_demand.scripts_technologies import technologies_related
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def convert_out_format_es(data, model_run_object, sub_modules):
     """Adds total hourly fuel data into nested dict
@@ -50,14 +51,13 @@ def convert_out_format_es(data, model_run_object, sub_modules):
 
 def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     """This function reads in base_data_CSV all fuel types
-    (first row is fueltype, subkey), header is appliances
 
     Parameters
     ----------
     path_to_csv : str
         Path to csv file
-    _dt : str
-        Defines dtype of array to be read in (takes float)
+    nr_of_fueltypes : str
+        Nr of fueltypes
 
     Returns
     -------
@@ -69,7 +69,6 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
     the first row is the fuel_ID
     The header is the sub_key
     """
-    #try:
     lines = []
     end_uses_dict = {}
 
@@ -81,20 +80,18 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
         # All sectors
         all_sectors = set([])
         for sector in _secondline[1:]: #skip fuel ID:
-            #if sector not in all_sectors:
             all_sectors.add(sector)
 
         # All enduses
         all_enduses = set([])
         for enduse in _headings[1:]: #skip fuel ID:
-            #if enduse not in all_enduses:
             all_enduses.add(enduse)
 
         # Initialise dict
         for sector in all_sectors:
             end_uses_dict[sector] = {}
             for enduse in all_enduses:
-                end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes)) #{}
+                end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes))
 
         # Iterate rows
         for row in read_lines:
@@ -105,8 +102,6 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
                 enduse = _headings[cnt]
                 sector = _secondline[cnt]
                 end_uses_dict[sector][enduse][cnt_fueltype] += float(entry)
-    #except:
-    #    print("Error: Could not exectue read_csv_base_data_service")
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
@@ -221,9 +216,9 @@ def read_csv(path_to_csv):
     The header row is always skipped.
     """
     service_switches = []
-    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines)                      # Skip first row
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
 
         # Iterate rows
         for row in read_lines:
@@ -231,25 +226,24 @@ def read_csv(path_to_csv):
 
     return np.array(service_switches) # Convert list into array
 
-def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_enduse_tech_p_by):
+def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
     """This function reads in service assumptions from csv file
 
     Parameters
     ----------
     path_to_csv : str
         Path to csv file
-    assumptions : dict
-        Assumptions
+    all_specified_tech_enduse_by : dict
 
     Returns
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
-    rs_enduse_tech_maxl_by_p : dict
+    enduse_tech_maxl_by_p : dict
         Maximum service per technology which can be switched
     service_switches : dict
         Service switches
-    #rs_service_switch_enduse_crit : dict
+    #service_switch_enduse_crit : dict
     #    Criteria whether service switches are defined in an enduse.
     # If no assumptions about service switches, return empty dicts
 
@@ -262,8 +256,8 @@ def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_e
     """
     service_switches = []
     enduse_tech_ey_p = {}
-    rs_enduse_tech_maxl_by_p = {}
-    rs_service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
+    enduse_tech_maxl_by_p = {}
+    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -291,7 +285,7 @@ def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_e
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_ey_p[enduse] = {}
-            rs_enduse_tech_maxl_by_p[enduse] = {}
+            enduse_tech_maxl_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
@@ -299,13 +293,13 @@ def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_e
             if line['enduse'] == enduse:
                 tech = line['tech']
                 enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
-                rs_enduse_tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
+                enduse_tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for enduse in all_specified_tech_enduse_by:
-        if enduse in rs_service_switch_enduse_crit: #If switch is defined for this enduse
+        if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
             for tech in all_specified_tech_enduse_by[enduse]:
                 if tech not in enduse_tech_ey_p[enduse]:
                     sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
@@ -318,25 +312,16 @@ def read_assump_service_switch(path_to_csv, all_specified_tech_enduse_by, fuel_e
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in enduse_tech_ey_p:
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
-            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%) ({})".format(enduse, enduse_tech_by_p[enduse].values()))
+            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
 
     # ------------------------------------------------------
     # Add all other enduses for which no switch is defined
     # ------------------------------------------------------
     for enduse in all_specified_tech_enduse_by:
-        if enduse not in enduse_tech_ey_p: #if not defined by switches
+        if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
-    '''for enduse in all_specified_tech_enduse_by:
-        if enduse not in enduse_tech_ey_p: #if not defined by switches
-            if all_specified_tech_enduse_by[enduse] != []:
-                enduse_tech_ey_p[enduse] = {}
-                for tech in all_specified_tech_enduse_by[enduse]:
-                    for fueltype in fuel_enduse_tech_p_by[enduse]:
-                        if tech in fuel_enduse_tech_p_by[enduse][fueltype]:
-                            # Add unchaged enduse
-                            enduse_tech_ey_p[enduse][tech] = fuel_enduse_tech_p_by[enduse][fueltype][tech]  
-    '''
-    return enduse_tech_ey_p, rs_enduse_tech_maxl_by_p, service_switches
+
+    return enduse_tech_ey_p, enduse_tech_maxl_by_p, service_switches
 
 def read_assump_fuel_switches(path_to_csv, data):
     """This function reads in from CSV file defined fuel switch assumptions
@@ -494,14 +479,14 @@ def read_csv_base_data_resid(path_to_csv):
                     end_uses_dict[end_use][cnt_fueltype] = i
                     cnt += 1
     except (KeyError, ValueError):
-        sys.exit("Error in loading fuel data. Check wheter there are any empty cells in the csv files (instead of 0) for enduse '{}".format(end_use))
+        sys.exit("Error: Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
 
     # Create list with all rs enduses
-    rs_all_enduses = []
+    all_enduses = []
     for enduse in end_uses_dict:
-        rs_all_enduses.append(enduse)
+        all_enduses.append(enduse)
 
-    return end_uses_dict, rs_all_enduses
+    return end_uses_dict, all_enduses
 
 def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
     """This function reads in base_data_CSV all fuel types
@@ -523,46 +508,40 @@ def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
     the first row is the fuel_ID
     The header is the sub_key
     """
-    try:
-        lines = []
-        end_uses_dict = {}
+    lines = []
+    end_uses_dict = {}
 
-        with open(path_to_csv, 'r') as csvfile:
-            read_lines = csv.reader(csvfile, delimiter=',')
-            _headings = next(read_lines)
-            _secondline = next(read_lines)
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines)
+        _secondline = next(read_lines)
 
-            # All sectors
-            all_enduses = set([])
-            for enduse in _headings[1:]:
-                if enduse is not '':
-                    all_enduses.add(enduse)
+        # All sectors
+        all_enduses = set([])
+        for enduse in _headings[1:]:
+            if enduse is not '':
+                all_enduses.add(enduse)
 
-            # All enduses
-            all_sectors = set([])
-            for line in read_lines:
-                lines.append(line)
-                all_sectors.add(line[0])
+        # All enduses
+        all_sectors = set([])
+        for line in read_lines:
+            lines.append(line)
+            all_sectors.add(line[0])
 
-            # Initialise dict
-            for sector in all_sectors:
-                end_uses_dict[sector] = {}
-                for enduse in all_enduses:
-                    end_uses_dict[str(sector)][str(enduse)] = np.zeros((nr_of_fueltypes))
+        # Initialise dict
+        for sector in all_sectors:
+            end_uses_dict[sector] = {}
+            for enduse in all_enduses:
+                end_uses_dict[str(sector)][str(enduse)] = np.zeros((nr_of_fueltypes))
 
-            for row in lines:
-                sector = row[0]
-                for position, entry in enumerate(row[1:], 1): # Start with position 1
+        for row in lines:
+            sector = row[0]
+            for position, entry in enumerate(row[1:], 1): # Start with position 1
 
-                    if entry != '':
-                        enduse = str(_headings[position])
-
-                        fueltype = _secondline[position]
-
-                        fueltype_int = technologies_related.get_fueltype_int(lu_fueltypes, fueltype)
-
-                        end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
-    except:
-        print("Error: Could not exectue read_csv_base_data_service")
+                if entry != '':
+                    enduse = str(_headings[position])
+                    fueltype = _secondline[position]
+                    fueltype_int = technologies_related.get_fueltype_int(lu_fueltypes, fueltype)
+                    end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)

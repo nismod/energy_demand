@@ -7,6 +7,7 @@ import numpy as np
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_initalisations import initialisations as init
+# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -19,7 +20,7 @@ def dict_init_carbon_trust():
     return carbon_trust_raw
 
 def read_raw_carbon_trust_data(folder_path):
-    """
+    """Read in raw carbon trust dataset (used for service sector)
 
     Parameters
     ----------
@@ -87,13 +88,15 @@ def read_raw_carbon_trust_data(folder_path):
                     day, month, year = int(row[0].split("/")[0]), int(row[0].split("/")[1]), int(row[0].split("/")[2])
 
                     # Redefine yearday to another year and skip 28. of Feb.
-                    if is_leap_year(int(year)) == True:
+
+                    if is_leap_year(int(year)) is True:
                         year = year + 1 # Shift whole dataset to another year
                         if month == 2 and day == 29:
                             continue #skip leap day
 
                     date_row = date(year, month, day)
                     daytype = date_handling.get_weekday_type(date_row)
+
                     if daytype == 'holiday':
                         daytype = 1
                     else:
@@ -110,7 +113,6 @@ def read_raw_carbon_trust_data(folder_path):
                     for data_h in row[1:]:  # Skip first date row in csv file
                         cnt += 1
                         if cnt == 2:
-
                             demand_h = first_data_h + data_h
                             control_sum += abs(demand_h)
 
@@ -126,7 +128,7 @@ def read_raw_carbon_trust_data(folder_path):
                             else:
                                 load_shape_dh[h_day] = (1.0 / daily_sum) * demand_h
 
-                            cnt = 0 #sHARK
+                            cnt = 0
                             h_day += 1
 
                         # Value lagging behind one iteration
@@ -153,25 +155,12 @@ def read_raw_carbon_trust_data(folder_path):
         load_peak_average_dh += peak_shape_dh
     load_peak_shape_dh = load_peak_average_dh / len(dict_max_dh_shape)
 
-    # Calculate average of for different csv files (sum of all entries / number of entries)
-    '''carbon_trust_raw_array = np.zeros((365, 24)) #TODO. irgendwie doppelt implementiert als array und dict
-    for yearday in carbon_trust_raw:
-        for h_day in carbon_trust_raw[yearday]:
-
-            # Add average to array
-            carbon_trust_raw_array[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
-
-            # Add average to dict
-            carbon_trust_raw[yearday][h_day] = sum(carbon_trust_raw[yearday][h_day]) / len(carbon_trust_raw[yearday][h_day]) #average
-    '''
     # -----------------------------------------------
     # Calculate average load shapes for every month
     # -----------------------------------------------
-
     # -- Average (initialise dict)
     out_dict_av = init.initialise_out_dict_av()
 
-    # Calculate average for monthly dict
     for daytype in main_dict:
         for month in main_dict[daytype]:
             for hour in main_dict[daytype][month]:
@@ -319,7 +308,7 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
             daytype = 1
         else:
             daytype = 0
-        
+
         _data = carbon_trust_data[daytype][month_python] # Get day from HES raw data array
 
         # Add values to yearly

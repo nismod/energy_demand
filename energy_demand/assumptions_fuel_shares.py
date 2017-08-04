@@ -5,7 +5,7 @@ from energy_demand.scripts_technologies import technologies_related
 
 
 def get_fuel_stock_definition(assumptions, data):
-    """Assigning fuel shares per enduse for different technologies for base year
+    """Assigning fuel or service shares per enduse for different technologies for base year
 
     Parameters
     ----------
@@ -32,7 +32,7 @@ def get_fuel_stock_definition(assumptions, data):
     # Residential subModel - Fuel shares of technologies in enduse for base year
     # ------------------
 
-    # Coooking 
+    # Coooking
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {'hob_electricity': 0.5, oven_electricity: 0.5}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking'][data['lu_fueltype']['gas']] = {'hob_gas': 0.5, oven_gas: 0.5}
     #assumptions['rs_fuel_enduse_tech_p_by']['rs_cooking_microwave'][data['lu_fueltype']['electricity']] = {'microwave': 1.0}
@@ -112,7 +112,7 @@ def get_fuel_stock_definition(assumptions, data):
     data['ss_all_enduses'].append('ss_space_cooling')
     data['ss_all_enduses'].append('ss_ventilation')
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
-    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['electricity']] = {'air_condition_electricity': 1.0} 
+    assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['electricity']] = {'air_condition_electricity': 1.0}
     assumptions['ss_fuel_enduse_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
     '''
     #assumptions['ss_fuel_enduse_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}

@@ -1,9 +1,19 @@
+"""Load factor calculations
+
+#TODO: DOCUMENTATION
+
+"""
 import numpy as np
 
 def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
-    """Calculate load factor of a h in a year from peak data(peak hour compared to all hours in a year)
-    self.rs_fuels_peak_h     :   Fuels for peak day (fueltype, data)
-    self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
+    """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
+
+    Parameters
+    ------------
+    rs_fuels_peak_h : array
+        Fuels for peak day (fueltype, data)
+    rs_fuels_tot_enduses_d : array
+        Hourly fuel for different fueltypes (fueltype, 24 hours data)
 
     Return
     ------
@@ -109,8 +119,10 @@ def load_factor_h_non_peak(self, data):
 
 def load_factor_d(self, data):
     """Calculate load factor of a day in a year from peak values
-    self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
-    self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data) for full year
+
+    Parameters
+    -----------
+    data
 
     Retrn
     ------

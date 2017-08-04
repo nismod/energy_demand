@@ -65,7 +65,7 @@ class Enduse(object):
             crit_switch_service = self.get_crit_switch_service(service_switches)
             testing.testing_switch_criteria(crit_switch_fuel, crit_switch_service, self.enduse)
 
-            # Get technologies of enduse depending on assumptions on fuel switches or service switches (SHARK: CHANGED STUFF)
+            # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(
                 service_tech_by_p,
                 fuel_enduse_tech_p_by,

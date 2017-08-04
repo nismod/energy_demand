@@ -94,7 +94,7 @@ class EnergyModel(object):
         self.rs_fuels_peak_h = self.sum_regions('enduse_fuel_peak_h', data, [self.rs_submodel], 'no_sum', 'peak_h')
         self.ss_fuels_peak_h = self.sum_regions('enduse_fuel_peak_h', data, [self.ss_submodel], 'no_sum', 'peak_h')
 
-        # ACross all enduses calc_load_factor_h
+        # Across all enduses calc_load_factor_h
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, self.rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.ss_tot_fuels_all_enduses_y, self.ss_fuels_peak_h)
 
@@ -226,7 +226,8 @@ class EnergyModel(object):
 
         return submodule_list
 
-    def create_regions(self, region_names, data):
+    @classmethod
+    def create_regions(cls, region_names, data):
         """Create all regions and add them in a list
 
         Parameters
@@ -250,7 +251,8 @@ class EnergyModel(object):
 
         return regions
 
-    def sum_enduse_all_regions(self, attribute_to_get, sector_models):
+    @classmethod
+    def sum_enduse_all_regions(cls, attribute_to_get, sector_models):
         """Summarise an enduse attribute across all regions
 
         Parameters

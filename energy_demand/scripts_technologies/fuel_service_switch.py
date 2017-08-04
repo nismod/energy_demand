@@ -20,7 +20,7 @@ def ss_summarise_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fu
 
     return aggregated_fuel_enduse
 
-def get_technology_services_scenario(service_tech_by_p, share_service_tech_ey_p):
+def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
 
     Parameters
@@ -89,10 +89,10 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
 
     Returns
     -------
-    relative_share_service_tech_decrease_by : dict
+    rel_share_service_tech_decrease_by : dict
         Relative share of service of replaced technologies
     """
-    relative_share_service_tech_decrease_by = {}
+    rel_share_service_tech_decrease_by = {}
 
     # Summed share of all diminishing technologies
     sum_service_tech_decrease_p = 0
@@ -101,9 +101,9 @@ def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
 
     # Relative of each diminishing tech
     for tech in tech_decreased_share:
-        relative_share_service_tech_decrease_by[tech] = np.divide(1, sum_service_tech_decrease_p) * service_tech_by_p[tech]
+        rel_share_service_tech_decrease_by[tech] = (1 / sum_service_tech_decrease_p) * service_tech_by_p[tech]
 
-    return relative_share_service_tech_decrease_by
+    return rel_share_service_tech_decrease_by
 
 def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
@@ -171,8 +171,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
 
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
                 if tech_type == 'hybrid_tech':
-                    #eff_tech = assumptions['technologies']['hybrid_gas_electricity']['average_efficiency_national_by'] #TODO: CONTROL
-                    eff_tech = assumptions['hybrid_technologies'][tech]['average_efficiency_national_by'] #TODO: CONTROL
+                    eff_tech = assumptions['hybrid_technologies'][tech]['average_efficiency_national_by']
                 elif tech_type == 'heat_pump':
                     eff_tech = technologies_related.eff_heat_pump(
                         m_slope=assumptions['hp_slope_assumption'],
@@ -214,21 +213,11 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
-            service_fueltype_by_p[enduse][fueltype] = np.divide(1, total_service) * service_fueltype_by_p[enduse][fueltype]
+            service_fueltype_by_p[enduse][fueltype] = (1.0 / total_service) * service_fueltype_by_p[enduse][fueltype]
 
     '''# Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
     '''
-
-    try:
-        summe = 0
-        for i in service['rs_space_heating']:
-            if service['rs_space_heating'][i] != {}:
-                for j in service['rs_space_heating'][i]:
-                    summe += service['rs_space_heating'][i][j]
-        print("TEST: SUMME: " + str(summe))
-    except:
-        print("TT")
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
