@@ -2,6 +2,7 @@
 """
 import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
+from numpy import vectorize
 
 def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
     """Take share of fueltypes for every yh and calculate the mean share of every day
@@ -31,14 +32,14 @@ def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
         fuel_yd_shares[fueltype] = fueltype_yh.sum(axis=1) #Calculate percentage for a day
 
     #Testing
-    np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error XY')
+    #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error: The sum is not correct')
 
     return fuel_yd_shares
 
-def get_heatpump_eff(temp_yr, b, t_base_heating):
+def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperatur difference of base year
 
-    For every hour the temperature difference is calculated 
+    For every hour the temperature difference is calculated
     and the efficiency of the heat pump calculated
     based on efficiency assumptions
 
@@ -48,8 +49,8 @@ def get_heatpump_eff(temp_yr, b, t_base_heating):
         Temperatures for every hour in a year (365, 24)
     m_slope : float
         Slope of efficiency of heat pump for different temperatures
-    b : float
-        Y-value at 10 degree difference
+    efficiency_intersect : float
+        Y-value (Efficiency) at 10 degree difference
     t_base_heating : float
         Base temperature for heating
 
@@ -65,10 +66,29 @@ def get_heatpump_eff(temp_yr, b, t_base_heating):
     Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
     Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
+
+    # TRIAL TO MAKE FASTER
+    '''def calc_eff_hp(temp_h, t_base_heating, efficiency_intersect):
+
+        if t_base_heating < temp_h:
+            h_diff = 0
+        else:
+            if temp_h < 0: #below zero temp
+                h_diff = t_base_heating + abs(temp_h)
+            else:
+                h_diff = abs(t_base_heating - temp_h)
+
+        efficiency = eff_heat_pump(h_diff, efficiency_intersect)
+        return efficiency
+
+    vectorize_calc_eff_hp = vectorize(calc_eff_hp)
+    eff_hp_yh = vectorize_calc_eff_hp(temp_yr, t_base_heating, efficiency_intersect)
+    '''
     eff_hp_yh = np.zeros((365, 24))
 
     for day, temp_day in enumerate(temp_yr):
-        for h_nr, temp_h in enumerate(temp_day):
+        for hour, temp_h in enumerate(temp_day):
+
             if t_base_heating < temp_h:
                 h_diff = 0
             else:
@@ -77,21 +97,23 @@ def get_heatpump_eff(temp_yr, b, t_base_heating):
                 else:
                     h_diff = abs(t_base_heating - temp_h)
 
-            eff_hp_yh[day][h_nr] = eff_heat_pump(h_diff, b)
+            eff_hp_yh[day][hour] = eff_heat_pump(h_diff, efficiency_intersect)
 
-            assert eff_hp_yh[day][h_nr] > 0
+            #assert eff_hp_yh[day][hour] > 0
 
     return eff_hp_yh
 
-def eff_heat_pump(h_diff, intersect, m_slope=-.08):
+def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     """Calculate efficiency of heat pump
 
     Parameters
     ----------
     h_diff : float
         Temperature difference
-    intersect : float
+    efficiency_intersect : float
         Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
+    m_slope : float
+        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012),
 
     Returns
     -------
@@ -106,11 +128,13 @@ def eff_heat_pump(h_diff, intersect, m_slope=-.08):
 
     The intersect at temp differenc 10 is for ASHP about 6, for GSHP about 9
     """
-    # Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012),
-    m_slope = -.08
+    #efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope * 10))
+    #var_c = efficiency_intersect - (m_slope * h_diff)
+    #var_c = efficiency_intersect - (m_slope * h_diff)
+    #efficiency_hp = m_slope * temp_diff + var_c
 
-    efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope*10))
-
+    efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
+    #efficiency_hp = 0.08 * temp_diff + (efficiency_intersect - (-0.8))
     return efficiency_hp
 
 def const_eff_yh(input_eff):
@@ -268,7 +292,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
 
         heat_pumps.append(name_av_hp)
-    
+
     # -----------------------------------
     # Remove all heat pumps from tech dict
     # -----------------------------------
@@ -491,8 +515,8 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
 
     if tech_high_temp in assumptions['technology_list']['tech_heating_temp_dep']:
         eff_tech_high_temp = eff_heat_pump(
-            h_diff=average_h_diff_by,
-            intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
+            temp_diff=average_h_diff_by,
+            efficiency_intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
     else:
         eff_tech_high_temp = assumptions['technologies'][tech_high_temp]['eff_by']
 

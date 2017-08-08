@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
 
     # DUMMY DATA GENERATION----------------------
-
+    '''
     # Load dummy LAC and pop
     dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
 
@@ -183,7 +183,6 @@ if __name__ == "__main__":
     coord_dummy = {}
     pop_dummy = {}
     ss_floorarea_sector_by_dummy = {}
-
 
     for geo_code, values in dummy_pop_geocodes.items():
         regions[geo_code] = values['label'] # Label for region
@@ -201,6 +200,8 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in all_sectors:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
+    '''
+
 
     # Reg Floor Area? Reg lookup?
     data_external = {
@@ -378,7 +379,9 @@ if __name__ == "__main__":
         days_to_plot = winter_week + spring_week + summer_week + autumn_week
         days_to_plot_full_year = list(range(0, 365))
 
+        # ---------------------------------------------------------------------------------------------
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
+        # ---------------------------------------------------------------------------------------------
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
         print("NATIONALGAS: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
@@ -390,6 +393,14 @@ if __name__ == "__main__":
         INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
+        
+        # ---------------------------------------------------
+        # VAlidation of spatial disaggregation
+        # ---------------------------------------------------
+        from energy_demand.scripts_validation import lad_validation
+        lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
+        lad_validation.compare_lad_regions(lad_infos_shapefile, model_run_object)
+
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
         #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
@@ -400,6 +411,8 @@ if __name__ == "__main__":
 
         print("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
+
+        #Validation
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak

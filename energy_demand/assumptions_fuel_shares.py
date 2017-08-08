@@ -197,8 +197,6 @@ def helper_get_all_specified_tech(fuel_enduse_tech_p_by):
 
     return all_defined_tech_service_ey
 
-
-
 def helper_add_not_defined_technologies(heat_pumps, all_specified_tech_enduse_by, enduse):
     """Helper function
     """
@@ -231,8 +229,8 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_servic
             eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
         elif tech_type == 'heat_pump':
             eff_tech_by = technologies_related.eff_heat_pump(
-                h_diff=10,
-                intersect=tech_stock[technology]['eff_by']
+                temp_diff=10,
+                efficiency_intersect=tech_stock[technology]['eff_by']
                 )
         else:
             eff_tech_by = tech_stock[technology]['eff_by']

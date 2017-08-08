@@ -60,7 +60,6 @@ class TechStock(object):
                         t_base_heating,
                         t_base_heating_cy,
                         )
-
                 else:
                     tech_object = Technology(
                         enduse,
@@ -100,9 +99,6 @@ class TechStock(object):
 
                 return tech_attribute
 
-
-
-
 class Technology(object):
     """Technology Class
 
@@ -129,16 +125,24 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
+        import time
+        start = time.time()
+        print(tech_name)
+        print("TIME A: {}".format(time.time() - start))
+
         self.enduse = enduse
         self.tech_name = tech_name
-        self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.tech_type = tech_type
+        self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
+
+        print("TIME B: {}".format(time.time() - start))
 
         # Shares of fueltype for every hour for single fueltype
         self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
+        print("TIME C: {}".format(time.time() - start))
         # --------------------------------------------------------------
         # Base and current year efficiencies depending on technology type
         # --------------------------------------------------------------
@@ -171,11 +175,16 @@ class Technology(object):
                     self.diff_method)
             )
 
+        print("TIME D: {}".format(time.time() - start))
+
         # Convert hourly fuel type shares to daily fuel type shares
         self.fuel_per_type_yd = technologies_related.convert_yh_to_yd_fueltype_shares(
             data['nr_of_fueltypes'],
             self.fueltypes_yh_p_cy
             )
+
+        print("TIME E: {}".format(time.time() - start))
+        print("------")
 
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):

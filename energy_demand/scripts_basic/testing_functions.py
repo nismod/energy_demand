@@ -120,6 +120,7 @@ def test_function_fuel_sum(data):
     for region in data['ts_fueldata_disagg']:
         fuel_in += np.sum(data['ts_fueldata_disagg'][region])
         fuel_elec_transport += np.sum(data['ts_fueldata_disagg'][region])
+        fuel_in_elec += np.sum(data['ts_fueldata_disagg'][region][2])
 
     '''fuel_elec_transport = 0
     for region in data['ag_fueldata_disagg']:

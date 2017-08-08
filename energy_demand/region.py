@@ -90,12 +90,30 @@ class Region(object):
 
         # Region specific technological stock
         print("   ...creating technology stocks in region_name")
+        '''def testfunction(data, temp_by, temp_cy, rs_t_base_heating_cy):
+            self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
+
+        import cProfile
+        import pstats
+        cProfile.run('testfunction(data, temp_by, temp_cy, rs_t_base_heating_cy)')
+        stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//rs_service_tech_by_p.txt')
+        
+
+        stats.strip_dirs()
+        stats.sort_stats(-1)
+        stats.print_stats()
+        print("GON")
+        '''
+
+
         self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
         self.ss_tech_stock = ts.TechStock('ss_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
         self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
 
+
+
         # Region specific load profile stock
-        print("   ...creating technology stocks in region_name")
+        print("   ...creating load shape stocks in region_name")
         self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
         self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
         self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
