@@ -63,7 +63,7 @@ class Region(object):
         # Residential
         rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by)
         rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by)
-        print("NUMBER OF HDD REGION  {}   {} ".format(np.sum(rs_hdd_by), self.region_name))
+        #print("NUMBER OF HDD REGION  {}   {} ".format(np.sum(rs_hdd_by), self.region_name))
         rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
         rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy)
 
@@ -90,22 +90,6 @@ class Region(object):
 
         # Region specific technological stock
         print("   ...creating technology stocks in region_name")
-        '''def testfunction(data, temp_by, temp_cy, rs_t_base_heating_cy):
-            self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
-
-        import cProfile
-        import pstats
-        cProfile.run('testfunction(data, temp_by, temp_cy, rs_t_base_heating_cy)')
-        stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//rs_service_tech_by_p.txt')
-        
-
-        stats.strip_dirs()
-        stats.sort_stats(-1)
-        stats.print_stats()
-        print("GON")
-        '''
-
-
         self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
         self.ss_tech_stock = ts.TechStock('ss_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
         self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
@@ -132,7 +116,7 @@ class Region(object):
             )
 
     def create_load_profiles(self, data, rs_fuel_shape_heating_yd, ss_fuel_shape_heating_yd, rs_fuel_shape_cooling_yd, rs_hdd_cy, ss_peak_yd_heating_factor, rs_peak_yd_heating_factor):
-        """asdf
+        """Add load profiles TODO
         """
         print("   ...creating specific load profiles in region")
         # --Heating technologies for residential sector
@@ -448,72 +432,6 @@ class Region(object):
         max_factor_yd = np.divide(1.0, tot_demand_y) * max_demand_d
 
         return max_factor_yd
-
-    '''def get_reg_hdd(self, temperatures, t_base_heating):
-        """Calculate HDD for every day and daily yd shape of cooling demand
-
-        Based on temperatures of a year, the HDD are calculated for every
-        day in a year. Based on the sum of all HDD of all days, the relative
-        share of heat used for any day is calculated.
-
-        The Heating Degree Days are calculated based on assumptions of
-        the base temperature of the current year.
-
-        Parameters
-        ----------
-        temperatures : array
-            Temperatures
-        t_base_heating : float
-            Base temperature for heating
-
-        Return
-        ------
-        hdd_d : array
-            Heating degree days for every day in a year (365, 1)
-
-        Info
-        -----
-        The shape_yd can be calcuated as follows: 1/ np.sum(hdd_d) * hdd_d
-
-        The diffusion is assumed to be sigmoid
-        """
-        hdd_d = hdd_cdd.calc_hdd(t_base_heating, temperatures)
-        shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
-
-        # Error testing
-        if np.sum(hdd_d) == 0:
-            sys.exit("Error: No heating degree days means no fuel for heating is necessary")
-
-        return hdd_d, shape_hdd_d
-    '''
-
-    '''def get_reg_cdd(self, temperatures, t_base_cooling):
-        """Calculate CDD for every day and daily yd shape of cooling demand
-
-        Based on temperatures of a year, the CDD are calculated for every
-        day in a year. Based on the sum of all CDD of all days, the relative
-        share of heat used for any day is calculated.
-
-        The Cooling Degree Days are calculated based on assumptions of
-        the base temperature of the current year.
-
-        Parameters
-        ----------
-        temperatures : array
-            Temperatures
-        t_base_cooling : array
-            Base temperature cooling
-
-        Return
-        ------
-        shape_yd : array
-            Fraction of heat for every day. Array-shape: 365, 1
-        """
-        cdd_d = hdd_cdd.calc_cdd(t_base_cooling, temperatures)
-        shape_cdd_d = shape_handling.absolute_to_relative(cdd_d)
-
-        return cdd_d, shape_cdd_d
-    '''
 
     def get_fuel_shape_heating_hp_yh(self, data, tech_stock, rs_hdd_cy, tech_to_get_shape):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump

@@ -128,6 +128,8 @@ def rs_build_stock(data):
     Needs as an input all population changes up to simulation period....(to calculate built housing)
 
     """
+    print("...created dwelling stock")
+
     base_yr = data['base_sim_param']['base_yr']
 
     dw_stock_every_year = {}

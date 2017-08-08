@@ -6,3 +6,4 @@ matplotlib
 haversine
 scipy
 isoweek
+pyinstrument

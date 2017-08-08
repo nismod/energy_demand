@@ -670,7 +670,7 @@ def load_LAC_geocodes_info():
     -----
     - no LAD without population must be included
     """
-    path_to_csv = r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved.csv'
+    path_to_csv = r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved_short.csv'
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:

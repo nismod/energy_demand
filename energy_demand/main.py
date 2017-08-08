@@ -64,6 +64,8 @@ from energy_demand.scripts_calculations import enduse_scenario
 from energy_demand.scripts_data import read_data
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_basic import date_handling
+from energy_demand.scripts_validation import lad_validation
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -175,7 +177,7 @@ if __name__ == "__main__":
 
 
     # DUMMY DATA GENERATION----------------------
-    '''
+    #'''
     # Load dummy LAC and pop
     dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
 
@@ -200,7 +202,7 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in all_sectors:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
-    '''
+    #'''
 
 
     # Reg Floor Area? Reg lookup?
@@ -348,8 +350,9 @@ if __name__ == "__main__":
     # ---------------------------------------------
     base_data = national_disaggregation.disaggregate_base_demand(base_data)
 
+    # ---------------------------------------------
     # Generate building stocks over whole simulation period
-    print("...created dwelling stocks for service and residential model")
+    # ---------------------------------------------
     base_data['rs_dw_stock'] = building_stock_generator.rs_build_stock(base_data)
     base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data)
 
@@ -359,10 +362,35 @@ if __name__ == "__main__":
     for sim_yr in sim_years:
         data_external['base_sim_param']['curr_yr'] = sim_yr
 
+
+        #-------------PROFILER pyinstrument
+        #import cProfile
+        #import pstats
+        #cProfile.run('energy_demand_model(base_data)')
+        #stats = pstats.Stats(r'c://Users//cenv0553//GIT//model_output//STATS.txt')
+        #stats.sort_stats('cumtime')
+        #stats.strip_dirs()
+        #stats.print_stats()
+        ##stream = open('c://Users//cenv0553//GIT//data//model_output//STATS.txt', 'w');
+        ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
+
+        from pyinstrument import Profiler
+        #profiler = Profiler() 
+        profiler = Profiler(use_signal=False)
+        profiler.start()
+
+        #-------------PROFILER
+        import time
+        start_MAIN = time.time()
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
         results, model_run_object = energy_demand_model(base_data)
+        
+        print("TIME MAIN CRIT: {}".format(time.time() - start_MAIN))
+
+        profiler.stop()
+        print(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
 
@@ -393,11 +421,10 @@ if __name__ == "__main__":
         INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
-        
         # ---------------------------------------------------
         # VAlidation of spatial disaggregation
         # ---------------------------------------------------
-        from energy_demand.scripts_validation import lad_validation
+
         lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
         lad_validation.compare_lad_regions(lad_infos_shapefile, model_run_object)
 

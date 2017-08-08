@@ -187,7 +187,7 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     print("max_h_year (modelled):           " + str(np.max(peak_all_models_all_enduses_fueltype)))
     print("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
     print("Fuel max peak day (modelled):    " + str(np.sum(peak_all_models_all_enduses_fueltype)))
-    
+
     # -------------------------------
     # Compare values
     # -------------------------------
@@ -199,7 +199,6 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     plt.plot(range(8760), a, color='green', label='real')
     plt.show()
     '''
-
     x = range(24)
 
     plt.figure(figsize=plotting_program.cm2inch(9, 9))
@@ -253,7 +252,6 @@ def compare_results_hour_boxplots(data_real, data_calculated):
     diff_values = []
     for hour in range(24):
         diff_values.append(np.asarray(data_h_full_year[hour]))
-
 
     ax.boxplot(diff_values)
 

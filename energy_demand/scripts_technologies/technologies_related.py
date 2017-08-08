@@ -430,7 +430,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff
 
     return technologies, list(hybrid_technologies), hybrid_tech
 
-def generate_ASHP_GSHP_split(split_factor, data):
+def generate_ashp_gshp_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies
 
     Parameters
@@ -450,21 +450,21 @@ def generate_ASHP_GSHP_split(split_factor, data):
     The heat pump technologies need to be defined.
 
     """
-    ASHP_fraction = split_factor
-    GSHP_fraction = 1 - split_factor
+    ashp_fraction = split_factor
+    gshp_fraction = 1 - split_factor
 
     installed_heat_pump = {
         data['lu_fueltype']['hydrogen']: {
-            'heat_pump_ASHP_hydro': ASHP_fraction,
-            'heat_pump_GSHP_hydro': GSHP_fraction
+            'heat_pump_ASHP_hydro': ashp_fraction,
+            'heat_pump_GSHP_hydro': gshp_fraction
             },
         data['lu_fueltype']['electricity']: {
-            'heat_pump_ASHP_electricity': ASHP_fraction,
-            'heat_pump_GSHP_electricity': GSHP_fraction
+            'heat_pump_ASHP_electricity': ashp_fraction,
+            'heat_pump_GSHP_electricity': gshp_fraction
             },
         data['lu_fueltype']['gas']: {
-            'heat_pump_ASHP_gas': ASHP_fraction,
-            'heat_pump_GSHP_gas': GSHP_fraction
+            'heat_pump_ASHP_gas': ashp_fraction,
+            'heat_pump_GSHP_gas': gshp_fraction
             },
     }
 

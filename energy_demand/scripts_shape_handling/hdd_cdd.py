@@ -30,7 +30,7 @@ def calc_hdd(t_base, temp_yh):
             if diff > 0:
                 hdd += diff
         if hdd > 0:
-            hdd_d[day] = hdd/24.0
+            hdd_d[day] = hdd / 24.0
         else:
             hdd_d[day] = 0
 

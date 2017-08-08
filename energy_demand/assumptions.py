@@ -270,7 +270,7 @@ def load_assumptions(data):
     split_heat_pump_ASHP_GSHP = 0.7
 
     # --Heat pumps
-    assumptions['installed_heat_pump'] = technologies_related.generate_ASHP_GSHP_split(split_heat_pump_ASHP_GSHP, data)
+    assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(split_heat_pump_ASHP_GSHP, data)
     assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['installed_heat_pump'])
 
     # --Hybrid technologies
