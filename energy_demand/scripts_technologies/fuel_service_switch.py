@@ -5,7 +5,7 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_initalisations import initialisations as init
 from energy_demand.scripts_technologies import technologies_related
 
-def ss_summarise_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
+def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
     """Aggregated fuel for all sectors according to enduse
     """
     aggregated_fuel_enduse = {}
@@ -77,7 +77,7 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
 
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
-def get_service_rel_tech_decrease_by(tech_decreased_share, service_tech_by_p):
+def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year
 
     Parameters
@@ -174,7 +174,6 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
                     eff_tech = assumptions['hybrid_technologies'][tech]['average_efficiency_national_by']
                 elif tech_type == 'heat_pump':
                     eff_tech = technologies_related.eff_heat_pump(
-                        m_slope=assumptions['hp_slope_assumption'],
                         h_diff=10,
                         intersect=tech_stock[tech]['eff_by']
                         )

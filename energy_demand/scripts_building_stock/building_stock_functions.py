@@ -209,7 +209,11 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
 
     for region_name in reg_pop_by:
         sim_yrs = {}
-        floorarea_pp_by = reg_floorarea_resid[region_name] / reg_pop_by[region_name] # Floor area per person of base year
+
+        if reg_pop_by[region_name] == 0:
+            floorarea_pp_by = 0
+        else:
+            floorarea_pp_by = reg_floorarea_resid[region_name] / reg_pop_by[region_name] # Floor area per person of base year
 
         # Iterate simulation years
         for sim_yr in sim_period:

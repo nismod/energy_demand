@@ -63,7 +63,6 @@ def disaggregate_base_demand(data):
     base_yr = data['base_sim_param']['base_yr']
 
     # SS Disaggregate all fuel across sector and enduses for service sector
-    print("...disaggregate service demand")
     data['ss_fueldata_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
 
     # ------------------
@@ -74,69 +73,24 @@ def disaggregate_base_demand(data):
     # ------------------
     # Disaggregate transportation sector
     # ------------------
-    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses']) #fuel_national_tranport) #ok
+    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses'])
+    #data['ag_fueldata_disagg'] = scrap_ag_disaggregate(data, data['ag_fuel_raw_data_enduses']['agriculture'])
 
+    # -----------------
+    # Disaggregat residential submodel
     # ------------------
-    # RS Disaggregateion #TODO: IMPROVE
-    # ------------------
-    print("...disagreggate residential demand")
-
-    rs_national_fuel = data['rs_fuel_raw_data_enduses']
-
-    data['rs_fueldata_disagg'] = {}
-
-    # Sum national fuel before disaggregation for testing purposes
-    test_sum_before = sum_fuels_before(rs_national_fuel)
-
-    # Calculate heating degree days in whole country for base year
-    rs_hdd_individ_region = hdd_cdd.get_hdd_country(regions, data, 'rs_t_base_heating')
-
-    # Total heated days for all person sum of
-    tot_hdd_popreg = 0
-    for region_name in regions:
-        reg_pop = data['population'][base_yr][region_name] # Regional popluation
-        tot_hdd_popreg += reg_pop * rs_hdd_individ_region[region_name]
-
-    # Iterate regions
-    for region_name in regions:
-        reg_pop = data['population'][base_yr][region_name] # Regional popluation
-        total_pop = sum(data['population'][base_yr].values()) # Total population
-        hdd_reg = rs_hdd_individ_region[region_name] # Hdd of region
-        inter_dict = {} # Disaggregate fuel depending on end_use
-
-        #TODO: Improve specific disaggregation depending on enduse
-        for enduse in rs_national_fuel:
-
-            if enduse == 're_space_heating':
-                # Use HDD and pop to disaggregat
-                #print("------")
-                #print(reg_pop)
-                #print(total_pop)
-                #print((reg_pop * hdd_reg) / tot_hdd_popreg)
-                #print(reg_pop / total_pop )
-
-                reg_diasg_factor = (reg_pop * hdd_reg) / tot_hdd_popreg
-
-                #reg_diasg_factor = (reg_pop/total_pop) * (hdd_reg / hdd_total_country)
-            else:
-                # simply pop
-                reg_diasg_factor = reg_pop / total_pop
-                #TODO: Get enduse_specific disaggreagtion reg_diasg_factor
-
-            inter_dict[enduse] = rs_national_fuel[enduse] * reg_diasg_factor
-
-        data['rs_fueldata_disagg'][region_name] = inter_dict
-
-    # Sum total fuel of all regions for testing purposes
-    test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
+    data['rs_fueldata_disagg'] = scrap_rs_disaggregate(data, data['rs_fuel_raw_data_enduses'])
 
     # Check if total fuel is the same before and after aggregation
+    test_sum_before = sum_fuels_before(data['rs_fuel_raw_data_enduses'])
+    test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
     np.testing.assert_almost_equal(test_sum_before, test_sum_after, decimal=2, err_msg="")
     return data
 
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
     """TODO: Disaggregate fuel for sector and enduses with floor area and GVA for sectors and enduses (IMPROVE)
     """
+    print("...disaggregate service demand")
     ss_fueldata_disagg = {}
 
     #control_sum = 0
@@ -153,8 +107,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
 
             # Calculate total national floor area of this sector
             national_floorarea_sector = 0
-            for _reg in data['lu_reg']:
-                national_floorarea_sector += sum(data['ss_sector_floor_area_by'][_reg].values())
+            for region in data['lu_reg']:
+                national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region].values())
             # Calculate total national GVA
             # todo national_GVA = 100
 
@@ -207,7 +161,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
 def scrap_ts_disaggregate(data, fuel_national):
     """Disaggregate transport sector
     """
-    is_fueldata_disagg = {}
+    fueldata_disagg = {}
 
     national_floorarea_sector = 0
     for region_name in data['lu_reg']:
@@ -215,19 +169,36 @@ def scrap_ts_disaggregate(data, fuel_national):
 
     # Iterate regions
     for region_name in data['lu_reg']:
-        is_fueldata_disagg[region_name] = {}
-
+        fueldata_disagg[region_name] = {}
         reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
-
-        national_fuel_sector_by = fuel_national
-
         reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
 
-        reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
+        reg_fuel_sector_enduse = reg_disaggregation_factor * fuel_national
 
-        is_fueldata_disagg[region_name] = reg_fuel_sector_enduse
+        fueldata_disagg[region_name] = reg_fuel_sector_enduse
 
-    return is_fueldata_disagg
+    return fueldata_disagg
+
+def scrap_ag_disaggregate(data, fuel_national):
+    """TODO: Disaggregate according to area
+    """
+    fueldata_disagg = {}
+
+    national_floorarea_sector = 0
+    for region_name in data['lu_reg']:
+        national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region_name].values())
+
+    # Iterate regions
+    for region_name in data['lu_reg']:
+        fueldata_disagg[region_name] = {}
+        reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
+        reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
+        
+        reg_fuel_sector_enduse = reg_disaggregation_factor * fuel_national
+
+        fueldata_disagg[region_name] = reg_fuel_sector_enduse
+
+    return fueldata_disagg
 
 def is_disaggregate(data, raw_fuel_sectors_enduses):
     """TODO: Disaggregate fuel for sector and enduses with floor
@@ -268,3 +239,55 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
                 is_fueldata_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
 
     return is_fueldata_disagg
+
+def scrap_rs_disaggregate(data, rs_national_fuel):
+    """IMPROVE
+    """
+    print("...disagreggate residential demand")
+
+    rs_fueldata_disagg = {}
+
+    # Calculate heating degree days in whole country for base year
+    rs_hdd_individ_region = hdd_cdd.get_hdd_country(data['lu_reg'], data, 'rs_t_base_heating')
+
+    # Total heated days for all person sum of
+    tot_hdd_popreg = 0
+    for region_name in data['lu_reg']:
+        reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name] # Regional popluation
+        tot_hdd_popreg += reg_pop * rs_hdd_individ_region[region_name]
+
+    # Iterate regions
+    for region_name in data['lu_reg']:
+        # Regional popluation
+        reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name]
+
+        # Total population
+        total_pop = sum(data['population'][data['base_sim_param']['base_yr']].values())
+        
+        # HDD of region
+        hdd_reg = rs_hdd_individ_region[region_name]
+
+        # Disaggregate fuel depending on end_use
+        inter_dict = {} 
+        for enduse in rs_national_fuel: #TODO: Improve specific disaggregation depending on enduse
+
+            if enduse == 're_space_heating':
+                # Use HDD and pop to disaggregat
+                #print("------")
+                #print(reg_pop)
+                #print(total_pop)
+                #print((reg_pop * hdd_reg) / tot_hdd_popreg)
+                #print(reg_pop / total_pop )
+
+                reg_diasg_factor = (reg_pop * hdd_reg) / tot_hdd_popreg
+                #reg_diasg_factor = (reg_pop/total_pop) * (hdd_reg / hdd_total_country)
+            else:
+                # simply pop
+                reg_diasg_factor = reg_pop / total_pop
+                #TODO: Get enduse_specific disaggreagtion reg_diasg_factor
+
+            inter_dict[enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+
+        rs_fueldata_disagg[region_name] = inter_dict
+
+    return rs_fueldata_disagg

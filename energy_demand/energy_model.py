@@ -52,8 +52,7 @@ class EnergyModel(object):
         # --------------------
         # Transport SubModel
         # --------------------
-        self.ts_submodel = self.transport_submodel()
-
+        self.ts_submodel = self.other_submodels()
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
@@ -61,9 +60,9 @@ class EnergyModel(object):
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors
-        self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ts_submodel, self.ss_submodel, self.rs_submodel, self.is_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'sum', 'non_peak')
 
-        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel], 'no_sum', 'non_peak')
+        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'non_peak')
         self.rs_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.rs_submodel], 'no_sum', 'non_peak')
         self.ss_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.ss_submodel], 'no_sum', 'non_peak')
         self.is_sum_uk_specfuelype_enduses_y = self.sum_regions('enduse_fuel_yh', data, [self.is_submodel], 'no_sum', 'non_peak')
@@ -113,8 +112,8 @@ class EnergyModel(object):
                     tot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
         return tot_fuels_all_enduse_yh
 
-    def transport_submodel(self):
-        """Industry subsector model
+    def other_submodels(self):
+        """Other submodel
         """
         submodule_list = []
 
@@ -122,7 +121,7 @@ class EnergyModel(object):
         for region_object in self.regions:
 
             # Create submodule
-            submodule = submodule_transport.TransportModel(
+            submodule = submodule_transport.OtherModel(
                 region_object,
                 'generic_transport_enduse'
             )

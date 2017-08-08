@@ -40,7 +40,6 @@ class IndustryModel(object):
             fuel_switches=data['assumptions']['is_fuel_switches'],
             service_switches=data['assumptions']['is_service_switches'],
             fuel_enduse_tech_p_by=data['assumptions']['is_fuel_enduse_tech_p_by'][self.enduse],
-            service_tech_by_p=data['assumptions']['is_service_tech_by_p'][self.enduse],
             tech_increased_service=data['assumptions']['is_tech_increased_service'],
             tech_decreased_share=data['assumptions']['is_tech_decreased_share'],
             tech_constant_share=data['assumptions']['is_tech_constant_share'],

@@ -153,7 +153,6 @@ if __name__ == "__main__":
 
     pop_dummy = {}
 
-
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
     all_sectors = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
@@ -167,32 +166,48 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['Scotland'][sector] = 5300000 * 1 #10000 #[m2]
         ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
 
-
-    a = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
-    #a = {'Wales': 500000} #, 'Scotland': 500000, 'England': 500000}
+    regions = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
     for i in sim_years:
         y_data = {}
-        for reg in a:
-            y_data[reg] = a[reg] # + (a[reg] * 1.04)
+        for reg in regions:
+            y_data[reg] = regions[reg] # + (a[reg] * 1.04)
         pop_dummy[i] = y_data
 
-    fuel_price_dummy = {}
-    a = {0: 10.0, 1: 10.0, 2: 10.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0}
-    for i in sim_years:
-        y_data = {}
-        for reg in a:
-            y_data[reg] = a[reg] + 0.3
-        fuel_price_dummy[i] = y_data
-        a = y_data
+
     # DUMMY DATA GENERATION----------------------
 
+    # Load dummy LAC and pop
+    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
+
+    regions = {}
+    coord_dummy = {}
+    pop_dummy = {}
+    ss_floorarea_sector_by_dummy = {}
+
+
+    for geo_code, values in dummy_pop_geocodes.items():
+        regions[geo_code] = values['label'] # Label for region
+        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
+
+    # Population
+    for i in sim_years:
+        _data = {}
+        for reg_geocode in regions:
+            _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
+        pop_dummy[i] = _data
+
+    # Dummy flor area
+    for region_geocode in regions:
+        ss_floorarea_sector_by_dummy[region_geocode] = {}
+        for sector in all_sectors:
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
 
     # Reg Floor Area? Reg lookup?
     data_external = {
+        'input_regions': regions,
         'population': pop_dummy,
         'reg_coordinates': coord_dummy,
         'glob_var' : {},
-        'fuel_price': fuel_price_dummy,
         'ss_sector_floor_area_by': ss_floorarea_sector_by_dummy,
 
         # Demand of other sectors
@@ -235,6 +250,8 @@ if __name__ == "__main__":
     # Load assumptions
     base_data['assumptions'] = assumpt.load_assumptions(base_data)
 
+
+
     # ----TODO
 
     #TODO: Prepare all dissagregated data for [region][sector][]
@@ -253,7 +270,7 @@ if __name__ == "__main__":
         )
 
     # SERVICE: Convert base year fuel input assumptions to energy service
-    fuels_aggregated_across_sectors = fuel_service_switch.ss_summarise_fuel_enduse_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
+    fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
@@ -263,7 +280,7 @@ if __name__ == "__main__":
         )
 
     # INDUSTRY
-    fuels_aggregated_across_sectors = fuel_service_switch.ss_summarise_fuel_enduse_sectors(base_data['is_fuel_raw_data_enduses'], base_data['is_all_enduses'], base_data['nr_of_fueltypes'])
+    fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['is_fuel_raw_data_enduses'], base_data['is_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
@@ -274,7 +291,7 @@ if __name__ == "__main__":
 
     # Write out txt file with service shares for each technology per enduse
     write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
-    print("... a file has been generated which shows the shares of each technology per enduse")
+    #print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
     base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
@@ -324,6 +341,7 @@ if __name__ == "__main__":
         base_data['assumptions']['is_service_tech_by_p'],
         base_data['assumptions']['is_fuel_enduse_tech_p_by']
         )
+
     # ---------------------------------------------
     # Disaggregate national data into regional data
     # ---------------------------------------------
@@ -347,7 +365,6 @@ if __name__ == "__main__":
 
         results_every_year.append(model_run_object)
 
-
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
@@ -366,7 +383,7 @@ if __name__ == "__main__":
         print("NATIONALGAS: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-        print("ECUK GasDemand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
+        print("ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
         diff_factor_TD_ECUK_Input = (1.0/np.sum(validation_elec_data_2015_INDO)) * np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]) # 1.021627962194478
         print("FACTOR: " + str(diff_factor_TD_ECUK_Input))
 

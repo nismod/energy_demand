@@ -1,6 +1,5 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-import sys
 from datetime import date
 import numpy as np
 import energy_demand.technological_stock as ts
@@ -37,6 +36,7 @@ class Region(object):
         self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][region_name]
         self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][region_name]
         self.ts_fuels = data['ts_fueldata_disagg'][region_name]
+        #self.ag_fuels = data['ag_fueldata_disagg'][region_name]
 
         # Get closest weather station and temperatures
         closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
@@ -95,12 +95,10 @@ class Region(object):
         self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
 
         # Region specific load profile stock
+        print("   ...creating technology stocks in region_name")
         self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
         self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
         self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
-        #self.rs_load_profiles = data['loac_profile_stocks']['rs_load_profiles']
-        #self.ss_load_profiles = data['loac_profile_stocks']['ss_load_profiles']
-        #self.is_load_profiles = data['loac_profile_stocks']['is_load_profiles']
 
         # -------------------------------------------------------------------------------------------
         # Load and calculate fuel shapes for different technologies and assign to technological stock
@@ -118,7 +116,7 @@ class Region(object):
     def create_load_profiles(self, data, rs_fuel_shape_heating_yd, ss_fuel_shape_heating_yd, rs_fuel_shape_cooling_yd, rs_hdd_cy, ss_peak_yd_heating_factor, rs_peak_yd_heating_factor):
         """asdf
         """
-        print("   ...creating load profiles in region")
+        print("   ...creating specific load profiles in region")
         # --Heating technologies for residential sector
         rs_fuel_shape_storage_heater_yh, rs_fuel_shape_storage_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_storage_heater_elec_heating_dh')
         rs_fuel_shape_elec_heater_yh, rs_fuel_shape_elec_heater_y_dh = self.get_shape_heating_boilers_yh(data, rs_fuel_shape_heating_yd, 'rs_shapes_space_heating_second_elec_heating_dh')

@@ -226,7 +226,8 @@ def rs_build_stock(data):
 
                 # - new dwellings
                 if new_floorarea_sy < 0:
-                    print("EMPTY HOUSES???")
+                    #print("EMPTY HOUSES???")
+                    pass
 
                 if new_floorarea_sy > 0: # If new floor area new buildings are necessary
                     #print("=================================")
@@ -402,7 +403,7 @@ def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy,
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
-                pop=pop_dwtype_sim_yr_new_build,
+                population=pop_dwtype_sim_yr_new_build,
                 age=curr_yr,
                 dwtype=dw_type_id
                 )

@@ -4,8 +4,14 @@ Base year energy service (as share of total per enduse)
  
 Enduse  rs_lighting
 ----------
+dummy__rs_lighting__0__False__tech			0.0
+dummy__rs_lighting__1__False__tech			0.0
 standard_resid_lighting_bulb			0.00750187546887
 fluorescent_strip_lightinging			0.992498124531
+dummy__rs_lighting__3__False__tech			0.0
+dummy__rs_lighting__4__False__tech			0.0
+dummy__rs_lighting__5__False__tech			0.0
+dummy__rs_lighting__6__False__tech			0.0
  
 Enduse  rs_cold
 ----------

@@ -40,7 +40,6 @@ class ResidentialModel(object):
             fuel_switches=data['assumptions']['rs_fuel_switches'],
             service_switches=data['assumptions']['rs_service_switches'],
             fuel_enduse_tech_p_by=data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse],
-            service_tech_by_p=data['assumptions']['rs_service_tech_by_p'][self.enduse],
             tech_increased_service=data['assumptions']['rs_tech_increased_service'],
             tech_decreased_share=data['assumptions']['rs_tech_decreased_share'],
             tech_constant_share=data['assumptions']['rs_tech_constant_share'],

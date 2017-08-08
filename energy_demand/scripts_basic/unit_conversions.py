@@ -80,7 +80,16 @@ def convert_across_all_fueltypes(fuel_dict):
     return fuel_converted
 
 def convert_all_fueltypes_sector(fuel_dict):
-    """ITerature ktoe in fueltypes and convert
+    """Iterate fueltypes and convert ktoe to gwh
+
+    Parameters
+    ----------
+    fuel_dict : array
+        Fuel per fueltype
+    Returns
+    -------
+    fuel_converted : array
+        Array with converted fuel per fueltype
     """
     fuel_converted = {}
 

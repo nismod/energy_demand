@@ -11,6 +11,7 @@ from energy_demand.scripts_data import write_data
 from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
 from energy_demand.scripts_basic import unit_conversions
 from energy_demand.scripts_plotting import plotting_results
+import csv
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def load_data(path_main, data):
@@ -78,6 +79,7 @@ def load_data(path_main, data):
         'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_residential/data_residential_by_fuel_end_uses.csv'),
         'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv'),
         'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_industry/data_industry_by_fuel_end_uses.csv'),
+        #'path_ag_fuel_raw_data_enduses': os.path.join(path_main, 'other_submodels/agriculture/data_by_fuel_end_uses.csv'),
 
         # Paths to txt shapes
         'path_rs_txt_shapes': os.path.join(path_main, 'submodel_residential/txt_load_shapes'),
@@ -127,8 +129,8 @@ def load_data(path_main, data):
     # TODO: REPLACE WITH Newcastle if ready
     # -----------------------------
     #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
-    data['lu_reg'] = {}
-    for region_name in data['population'][data['base_sim_param']['base_yr']]:
+    data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
+    for region_name in data['input_regions']: # data['population'][data['base_sim_param']['base_yr']]:
         data['lu_reg'][region_name] = region_name
 
     #TODO: FLOOR_AREA_LOOKUP:
@@ -141,7 +143,7 @@ def load_data(path_main, data):
     # ----------------------------------------------------------
 
     # Temperature data
-    if data['fastcalculationcrit'] == False: #Scrap, eigentlich True
+    if data['fastcalculationcrit'] == True: #Scrap, eigentlich True
         print("read in fake weater data")
 
         temp_scrap = [12, 9, 10, 17, 23, 18903, 54, 67, 52, 19172, 30270, 103, 44, 105, 79, 113, 117, 132, 137, 145, 32, 150, 177, 161, 170, 18974, 23417, 908, 1039, 24125, 1007, 212, 17336, 1033, 987, 268, 1023, 19260, 235, 251, 1046, 1055, 1060, 1078, 1070, 1076, 1083, 1074, 1085, 16589, 30523, 315, 17314, 342, 16596, 346, 17344, 358, 373, 56486, 1145, 1171, 1137, 17309, 1090, 1144, 30690, 513, 56958, 527, 57199, 556, 381, 384, 386, 370, 405, 56216, 393, 16725, 1161, 1180, 1190, 643, 583, 409, 421, 432, 1198, 1209, 16611, 669, 24996, 657, 19187, 595, 461, 440, 1215, 1226, 1255, 676, 674, 692, 605, 613, 17176, 709, 471, 19188, 498, 504, 1346, 1285, 19206, 886, 888, 889, 847, 862, 869, 30620, 697, 708, 726, 16588, 743, 775, 1386, 1395, 1393, 1415, 1336, 1378, 1383, 1302, 1319, 842, 876, 779, 858, 795, 811, 1572, 1575, 57063, 1543, 56963, 1435, 1448, 1467, 1450, 1534, 48, 56905, 17089, 17090, 17091, 56370, 56906, 17094, 56907, 56908, 24089, 17097, 17098, 17099, 24090, 17101, 24275, 56909, 17102, 19211, 66, 14093, 56451, 110, 111, 114, 1585, 55827, 148, 159, 160, 195, 253, 1588, 285, 289, 57254, 16031, 310, 326, 339, 30750, 360, 367, 56986, 382, 61843, 4911, 30476, 413, 426, 61915, 435, 436, 442, 455, 456, 458, 481, 487, 516, 25726, 525, 529, 534, 61973, 542, 554, 19204, 30529, 578, 56424, 596, 24102, 57093, 607, 61948, 622, 61949, 634, 651, 61844, 658, 660, 10268, 691, 695, 711, 719, 723, 742, 56904, 744, 16769, 23450, 19159, 830, 61846, 25727, 855, 57247, 56962, 61847, 868, 17224, 918, 940, 1605, 1603, 982, 1005, 1035, 13343, 19203, 1067, 1073, 1080, 16851, 1111, 1112, 1119, 1125, 1132, 1166, 1204, 1205, 1221, 1223, 1238, 1249, 1272, 1276, 56939, 1326, 1345, 1352, 1367, 61743, 61737, 1609, 61744, 57250, 1418, 1431, 56937, 1452, 19192, 1488, 1502, 1504, 1507, 1517, 1523, 1529, 24103, 56810, 593, 1135, 1267, 18912, 1101, 466, 18929, 18923, 18927, 18931, 18919, 4, 116, 971, 246, 1006, 18909, 18936, 484, 18930, 18920, 18942, 1607, 725, 18925, 18937, 18908, 854, 25315, 38, 50, 60, 55890, 64, 55896, 118, 19193, 56463, 176, 181, 208, 30810, 214, 226, 15381, 237, 249, 262, 56130, 279, 286, 30747, 300, 17182, 347, 359, 57266, 4934, 445, 454, 55536, 509, 2515, 535, 56423, 539, 606, 609, 636, 638, 61908, 671, 24218, 688, 720, 757, 782, 818, 825, 843, 7621, 878, 883, 24795, 926, 57118, 949, 996, 13298, 1066, 25618, 61875, 24793, 1105, 25318, 1141, 1149, 56339, 1217, 1222, 30448, 1243, 9280, 9092, 1304, 1314, 1324, 8898, 1362, 23510, 8231, 1412, 1494, 1508, 1551, 600, 18921, 18911, 18946, 18941, 1574, 18918, 18913, 18916, 403, 863, 963, 1371, 25353, 759, 15045, 1291, 18914, 972, 25069, 18907, 219, 232, 18985, 439, 915, 1148, 57233, 457, 395, 1611, 1214, 1606, 24998, 18915, 56229, 30286, 3, 1489, 40, 19259, 1245, 17177, 1563, 1047, 61938, 61986, 30127, 407, 1475, 1530, 61937, 954, 62004, 808, 2710, 57268, 14444, 980, 57267, 62031, 62033, 16612, 62039, 267, 30084, 2, 62034, 62015, 8605, 62057, 9529, 62037]
@@ -188,6 +190,10 @@ def load_data(path_main, data):
     # Industry fuel (ECUK Table 4.04)
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
     print("RS Sectors: {}".format(data['is_sectors']))
+
+    # Agriculture sector
+    #data['ag_fuel_raw_data_enduses'], data['ag_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_ag_fuel_raw_data_enduses'])
+
     #scrap
     testsum = 0
     for sector in data['ss_fuel_raw_data_enduses']:
@@ -213,8 +219,12 @@ def load_data(path_main, data):
 
     #Elec demand from ECUK for transport sector
     fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385) #1) #385)
+
     #fuel_national_tranport[2] = 385
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
+
+    #data['ag_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes(data['ag_fuel_raw_data_enduses'])
+
 
     #scrap sum electricity
     scrap_elec = 0
@@ -650,3 +660,34 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
         break
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
+
+def load_LAC_geocodes_info():
+    """Import local area unit district codes
+
+    Read csv file and create dictionary with 'geo_code'
+
+    Info
+    -----
+    - no LAD without population must be included
+    """
+    path_to_csv = r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved.csv'
+
+    # Read CSV file
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        _headings = next(read_lines) # Skip first row
+        data = {}
+
+        # Iterate rows
+        for row in read_lines:
+            values_line = {}
+            for nr, value in enumerate(row[1:], 1):
+                try:
+                    values_line[_headings[nr]] = float(value)
+                except:
+                    values_line[_headings[nr]] = str(value)
+
+            # Add entry with geo_code
+            data[row[0]] = values_line
+
+    return data

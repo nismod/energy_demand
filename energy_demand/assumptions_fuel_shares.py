@@ -231,7 +231,6 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_servic
             eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
         elif tech_type == 'heat_pump':
             eff_tech_by = technologies_related.eff_heat_pump(
-                m_slope=assumptions['hp_slope_assumption'],
                 h_diff=10,
                 intersect=tech_stock[technology]['eff_by']
                 )
