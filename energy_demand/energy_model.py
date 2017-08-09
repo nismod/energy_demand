@@ -130,11 +130,13 @@ class EnergyModel(object):
             for model_object in sector_model_objects:
                 if model_object.region_name == region_name_to_get:
                     tot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
+
         return tot_fuels_all_enduse_yh
 
     def other_submodels(self):
         """Other submodel
         """
+        print("..other submodel start")
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -154,6 +156,7 @@ class EnergyModel(object):
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model
         """
+        print("..industry submodel start")
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -189,6 +192,7 @@ class EnergyModel(object):
         submodule_list : list
             List with submodules
         """
+        print("..residential submodel start")
         submodule_list = []
 
         # Iterate regions and enduses
@@ -225,6 +229,7 @@ class EnergyModel(object):
         submodule_list : list
             List with submodules
         """
+        print("..service submodel start")
         submodule_list = []
 
         # Iterate regions, sectors and enduses

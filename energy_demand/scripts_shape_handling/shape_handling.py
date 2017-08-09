@@ -111,19 +111,22 @@ class LoadProfileStock(object):
         """
         for load_profile_obj in self.load_profile_list:
 
-            if (technology in load_profile_obj.technologies
+            '''if technology in load_profile_obj.technologies
                     and enduse in load_profile_obj.enduses
                     and sector in load_profile_obj.sectors):
-
-                # Test if dummy sector and thus shape_peak not provided for different sectors
-                if sector == 'dummy_sector':
-                    shape_peak_dh = load_profile_obj.shape_peak_dh
-                    return shape_peak_dh
-                else:
-                    #attr_all_sectors = load_profile_obj.shape_peak_dh
-                    #shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
-                    shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
-                    return shape_peak_dh
+            '''
+            if enduse in load_profile_obj.enduses:
+                if sector in load_profile_obj.sectors:
+                    if technology in load_profile_obj.technologies:
+                        # Test if dummy sector and thus shape_peak not provided for different sectors
+                        if sector == 'dummy_sector':
+                            shape_peak_dh = load_profile_obj.shape_peak_dh
+                            return shape_peak_dh
+                        else:
+                            #attr_all_sectors = load_profile_obj.shape_peak_dh
+                            #shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
+                            shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+                            return shape_peak_dh
 
 class LoadProfile(object):
     """Load profile container to store different shapes

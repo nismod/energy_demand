@@ -381,6 +381,11 @@ if __name__ == "__main__":
 
         #-------------PROFILER
         
+        #--------------MEMPROF
+
+
+
+        # ---------
         start_MAIN = time.time()
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))

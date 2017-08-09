@@ -304,7 +304,7 @@ class Enduse(object):
         The service is calculated after changes to fuel were applied (in the cascade
         such as e.g. due to changes in temperatures or similar)
         """
-        service_tech_cy = init.init_dict(self.technologies_enduse, 'zero')
+        service_tech_cy = init.init_dict_zero(self.technologies_enduse)
         service_fueltype_tech_p = init.init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
@@ -358,7 +358,8 @@ class Enduse(object):
                     service_fueltype_tech_p[fueltype][tech] = 0
 
         # Calculate service fraction per fueltype
-        service_fueltype_p = init.init_dict(fueltypes_lu.values(), 'zero')
+        service_fueltype_p = init.init_dict_zero(fueltypes_lu.values())
+
         for fueltype, service_fueltype in service_fueltype_tech_p.items():
             for tech, service_fueltype_tech in service_fueltype.items():
                 service_fueltype_p[fueltype] += service_fueltype_tech

@@ -46,10 +46,19 @@ class TechStock(object):
         """Create technologies and add to technology list
         """
         stock_technologies = []
+        #stock_technologies = {}
 
         for enduse in enduses:
+            #stock_technologies[enduse] = []
             for technology_name in technologies[enduse]:
                 #print("         ...{}   {}".format(sector, technology))
+
+                '''try:
+                    _ = stock_technologies[enduse]
+                except KeyError:
+                    stock_technologies[enduse] = []
+                '''
+                
 
                 tech_type = technologies_related.get_tech_type(technology_name, data['assumptions']['technology_list'])
 
@@ -76,6 +85,7 @@ class TechStock(object):
                         tech_type
                     )
 
+                ##stock_technologies[technology_name].append(tech_object)
                 stock_technologies.append(tech_object)
 
         return stock_technologies
@@ -97,10 +107,11 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        for tech_object in self.stock_technologies:
+        #tech_object = self.stock_technologies[(tech_name, enduse)]
+        for tech_object in self.stock_technologies: #[tech_name]:
             if tech_object.tech_name == tech_name:
                 if tech_object.enduse == enduse:
-                    
+
                     if attribute_to_get == 'service_distr_hybrid_h_p':
                         return tech_object.service_distr_hybrid_h_p
                     elif attribute_to_get == 'eff_cy':
@@ -353,14 +364,18 @@ class HybridTechnology(object):
         """
         tech_low_high_p = {}
 
+        #----------
         #FAST
         #----------
         hybrid_service_temp_range = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
         fast_factor = np.divide(1.0, (hybrid_service_temp_range))
-        #temp_diff_cutoff_temp = temp_cy - hybrid_cutoff_temp_low
 
+        #temp_diff_cutoff_temp = (temp_cy - hybrid_cutoff_temp_low) * fast_factor
+        #service_high_tech_p_FAST = np.zeros((temp_cy.shape))
+        #service_high_tech_p_FAST[temp_cy > hybrid_cutoff_temp_high] = 1.0
+        #service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
+        #service_high_tech_p_FAST[(temp_cy >= hybrid_cutoff_temp_low) & (temp_cy <= hybrid_cutoff_temp_high)] = temp_diff_cutoff_temp
 
-        #service_high_tech_p_FAST = fast_factor * temp_diff_cutoff_temp
 
         #SLOW----------
         fast_funct = vectorize(self.get_fraction_service_high_temp) # SPEED

@@ -1,5 +1,43 @@
 """Helper initialising functions
 """
+def init_dict_zero(first_level_keys):
+    """Initialise a  dictionary with one level
+
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+    crit : str
+        Criteria wheater initialised with `{}` or `0`
+
+    Returns
+    -------
+    one_level_dict : dict
+         dictionary
+    """
+    '''one_level_dict = {}
+    for first_key in first_level_keys:
+        one_level_dict[first_key] = 0
+    '''
+    one_level_dict = dict.fromkeys(first_level_keys, 0) # set zero as argument
+    return one_level_dict
+
+def init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
+    """Initialise dict
+    """
+    service_fueltype_tech_by_p = {}
+    for fueltype_int in fueltypes_lu.values():
+        service_fueltype_tech_by_p[fueltype_int] = {}
+        service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_enduse_tech_p_by[fueltype_int].keys(), 0)
+    '''service_fueltype_tech_by_p = {}
+    for fueltype_int in fueltypes_lu.values():
+        service_fueltype_tech_by_p[fueltype_int] = {}
+        for tech in fuel_enduse_tech_p_by[fueltype_int]:
+            service_fueltype_tech_by_p[fueltype_int][tech] = 0
+    '''
+
+    return service_fueltype_tech_by_p
+
 def init_dict(first_level_keys, crit):
     """Initialise a  dictionary with one level
 
@@ -75,17 +113,7 @@ def sum_2_level_dict(two_level_dict):
 
     return tot_sum
 
-def init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
-    """Initialise dict
-    """
-    service_fueltype_tech_by_p = {}
 
-    for fueltype_int in fueltypes_lu.values():
-        service_fueltype_tech_by_p[fueltype_int] = {}
-        for tech in fuel_enduse_tech_p_by[fueltype_int]:
-            service_fueltype_tech_by_p[fueltype_int][tech] = 0
-
-    return service_fueltype_tech_by_p
 
 def initialise_out_dict_av():
     """Helper function to initialise dict

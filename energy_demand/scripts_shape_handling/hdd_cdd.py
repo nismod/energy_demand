@@ -24,14 +24,20 @@ def calc_hdd(t_base, temp_yh):
     hdd_d = np.zeros((365))
 
     for day, temp_day in enumerate(temp_yh):
+        '''
         hdd = 0
         for temp_h in temp_day:
             diff = t_base - temp_h
             if diff > 0:
                 hdd += diff
-        if hdd > 0:
+        '''
+        # Faster
+        temp_diff = t_base - temp_day #Substract base temp
+        hdd = np.sum(temp_diff[temp_diff > 0]) #get sum of absolute negative values
+
+        try:
             hdd_d[day] = hdd / 24.0
-        else:
+        except ZeroDivisionError:
             hdd_d[day] = 0
 
     return hdd_d
@@ -62,15 +68,21 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     """
     cdd_d = np.zeros((365))
 
-    for day_nr, day in enumerate(temperatures):
-        sum_d = 0
-        for temp_h in day:
+    for day_nr, day_temp in enumerate(temperatures):
+        '''
+        ccd_d = 0
+        for temp_h in day_temp:
             diff_t = temp_h - rs_t_base_cooling
             if diff_t > 0: # Only if cooling is necessary
-                sum_d += diff_t
-        if sum_d > 0:
-            cdd_d[day_nr] = sum_d/24
-        else:
+                ccd_d += diff_t
+        '''
+        # Faster
+        temp_diff = day_temp - rs_t_base_cooling
+        ccd_d = np.sum(temp_diff[temp_diff > 0])
+
+        try:
+            cdd_d[day_nr] = ccd_d/24
+        except ZeroDivisionError:
             cdd_d[day_nr] = 0
 
     return cdd_d

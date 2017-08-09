@@ -7,3 +7,4 @@ haversine
 scipy
 isoweek
 pyinstrument
+memprof
