@@ -8,10 +8,15 @@ class LoadProfileStock(object):
     """
     def __init__(self, stock_name):
         self.stock_name = stock_name
-        self.load_profile_list = []
+        #self.load_profile_list = []
+        self.load_profile_dict = {}
+
+        # dict_with_tuple_kes
+        self.dict_with_tuple_kes = {}
 
     def add_load_profile(
             self,
+            unique_identifier,
             technologies,
             enduses,
             sectors,
@@ -40,7 +45,22 @@ class LoadProfileStock(object):
         shape_peak_dh : array
             Shape (dh), shape of a day for every hour
         """
-        loadprofile_obj = LoadProfile(
+        '''for enduse in enduses:
+            for sector in sectors:
+                for technology in technologies:
+                    self.load_profile_dict[(enduse, sector, technology)] = LoadProfile(
+                        technology,
+                        enduse,
+                        sector,
+                        shape_yd,
+                        shape_yh,
+                        enduse_peak_yd_factor,
+                        shape_peak_dh
+                        )
+        '''
+        #self.load_profile_list.append(loadprofile_obj)
+        self.load_profile_dict[unique_identifier] = LoadProfile(
+            unique_identifier,
             technologies,
             enduses,
             sectors,
@@ -50,7 +70,15 @@ class LoadProfileStock(object):
             shape_peak_dh
             )
 
-        self.load_profile_list.append(loadprofile_obj)
+        self.generate_dict_with_tuple_keys(unique_identifier, enduses, sectors, technologies)
+
+    def generate_dict_with_tuple_keys(self, unique_identifier, enduses, sectors, technologies):
+        """generate look_up keys to position in dict
+        """
+        for enduse in enduses:
+            for sector in sectors:
+                for technology in technologies:
+                    self.dict_with_tuple_kes[(enduse, sector, technology)] = unique_identifier
 
     def get_load_profile(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
@@ -71,13 +99,14 @@ class LoadProfileStock(object):
         attr_to_get : array
             Required shape
         """
-        for load_profile_obj in self.load_profile_list:
-
-            # Multiple conditions
+        '''for load_profile_obj in self.load_profile_list:
             if enduse in load_profile_obj.enduses:
                 if sector in load_profile_obj.sectors:
-                    if technology in load_profile_obj.technologies:
+                    if technology in load_profile_obj.technologies:'''
 
+        position_in_dict = self.dict_with_tuple_kes[(enduse, sector, technology)]
+        load_profile_obj = self.load_profile_dict[position_in_dict]
+        if 1 == 1:
                         if shape == 'shape_yh':
                             return load_profile_obj.shape_yh
                         elif shape == 'shape_yd':
@@ -86,7 +115,7 @@ class LoadProfileStock(object):
                             return load_profile_obj.enduse_peak_yd_factor
 
         #function_run_crit = False
-            '''if (technology in load_profile_obj.technologies
+        '''if (technology in load_profile_obj.technologies
                     and enduse in load_profile_obj.enduses
                     and sector in load_profile_obj.sectors):
             
@@ -94,7 +123,7 @@ class LoadProfileStock(object):
                 attr_to_get = getattr(load_profile_obj, shape)
                 function_run_crit = True
                 return attr_to_get
-            '''
+        '''
         '''if function_run_crit:
             return attr_to_get
         else:
@@ -109,22 +138,18 @@ class LoadProfileStock(object):
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
         """
-        for load_profile_obj in self.load_profile_list:
-
-            '''if technology in load_profile_obj.technologies
-                    and enduse in load_profile_obj.enduses
-                    and sector in load_profile_obj.sectors):
-            '''
+        '''for load_profile_obj in self.load_profile_list:
             if enduse in load_profile_obj.enduses:
                 if sector in load_profile_obj.sectors:
-                    if technology in load_profile_obj.technologies:
+                    if technology in load_profile_obj.technologies:'''
+        position_in_dict = self.dict_with_tuple_kes[(enduse, sector, technology)]
+        load_profile_obj = self.load_profile_dict[position_in_dict]
+        if 1 == 1:
                         # Test if dummy sector and thus shape_peak not provided for different sectors
                         if sector == 'dummy_sector':
                             shape_peak_dh = load_profile_obj.shape_peak_dh
                             return shape_peak_dh
                         else:
-                            #attr_all_sectors = load_profile_obj.shape_peak_dh
-                            #shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
                             shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
                             return shape_peak_dh
 
@@ -151,6 +176,7 @@ class LoadProfile(object):
     """
     def __init__(
             self,
+            unique_identifier,
             technologies,
             enduses,
             sectors,
@@ -162,6 +188,7 @@ class LoadProfile(object):
         """Constructor
         """
         #self.region
+        self.unique_identifier = unique_identifier
         self.technologies = technologies
         self.enduses = enduses
         self.sectors = sectors

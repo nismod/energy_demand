@@ -8,6 +8,7 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_geography import weather_station_location as wl
 from energy_demand.scripts_initalisations import helper_functions
+import uuid
 
 class Region(object):
     """Region class
@@ -143,6 +144,7 @@ class Region(object):
 
         # Heating boiler
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(), #"rs_UI_heating_boiler" 
             technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
@@ -153,6 +155,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
@@ -163,6 +166,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
@@ -174,6 +178,7 @@ class Region(object):
 
         # Electric heating, primary...(storage)
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['rs_space_heating'],
             sectors=data['rs_sectors'],
@@ -184,6 +189,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['ss_space_heating'],
             sectors=data['ss_sectors'],
@@ -194,6 +200,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
@@ -204,6 +211,7 @@ class Region(object):
 
         # Electric heating, secondary...
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
@@ -214,6 +222,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['ss_sectors'],
@@ -224,6 +233,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
@@ -234,6 +244,7 @@ class Region(object):
 
         # Hybrid heating
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
@@ -244,6 +255,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
@@ -253,6 +265,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
@@ -263,6 +276,7 @@ class Region(object):
 
         # Heat pump heating
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
@@ -273,6 +287,7 @@ class Region(object):
             )
 
         self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['ss_space_heating', 'ss_water_heating'],
             sectors=data['ss_sectors'],
@@ -283,6 +298,7 @@ class Region(object):
             )
 
         self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
             enduses=['is_space_heating'],
             sectors=data['is_sectors'],
@@ -294,6 +310,7 @@ class Region(object):
 
         # Lighting (residential)
         self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['rs_lighting'],
             enduses=['rs_lighting'],
             sectors=data['rs_sectors'],
@@ -308,8 +325,9 @@ class Region(object):
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
 
             self.rs_load_profiles.add_load_profile(
+                unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
-                enduses=enduse,
+                enduses=[enduse],
                 sectors=data['rs_sectors'],
                 shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                 shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
@@ -322,9 +340,10 @@ class Region(object):
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
             for sector in data['ss_sectors']:
                 self.ss_load_profiles.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
-                    enduses=enduse,
-                    sectors=sector,
+                    enduses=[enduse],
+                    sectors=[sector],
                     shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                     enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], #  * (1 / (365)),
@@ -336,9 +355,10 @@ class Region(object):
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
             for sector in data['is_sectors']:
                 self.is_load_profiles.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
-                    enduses=enduse,
-                    sectors=sector,
+                    enduses=[enduse],
+                    sectors=[sector],
                     shape_yd=data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                     enduse_peak_yd_factor=data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor']  * (1 / (365)),
@@ -405,7 +425,7 @@ class Region(object):
             fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * fuel_day
 
         # Testing
-        np.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: The hybridy yh shape does not sum up to 1.0")
+        ## TESTINGnp.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: The hybridy yh shape does not sum up to 1.0")
 
         return fuel_shape_yh
 
@@ -641,6 +661,6 @@ class Region(object):
                 shape_boilers_y_dh[day] = data[tech_to_get_shape]['workday'] #dh shape
 
         # Testing
-        np.testing.assert_almost_equal(np.sum(shape_boilers_yh), 1, err_msg="Error in shape_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_boilers_yh)))
+        ## TESTINGnp.testing.assert_almost_equal(np.sum(shape_boilers_yh), 1, err_msg="Error in shape_boilers_yh: The sum of hourly shape is not 1: {}".format(np.sum(shape_boilers_yh)))
 
         return shape_boilers_yh, shape_boilers_y_dh

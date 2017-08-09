@@ -43,23 +43,13 @@ class TechStock(object):
 
     @classmethod
     def create_tech_stock(cls, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, enduses, technologies):
-        """Create technologies and add to technology list
+        """Create technologies and add to dict with key_tuple
         """
-        stock_technologies = []
-        #stock_technologies = {}
+        stock_technologies = {}
 
         for enduse in enduses:
-            #stock_technologies[enduse] = []
             for technology_name in technologies[enduse]:
                 #print("         ...{}   {}".format(sector, technology))
-
-                '''try:
-                    _ = stock_technologies[enduse]
-                except KeyError:
-                    stock_technologies[enduse] = []
-                '''
-                
-
                 tech_type = technologies_related.get_tech_type(technology_name, data['assumptions']['technology_list'])
 
                 if tech_type == 'hybrid_tech':
@@ -85,8 +75,7 @@ class TechStock(object):
                         tech_type
                     )
 
-                ##stock_technologies[technology_name].append(tech_object)
-                stock_technologies.append(tech_object)
+                stock_technologies[(technology_name, enduse)] = tech_object
 
         return stock_technologies
 
@@ -107,30 +96,22 @@ class TechStock(object):
         tech_attribute : attribute
             Technology attribute
         """
-        #tech_object = self.stock_technologies[(tech_name, enduse)]
-        for tech_object in self.stock_technologies: #[tech_name]:
-            if tech_object.tech_name == tech_name:
-                if tech_object.enduse == enduse:
+        tech_object = self.stock_technologies[(tech_name, enduse)]
 
-                    if attribute_to_get == 'service_distr_hybrid_h_p':
-                        return tech_object.service_distr_hybrid_h_p
-                    elif attribute_to_get == 'eff_cy':
-                        return tech_object.eff_cy
-                    elif attribute_to_get == 'tech_low_temp':
-                        return tech_object.tech_low_temp
-                    elif attribute_to_get == 'tech_low_temp_fueltype':
-                        return tech_object.tech_low_temp_fueltype
-                    elif attribute_to_get == 'tech_high_temp_fueltype':
-                        return tech_object.tech_high_temp_fueltype
-                    elif attribute_to_get == 'fueltypes_yh_p_cy':
-                        return tech_object.fueltypes_yh_p_cy
-                    elif attribute_to_get == 'fuel_per_type_yd':
-                        return tech_object.fuel_per_type_yd
-
-            # Slow direct version
-            #if tech_object.tech_name == tech_name and tech_object.enduse == enduse:
-                #tech_attribute = getattr(tech_object, str(attribute_to_get))
-                #return tech_attribute
+        if attribute_to_get == 'service_distr_hybrid_h_p':
+            return tech_object.service_distr_hybrid_h_p
+        elif attribute_to_get == 'eff_cy':
+            return tech_object.eff_cy
+        elif attribute_to_get == 'tech_low_temp':
+            return tech_object.tech_low_temp
+        elif attribute_to_get == 'tech_low_temp_fueltype':
+            return tech_object.tech_low_temp_fueltype
+        elif attribute_to_get == 'tech_high_temp_fueltype':
+            return tech_object.tech_high_temp_fueltype
+        elif attribute_to_get == 'fueltypes_yh_p_cy':
+            return tech_object.fueltypes_yh_p_cy
+        elif attribute_to_get == 'fuel_per_type_yd':
+            return tech_object.fuel_per_type_yd
 
 class Technology(object):
     """Technology Class
@@ -457,7 +438,7 @@ class HybridTechnology(object):
         fueltypes_yh[fueltype_low_temp] = _var * fuel_low_h
         fueltypes_yh[fueltype_high_temp] = _var * fuel_high_h
 
-        np.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')
+        ## TESTINGnp.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')
 
         return fueltypes_yh
 

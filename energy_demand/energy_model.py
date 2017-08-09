@@ -310,7 +310,7 @@ class EnergyModel(object):
 
         Parameters
         ----------
-        attribute_to_get : 
+        attribute_to_get :
         data
 
         Returns

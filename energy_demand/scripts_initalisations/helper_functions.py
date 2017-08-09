@@ -19,12 +19,12 @@ def helper_set_same_eff_all_tech(technologies, eff_achieved_factor=1):
         Technologies
     eff_achieved_factor : float
         Factor showing the fraction of how much an efficiency is achieved
-    
+
     Returns
     -------
     technologies : dict
         Adapted technolog
-    """
+    """ #TODO MAKE FASTER
     for technology in technologies:
         technologies[technology]['eff_achieved'] = eff_achieved_factor
     return technologies
