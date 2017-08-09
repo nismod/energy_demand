@@ -47,7 +47,7 @@ class Enduse(object):
         """Enduse class constructor
         """
         start = time.time()
-        print("..create enduse {}".format(enduse))
+        #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
         self.curr_yr = data['base_sim_param']['curr_yr']
@@ -702,8 +702,8 @@ class Enduse(object):
 
             # Testing
             #np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
-            np.testing.assert_almost_equal(np.sum(tech_peak_dh), 1, decimal=3, err_msg='Error XY')
-            np.testing.assert_almost_equal(np.sum(control_sum), np.sum(fuel_tech_peak_dh), decimal=3, err_msg='Error XY')
+            ## TESTINGnp.testing.assert_almost_equal(np.sum(tech_peak_dh), 1, decimal=3, err_msg='Error XY')
+            ## TESTINGnp.testing.assert_almost_equal(np.sum(control_sum), np.sum(fuel_tech_peak_dh), decimal=3, err_msg='Error XY')
 
         return fuels_peak_dh
 
@@ -723,7 +723,8 @@ class Enduse(object):
             Fueltype storing daily fuel for every fueltype (fueltype, 365)
         """
         fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
-        control_sum = 0
+        #control_sum = 0
+        average_fuel_share_in_year = (1.0 / 8760)
 
         for tech in self.technologies_enduse:
 
@@ -734,21 +735,20 @@ class Enduse(object):
             fueltype_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fuel_per_type_yd')
 
             # Iterate shares of fueltypes, calculate share of fuel and add to fuels
-            for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
-
-                if np.sum(fuel_shares_dh) != 0:
-                    share_of_fuel = (1.0 / 8760) * np.sum(fuel_shares_dh) #share_of_fuel = (1.0 / 8760) * fuel_shares_dh #NEW
-                else:
-                    share_of_fuel = np.zeros((365))
+            for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd): #SPEED IMPROVE
+                try: #SPEED
+                    share_of_fuel = average_fuel_share_in_year * np.sum(fuel_shares_dh) #share_of_fuel = (1.0 / 8760) * fuel_shares_dh #NEW
+                except ZeroDivisionError:
+                    share_of_fuel = np.zeros((365)) # If np.sum(fuel_shares_dh) == 0
 
                 fuels_yd[fueltype] += fuel_tech_yd * share_of_fuel
-                control_sum += fuel_tech_yd * share_of_fuel
+                #control_sum += fuel_tech_yd * share_of_fuel
 
             # Testing
-            np.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
+            ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuel_tech_yd), np.sum(enduse_fuel_tech[tech]), decimal=3, err_msg="Error NR XXX")
 
         # Testing
-        np.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
+        ### TESTINGnp.testing.assert_array_almost_equal(sum(enduse_fuel_tech.values()), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_yd
 
@@ -768,29 +768,33 @@ class Enduse(object):
             Fueltype storing hourly fuel for every fueltype (fueltype, 365, 24)
         """
         fuels_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
-        control_sum = 0
+        #control_sum = 0
+        average_fuel_share_in_year = (1.0 / 8760)
 
         for tech in self.technologies_enduse:
 
             # Shape of fuel of technology for every hour in year
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
+            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(
+                self.enduse,
+                self.sector,
+                tech,
+                'shape_yh'
+                )
 
             # Get distribution of fuel for every hour
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
 
             for fueltype, fuel_tech_share in enumerate(fueltypes_tech_share_yh):
-
-                if np.sum(fuel_tech_share) != 0:
-                    share_of_fuel = (1.0 / 8760) * np.sum(fuel_tech_share)
-                else:
+                try: #SPEED
+                    share_of_fuel = average_fuel_share_in_year * np.sum(fuel_tech_share)
+                except ZeroDivisionError:
                     share_of_fuel = np.zeros((365, 24))
-
+                
                 fuels_yh[fueltype] += fuel_tech_yh * share_of_fuel
 
-                control_sum += fuel_tech_yh * share_of_fuel
-
+                #control_sum += fuel_tech_yh * share_of_fuel
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
-        np.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
+        ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_yh
 
@@ -1234,19 +1238,18 @@ class genericFlatEnduse(object):
             max_fuel_d[fueltype] = (np.sum(self.enduse_fuel_y[fueltype]) / 365.0) * shape_peak_yd_factor
 
         # Yd fuel shape per fueltype (non-peak)
-        self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365))
-        for fueltype in range(len(enduse_fuel)):
-            self.enduse_fuel_yd[fueltype] = shape_non_peak_yd * self.enduse_fuel_y[fueltype]
+        #self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365)) #SPEED
+        #for fueltype in range(len(enduse_fuel)):
+        #    self.enduse_fuel_yd[fueltype] = shape_non_peak_yd * self.enduse_fuel_y[fueltype]
+        self.enduse_fuel_yd = np.outer(self.enduse_fuel_y, shape_non_peak_yd)
 
         # Yh fuel shape per fueltype (non-peak)
         self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
         for fueltype in range(len(enduse_fuel)):
             #for day in range(365): SPEED
             #    self.enduse_fuel_yh[fueltype][day] = (shape_non_peak_yd[day] * shape_non_peak_dh[day]) * self.enduse_fuel_y[fueltype]
-            print(shape_non_peak_yd.shape)
-            print(shape_non_peak_dh.shape)
-            print(self.enduse_fuel_y[fueltype].shape)
-            self.enduse_fuel_yh[fueltype] = (shape_non_peak_yd * shape_non_peak_dh) * self.enduse_fuel_y[fueltype]
+            self.enduse_fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh) * self.enduse_fuel_y[fueltype] #TEST
+        #TODO: IMPROVEself.enduse_fuel_yh = np.outer(self.enduse_fuel_y, (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh)) #(fueltypes, ) * (365, 24)
 
         # Dh fuel shape per fueltype (peak)
         self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))

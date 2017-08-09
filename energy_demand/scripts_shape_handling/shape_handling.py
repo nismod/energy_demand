@@ -71,18 +71,31 @@ class LoadProfileStock(object):
         attr_to_get : array
             Required shape
         """
-        function_run_crit = False
         for load_profile_obj in self.load_profile_list:
 
-            if (technology in load_profile_obj.technologies
+            # Multiple conditions
+            if enduse in load_profile_obj.enduses:
+                if sector in load_profile_obj.sectors:
+                    if technology in load_profile_obj.technologies:
+
+                        if shape == 'shape_yh':
+                            return load_profile_obj.shape_yh
+                        elif shape == 'shape_yd':
+                            return load_profile_obj.shape_yd
+                        elif shape == 'enduse_peak_yd_factor':
+                            return load_profile_obj.enduse_peak_yd_factor
+
+        #function_run_crit = False
+            '''if (technology in load_profile_obj.technologies
                     and enduse in load_profile_obj.enduses
                     and sector in load_profile_obj.sectors):
+            
+                # SPEED: Slow version
                 attr_to_get = getattr(load_profile_obj, shape)
                 function_run_crit = True
-    
                 return attr_to_get
-
-        if function_run_crit:
+            '''
+        '''if function_run_crit:
             return attr_to_get
         else:
             sys.exit("Error in get_load_profile: {} {} {} {}".format(
@@ -90,6 +103,7 @@ class LoadProfileStock(object):
                 sector,
                 technology,
                 shape))
+        '''
 
 
     def get_shape_peak_dh(self, enduse, sector, technology):
@@ -103,12 +117,13 @@ class LoadProfileStock(object):
 
                 # Test if dummy sector and thus shape_peak not provided for different sectors
                 if sector == 'dummy_sector':
-                    shape_peak_dh = load_profile_obj.shape_peak_dh #shape_peak_dh
+                    shape_peak_dh = load_profile_obj.shape_peak_dh
+                    return shape_peak_dh
                 else:
-                    attr_all_sectors = load_profile_obj.shape_peak_dh #shape_peak_dh
-                    shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
-
-                return shape_peak_dh
+                    #attr_all_sectors = load_profile_obj.shape_peak_dh
+                    #shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
+                    shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+                    return shape_peak_dh
 
 class LoadProfile(object):
     """Load profile container to store different shapes
@@ -167,11 +182,10 @@ def absolute_to_relative(absolute_array):
     relative_array : array
         Contains relative numbers
     """
-    if np.sum(absolute_array) == 0:
-        relative_array = absolute_array # If the total sum is zero, return same array
-    else:
-        #relative_array = np.divide(1, np.sum(absolute_array)) * absolute_array
+    try:
         relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
+    except ZeroDivisionError:
+        relative_array = absolute_array # If the total sum is zero, return same array
 
     return relative_array
 
@@ -231,11 +245,11 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     In case no fuel is provided for a day 'fuel_shapes_hybrid_y_dh' for this day is zero. Therfore
     the total sum of 'fuel_shapes_hybrid_y_dh not necessarily 365.
     """
-    fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
+    '''fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
-    for day in range(365):
+    for day in range(365): #SPEED
         dh_fuel_hybrid = np.zeros(24)
-        for hour in range(24):
+        for hour in range(24): #SPEED
 
             # Shares of each technology for every hour
             low_p = tech_low_high_p['low'][day][hour]
@@ -257,8 +271,14 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
 
         # Normalise dh shape
         fuel_shapes_hybrid_y_dh[day] = absolute_to_relative(dh_fuel_hybrid)
+    '''
+    # FAST TODO #(share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
+    _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
 
-        '''plt.plot(dh_shape_hybrid)
-        plt.show()
-        '''
+    # Absolute to relative for every row
+    fuel_shapes_hybrid_y_dh = np.apply_along_axis(absolute_to_relative, 1, _var) 
+
+    '''plt.plot(fuel_shapes_hybrid_y_dh[1])
+    plt.show()
+    '''
     return fuel_shapes_hybrid_y_dh

@@ -98,10 +98,28 @@ class TechStock(object):
             Technology attribute
         """
         for tech_object in self.stock_technologies:
-            if tech_object.tech_name == tech_name and tech_object.enduse == enduse:
-                tech_attribute = getattr(tech_object, str(attribute_to_get))
+            if tech_object.tech_name == tech_name:
+                if tech_object.enduse == enduse:
+                    
+                    if attribute_to_get == 'service_distr_hybrid_h_p':
+                        return tech_object.service_distr_hybrid_h_p
+                    elif attribute_to_get == 'eff_cy':
+                        return tech_object.eff_cy
+                    elif attribute_to_get == 'tech_low_temp':
+                        return tech_object.tech_low_temp
+                    elif attribute_to_get == 'tech_low_temp_fueltype':
+                        return tech_object.tech_low_temp_fueltype
+                    elif attribute_to_get == 'tech_high_temp_fueltype':
+                        return tech_object.tech_high_temp_fueltype
+                    elif attribute_to_get == 'fueltypes_yh_p_cy':
+                        return tech_object.fueltypes_yh_p_cy
+                    elif attribute_to_get == 'fuel_per_type_yd':
+                        return tech_object.fuel_per_type_yd
 
-                return tech_attribute
+            # Slow direct version
+            #if tech_object.tech_name == tech_name and tech_object.enduse == enduse:
+                #tech_attribute = getattr(tech_object, str(attribute_to_get))
+                #return tech_attribute
 
 class Technology(object):
     """Technology Class
@@ -333,16 +351,22 @@ class HybridTechnology(object):
         tech_low_high_p : dict
             Share of lower and higher service fraction for every hour
         """
-        tech_low_high_p = {
-            'low': np.zeros((365, 24)),
-            'high': np.zeros((365, 24))
-            }
+        tech_low_high_p = {}
 
-        # SPEED
-        fast_funct = vectorize(self.get_fraction_service_high_temp)
-        service_high_tech_p_FAST = fast_funct(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
+        #FAST
+        #----------
+        hybrid_service_temp_range = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
+        fast_factor = np.divide(1.0, (hybrid_service_temp_range))
+        #temp_diff_cutoff_temp = temp_cy - hybrid_cutoff_temp_low
+
+
+        #service_high_tech_p_FAST = fast_factor * temp_diff_cutoff_temp
+
+        #SLOW----------
+        fast_funct = vectorize(self.get_fraction_service_high_temp) # SPEED
+        service_high_tech_p_FAST = fast_funct(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor)
         #service_high_tech_p = self.get_fraction_service_high_temp(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
-        
+
         tech_low_high_p['low'] = 1 - service_high_tech_p_FAST
         tech_low_high_p['high'] = service_high_tech_p_FAST
 
@@ -423,7 +447,7 @@ class HybridTechnology(object):
         return fueltypes_yh
 
     @classmethod
-    def get_fraction_service_high_temp(cls, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
+    def get_fraction_service_high_temp(cls, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor):
         """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
 
         Parameters
@@ -434,7 +458,8 @@ class HybridTechnology(object):
             Temperature from which below only low temp technology functions
         hybrid_cutoff_temp_high : float
             Temperature from which abive only high temp technology functions
-
+        hybrid_service_temp_range : float
+            Temperature range with hybrid service (hybrid_cutoff_temp_high - hybrid_cutoff_temp_low)
         Return
         ------
         fraction_high_temp_tech : float
@@ -443,20 +468,29 @@ class HybridTechnology(object):
         Note
         -----
             -   It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
+            -   hybrid_cutoff_temp_low must be higher than zero
         """
         if current_temp >= hybrid_cutoff_temp_high:
             fraction_high_temp_tech = 1.0
+            return fraction_high_temp_tech
         elif current_temp < hybrid_cutoff_temp_low:
             fraction_high_temp_tech = 0.0
+            return fraction_high_temp_tech
         else:
-            if hybrid_cutoff_temp_low < 0:
-                temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
-                temp_diff_current_temp = current_temp + abs(hybrid_cutoff_temp_low)
-            else:
-                temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-                temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
+            #if hybrid_cutoff_temp_low < 0:
+            #    temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
+            #    temp_diff_current_temp = current_temp + abs(hybrid_cutoff_temp_low)
+            #else:
+                #temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
+                #temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
 
             # Calculate service share of high temp technology
-            fraction_high_temp_tech = np.divide(1.0, temp_diff) * temp_diff_current_temp
+            #temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
+            #temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
+            #fraction_high_temp_tech = np.divide(1.0, temp_diff) * temp_diff_current_temp
 
-        return fraction_high_temp_tech
+            # FAST Version
+            #fraction_high_temp_tech = np.divide(1.0, (hybrid_service_temp_range)) * (current_temp - hybrid_cutoff_temp_low)
+            fraction_high_temp_tech = fast_factor * (current_temp - hybrid_cutoff_temp_low)
+            #fraction_high_temp_tech = fast_factor * (current_temp - hybrid_cutoff_temp_low)
+            return fraction_high_temp_tech

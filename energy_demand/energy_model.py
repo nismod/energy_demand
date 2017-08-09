@@ -115,8 +115,8 @@ class EnergyModel(object):
 
         for sector_model in sector_models:
             for region_submodel in sector_model:
-                    if region_submodel.region_name == region_name:
-                        region_fuel_yh += getattr(region_submodel.enduse_object, 'enduse_fuel_yh')
+                if region_submodel.region_name == region_name:
+                    region_fuel_yh += getattr(region_submodel.enduse_object, 'enduse_fuel_yh')
 
         return region_fuel_yh
 

@@ -31,7 +31,7 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes):
 
         # print
     # plot
-    prnt(".")
+    #prnt(".")
 
 
     pass

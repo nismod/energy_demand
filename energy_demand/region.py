@@ -468,7 +468,10 @@ class Region(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        list_dates = date_handling.fullyear_dates(start=date(data['base_sim_param']['base_yr'], 1, 1), end=date(data['base_sim_param']['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(
+            start=date(data['base_sim_param']['base_yr'], 1, 1),
+            end=date(data['base_sim_param']['base_yr'], 12, 31)
+            )
 
         for day, date_gasday in enumerate(list_dates):
 
@@ -487,9 +490,14 @@ class Region(object):
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = np.divide(rs_hdd_cy[day], average_eff_d)
 
-            fuel_shape_d = hp_daily_fuel * daily_fuel_profile # Fuel distribution within day
-            shape_yh_hp[day] = fuel_shape_d  # Distribute fuel of day according to fuel load curve
-            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d) # Add normalised daily fuel curve
+            # Fuel distribution within day
+            fuel_shape_d = hp_daily_fuel * daily_fuel_profile
+
+            # Distribute fuel of day according to fuel load curve
+            shape_yh_hp[day] = fuel_shape_d
+
+            # Add normalised daily fuel curve
+            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp
@@ -557,16 +565,21 @@ class Region(object):
             Shape of distribution of fuel within every day of a year (total sum == 365)
         """
         shape_yh_generic_tech = np.zeros((365, 24))
-        shape_y_dh_generic_tech = np.zeros((365, 24))
+        #shape_y_dh_generic_tech = np.zeros((365, 24))
+
+        #shape_y_dh_generic_tech = np.ones((365, 24))
 
         if enduse not in data['ss_all_tech_shapes_dh']:
             pass
         else:
             shape_non_peak_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_dh']
 
-            for day in range(365):
-                shape_yh_generic_tech[day] = heating_shape[day] * shape_non_peak_dh[day]
-                shape_y_dh_generic_tech[day] = shape_non_peak_dh[day]
+            #for day in range(365): #SPEED
+            #    shape_yh_generic_tech[day] = heating_shape[day] * shape_non_peak_dh[day]
+            #    shape_y_dh_generic_tech[day] = shape_non_peak_dh[day]
+
+            shape_yh_generic_tech = heating_shape[:, None] * shape_non_peak_dh #Multiplyacross row (365, ) with (365,24)
+            shape_y_dh_generic_tech = shape_non_peak_dh
 
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 

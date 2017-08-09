@@ -27,8 +27,7 @@ def generic_flat_shape(shape_peak_yd_factor):
     # linear shape_non_peak_dh
     shape_non_peak_dh = np.zeros((365, 24))
 
-    for i in range(365):
-        shape_non_peak_dh[i] = np.ones((24)) / 24
+    shape_non_peak_dh = np.full((365,24), (1.0 / 24)) #Flat shape, ever hour same amount
 
     # linear shape_non_peak_yd
     shape_non_peak_yd = np.ones((365)) / 365

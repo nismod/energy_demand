@@ -47,6 +47,7 @@ The docs can be found here: http://ed.readthedocs.io
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 #!python3.6
+import time
 import os
 import sys
 import numpy as np
@@ -65,7 +66,6 @@ from energy_demand.scripts_data import read_data
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_validation import lad_validation
-
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
@@ -118,7 +118,7 @@ def energy_demand_model(data):
     result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
 
     # --- Write to csv and YAML
-    write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
+    ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
     # -----------------------------------------
     # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
@@ -375,12 +375,12 @@ if __name__ == "__main__":
         ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
 
         from pyinstrument import Profiler
-        #profiler = Profiler() 
+        #profiler = Profiler()
         profiler = Profiler(use_signal=False)
         profiler.start()
 
         #-------------PROFILER
-        import time
+        
         start_MAIN = time.time()
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
@@ -430,12 +430,12 @@ if __name__ == "__main__":
 
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
-        '''elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
+        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
-
+        '''
         print("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
 
