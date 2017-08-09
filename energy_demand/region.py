@@ -531,8 +531,9 @@ class Region(object):
         """
         shape_yd_cooling_tech = np.zeros((365, 24))
 
-        for day in range(365):
-            shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
+        #for day in range(365): SPEED
+        #    shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
+        shape_yd_cooling_tech = np.outer(cooling_shape, data[tech_to_get_shape]) #((365,) * (24,)) Daily cooling demand & same daily shape
 
         return shape_yd_cooling_tech
 

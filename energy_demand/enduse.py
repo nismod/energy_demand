@@ -668,7 +668,7 @@ class Enduse(object):
             peak_day_nr = self.get_peak_fuel_day(self.enduse_fuel_yh)
             #print("FUEL PEAK DAY 2: " + str(fuel_tech_peak_d))
 
-            # If shape is read directly from yh (e.g. hybrid technology, service cooling and ventilation)
+            # If shape is read directly from yh (e.g. hybrid technology, service cooling and ventilation) TODO
             if tech in assumptions['technology_list']['tech_heating_hybrid'] or tech in assumptions['list_tech_cooling_ventilation']: #assumptions['list_tech_cooling']:
 
                 # Calculate fuel for peak day
@@ -701,7 +701,7 @@ class Enduse(object):
                 control_sum += (fuel_tech_peak_dh * fueltype_distr_yh[peak_day_nr])
 
             # Testing
-            np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
+            #np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
             np.testing.assert_almost_equal(np.sum(tech_peak_dh), 1, decimal=3, err_msg='Error XY')
             np.testing.assert_almost_equal(np.sum(control_sum), np.sum(fuel_tech_peak_dh), decimal=3, err_msg='Error XY')
 
@@ -1241,8 +1241,12 @@ class genericFlatEnduse(object):
         # Yh fuel shape per fueltype (non-peak)
         self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
         for fueltype in range(len(enduse_fuel)):
-            for day in range(365):
-                self.enduse_fuel_yh[fueltype][day] = (shape_non_peak_yd[day] * shape_non_peak_dh[day]) * self.enduse_fuel_y[fueltype]
+            #for day in range(365): SPEED
+            #    self.enduse_fuel_yh[fueltype][day] = (shape_non_peak_yd[day] * shape_non_peak_dh[day]) * self.enduse_fuel_y[fueltype]
+            print(shape_non_peak_yd.shape)
+            print(shape_non_peak_dh.shape)
+            print(self.enduse_fuel_y[fueltype].shape)
+            self.enduse_fuel_yh[fueltype] = (shape_non_peak_yd * shape_non_peak_dh) * self.enduse_fuel_y[fueltype]
 
         # Dh fuel shape per fueltype (peak)
         self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))

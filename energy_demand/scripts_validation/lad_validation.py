@@ -2,7 +2,7 @@
 """
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import numpy as np
-def compare_lad_regions(lad_infos_shapefile, model_run_object):
+def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes):
     """Compare gas/elec demand for LADs
 
     Parameters
@@ -23,7 +23,9 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object):
         for reg_csv_geocode in lad_infos_shapefile:
             if reg_csv_geocode == reg_object.region_name:
                 result_dict[reg_object.region_name]['ECUK_electricity_demand'] = lad_infos_shapefile[reg_csv_geocode]['elec_ns_15']
-                result_dict[reg_object.region_name]['modelled_electricity_demand'] = np.sum(model_run_object.get_regional_yh(reg_csv_geocode)) #Yearly value
+                result_dict[reg_object.region_name]['modelled_electricity_demand'] = np.sum(model_run_object.get_regional_yh(
+                    nr_of_fueltypes,
+                    reg_csv_geocode)) #Yearly value
                 #TODO:result_dict[region_name]['ECUK_gas_demand'] = lad_infos_shapefile[reg_csv_geocode]['elec_ns_15']
                 continue
 

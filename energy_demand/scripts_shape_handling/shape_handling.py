@@ -73,11 +73,14 @@ class LoadProfileStock(object):
         """
         function_run_crit = False
         for load_profile_obj in self.load_profile_list:
+
             if (technology in load_profile_obj.technologies
                     and enduse in load_profile_obj.enduses
                     and sector in load_profile_obj.sectors):
                 attr_to_get = getattr(load_profile_obj, shape)
                 function_run_crit = True
+    
+                return attr_to_get
 
         if function_run_crit:
             return attr_to_get
@@ -87,6 +90,7 @@ class LoadProfileStock(object):
                 sector,
                 technology,
                 shape))
+
 
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
@@ -99,9 +103,9 @@ class LoadProfileStock(object):
 
                 # Test if dummy sector and thus shape_peak not provided for different sectors
                 if sector == 'dummy_sector':
-                    shape_peak_dh = getattr(load_profile_obj, 'shape_peak_dh')
+                    shape_peak_dh = load_profile_obj.shape_peak_dh #shape_peak_dh
                 else:
-                    attr_all_sectors = getattr(load_profile_obj, 'shape_peak_dh')
+                    attr_all_sectors = load_profile_obj.shape_peak_dh #shape_peak_dh
                     shape_peak_dh = attr_all_sectors[sector][enduse]['shape_peak_dh']
 
                 return shape_peak_dh

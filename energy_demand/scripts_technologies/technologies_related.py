@@ -2,7 +2,6 @@
 """
 import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
-from numpy import vectorize
 
 def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
     """Take share of fueltypes for every yh and calculate the mean share of every day
@@ -67,39 +66,11 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
 
-    # TRIAL TO MAKE FASTER
-    '''def calc_eff_hp(temp_h, t_base_heating, efficiency_intersect):
+    # Calculate temperature difference to t_base_heating
+    temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
 
-        if t_base_heating < temp_h:
-            h_diff = 0
-        else:
-            if temp_h < 0: #below zero temp
-                h_diff = t_base_heating + abs(temp_h)
-            else:
-                h_diff = abs(t_base_heating - temp_h)
-
-        efficiency = eff_heat_pump(h_diff, efficiency_intersect)
-        return efficiency
-
-    vectorize_calc_eff_hp = vectorize(calc_eff_hp)
-    eff_hp_yh = vectorize_calc_eff_hp(temp_yr, t_base_heating, efficiency_intersect)
-    '''
-    eff_hp_yh = np.zeros((365, 24))
-
-    for day, temp_day in enumerate(temp_yr):
-        for hour, temp_h in enumerate(temp_day):
-
-            if t_base_heating < temp_h:
-                h_diff = 0
-            else:
-                if temp_h < 0: #below zero temp
-                    h_diff = t_base_heating + abs(temp_h)
-                else:
-                    h_diff = abs(t_base_heating - temp_h)
-
-            eff_hp_yh[day][hour] = eff_heat_pump(h_diff, efficiency_intersect)
-
-            #assert eff_hp_yh[day][hour] > 0
+    # Calculate efficiency
+    eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
 
     return eff_hp_yh
 
@@ -133,8 +104,11 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     #var_c = efficiency_intersect - (m_slope * h_diff)
     #efficiency_hp = m_slope * temp_diff + var_c
 
+    #SLOW
     efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
-    #efficiency_hp = 0.08 * temp_diff + (efficiency_intersect - (-0.8))
+
+    #FAST
+    #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
     return efficiency_hp
 
 def const_eff_yh(input_eff):

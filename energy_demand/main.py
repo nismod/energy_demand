@@ -426,7 +426,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
 
         lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
-        lad_validation.compare_lad_regions(lad_infos_shapefile, model_run_object)
+        lad_validation.compare_lad_regions(lad_infos_shapefile, model_run_object, base_data['nr_of_fueltypes'])
 
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)

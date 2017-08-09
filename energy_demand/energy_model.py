@@ -100,7 +100,7 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
-    def get_regional_yh(self, region_name):
+    def get_regional_yh(self, nr_of_fueltypes, region_name):
         """Get fuel for all fueltype for yh for specific region (all submodels)
 
         Parameters
@@ -110,14 +110,14 @@ class EnergyModel(object):
         attributes : str
             Attributes to read out
         """
-        region_fuel_yh = np.zeros((data['nr_of_fueltypes'], 365, 24))
+        region_fuel_yh = np.zeros((nr_of_fueltypes, 365, 24))
         sector_models = [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel]
 
         for sector_model in sector_models:
-            for submodel_list in sector_model:
-                for region_submodel in submodel_list:
+            for region_submodel in sector_model:
                     if region_submodel.region_name == region_name:
-                        region_fuel_yh += getattr(region_submodel, 'enduse_fuel_yh')
+                        region_fuel_yh += getattr(region_submodel.enduse_object, 'enduse_fuel_yh')
+
         return region_fuel_yh
 
     def get_fuel_region_all_models_yh(self, data, region_name_to_get, sector_models, attribute_to_get):
