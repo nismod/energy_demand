@@ -214,6 +214,7 @@ def absolute_to_relative(absolute_array):
     """
     try:
         relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
+        #relative_array = (1 / np.sum(absolute_array)) * absolute_array #NEW
     except ZeroDivisionError:
         relative_array = absolute_array # If the total sum is zero, return same array
 
