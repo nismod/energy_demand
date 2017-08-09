@@ -38,7 +38,7 @@
 # -fitting scipy
 # -speed with many regions
 
-Down the line
+Down th5e line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - "scenario teller": istead of diffusion path, type in known path
 
