@@ -25,7 +25,6 @@ def get_dates_week_nr(year, week_nr):
     if year is a leap year, funciton may not work properly
     """
     list_days = []
-
     monday_in_week = Week(year, week_nr).monday()
 
     for day in range(1, 8):
@@ -66,19 +65,19 @@ def convert_yearday_to_date(year, yearday_python):
     yearday_python : int
         Yearday - 1
     """
-    date_first_jan = date(year, 1, 1)
-    date_new = date_first_jan + timedelta(yearday_python)
+    # First day in year (first jan)
+    date_new = date(year, 1, 1) + timedelta(yearday_python)
 
     return date_new
 
-def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
+def get_weekday_type(date_to_test, bank_holidays="not_globally_defined"):
     """Gets the weekday of a date
     TESTED_PYTEST
 
     Also bank holidays for the base year are defined (including whole week of christmas)
     Parameters
     ----------
-    date_from_yearday : date
+    date_to_test : date
         Date of a day in ayear
 
     Returns
@@ -99,8 +98,8 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
         tm_yday
         tm_isdst
     """
-    weekday = date_from_yearday.timetuple().tm_wday
-    year = date_from_yearday.timetuple().tm_year
+    weekday = date_to_test.timetuple().tm_wday
+    year = date_to_test.timetuple().tm_year
 
     if bank_holidays == 'not_globally_defined':
         if year == 2015:
@@ -313,10 +312,10 @@ def get_weekday_type(date_from_yearday, bank_holidays="not_globally_defined"):
         else:
             bank_holidays = []
 
-    if date_from_yearday in bank_holidays:
+    if weekday == 5 or weekday == 6:
         return 'holiday'
     else:
-        if weekday == 5 or weekday == 6:
+        if date_to_test in bank_holidays:
             return 'holiday'
         else:
             return 'working_day'

@@ -1,6 +1,7 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 from datetime import date
+import uuid
 import numpy as np
 import energy_demand.technological_stock as ts
 from energy_demand.scripts_basic import date_handling
@@ -8,7 +9,6 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_geography import weather_station_location as wl
 from energy_demand.scripts_initalisations import helper_functions
-import uuid
 
 class Region(object):
     """Region class
@@ -37,7 +37,6 @@ class Region(object):
         self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][region_name]
         self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][region_name]
         self.ts_fuels = data['ts_fueldata_disagg'][region_name]
-        #self.ag_fuels = data['ag_fueldata_disagg'][region_name]
 
         # Get closest weather station and temperatures
         closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
@@ -64,7 +63,6 @@ class Region(object):
         # Residential
         rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by)
         rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by)
-        #print("NUMBER OF HDD REGION  {}   {} ".format(np.sum(rs_hdd_by), self.region_name))
         rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
         rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy)
 
@@ -144,7 +142,7 @@ class Region(object):
 
         # Heating boiler
         self.rs_load_profiles.add_load_profile(
-            unique_identifier=uuid.uuid4(), #"rs_UI_heating_boiler" 
+            unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['tech_heating_const'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             sectors=data['rs_sectors'],
@@ -420,9 +418,12 @@ class Region(object):
             tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p')
             )
 
-        # Calculate yh fuel shape
-        for day, fuel_day in enumerate(fuel_shape_heating_yd):
-            fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * fuel_day
+        # Calculate yh fuel shape #SLOW
+        #for day, fuel_day in enumerate(fuel_shape_heating_yd):
+        #    fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * fuel_day
+
+        #SPEED
+        fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
 
         # Testing
         ## TESTINGnp.testing.assert_almost_equal(np.sum(fuel_shape_yh), 1, decimal=3, err_msg="ERROR XY: The hybridy yh shape does not sum up to 1.0")
@@ -488,23 +489,22 @@ class Region(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        list_dates = date_handling.fullyear_dates(
-            start=date(data['base_sim_param']['base_yr'], 1, 1),
-            end=date(data['base_sim_param']['base_yr'], 12, 31)
-            )
+        daily_fuel_profile_holiday = np.divide(data[tech_to_get_shape]['holiday'], np.sum(data[tech_to_get_shape]['holiday']))
+        daily_fuel_profile_workday = np.divide(data[tech_to_get_shape]['workday'], np.sum(data[tech_to_get_shape]['workday']))
 
-        for day, date_gasday in enumerate(list_dates):
+        tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
+
+        for day, date_gasday in enumerate(data['base_sim_param']['list_dates']):
 
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
             if date_handling.get_weekday_type(date_gasday) == 'holiday':
-                daily_fuel_profile = np.divide(data[tech_to_get_shape]['holiday'], np.sum(data[tech_to_get_shape]['holiday'])) # WkendHourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = daily_fuel_profile_holiday
             else:
-                daily_fuel_profile = np.divide(data[tech_to_get_shape]['workday'], np.sum(data[tech_to_get_shape]['workday'])) # Wkday Hourly gas shape. Robert Sansom hp curve
+                daily_fuel_profile = daily_fuel_profile_workday
 
             # Calculate weighted average daily efficiency of heat pump
             average_eff_d = 0
             for hour, heat_share_h in enumerate(daily_fuel_profile):
-                tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
                 average_eff_d += heat_share_h * tech_eff[day][hour] # Hourly heat demand * heat pump efficiency
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
@@ -517,7 +517,7 @@ class Region(object):
             shape_yh_hp[day] = fuel_shape_d
 
             # Add normalised daily fuel curve
-            shape_y_dh[day] = shape_handling.absolute_to_relative(fuel_shape_d)
+            shape_y_dh[day] = shape_handling.absolute_to_relative_without_nan(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp
@@ -637,7 +637,10 @@ class Region(object):
         shape_boilers_yh = np.zeros((365, 24))
         shape_boilers_y_dh = np.zeros((365, 24))
 
-        list_dates = date_handling.fullyear_dates(start=date(data['base_sim_param']['base_yr'], 1, 1), end=date(data['base_sim_param']['base_yr'], 12, 31))
+        list_dates = date_handling.fullyear_dates(
+            start=date(data['base_sim_param']['base_yr'], 1, 1),
+            end=date(data['base_sim_param']['base_yr'], 12, 31)
+            )
 
         for day, date_gasday in enumerate(list_dates):
 

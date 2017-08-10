@@ -21,11 +21,12 @@ def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
     distance : float
         Distance
     """
-    from_pnt = (long_from, lat_from)
-    to_pnt = (long_to, lat_to)
-    distance = haversine(from_pnt, to_pnt, miles=False)
+    distance_in_km = haversine(
+        (long_from, lat_from), #Fromt point
+        (long_to, lat_to), # To point
+        miles=False)
 
-    return distance
+    return distance_in_km
 
 def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     """Search ID of closest weater station
@@ -43,11 +44,14 @@ def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     ------
     closest_id : int
         ID of closest weather station
+
+    Note
+    -----
+    - not faster by implementing min(dictwithdist, key=dictwithdist.get)
     """
     closest_dist = 99999999999
 
     for station_id in weather_stations:
-
         dist_to_station = calc_distance_two_points(
             longitude_reg,
             latitue_reg,
@@ -56,7 +60,6 @@ def get_closest_station(longitude_reg, latitue_reg, weather_stations):
         )
 
         if dist_to_station < closest_dist:
-            closest_dist = dist_to_station
-            closest_id = station_id
+            closest_dist, closest_id = dist_to_station, station_id
 
     return closest_id

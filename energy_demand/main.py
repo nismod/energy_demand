@@ -47,10 +47,11 @@ The docs can be found here: http://ed.readthedocs.io
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 #!python3.6
-import time
 import os
 import sys
+from datetime import date
 import numpy as np
+import time
 import energy_demand.energy_model as energy_model
 from energy_demand.scripts_plotting import plotting_results
 import energy_demand.assumptions as assumpt
@@ -67,6 +68,8 @@ from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_validation import lad_validation
 print("Start Energy Demand Model with python version: " + str(sys.version))
+from memory_profiler import profile
+#@profile
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -225,6 +228,7 @@ if __name__ == "__main__":
     data_external['base_sim_param']['base_yr'] = base_yr
     data_external['base_sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['base_sim_param']['curr_yr'] = 2015
+    data_external['base_sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     data_external['fastcalculationcrit'] = True
     # ------------------- DUMMY END
@@ -375,12 +379,11 @@ if __name__ == "__main__":
         ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
 
         from pyinstrument import Profiler
-        #profiler = Profiler()
         profiler = Profiler(use_signal=False)
         profiler.start()
 
         #-------------PROFILER
-        
+
         #--------------MEMPROF
 
 
@@ -390,8 +393,9 @@ if __name__ == "__main__":
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
+
         results, model_run_object = energy_demand_model(base_data)
-        
+
         print("TIME MAIN CRIT: {}".format(time.time() - start_MAIN))
 
         profiler.stop()

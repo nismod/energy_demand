@@ -89,10 +89,6 @@ def testing_switch_criteria(crit_switch_fuel, crit_switch_service, enduse):
     if crit_switch_fuel and crit_switch_service:
         sys.exit("Error: Can't define service switch and fuel switch for enduse '{}' {}   {}".format(enduse, crit_switch_fuel, crit_switch_service))
 
-    return
-
-
-
 def test_function_fuel_sum(data):
     """ Sum raw disaggregated fuel data
     """

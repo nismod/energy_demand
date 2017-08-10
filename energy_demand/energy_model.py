@@ -34,6 +34,7 @@ class EnergyModel(object):
         # Create object for every region and add into list
         self.regions = self.create_regions(region_names, data)
 
+
         # --------------------
         # Residential SubModel
         # --------------------
@@ -272,6 +273,11 @@ class EnergyModel(object):
 
             # Add region to list
             regions.append(region_object)
+
+        # -------------
+        # Memory-cleaner for a single region calculation
+        # -------------
+        #del data['temperature_data']
 
         return regions
 

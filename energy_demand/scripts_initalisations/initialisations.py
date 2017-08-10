@@ -1,5 +1,6 @@
 """Helper initialising functions
 """
+#pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 def init_dict_zero(first_level_keys):
     """Initialise a  dictionary with one level
 
@@ -27,14 +28,8 @@ def init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
     """
     service_fueltype_tech_by_p = {}
     for fueltype_int in fueltypes_lu.values():
-        service_fueltype_tech_by_p[fueltype_int] = {}
+        #service_fueltype_tech_by_p[fueltype_int] = {}
         service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_enduse_tech_p_by[fueltype_int].keys(), 0)
-    '''service_fueltype_tech_by_p = {}
-    for fueltype_int in fueltypes_lu.values():
-        service_fueltype_tech_by_p[fueltype_int] = {}
-        for tech in fuel_enduse_tech_p_by[fueltype_int]:
-            service_fueltype_tech_by_p[fueltype_int][tech] = 0
-    '''
 
     return service_fueltype_tech_by_p
 

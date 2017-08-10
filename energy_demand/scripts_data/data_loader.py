@@ -130,7 +130,7 @@ def load_data(path_main, data):
     # -----------------------------
     #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
     data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
-    for region_name in data['input_regions']: # data['population'][data['base_sim_param']['base_yr']]:
+    for region_name in data['input_regions']:
         data['lu_reg'][region_name] = region_name
 
     #TODO: FLOOR_AREA_LOOKUP:

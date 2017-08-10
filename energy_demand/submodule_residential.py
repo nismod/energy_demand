@@ -1,6 +1,7 @@
 """Residential Submodel
 """
 import energy_demand.enduse as endusefunctions
+from memory_profiler import profile
 
 class ResidentialModel(object):
     """Residential Submodel

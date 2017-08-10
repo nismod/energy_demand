@@ -2,10 +2,6 @@
 import numpy as np
 from energy_demand.scripts_technologies import technologies_related
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
-import time
-
-from numpy import vectorize
-
 
 class TechStock(object):
     """Class of a technological stock of a year of the residential model
@@ -65,7 +61,6 @@ class TechStock(object):
                         )
                 else:
                     tech_object = Technology(
-                        enduse,
                         technology_name,
                         data,
                         temp_by,
@@ -127,7 +122,7 @@ class Technology(object):
 
     Only the yd shapes are provided on a technology level and not dh shapes
     """
-    def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
+    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
         """Contructor of Technology
 
         Parameters
@@ -139,11 +134,6 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
-        start = time.time()
-        #print("TIME STARTECH {}".format(tech_name))
-        #print("TIME A: {}".format(time.time() - start))
-
-        self.enduse = enduse
         self.tech_name = tech_name
         self.tech_type = tech_type
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
@@ -230,6 +220,7 @@ class Technology(object):
         # Insert for the single fueltype for every hour the share to 1.0
         fueltypes_yh[fueltype] = 1.0
 
+        #FASTER?
         return fueltypes_yh
 
 class HybridTechnology(object):
@@ -357,12 +348,18 @@ class HybridTechnology(object):
         #service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
         #service_high_tech_p_FAST[(temp_cy >= hybrid_cutoff_temp_low) & (temp_cy <= hybrid_cutoff_temp_high)] = temp_diff_cutoff_temp
 
+        # FAST
+        service_high_tech_p_FAST = fast_factor * (temp_cy - hybrid_cutoff_temp_low)
+        service_high_tech_p_FAST[temp_cy > hybrid_cutoff_temp_high] = 1.0
+        service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
 
         #SLOW----------
+        '''
+        from numpy import vectorize
         fast_funct = vectorize(self.get_fraction_service_high_temp) # SPEED
         service_high_tech_p_FAST = fast_funct(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor)
         #service_high_tech_p = self.get_fraction_service_high_temp(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
-
+        '''
         tech_low_high_p['low'] = 1 - service_high_tech_p_FAST
         tech_low_high_p['high'] = service_high_tech_p_FAST
 
@@ -422,8 +419,6 @@ class HybridTechnology(object):
 
             -   Fueltypes of both technologies must be different
         """
-        fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
-
         # Calculate hybrid efficiency
         hybrid_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
 
@@ -434,6 +429,7 @@ class HybridTechnology(object):
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
+        fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
         _var = np.divide(1.0, tot_fuel_h)
         fueltypes_yh[fueltype_low_temp] = _var * fuel_low_h
         fueltypes_yh[fueltype_high_temp] = _var * fuel_high_h
@@ -442,7 +438,7 @@ class HybridTechnology(object):
 
         return fueltypes_yh
 
-    @classmethod
+    '''@classmethod
     def get_fraction_service_high_temp(cls, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor):
         """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
 
@@ -488,5 +484,6 @@ class HybridTechnology(object):
             # FAST Version
             #fraction_high_temp_tech = np.divide(1.0, (hybrid_service_temp_range)) * (current_temp - hybrid_cutoff_temp_low)
             fraction_high_temp_tech = fast_factor * (current_temp - hybrid_cutoff_temp_low)
-            #fraction_high_temp_tech = fast_factor * (current_temp - hybrid_cutoff_temp_low)
+
             return fraction_high_temp_tech
+        '''

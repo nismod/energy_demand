@@ -197,6 +197,12 @@ class LoadProfile(object):
         self.shape_peak_dh = shape_peak_dh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
+def absolute_to_relative_without_nan(absolute_array):
+    try:
+        return (1 / np.sum(absolute_array)) * absolute_array
+    except ZeroDivisionError:
+        return absolute_array # If the total sum is zero, return same array
+
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative
 
@@ -219,6 +225,19 @@ def absolute_to_relative(absolute_array):
         relative_array = absolute_array # If the total sum is zero, return same array
 
     return relative_array
+
+def calk_peak_h_dh(enduse_fuel_peak_dh):
+    """Iterate peak day fuels and select peak hour
+    SPEDO
+    Return
+    ------
+    peak_fueltype_h : array
+        Fuel for maximum hour in peak day per fueltype
+    """
+    # Get maximum value per row (maximum fuel hour per fueltype)
+    peak_fueltype_h = np.max(enduse_fuel_peak_dh, axis=1)
+
+    return peak_fueltype_h
 
 def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
     """Convert yd shape and shape for every day (y_dh) into yh
@@ -307,8 +326,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
 
     # Absolute to relative for every row
-    fuel_shapes_hybrid_y_dh = np.apply_along_axis(absolute_to_relative, 1, _var) 
-
+    fuel_shapes_hybrid_y_dh = np.apply_along_axis(absolute_to_relative, 1, _var) #absolute_to_relative_without_nan not possible
     '''plt.plot(fuel_shapes_hybrid_y_dh[1])
     plt.show()
     '''

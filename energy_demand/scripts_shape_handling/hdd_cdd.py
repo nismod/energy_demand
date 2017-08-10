@@ -104,14 +104,14 @@ def get_hdd_country(regions, data, t_base_type):
         latitude = data['reg_coordinates'][region_name]['latitude']
 
         # Get closest weather station and temperatures
-        closest_weatherstation_id = weather_station.get_closest_station(
+        closest_station_id = weather_station.get_closest_station(
             longitude,
             latitude,
             data['weather_stations']
             )
 
         # Temp data
-        temperatures = data['temperature_data'][closest_weatherstation_id][data['base_sim_param']['base_yr']]
+        temperatures = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_t_base(
