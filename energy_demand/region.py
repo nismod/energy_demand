@@ -409,8 +409,6 @@ class Region(object):
 
         The shapes are the same for any hybrid technology with boiler and heat pump
         """
-        fuel_shape_yh = np.zeros((365, 24))
-
         # Create dh shapes for every day from relative dh shape of hybrid technologies
         fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
