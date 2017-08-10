@@ -666,6 +666,7 @@ def load_LAC_geocodes_info():
 
     Read csv file and create dictionary with 'geo_code'
 
+    PROVIDED IN UNIT?? (KWH I guess)
     Info
     -----
     - no LAD without population must be included

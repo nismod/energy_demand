@@ -219,6 +219,10 @@ def absolute_to_relative(absolute_array):
         Contains relative numbers
     """
     try:
+        if np.sum(absolute_array) == 0:
+            print("WHATS IS DASY")
+            prnt(".")
+
         relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
         #relative_array = (1 / np.sum(absolute_array)) * absolute_array #NEW
     except ZeroDivisionError:

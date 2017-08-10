@@ -255,7 +255,7 @@ def scrap_rs_disaggregate(data, rs_national_fuel):
     for region_name in data['lu_reg']:
         reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name] # Regional popluation
         tot_hdd_popreg += reg_pop * rs_hdd_individ_region[region_name]
-
+    
     # Iterate regions
     for region_name in data['lu_reg']:
         # Regional popluation
@@ -263,12 +263,12 @@ def scrap_rs_disaggregate(data, rs_national_fuel):
 
         # Total population
         total_pop = sum(data['population'][data['base_sim_param']['base_yr']].values())
-        
+
         # HDD of region
         hdd_reg = rs_hdd_individ_region[region_name]
 
         # Disaggregate fuel depending on end_use
-        inter_dict = {} 
+        inter_dict = {}
         for enduse in rs_national_fuel: #TODO: Improve specific disaggregation depending on enduse
 
             if enduse == 're_space_heating':
@@ -289,5 +289,7 @@ def scrap_rs_disaggregate(data, rs_national_fuel):
             inter_dict[enduse] = rs_national_fuel[enduse] * reg_diasg_factor
 
         rs_fueldata_disagg[region_name] = inter_dict
-
+    
+    # TEST IF DISAGGREGATION WORKED
+    #np.sum(rs_national_fuel.values())
     return rs_fueldata_disagg

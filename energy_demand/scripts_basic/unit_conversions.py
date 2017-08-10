@@ -2,6 +2,13 @@
 """
 import numpy as np
 
+def convert_kwh_gwh(kwh):
+    """"Conversion of MW to GWh TODO: CHECK
+    """
+    gwh = kwh * 0.000001
+
+    return gwh
+
 def convert_mw_gwh(megawatt, number_of_hours):
     """"Conversion of MW to GWh
     """

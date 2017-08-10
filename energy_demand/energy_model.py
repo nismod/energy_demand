@@ -111,13 +111,15 @@ class EnergyModel(object):
         attributes : str
             Attributes to read out
         """
-        region_fuel_yh = np.zeros((nr_of_fueltypes, 365, 24))
-        sector_models = [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel]
-
-        for sector_model in sector_models:
-            for region_submodel in sector_model:
-                if region_submodel.region_name == region_name:
-                    region_fuel_yh += getattr(region_submodel.enduse_object, 'enduse_fuel_yh')
+        #Get fuel of region
+        region_fuel_yh = self.sum_specific_region(
+            region_name, #input region
+            'enduse_fuel_yh',
+            nr_of_fueltypes,
+            [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
+            'no_sum',
+            'non_peak'
+            )
 
         return region_fuel_yh
 
@@ -332,6 +334,36 @@ class EnergyModel(object):
         for sector_model in sector_models:
             for model_object in sector_model:
                 fuels += getattr(model_object.enduse_object, attribute_to_get)
+
+        if crit == 'no_sum':
+            fuels = fuels
+        if crit == 'sum':
+            fuels = np.sum(fuels)
+
+        return fuels
+
+    def sum_specific_region(self, region, attribute_to_get, nr_of_fueltypes, sector_models, crit, crit2):
+        """Collect hourly data from all regions and sum across all fuel types and enduses
+
+        Parameters
+        ----------
+        attribute_to_get :
+        data
+
+        Returns
+        -------
+        """
+        if crit2 == 'peak_h':
+            fuels = np.zeros((nr_of_fueltypes, ))
+        if crit2 == 'non_peak':
+            fuels = np.zeros((nr_of_fueltypes, 365, 24))
+        if crit2 == 'peak_dh':
+            fuels = np.zeros((nr_of_fueltypes, 24))
+
+        for sector_model in sector_models:
+            for model_object in sector_model:
+                if model_object.region_name == region:
+                    fuels += getattr(model_object.enduse_object, attribute_to_get)
 
         if crit == 'no_sum':
             fuels = fuels
