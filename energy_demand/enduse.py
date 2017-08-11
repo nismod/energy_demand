@@ -304,7 +304,7 @@ class Enduse(object):
                 service_tech_yh_cy = self.enduse_fuel_new_y[fueltype] * fuel_share * tech_load_profile * tech_eff
 
                 service_tech_cy[tech] += service_tech_yh_cy
-                # Fuel for each technology, calculated based on defined fuel fraction within fueltype for by 
+                # Fuel for each technology, calculated based on defined fuel fraction within fueltype for by
                 # (assumed national share of fuel of technology * tot fuel)
                 service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech_yh_cy)
 
@@ -687,7 +687,7 @@ class Enduse(object):
 
             # Shape of fuel of technology for every hour in year
             load_profile_yh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
-            
+
             # Get distribution per fueltype
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
@@ -884,12 +884,12 @@ class Enduse(object):
 
             fueltype_share_yh_all_h = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
-            fast_var = (1.0 / np.sum(fueltype_share_yh_all_h))
-            fast_var2 = np.sum(fuel_tech)
+            _var = (1.0 / np.sum(fueltype_share_yh_all_h))
+            _var2 = np.sum(fuel_tech)
 
             for fueltype, fuel_share in enumerate(fueltype_share_yh_all_h):
-                share_of_fuel = fast_var * fuel_share 
-                fuel_fueltype = share_of_fuel * fast_var2
+                share_of_fuel = _var * fuel_share
+                fuel_fueltype = share_of_fuel * _var2
 
                 ##print("-- service to fuel: {} service:  {} fuel_tech: {} fueltyp: {}  fuel_fueltype: {}".format(tech, np.sum(service), np.sum(fuel_tech), fueltype, np.sum(fuel_fueltype)))
                 enduse_fuels[fueltype] += fuel_fueltype # Share of fuel of fueltype_hybrid * fuel
