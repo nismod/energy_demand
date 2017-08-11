@@ -142,6 +142,14 @@ class Technology(object):
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
 
+        '''#BIGIDEAO
+        if tech_type == 'heat_pump':
+            self.HOURLY_DEP_EFF = True
+        else:
+            self.HOURLY_DEP_EFF = False
+        '''
+
+
         #print("TIME B: {}".format(time.time() - start))
 
         # Shares of fueltype for every hour for single fueltype

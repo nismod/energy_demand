@@ -42,6 +42,10 @@ Down th5e line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - "scenario teller": istead of diffusion path, type in known path
 
+IDEA FOR Improvement
+- tech: define if hourly_eff or not
+
+
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
