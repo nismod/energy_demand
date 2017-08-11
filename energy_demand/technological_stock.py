@@ -316,10 +316,7 @@ class HybridTechnology(object):
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(
-            data['nr_of_fueltypes'],
-            self.tech_low_temp_fueltype,
-            self.tech_high_temp_fueltype)
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['nr_of_fueltypes'], self.tech_low_temp_fueltype, self.tech_high_temp_fueltype)
 
         self.fueltype_share_yh_all_h = self.calc_fueltype_share_yh_all_h() #NEW
 

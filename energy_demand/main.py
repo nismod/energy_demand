@@ -427,7 +427,7 @@ if __name__ == "__main__":
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
         #GET SPECIFIC REGION
-        
+        #'''
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
@@ -461,7 +461,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-
+        #'''
     # ------------------------------
     # Plotting
     # ------------------------------

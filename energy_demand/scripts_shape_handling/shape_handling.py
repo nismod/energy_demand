@@ -193,7 +193,8 @@ class LoadProfile(object):
 
         # Multiply (365,) + with (365, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
-        shape_y_dh = np.nan_to_num(shape_y_dh) # Replace nan by zero
+
+        shape_y_dh[np.isnan(shape_y_dh)] = 0 # Faster than np.nan_to_num
 
         return shape_y_dh
 

@@ -51,7 +51,6 @@ class Enduse(object):
         #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
-        #self.enduse_fuel_y = enduse_fuel
 
         # Copy fuel in new fuel output
         self.enduse_fuel_new_y = np.copy(enduse_fuel) #TEST copy.deepcopy(enduse_fuel), basic_functions.mimick_deepcopy(enduse_fuel)
@@ -777,16 +776,20 @@ class Enduse(object):
             #load_profile_dh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yd')
             load_profile_yh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
-            # Get distribution of fuel for every hour
-            fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
-            ##fueltype_tech_share_yd_24 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yd_p_cy')
-
             # Fuel distribution
             #fuel_tech_yd = enduse_fuel_tech[tech] * load_profile_dh
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile_yh
 
+            # Get distribution of fuel for every hour
+            fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
+            ##fueltype_tech_share_yd_24 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yd_p_cy')
+
+
             fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
             fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
+
+            #NEW SUPERFAST (TEST IF POSSIBLE)
+            #fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
             ##fueltype_tech_share_yd = np.sum(fueltype_tech_share_yd_24, axis=1)
 
@@ -1031,7 +1034,7 @@ class Enduse(object):
             fuel_tech = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
             
             ##fueltype_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
-            ##fueltype_share_yh_24h = np.sum(fueltype_share_yh, axis=1) #new
+            ## fueltype_share_yh_24h = np.sum(fueltype_share_yh, axis=1) #new
             ##fueltype_share_yh_all_h = np.sum(fueltype_share_yh_24h, axis=1) #new
 
             #FAST
