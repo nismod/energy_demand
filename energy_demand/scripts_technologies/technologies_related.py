@@ -3,38 +3,6 @@
 import numpy as np
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 
-'''def convert_yh_to_yd_fueltype_shares(nr_fueltypes, fueltypes_yh_p_cy):
-    """Take share of fueltypes for every yh and calculate the mean share of every day
-
-    The daily sum is calculated for every row of an array.
-
-    Parameters
-    ----------
-    nr_fueltypes : int
-            Number of defined fueltypes
-
-    Return
-    ------
-    fuel_yd_shares : array
-        Yd shape fuels
-
-    Example
-    -------
-    array((8, 365, 24)) is converted into array((8fueltypes, 365days with average))
-    """
-    fuel_yd_shares = np.zeros((nr_fueltypes, 365))
-
-    for fueltype, fueltype_yh in enumerate(fueltypes_yh_p_cy):
-        #print("  {} {}   {}   {} {}".format(self.tech_name, fueltype, fueltype_yh.shape, np.sum(fueltype_yh.sum(axis=1)), np.sum(fueltype_yh.mean(axis=1))))
-
-        # Calculate share of fuel per fueltype in day (If all fueltypes in one day == 24 (because 24 * 1.0)
-        fuel_yd_shares[fueltype] = fueltype_yh.sum(axis=1) #Calculate percentage for a day
-
-    #Testing
-    #np.testing.assert_almost_equal(np.sum(fuel_yd_shares), 8760, decimal=3, err_msg='Error: The sum is not correct')
-
-    return fuel_yd_shares
-'''
 def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperatur difference of base year
 

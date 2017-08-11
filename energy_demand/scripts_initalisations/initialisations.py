@@ -8,19 +8,14 @@ def init_dict_zero(first_level_keys):
     ----------
     first_level_keys : list
         First level data
-    crit : str
-        Criteria wheater initialised with `{}` or `0`
 
     Returns
     -------
     one_level_dict : dict
          dictionary
     """
-    '''one_level_dict = {}
-    for first_key in first_level_keys:
-        one_level_dict[first_key] = 0
-    '''
     one_level_dict = dict.fromkeys(first_level_keys, 0) # set zero as argument
+
     return one_level_dict
 
 def init_service_fueltype_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):

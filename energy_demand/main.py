@@ -66,10 +66,10 @@ from energy_demand.scripts_data import read_data
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_validation import lad_validation
-print("Start Energy Demand Model with python version: " + str(sys.version))
 from memory_profiler import profile
-#@profile
+print("Start Energy Demand Model with python version: " + str(sys.version))
 
+#@profile
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 

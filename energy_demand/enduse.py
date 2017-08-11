@@ -1,6 +1,5 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-import time
 import sys
 import copy
 import numpy as np
@@ -57,7 +56,6 @@ class Enduse(object):
 
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0: # Enduse has no fuel. Create empty shapes
-            ##self.enduse_fuel_yd = np.zeros((enduse_fuel.shape[0], 365))
             self.enduse_fuel_yh = np.zeros((enduse_fuel.shape[0], 365, 24))
             self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24))
             self.enduse_fuel_peak_h = np.zeros((enduse_fuel.shape[0]))
@@ -128,6 +126,7 @@ class Enduse(object):
             tot_service_h_cy = self.service_reduction_heat_recovery(data['assumptions'], tot_service_h_cy, 'tot_service_h_cy', data['assumptions']['heat_recovered'], data['base_sim_param'])
             service_tech = self.service_reduction_heat_recovery(data['assumptions'], service_tech, 'service_tech', data['assumptions']['heat_recovered'], data['base_sim_param'])
             #print("..TIME before servie switch: {}".format(time.time() - start))
+
             # --------------------------------
             # Energy service switches
             # --------------------------------
@@ -166,10 +165,10 @@ class Enduse(object):
                     data['base_sim_param']['curr_yr']
                     )
 
-            control_tot_service = 0
-            for _, fuel in service_tech.items():
-                control_tot_service += np.sum(fuel)
-                #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
+            #control_tot_service = 0
+            #for _, fuel in service_tech.items():
+            #    control_tot_service += np.sum(fuel)
+            #    #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
 
             #print("control_tot_service C: " + str(control_tot_service))
             #print("..TIME H: {}".format(time.time() - start))
@@ -201,10 +200,9 @@ class Enduse(object):
             #print("Fuel train aa all: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("Fuel train K: " + str(np.sum(self.enduse_fuel_yh)))
             #print("Fuel train K: " + str(np.sum(self.enduse_fuel_yh[2])))
-            enduse_fuel_both_yd_yh = self.calc_fuel_tech_yd_yh(enduse_fuel_tech_y, tech_stock, load_profiles)
 
             ##self.enduse_fuel_yd = enduse_fuel_both_yd_yh['enduse_fuel_yd']
-            self.enduse_fuel_yh = enduse_fuel_both_yd_yh['enduse_fuel_yh']
+            self.enduse_fuel_yh = self.calc_fuel_tech_yh(enduse_fuel_tech_y, tech_stock, load_profiles)
 
             '''if round(np.sum(self.enduse_fuel_yh[2]), 0) != round(testsumme, 0):
                 print(testsumme)
@@ -749,9 +747,9 @@ class Enduse(object):
         return fuels_yd
     '''
 
-    def calc_fuel_tech_yd_yh(self, enduse_fuel_tech, tech_stock, load_profiles):
+    def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles):
         """Iterate fuels for each technology and assign shape ad and yh shape
- 
+
         Parameters
         ----------
         enduse_fuel_tech : dict
@@ -766,35 +764,29 @@ class Enduse(object):
         """
         #control_sum = 0
         fuels_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
-        ##fuels_yd = np.zeros((self.enduse_fuel_new_y.shape[0], 365))
 
         average_fuel_share_in_year = (1.0 / 8760)
 
         for tech in self.technologies_enduse:
 
             # Shape of fuel of technology for every hour in year
-            #load_profile_dh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yd')
             load_profile_yh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
             # Fuel distribution
-            #fuel_tech_yd = enduse_fuel_tech[tech] * load_profile_dh
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile_yh
 
             # Get distribution of fuel for every hour
-            fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
-            ##fueltype_tech_share_yd_24 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yd_p_cy')
-
-
-            fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
-            fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
+            ##fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
+            ##fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
+            ##fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
 
             #NEW SUPERFAST (TEST IF POSSIBLE)
-            #fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
+            fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
             ##fueltype_tech_share_yd = np.sum(fueltype_tech_share_yd_24, axis=1)
 
             fueltypes_tech_share_yh *= average_fuel_share_in_year
-            ##fueltype_tech_share_yd *= average_fuel_share_in_year
+
 
             for fueltype, fuel_shares_yh in enumerate(fueltypes_tech_share_yh):
                 fuels_yh[fueltype] += fuel_tech_yh * fuel_shares_yh
@@ -808,53 +800,9 @@ class Enduse(object):
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
         ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
-        fuels_yd = 1
-        return {'enduse_fuel_yd': fuels_yd, 'enduse_fuel_yh': fuels_yh}
-
-    '''def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles):
-        """Iterate fuels for each technology and assign shape yh
-
-        Parameters
-        ----------
-        enduse_fuel_tech : dict
-            Fuel per technology in enduse
-        tech_stock : object
-            Technologies
-
-        Return
-        ------
-        fuels_yh : array
-            Fueltype storing hourly fuel for every fueltype (fueltype, 365, 24)
-        """
-        #control_sum = 0
-        fuels_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
-
-        average_fuel_share_in_year = (1.0 / 8760)
-
-        for tech in self.technologies_enduse:
-
-            # Shape of fuel of technology for every hour in year
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(
-                self.enduse,
-                self.sector,
-                tech,
-                'shape_yh'
-                )
-
-            # Get distribution of fuel for every hour
-            fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
-            fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
-            fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
-
-            fueltypes_tech_share_yh *= average_fuel_share_in_year
-
-            for fueltype, fuel_tech_share in enumerate(fueltypes_tech_share_yh):
-                fuels_yh[fueltype] += fuel_tech_yh * fuel_tech_share
-        # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
-        ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
 
         return fuels_yh
-    '''
+
 
     def fuel_switch(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_enduse_tech_p_by, curr_yr):
         """Scenaric fuel switches
@@ -1282,8 +1230,7 @@ class Enduse(object):
 
                 setattr(self, 'enduse_fuel_new_y', new_fuels)
             else:
-                #print("enduse not define with scenario drivers")
-                pass
+                pass #enduse not define with scenario drivers
 
 
 

@@ -1,6 +1,7 @@
 """The technological stock for every simulation year"""
 import numpy as np
 from energy_demand.scripts_technologies import technologies_related
+from energy_demand.scripts_shape_handling import shape_handling
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class TechStock(object):
@@ -137,7 +138,6 @@ class Technology(object):
             Temperatures of current year
         """
         self.tech_name = tech_name
-        self.tech_type = tech_type
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
@@ -147,15 +147,14 @@ class Technology(object):
         # Shares of fueltype for every hour for single fueltype
         self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
-
-        self.fueltype_share_yh_all_h = self.calc_fueltype_share_yh_all_h()
-
+        # Calculate shaper per fueltype
+        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
 
         #print("TIME C: {}".format(time.time() - start))
         # --------------------------------------------------------------
         # Base and current year efficiencies depending on technology type
         # --------------------------------------------------------------
-        if self.tech_type == 'heat_pump':
+        if tech_type == 'heat_pump':
             self.eff_by = technologies_related.get_heatpump_eff(
                 temp_by,
                 data['assumptions']['technologies'][tech_name]['eff_by'],
@@ -184,26 +183,6 @@ class Technology(object):
                     self.diff_method)
             )
 
-        #print("TIME D: {}".format(time.time() - start))
-
-        # Convert hourly fuel type shares to daily fuel type shares
-        ##self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(
-        ##    data['nr_of_fueltypes'],
-        ##    self.fueltypes_yh_p_cy
-        ##    )
-
-
-        #print("TIME E: {}".format(time.time() - start))
-        #print("TIME ------")
-
-    def calc_fueltype_share_yh_all_h(self):
-        """TODO: EXPLAIN
-        """
-        fueltypes_tech_share_yh_24 = np.sum(self.fueltypes_yh_p_cy, axis=1)
-        fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
-
-        return fueltype_share_yh_all_h
-
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):
         """Create dictionary with constant single fueltype
@@ -229,13 +208,11 @@ class Technology(object):
         -------
         array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
         """
-        # Initiat fuel dict and set per default as 0 percent
         fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
 
         # Insert for the single fueltype for every hour the share to 1.0
         fueltypes_yh[fueltype] = 1.0
 
-        #FASTER?
         return fueltypes_yh
 
 class HybridTechnology(object):
@@ -261,7 +238,6 @@ class HybridTechnology(object):
     Returns
     -------
     enduse : TODO
-
 
 
     Info
@@ -318,23 +294,12 @@ class HybridTechnology(object):
         # Shares of fueltype for every hour for multiple fueltypes
         self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['nr_of_fueltypes'], self.tech_low_temp_fueltype, self.tech_high_temp_fueltype)
 
-        self.fueltype_share_yh_all_h = self.calc_fueltype_share_yh_all_h() #NEW
+        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
 
         self.eff_by = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
 
         # Current year efficiency (weighted according to service for hybrid technologies)
         self.eff_cy = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
-
-        # Convert hourly fuel type shares to daily fuel type shares
-        ##self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
-
-    def calc_fueltype_share_yh_all_h(self):
-        """TODO: EXPLAIN (Double function also in Technology Class)
-        """
-        fueltypes_tech_share_yh_24 = np.sum(self.fueltypes_yh_p_cy, axis=1)
-        fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
-
-        return fueltype_share_yh_all_h
 
     def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour
@@ -358,30 +323,19 @@ class HybridTechnology(object):
         """
         tech_low_high_p = {}
 
-        #----------
-        #FAST
-        #----------
+        # Substract cutoff temperature from yh temp
         hybrid_service_temp_range = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
         fast_factor = np.divide(1.0, (hybrid_service_temp_range))
 
-        #temp_diff_cutoff_temp = (temp_cy - hybrid_cutoff_temp_low) * fast_factor
-        #service_high_tech_p_FAST = np.zeros((temp_cy.shape))
-        #service_high_tech_p_FAST[temp_cy > hybrid_cutoff_temp_high] = 1.0
-        #service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
-        #service_high_tech_p_FAST[(temp_cy >= hybrid_cutoff_temp_low) & (temp_cy <= hybrid_cutoff_temp_high)] = temp_diff_cutoff_temp
-
-        # FAST
+        # Calculate service share (interpolate linearly)
         service_high_tech_p_FAST = fast_factor * (temp_cy - hybrid_cutoff_temp_low)
+
+        # Set service share to 1.0
         service_high_tech_p_FAST[temp_cy > hybrid_cutoff_temp_high] = 1.0
+
+        # Set service share to 0.0
         service_high_tech_p_FAST[temp_cy < hybrid_cutoff_temp_low] = 0.0
 
-        #SLOW----------
-        '''
-        from numpy import vectorize
-        fast_funct = vectorize(self.get_fraction_service_high_temp) # SPEED
-        service_high_tech_p_FAST = fast_funct(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor)
-        #service_high_tech_p = self.get_fraction_service_high_temp(temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high)
-        '''
         tech_low_high_p['low'] = 1 - service_high_tech_p_FAST
         tech_low_high_p['high'] = service_high_tech_p_FAST
 
@@ -409,7 +363,7 @@ class HybridTechnology(object):
         -----
         It is assumed that the temperature operating at higher temperatures is a heat pump
         """
-        # SPEED (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are 365,24 arrays)
+        # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are 365,24 arrays)
         eff_hybrid_yh = (self.service_distr_hybrid_h_p['high'] * eff_tech_high) + (self.service_distr_hybrid_h_p['low'] * eff_tech_low)
 
         return eff_hybrid_yh
@@ -459,53 +413,3 @@ class HybridTechnology(object):
         ## TESTINGnp.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')
 
         return fueltypes_yh
-
-    '''@classmethod
-    def get_fraction_service_high_temp(cls, current_temp, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high, hybrid_service_temp_range, fast_factor):
-        """Calculate percent of service for high-temp technology based on assumptions of hybrid technology
-
-        Parameters
-        ----------
-        current_temp : float
-            Temperature to find fraction
-        hybrid_cutoff_temp_low : float
-            Temperature from which below only low temp technology functions
-        hybrid_cutoff_temp_high : float
-            Temperature from which abive only high temp technology functions
-        hybrid_service_temp_range : float
-            Temperature range with hybrid service (hybrid_cutoff_temp_high - hybrid_cutoff_temp_low)
-        Return
-        ------
-        fraction_high_temp_tech : float
-            Fraction of higher temperature technology
-
-        Note
-        -----
-            -   It is assumed that share of service of tech_high at hybrid_cutoff_temp_high == 100%
-            -   hybrid_cutoff_temp_low must be higher than zero
-        """
-        if current_temp >= hybrid_cutoff_temp_high:
-            fraction_high_temp_tech = 1.0
-            return fraction_high_temp_tech
-        elif current_temp < hybrid_cutoff_temp_low:
-            fraction_high_temp_tech = 0.0
-            return fraction_high_temp_tech
-        else:
-            #if hybrid_cutoff_temp_low < 0:
-            #    temp_diff = hybrid_cutoff_temp_high + abs(hybrid_cutoff_temp_low)
-            #    temp_diff_current_temp = current_temp + abs(hybrid_cutoff_temp_low)
-            #else:
-                #temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-                #temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
-
-            # Calculate service share of high temp technology
-            #temp_diff = hybrid_cutoff_temp_high - hybrid_cutoff_temp_low
-            #temp_diff_current_temp = current_temp - hybrid_cutoff_temp_low
-            #fraction_high_temp_tech = np.divide(1.0, temp_diff) * temp_diff_current_temp
-
-            # FAST Version
-            #fraction_high_temp_tech = np.divide(1.0, (hybrid_service_temp_range)) * (current_temp - hybrid_cutoff_temp_low)
-            fraction_high_temp_tech = fast_factor * (current_temp - hybrid_cutoff_temp_low)
-
-            return fraction_high_temp_tech
-        '''

@@ -1,19 +1,20 @@
 """Functions related to load profiles
 """
-import time
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
+
+    Parameters
+    ----------
+    stock_name : string
+        Load profile stock name
     """
     def __init__(self, stock_name):
         self.stock_name = stock_name
-        #self.load_profile_list = []
         self.load_profile_dict = {}
-
-        # dict_with_tuple_keys
-        self.dict_with_tuple_keys = {}
+        self.dict_with_tuple_keys = {} # dict_with_tuple_keys
 
     def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
@@ -36,34 +37,30 @@ class LoadProfileStock(object):
         shape_peak_dh : array
             Shape (dh), shape of a day for every hour
         """
-        '''for enduse in enduses:
-            for sector in sectors:
-                for technology in technologies:
-                    self.load_profile_dict[(enduse, sector, technology)] = LoadProfile(
-                        technology,
-                        enduse,
-                        sector,
-                        shape_yd,
-                        shape_yh,
-                        enduse_peak_yd_factor,
-                        shape_peak_dh
-                        )
-        '''
         self.load_profile_dict[unique_identifier] = LoadProfile(
             unique_identifier,
-            technologies,
-            enduses,
-            sectors,
             shape_yd,
             shape_yh,
             enduse_peak_yd_factor,
             shape_peak_dh
             )
 
+        # Generate lookup dictionary with triple key
         self.generate_dict_with_tuple_keys(unique_identifier, enduses, sectors, technologies)
 
     def generate_dict_with_tuple_keys(self, unique_identifier, enduses, sectors, technologies):
-        """generate look_up keys to position in dict
+        """Generate look_up keys to position in 'load_profile_dict'
+
+        Parameters
+        ----------
+        unique_identifier : string
+            Unique identifier of load shape object
+        enduses : list
+            List with enduses
+        sectors : list
+            List with sectors
+        technologies : list
+            List with technologies
         """
         for enduse in enduses:
             for sector in sectors:
@@ -82,19 +79,16 @@ class LoadProfileStock(object):
         technology : str
             technology
         shape : str
-            Type of shape which is to be read out
+            Type of shape which is to be read out from 'load_profile_dict'
 
         Return
         ------
-        attr_to_get : array
-            Required shape
+        Load profile
         """
-        '''for load_profile_obj in self.load_profile_list:
-            if enduse in load_profile_obj.enduses:
-                if sector in load_profile_obj.sectors:
-                    if technology in load_profile_obj.technologies:'''
-
+        # Get key from lookup dict
         position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
+
+        # Get correct object
         load_profile_obj = self.load_profile_dict[position_in_dict]
 
         if shape == 'shape_yh':
@@ -106,33 +100,18 @@ class LoadProfileStock(object):
         elif shape == 'enduse_peak_yd_factor':
             return load_profile_obj.enduse_peak_yd_factor
 
-        #function_run_crit = False
-        '''if (technology in load_profile_obj.technologies
-                    and enduse in load_profile_obj.enduses
-                    and sector in load_profile_obj.sectors):
-            
-                # SPEED: Slow version
-                attr_to_get = getattr(load_profile_obj, shape)
-                function_run_crit = True
-                return attr_to_get
-        '''
-        '''if function_run_crit:
-            return attr_to_get
-        else:
-            sys.exit("Error in get_load_profile: {} {} {} {}".format(
-                enduse,
-                sector,
-                technology,
-                shape))
-        '''
-
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
+
+        Parameters
+        ----------
+        enduse : str
+            Enduse
+        sector : str
+            Sector
+        technology : str
+            technology
         """
-        '''for load_profile_obj in self.load_profile_list:
-            if enduse in load_profile_obj.enduses:
-                if sector in load_profile_obj.sectors:
-                    if technology in load_profile_obj.technologies:'''
         position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
         load_profile_obj = self.load_profile_dict[position_in_dict]
 
@@ -151,12 +130,8 @@ class LoadProfile(object):
 
     Parameters
     ----------
-    technologies : list
-        Technologies for which the profile applies
-    enduses : list
-        Enduses for which the profile applies
-    sectors : list
-        Sectors for which the profile applies
+    unique_identifier : string
+        Unique identifer for LoadProfile object
     shape_yd : array
         Shape yd (from year to day)
     shape_yh : array
@@ -167,13 +142,10 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(self, unique_identifier, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
+    def __init__(self, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
         """
         self.unique_identifier = unique_identifier
-        self.technologies = technologies
-        self.enduses = enduses
-        self.sectors = sectors
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
         self.shape_peak_dh = shape_peak_dh
@@ -183,23 +155,32 @@ class LoadProfile(object):
         self.shape_y_dh = self.calc_y_dh_shape_from_yh()
 
     def calc_y_dh_shape_from_yh(self):
-        """Calculate percentage shape for every day
+        """Calculate shape for every day
+
+        Returns
+        -------
+        shape_y_dh : array
+            Shape for every day
+        Info
+        ----
+        The output gives the shape for every day in a year (total sum == 365)
+        Within each day, the sum is 1
         """
-        sum_every_day = np.sum(self.shape_yh, axis=1)
-        sum_every_day_p = 1 / sum_every_day
-        #sum_every_day_p[np.isnan(sum_every_day_p)] = 0
-        #MAYBE TRUEsum_every_day_p = np.nan_to_num(sum_every_day_p) # Replace nan by zero #REMOVE
-        sum_every_day_p[np.isinf(sum_every_day_p)] = 0   # Replace inf by zero
+        sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
+
+        # Replace inf by zero
+        sum_every_day_p[np.isinf(sum_every_day_p)] = 0
 
         # Multiply (365,) + with (365, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
-        shape_y_dh[np.isnan(shape_y_dh)] = 0 # Faster than np.nan_to_num
+        # Replace nan by zero (faster than np.nan_to_num)
+        shape_y_dh[np.isnan(shape_y_dh)] = 0
 
         return shape_y_dh
 
 def absolute_to_relative_without_nan(absolute_array):
-    """
+    """Convert absolute to relative (without correcting the NaN values)
     """
     try:
         return (1 / np.sum(absolute_array)) * absolute_array
@@ -222,20 +203,22 @@ def absolute_to_relative(absolute_array):
         Contains relative numbers
     """
     try:
-        ### ORIGrelative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
-
         relative_array = (1 / np.sum(absolute_array)) * absolute_array
         relative_array[np.isnan(relative_array)] = 0 # replace nan by zero, faster than np.nan_to_num
 
-        # relative_array[np.isinf(relative_array)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
-    except ZeroDivisionError:
+    except ZeroDivisionError: # a[np.isinf(a)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
         relative_array = absolute_array # If the total sum is zero, return same array
 
     return relative_array
 
 def calk_peak_h_dh(enduse_fuel_peak_dh):
-    """Iterate peak day fuels and select peak hour
-    SPEDO
+    """Ger peak hour in peak day
+
+    Parameters
+    ----------
+    enduse_fuel_peak_dh : array
+        Fuel of peak day
+
     Return
     ------
     peak_fueltype_h : array
@@ -245,27 +228,6 @@ def calk_peak_h_dh(enduse_fuel_peak_dh):
     peak_fueltype_h = np.max(enduse_fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
-
-def convert_dh_yd_to_yh(shape_yd, shape_y_dh):
-    """Convert yd shape and shape for every day (y_dh) into yh
-
-    Parameters
-    ----------
-    shape_yd : array
-        Array with yd shape
-    shape_y_dh : array
-        Array with y_dh shape
-
-    Return
-    ------
-    shape_yh : array
-        Array with yh shape
-    """
-    shape_yh = np.zeros((365, 24))
-    for day, value_yd in enumerate(shape_yd):
-        shape_yh[day] = value_yd * shape_y_dh[day]
-
-    return shape_yh
 
 def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
     """Calculate  fuel shapes for hybrid technologies for every day in a year (y_dh)
@@ -302,34 +264,8 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     In case no fuel is provided for a day 'fuel_shapes_hybrid_y_dh' for this day is zero. Therfore
     the total sum of 'fuel_shapes_hybrid_y_dh not necessarily 365.
     """
-    '''fuel_shapes_hybrid_y_dh = np.zeros((365, 24))
 
-    for day in range(365): #SPEED
-        dh_fuel_hybrid = np.zeros(24)
-        for hour in range(24): #SPEED
-
-            # Shares of each technology for every hour
-            low_p = tech_low_high_p['low'][day][hour]
-            high_p = tech_low_high_p['high'][day][hour]
-
-            # Calculate fuel for every hour
-            if low_p == 0:
-                fuel_boiler = 0
-            else:
-                fuel_boiler = low_p * fuel_shape_boilers_y_dh[day][hour]
-
-            if high_p == 0:
-                fuel_hp = 0
-            else:
-                fuel_hp = high_p * fuel_shape_hp_y_dh[day][hour]
-
-            # Weighted hourly dh shape with efficiencies
-            dh_fuel_hybrid[hour] = fuel_boiler + fuel_hp
-
-        # Normalise dh shape
-        fuel_shapes_hybrid_y_dh[day] = absolute_to_relative(dh_fuel_hybrid)
-    '''
-    # FAST TODO #(share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
+    # (share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
     _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
 
     # Absolute to relative for every row
@@ -338,3 +274,24 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     plt.show()
     '''
     return fuel_shapes_hybrid_y_dh
+
+def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
+    """Calculate fuel share for every hour
+
+    Parameters
+    ----------
+    fueltypes_yh_p_cy : array
+        Fuel share per fueltype for every day and hour (7, 365, 24)
+
+    Returns
+    -------
+    fueltype_share_yh_all_h : array
+        Sum of fuel share for every hour
+    """
+    # Sum across rows (share of fuel per hour per fueltype) (7, 24)
+    fueltypes_tech_share_yh_24 = np.sum(fueltypes_yh_p_cy, axis=1)
+
+    # Sum across rows (overall share of fuel per fueltype) (7,)
+    fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1)
+
+    return fueltype_share_yh_all_h
