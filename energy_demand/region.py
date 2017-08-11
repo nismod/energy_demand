@@ -81,7 +81,7 @@ class Region(object):
         ss_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(ss_cdd_cy)
 
         # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel)
-        self.rs_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
+        self.rs_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy) #could be slightly speed up with np.isnan
         self.rs_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
 
         self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
@@ -92,8 +92,6 @@ class Region(object):
         self.rs_tech_stock = ts.TechStock('rs_tech_stock', data, temp_by, temp_cy, data['assumptions']['rs_t_base_heating']['base_yr'], data['rs_all_enduses'], rs_t_base_heating_cy, data['assumptions']['rs_all_specified_tech_enduse_by'])
         self.ss_tech_stock = ts.TechStock('ss_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['ss_all_enduses'], ss_t_base_heating_cy, data['assumptions']['ss_all_specified_tech_enduse_by'])
         self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
-
-
 
         # Region specific load profile stock
         print("   ...creating load shape stocks in region_name")
@@ -115,7 +113,13 @@ class Region(object):
             )
 
     def create_load_profiles(self, data, rs_fuel_shape_heating_yd, ss_fuel_shape_heating_yd, rs_fuel_shape_cooling_yd, rs_hdd_cy, ss_peak_yd_heating_factor, rs_peak_yd_heating_factor):
-        """Add load profiles TODO
+        """Add load profiles 
+        
+        Parameters
+        ----------
+
+        
+        TODO
         """
         print("   ...creating specific load profiles in region")
         # --Heating technologies for residential sector
@@ -416,11 +420,7 @@ class Region(object):
             tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p')
             )
 
-        # Calculate yh fuel shape #SLOW
-        #for day, fuel_day in enumerate(fuel_shape_heating_yd):
-        #    fuel_shape_yh[day] = fuel_shape_hybrid_y_dh[day] * fuel_day
-
-        #SPEED
+        # Calculate yh fuel shape
         fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
 
         # Testing
@@ -553,13 +553,8 @@ class Region(object):
 
         The daily heat demand (calculated with hdd) is distributed within the day
         fuel demand curve for boilers from:
-
         """
-        shape_yd_cooling_tech = np.zeros((365, 24))
-
-        #for day in range(365): SPEED
-        #    shape_yd_cooling_tech[day] = data[tech_to_get_shape] * cooling_shape[day] # Shape of cooling (same for all days) * daily cooling demand
-        shape_yd_cooling_tech = np.outer(cooling_shape, data[tech_to_get_shape]) #((365,) * (24,)) Daily cooling demand & same daily shape
+        shape_yd_cooling_tech = data[tech_to_get_shape] * cooling_shape[:, np.newaxis] 
 
         return shape_yd_cooling_tech
 
@@ -583,20 +578,13 @@ class Region(object):
             Shape of distribution of fuel within every day of a year (total sum == 365)
         """
         shape_yh_generic_tech = np.zeros((365, 24))
-        #shape_y_dh_generic_tech = np.zeros((365, 24))
-
-        #shape_y_dh_generic_tech = np.ones((365, 24))
 
         if enduse not in data['ss_all_tech_shapes_dh']:
             pass
         else:
             shape_non_peak_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_dh']
 
-            #for day in range(365): #SPEED
-            #    shape_yh_generic_tech[day] = heating_shape[day] * shape_non_peak_dh[day]
-            #    shape_y_dh_generic_tech[day] = shape_non_peak_dh[day]
-
-            shape_yh_generic_tech = heating_shape[:, None] * shape_non_peak_dh #Multiplyacross row (365, ) with (365,24)
+            shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_non_peak_dh #Multiplyacross row (365, ) with (365,24)
             shape_y_dh_generic_tech = shape_non_peak_dh
 
         return shape_yh_generic_tech, shape_y_dh_generic_tech
