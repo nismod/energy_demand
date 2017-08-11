@@ -699,7 +699,7 @@ class Enduse(object):
 
             # <<<<<<<<<<<<<<<<<<
 
-            # Get distribution per fueltype
+            # Get distribution per fueltype TODO: CHEKC WHy NOT WORKS
             #fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
             # Fuel distribution

@@ -431,16 +431,7 @@ if __name__ == "__main__":
         print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
         #GET SPECIFIC REGION
-        #'''
-        # ---------------------------------------------------
-        # Validation of spatial disaggregation
-        # ---------------------------------------------------
-        lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
-        lad_validation.compare_lad_regions(
-            lad_infos_shapefile,
-            model_run_object,
-            base_data['nr_of_fueltypes'],
-            base_data['lu_fueltype'])
+
 
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
@@ -454,7 +445,16 @@ if __name__ == "__main__":
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
 
         # Validation
-
+        #'''
+        # ---------------------------------------------------
+        # Validation of spatial disaggregation
+        # ---------------------------------------------------
+        lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
+        lad_validation.compare_lad_regions(
+            lad_infos_shapefile,
+            model_run_object,
+            base_data['nr_of_fueltypes'],
+            base_data['lu_fueltype'])
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
         # ---------------------------------------------------
