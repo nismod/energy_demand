@@ -105,6 +105,8 @@ class TechStock(object):
             return tech_object.tech_high_temp_fueltype
         elif attribute_to_get == 'fueltypes_yh_p_cy':
             return tech_object.fueltypes_yh_p_cy
+        elif attribute_to_get == 'fueltype_share_yh_all_h':
+            return tech_object.fueltype_share_yh_all_h
         elif attribute_to_get == 'fueltypes_yd_p_cy':
             return tech_object.fueltypes_yd_p_cy
 
@@ -145,6 +147,10 @@ class Technology(object):
         # Shares of fueltype for every hour for single fueltype
         self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
+
+        self.fueltype_share_yh_all_h = self.calc_fueltype_share_yh_all_h()
+
+
         #print("TIME C: {}".format(time.time() - start))
         # --------------------------------------------------------------
         # Base and current year efficiencies depending on technology type
@@ -181,13 +187,22 @@ class Technology(object):
         #print("TIME D: {}".format(time.time() - start))
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(
-            data['nr_of_fueltypes'],
-            self.fueltypes_yh_p_cy
-            )
+        ##self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(
+        ##    data['nr_of_fueltypes'],
+        ##    self.fueltypes_yh_p_cy
+        ##    )
+
 
         #print("TIME E: {}".format(time.time() - start))
         #print("TIME ------")
+
+    def calc_fueltype_share_yh_all_h(self):
+        """TODO: EXPLAIN
+        """
+        fueltypes_tech_share_yh_24 = np.sum(self.fueltypes_yh_p_cy, axis=1)
+        fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
+
+        return fueltype_share_yh_all_h
 
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):
@@ -306,13 +321,23 @@ class HybridTechnology(object):
             self.tech_low_temp_fueltype,
             self.tech_high_temp_fueltype)
 
+        self.fueltype_share_yh_all_h = self.calc_fueltype_share_yh_all_h() #NEW
+
         self.eff_by = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
 
         # Current year efficiency (weighted according to service for hybrid technologies)
         self.eff_cy = self.calc_hybrid_eff(self.eff_tech_low_cy, self.eff_tech_high_cy)
 
         # Convert hourly fuel type shares to daily fuel type shares
-        self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
+        ##self.fueltypes_yd_p_cy = technologies_related.convert_yh_to_yd_fueltype_shares(data['nr_of_fueltypes'], self.fueltypes_yh_p_cy)
+
+    def calc_fueltype_share_yh_all_h(self):
+        """TODO: EXPLAIN (Double function also in Technology Class)
+        """
+        fueltypes_tech_share_yh_24 = np.sum(self.fueltypes_yh_p_cy, axis=1)
+        fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
+
+        return fueltype_share_yh_all_h
 
     def service_hybrid_tech_low_high_h_p(self, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour

@@ -1,5 +1,6 @@
 """Functions related to load profiles
 """
+import time
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
@@ -220,22 +221,12 @@ def absolute_to_relative(absolute_array):
         Contains relative numbers
     """
     try:
-        #ORIG
-        relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
+        ### ORIGrelative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
 
-        '''relative_array = (1 / np.sum(absolute_array))
-        relative_array = np.nan_to_num(relative_array) # replace nan by zero
-        #relative_array = relative_array[np.isnan(relative_array)] = 0 #CHECK IF FASTER
-        relative_array = relative_array * absolute_array
+        relative_array = (1 / np.sum(absolute_array)) * absolute_array
+        relative_array[np.isnan(relative_array)] = 0 # replace nan by zero, faster than np.nan_to_num
 
-
-        #relative_array[np.isinf(relative_array)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
-
-        #_var = 1.0 / np.sum(absolute_array) #NEW TODO: REPALCE NAN_TO_NUM
-        #_var[np.isnan(_var)] = 0 #Relace nan
-        #relative_array = _var * absolute_array
-        #relative_array = (1 / np.sum(absolute_array)) * absolute_array #NEW
-        '''
+        # relative_array[np.isinf(relative_array)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
     except ZeroDivisionError:
         relative_array = absolute_array # If the total sum is zero, return same array
 
