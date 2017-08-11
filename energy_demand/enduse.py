@@ -688,8 +688,19 @@ class Enduse(object):
             # Shape of fuel of technology for every hour in year
             load_profile_yh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
+
+            #FROM PREVIOUS
+            # <<<<<<<<<<<<<<<<<<
+            # Get distribution of fuel for every hour
+            fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
+
+            fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
+            fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
+
+            # <<<<<<<<<<<<<<<<<<
+
             # Get distribution per fueltype
-            fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
+            #fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
             # Fuel distribution
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile_yh
