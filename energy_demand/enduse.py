@@ -51,17 +51,17 @@ class Enduse(object):
         #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
-        self.enduse_fuel_y = enduse_fuel
+        #self.enduse_fuel_y = enduse_fuel
 
         # Copy fuel in new fuel output
         self.enduse_fuel_new_y = np.copy(enduse_fuel) #TEST copy.deepcopy(enduse_fuel), basic_functions.mimick_deepcopy(enduse_fuel)
 
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0: # Enduse has no fuel. Create empty shapes
-            self.enduse_fuel_yd = np.zeros((self.enduse_fuel_y.shape[0], 365))
-            self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
-            self.enduse_fuel_peak_dh = np.zeros((self.enduse_fuel_y.shape[0], 24))
-            self.enduse_fuel_peak_h = np.zeros((self.enduse_fuel_y.shape[0]))
+            ##self.enduse_fuel_yd = np.zeros((enduse_fuel.shape[0], 365))
+            self.enduse_fuel_yh = np.zeros((enduse_fuel.shape[0], 365, 24))
+            self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24))
+            self.enduse_fuel_peak_h = np.zeros((enduse_fuel.shape[0]))
         else:
             crit_switch_fuel = self.get_crit_switch(fuel_switches, data['base_sim_param'])
             crit_switch_service = self.get_crit_switch(service_switches, data['base_sim_param'])
@@ -100,7 +100,7 @@ class Enduse(object):
             # Calculate new fuel demands after scenario drivers
             self.enduse_scenario_drivers(
                 dw_stock,
-                region_name,
+                region_name, #TODO: REMOVE
                 data['driver_data'],
                 reg_scenario_drivers,
                 data['base_sim_param'])
@@ -204,7 +204,7 @@ class Enduse(object):
             #print("Fuel train K: " + str(np.sum(self.enduse_fuel_yh[2])))
             enduse_fuel_both_yd_yh = self.calc_fuel_tech_yd_yh(enduse_fuel_tech_y, tech_stock, load_profiles)
 
-            self.enduse_fuel_yd = enduse_fuel_both_yd_yh['enduse_fuel_yd']
+            ##self.enduse_fuel_yd = enduse_fuel_both_yd_yh['enduse_fuel_yd']
             self.enduse_fuel_yh = enduse_fuel_both_yd_yh['enduse_fuel_yh']
 
             '''if round(np.sum(self.enduse_fuel_yh[2]), 0) != round(testsumme, 0):
@@ -670,8 +670,13 @@ class Enduse(object):
 
                 # The 'shape_peak_dh'is not defined in technology stock because in the 'Region' the peak day is not yet known
                 # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
-                tech_peak_dh_absolute = load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')[peak_day_nr]
-                tech_peak_dh = shape_handling.absolute_to_relative_without_nan(tech_peak_dh_absolute) #replaced absolute_to_relative
+                ####tech_peak_dh_absolute = load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')[peak_day_nr]
+                ####tech_peak_dh = shape_handling.absolute_to_relative_without_nan(tech_peak_dh_absolute) #replaced absolute_to_relative
+
+                #FAST: ALTERNATIVE
+                # The 'shape_peak_dh'is not defined in technology stock because in the 'Region' the peak day is not yet known
+                # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
+                tech_peak_dh = load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_y_dh')[peak_day_nr]
             else:
                 # Calculate fuel for peak day
                 fuel_tech_peak_d = np.sum(enduse_fuel_tech[tech]) * load_profile.get_load_profile(self.enduse, self.sector, tech, 'enduse_peak_yd_factor')
@@ -794,7 +799,9 @@ class Enduse(object):
             # Get distribution of fuel for every day, terate shares of fueltypes, calculate share of fuel and add to fuels
             for fueltype, fuel_shares_dh in enumerate(fueltype_tech_share_yd):
                 fuels_yd[fueltype] += fuel_tech_yd * fuel_shares_dh
-
+            
+            #SUPERFAST
+            #tech_peak_dh = load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_y_dh')[peak_day_nr]
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
         ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
@@ -1279,22 +1286,22 @@ class genericFlatEnduse(object):
     """Class for generic enduses with flat shapes
     """
     def __init__(self, enduse_fuel):
-        self.enduse_fuel_y = enduse_fuel
+        self.enduse_fuel_new_y = enduse_fuel
 
         # Generate flat shapes (i.e. same amount of fuel for every hour in a year)
         shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(
             shape_peak_yd_factor=1)
 
         # Convert shape_peak_dh into fuel per day (Multiply average daily fuel demand for flat shape * peak factor)
-        max_fuel_d = (self.enduse_fuel_y / 365) * shape_peak_yd_factor
+        max_fuel_d = (self.enduse_fuel_new_y / 365) * shape_peak_yd_factor
 
         # Yd fuel shape per fueltype (non-peak)
-        self.enduse_fuel_yd = np.outer(self.enduse_fuel_y, shape_non_peak_yd)
+        ##self.enduse_fuel_yd = np.outer(self.enduse_fuel_new_y, shape_non_peak_yd)
 
         # Yh fuel shape per fueltype (non-peak)
-        self.enduse_fuel_yh = np.zeros((self.enduse_fuel_y.shape[0], 365, 24))
+        self.enduse_fuel_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
         for fueltype in range(len(enduse_fuel)):
-            self.enduse_fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh) * self.enduse_fuel_y[fueltype] #TEST
+            self.enduse_fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh) * self.enduse_fuel_new_y[fueltype] #TEST
         #TODO: IMPROVEself.enduse_fuel_yh = np.outer(self.enduse_fuel_y, (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh)) #(fueltypes, ) * (365, 24)
 
         # Dh fuel shape per fueltype (peak)  (shape of peak & maximum fuel per fueltype)

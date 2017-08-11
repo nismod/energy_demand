@@ -1,7 +1,7 @@
 """Functions related to load profiles
 """
-import sys
 import numpy as np
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -11,20 +11,10 @@ class LoadProfileStock(object):
         #self.load_profile_list = []
         self.load_profile_dict = {}
 
-        # dict_with_tuple_kes
-        self.dict_with_tuple_kes = {}
+        # dict_with_tuple_keys
+        self.dict_with_tuple_keys = {}
 
-    def add_load_profile(
-            self,
-            unique_identifier,
-            technologies,
-            enduses,
-            sectors,
-            shape_yd=np.zeros((365)),
-            shape_yh=np.zeros((365, 24)),
-            enduse_peak_yd_factor=1/365,
-            shape_peak_dh=np.ones((24))
-        ):
+    def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
 
         Parameters
@@ -58,7 +48,6 @@ class LoadProfileStock(object):
                         shape_peak_dh
                         )
         '''
-        #self.load_profile_list.append(loadprofile_obj)
         self.load_profile_dict[unique_identifier] = LoadProfile(
             unique_identifier,
             technologies,
@@ -78,7 +67,7 @@ class LoadProfileStock(object):
         for enduse in enduses:
             for sector in sectors:
                 for technology in technologies:
-                    self.dict_with_tuple_kes[(enduse, sector, technology)] = unique_identifier
+                    self.dict_with_tuple_keys[(enduse, sector, technology)] = unique_identifier
 
     def get_load_profile(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
@@ -104,15 +93,17 @@ class LoadProfileStock(object):
                 if sector in load_profile_obj.sectors:
                     if technology in load_profile_obj.technologies:'''
 
-        position_in_dict = self.dict_with_tuple_kes[(enduse, sector, technology)]
+        position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
         load_profile_obj = self.load_profile_dict[position_in_dict]
-        if 1 == 1:
-                        if shape == 'shape_yh':
-                            return load_profile_obj.shape_yh
-                        elif shape == 'shape_yd':
-                            return load_profile_obj.shape_yd
-                        elif shape == 'enduse_peak_yd_factor':
-                            return load_profile_obj.enduse_peak_yd_factor
+
+        if shape == 'shape_yh':
+            return load_profile_obj.shape_yh
+        elif shape == 'shape_yd':
+            return load_profile_obj.shape_yd
+        elif shape == 'shape_y_dh':
+            return load_profile_obj.shape_y_dh
+        elif shape == 'enduse_peak_yd_factor':
+            return load_profile_obj.enduse_peak_yd_factor
 
         #function_run_crit = False
         '''if (technology in load_profile_obj.technologies
@@ -134,7 +125,6 @@ class LoadProfileStock(object):
                 shape))
         '''
 
-
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
         """
@@ -142,16 +132,18 @@ class LoadProfileStock(object):
             if enduse in load_profile_obj.enduses:
                 if sector in load_profile_obj.sectors:
                     if technology in load_profile_obj.technologies:'''
-        position_in_dict = self.dict_with_tuple_kes[(enduse, sector, technology)]
+        position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
         load_profile_obj = self.load_profile_dict[position_in_dict]
-        if 1 == 1:
-                        # Test if dummy sector and thus shape_peak not provided for different sectors
-                        if sector == 'dummy_sector':
-                            shape_peak_dh = load_profile_obj.shape_peak_dh
-                            return shape_peak_dh
-                        else:
-                            shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
-                            return shape_peak_dh
+
+        # Test if dummy sector and thus shape_peak not provided for different sectors
+        if sector == 'dummy_sector':
+            shape_peak_dh = load_profile_obj.shape_peak_dh
+
+            return shape_peak_dh
+        else:
+            shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+
+            return shape_peak_dh
 
 class LoadProfile(object):
     """Load profile container to store different shapes
@@ -174,20 +166,9 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(
-            self,
-            unique_identifier,
-            technologies,
-            enduses,
-            sectors,
-            shape_yd,
-            shape_yh,
-            enduse_peak_yd_factor,
-            shape_peak_dh=np.ones((24))
-        ):
+    def __init__(self, unique_identifier, technologies, enduses, sectors, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
         """
-        #self.region
         self.unique_identifier = unique_identifier
         self.technologies = technologies
         self.enduses = enduses
@@ -197,7 +178,27 @@ class LoadProfile(object):
         self.shape_peak_dh = shape_peak_dh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
+        #Calculate percentage for every day
+        self.shape_y_dh = self.calc_y_dh_shape_from_yh()
+
+    def calc_y_dh_shape_from_yh(self):
+        """Calculate percentage shape for every day
+        """
+        sum_every_day = np.sum(self.shape_yh, axis=1)
+        sum_every_day_p = 1 / sum_every_day
+        #sum_every_day_p[np.isnan(sum_every_day_p)] = 0
+        #MAYBE TRUEsum_every_day_p = np.nan_to_num(sum_every_day_p) # Replace nan by zero #REMOVE
+        sum_every_day_p[np.isinf(sum_every_day_p)] = 0   # Replace inf by zero
+
+        # Multiply (365,) + with (365, 24)
+        shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
+        shape_y_dh = np.nan_to_num(shape_y_dh) # Replace nan by zero
+
+        return shape_y_dh
+
 def absolute_to_relative_without_nan(absolute_array):
+    """
+    """
     try:
         return (1 / np.sum(absolute_array)) * absolute_array
     except ZeroDivisionError:
@@ -219,12 +220,22 @@ def absolute_to_relative(absolute_array):
         Contains relative numbers
     """
     try:
-        if np.sum(absolute_array) == 0:
-            print("WHATS IS DASY")
-            prnt(".")
-
+        #ORIG
         relative_array = np.nan_to_num((1 / np.sum(absolute_array)) * absolute_array)
+
+        '''relative_array = (1 / np.sum(absolute_array))
+        relative_array = np.nan_to_num(relative_array) # replace nan by zero
+        #relative_array = relative_array[np.isnan(relative_array)] = 0 #CHECK IF FASTER
+        relative_array = relative_array * absolute_array
+
+
+        #relative_array[np.isinf(relative_array)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
+
+        #_var = 1.0 / np.sum(absolute_array) #NEW TODO: REPALCE NAN_TO_NUM
+        #_var[np.isnan(_var)] = 0 #Relace nan
+        #relative_array = _var * absolute_array
         #relative_array = (1 / np.sum(absolute_array)) * absolute_array #NEW
+        '''
     except ZeroDivisionError:
         relative_array = absolute_array # If the total sum is zero, return same array
 

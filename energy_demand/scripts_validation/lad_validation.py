@@ -4,6 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import unit_conversions
+import operator
 
 def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes):
     """Compare gas/elec demand for LADs
@@ -14,53 +15,61 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
         Infos of shapefile (dbf / csv)
     model_run_object : object
         Model run results
-
+    
+    INFO
+    -----
+    SOURCE OF LADS:
     """
     print("..Validation of spatial disaggregation")
     result_dict = {}
+    result_dict['REAL_electricity_demand'] = {}
+    result_dict['modelled_electricity_demand'] = {}
 
     # Match ECUK sub-regional demand with geocode
     for reg_object in model_run_object.regions:
-        result_dict[reg_object.region_name] = {}
 
         # Iterate loaded data
         for reg_csv_geocode in lad_infos_shapefile:
             if reg_csv_geocode == reg_object.region_name:
 
-
+                # --Sub Regional Electricity
                 #value_gwh = unit_conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
-                value_gwh = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
+                result_dict['REAL_electricity_demand'][reg_object.region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
-                result_dict[reg_object.region_name]['ECUK_electricity_demand'] = value_gwh
                 all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode)
+                result_dict['modelled_electricity_demand'][reg_object.region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
 
-                result_dict[reg_object.region_name]['modelled_electricity_demand'] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
+    # -----------------
+    # Sort results according to size
+    # -----------------
+    result_dict['modelled_electricity_demand_sorted'] = {}
 
-                #TODO:result_dict[region_name]['ECUK_gas_demand'] = lad_infos_shapefile[reg_csv_geocode]['elec_ns_15']
-    
-    # -----------------
-    # Sort results
-    # -----------------
+    # --Sorted sub regional electricity demand
+    sorted_dict_REAL_elec_demand = sorted(result_dict['REAL_electricity_demand'].items(), key=operator.itemgetter(1))
 
     # -------------------------------------
     # Plot
     # -------------------------------------
-    x_values = range(len(result_dict))
-    y_values_ECUK_electricity_demand = []
+    nr_of_labels = len(sorted_dict_REAL_elec_demand) #range(len(sorted_dict_REAL_elec_demand))
+    x_values = []
+    for i in range(nr_of_labels):
+        x_values.append(0 + i*0.2)
+    y_values_REAL_electricity_demand = []
     y_values_modelled_electricity_demand = []
 
     labels = []
-    for entry in result_dict:
-        y_values_ECUK_electricity_demand.append(result_dict[entry]['ECUK_electricity_demand'])
-        y_values_modelled_electricity_demand.append(result_dict[entry]['modelled_electricity_demand'])
-        labels.append(entry)
+    for sorted_region in sorted_dict_REAL_elec_demand:
+        y_values_REAL_electricity_demand.append(result_dict['REAL_electricity_demand'][sorted_region[0]])
+        y_values_modelled_electricity_demand.append(result_dict['modelled_electricity_demand'][sorted_region[0]])
+        labels.append(sorted_region)
 
-    print("REAL " + str(y_values_ECUK_electricity_demand))
-    print("MODELLE " + str(y_values_modelled_electricity_demand))
-    plt.plot(x_values, y_values_ECUK_electricity_demand, 'ro', markersize=5, color='green')
-    plt.plot(x_values, y_values_modelled_electricity_demand, 'ro', markersize=5, color='red')
+    plt.plot(x_values, y_values_REAL_electricity_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
+    plt.plot(x_values, y_values_modelled_electricity_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
 
     plt.xticks(x_values, labels)
-    plt.xlabel("Comparison of energy demand in regions")
-    #plt.legend()
+
+    plt.xlabel("Comparison of sub-regional electricity demand")
+    plt.ylabel("Electricity demand [unit GWH?]")
+    plt.legend()
+
     plt.show()

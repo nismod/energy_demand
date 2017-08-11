@@ -142,6 +142,7 @@ if __name__ == "__main__":
     # obs.units == 'count'
     # External data provided from wrapper
 
+    instrument_profiler = True
 
     # DUMMY DATA GENERATION----------------------
 
@@ -370,23 +371,31 @@ if __name__ == "__main__":
         print("-------------------------- ")
 
         #-------------PROFILER pyinstrument
-        #import cProfile
-        #import pstats
-        #cProfile.run('energy_demand_model(base_data)')
-        #stats = pstats.Stats(r'c://Users//cenv0553//GIT//model_output//STATS.txt')
-        #stats.sort_stats('cumtime')
-        #stats.strip_dirs()
-        #stats.print_stats()
-        ##stream = open('c://Users//cenv0553//GIT//data//model_output//STATS.txt', 'w');
-        ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
+
 
         #-------------PROFILER
-        ##from pyinstrument import Profiler
-        ##profiler = Profiler(use_signal=False)
-        ##profiler.start()
+        if instrument_profiler:
+            from pyinstrument import Profiler
+            profiler = Profiler(use_signal=False)
+            profiler.start()
+
+            '''# Alternative profiler
+            import cProfile
+            import pstats
+            cProfile.run('energy_demand_model(base_data)')
+            stats = pstats.Stats(r'c://Users//cenv0553//GIT//model_output//STATS.txt')
+            stats.sort_stats('cumtime')
+            stats.strip_dirs()
+            stats.print_stats()
+            ##stream = open('c://Users//cenv0553//GIT//data//model_output//STATS.txt', 'w');
+            ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
+            '''
+
         results, model_run_object = energy_demand_model(base_data)
-        ##profiler.stop()
-        ##print(profiler.output_text(unicode=True, color=True))
+
+        if instrument_profiler:
+            profiler.stop()
+            print(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
 
