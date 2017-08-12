@@ -108,8 +108,6 @@ class TechStock(object):
             return tech_object.fueltypes_yh_p_cy
         elif attribute_to_get == 'fueltype_share_yh_all_h':
             return tech_object.fueltype_share_yh_all_h
-        #elif attribute_to_get == 'fueltypes_yd_p_cy':
-        #    return tech_object.fueltypes_yd_p_cy
 
 class Technology(object):
     """Technology Class
@@ -406,9 +404,9 @@ class HybridTechnology(object):
         # Assign share of total fuel for respective fueltypes
         fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
         _var = np.divide(1.0, tot_fuel_h)
+
         fueltypes_yh[fueltype_low_temp] = _var * fuel_low_h
         fueltypes_yh[fueltype_high_temp] = _var * fuel_high_h
 
         ## TESTINGnp.testing.assert_almost_equal(np.sum(fueltypes_yh), 365 * 24, decimal=3, err_msg='ERROR XY')
-
         return fueltypes_yh
