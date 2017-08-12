@@ -49,9 +49,9 @@ Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
 #SPEED: TEST FOR ENUMERATE
 The docs can be found here: http://ed.readthedocs.io
-55'''
+'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-#tata
+
 #!python3.6
 import os
 import sys
@@ -112,8 +112,7 @@ def energy_demand_model(data):
 
     #fueltot_specific_fueltype = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
     print("================================================")
-    print(np.sum(model_run_object.ts_sum_uk_specfuelype_enduses_y))
-    print(np.sum(model_run_object.ts_sum_uk_specfuelype_enduses_y[2]))
+    print("Number of regions    " + str(len(model_run_object.regions)))
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
     print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
@@ -434,7 +433,7 @@ if __name__ == "__main__":
 
         #GET SPECIFIC REGION
 
-
+        #'''
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
@@ -447,7 +446,7 @@ if __name__ == "__main__":
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
 
         # Validation
-        #'''
+
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------

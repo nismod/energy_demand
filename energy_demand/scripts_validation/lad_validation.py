@@ -66,7 +66,7 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     plt.plot(x_values, y_values_REAL_electricity_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
     plt.plot(x_values, y_values_modelled_electricity_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
 
-    plt.xticks(x_values, labels)
+    plt.xticks(x_values, labels, rotation=70)
 
     plt.xlabel("Comparison of sub-regional electricity demand")
     plt.ylabel("Electricity demand [unit GWH?]")

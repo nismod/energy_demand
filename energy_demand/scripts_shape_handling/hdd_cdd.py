@@ -21,16 +21,16 @@ def calc_hdd(t_base, temp_yh):
     hdd_d : array
         An array containing the Heating Degree Days for every day (shape 365, 1)
     """
+    '''
     hdd_d = np.zeros((365))
 
     for day, temp_day in enumerate(temp_yh):
-        '''
-        hdd = 0
-        for temp_h in temp_day:
-            diff = t_base - temp_h
-            if diff > 0:
-                hdd += diff
-        '''
+        #hdd = 0
+        #for temp_h in temp_day:
+        #    diff = t_base - temp_h
+        #    if diff > 0:
+        #        hdd += diff
+
         # Faster
         temp_diff = t_base - temp_day #Substract base temp
         hdd = np.sum(temp_diff[temp_diff > 0]) #get sum of absolute negative values
@@ -39,6 +39,11 @@ def calc_hdd(t_base, temp_yh):
             hdd_d[day] = hdd / 24.0
         except ZeroDivisionError:
             hdd_d[day] = 0
+    '''
+    # Written in fast version (idential result as above but much faster)
+    temp_diff = (t_base - temp_yh) / 24
+    temp_diff[temp_diff < 0] = 0
+    hdd_d = np.sum(temp_diff, axis=1)
 
     return hdd_d
 
@@ -66,16 +71,16 @@ def calc_cdd(rs_t_base_cooling, temperatures):
 
     https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
     """
+    '''
     cdd_d = np.zeros((365))
 
     for day_nr, day_temp in enumerate(temperatures):
-        '''
-        ccd_d = 0
-        for temp_h in day_temp:
-            diff_t = temp_h - rs_t_base_cooling
-            if diff_t > 0: # Only if cooling is necessary
-                ccd_d += diff_t
-        '''
+        #ccd_d = 0
+        #for temp_h in day_temp:
+        #    diff_t = temp_h - rs_t_base_cooling
+        #    if diff_t > 0: # Only if cooling is necessary
+        #        ccd_d += diff_t
+
         # Faster
         temp_diff = day_temp - rs_t_base_cooling
         ccd_d = np.sum(temp_diff[temp_diff > 0])
@@ -84,6 +89,12 @@ def calc_cdd(rs_t_base_cooling, temperatures):
             cdd_d[day_nr] = ccd_d/24
         except ZeroDivisionError:
             cdd_d[day_nr] = 0
+
+    # Written in fast version (idential result as above but much faster)
+    '''
+    temp_diff = (temperatures - rs_t_base_cooling) / 24
+    temp_diff[temp_diff < 0] = 0
+    cdd_d = np.sum(temp_diff, axis=1)
 
     return cdd_d
 
