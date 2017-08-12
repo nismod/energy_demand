@@ -292,25 +292,19 @@ class Enduse(object):
                 # Efficiency yh
                 tech_eff = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
 
-                # SPEED
-                ##tech_type = tech_stock.get_tech_attr(self.enduse, tech, 'tech_type')
-                ###if tech_type == 'hybrid' or tech_type == 'heat_pump':
-
                 # Convert to energy service TODO?
                 # - The base year efficiency is taken because the actual service can only be calculated with base year efficiny.
                 # - However, the enduse_fuel_y is taken because the actual service was reduced e.g. due to smart meters or temperatur changes
 
-                service_tech = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share
-                # Calculate fuel share and convert fuel to service and distribute y to yh
-                #ORIGservice_tech_yh_cy = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share * tech_load_profile
-                service_tech_yh_cy = service_tech * tech_load_profile
+                # Calculate fuel share and convert fuel to service an
+                service_tech = self.enduse_fuel_new_y[fueltype] * fuel_share * tech_eff
 
-                service_tech_cy[tech] += service_tech_yh_cy
+                # Calculate fuel share and convert fuel to service and distribute y to yh
+                service_tech_cy[tech] += service_tech * tech_load_profile
+
                 # Fuel for each technology, calculated based on defined fuel fraction within fueltype for by
                 # (assumed national share of fuel of technology * tot fuel)
-                #ORIG service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech_yh_cy) #IMPROVE SPEED BY NOT ASSIGNING SHAPE
                 service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech)
-
 
        # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -318,31 +312,29 @@ class Enduse(object):
         # --Calculate energy service demand over the full year and for every hour, sum demand accross all technologies
         tot_service_yh = sum(service_tech_cy.values()) #Summing service_fueltype_tech_p[fueltype][tech may be faster TODO
 
-        # ---------------------
+        # ---------------------------------------------------------------
         # --Convert to percentage
-        # ---------------------
+        # ---------------------------------------------------------------
         service_tech_p = {}
         _var = np.divide(1, np.sum(tot_service_yh))
         for technology, service_tech in service_tech_cy.items():
             service_tech_p[technology] = _var * np.sum(service_tech)
 
-        # ---------------------
+        # ---------------------------------------------------------------
         # --Convert service per fueltype of technology
-        # TODO: WRITE AS SPEARATE FUNCTIOn
-        # ---------------------
+        # TODO: WRITE AS SPEARATE FUNCTIO
+        # ---------------------------------------------------------------
         for fueltype, service_fueltype in service_fueltype_tech_p.items():
             sum_within_fueltype = sum(service_fueltype.values())
-
             for tech, service_fueltype_tech in service_fueltype.items():
-                if sum_within_fueltype > 0: #Faster like this
-                    #service_fueltype_tech_p[fueltype][tech] = np.divide(1, sum_within_fueltype) * service_fueltype_tech
+                try:
                     service_fueltype_tech_p[fueltype][tech] = (1 / sum_within_fueltype) * service_fueltype_tech
-                else:
+                except ZeroDivisionError:
                     service_fueltype_tech_p[fueltype][tech] = 0
 
-        # ---------------------
+        # ---------------------------------------------------------------
         # --Calculate service fraction per fueltype
-        # ---------------------
+        # ---------------------------------------------------------------
         service_fueltype_p = init.init_dict_zero(fueltypes_lu.values())
         for fueltype, service_fueltype in service_fueltype_tech_p.items():
             for tech, service_fueltype_tech in service_fueltype.items():
@@ -391,7 +383,6 @@ class Enduse(object):
 
                     share_fuel_low_temp_tech = (1 / total_fuels) * fuel_share_tech_low
                     share_fuel_high_temp_tech = (1 / total_fuels) * fuel_share_tech_high
-
 
                     # Calculate fuel with given fuel of hp and share of hp/other fuel
                     fuel_low_tech = fuel_high_tech * (share_fuel_low_temp_tech / share_fuel_high_temp_tech)
