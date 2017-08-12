@@ -41,9 +41,15 @@
 Down th5e line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - "scenario teller": istead of diffusion path, type in known path
+#
 
+#TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
+Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
+
+
+#SPEED: TEST FOR ENUMERATE
 The docs can be found here: http://ed.readthedocs.io
-'''
+55'''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #tata
 #!python3.6

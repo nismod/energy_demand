@@ -114,11 +114,11 @@ class Region(object):
 
     def create_load_profiles(self, data, rs_fuel_shape_heating_yd, ss_fuel_shape_heating_yd, rs_fuel_shape_cooling_yd, rs_hdd_cy, ss_peak_yd_heating_factor, rs_peak_yd_heating_factor):
         """Add load profiles 
-        
+
         Parameters
         ----------
 
-        
+
         TODO
         """
         print("   ...creating specific load profiles in region")
@@ -333,7 +333,7 @@ class Region(object):
                 sectors=data['rs_sectors'],
                 shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                 shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'], # * (1 / (365)),
+                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'], ##TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here * (1 / (365)), 
                 shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
                 )
 
@@ -348,7 +348,7 @@ class Region(object):
                     sectors=[sector],
                     shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], #  * (1 / (365)),
+                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], # * (1 / (365)), #TODO: CHECK
                     shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
                     )
 
@@ -363,7 +363,7 @@ class Region(object):
                     sectors=[sector],
                     shape_yd=data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                    enduse_peak_yd_factor=data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor']  * (1 / (365)),
+                    enduse_peak_yd_factor=data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor']  * (1 / (365)), #TODO: CHECK
                     shape_peak_dh=data['is_shapes_dh']#[sector][enduse]['shape_peak_dh']
                     )
 

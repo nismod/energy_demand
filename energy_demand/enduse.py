@@ -68,12 +68,9 @@ class Enduse(object):
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(fuel_enduse_tech_p_by)
             #print("..TIME B: {}".format(time.time() - start))
+            
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
-            fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(
-                fuel_enduse_tech_p_by,
-                tech_stock,
-                data['assumptions']['hybrid_technologies']
-                )
+            fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(fuel_enduse_tech_p_by, tech_stock, data['assumptions']['hybrid_technologies'])
 
             # -------------------------------
             # Yearly fuel calculation cascade
@@ -680,6 +677,7 @@ class Enduse(object):
         """
         #control_sum = 0
         fuels_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
+        fuels_yh2 = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
 
         average_fuel_share_in_year = (1.0 / 8760)
 
@@ -693,33 +691,31 @@ class Enduse(object):
 
             # <<<<<<<<<<<<<<<<<< TODO
             # Get distribution of fuel for every hour
-            #'''
+            '''
+            #print("A: " + str(np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy'))))
+            #print("A: " + str(np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h'))))
             fueltypes_tech_share_yh_365 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
             fueltypes_tech_share_yh_24 = np.sum(fueltypes_tech_share_yh_365, axis=1) #NEW
             fueltypes_tech_share_yh = np.sum(fueltypes_tech_share_yh_24, axis=1) #NEW
             fueltypes_tech_share_yh *= average_fuel_share_in_year # PINGU
-            #'''
+            '''
             #NEW AND WRONG
             # Get distribution per fueltype TODO: CHEKC WHy NOT WORKS
-            fueltypes_tech_share_yh2 = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
-            fueltypes_tech_share_yh2 *= average_fuel_share_in_year
+            fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
+            
             #print("------ {}  {}   {} ".format(tech, self.enduse, self.sector))
-
-            '''if np.sum(fueltypes_tech_share_yh) != np.sum(fueltypes_tech_share_yh2):
-                print("NOT EQUEL.." + str(tech))
-                tech_object = tech_stock.stock_technologies[(tech, self.enduse)]
-            '''
-            if np.sum(fueltypes_tech_share_yh) != 1:
-                print("ERR")
-
-
-            ##print(fueltypes_tech_share_yh)
+            #print(fueltypes_tech_share_yh)
             #print(fueltypes_tech_share_yh2)
             # <<<<<<<<<<<<<<<<<<
+            #if np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')) != 1:
+            #    print(np.sum(tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')))
+            #    print("df")
 
             # Get distribution of fuel for every day, terate shares of fueltypes, calculate share of fuel and add to fuels
             for fueltype, fuel_shares_yh in enumerate(fueltypes_tech_share_yh):
                 fuels_yh[fueltype] += fuel_tech_yh * fuel_shares_yh
+
+            #FASTER
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
         ### TESTINGnp.testing.assert_array_almost_equal(np.sum(fuels_yh), np.sum(control_sum), decimal=2, err_msg="Error: The y to h fuel did not work")
@@ -905,20 +901,9 @@ class Enduse(object):
 
             fueltype_share_yh_all_h = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
-            '''
-            _var = (1.0 / np.sum(fueltype_share_yh_all_h))
-            _var2 = np.sum(fuel_tech)
-
-            for fueltype, fuel_share in enumerate(fueltype_share_yh_all_h):
-                share_of_fuel = _var * fuel_share
-                fuel_fueltype = share_of_fuel * _var2
-
-                ##print("-- service to fuel: {} service:  {} fuel_tech: {} fueltyp: {}  fuel_fueltype: {}".format(tech, np.sum(service), np.sum(fuel_tech), fueltype, np.sum(fuel_fueltype)))
-                enduse_fuels[fueltype] += fuel_fueltype # Share of fuel of fueltype_hybrid * fuel
-            '''
             #  FAST- Multiply fuel of technology per fueltype with shape of yearl distrbution
-            fuel_per_fueltype_p = (1.0 / np.sum(fueltype_share_yh_all_h)) * fueltype_share_yh_all_h #* np.sum(fuel_tech)
-            enduse_fuels += fuel_per_fueltype_p * np.sum(fuel_tech)
+            fuel_per_fueltype_p = (1.0 / np.sum(fueltype_share_yh_all_h)) * fueltype_share_yh_all_h #Calculate share of fuel per fueltype
+            enduse_fuels += fuel_per_fueltype_p * np.sum(fuel_tech) #Multiply with fuel
 
         setattr(self, 'enduse_fuel_new_y', enduse_fuels)
 

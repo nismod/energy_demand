@@ -275,7 +275,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     '''
     return fuel_shapes_hybrid_y_dh
 
-def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
+def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, len_fueltypes):
     """Calculate fuel share for every hour
 
     Parameters
@@ -288,10 +288,13 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     fueltype_share_yh_all_h : array
         Sum of fuel share for every hour
     """
+
     # Sum across rows (share of fuel per hour per fueltype) (7, 24)
     fueltypes_tech_share_yh_24 = np.sum(fueltypes_yh_p_cy, axis=1)
 
     # Sum across rows (overall share of fuel per fueltype) (7,)
     fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1)
+
+    fueltype_share_yh_all_h *= (1.0 / 8760)
 
     return fueltype_share_yh_all_h

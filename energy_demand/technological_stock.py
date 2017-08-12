@@ -145,8 +145,8 @@ class Technology(object):
         # Shares of fueltype for every hour for single fueltype
         self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
-        # Calculate shaper per fueltype
-        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
+        # Calculate shape per fueltype
+        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy, data['nr_of_fueltypes'])
 
         #print("TIME C: {}".format(time.time() - start))
         # --------------------------------------------------------------
@@ -246,6 +246,7 @@ class HybridTechnology(object):
     def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy):
         """
         """
+        print("tech_name  " + str(tech_name))
         self.enduse = enduse
         self.tech_name = tech_name
 
@@ -291,7 +292,7 @@ class HybridTechnology(object):
         # Shares of fueltype for every hour for multiple fueltypes
         self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['nr_of_fueltypes'], self.tech_low_temp_fueltype, self.tech_high_temp_fueltype)
 
-        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
+        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy, data['nr_of_fueltypes'])
 
         self.eff_by = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
 
