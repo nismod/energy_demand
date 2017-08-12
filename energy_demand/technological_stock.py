@@ -108,8 +108,8 @@ class TechStock(object):
             return tech_object.fueltypes_yh_p_cy
         elif attribute_to_get == 'fueltype_share_yh_all_h':
             return tech_object.fueltype_share_yh_all_h
-        elif attribute_to_get == 'fueltypes_yd_p_cy':
-            return tech_object.fueltypes_yd_p_cy
+        #elif attribute_to_get == 'fueltypes_yd_p_cy':
+        #    return tech_object.fueltypes_yd_p_cy
 
 class Technology(object):
     """Technology Class
@@ -141,14 +141,6 @@ class Technology(object):
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
         self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
-
-        '''#BIGIDEAO
-        if tech_type == 'heat_pump':
-            self.HOURLY_DEP_EFF = True
-        else:
-            self.HOURLY_DEP_EFF = False
-        '''
-
 
         #print("TIME B: {}".format(time.time() - start))
 
@@ -292,7 +284,6 @@ class HybridTechnology(object):
         self.eff_tech_high_cy = technologies_related.get_heatpump_eff(temp_cy, eff_tech_high_cy, t_base_heating_cy)
 
         # Get fraction of service for hybrid technologies for every hour
-
         self.service_distr_hybrid_h_p = self.service_hybrid_tech_low_high_h_p(
             temp_cy,
             data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_low'],
