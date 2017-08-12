@@ -34,7 +34,9 @@ class EnergyModel(object):
         # Create object for every region and add into list
         self.regions = self.create_regions(region_names, data)
 
+        # Load profiles
 
+        
         # --------------------
         # Residential SubModel
         # --------------------
