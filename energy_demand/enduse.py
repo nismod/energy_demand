@@ -299,23 +299,24 @@ class Enduse(object):
                 # Convert to energy service TODO?
                 # - The base year efficiency is taken because the actual service can only be calculated with base year efficiny.
                 # - However, the enduse_fuel_y is taken because the actual service was reduced e.g. due to smart meters or temperatur changes
-                #_var = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share
+
+                service_tech = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share
                 # Calculate fuel share and convert fuel to service and distribute y to yh
-                service_tech_yh_cy = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share * tech_load_profile 
+                #ORIGservice_tech_yh_cy = self.enduse_fuel_new_y[fueltype] * tech_eff * fuel_share * tech_load_profile
+                service_tech_yh_cy = service_tech * tech_load_profile
 
                 service_tech_cy[tech] += service_tech_yh_cy
                 # Fuel for each technology, calculated based on defined fuel fraction within fueltype for by
                 # (assumed national share of fuel of technology * tot fuel)
-                service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech_yh_cy) #IMPROVE SPEED BY NOT ASSIGNING SHAPE
+                #ORIG service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech_yh_cy) #IMPROVE SPEED BY NOT ASSIGNING SHAPE
+                service_fueltype_tech_p[fueltype][tech] += np.sum(service_tech)
 
-                #print("A: " + str(np.sum(service_tech_yh_cy)))
-                #print("B: " + str(np.sum(_var)))
-                #FAST CHECK
+
        # --------------------------------------------------
         # Convert or aggregate service to other formats
         # --------------------------------------------------
         # --Calculate energy service demand over the full year and for every hour, sum demand accross all technologies
-        tot_service_yh = sum(service_tech_cy.values())
+        tot_service_yh = sum(service_tech_cy.values()) #Summing service_fueltype_tech_p[fueltype][tech may be faster TODO
 
         # ---------------------
         # --Convert to percentage
@@ -334,7 +335,8 @@ class Enduse(object):
 
             for tech, service_fueltype_tech in service_fueltype.items():
                 if sum_within_fueltype > 0: #Faster like this
-                    service_fueltype_tech_p[fueltype][tech] = np.divide(1, sum_within_fueltype) * service_fueltype_tech
+                    #service_fueltype_tech_p[fueltype][tech] = np.divide(1, sum_within_fueltype) * service_fueltype_tech
+                    service_fueltype_tech_p[fueltype][tech] = (1 / sum_within_fueltype) * service_fueltype_tech
                 else:
                     service_fueltype_tech_p[fueltype][tech] = 0
 

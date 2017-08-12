@@ -24,7 +24,7 @@ def helper_set_same_eff_all_tech(technologies, eff_achieved_factor=1):
     -------
     technologies : dict
         Adapted technolog
-    """ #TODO MAKE FASTER
+    """
     for technology in technologies:
         technologies[technology]['eff_achieved'] = eff_achieved_factor
     return technologies

@@ -170,26 +170,15 @@ class Technology(object):
                     ),
                 t_base_heating_cy)
         else:
-            #NEW
             self.eff_by = data['assumptions']['technologies'][tech_name]['eff_by']
             self.eff_cy = technologies_related.calc_eff_cy(
-                    data['assumptions']['technologies'][tech_name]['eff_by'],
-                    tech_name,
-                    data['base_sim_param'],
-                    data['assumptions'],
-                    self.eff_achieved_factor,
-                    self.diff_method)
-            #ORIG
-            '''self.eff_by = technologies_related.const_eff_yh(data['assumptions']['technologies'][tech_name]['eff_by'])
-            self.eff_cy = technologies_related.const_eff_yh(
-                technologies_related.calc_eff_cy(
-                    data['assumptions']['technologies'][tech_name]['eff_by'],
-                    tech_name,
-                    data['base_sim_param'],
-                    data['assumptions'],
-                    self.eff_achieved_factor,
-                    self.diff_method)
-            )'''
+                data['assumptions']['technologies'][tech_name]['eff_by'],
+                tech_name,
+                data['base_sim_param'],
+                data['assumptions'],
+                self.eff_achieved_factor,
+                self.diff_method
+                )
 
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):
@@ -265,7 +254,8 @@ class HybridTechnology(object):
         self.tech_low_temp_fueltype = data['assumptions']['technologies'][self.tech_low_temp]['fuel_type']
         self.tech_high_temp_fueltype = data['assumptions']['technologies'][self.tech_high_temp]['fuel_type']
 
-        self.eff_tech_low_by = technologies_related.const_eff_yh(data['assumptions']['technologies'][self.tech_low_temp]['eff_by'])
+        ##self.eff_tech_low_by = technologies_related.const_eff_yh(data['assumptions']['technologies'][self.tech_low_temp]['eff_by'])
+        self.eff_tech_low_by = data['assumptions']['technologies'][self.tech_low_temp]['eff_by']
         self.eff_tech_high_by = technologies_related.get_heatpump_eff(temp_by, data['assumptions']['technologies'][self.tech_high_temp]['eff_by'], t_base_heating_by)
 
         # Consider efficiency improvements
@@ -288,7 +278,8 @@ class HybridTechnology(object):
             )
 
         # Efficiencies
-        self.eff_tech_low_cy = technologies_related.const_eff_yh(eff_tech_low_cy) #constant eff of low temp tech
+       # self.eff_tech_low_cy = technologies_related.const_eff_yh(eff_tech_low_cy) #constant eff of low temp tech
+        self.eff_tech_low_cy = eff_tech_low_cy #constant eff of low temp tech
         self.eff_tech_high_cy = technologies_related.get_heatpump_eff(temp_cy, eff_tech_high_cy, t_base_heating_cy)
 
         # Get fraction of service for hybrid technologies for every hour
