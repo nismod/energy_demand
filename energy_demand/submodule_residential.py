@@ -30,6 +30,7 @@ class ResidentialModel(object):
         """Create enduse objects and add to list
         """
         enduse_object = endusefunctions.Enduse(
+            region_object=region_object,
             region_name=self.region_name,
             data=data,
             enduse=self.enduse,
@@ -47,7 +48,7 @@ class ResidentialModel(object):
             installed_tech=data['assumptions']['rs_installed_tech'],
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
-            load_profiles=region_object.rs_load_profiles,
+            load_profiles=region_object.rs_load_profiles,  #load_profiles
             dw_stock=data['rs_dw_stock']
             )
 

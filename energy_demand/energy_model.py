@@ -1,12 +1,16 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import numpy as np
+import uuid
 import energy_demand.region as reg
+import energy_demand.weather_regions
 import energy_demand.submodule_residential as submodule_residential
 import energy_demand.submodule_service as submodule_service
 import energy_demand.submodule_industry as submodule_industry
 import energy_demand.submodule_transport as submodule_transport
 from energy_demand.scripts_shape_handling import load_factors as load_factors
+from energy_demand.scripts_shape_handling import shape_handling
+from energy_demand.scripts_initalisations import helper_functions
 
 class EnergyModel(object):
     """Class of a country containing all regions as self.attributes
@@ -31,31 +35,53 @@ class EnergyModel(object):
 
         self.curr_yr = data['base_sim_param']['curr_yr']
 
-        # Create object for every region and add into list
-        self.regions = self.create_regions(region_names, data)
+        # Non regional load profiles
+        data['load_profile_stock_non_regional'] = self.create_load_profile_stock(data)
 
-        # Load profiles
+        # Create WeatherRegions with containing weather dependen load profiles
+        self.RegionShapes = self.create_weather_regions(data['weather_stations'], data, 'rs_submodel')
+        self.regions = self.create_regions(region_names, data, 'rs_submodel')
 
-        
         # --------------------
         # Residential SubModel
         # --------------------
         self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'], data['rs_sectors'])
+        del self.regions
+        del self.RegionShapes
 
         # --------------------
         # Service SubModel
         # --------------------
+        # Create WeatherRegions with containing weather dependen load profiles
+        self.RegionShapes = self.create_weather_regions(data['weather_stations'], data, 'ss_submodel')
+        self.regions = self.create_regions(region_names, data, 'ss_submodel')
+
         self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['ss_sectors'])
+        del self.regions
+        del self.RegionShapes
 
         # --------------------
         # Industry SubModel
         # --------------------
+        # Create WeatherRegions with containing weather dependen load profiles
+        self.RegionShapes = self.create_weather_regions(data['weather_stations'], data, 'is_submodel')
+        self.regions = self.create_regions(region_names, data, 'is_submodel')
+
         self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
+        del self.regions
+        del self.RegionShapes
 
         # --------------------
         # Transport SubModel
         # --------------------
+        # Create WeatherRegions with containing weather dependen load profiles
+        self.RegionShapes = self.create_weather_regions(data['weather_stations'], data, 'ts_submodel')
+        self.regions = self.create_regions(region_names, data, 'ts_submodel')
+
         self.ts_submodel = self.other_submodels()
+        del self.regions
+        del self.RegionShapes
+
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
@@ -102,6 +128,74 @@ class EnergyModel(object):
 
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
+
+    def create_load_profile_stock(self, data):
+        """TODO: NON REGIONAL LAOD PROFILES
+
+        #TODO: TAKE OUT REGIONAL ENDUSES 
+        """
+
+        #Generate stock
+        load_profile_stock_non_regional = shape_handling.LoadProfileStock("non_regional_load_profiles")
+
+        # Lighting (residential)
+        load_profile_stock_non_regional.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=data['assumptions']['technology_list']['rs_lighting'],
+            enduses=['rs_lighting'],
+            sectors=data['rs_sectors'],
+            shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+            shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
+            shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
+            )
+
+        # -- dummy rs technologies
+        for enduse in data['assumptions']['rs_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
+
+            load_profile_stock_non_regional.add_load_profile(
+                unique_identifier=uuid.uuid4(),
+                technologies=tech_list,
+                enduses=[enduse],
+                sectors=data['rs_sectors'],
+                shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'], ##TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here * (1 / (365)), 
+                shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
+                )
+
+        # - dummy is technologies
+        for enduse in data['assumptions']['ss_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
+            for sector in data['ss_sectors']:
+                load_profile_stock_non_regional.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
+                    technologies=tech_list,
+                    enduses=[enduse],
+                    sectors=[sector],
+                    shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], # * (1 / (365)), #TODO: CHECK
+                    shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
+                    )
+
+        # dummy is
+        for enduse in data['assumptions']['is_dummy_enduses']:
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
+            for sector in data['is_sectors']:
+                load_profile_stock_non_regional.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
+                    technologies=tech_list,
+                    enduses=[enduse],
+                    sectors=[sector],
+                    shape_yd=data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    enduse_peak_yd_factor=data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor']  * (1 / (365)), #TODO: CHECK
+                    shape_peak_dh=data['is_shapes_dh']#[sector][enduse]['shape_peak_dh']
+                    )
+
+        return load_profile_stock_non_regional
 
     def get_regional_yh(self, nr_of_fueltypes, region_name):
         """Get fuel for all fueltype for yh for specific region (all submodels)
@@ -161,6 +255,7 @@ class EnergyModel(object):
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model
         """
+        _scrap_cnt = 0
         print("..industry submodel start")
         submodule_list = []
 
@@ -179,7 +274,9 @@ class EnergyModel(object):
 
                     # Add to list
                     submodule_list.append(submodule)
-
+                    
+                    _scrap_cnt += 1
+                    print("   ...running industry model {}".format(_scrap_cnt))
         return submodule_list
 
     def residential_submodel(self, data, enduses, sectors):
@@ -235,6 +332,7 @@ class EnergyModel(object):
             List with submodules
         """
         print("..service submodel start")
+        _scrap_cnt = 0
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -253,10 +351,42 @@ class EnergyModel(object):
                     # Add to list
                     submodule_list.append(submodule)
 
+                    _scrap_cnt += 1
+                    print("   ...running service model {}".format(_scrap_cnt))
+
         return submodule_list
 
     @classmethod
-    def create_regions(cls, region_names, data):
+    def create_weather_regions(cls, weather_region, data, model_type):
+        """Create all weather regions and calculate
+
+        TODO:
+        -stocks
+        -load profiles
+
+        Parameters
+        ----------
+        regions : list
+            The name of the Weather Region
+        """
+        regions = []
+
+        for weather_region_name in weather_region:
+            print("...creating weather station: '{}'  {}".format(weather_region_name, model_type))
+            # Generate region object
+            region_object = weather_regions.WeatherRegion(
+                weather_region_name=weather_region_name,
+                data=data,
+                modeltype=model_type
+                )
+
+            # Add region to list
+            regions.append(region_object)
+
+        return regions
+
+    @classmethod
+    def create_regions(cls, region_names, data, submodel_type):
         """Create all regions and add them in a list
 
         Parameters
@@ -268,20 +398,17 @@ class EnergyModel(object):
 
         # Iterate all regions
         for region_name in region_names:
-            print("...creating region: '{}'  ".format(region_name))
+            print("...creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
             region_object = reg.Region(
                 region_name=region_name,
-                data=data
+                data=data,
+                submodel_type=submodel_type,
+                RegionShapes=cls.RegionShapes
                 )
 
             # Add region to list
             regions.append(region_object)
-
-        # -------------
-        # Memory-cleaner for a single region calculation
-        # -------------
-        #del data['temperature_data']
 
         return regions
 

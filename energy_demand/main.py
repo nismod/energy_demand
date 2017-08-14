@@ -57,22 +57,22 @@ import os
 import sys
 from datetime import date
 import numpy as np
+from memory_profiler import profile
 import energy_demand.energy_model as energy_model
-from energy_demand.scripts_plotting import plotting_results
 import energy_demand.assumptions as assumpt
 from energy_demand.scripts_data import data_loader
 from energy_demand.scripts_data import write_data
+from energy_demand.scripts_data import read_data
 from energy_demand.scripts_disaggregation import national_disaggregation
 from energy_demand.scripts_building_stock import building_stock_generator
-from energy_demand.scripts_validation import elec_national_data
 from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_calculations import enduse_scenario
-from energy_demand.scripts_data import read_data
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_validation import lad_validation
-from memory_profiler import profile
+from energy_demand.scripts_validation import elec_national_data
+from energy_demand.scripts_plotting import plotting_results
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 #@profile
@@ -112,7 +112,7 @@ def energy_demand_model(data):
 
     #fueltot_specific_fueltype = model_run_object.sum_uk_specfuelype_enduses_y[2] #Elec
     print("================================================")
-    print("Number of regions    " + str(len(model_run_object.regions)))
+    #print("Number of regions    " + str(len(model_run_object.regions)))
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
     print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
@@ -455,7 +455,8 @@ if __name__ == "__main__":
             lad_infos_shapefile,
             model_run_object,
             base_data['nr_of_fueltypes'],
-            base_data['lu_fueltype'])
+            base_data['lu_fueltype'],
+            base_data['lu_reg'])
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
         # ---------------------------------------------------

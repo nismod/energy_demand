@@ -3,6 +3,37 @@
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
+'''class LoadStockRegional(object):
+    """
+    """
+    def __init__(self, regions, enduse, stock_name):
+        self.enduse = enduse
+        self.stock_name = stock_name
+        self.load_profile_dict = {}
+
+        for region in regions:
+            self.load_profile_dict[region] = RegionalEnduseLoadProfile(
+                enduse,
+                shape_yd,
+                shape_yh,
+                shape_peak_dh,
+                enduse_peak_yd_factor)
+
+
+
+class RegionalEnduseLoadProfile(object):
+    def __init__(self, enduse, shape_yd, shape_yh, shape_peak_dh, enduse_peak_yd_factor):
+        """Constructor
+        """
+        self.enduse = enduse
+        self.shape_yd = shape_yd
+        self.shape_yh = shape_yh
+        self.shape_peak_dh = shape_peak_dh
+        self.enduse_peak_yd_factor = enduse_peak_yd_factor
+'''
+# -----------------------------------
+
+
 class LoadProfileStock(object):
     """Collection of load shapes in a list
 
@@ -15,6 +46,20 @@ class LoadProfileStock(object):
         self.stock_name = stock_name
         self.load_profile_dict = {}
         self.dict_with_tuple_keys = {} # dict_with_tuple_keys
+
+        #NEW
+        self.enduses_in_stock = [] #TODO LIST OR DICT OR SET
+
+    def get_all_enduses_in_stock(self):
+        """ADD ALL ENDUESS OF THE STOCK TO A LIST
+        """
+        all_enduses = set([])
+
+        for profile_obj in self.load_profile_dict.values():
+            for enduse in profile_obj.enduses:
+                all_enduses.add(enduse)
+
+        setattr(self, 'enduses_in_stock', list(all_enduses))
 
     def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
@@ -38,6 +83,7 @@ class LoadProfileStock(object):
             Shape (dh), shape of a day for every hour
         """
         self.load_profile_dict[unique_identifier] = LoadProfile(
+            enduses,
             unique_identifier,
             shape_yd,
             shape_yh,
@@ -47,6 +93,9 @@ class LoadProfileStock(object):
 
         # Generate lookup dictionary with triple key
         self.generate_dict_with_tuple_keys(unique_identifier, enduses, sectors, technologies)
+
+        # Update enduses in stock
+        self.get_all_enduses_in_stock()
 
     def generate_dict_with_tuple_keys(self, unique_identifier, enduses, sectors, technologies):
         """Generate look_up keys to position in 'load_profile_dict'
@@ -142,16 +191,19 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(self, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
+    def __init__(self, enduses, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
         """Constructor
         """
         self.unique_identifier = unique_identifier
+        self.enduses = enduses
+
+
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
         self.shape_peak_dh = shape_peak_dh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
-        #Calculate percentage for every day
+        # Calculate percentage for every day
         self.shape_y_dh = self.calc_y_dh_shape_from_yh()
 
     def calc_y_dh_shape_from_yh(self):
@@ -299,3 +351,9 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     fueltype_share_yh_all_h *= average_share_in_a_year
 
     return fueltype_share_yh_all_h
+
+
+
+def non_regional_shapes():
+
+    pass 

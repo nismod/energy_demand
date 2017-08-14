@@ -43,13 +43,20 @@ class Enduse(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}):
+    def __init__(self, region_object, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}):
         """Enduse class constructor
         """
         #start = time.time()
         #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
+
+        # NEW DEPENDING ON ENDUSE SELECT LOAD PROFILES FOR REGION OR NOT
+        if enduse in data['load_profile_stock_non_regional'].enduses_in_stock:
+            load_profiles = data['load_profile_stock_non_regional']
+        else:
+            load_profiles = load_profiles
+
 
         # Copy fuel in new fuel output
         self.enduse_fuel_new_y = np.copy(enduse_fuel) #TEST copy.deepcopy(enduse_fuel), basic_functions.mimick_deepcopy(enduse_fuel)
@@ -68,7 +75,7 @@ class Enduse(object):
             # Get technologies of enduse depending on assumptions on fuel switches or service switches
             self.technologies_enduse = self.get_enduse_tech(fuel_enduse_tech_p_by)
             #print("..TIME B: {}".format(time.time() - start))
-            
+
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
             fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(fuel_enduse_tech_p_by, tech_stock, data['assumptions']['hybrid_technologies'])
 
@@ -622,7 +629,7 @@ class Enduse(object):
         for tech in self.technologies_enduse:
             #print("TECH ENDUSE    {}   {}".format(tech, self.enduse))
 
-            # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
+            # Calculate absolute fuel values for yd (multiply fuel with yd_shape) #could as well be calculted with a function in profile TODO:
             fuel_tech_y_d = enduse_fuel_tech[tech] * load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_yd')
 
             # If shape is read directly from yh (e.g. hybrid technology, service cooling and ventilation) TODO

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import unit_conversions
 import operator
 
-def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes):
+def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
 
     Parameters
@@ -26,7 +26,7 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     result_dict['modelled_electricity_demand'] = {}
 
     # Match ECUK sub-regional demand with geocode
-    for reg_object in model_run_object.regions:
+    for reg_object in lu_reg:
 
         # Iterate loaded data
         for reg_csv_geocode in lad_infos_shapefile:
