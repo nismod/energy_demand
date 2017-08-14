@@ -278,7 +278,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running industry model {}  of total: {}".format(_scrap_cnt, len(self.regions) * len(sectors) * len(enduses)))
+                    print("   ...running industry model in % {} ".format(1 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -320,7 +320,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     _scrap_cnt += 1
-                    print("   ...running residential model {}  of total: {}".format(_scrap_cnt, len(self.regions) * len(sectors) * len(enduses)))
+                    print("   ...running residential model {}  of total".format(1 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt)) 
 
         # To save on memory
         del self.regions, self.weather_regions

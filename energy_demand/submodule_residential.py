@@ -25,6 +25,9 @@ class ResidentialModel(object):
             region_object,
             data
             )
+        
+        #TODO LATER ON: SUMMARY ACROSS AL SECTORS (to save on memory)
+        #self.enduse_object_aggregated_across_all_sectors
 
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
