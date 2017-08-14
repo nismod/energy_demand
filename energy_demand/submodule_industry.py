@@ -23,6 +23,7 @@ class IndustryModel(object):
         self.enduse = enduse
         self.sector = sector
         self.fuels_all_enduses = data['is_fueldata_disagg'][self.region_name][self.sector]
+
         self.enduse_object = self.create_enduse(region_object, data)
 
     def create_enduse(self, region_object, data):

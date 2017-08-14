@@ -26,18 +26,18 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     result_dict['modelled_electricity_demand'] = {}
 
     # Match ECUK sub-regional demand with geocode
-    for reg_object in lu_reg:
+    for region_name in lu_reg:
 
         # Iterate loaded data
         for reg_csv_geocode in lad_infos_shapefile:
-            if reg_csv_geocode == reg_object.region_name:
+            if reg_csv_geocode == region_name:
 
                 # --Sub Regional Electricity
                 #value_gwh = unit_conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
-                result_dict['REAL_electricity_demand'][reg_object.region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
+                result_dict['REAL_electricity_demand'][region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
                 all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode)
-                result_dict['modelled_electricity_demand'][reg_object.region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
+                result_dict['modelled_electricity_demand'][region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
 
     # -----------------
     # Sort results according to size

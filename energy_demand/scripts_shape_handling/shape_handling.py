@@ -3,37 +3,6 @@
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
-'''class LoadStockRegional(object):
-    """
-    """
-    def __init__(self, regions, enduse, stock_name):
-        self.enduse = enduse
-        self.stock_name = stock_name
-        self.load_profile_dict = {}
-
-        for region in regions:
-            self.load_profile_dict[region] = RegionalEnduseLoadProfile(
-                enduse,
-                shape_yd,
-                shape_yh,
-                shape_peak_dh,
-                enduse_peak_yd_factor)
-
-
-
-class RegionalEnduseLoadProfile(object):
-    def __init__(self, enduse, shape_yd, shape_yh, shape_peak_dh, enduse_peak_yd_factor):
-        """Constructor
-        """
-        self.enduse = enduse
-        self.shape_yd = shape_yd
-        self.shape_yh = shape_yh
-        self.shape_peak_dh = shape_peak_dh
-        self.enduse_peak_yd_factor = enduse_peak_yd_factor
-'''
-# -----------------------------------
-
-
 class LoadProfileStock(object):
     """Collection of load shapes in a list
 
@@ -47,7 +16,6 @@ class LoadProfileStock(object):
         self.load_profile_dict = {}
         self.dict_with_tuple_keys = {} # dict_with_tuple_keys
 
-        #NEW
         self.enduses_in_stock = [] #TODO LIST OR DICT OR SET
 
     def get_all_enduses_in_stock(self):
@@ -351,9 +319,3 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     fueltype_share_yh_all_h *= average_share_in_a_year
 
     return fueltype_share_yh_all_h
-
-
-
-def non_regional_shapes():
-
-    pass 

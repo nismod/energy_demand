@@ -1,7 +1,6 @@
 """Dummy transportation model
 """
 import energy_demand.enduse as enduse_functions
-import numpy as np
 
 class OtherModel(object):
     """Other Model

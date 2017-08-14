@@ -9,9 +9,9 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd
 
 class WeatherRegion(object):
-    """Region class
+    """WeaterRegion
 
-    CREAT SHAPE WITH WEATHER STATION
+    TODO: CREAT SHAPE WITH WEATHER STATION
 
     Parameters
     ----------
@@ -28,7 +28,6 @@ class WeatherRegion(object):
     def __init__(self, weather_region_name, data, modeltype):
         """Constructor
         """
-
         # Weather region station name
         self.weather_region_name = weather_region_name
 
@@ -63,8 +62,6 @@ class WeatherRegion(object):
         # --Heating technologies for service sector (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(data, ss_fuel_shape_heating_yd, 'ss_space_heating')
 
-        #self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][region_name]
-
         self.ss_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
         self.ss_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
 
@@ -97,6 +94,9 @@ class WeatherRegion(object):
         elif modeltype == 'is_submodel':
             self.is_tech_stock = ts.TechStock('is_tech_stock', data, temp_by, temp_cy, data['assumptions']['ss_t_base_heating']['base_yr'], data['is_all_enduses'], ss_t_base_heating_cy, data['assumptions']['is_all_specified_tech_enduse_by'])
             self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
+
+            ##TODO: RATHER GENERATE FLAT THAN HERE
+
 
         elif modeltype == 'ts_submodel':
             pass
@@ -290,25 +290,6 @@ class WeatherRegion(object):
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor,
                 shape_peak_dh=data['is_shapes_dh'] #   data['rs_shapes_heating_heat_pump_dh']['peakday']
                 )
-
-    def assign_fuel_peak_dh_shape_tech_stock(self, tech_stock, technologies, enduses, sectors, shape_peak_dh):
-        """Assign technology specific yd and yh shape
-
-        Parameters
-        ----------
-        tech_stock : object
-            Technology stock to assign shape
-        technologies : list
-            Technologies to which the shape gets assigned
-        enduses : list
-            Enduses where the technologies are used
-        shape_peak_dh : array
-            Fuel shape
-        """
-        for enduse in enduses:
-            for sector in sectors:
-                for technology in technologies:
-                    tech_stock.set_tech_attribute_enduse(technology, 'shape_peak_dh', shape_peak_dh, enduse, sector)
 
     def get_shape_heating_hybrid_yh(self, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech): #, tech_low_temp, tech_high_temp):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape

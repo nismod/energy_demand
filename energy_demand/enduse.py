@@ -182,9 +182,12 @@ class Enduse(object):
             # Convert service to fuel per tech (y) for each technology depending on technological efficiences in current year
             enduse_fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
             #print("..TIME J: {}".format(time.time() - start))
+
             # -------------------------------------------------------
             # Fuel shape assignement
             # -------------------------------------------------------
+            #SWISS: 
+            # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
 
             #---NON-PEAK
             self.enduse_fuel_yh = self.calc_fuel_tech_yh(enduse_fuel_tech_y, tech_stock, load_profiles)

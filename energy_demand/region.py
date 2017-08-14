@@ -19,7 +19,7 @@ class Region(object):
     - For each region_name, a technology stock is defined with help of regional temperature data technology specific
     - regional specific fuel shapes are assigned to technologies
     """
-    def __init__(self, region_name, data, submodel_type, RegionShapes):
+    def __init__(self, region_name, data, submodel_type, weather_regions):
         """Constructor
         """
         self.region_name = region_name
@@ -33,7 +33,7 @@ class Region(object):
         closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
 
         # Get weather region object (closest weather station to Region)
-        weatherregion_object = self.get_correct_weather_point(RegionShapes, closest_station_id)
+        weatherregion_object = self.get_correct_weather_point(weather_regions, closest_station_id)
 
         # Get tech stocks and load profiles
         if submodel_type == 'rs_submodel':
@@ -59,10 +59,10 @@ class Region(object):
             self.ss_heating_factor_y = weatherregion_object.ss_heating_factor_y
             self.ss_cooling_factor_y = weatherregion_object.ss_cooling_factor_y
 
-    def get_correct_weather_point(self, RegionShapes, closest_station_id):
+    def get_correct_weather_point(self, weather_regions, closest_station_id):
         """Iterate list with weather regions and get weather region object
         """
-        for weather_region in RegionShapes:
+        for weather_region in weather_regions:
             if weather_region.weather_region_name == closest_station_id:
 
                 return weather_region
