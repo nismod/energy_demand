@@ -58,7 +58,7 @@ class TechStock(object):
                         temp_by,
                         temp_cy,
                         t_base_heating,
-                        t_base_heating_cy,
+                        t_base_heating_cy
                         )
                 else:
                     tech_object = Technology(

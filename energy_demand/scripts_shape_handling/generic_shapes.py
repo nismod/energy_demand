@@ -34,4 +34,6 @@ def generic_flat_shape(shape_peak_yd_factor=1):
     # linear shape_non_peak_yd
     shape_non_peak_yd = np.ones((365)) / 365
 
-    return shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
+    shape_non_peak_yh = np.full((365, 24), 1/8760)
+
+    return shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh

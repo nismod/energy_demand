@@ -54,7 +54,7 @@ class Enduse(object):
         # NEW DEPENDING ON ENDUSE SELECT LOAD PROFILES FOR REGION OR NOT
         if enduse in data['load_profile_stock_non_regional'].enduses_in_stock:
             load_profiles = data['load_profile_stock_non_regional']
-        else:
+        #else:
             load_profiles = load_profiles
 
         # Copy fuel in new fuel output
@@ -62,10 +62,11 @@ class Enduse(object):
 
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0: # Enduse has no fuel. Create empty shapes
+            self.enduse_fuel_y = np.zeros((enduse_fuel.shape[0]))
             self.enduse_fuel_yh = 0 #np.zeros((enduse_fuel.shape[0], 365, 24))
-            self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24)) 
+            self.enduse_fuel_peak_dh = 0 #np.zeros((enduse_fuel.shape[0], 24))
             self.enduse_fuel_peak_h = 0 #np.zeros((enduse_fuel.shape[0]))
-            self.crit_flat_fuel_shape = False# True
+            self.crit_flat_fuel_shape = False
         else:
             crit_switch_fuel = self.get_crit_switch(fuel_switches, data['base_sim_param'])
             crit_switch_service = self.get_crit_switch(service_switches, data['base_sim_param'])
@@ -99,7 +100,8 @@ class Enduse(object):
             #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("..TIME E: {}".format(time.time() - start))
             # Calculate new fuel demands after scenario drivers
-            self.enduse_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers, data['base_sim_param'])  #TODO: REMOVE REGION NAME
+            self.enduse_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers, data['base_sim_param'])
+            #TODO: REMOVE REGION NAME
             #print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("..TIME E: {}".format(time.time() - start))
@@ -173,14 +175,21 @@ class Enduse(object):
             # -------------------------------------------------------
             # Fuel shape assignement
             # -------------------------------------------------------
-            self.crit_flat_fuel_shape = False #crit_flat_fuel_shape
-            crit_flat_fuel_shape = False #Scrap
             if crit_flat_fuel_shape:
+                self.crit_flat_fuel_shape = True
 
-                self.enduse_fuel_yh = 0
+                #self.enduse_fuel_yh = np.zeros((self.enduse_fuel_new_y.shape[0]))
+                self.enduse_fuel_y = np.zeros((self.enduse_fuel_new_y.shape[0]))
+
                 for tech in enduse_fuel_tech_y:
-                    self.enduse_fuel_yh += np.sum(enduse_fuel_tech_y[tech])
+                    fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
+                    for fueltype, fuel_shares_yh in enumerate(fueltypes_tech_share_yh):
+                        #self.enduse_fuel_yh[fueltype] += np.sum(enduse_fuel_tech_y[tech]) * fuel_shares_yh #TODO: FASTER
+                        self.enduse_fuel_y[fueltype] += np.sum(enduse_fuel_tech_y[tech]) * fuel_shares_yh #TODO: FASTER
+                #print("NO SHAPE: {}      {}".format(self.enduse, np.sum(self.enduse_fuel_yh)))
+
             else:
+                self.crit_flat_fuel_shape = False
                 # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
 
                 #---NON-PEAK
@@ -1118,7 +1127,7 @@ class genericFlatEnduse(object):
         self.enduse_fuel_new_y = enduse_fuel
 
         # Generate flat shapes (i.e. same amount of fuel for every hour in a year)
-        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(
+        shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape(
             shape_peak_yd_factor=1)
 
         # Convert shape_peak_dh into fuel per day (Multiply average daily fuel demand for flat shape * peak factor)

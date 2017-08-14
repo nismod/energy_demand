@@ -1,7 +1,7 @@
 """Residential model"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-import numpy as np
 import uuid
+import numpy as np
 import energy_demand.Region as Region
 import energy_demand.WeatherRegion as WeatherRegion
 import energy_demand.submodule_residential as submodule_residential
@@ -39,6 +39,13 @@ class EnergyModel(object):
         data['load_profile_stock_non_regional'] = self.create_load_profile_stock(data)
 
         # --------------------
+        # Industry SubModel
+        # --------------------
+        self.weather_regions = self.create_weather_regions(data['weather_stations'], data, 'is_submodel')
+        self.regions = self.create_regions(region_names, data, 'is_submodel')
+        self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
+
+        # --------------------
         # Residential SubModel
         # --------------------
         self.weather_regions = self.create_weather_regions(data['weather_stations'], data, 'rs_submodel')
@@ -52,12 +59,7 @@ class EnergyModel(object):
         self.regions = self.create_regions(region_names, data, 'ss_submodel')
         self.ss_submodel = self.service_submodel(data, data['ss_all_enduses'], data['ss_sectors'])
 
-        # --------------------
-        # Industry SubModel
-        # --------------------
-        self.weather_regions = self.create_weather_regions(data['weather_stations'], data, 'is_submodel')
-        self.regions = self.create_regions(region_names, data, 'is_submodel')
-        self.is_submodel = self.industry_submodel(data, data['is_all_enduses'], data['is_sectors'])
+
 
         # --------------------
         # Transport SubModel
@@ -168,7 +170,7 @@ class EnergyModel(object):
                     enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], # * (1 / (365)), #TODO: CHECK
                     shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
                     )
-        
+
         # TODO: REPLACE BY generic_flat_shape SWISS
         # dummy is
         for enduse in data['assumptions']['is_dummy_enduses']:
@@ -218,7 +220,10 @@ class EnergyModel(object):
             sector_model_objects = getattr(self, sector_model)
             for model_object in sector_model_objects:
                 if model_object.region_name == region_name_to_get:
-                    tot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
+                    
+                    tot_fuels_all_enduse_yh += self.calcFlatFuelConsumption(model_object, attribute_to_get)
+
+                    ##ORIGtot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
 
         return tot_fuels_all_enduse_yh
 
@@ -420,8 +425,8 @@ class EnergyModel(object):
 
         return regions
 
-    @classmethod
-    def sum_enduse_all_regions(cls, attribute_to_get, sector_models, nr_of_fueltypes, crit2):
+    #@classmethod
+    def sum_enduse_all_regions(self, attribute_to_get, sector_models, nr_of_fueltypes, crit2):
         """Summarise an enduse attribute across all regions
 
         Parameters
@@ -443,9 +448,6 @@ class EnergyModel(object):
         if crit2 == 'peak_dh':
             fuels = np.zeros((nr_of_fueltypes, 24))
 
-        # Generic flat shape
-        shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd = generic_shapes.generic_flat_shape()
-
         enduse_dict = {}
 
         for sector_model_enduse in sector_models: # Iterate sector models
@@ -455,23 +457,7 @@ class EnergyModel(object):
                 if region_enduse_object.enduse not in enduse_dict:
                     enduse_dict[region_enduse_object.enduse] = 0
 
-                # ----------------------------------------------
-                # Test if is flat shape and needs assignin flat shape
-                if region_enduse_object.enduse_object.crit_flat_fuel_shape == True: #SWISS
-
-                    fuels_enduse = region_enduse_object.enduse_object.enduse_fuel_yh
-
-                    if attribute_to_get == 'enduse_fuel_peak_dh': #TOOD RENMAE SHAPE OEAK_DH
-                        fuels += fuels_enduse * shape_peak_dh
-                    elif attribute_to_get == 'shape_non_peak_dh':
-                        fuels += fuels_enduse * shape_non_peak_dh
-                    elif attribute_to_get == 'shape_non_peak_yd':
-                        fuels += fuels_enduse * shape_non_peak_yd
-                    # ----------------------------------------------
-                    enduse_dict[region_enduse_object.enduse] += np.sum(fuels)
-                else:
-                    # Summarise enduse attribute
-                    enduse_dict[region_enduse_object.enduse] += np.sum(getattr(region_enduse_object.enduse_object, attribute_to_get))
+                enduse_dict[region_enduse_object.enduse] += self.calcFlatFuelConsumption(region_enduse_object, attribute_to_get)
 
         return enduse_dict
 
@@ -486,9 +472,6 @@ class EnergyModel(object):
         Returns
         -------
         """
-        # Generic flat shape
-        shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd = generic_shapes.generic_flat_shape()
-
         if crit2 == 'peak_h':
             fuels = np.zeros((nr_of_fueltypes, ))
         if crit2 == 'non_peak':
@@ -500,48 +483,44 @@ class EnergyModel(object):
             for model_object in sector_model:
 
                 # Select specific region
-                if region: # == True:
+                if region:
                     if model_object.region_name == region:
 
-                        # ----------------------------------------------
-                        # Test if is flat shape and needs assignin flat shape TODO: IN FUNCTION
-                        if model_object.enduse_object.crit_flat_fuel_shape: # == True:
-
-                            fuels_reg = model_object.enduse_object.enduse_fuel_yh
-                            if attribute_to_get == 'enduse_fuel_peak_dh': #TOOD RENMAE SHAPE OEAK_DH enduse_fuel_peak_dh
-                                fuels += fuels_reg * shape_peak_dh
-                            elif attribute_to_get == 'shape_non_peak_dh':
-                                fuels += fuels_reg * shape_non_peak_dh
-                            elif attribute_to_get == 'shape_non_peak_yd':
-                                fuels += fuels_reg * shape_non_peak_yd
-                            # ----------------------------------------------
-                        else:
-                            fuels += getattr(model_object.enduse_object, attribute_to_get)
+                        fuels += self.calcFlatFuelConsumption(model_object, attribute_to_get)
                 else:
-                    # ----------------------------------------------
-                    # Test if is flat shape and needs assignin flat shape
-                    if model_object.enduse_object.crit_flat_fuel_shape: # == True:
-
-                        fuels_reg = model_object.enduse_object.enduse_fuel_yh
-
-                        if attribute_to_get == 'enduse_fuel_peak_dh': #TOOD RENMAE SHAPE OEAK_DH
-                            fuels += fuels_reg * shape_peak_dh
-                        elif attribute_to_get == 'shape_non_peak_dh':
-                            fuels += fuels_reg * shape_non_peak_dh
-                        elif attribute_to_get == 'shape_non_peak_yd':
-                            fuels += fuels_reg * shape_non_peak_yd
-                        # ----------------------------------------------
-                    else:
-                        fuels += getattr(model_object.enduse_object, attribute_to_get)
+                    fuels += self.calcFlatFuelConsumption(model_object, attribute_to_get)
 
         if crit == 'no_sum':
             fuels = fuels
-        if crit == 'sum':
+        elif crit == 'sum':
             fuels = np.sum(fuels)
 
         return fuels
-    
-    def FunctionName(args):
+
+    def calcFlatFuelConsumption(self, model_object, attribute_to_get):
+        """ If flat crit true, no shape yh yet assigned. Do that
         """
-        """
-        return
+        shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
+
+        if model_object.enduse_object.crit_flat_fuel_shape:
+            #print("a attribute {}  {}".format(attribute_to_get, model_object.enduse_object.crit_flat_fuel_shape))
+            #fuels_reg = model_object.enduse_object.enduse_fuel_yh
+            fuels_reg = model_object.enduse_object.enduse_fuel_y
+            if attribute_to_get == 'enduse_fuel_peak_dh':
+                fuels = np.zeros((fuels_reg.shape[0], 24))
+                for fueltype, fuel_fueltype in enumerate(fuels_reg):
+                    fuels[fueltype] = fuel_fueltype * shape_peak_dh
+                #fuels = fuels_reg * shape_peak_dh
+            elif attribute_to_get == 'shape_non_peak_dh':
+                fuels = fuels_reg * shape_non_peak_dh
+            elif attribute_to_get == 'shape_non_peak_yd':
+                fuels = fuels_reg * shape_non_peak_yd
+            elif attribute_to_get == 'enduse_fuel_yh':
+                fuels = np.zeros((fuels_reg.shape[0], 365, 24))
+                for fueltype, fuel_fueltype in enumerate(fuels_reg):
+                    fuels[fueltype] = fuel_fueltype * shape_non_peak_yh
+        else:
+            #print("b attribute {}  {}".format(attribute_to_get, model_object.enduse_object.crit_flat_fuel_shape))
+            fuels = getattr(model_object.enduse_object, attribute_to_get)
+
+        return fuels

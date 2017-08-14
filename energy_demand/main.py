@@ -43,6 +43,8 @@ Down th5e line
 - "scenario teller": istead of diffusion path, type in known path
 #
 
+#TODO: ASSIGN TECH STOCK FOR FLAT NO YH fueltype_share_yh_all_h
+
 #TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
  

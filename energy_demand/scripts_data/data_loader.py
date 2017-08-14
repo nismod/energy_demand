@@ -410,7 +410,7 @@ def is_collect_shapes_from_txts(data, path_to_txts, is_sectors, is_enduses):
             shape_peak_yd_factor = 1 #TODO: MAYBE SPECIFY FOR DIFFERENT SECTORS
 
             # Generate generic shape
-            data['is_shapes_dh'][sector][enduse]['shape_peak_dh'], data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'], data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'] = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
+            data['is_shapes_dh'][sector][enduse]['shape_peak_dh'], data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'], data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'], _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
 
 
     '''
@@ -584,7 +584,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
             data['is_shapes_dh'][sector][enduse] = {}
 
             # Generate generic shape (so far flat)
-            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
+            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
 
             # Write txt files
             write_data.create_txt_shapes(
