@@ -43,7 +43,7 @@ class Enduse(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, region_object, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}):
+    def __init__(self, region_object, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}, crit_flat_fuel_shape=False):
         """Enduse class constructor
         """
         #start = time.time()
@@ -57,15 +57,15 @@ class Enduse(object):
         else:
             load_profiles = load_profiles
 
-
         # Copy fuel in new fuel output
-        self.enduse_fuel_new_y = np.copy(enduse_fuel) #TEST copy.deepcopy(enduse_fuel), basic_functions.mimick_deepcopy(enduse_fuel)
+        self.enduse_fuel_new_y = np.copy(enduse_fuel)
 
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0: # Enduse has no fuel. Create empty shapes
-            self.enduse_fuel_yh = np.zeros((enduse_fuel.shape[0], 365, 24))
-            self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24))
-            self.enduse_fuel_peak_h = np.zeros((enduse_fuel.shape[0]))
+            self.enduse_fuel_yh = 0 #np.zeros((enduse_fuel.shape[0], 365, 24))
+            self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24)) 
+            self.enduse_fuel_peak_h = 0 #np.zeros((enduse_fuel.shape[0]))
+            self.crit_flat_fuel_shape = False# True
         else:
             crit_switch_fuel = self.get_crit_switch(fuel_switches, data['base_sim_param'])
             crit_switch_service = self.get_crit_switch(service_switches, data['base_sim_param'])
@@ -99,12 +99,7 @@ class Enduse(object):
             #print("Fuel train D: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("..TIME E: {}".format(time.time() - start))
             # Calculate new fuel demands after scenario drivers
-            self.enduse_scenario_drivers(
-                dw_stock,
-                region_name, #TODO: REMOVE
-                data['driver_data'],
-                reg_scenario_drivers,
-                data['base_sim_param'])
+            self.enduse_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers, data['base_sim_param'])  #TODO: REMOVE REGION NAME
             #print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("..TIME E: {}".format(time.time() - start))
@@ -145,13 +140,6 @@ class Enduse(object):
                     data['base_sim_param']['curr_yr']
                     )
 
-            '''control_tot_service = 0
-            for tech, fuel in service_tech.items():
-                #print("tech before service switch: " + str(tech) + str("  ") + str(self.enduse) + "  " + str(np.sum(fuel)))
-                control_tot_service += np.sum(fuel)
-            print("control_tot_service B: " + str(control_tot_service))
-            ##np.testing.assert_almost_equal(control_tot_service, np.sum(tot_service_h_cy), err_msg="not all technologies were specieified for each provided fuelty")
-            '''
             #print("..TIME before fuel switch: {}".format(time.time() - start))
             # --------------------------------
             # Fuel Switches
@@ -176,8 +164,7 @@ class Enduse(object):
             # -------------------------------------------------------
             # Convert service to fuel (y) for each fueltype depending on technological efficiences in current year
             self.service_to_fuel_fueltype_y(service_tech, tech_stock)
-            #print("Fuel train G ele : " + str(np.sum(self.enduse_fuel_new_y[2])))
-            #print("Fuel train G all: " + str(np.sum(self.enduse_fuel_new_y)))
+
             #print("..TIME I: {}".format(time.time() - start))
             # Convert service to fuel per tech (y) for each technology depending on technological efficiences in current year
             enduse_fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
@@ -186,22 +173,29 @@ class Enduse(object):
             # -------------------------------------------------------
             # Fuel shape assignement
             # -------------------------------------------------------
-            #SWISS: 
-            # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
+            self.crit_flat_fuel_shape = False #crit_flat_fuel_shape
+            crit_flat_fuel_shape = False #Scrap
+            if crit_flat_fuel_shape:
 
-            #---NON-PEAK
-            self.enduse_fuel_yh = self.calc_fuel_tech_yh(enduse_fuel_tech_y, tech_stock, load_profiles)
-            #np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yh), np.sum(testsumme2), decimal=1, err_msg='Error 2')
+                self.enduse_fuel_yh = 0
+                for tech in enduse_fuel_tech_y:
+                    self.enduse_fuel_yh += np.sum(enduse_fuel_tech_y[tech])
+            else:
+                # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
 
-            # --PEAK
-            # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
-            self.enduse_fuel_peak_dh = self.calc_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, load_profiles)
+                #---NON-PEAK
+                self.enduse_fuel_yh = self.calc_fuel_tech_yh(enduse_fuel_tech_y, tech_stock, load_profiles)
+                #np.testing.assert_almost_equal(np.sum(self.enduse_fuel_yh), np.sum(testsumme2), decimal=1, err_msg='Error 2')
 
-            # Get maximum hour demand per of peak day
-            self.enduse_fuel_peak_h = shape_handling.calk_peak_h_dh(self.enduse_fuel_peak_dh)
+                # --PEAK
+                # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
+                self.enduse_fuel_peak_dh = self.calc_peak_tech_dh(data['assumptions'], enduse_fuel_tech_y, tech_stock, load_profiles)
 
-            # Testing
-            ## TESTINGnp.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
+                # Get maximum hour demand per of peak day
+                self.enduse_fuel_peak_h = shape_handling.calk_peak_h_dh(self.enduse_fuel_peak_dh)
+
+                # Testing
+                ## TESTINGnp.testing.assert_almost_equal(np.sum(self.enduse_fuel_yd), np.sum(self.enduse_fuel_yh), decimal=2, err_msg='', verbose=True)
 
     def service_reduction_heat_recovery(self, assumptions, service_to_reduce, crit_dict, assumption_heat_recovered, base_sim_param):
         """Reduce heating demand according to assumption on heat reuse
@@ -1141,3 +1135,5 @@ class genericFlatEnduse(object):
 
         # h fuel shape per fueltype (peak)
         self.enduse_fuel_peak_h = shape_handling.calk_peak_h_dh(self.enduse_fuel_peak_dh)
+
+        self.crit_flat_fuel_shape = False

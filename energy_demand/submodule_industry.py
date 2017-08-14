@@ -49,7 +49,8 @@ class IndustryModel(object):
             sig_param_tech=data['assumptions']['is_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
             load_profiles=region_object.is_load_profiles,
-            reg_scenario_drivers=data['assumptions']['scenario_drivers']['is_submodule']
+            reg_scenario_drivers=data['assumptions']['scenario_drivers']['is_submodule'],
+            crit_flat_fuel_shape=True
         )
 
         return industry_object
