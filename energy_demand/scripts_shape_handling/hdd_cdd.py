@@ -5,6 +5,7 @@ import numpy as np
 from energy_demand.scripts_geography import weather_station_location as weather_station
 from energy_demand.scripts_technologies import diffusion_technologies
 from energy_demand.scripts_shape_handling import shape_handling
+# pylint: disable=I0011,C0321,C0301,C0103,C0325
 
 def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
@@ -115,27 +116,50 @@ def get_hdd_country(regions, data, t_base_type):
         latitude = data['reg_coordinates'][region_name]['latitude']
 
         # Get closest weather station and temperatures
-        closest_station_id = weather_station.get_closest_station(
-            longitude,
-            latitude,
-            data['weather_stations']
-            )
+        closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
 
         # Temp data
         temperatures = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(
-            data['base_sim_param'],
-            data['assumptions'],
-            t_base_type
-            )
+        t_base_heating_cy = sigm_t_base(data['base_sim_param'], data['assumptions'], t_base_type)
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
-        hdd_regions[region_name] = np.sum(hdd_reg) # get regional temp over year
+        hdd_regions[region_name] = np.sum(hdd_reg)
 
     return hdd_regions
+
+def get_cdd_country(regions, data, t_base_type):
+    """Calculate total number of cooling degree days in a region for the base year
+
+    Parameters
+    ----------
+    regions : dict
+        Dictionary containing regions
+    data : dict
+        Dictionary with data
+    """
+    cdd_regions = {}
+
+    for region_name in regions:
+        longitude = data['reg_coordinates'][region_name]['longitude']
+        latitude = data['reg_coordinates'][region_name]['latitude']
+
+        # Get closest weather station and temperatures
+        closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
+
+        # Temp data
+        temperatures = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
+
+        # Base temperature for base year
+        t_base_heating_cy = sigm_t_base(data['base_sim_param'], data['assumptions'], t_base_type)
+
+        # Calc HDD
+        cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
+        cdd_regions[region_name] = np.sum(cdd_reg)
+
+    return cdd_regions
 
 def sigm_t_base(base_sim_param, assumptions, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location

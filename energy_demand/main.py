@@ -49,6 +49,7 @@ Down th5e line
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
 #SPEED: TEST FOR ENUMERATE
+# IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -58,7 +59,6 @@ import os
 import sys
 from datetime import date
 import numpy as np
-from memory_profiler import profile
 import energy_demand.energy_model as energy_model
 import energy_demand.assumptions as assumpt
 from energy_demand.scripts_data import data_loader
@@ -138,6 +138,8 @@ def energy_demand_model(data):
 # Run
 if __name__ == "__main__":
     print('start_main')
+    base_data = {} 
+
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
     # ------------------------------------------------------------------
@@ -165,13 +167,14 @@ if __name__ == "__main__":
 
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
-    all_sectors = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+    
     ss_floorarea_sector_by_dummy = {}
 
     ss_floorarea_sector_by_dummy['Wales'] = {}
     ss_floorarea_sector_by_dummy['Scotland'] = {}
     ss_floorarea_sector_by_dummy['England'] = {}
-    for sector in all_sectors:
+    for sector in base_data['all_sectors']:
         ss_floorarea_sector_by_dummy['Wales'][sector] = 3000000 * 1 #10000 #[m2]
         ss_floorarea_sector_by_dummy['Scotland'][sector] = 5300000 * 1 #10000 #[m2]
         ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
@@ -192,6 +195,7 @@ if __name__ == "__main__":
     regions = {}
     coord_dummy = {}
     pop_dummy = {}
+    rs_floorarea = {}
     ss_floorarea_sector_by_dummy = {}
 
     for geo_code, values in dummy_pop_geocodes.items():
@@ -205,11 +209,18 @@ if __name__ == "__main__":
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
         pop_dummy[i] = _data
 
+    # Residenital floor area
+    for region_geocode in regions:
+        rs_floorarea[region_geocode] = pop_dummy[2015][region_geocode] #USE FLOOR AREA
+
     # Dummy flor area
     for region_geocode in regions:
         ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in all_sectors:
+        for sector in base_data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
+            
+    base_data['rs_floorarea'] = rs_floorarea
+    base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
     #'''
 
 
@@ -236,6 +247,7 @@ if __name__ == "__main__":
     data_external['base_sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     data_external['fastcalculationcrit'] = True
+
     # ------------------- DUMMY END
 
 
@@ -243,7 +255,8 @@ if __name__ == "__main__":
     # Model calculations outside main function
     # ----------------------------------------
     print("... start model calculations outside main function")
-    base_data = {}
+    
+    base_data['testing_crit'] = False
 
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
@@ -264,8 +277,6 @@ if __name__ == "__main__":
 
 
 
-    # ----TODO
-
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
@@ -277,7 +288,7 @@ if __name__ == "__main__":
         base_data['assumptions'],
         base_data['lu_fueltype'],
         base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
-        base_data['rs_fuel_raw_data_enduses'], #Fuel of whole country
+        base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['technologies']
         )
 
@@ -407,7 +418,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
-        '''
+        
         winter_week = list(range(date_handling.convert_date_to_yearday(2015, 1, 12), date_handling.convert_date_to_yearday(2015, 1, 19))) #Jan
         spring_week = list(range(date_handling.convert_date_to_yearday(2015, 5, 11), date_handling.convert_date_to_yearday(2015, 5, 18))) #May
         summer_week = list(range(date_handling.convert_date_to_yearday(2015, 7, 13), date_handling.convert_date_to_yearday(2015, 7, 20))) #Jul
@@ -465,7 +476,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        '''
+        ''''''
     # ------------------------------
     # Plotting
     # ------------------------------

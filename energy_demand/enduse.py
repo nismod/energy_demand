@@ -216,7 +216,6 @@ class Enduse(object):
         for tech in enduse_fuel_tech_y:
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
             enduse_fuel_y += np.sum(enduse_fuel_tech_y[tech]) * fueltypes_tech_share_yh
-            #print("NO SHAPE: {}      {}".format(self.enduse, np.sum(self.enduse_fuel_yh)))
 
         return enduse_fuel_y
 
@@ -531,7 +530,9 @@ class Enduse(object):
         for tech_decrease in service_tech_decrease_by_rel:
             service_tech_cy_p[tech_decrease] = service_tech_by_p[tech_decrease]
 
-        # Iterate service switches for increase tech, calculated gained service and substract this gained service proportionally for all decreasing technologies
+        # Iterate service switches for increase tech, calculated gained service and substract this gained 
+        # service proportionally for all decreasing technologies
+
         for tech_increase in service_tech_increase_cy_p:
 
             # Difference in service up to current year
@@ -542,11 +543,12 @@ class Enduse(object):
                 service_to_substract = service_tech_decrease * diff_service_increase
 
                 # Testing
-                if service_tech_cy_p[tech_decrease] - service_to_substract < -1:
-                    sys.exit("Error in fuel switch")
+                #if 'testing_crit'
+                #if service_tech_cy_p[tech_decrease] - service_to_substract < -1:
+                #    sys.exit("Error in fuel switch")
 
-                # Substract service (Because of rounding errors the service my fall below zero (therfore set to zero if only slighlty minus)
-                if np.sum(service_tech_cy_p[tech_decrease] - service_to_substract) < 0:
+                # Substract service (Because of rounding errors the service may fall below zero (therfore set to zero if only slighlty minus)
+                if np.sum(service_tech_cy_p[tech_decrease] - service_to_substract) < 0: #Really needed?
                     service_tech_cy_p[tech_decrease] *= 0 # Set to zero service
                 else:
                     service_tech_cy_p[tech_decrease] -= service_to_substract
@@ -1137,16 +1139,15 @@ class Enduse(object):
 
 class genericFlatEnduse(object):
     """Class for generic enduses with flat shapes
+
+    Generate flat shapes (i.e. same amount of fuel for every hour in a year)
     """
     def __init__(self, enduse_fuel):
         self.enduse_fuel_new_y = enduse_fuel
 
-        # Generate flat shapes (i.e. same amount of fuel for every hour in a year)
-        #shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
         shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape()
 
         # Convert shape_peak_dh into fuel per day (Multiply average daily fuel demand for flat shape * peak factor)
-        #max_fuel_d = (self.enduse_fuel_new_y / 365) * shape_peak_yd_factor
         max_fuel_d = self.enduse_fuel_new_y * shape_peak_yd_factor
 
         # Yh fuel shape per fueltype (non-peak)
