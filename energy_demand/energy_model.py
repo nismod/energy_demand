@@ -2,7 +2,7 @@
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import uuid
 import numpy as np
-import energy_demand.Region as Region
+import energy_demand.region as region
 import energy_demand.WeatherRegion as WeatherRegion
 import energy_demand.submodule_residential as submodule_residential
 import energy_demand.submodule_service as submodule_service
@@ -409,7 +409,7 @@ class EnergyModel(object):
         for region_name in region_names:
             print("...creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
-            region_object = Region.Region(
+            region_object = region.Region(
                 region_name=region_name,
                 data=data,
                 submodel_type=submodel_type,

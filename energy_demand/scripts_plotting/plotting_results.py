@@ -45,7 +45,6 @@ def plot_load_shape_yd(daily_load_shape):
     plt.legend()
     plt.show()
 
-
 def plot_load_shape_yd_non_resid(daily_load_shape):
     """With input 2 dim array plot daily load"""
 
@@ -58,33 +57,37 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend()
     plt.show()
 
-def plot_stacked_Country_end_use(data, results_resid, enduses_data, attribute_to_get):
+def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
+
+    Info
+    ----
+        -   Sum across all fueltypes
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-    fig, ax = plt.subplots() #fig is needed
     nr_y_to_plot = len(data['base_sim_param']['sim_period'])
 
-    x = range(nr_y_to_plot)
+
+    x_data = range(nr_y_to_plot)
+    y_data = np.zeros((len(enduses_data), nr_y_to_plot))
+
     legend_entries = []
-
-    Y_init = np.zeros((len(enduses_data), nr_y_to_plot))
-
     for k, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
         data_over_years = []
 
-        for model_year_object in results_resid:
+        for year, model_year_object in enumerate(results_objects):
             country_enduse_y = getattr(model_year_object, attribute_to_get)
-            data_over_years.append(country_enduse_y[enduse])
 
-        Y_init[k] = data_over_years
+            # Sum all fueltypes
+            y_data[k][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
 
-    sp = ax.stackplot(x, Y_init)
+
+    fig, ax = plt.subplots()
+    sp = ax.stackplot(x_data, y_data)
     proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
-
     ax.legend(proxy, legend_entries)
 
     plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='red')
@@ -92,9 +95,10 @@ def plot_stacked_Country_end_use(data, results_resid, enduses_data, attribute_to
 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
+
     plt.show()
 
-def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltype, yearday, region):
+def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
     """Plots stacked end_use for a region
 
 
@@ -103,7 +107,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
     """
 
     fig, ax = plt.subplots() #fig is needed
-    nr_y_to_plot = len(results_resid) #number of simluated years
+    nr_y_to_plot = len(results_objects) #number of simluated years
 
     x = range(nr_y_to_plot)
     legend_entries = []
@@ -121,7 +125,7 @@ def plot_load_curves_fueltype(results_resid, data): # nr_of_day_to_plot, fueltyp
 
         # REad out fueltype specific max h load
         data_over_years = []
-        for model_year_object in results_resid:
+        for model_year_object in results_objects:
             # Max hourly load curve of fueltype
             fueltype_load_max_h = model_year_object.tot_country_fuel_load_max_h
 

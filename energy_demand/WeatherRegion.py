@@ -87,7 +87,7 @@ class WeatherRegion(object):
         # Load profiles
         # -------------------
         if modeltype == 'rs_submodel':
-    
+
             # --------Profiles
             self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
 
@@ -96,7 +96,7 @@ class WeatherRegion(object):
             rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by)
             rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy)
             rs_cdd_cy, rs_fuel_shape_cooling_yd = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy)
-            
+
             # Climate change correction factors (Assumption: Demand for heat correlates directly with fuel)
             self.rs_heating_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy) #could be slightly speed up with np.isnan
             self.rs_cooling_factor_y = np.nan_to_num(np.divide(1.0, np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)

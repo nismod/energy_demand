@@ -79,7 +79,6 @@ def load_data(path_main, data):
         'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_residential/data_residential_by_fuel_end_uses.csv'),
         'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv'),
         'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'submodel_industry/data_industry_by_fuel_end_uses.csv'),
-        #'path_ag_fuel_raw_data_enduses': os.path.join(path_main, 'other_submodels/agriculture/data_by_fuel_end_uses.csv'),
 
         # Paths to txt shapes
         'path_rs_txt_shapes': os.path.join(path_main, 'submodel_residential/txt_load_shapes'),
