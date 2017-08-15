@@ -24,7 +24,7 @@
 # d = day
 # y = year
 # yearday = Day in a year ranging from 0 to 364
-
+merged
 # Write function that any amount of demand can be added up to any year
 
 # Shapes
