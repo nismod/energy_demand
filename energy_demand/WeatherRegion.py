@@ -587,7 +587,7 @@ class WeatherRegion(object):
                 # Because boiler eff is constant, the  reflects the needed heat per hour
                 # ------
                 # Wkend Hourly gas shape. Robert Sansom boiler curve
-                shape_boilers_yh[day] = heating_shape[day] * data[tech_to_get_shape]['holiday'] 
+                shape_boilers_yh[day] = heating_shape[day] * data[tech_to_get_shape]['holiday']
                 shape_boilers_y_dh[day] = data[tech_to_get_shape]['holiday']
             else:
                 # Wkday Hourly gas shape. Robert Sansom boiler curve

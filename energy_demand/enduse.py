@@ -73,6 +73,8 @@ class Enduse(object):
             self.technologies_enduse = self.get_enduse_tech(fuel_enduse_tech_p_by)
             #print("..TIME B: {}".format(time.time() - start))
 
+
+
             # Calculate fuel for hybrid technologies (electricity is defined, other fuel shares are calculated)
             fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(fuel_enduse_tech_p_by, tech_stock, data['assumptions']['hybrid_technologies'])
 
@@ -105,6 +107,14 @@ class Enduse(object):
             # Hourly fuel calculation cascade
             # ----------------------------------
             #print("Enduse {} is defined.... ".format(enduse) + str(self.technologies_enduse))
+            
+            
+           
+            # --------------
+            #TODO REMASTER
+
+            # if no technologies are defined, get shape of enduse 
+
 
             # ------------------------------------------------------------------------
             # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution)
