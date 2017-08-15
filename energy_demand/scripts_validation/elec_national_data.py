@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_basic import unit_conversions
 from energy_demand.scripts_plotting import plotting_program
+from energy_demand.scripts_basic import basic_functions
 #from energy_demand.scripts_technologies import diffusion_technologies as diffusion
 #from math import factorial
 
@@ -110,11 +111,6 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
     https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python
     """
     print("...compare elec results")
-    def rmse(predictions, targets):
-        """RMSE calculations
-        """
-        return np.sqrt(((predictions - targets) ** 2).mean())
-
     nr_of_h_to_plot = len(days_to_plot) * 24
 
     x = range(nr_of_h_to_plot)
@@ -137,10 +133,10 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
     #y_calculated = savitzky_golay(y_calculated, 3, 3) # window size 51, polynomial order 3
 
     # RMSE
-    rmse_val_INDO = rmse(np.array(y_real_INDO), np.array(y_calculated))
-    rmse_val_ITSDO = rmse(np.array(y_real_ITSDO), np.array(y_calculated))
-    rmse_val_corrected = rmse(np.array(y_real_INDO_factored), np.array(y_calculated))
-    rmse_val_own_factor_correction = rmse(np.array(y_real_INDO), np.array(y_calculated))
+    rmse_val_INDO = basic_functions.rmse(np.array(y_real_INDO), np.array(y_calculated))
+    rmse_val_ITSDO = basic_functions.rmse(np.array(y_real_ITSDO), np.array(y_calculated))
+    rmse_val_corrected = basic_functions.rmse(np.array(y_real_INDO_factored), np.array(y_calculated))
+    rmse_val_own_factor_correction = basic_functions.rmse(np.array(y_real_INDO), np.array(y_calculated))
 
     # R squared
     #slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(y_real_INDO), np.array(y_calculated))
@@ -153,13 +149,13 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
 
     plt.xlim([0, 8760])
     plt.margins(x=0) #remove white space
-
-    plt.title('RMSE (TD): {}  RMSE (TSD):  {} RMSE (factored TSD): {}'.format(rmse_val_INDO, rmse_val_ITSDO, rmse_val_corrected))
-    plt.title(title_left, loc='left')
-    #plt.title('Right Title', loc='right')
-    plt.xlabel("Hours")
-    plt.ylabel("National electrictiy use [GWh / h]")
     plt.axis('tight')
+
+    plt.title('RMSE (TD): {}  RMSE (TSD):  {} RMSE (factored TSD): {}'.format(rmse_val_INDO, rmse_val_ITSDO, rmse_val_corrected), fontsize=10)
+    plt.title(title_left, loc='left')
+
+    plt.xlabel("Hours", fontsize=10)
+    plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
 
     plt.legend()
 
@@ -201,7 +197,7 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     '''
     x = range(24)
 
-    plt.figure(figsize=plotting_program.cm2inch(9, 9))
+    plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
     plt.plot(x, peak_all_models_all_enduses_fueltype, color='red', label='modelled')
     plt.plot(x, validation_elec_data_2015[max_day], color='green', label='real')
@@ -264,7 +260,7 @@ def compare_results_hour_boxplots(data_real, data_calculated):
 
     plt.show()
 
-def savitzky_golay(y, window_size, order, deriv=0, rate=1):
+'''def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     """Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
     The Savitzky-Golay filter removes high frequency noise from data.
     It has the advantage of preserving the original shape and
@@ -337,3 +333,4 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     y = np.concatenate((firstvals, y, lastvals))
 
     return np.convolve(m[::-1], y, mode='valid')
+'''

@@ -1,10 +1,12 @@
 """Compare gas/elec demand on Local Authority Districts with modelled demand
 """
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+import operator
 import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.scripts_basic import unit_conversions
-import operator
+from energy_demand.scripts_plotting import plotting_program
+from energy_demand.scripts_basic import basic_functions
 
 def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
@@ -15,8 +17,8 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
         Infos of shapefile (dbf / csv)
     model_run_object : object
         Model run results
-    
-    INFO
+
+    Info
     -----
     SOURCE OF LADS:
     """
@@ -50,10 +52,12 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     # -------------------------------------
     # Plot
     # -------------------------------------
-    nr_of_labels = len(sorted_dict_REAL_elec_demand) #range(len(sorted_dict_REAL_elec_demand))
+    nr_of_labels = len(sorted_dict_REAL_elec_demand)
+
     x_values = []
     for i in range(nr_of_labels):
         x_values.append(0 + i*0.2)
+
     y_values_REAL_electricity_demand = []
     y_values_modelled_electricity_demand = []
 
@@ -63,13 +67,25 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
         y_values_modelled_electricity_demand.append(result_dict['modelled_electricity_demand'][sorted_region[0]])
         labels.append(sorted_region)
 
+
+    # RMSE calculations
+    rmse_value = basic_functions.rmse(np.array(y_values_modelled_electricity_demand), np.array(y_values_REAL_electricity_demand))
+
+    # ----------------------------------------------
+    # Plot
+    # ----------------------------------------------
+    plt.figure(figsize=plotting_program.cm2inch(17, 10))
+    plt.margins(x=0) #remove white space
+
     plt.plot(x_values, y_values_REAL_electricity_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
     plt.plot(x_values, y_values_modelled_electricity_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
 
     plt.xticks(x_values, labels, rotation=90)
 
-    plt.xlabel("Comparison of sub-regional electricity demand")
-    plt.ylabel("Electricity demand [unit GWH?]")
+    title_left = ('Comparison of sub-regional electricity demand (RMSE: {}, number of areas= {})'.format(rmse_value, len(y_values_REAL_electricity_demand)))
+    plt.title(title_left, loc='left')
+    plt.xlabel("Regions")
+    plt.ylabel("Sub-regional yearly electricity demand [GW]")
     plt.legend()
 
     plt.show()

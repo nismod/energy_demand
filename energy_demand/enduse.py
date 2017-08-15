@@ -9,7 +9,7 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
-#from energy_demand.scripts_basic import basic_functions
+print("start")
 
 class Enduse(object):
     """Class of an end use of the residential sector
@@ -43,28 +43,24 @@ class Enduse(object):
     Problem: Not all enduses have technologies assigned. Therfore peaks are derived from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, region_object, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}, crit_flat_fuel_shape=False):
+    def __init__(self, region_name, data, enduse, sector, enduse_fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers={}, crit_flat_fuel_shape=False):
         """Enduse class constructor
         """
         #start = time.time()
         #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
+        self.enduse_fuel_new_y = np.copy(enduse_fuel) # Copy fuel in new fuel output
 
         # NEW DEPENDING ON ENDUSE SELECT LOAD PROFILES FOR REGION OR NOT
         if enduse in data['load_profile_stock_non_regional'].enduses_in_stock:
             load_profiles = data['load_profile_stock_non_regional']
-        #else:
-            load_profiles = load_profiles
-
-        # Copy fuel in new fuel output
-        self.enduse_fuel_new_y = np.copy(enduse_fuel)
 
         # Test whether fuel is provided for enduse
         if np.sum(enduse_fuel) == 0: # Enduse has no fuel. Create empty shapes
             self.enduse_fuel_y = np.zeros((enduse_fuel.shape[0]))
             self.enduse_fuel_yh = 0 #np.zeros((enduse_fuel.shape[0], 365, 24))
-            self.enduse_fuel_peak_dh = 0 #np.zeros((enduse_fuel.shape[0], 24))
+            self.enduse_fuel_peak_dh = np.zeros((enduse_fuel.shape[0], 24))
             self.enduse_fuel_peak_h = 0 #np.zeros((enduse_fuel.shape[0]))
             self.crit_flat_fuel_shape = False
         else:

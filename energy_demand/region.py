@@ -56,8 +56,8 @@ class Region(object):
             self.is_tech_stock = weatherregion_object.is_tech_stock
             self.is_load_profiles = weatherregion_object.is_load_profiles
 
-            self.ss_heating_factor_y = weatherregion_object.ss_heating_factor_y
-            self.ss_cooling_factor_y = weatherregion_object.ss_cooling_factor_y
+            self.is_heating_factor_y = weatherregion_object.is_heating_factor_y
+            self.is_cooling_factor_y = weatherregion_object.is_cooling_factor_y
 
     def get_correct_weather_point(self, weather_regions, closest_station_id):
         """Iterate list with weather regions and get weather region object

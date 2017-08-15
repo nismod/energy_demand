@@ -25,7 +25,7 @@ class ResidentialModel(object):
             region_object,
             data
             )
-        
+
         #TODO LATER ON: SUMMARY ACROSS AL SECTORS (to save on memory)
         #self.enduse_object_aggregated_across_all_sectors
 
@@ -33,7 +33,6 @@ class ResidentialModel(object):
         """Create enduse objects and add to list
         """
         enduse_object = endusefunctions.Enduse(
-            region_object=region_object,
             region_name=self.region_name,
             data=data,
             enduse=self.enduse,

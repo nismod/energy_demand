@@ -278,7 +278,8 @@ def load_data(path_main, data):
 
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
 
-        data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
+        # Not necessary because flat shapes assumed
+        #data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
 
     else:
         print("...read in load shapes from txt files")
@@ -287,7 +288,8 @@ def load_data(path_main, data):
 
         data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_txt_shapes'])
 
-        data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
+        # Not necessary because flat shapes assumed
+        #data = is_collect_shapes_from_txts(data, data['path_dict']['path_is_txt_shapes'], data['is_sectors'], data['is_all_enduses'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(data['ss_shapes_dh'], data['ss_shapes_yd'])
@@ -378,73 +380,6 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
             data['ss_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
             data['ss_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
-    return data
-
-def is_collect_shapes_from_txts(data, path_to_txts, is_sectors, is_enduses):
-    """Collect service shapes from txt files for every setor and enduse
-
-    Parameters
-    ----------
-    path_to_txts : string
-        Path to txt shapes files
-
-    Return
-    ------
-    data : dict
-        Data
-    """
-    #SWISS
-    # IF NO REAL DATA ARE READ IN; ALSO DIRECTL GENERATED HERE
-    print("...read in raw industry data")
-    data['is_shapes_yd'] = {}
-    data['is_shapes_dh'] = {}
-    for sector in is_sectors:
-        data['is_shapes_yd'][sector] = {}
-        data['is_shapes_dh'][sector] = {}
-        for enduse in is_enduses:
-            #print("Create industry shapes   {}    {}".format(sector, enduse))
-            data['is_shapes_yd'][sector][enduse] = {}
-            data['is_shapes_dh'][sector][enduse] = {}
-
-            # Industry Sector specific shape_peak_yd_factor
-            shape_peak_yd_factor = 1 #TODO: MAYBE SPECIFY FOR DIFFERENT SECTORS
-
-            # Generate generic shape
-            data['is_shapes_dh'][sector][enduse]['shape_peak_dh'], data['is_shapes_dh'][sector][enduse]['shape_non_peak_dh'], data['is_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], data['is_shapes_yd'][sector][enduse]['shape_non_peak_yd'], _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor)
-
-
-    '''
-    # Iterate folders and get all sectors and enduse from file names
-    all_csv_in_folder = os.listdir(path_to_txts)
-
-    enduses = set([])
-    sectors = set([])
-    for file_name in all_csv_in_folder:
-        sector = file_name.split("__")[0]
-        enduse = file_name.split("__")[1] # two dashes because individual enduses may contain a single slash
-        enduses.add(enduse)
-        sectors.add(sector)
-
-    data['is_shapes_dh'] = {}
-    data['is_shapes_yd'] = {}
-
-    # Read load shapes from txt files for enduses
-    for sector in sectors:
-        data['is_shapes_dh'][sector] = {}
-        data['is_shapes_yd'][sector] = {}
-
-        for enduse in enduses:
-            print("Read in txt file sector: {}  enduse: {}".format(sector, enduse))
-            joint_string_name = str(sector) + "__" + str(enduse)
-
-            shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
-            shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
-            shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-            shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
-
-            data['is_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
-            data['is_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
-    '''
     return data
 
 def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):

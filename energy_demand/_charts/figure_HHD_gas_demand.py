@@ -454,7 +454,7 @@ print("p_value:       " + str(p_value))
 print("std_err:       " + str(std_err))
 
 # Set figure size in cm
-plt.figure(figsize=plotting_program.cm2inch(10, 10))
+plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
 # plot points
 plt.plot(gas_demand_NDM_2015_2016, hdd_reg, 'ro', markersize=5, color='gray')

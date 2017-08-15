@@ -33,7 +33,6 @@ class ServiceModel(object):
         """
         # Add enduse to ServiceSector
         service_object = endusefunctions.Enduse(
-            region_object=region_object,
             region_name=self.region_name,
             data=data,
             enduse=self.enduse,
