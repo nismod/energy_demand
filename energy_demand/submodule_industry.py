@@ -36,8 +36,8 @@ class IndustryModel(object):
             sector=self.sector,
             enduse_fuel=self.fuels_all_enduses[self.enduse],
             tech_stock=region_object.is_tech_stock,
-            heating_factor_y=region_object.is_heating_factor_y, # from service
-            cooling_factor_y=region_object.is_cooling_factor_y, # from service
+            heating_factor_y=region_object.is_heating_factor_y,
+            cooling_factor_y=region_object.is_cooling_factor_y,
             fuel_switches=data['assumptions']['is_fuel_switches'],
             service_switches=data['assumptions']['is_service_switches'],
             fuel_enduse_tech_p_by=data['assumptions']['is_fuel_enduse_tech_p_by'][self.enduse],

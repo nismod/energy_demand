@@ -65,8 +65,6 @@ class EnergyModel(object):
         self.weather_regions = self.create_weather_regions(data['weather_stations'], data, 'ts_submodel')
         self.regions = self.create_regions(region_names, data, 'ts_submodel')
         self.ts_submodel = self.other_submodels()
-    
-
 
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
@@ -198,14 +196,13 @@ class EnergyModel(object):
         attributes : str
             Attributes to read out
         """
-        #Get fuel of region
         region_fuel_yh = self.sum_reg(
             'enduse_fuel_yh',
             nr_of_fueltypes,
             [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
             'no_sum',
             'non_peak',
-            region_name, #input region
+            region_name,
             )
 
         return region_fuel_yh
@@ -277,7 +274,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running industry model in % {} ".format(round(1.0 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt)), 2)
+                    print("   ...running industry model in % {} ".format(100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -319,7 +316,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     _scrap_cnt += 1
-                    print("   ...running residential model {}  of total".format(1 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    print("   ...running residential model {}  of total".format(100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions

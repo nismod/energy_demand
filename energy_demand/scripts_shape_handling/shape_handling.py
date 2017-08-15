@@ -16,10 +16,10 @@ class LoadProfileStock(object):
         self.load_profile_dict = {}
         self.dict_with_tuple_keys = {} # dict_with_tuple_keys
 
-        self.enduses_in_stock = [] #TODO LIST OR DICT OR SET
+        self.enduses_in_stock = set([])
 
     def get_all_enduses_in_stock(self):
-        """ADD ALL ENDUESS OF THE STOCK TO A LIST
+        """Update the list of the object with all enduses for which load profies are provided
         """
         all_enduses = set([])
 
@@ -27,7 +27,8 @@ class LoadProfileStock(object):
             for enduse in profile_obj.enduses:
                 all_enduses.add(enduse)
 
-        setattr(self, 'enduses_in_stock', list(all_enduses))
+        #setattr(self, 'enduses_in_stock', list(all_enduses))
+        setattr(self, 'enduses_in_stock', all_enduses)
 
     def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
@@ -305,7 +306,7 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
 
     Returns
     -------
-    fueltype_share_yh_all_h : array
+    fueltype_share_yh_all_h : array (7)
         Sum of fuel share for every hour
     """
     average_share_in_a_year = (1.0 / 8760)
