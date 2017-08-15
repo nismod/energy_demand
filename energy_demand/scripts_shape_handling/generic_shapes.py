@@ -1,6 +1,7 @@
 """Flat shape definition
 """
 import numpy as np
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def generic_flat_shape(shape_peak_yd_factor=1/365):
     """Create completely flat shape for peak and non-peak

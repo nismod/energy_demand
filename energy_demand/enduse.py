@@ -172,15 +172,15 @@ class Enduse(object):
             # Fuel shape assignement
             # -------------------------------------------------------
             if crit_flat_fuel_shape:
+                """Flat shape. Therfore do not store whole 8760 profile here but only create 8760 when summing
+                """
                 self.crit_flat_fuel_shape = True
 
-                #self.enduse_fuel_yh = np.zeros((self.enduse_fuel_new_y.shape[0]))
                 self.enduse_fuel_y = np.zeros((self.enduse_fuel_new_y.shape[0]))
 
                 for tech in enduse_fuel_tech_y:
                     fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
                     for fueltype, fuel_shares_yh in enumerate(fueltypes_tech_share_yh):
-                        #self.enduse_fuel_yh[fueltype] += np.sum(enduse_fuel_tech_y[tech]) * fuel_shares_yh #TODO: FASTER
                         self.enduse_fuel_y[fueltype] += np.sum(enduse_fuel_tech_y[tech]) * fuel_shares_yh #TODO: FASTER
                 #print("NO SHAPE: {}      {}".format(self.enduse, np.sum(self.enduse_fuel_yh)))
 
