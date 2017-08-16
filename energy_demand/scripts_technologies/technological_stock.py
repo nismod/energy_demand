@@ -135,56 +135,56 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
-        '''
+        #'''
         if tech_name == 'dummy_tech':
             self.tech_name = tech_name
         else:
-        '''
+        #'''
 
-        self.tech_name = tech_name
-        self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
-        self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
-        self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
+            self.tech_name = tech_name
+            self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
+            self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
+            self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
 
-        #print("TIME B: {}".format(time.time() - start))
+            #print("TIME B: {}".format(time.time() - start))
 
-        # Shares of fueltype for every hour for single fueltype
-        self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
+            # Shares of fueltype for every hour for single fueltype
+            self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
-        # Calculate shape per fueltype
-        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
+            # Calculate shape per fueltype
+            self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
 
-        #print("TIME C: {}".format(time.time() - start))
-        # --------------------------------------------------------------
-        # Base and current year efficiencies depending on technology type
-        # --------------------------------------------------------------
-        if tech_type == 'heat_pump':
-            self.eff_by = technologies_related.get_heatpump_eff(
-                temp_by,
-                data['assumptions']['technologies'][tech_name]['eff_by'],
-                t_base_heating)
+            #print("TIME C: {}".format(time.time() - start))
+            # --------------------------------------------------------------
+            # Base and current year efficiencies depending on technology type
+            # --------------------------------------------------------------
+            if tech_type == 'heat_pump':
+                self.eff_by = technologies_related.get_heatpump_eff(
+                    temp_by,
+                    data['assumptions']['technologies'][tech_name]['eff_by'],
+                    t_base_heating)
 
-            self.eff_cy = technologies_related.get_heatpump_eff(
-                temp_cy,
-                technologies_related.calc_eff_cy(
+                self.eff_cy = technologies_related.get_heatpump_eff(
+                    temp_cy,
+                    technologies_related.calc_eff_cy(
+                        data['assumptions']['technologies'][tech_name]['eff_by'],
+                        tech_name,
+                        data['base_sim_param'],
+                        data['assumptions'],
+                        self.eff_achieved_factor,
+                        self.diff_method
+                        ),
+                    t_base_heating_cy)
+            else:
+                self.eff_by = data['assumptions']['technologies'][tech_name]['eff_by']
+                self.eff_cy = technologies_related.calc_eff_cy(
                     data['assumptions']['technologies'][tech_name]['eff_by'],
                     tech_name,
                     data['base_sim_param'],
                     data['assumptions'],
                     self.eff_achieved_factor,
                     self.diff_method
-                    ),
-                t_base_heating_cy)
-        else:
-            self.eff_by = data['assumptions']['technologies'][tech_name]['eff_by']
-            self.eff_cy = technologies_related.calc_eff_cy(
-                data['assumptions']['technologies'][tech_name]['eff_by'],
-                tech_name,
-                data['base_sim_param'],
-                data['assumptions'],
-                self.eff_achieved_factor,
-                self.diff_method
-                )
+                    )
 
     @staticmethod
     def set_constant_fueltype(fueltype, len_fueltypes):

@@ -3,7 +3,7 @@
 from datetime import date
 import uuid
 import numpy as np
-import energy_demand.technological_stock as technological_stock
+from energy_demand.scripts_technologies import technological_stock
 from energy_demand.scripts_basic import date_handling
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_shape_handling import hdd_cdd

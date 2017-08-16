@@ -360,7 +360,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running service model {}  of total: {}".format(_scrap_cnt, len(self.regions) * len(sectors) * len(enduses)))
+                    print("   ...running service model {}".format(100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -507,34 +507,38 @@ class EnergyModel(object):
                 a flat load profile is generated. Otherwise, the yh as calculated
                 for each enduse is used
         """
-        shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
+        #shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
-        fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.enduse_fuel_new_y.shape[0], 365, 24))
-
-        for fueltype, _ in enumerate(fast_shape_non_peak_yh): #SPEED
-            fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh
-
-        _f_factor = (1 / 365)
         # If flat shape
         if model_object.enduse_object.crit_flat_fuel_shape:
 
             # Yearly fuel
             fuels_reg_y = model_object.enduse_object.enduse_fuel_y
 
-            if attribute_to_get == 'enduse_fuel_peak_dh':
+            if attribute_to_get == 'enduse_fuel_peak_dh':   
+                shape_peak_dh = np.full((24), 1 / 24) #NEW flat shape
 
                 # Because flat shape, the dh_peak is 24/8760
-                fuels_reg_peak = fuels_reg_y * _f_factor #model_object.enduse_object.enduse_fuel_peak_dh #NEW
+                fuels_reg_peak = fuels_reg_y * (1 / 365)
 
                 fuels = np.zeros((fuels_reg_y.shape[0], 24))
                 for fueltype, fuel_fueltype in enumerate(fuels_reg_peak):
                     fuels[fueltype] = fuel_fueltype * shape_peak_dh
 
             elif attribute_to_get == 'shape_non_peak_dh':
+                shape_non_peak_dh = np.full((365, 24), (1.0 / 24)) #NEW flat shape
                 fuels = fuels_reg_y * shape_non_peak_dh
             elif attribute_to_get == 'shape_non_peak_yd':
+                shape_non_peak_yd = np.ones((365)) / 365 #NEW flat shape
                 fuels = fuels_reg_y * shape_non_peak_yd
             elif attribute_to_get == 'enduse_fuel_yh':
+                
+                shape_non_peak_yh = np.full((365, 24), 1/8760) #NEW flat shape
+                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.enduse_fuel_new_y.shape[0], 365, 24))
+
+                for fueltype, _ in enumerate(fast_shape_non_peak_yh):
+                    fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh
+
                 fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh
         else:
             # If not flat shape, use yh load profile of enduse

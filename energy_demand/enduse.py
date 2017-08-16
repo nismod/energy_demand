@@ -108,50 +108,38 @@ class Enduse(object):
             
             # --------------
             #TODO REMASTER
-            shape_per_enduse = False
-            for tech in self.technologies_enduse:
-                if tech[:5] == 'dummy':
-                    shape_per_enduse = True
-                    break
-            print(self.technologies_enduse)
+
+            #print(self.technologies_enduse)
             # if no technologies are defined, get shape of enduse 
-            #if shape_per_enduse:
             if self.technologies_enduse == []:
-                # ---------------REMASTER
-            
+                """If no technologies are defined for an enduse, the load profiles
+                are read from dummy shape, which show the load profiles of the whole enduse.
+                No switches can be implemented and only overall change of enduse.
+                """
+                # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
                 if crit_flat_fuel_shape:
-                    """Flat shape. Therfore do not store whole 8760 profile here but only create 8760 when summing
-                    """
                     self.crit_flat_fuel_shape = True
                     self.enduse_fuel_y = self.enduse_fuel_new_y
                 else:
                     self.crit_flat_fuel_shape = False
-
-                    # Criteria if flat shape (Yes/No). If Flat shape, do not store shape, but only calculated if shape is requiested
-                    #sample_tech = self.technologies_enduse[0]
-                    sample_tech = 'dummy_tech'
-
-                    enduse_load_profile = load_profiles.get_load_profile(self.enduse, self.sector, sample_tech, 'shape_yh')
-                    shape_peak_dh = load_profiles.get_load_profile(self.enduse, self.sector, sample_tech, 'shape_peak_dh')
-                    enduse_peak_yd_factor = load_profiles.get_load_profile(self.enduse, self.sector, sample_tech, 'enduse_peak_yd_factor')
-
-                    self.enduse_fuel_yh = np.zeros((self.enduse_fuel_new_y.shape[0], 365, 24))
-                    for fueltype, fuel in enumerate(self.enduse_fuel_new_y):
-                        self.enduse_fuel_yh[fueltype] = enduse_load_profile * fuel #SPEED
-                    #self.enduse_fuel_yh = enduse_load_profile * self.enduse_fuel_new_y[:, np.newaxis, np.newaxis]
-
-                    # READ OUT PEAK OF PEAK DAY 
+                    
+                    # --enduse_fuel_yh
+                    self.enduse_fuel_yh = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'shape_yh') * self.enduse_fuel_new_y[:, np.newaxis, np.newaxis]
+    
+                    # --shape_peak_dh 
+                    shape_peak_dh = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'shape_peak_dh')
                     if shape_peak_dh == None:
                         try:
                             shape_peak_dh = data['shapes_resid_dh'][enduse]['shape_peak_dh']
                         except:
                             peak_day = self.get_peak_fuel_day(self.enduse_fuel_yh) #define peak day from yh
                             shape_peak_dh = shape_handling.absolute_to_relative(self.enduse_fuel_yh[:, peak_day, :])
-
+                    
+                    # --enduse_peak_yd_factor
+                    enduse_peak_yd_factor = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'enduse_peak_yd_factor')
                     self.enduse_fuel_peak_dh =  self.enduse_fuel_new_y[:, np.newaxis] * enduse_peak_yd_factor * shape_peak_dh
 
                     self.enduse_fuel_peak_h = shape_handling.calk_peak_h_dh(self.enduse_fuel_peak_dh)
-                # ---------------REMASTER
             else:
                 # ------------------------------------------------------------------------
                 # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution)
@@ -222,7 +210,6 @@ class Enduse(object):
                     """Flat shape. Therfore do not store whole 8760 profile here but only create 8760 when summing
                     """
                     self.crit_flat_fuel_shape = True
-
                     self.enduse_fuel_y = self.calc_fuel_tech_y(tech_stock, enduse_fuel_tech_y)
 
                 else:
