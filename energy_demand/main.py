@@ -48,7 +48,7 @@ Down th5e line
 #TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
-#SPEED: TEST FOR ENUMERATE
+#SPEED: TEST FOR ENUMERATE ([:, None, None])
 # IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
 '''
@@ -121,19 +121,13 @@ def energy_demand_model(data):
     print("================================================")
 
     # Convert data according to region and fueltype
-    result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
+    #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
 
     # --- Write to csv and YAML
     ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
-    # -----------------------------------------
-    # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
-    # -----------------------------------------
-    # Read in 2015 base elec national data
-    print("FINAL Fueltype:  " + str(len(result_dict)))
-    print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
-    print("Finished energy demand model")
-    return result_dict, model_run_object
+    print("...finished energy demand model simulation")
+    return _, model_run_object
 
 # Run
 if __name__ == "__main__":
@@ -407,7 +401,7 @@ if __name__ == "__main__":
             ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
             '''
 
-        results, model_run_object = energy_demand_model(base_data)
+        _, model_run_object = energy_demand_model(base_data)
 
         if instrument_profiler:
             profiler.stop()

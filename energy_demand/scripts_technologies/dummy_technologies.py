@@ -39,7 +39,8 @@ def insert_dummy_technologies(tech_p_by, all_specified_tech_enduse_by, fuel_endu
                 installed_tech = True
 
             if not installed_tech:
-                dummpy_tech = "dummy__{}__{}__{}__tech".format(end_use, fuel_type, installed_tech)
+                #dummpy_tech = "dummy__{}__{}__{}__tech".format(end_use, fuel_type, installed_tech)
+                dummpy_tech = "dummy_tech"
                 dummpy_techs.append(dummpy_tech)
                 all_specified_tech_enduse_by[end_use].append(dummpy_tech)
 
@@ -67,11 +68,13 @@ def define_dummy_technologies(dummy_techs, technologies):
     ----
     All dummy technologies have efficiencies of one in base and end year,
     a sigmoid diffusion and a market entry of 2015
+
+    #TODO: IS THIS NECESSARY IF ONLY ASSIGN dummy_tech
     """
 
     for dummy_tech in dummy_techs:
         technologies[dummy_tech] = {
-            'fuel_type': int(dummy_tech.split("__")[2]),
+            'fuel_type': 0, #'None', # dummy_tech int(dummy_tech.split("__")[2]),
             'eff_by': 1.0,
             'eff_ey': 1.0,
             'eff_achieved': 1.0,

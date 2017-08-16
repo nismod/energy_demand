@@ -135,6 +135,12 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         """
+        '''
+        if tech_name == 'dummy_tech':
+            self.tech_name = tech_name
+        else:
+        '''
+
         self.tech_name = tech_name
         self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
         self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
