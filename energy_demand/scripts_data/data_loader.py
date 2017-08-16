@@ -118,7 +118,7 @@ def load_data(path_main, data):
         }
 
     # Number of fueltypes
-    data['nr_of_fueltypes'] = len(data['lu_fueltype'])
+    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
 
     # Dwelling types lookup table
     data['dwtype_lu'] = read_data.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])
@@ -180,8 +180,7 @@ def load_data(path_main, data):
 
     # Residential Sector (ECUK Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
-    data['rs_sectors'] = ['dummy_sector']
-    print("RS Sectors: {}".format(data['rs_sectors']))
+
     # Service Sector (ECUK Table XY)
     data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
     print("RS Sectors: {}".format(data['ss_sectors']))

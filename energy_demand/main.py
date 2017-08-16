@@ -1,8 +1,9 @@
 '''Main file containing the energy demand model main function
 #
 # Description: Energy Demand Model - Run one year
-# Authors: Sven Eggimann, ... Aurthors: Pranab Baruah; Scott Thacker
+# Authors: Sven Eggimann, Nick Eyre...
 #
+# 
 # Abbreviations:
 # -------------
 # rs = Residential Sector
@@ -41,14 +42,12 @@ merged
 Down th5e line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - "scenario teller": istead of diffusion path, type in known path
-#
 
 #TODO: ASSIGN TECH STOCK FOR FLAT NO YH fueltype_share_yh_all_h
 
 #TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
-#SPEED: TEST FOR ENUMERATE ([:, None, None])
 # IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
 '''
@@ -120,10 +119,8 @@ def energy_demand_model(data):
     print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
     print("================================================")
 
-    # Convert data according to region and fueltype
+    # # --- Write to csv and YAML Convert data according to region and fueltype
     #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
-
-    # --- Write to csv and YAML
     ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
     print("...finished energy demand model simulation")
@@ -132,7 +129,7 @@ def energy_demand_model(data):
 # Run
 if __name__ == "__main__":
     print('start_main')
-    base_data = {} 
+    base_data = {}
 
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
@@ -162,7 +159,7 @@ if __name__ == "__main__":
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
     base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-    
+
     ss_floorarea_sector_by_dummy = {}
 
     ss_floorarea_sector_by_dummy['Wales'] = {}
@@ -251,6 +248,8 @@ if __name__ == "__main__":
     print("... start model calculations outside main function")
     
     base_data['testing_crit'] = False
+    base_data['supply_demand_provide_heat'] = False #TODO
+
 
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():

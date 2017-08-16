@@ -161,6 +161,8 @@ def get_tech_type(tech_name, technology_list):
         tech_type = 'storage_heating_electricity'
     elif tech_name in technology_list['secondary_heating_electricity']:
         tech_type = 'secondary_heating_electricity'
+    elif tech_name == 'dummy_tech':
+        tech_type = 'dummy_tech'
     else:
         tech_type = 'regular_tech'
 

@@ -9,7 +9,6 @@ from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_technologies import fuel_service_switch
 from energy_demand.scripts_basic import testing_functions as testing
 from energy_demand.scripts_shape_handling import generic_shapes as generic_shapes
-print("start")
 
 class Enduse(object):
     """Class of an end use of the residential sector
@@ -101,6 +100,16 @@ class Enduse(object):
             #print("Fuel elec E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("Fuel all fueltypes E: " + str(np.sum(self.enduse_fuel_new_y)))
             #print("..TIME E: {}".format(time.time() - start))
+            
+            # -----------------------------------
+            # Optimised Version (providing heat)
+            # -----------------------------------
+            #self.provi
+            #TODO: if base_data['supply_demand_provide_heat'] == True
+            # If space_heating convert whole service to HEAT DEMAND and assign boiler shapes
+
+            # -----------------------------------
+
             # ----------------------------------
             # Hourly fuel calculation cascade
             # ----------------------------------
@@ -141,6 +150,7 @@ class Enduse(object):
 
                     self.enduse_fuel_peak_h = shape_handling.calk_peak_h_dh(self.enduse_fuel_peak_dh)
             else:
+
                 # ------------------------------------------------------------------------
                 # Calculate regional energy service (for current year after e.g. smart meter and temp and general fuel redution)
                 # MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
@@ -557,12 +567,6 @@ class Enduse(object):
         for _, tech_fueltype in fuel_enduse_tech_p_by.items():
             for tech in tech_fueltype.keys():
                 technologies_enduse.add(tech)
-
-                '''for tech in self.technologies_enduse:
-                    if tech[:5] == 'dummy':
-                        shape_per_enduse = True
-                        break
-                '''
                 if tech == 'dummy_tech':
                     technologies_enduse = []
                     return technologies_enduse
@@ -801,9 +805,6 @@ class Enduse(object):
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
 
             # Get distribution of fuel for every day, terate shares of fueltypes, calculate share of fuel and add to fuels
-            #for fueltype, fuel_shares_yh in enumerate(fueltypes_tech_share_yh):
-            #    fuels_yh[fueltype] += fuel_tech_yh * fuel_shares_yh
-            #FAST
             fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
 
         # Assert --> If this assert is done, then we need to substract the fuel from yearly data and run function:  service_to_fuel_fueltype_y
@@ -1081,7 +1082,7 @@ class Enduse(object):
                     )
                 change_cy = diff_fuel_consump * sig_diff_factor
 
-            # Calculate new fuel consumption percentage
+            # Calculate new fuel consumption percentage #Improve speed
             for fueltype, fuel in enumerate(self.enduse_fuel_new_y):
                 new_fuels[fueltype] = fuel * (1.0 + change_cy)
 
@@ -1182,7 +1183,8 @@ class Enduse(object):
         """
         base_yr = base_sim_param['base_yr']
         curr_yr = base_sim_param['curr_yr']
-        new_fuels = copy.deepcopy(self.enduse_fuel_new_y) #TODO (rename buillding)
+        #new_fuels = copy.deepcopy(self.enduse_fuel_new_y) #TODO (rename buillding)
+        new_fuels = np.copy(self.enduse_fuel_new_y) #TODO (rename buillding)
 
         if not dw_stock: # == False:
             # Calculate non-building related scenario drivers

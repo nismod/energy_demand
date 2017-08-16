@@ -27,10 +27,9 @@ class LoadProfileStock(object):
             for enduse in profile_obj.enduses:
                 all_enduses.add(enduse)
 
-        #setattr(self, 'enduses_in_stock', list(all_enduses))
         setattr(self, 'enduses_in_stock', all_enduses)
 
-    def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
+    def add_load_profile(self, unique_identifier, technologies, enduses, sectors=['dummy_sector'], shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
 
         Parameters

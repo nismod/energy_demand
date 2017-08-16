@@ -344,14 +344,9 @@ def load_assumptions(data):
     # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
     #add dummy technology if no technologies are defined per enduse
-    assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], rs_dummy_techs = dummy_technologies.insert_dummy_technologies(assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by'])
-    assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], ss_dummy_techs = dummy_technologies.insert_dummy_technologies(assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['ss_fuel_enduse_tech_p_by'])
-    assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], is_dummy_techs = dummy_technologies.insert_dummy_technologies(assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
-
-    # Add dummy technologies to technology stock
-    assumptions['technologies'] = dummy_technologies.define_dummy_technologies(rs_dummy_techs, assumptions['technologies'])
-    assumptions['technologies'] = dummy_technologies.define_dummy_technologies(ss_dummy_techs, assumptions['technologies'])
-    assumptions['technologies'] = dummy_technologies.define_dummy_technologies(is_dummy_techs, assumptions['technologies'])
+    assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['rs_fuel_enduse_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['rs_fuel_enduse_tech_p_by'])
+    assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['ss_fuel_enduse_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['ss_fuel_enduse_tech_p_by'])
+    assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['is_fuel_enduse_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['is_fuel_enduse_tech_p_by'])
 
     # All enduses with dummy technologies
     assumptions['rs_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['rs_fuel_enduse_tech_p_by'])

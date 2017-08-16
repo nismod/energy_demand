@@ -177,6 +177,8 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
                         temp_diff=10,
                         efficiency_intersect=tech_stock[tech]['eff_by']
                         )
+                elif tech_type == 'dummy_tech':
+                    eff_tech = 1
                 else:
                     eff_tech = tech_stock[tech]['eff_by']
 
