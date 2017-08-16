@@ -584,6 +584,7 @@ class Enduse(object):
     def service_switch(self, tot_service_h_cy, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sig_param_tech, curr_yr):
         """Scenaric service switches
         All diminishing technologies are proportionally to base year share diminished.
+
         Paramters
         ---------
         tot_service_h_cy : array
@@ -610,7 +611,7 @@ class Enduse(object):
             )
 
         for tech_increase, share_tech in service_tech_increase_cy_p.items():
-            service_tech_cy_p[tech_increase] = share_tech # Add shares to output dict
+            service_tech_cy_p[tech_increase] = share_tech # Add shares
 
         # -------------
         # Technology with decreasing service
@@ -708,7 +709,7 @@ class Enduse(object):
             return False
         else:
             for fuelswitch in fuelswitches:
-                if fuelswitch['enduse'] == self.enduse: #If switch found in enduse
+                if fuelswitch['enduse'] == self.enduse:
                     return True
 
             return False
@@ -771,8 +772,8 @@ class Enduse(object):
             # Get fueltypes (distribution) of tech for peak day
             fueltypes_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
 
-            # Peak day fuel shape * fueltype distribution for peak day
-            fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :] #select from (7, 365, 24) only peak day for all fueltypes
+            # Peak day fuel shape * fueltype distribution for peak day (select from (7, 365, 24) only peak day for all fueltypes)
+            fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
 
             # Testing
             #np.testing.assert_almost_equal(np.sum(fuel_shape_yd), 1) #Test if yd shape is one
@@ -803,11 +804,8 @@ class Enduse(object):
 
         for tech in self.technologies_enduse:
 
-            # Shape of fuel of technology for every hour in year
-            load_profile_yh = load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
-
             # Fuel distribution
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profile_yh
+            fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(self.enduse, self.sector, tech, 'shape_yh')
 
             # FAST: Get distribution per fueltype
             fueltypes_tech_share_yh = tech_stock.get_tech_attr(self.enduse, tech, 'fueltype_share_yh_all_h')
