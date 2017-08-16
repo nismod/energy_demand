@@ -119,10 +119,10 @@ def get_hdd_country(regions, data, t_base_type):
         closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
 
         # Temp data
-        temperatures = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
+        temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(data['base_sim_param'], data['assumptions'], t_base_type)
+        t_base_heating_cy = sigm_t_base(data['sim_param'], data['assumptions'], t_base_type)
 
         # Calc HDD
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
@@ -150,10 +150,10 @@ def get_cdd_country(regions, data, t_base_type):
         closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
 
         # Temp data
-        temperatures = data['temperature_data'][closest_station_id][data['base_sim_param']['base_yr']]
+        temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(data['base_sim_param'], data['assumptions'], t_base_type)
+        t_base_heating_cy = sigm_t_base(data['sim_param'], data['assumptions'], t_base_type)
 
         # Calc HDD
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)

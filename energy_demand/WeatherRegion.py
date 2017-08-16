@@ -33,18 +33,18 @@ class WeatherRegion(object):
         self.weather_region_name = weather_region_name
 
         # Temperatures
-        temp_by = data['temperature_data'][weather_region_name][data['base_sim_param']['base_yr']]
-        temp_cy = data['temperature_data'][weather_region_name][data['base_sim_param']['curr_yr']]
+        temp_by = data['temperature_data'][weather_region_name][data['sim_param']['base_yr']]
+        temp_cy = data['temperature_data'][weather_region_name][data['sim_param']['curr_yr']]
 
         # Base temperatures
-        rs_t_base_heating_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_heating')
-        rs_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_cooling')
-        rs_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_heating')
-        rs_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'rs_t_base_cooling')
-        ss_t_base_heating_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_heating')
-        ss_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_cooling')
-        ss_t_base_heating_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_heating')
-        ss_t_base_cooling_by = hdd_cdd.sigm_t_base(data['base_sim_param'], data['assumptions'], 'ss_t_base_cooling')
+        rs_t_base_heating_cy = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'rs_t_base_heating')
+        rs_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'rs_t_base_cooling')
+        rs_t_base_heating_by = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'rs_t_base_heating')
+        rs_t_base_cooling_by = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'rs_t_base_cooling')
+        ss_t_base_heating_cy = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'ss_t_base_heating')
+        ss_t_base_cooling_cy = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'ss_t_base_cooling')
+        ss_t_base_heating_by = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'ss_t_base_heating')
+        ss_t_base_cooling_by = hdd_cdd.sigm_t_base(data['sim_param'], data['assumptions'], 'ss_t_base_cooling')
 
         # -------------------
         # Technology stock
@@ -435,7 +435,7 @@ class WeatherRegion(object):
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        for day, date_gasday in enumerate(data['base_sim_param']['list_dates']):
+        for day, date_gasday in enumerate(data['sim_param']['list_dates']):
 
             # Take respectve daily fuel curve depending on weekday or weekend from Robert Sansom for heat pumps
             if date_handling.get_weekday_type(date_gasday) == 'holiday':
@@ -567,8 +567,8 @@ class WeatherRegion(object):
         shape_boilers_y_dh = np.zeros((365, 24))
 
         list_dates = date_handling.fullyear_dates(
-            start=date(data['base_sim_param']['base_yr'], 1, 1),
-            end=date(data['base_sim_param']['base_yr'], 12, 31)
+            start=date(data['sim_param']['base_yr'], 1, 1),
+            end=date(data['sim_param']['base_yr'], 12, 31)
             )
 
         for day, date_gasday in enumerate(list_dates):

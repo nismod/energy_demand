@@ -263,7 +263,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
     -----
     Gets second sigmoid point
     """
-    l_values_sig = init.init_dict(enduses, 'brackets')
+    l_values_sig = init.init_dict_brackets(enduses)
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
@@ -334,7 +334,6 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
     If service definition, the year until switched is the end model year
 
     """
-    #sigmoid_parameters = init.init_nested_dict(enduses, installed_tech, 'brackets')
     sigmoid_parameters = {}
 
     #-----------------
@@ -352,7 +351,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
             # If service switch
             if crit_switch_service:
-                year_until_switched = data['base_sim_param']['end_yr'] # Year until service is switched
+                year_until_switched = data['sim_param']['end_yr'] # Year until service is switched
                 market_entry = data['assumptions']['technologies'][technology]['market_entry']
             else:
 
@@ -369,11 +368,11 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
             # --------
-            if market_entry > data['base_sim_param']['base_yr']:
+            if market_entry > data['sim_param']['base_yr']:
                 point_x_by = market_entry
                 point_y_by = 0.001 # very small service share if market entry in a future year
             else: # If market entry before, set to 2015
-                point_x_by = data['base_sim_param']['base_yr']
+                point_x_by = data['sim_param']['base_yr']
                 point_y_by = service_tech_by_p[enduse][technology] # current service share
 
                 #If the base year is the market entry year use a very small number

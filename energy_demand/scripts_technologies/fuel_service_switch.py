@@ -144,11 +144,11 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     Because regional efficiencies may differ within regions, the fuel distribution within
     the fueltypes may also differ
     """
-
-    service = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Energy service per technology for base year
-    service_tech_by_p = init.init_dict(fuels, 'brackets') # Percentage of total energy service per technology for base year
-    service_fueltype_tech_by_p = init.init_nested_dict(fuels, fueltypes_lu.values(), 'brackets') # Percentage of service per technologies within the fueltypes
-    service_fueltype_by_p = init.init_nested_dict(service_tech_by_p.keys(), range(len(fueltypes_lu)), 'zero') # Percentage of service per fueltype
+    # Energy service per technology for base year
+    service = init.init_nested_dict_brackets(fuels, fueltypes_lu.values())
+    service_tech_by_p = init.init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
+    service_fueltype_tech_by_p = init.init_nested_dict_brackets(fuels, fueltypes_lu.values()) # Percentage of service per technologies within the fueltypes
+    service_fueltype_by_p = init.init_nested_dict_zero(service_tech_by_p.keys(), range(len(fueltypes_lu))) # Percentage of service per fueltype
 
     for enduse, fuel in fuels.items():
 

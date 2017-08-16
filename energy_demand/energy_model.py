@@ -33,7 +33,7 @@ class EnergyModel(object):
         """Constructor of the class which holds all regions of a country
         """
         print("..start main energy demand function")
-        self.curr_yr = data['base_sim_param']['curr_yr']
+        self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
         data['load_profile_stock_non_regional'] = self.create_load_profile_stock(data)

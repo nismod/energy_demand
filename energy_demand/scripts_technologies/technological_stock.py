@@ -170,7 +170,7 @@ class Technology(object):
                     technologies_related.calc_eff_cy(
                         data['assumptions']['technologies'][tech_name]['eff_by'],
                         tech_name,
-                        data['base_sim_param'],
+                        data['sim_param'],
                         data['assumptions'],
                         self.eff_achieved_factor,
                         self.diff_method
@@ -181,7 +181,7 @@ class Technology(object):
                 self.eff_cy = technologies_related.calc_eff_cy(
                     data['assumptions']['technologies'][tech_name]['eff_by'],
                     tech_name,
-                    data['base_sim_param'],
+                    data['sim_param'],
                     data['assumptions'],
                     self.eff_achieved_factor,
                     self.diff_method
@@ -269,7 +269,7 @@ class HybridTechnology(object):
         eff_tech_low_cy = technologies_related.calc_eff_cy(
             data['assumptions']['technologies'][self.tech_low_temp]['eff_by'],
             self.tech_low_temp,
-            data['base_sim_param'],
+            data['sim_param'],
             data['assumptions'],
             data['assumptions']['technologies'][self.tech_low_temp]['eff_achieved'],
             data['assumptions']['technologies'][self.tech_low_temp]['diff_method']
@@ -278,7 +278,7 @@ class HybridTechnology(object):
         eff_tech_high_cy = technologies_related.calc_eff_cy(
             data['assumptions']['technologies'][self.tech_high_temp]['eff_by'],
             self.tech_high_temp,
-            data['base_sim_param'],
+            data['sim_param'],
             data['assumptions'],
             data['assumptions']['technologies'][self.tech_high_temp]['eff_achieved'],
             data['assumptions']['technologies'][self.tech_high_temp]['diff_method']

@@ -134,7 +134,7 @@ def load_data(path_main, data):
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
-    for region_name in data['population'][data['base_sim_param']['base_yr']]:
+    for region_name in data['population'][data['sim_param']['base_yr']]:
         data['reg_floorarea_resid'][region_name] = 100000
 
     # ----------------------------------------------------------
@@ -478,7 +478,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
     hes_data, hes_y_peak, _ = rs_read_data.read_hes_data(data['path_dict']['path_bd_e_load_profiles'], len(appliances_HES_enduse_matching), data['day_type_lu'])
 
     # Assign read in raw data to the base year
-    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['base_sim_param']['base_yr'])
+    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['sim_param']['base_yr'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:

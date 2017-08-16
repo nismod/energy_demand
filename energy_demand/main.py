@@ -3,7 +3,6 @@
 # Description: Energy Demand Model - Run one year
 # Authors: Sven Eggimann, Nick Eyre...
 #
-# 
 # Abbreviations:
 # -------------
 # rs = Residential Sector
@@ -48,11 +47,14 @@ Down th5e line
 #TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
+pip install autopep8
+autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
+import time 
+#print("..TIME A: {}".format(time.time() - start))
 # IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-
 #!python3.6
 import os
 import sys
@@ -230,12 +232,12 @@ if __name__ == "__main__":
         }
     }
 
-    data_external['base_sim_param'] = {}
-    data_external['base_sim_param']['end_yr'] = end_yr
-    data_external['base_sim_param']['base_yr'] = base_yr
-    data_external['base_sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
-    data_external['base_sim_param']['curr_yr'] = 2015
-    data_external['base_sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    data_external['sim_param'] = {}
+    data_external['sim_param']['end_yr'] = end_yr
+    data_external['sim_param']['base_yr'] = base_yr
+    data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['sim_param']['curr_yr'] = 2015
+    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     data_external['fastcalculationcrit'] = True
 
@@ -373,7 +375,7 @@ if __name__ == "__main__":
     results_every_year = []
 
     for sim_yr in sim_years:
-        data_external['base_sim_param']['curr_yr'] = sim_yr
+        data_external['sim_param']['curr_yr'] = sim_yr
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
@@ -426,7 +428,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-
+        
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
@@ -469,7 +471,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        ''''''
+
     # ------------------------------
     # Plotting
     # ------------------------------

@@ -24,7 +24,7 @@ def change_temp_climate_change(data):
         temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
-        for curr_yr in data['base_sim_param']['sim_period']:
+        for curr_yr in data['sim_param']['sim_period']:
             temp_climate_change[station_id][curr_yr] = np.zeros((365, 24))
 
             # Iterate every month and substract
@@ -32,7 +32,7 @@ def change_temp_climate_change(data):
 
                 # Create datetime object
                 date_object = date_handling.convert_yearday_to_date(
-                    data['base_sim_param']['base_yr'],
+                    data['sim_param']['base_yr'],
                     yearday
                     )
 
@@ -44,11 +44,11 @@ def change_temp_climate_change(data):
                 temp_ey = data['assumptions']['climate_change_temp_diff_month'][month_yearday]
 
                 lin_diff_f = diffusion.linear_diff(
-                    data['base_sim_param']['base_yr'],
+                    data['sim_param']['base_yr'],
                     curr_yr,
                     temp_by,
                     temp_ey,
-                    len(data['base_sim_param']['sim_period'])
+                    len(data['sim_param']['sim_period'])
                 )
 
                 # Iterate hours of base year
