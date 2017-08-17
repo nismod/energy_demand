@@ -34,7 +34,7 @@ def convert_out_format_es(data, model_run_object, sub_modules):
                 data['nr_of_fueltypes'],
                 region_name,
                 sub_modules,
-                'enduse_fuel_yh')
+                'fuel_yh')
 
             for day, day_demand in enumerate(hourly_all_fuels[fueltype_id]):
                 for hour, hour_demand in enumerate(day_demand):

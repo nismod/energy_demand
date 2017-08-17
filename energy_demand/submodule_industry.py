@@ -34,7 +34,7 @@ class IndustryModel(object):
             data=data,
             enduse=self.enduse,
             sector=self.sector,
-            enduse_fuel=self.fuels_all_enduses[self.enduse],
+            fuel=self.fuels_all_enduses[self.enduse],
             tech_stock=region_object.is_tech_stock,
             heating_factor_y=region_object.is_heating_factor_y,
             cooling_factor_y=region_object.is_cooling_factor_y,

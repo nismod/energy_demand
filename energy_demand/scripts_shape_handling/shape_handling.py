@@ -231,12 +231,12 @@ def absolute_to_relative(absolute_array):
 
     return relative_array
 
-def calk_peak_h_dh(enduse_fuel_peak_dh):
+def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day
 
     Parameters
     ----------
-    enduse_fuel_peak_dh : array
+    fuel_peak_dh : array
         Fuel of peak day
 
     Return
@@ -245,7 +245,7 @@ def calk_peak_h_dh(enduse_fuel_peak_dh):
         Fuel for maximum hour in peak day per fueltype
     """
     # Get maximum value per row (maximum fuel hour per fueltype)
-    peak_fueltype_h = np.max(enduse_fuel_peak_dh, axis=1)
+    peak_fueltype_h = np.max(fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
 

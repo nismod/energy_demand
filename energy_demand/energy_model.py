@@ -73,36 +73,36 @@ class EnergyModel(object):
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors sum_reg
-        self.sum_uk_fueltypes_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'sum', 'non_peak')
 
-        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'non_peak')
-        self.rs_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
-        self.ss_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
-        self.is_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.is_submodel], 'no_sum', 'non_peak')
-        self.ts_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ts_submodel], 'no_sum', 'non_peak')
+        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'non_peak')
+        self.rs_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
+        self.is_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.is_submodel], 'no_sum', 'non_peak')
+        self.ts_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ts_submodel], 'no_sum', 'non_peak')
 
-        self.rs_tot_fuels_all_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
-        self.ss_tot_fuels_all_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
+        self.rs_tot_fuels_all_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_tot_fuels_all_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
 
         # Sum across all regions for enduse
-        self.all_models_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel])
+        self.all_models_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel])
 
-        self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel])
-        self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.ss_submodel])
+        self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.rs_submodel])
+        self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.ss_submodel])
 
 
         # Sum across all regions, enduses for peak hour
 
         # NEW
-        self.peak_all_models_all_enduses_fueltype = self.sum_reg('enduse_fuel_peak_dh', data['nr_of_fueltypes'], [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
+        self.peak_all_models_all_enduses_fueltype = self.sum_reg('fuel_peak_dh', data['nr_of_fueltypes'], [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
 
-        self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
 
         # Functions for load calculations
         # ---------------------------
-        self.rs_fuels_peak_h = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_fuels_peak_h = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_fuels_peak_h = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_fuels_peak_h = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
 
         # Across all enduses calc_load_factor_h
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, self.rs_fuels_peak_h)
@@ -195,7 +195,7 @@ class EnergyModel(object):
             Attributes to read out
         """
         region_fuel_yh = self.sum_reg(
-            'enduse_fuel_yh',
+            'fuel_yh',
             nr_of_fueltypes,
             [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
             'no_sum',
@@ -523,9 +523,9 @@ class EnergyModel(object):
         if model_object.enduse_object.crit_flat_fuel_shape:
 
             # Yearly fuel
-            fuels_reg_y = model_object.enduse_object.enduse_fuel_y
+            fuels_reg_y = model_object.enduse_object.fuel_y
 
-            if attribute_to_get == 'enduse_fuel_peak_dh':   
+            if attribute_to_get == 'fuel_peak_dh':   
                 shape_peak_dh = np.full((24), 1 / 24) # flat shape
 
                 # Because flat shape, the dh_peak is 24/8760
@@ -539,10 +539,10 @@ class EnergyModel(object):
             elif attribute_to_get == 'shape_non_peak_yd':
                 shape_non_peak_yd = np.ones((365)) / 365 #flat shape
                 fuels = fuels_reg_y * shape_non_peak_yd
-            elif attribute_to_get == 'enduse_fuel_yh':
+            elif attribute_to_get == 'fuel_yh':
                 
                 shape_non_peak_yh = np.full((365, 24), 1/8760) # flat shape
-                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.enduse_fuel_new_y.shape[0], 365, 24))
+                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.fuel_new_y.shape[0], 365, 24))
 
                 for fueltype, _ in enumerate(fast_shape_non_peak_yh): #can be faster
                     fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh
