@@ -67,7 +67,7 @@ def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-    nr_y_to_plot = len(data['base_sim_param']['sim_period'])
+    nr_y_to_plot = len(data['sim_param']['sim_period'])
 
 
     x_data = range(nr_y_to_plot)

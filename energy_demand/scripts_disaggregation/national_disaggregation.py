@@ -118,7 +118,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
 
             # Population
-            reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name]
+            reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
             # National disaggregation factors
             f_ss_catering[sector] += reg_pop
@@ -147,7 +147,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                 reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
 
                 # Population
-                reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name]
+                reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
                 if enduse == 'ss_catering':
                     reg_diasg_factor = reg_pop / f_ss_catering[sector]
@@ -272,7 +272,7 @@ def rs_disaggregate(data, rs_national_fuel):
     # ---------------------------------------
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(data['lu_reg'], data, 'rs_t_base_heating')
 
-    total_pop = sum(data['population'][data['base_sim_param']['base_yr']].values()) # Total population
+    total_pop = sum(data['population'][data['sim_param']['base_yr']].values()) # Total population
     # ---------------------------------------
     # Overall disaggregation factors per enduse
     # ---------------------------------------
@@ -294,7 +294,7 @@ def rs_disaggregate(data, rs_national_fuel):
         reg_floor_area = data['rs_floorarea'][region_name]
 
         # Population
-        reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name]
+        reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
         # National dissagregation factors
         f_rs_lighting += reg_floor_area
@@ -313,7 +313,7 @@ def rs_disaggregate(data, rs_national_fuel):
     for region_name in data['lu_reg']:
         rs_fueldata_disagg[region_name] = {}
 
-        reg_pop = data['population'][data['base_sim_param']['base_yr']][region_name]
+        reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
         reg_floor_area = data['rs_floorarea'][region_name]
 

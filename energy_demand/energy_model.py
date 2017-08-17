@@ -1,5 +1,4 @@
 """Residential model"""
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import uuid
 import numpy as np
 import energy_demand.region as region
@@ -12,6 +11,7 @@ from energy_demand.scripts_shape_handling import load_factors as load_factors
 from energy_demand.scripts_shape_handling import shape_handling
 from energy_demand.scripts_initalisations import helper_functions
 from energy_demand.scripts_shape_handling import generic_shapes
+'''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class EnergyModel(object):
     """Class of a country containing all regions as self.attributes
@@ -33,7 +33,7 @@ class EnergyModel(object):
         """Constructor of the class which holds all regions of a country
         """
         print("..start main energy demand function")
-        self.curr_yr = data['base_sim_param']['curr_yr']
+        self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
         data['load_profile_stock_non_regional'] = self.create_load_profile_stock(data)
@@ -50,7 +50,7 @@ class EnergyModel(object):
         # --------------------
         self.weather_regions = self.create_weather_regions(data['weather_stations'], data, 'rs_submodel')
         self.regions = self.create_regions(region_names, data, 'rs_submodel')
-        self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'], data['rs_sectors'])
+        self.rs_submodel = self.residential_submodel(data, data['rs_all_enduses'])
 
         # --------------------
         # Service SubModel
@@ -69,39 +69,40 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
+        print("...summarise fuel")
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors sum_reg
-        self.sum_uk_fueltypes_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'sum', 'non_peak')
+        self.sum_uk_fueltypes_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'sum', 'non_peak')
 
-        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'non_peak')
-        self.rs_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
-        self.ss_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
-        self.is_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.is_submodel], 'no_sum', 'non_peak')
-        self.ts_sum_uk_specfuelype_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ts_submodel], 'no_sum', 'non_peak')
+        self.all_submodels_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'non_peak')
+        self.rs_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
+        self.is_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.is_submodel], 'no_sum', 'non_peak')
+        self.ts_sum_uk_specfuelype_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ts_submodel], 'no_sum', 'non_peak')
 
-        self.rs_tot_fuels_all_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
-        self.ss_tot_fuels_all_enduses_y = self.sum_reg('enduse_fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
+        self.rs_tot_fuels_all_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak')
+        self.ss_tot_fuels_all_enduses_y = self.sum_reg('fuel_yh', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak')
 
         # Sum across all regions for enduse
-        self.all_models_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel])
+        self.all_models_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel])
 
-        self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.rs_submodel])
-        self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('enduse_fuel_yh', [self.ss_submodel])
+        self.rs_tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.rs_submodel])
+        self.ss_tot_fuel_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', [self.ss_submodel])
 
 
         # Sum across all regions, enduses for peak hour
 
         # NEW
-        self.peak_all_models_all_enduses_fueltype = self.sum_reg('enduse_fuel_peak_dh', data['nr_of_fueltypes'], [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
+        self.peak_all_models_all_enduses_fueltype = self.sum_reg('fuel_peak_dh', data['nr_of_fueltypes'], [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
 
-        self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
 
         # Functions for load calculations
         # ---------------------------
-        self.rs_fuels_peak_h = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
-        self.ss_fuels_peak_h = self.sum_reg('enduse_fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
+        self.rs_fuels_peak_h = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
+        self.ss_fuels_peak_h = self.sum_reg('fuel_peak_h', data['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h')
 
         # Across all enduses calc_load_factor_h
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, self.rs_fuels_peak_h)
@@ -120,17 +121,15 @@ class EnergyModel(object):
 
         Returns
         -------
-        """
 
-        # Generate stock
-        load_profile_stock_non_regional = shape_handling.LoadProfileStock("non_regional_load_profiles")
+        """
+        load_profile_stock_non_regional = shape_handling.LoadProfileStock("non_regional_load_profiles") # Generate stock
 
         # Lighting (residential)
         load_profile_stock_non_regional.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['rs_lighting'],
             enduses=['rs_lighting'],
-            sectors=data['rs_sectors'],
             shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
             shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
             enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
@@ -139,22 +138,21 @@ class EnergyModel(object):
 
         # -- dummy rs technologies
         for enduse in data['assumptions']['rs_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
-
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
+            print("dd" + str(enduse))
             load_profile_stock_non_regional.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
-                sectors=data['rs_sectors'],
                 shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
                 shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'], ##TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here * (1 / (365))
+                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
                 shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
                 )
 
         # - dummy ss technologies
         for enduse in data['assumptions']['ss_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
             for sector in data['ss_sectors']:
                 load_profile_stock_non_regional.add_load_profile(
                     unique_identifier=uuid.uuid4(),
@@ -163,7 +161,7 @@ class EnergyModel(object):
                     sectors=[sector],
                     shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'], # * (1 / (365)), #TODO: CHECK
+                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
                     shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
                     )
 
@@ -171,7 +169,7 @@ class EnergyModel(object):
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
         for enduse in data['assumptions']['is_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
             for sector in data['is_sectors']:
                 load_profile_stock_non_regional.add_load_profile(
                     unique_identifier=uuid.uuid4(),
@@ -197,7 +195,7 @@ class EnergyModel(object):
             Attributes to read out
         """
         region_fuel_yh = self.sum_reg(
-            'enduse_fuel_yh',
+            'fuel_yh',
             nr_of_fueltypes,
             [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
             'no_sum',
@@ -207,19 +205,25 @@ class EnergyModel(object):
 
         return region_fuel_yh
 
-    def get_fuel_region_all_models_yh(self, data, region_name_to_get, sector_models, attribute_to_get):
+    def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get):
         """Summarise fuel yh for a certain region
+
+        Parameters
+        ----------
+        nr_of_fueltypes : int
+            Number of fueltypes
+        region_name_to_get : str
+            Name of region to read out
+        sector_models : list
+            Objectos of submodel runs
         """
-        tot_fuels_all_enduse_yh = np.zeros((data['nr_of_fueltypes'], 365, 24))
+        tot_fuels_all_enduse_yh = np.zeros((nr_of_fueltypes, 365, 24))
 
         for sector_model in sector_models:
             sector_model_objects = getattr(self, sector_model)
             for model_object in sector_model_objects:
                 if model_object.region_name == region_name_to_get:
-
                     tot_fuels_all_enduse_yh += self.get_fuels_yh(model_object, attribute_to_get)
-
-                    ##ORIGtot_fuels_all_enduse_yh += getattr(model_object.enduse_object, attribute_to_get)
 
         return tot_fuels_all_enduse_yh
 
@@ -247,14 +251,14 @@ class EnergyModel(object):
 
         # To save on memory
         del self.regions, self.weather_regions
-
+        print("...finished other submodel")
         return submodule_list
 
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model
         """
-        _scrap_cnt = 0
         print("..industry submodel start")
+        _scrap_cnt = 0 
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -281,7 +285,7 @@ class EnergyModel(object):
 
         return submodule_list
 
-    def residential_submodel(self, data, enduses, sectors):
+    def residential_submodel(self, data, enduses, sectors=None):
         """Create the residential submodules (per enduse and region) and add them to list
 
         Parameters
@@ -290,12 +294,17 @@ class EnergyModel(object):
             Data container
         enduses : list
             All residential enduses
+        sectors : dict
+            Sectors (standard parameter is a dummy sector)
 
         Returns
         -------
         submodule_list : list
             List with submodules
         """
+        if sectors is None:
+            sectors = ['dummy_sector']
+
         print("..residential submodel start")
         _scrap_cnt = 0
         submodule_list = []
@@ -361,7 +370,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running service model {}  of total: {}".format(_scrap_cnt, len(self.regions) * len(sectors) * len(enduses)))
+                    print("   ...running service model {}".format(100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -468,6 +477,7 @@ class EnergyModel(object):
         elif crit2 == 'peak_dh':
             fuels = np.zeros((nr_of_fueltypes, 24))
 
+        # Iterate all submodel
         for sector_model in sector_models:
             for model_object in sector_model:
 
@@ -478,6 +488,7 @@ class EnergyModel(object):
                 else:
                     fuels += self.get_fuels_yh(model_object, attribute_to_get)
 
+        # Criteria if fuel is summed or not
         if crit == 'no_sum':
             fuels = fuels
         elif crit == 'sum':
@@ -506,32 +517,37 @@ class EnergyModel(object):
                 a flat load profile is generated. Otherwise, the yh as calculated
                 for each enduse is used
         """
-        shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
+        #shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
         # If flat shape
         if model_object.enduse_object.crit_flat_fuel_shape:
 
             # Yearly fuel
-            fuels_reg_y = model_object.enduse_object.enduse_fuel_y
+            fuels_reg_y = model_object.enduse_object.fuel_y
 
-            if attribute_to_get == 'enduse_fuel_peak_dh':
+            if attribute_to_get == 'fuel_peak_dh':   
+                shape_peak_dh = np.full((24), 1 / 24) # flat shape
 
                 # Because flat shape, the dh_peak is 24/8760
-                fuels_reg_peak = fuels_reg_y * (1 / 365) #model_object.enduse_object.enduse_fuel_peak_dh #NEW
+                fuels_reg_peak = fuels_reg_y * (1 / 365)
 
-                fuels = np.zeros((fuels_reg_y.shape[0], 24))
-
-                for fueltype, fuel_fueltype in enumerate(fuels_reg_peak):
-                    fuels[fueltype] = fuel_fueltype * shape_peak_dh
+                fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
 
             elif attribute_to_get == 'shape_non_peak_dh':
+                shape_non_peak_dh = np.full((365, 24), (1.0 / 24)) #flat shape
                 fuels = fuels_reg_y * shape_non_peak_dh
             elif attribute_to_get == 'shape_non_peak_yd':
+                shape_non_peak_yd = np.ones((365)) / 365 #flat shape
                 fuels = fuels_reg_y * shape_non_peak_yd
-            elif attribute_to_get == 'enduse_fuel_yh':
-                fuels = np.zeros((fuels_reg_y.shape[0], 365, 24))
-                for fueltype, fuel_fueltype in enumerate(fuels_reg_y):
-                    fuels[fueltype] = fuel_fueltype * shape_non_peak_yh
+            elif attribute_to_get == 'fuel_yh':
+                
+                shape_non_peak_yh = np.full((365, 24), 1/8760) # flat shape
+                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.fuel_new_y.shape[0], 365, 24))
+
+                for fueltype, _ in enumerate(fast_shape_non_peak_yh): #can be faster
+                    fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh
+
+                fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh
         else:
             # If not flat shape, use yh load profile of enduse
             fuels = getattr(model_object.enduse_object, attribute_to_get)

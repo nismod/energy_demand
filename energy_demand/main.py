@@ -1,7 +1,7 @@
 '''Main file containing the energy demand model main function
 #
 # Description: Energy Demand Model - Run one year
-# Authors: Sven Eggimann, ... Aurthors: Pranab Baruah; Scott Thacker
+# Authors: Sven Eggimann, Nick Eyre...
 #
 # Abbreviations:
 # -------------
@@ -41,19 +41,20 @@ merged
 Down th5e line
 - data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
 - "scenario teller": istead of diffusion path, type in known path
-#
 
 #TODO: ASSIGN TECH STOCK FOR FLAT NO YH fueltype_share_yh_all_h
 
 #TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
 Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
 
-#SPEED: TEST FOR ENUMERATE
+pip install autopep8
+autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
+import time 
+#print("..TIME A: {}".format(time.time() - start))
 # IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-
 #!python3.6
 import os
 import sys
@@ -119,26 +120,19 @@ def energy_demand_model(data):
     print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
     print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
     print("================================================")
-
-    # Convert data according to region and fueltype
-    result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
-
-    # --- Write to csv and YAML
+    for i in range(8):
+        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[i])))
+    # # --- Write to csv and YAML Convert data according to region and fueltype
+    #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
     ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
 
-    # -----------------------------------------
-    # VALIDATE ELEC WITH NATIONAL ELEC DEMAND
-    # -----------------------------------------
-    # Read in 2015 base elec national data
-    print("FINAL Fueltype:  " + str(len(result_dict)))
-    print("FINAL timesteps*regions: " + str(len(result_dict['electricity'])))
-    print("Finished energy demand model")
-    return result_dict, model_run_object
+    print("...finished energy demand model simulation")
+    return _, model_run_object
 
 # Run
 if __name__ == "__main__":
     print('start_main')
-    base_data = {} 
+    base_data = {}
 
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
@@ -168,7 +162,7 @@ if __name__ == "__main__":
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
     base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-    
+
     ss_floorarea_sector_by_dummy = {}
 
     ss_floorarea_sector_by_dummy['Wales'] = {}
@@ -239,12 +233,12 @@ if __name__ == "__main__":
         }
     }
 
-    data_external['base_sim_param'] = {}
-    data_external['base_sim_param']['end_yr'] = end_yr
-    data_external['base_sim_param']['base_yr'] = base_yr
-    data_external['base_sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
-    data_external['base_sim_param']['curr_yr'] = 2015
-    data_external['base_sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    data_external['sim_param'] = {}
+    data_external['sim_param']['end_yr'] = end_yr
+    data_external['sim_param']['base_yr'] = base_yr
+    data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['sim_param']['curr_yr'] = 2015
+    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     data_external['fastcalculationcrit'] = True
 
@@ -257,6 +251,8 @@ if __name__ == "__main__":
     print("... start model calculations outside main function")
     
     base_data['testing_crit'] = False
+    base_data['version_deliver_heat'] = True #version_deliver_heat: True --> Technologies are defined in ED model, False: heat is delievered
+
 
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
@@ -287,7 +283,7 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['rs_fuel_tech_p_by'],
         base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['technologies']
         )
@@ -297,7 +293,7 @@ if __name__ == "__main__":
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['ss_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
@@ -307,13 +303,13 @@ if __name__ == "__main__":
     base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['is_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
 
     # Write out txt file with service shares for each technology per enduse
-    write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
+    ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     #print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
@@ -334,7 +330,7 @@ if __name__ == "__main__":
         base_data['assumptions']['rs_enduse_tech_maxL_by_p'],
         base_data['assumptions']['rs_service_fueltype_by_p'],
         base_data['assumptions']['rs_service_tech_by_p'],
-        base_data['assumptions']['rs_fuel_enduse_tech_p_by']
+        base_data['assumptions']['rs_fuel_tech_p_by']
         )
 
     # --Service
@@ -348,7 +344,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
         base_data['assumptions']['ss_service_fueltype_by_p'],
         base_data['assumptions']['ss_service_tech_by_p'],
-        base_data['assumptions']['ss_fuel_enduse_tech_p_by']
+        base_data['assumptions']['ss_fuel_tech_p_by']
         )
 
     # --Industry
@@ -362,7 +358,7 @@ if __name__ == "__main__":
         base_data['assumptions']['is_enduse_tech_maxL_by_p'],
         base_data['assumptions']['is_service_fueltype_by_p'],
         base_data['assumptions']['is_service_tech_by_p'],
-        base_data['assumptions']['is_fuel_enduse_tech_p_by']
+        base_data['assumptions']['is_fuel_tech_p_by']
         )
 
     # ---------------------------------------------
@@ -380,7 +376,7 @@ if __name__ == "__main__":
     results_every_year = []
 
     for sim_yr in sim_years:
-        data_external['base_sim_param']['curr_yr'] = sim_yr
+        data_external['sim_param']['curr_yr'] = sim_yr
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
@@ -407,7 +403,7 @@ if __name__ == "__main__":
             ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
             '''
 
-        results, model_run_object = energy_demand_model(base_data)
+        _, model_run_object = energy_demand_model(base_data)
 
         if instrument_profiler:
             profiler.stop()
@@ -433,7 +429,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-
+        
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
@@ -476,7 +472,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        ''''''
+        #'''
     # ------------------------------
     # Plotting
     # ------------------------------

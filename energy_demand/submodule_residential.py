@@ -37,20 +37,20 @@ class ResidentialModel(object):
             data=data,
             enduse=self.enduse,
             sector=self.sector,
-            enduse_fuel=region_object.rs_enduses_fuel[self.enduse],
+            fuel=region_object.rs_enduses_fuel[self.enduse],
             tech_stock=region_object.rs_tech_stock,
             heating_factor_y=region_object.rs_heating_factor_y,
             cooling_factor_y=region_object.rs_cooling_factor_y,
             fuel_switches=data['assumptions']['rs_fuel_switches'],
             service_switches=data['assumptions']['rs_service_switches'],
-            fuel_enduse_tech_p_by=data['assumptions']['rs_fuel_enduse_tech_p_by'][self.enduse],
+            fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][self.enduse],
             tech_increased_service=data['assumptions']['rs_tech_increased_service'],
             tech_decreased_share=data['assumptions']['rs_tech_decreased_share'],
             tech_constant_share=data['assumptions']['rs_tech_constant_share'],
             installed_tech=data['assumptions']['rs_installed_tech'],
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
-            load_profiles=region_object.rs_load_profiles,  #load_profiles
+            load_profiles=region_object.rs_load_profiles,
             dw_stock=data['rs_dw_stock']
             )
 

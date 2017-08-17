@@ -27,10 +27,9 @@ class LoadProfileStock(object):
             for enduse in profile_obj.enduses:
                 all_enduses.add(enduse)
 
-        #setattr(self, 'enduses_in_stock', list(all_enduses))
         setattr(self, 'enduses_in_stock', all_enduses)
 
-    def add_load_profile(self, unique_identifier, technologies, enduses, sectors, shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
+    def add_load_profile(self, unique_identifier, technologies, enduses, sectors=['dummy_sector'], shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
         """Add load profile to stock
 
         Parameters
@@ -232,12 +231,12 @@ def absolute_to_relative(absolute_array):
 
     return relative_array
 
-def calk_peak_h_dh(enduse_fuel_peak_dh):
+def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day
 
     Parameters
     ----------
-    enduse_fuel_peak_dh : array
+    fuel_peak_dh : array
         Fuel of peak day
 
     Return
@@ -246,7 +245,7 @@ def calk_peak_h_dh(enduse_fuel_peak_dh):
         Fuel for maximum hour in peak day per fueltype
     """
     # Get maximum value per row (maximum fuel hour per fueltype)
-    peak_fueltype_h = np.max(enduse_fuel_peak_dh, axis=1)
+    peak_fueltype_h = np.max(fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
 

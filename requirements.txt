@@ -8,3 +8,4 @@ scipy
 isoweek
 pyinstrument
 memprof
+autopep8

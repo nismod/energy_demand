@@ -106,7 +106,8 @@ def load_data(path_main, data):
         'oil': 3,
         'heat_sold': 4,
         'biomass': 5,
-        'hydrogen': 6
+        'hydrogen': 6,
+        'heat': 7
         }
 
     # Daytypes
@@ -118,7 +119,7 @@ def load_data(path_main, data):
         }
 
     # Number of fueltypes
-    data['nr_of_fueltypes'] = len(data['lu_fueltype'])
+    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
 
     # Dwelling types lookup table
     data['dwtype_lu'] = read_data.read_csv_dict_no_header(data['path_dict']['path_dwtype_lu'])
@@ -134,7 +135,7 @@ def load_data(path_main, data):
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
-    for region_name in data['population'][data['base_sim_param']['base_yr']]:
+    for region_name in data['population'][data['sim_param']['base_yr']]:
         data['reg_floorarea_resid'][region_name] = 100000
 
     # ----------------------------------------------------------
@@ -180,8 +181,7 @@ def load_data(path_main, data):
 
     # Residential Sector (ECUK Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(data['path_dict']['path_rs_fuel_raw_data_enduses'])
-    data['rs_sectors'] = ['dummy_sector']
-    print("RS Sectors: {}".format(data['rs_sectors']))
+
     # Service Sector (ECUK Table XY)
     data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(data['path_dict']['path_ss_fuel_raw_data_enduses'], data['nr_of_fueltypes']) # Yearly end use data
     print("RS Sectors: {}".format(data['ss_sectors']))
@@ -479,7 +479,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
     hes_data, hes_y_peak, _ = rs_read_data.read_hes_data(data['path_dict']['path_bd_e_load_profiles'], len(appliances_HES_enduse_matching), data['day_type_lu'])
 
     # Assign read in raw data to the base year
-    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['base_sim_param']['base_yr'])
+    year_raw_values_hes = rs_read_data.assign_hes_data_to_year(len(appliances_HES_enduse_matching), hes_data, data['sim_param']['base_yr'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:
