@@ -1,5 +1,5 @@
 =============
-energy_demand
+Energy Demand Model (MISTRAL)
 =============
 
 This is the documentation of Energy Demand Model within MISTRAL.
