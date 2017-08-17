@@ -106,7 +106,8 @@ def load_data(path_main, data):
         'oil': 3,
         'heat_sold': 4,
         'biomass': 5,
-        'hydrogen': 6
+        'hydrogen': 6,
+        'heat': 7
         }
 
     # Daytypes

@@ -120,7 +120,8 @@ def energy_demand_model(data):
     print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
     print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
     print("================================================")
-
+    for i in range(8):
+        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[i])))
     # # --- Write to csv and YAML Convert data according to region and fueltype
     #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
     ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
@@ -250,7 +251,7 @@ if __name__ == "__main__":
     print("... start model calculations outside main function")
     
     base_data['testing_crit'] = False
-    base_data['supply_demand_provide_heat'] = False #TODO
+    base_data['version_deliver_heat'] = True #version_deliver_heat: True --> Technologies are defined in ED model, False: heat is delievered
 
 
     # Copy external data into data container
@@ -471,7 +472,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-
+        #'''
     # ------------------------------
     # Plotting
     # ------------------------------

@@ -32,14 +32,27 @@ def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:
 
-            if tech_p_by[end_use][fuel_type] == {}:
-                all_specified_tech_enduse_by[end_use].append("dummy_tech")
+            # TODO write explicit in assumptions: Test if any fueltype is specified with a technology. If yes, do not insert dummy technologies
+            # because in the fuel definition all technologies of all endueses need to be defined
+            crit_tech_defined_in_enduse = False
+            all_defined_tech_in_fueltype = tech_p_by[end_use].values()
+            for definition in all_defined_tech_in_fueltype:
+                if definition == {}:
+                    pass
+                else:
+                    crit_tech_defined_in_enduse = True
+                    continue
 
-                # Assign total fuel demand to dummy technology
-                tech_p_by[end_use][fuel_type] = {"dummy_tech": 1.0}
+            # If an enduse has no defined technologies across all fueltypes
+            if crit_tech_defined_in_enduse is False:
+                if tech_p_by[end_use][fuel_type] == {}:
+                    all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
-                # Insert dummy tech
-                technologies['dummy_tech'] = {}
+                    # Assign total fuel demand to dummy technology
+                    tech_p_by[end_use][fuel_type] = {"dummy_tech": 1.0}
+
+                    # Insert dummy tech
+                    technologies['dummy_tech'] = {}
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
@@ -60,7 +73,6 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
     for enduse in enduse_tech_p_by:
         for fueltype in enduse_tech_p_by[enduse]:
             for tech in enduse_tech_p_by[enduse][fueltype]:
-                #if tech[:5] == 'dummy':
                 if tech == 'dummy_tech':
                     dummy_enduses.add(enduse)
                     continue

@@ -105,7 +105,7 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     return rel_share_service_tech_decrease_by
 
-def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, tech_stock):
+def get_service_fueltype_tech(assumptions, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -117,7 +117,7 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
 
     Parameters
     ----------
-    fueltypes_lu : dict
+    lu_fueltypes : dict
         Fueltypes
     fuel_p_tech_by : dict
         Assumed fraction of fuel for each technology within a fueltype
@@ -145,10 +145,10 @@ def get_service_fueltype_tech(assumptions, fueltypes_lu, fuel_p_tech_by, fuels, 
     the fueltypes may also differ
     """
     # Energy service per technology for base year
-    service = init.init_nested_dict_brackets(fuels, fueltypes_lu.values())
+    service = init.init_nested_dict_brackets(fuels, lu_fueltypes.values())
     service_tech_by_p = init.init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
-    service_fueltype_tech_by_p = init.init_nested_dict_brackets(fuels, fueltypes_lu.values()) # Percentage of service per technologies within the fueltypes
-    service_fueltype_by_p = init.init_nested_dict_zero(service_tech_by_p.keys(), range(len(fueltypes_lu))) # Percentage of service per fueltype
+    service_fueltype_tech_by_p = init.init_nested_dict_brackets(fuels, lu_fueltypes.values()) # Percentage of service per technologies within the fueltypes
+    service_fueltype_by_p = init.init_nested_dict_zero(service_tech_by_p.keys(), range(len(lu_fueltypes))) # Percentage of service per fueltype
 
     for enduse, fuel in fuels.items():
 

@@ -139,7 +139,7 @@ class EnergyModel(object):
         # -- dummy rs technologies
         for enduse in data['assumptions']['rs_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
-
+            print("dd" + str(enduse))
             load_profile_stock_non_regional.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,

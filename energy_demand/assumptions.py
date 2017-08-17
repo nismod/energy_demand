@@ -7,6 +7,7 @@ from energy_demand import assumptions_fuel_shares
 from energy_demand.scripts_initalisations import helper_functions
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
+#TODO: Write function which insersts zeros if a fueltype is not provided
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 

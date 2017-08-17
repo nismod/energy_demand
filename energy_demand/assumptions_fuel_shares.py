@@ -30,6 +30,7 @@ def get_fuel_stock_definition(assumptions, data):
 
     # ------------------
     # Residential subModel - Fuel shares of technologies in enduse for base year
+    # In an enduse, either all fueltypes need to be assigned with technologies or none. No mixing possible
     # ------------------
 
     # Coooking
