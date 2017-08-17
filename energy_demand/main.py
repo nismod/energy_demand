@@ -237,6 +237,7 @@ if __name__ == "__main__":
     data_external['sim_param']['end_yr'] = end_yr
     data_external['sim_param']['base_yr'] = base_yr
     data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['sim_param']['sim_period_yrs'] = end_yr + 1 - base_yr
     data_external['sim_param']['curr_yr'] = 2015
     data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 

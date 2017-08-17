@@ -271,6 +271,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
             base_sim_param['curr_yr'],
             assumptions['technologies'][technology]['eff_by'],
             assumptions['technologies'][technology]['eff_ey'],
+            #base_sim_param['sim_period_yrs']
             len(base_sim_param['sim_period'])
         )
     elif diff_method == 'sigmoid':
