@@ -134,6 +134,13 @@ BLABLABLA
     # THIS IS NOW IN A GREY BOX
     LROBEM
 
+Energy Demand and Energy Supply Interaction
+=======================
+The linkages between the energy demand and energy supply 
+modelled are shown below. All other model interlinkages 
+are also visualised.
+
+[alt text](https://github.com/nismod/energy_demand/tree/master/docs/documentation_images/001-Supply_and_demand_overview.jpg)
 
 
 

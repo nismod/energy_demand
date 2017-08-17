@@ -411,7 +411,7 @@ if __name__ == "__main__":
 
         results_every_year.append(model_run_object)
 
-        # ---------------------------------------------------
+        '''# ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
         
@@ -472,7 +472,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        #'''
+        '''
     # ------------------------------
     # Plotting
     # ------------------------------

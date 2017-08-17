@@ -247,7 +247,7 @@ class EnergyModel(object):
             submodule_list.append(submodule)
 
             _scrap_cnt += 1
-            print("   ...running other submodel {}  of total: {}".format(_scrap_cnt, len(self.regions)))
+            print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -278,7 +278,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running industry model in % {} ".format(100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -325,7 +325,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     _scrap_cnt += 1
-                    print("   ...running residential model {}  of total".format(100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -370,7 +370,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running service model {}".format(100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    print("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions

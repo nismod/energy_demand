@@ -1,6 +1,6 @@
 """Dummy transportation model
 """
-import energy_demand.enduse as enduse_functions
+from energy_demand.scripts_shape_handling import generic_shapes
 
 class OtherModel(object):
     """Other Model
@@ -30,6 +30,6 @@ class OtherModel(object):
     def create_enduse(self):
         """Create enduse
         """
-        model_object = enduse_functions.genericFlatEnduse(self.fuels_reg)
+        model_object = generic_shapes.genericFlatEnduse(self.fuels_reg)
 
         return model_object

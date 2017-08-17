@@ -11,7 +11,6 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from energy_demand.scripts_shape_handling import hdd_cdd
 from energy_demand.scripts_data import read_weather_data
-from energy_demand.scripts_data import read_weather_data
 from energy_demand.scripts_plotting import plotting_program
 
 # ----------------------------------
@@ -27,7 +26,7 @@ temperature_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9
 # Clean raw temperature data
 print("...clean temp")
 temperature_data = read_weather_data.clean_weather_data_raw(temperature_data_raw, 9999)
-        
+
 # Weather stations
 print("...weatherstations")
 weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temperature_data.keys())
