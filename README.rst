@@ -143,14 +143,12 @@ are also visualised.
 
 .. class:: no-web
 
-    .. image:: https://github.com/nismod/energy_demand/tree/master/docs/documentation_images/001-Supply_and_demand_overview.jpgpng
-        :alt: Model interlinkages overview
+    .. image:: https://github.com/nismod/energy_demand/blob/master/docs/documentation_images/001-Supply_and_demand_overview.jpg
+        :alt:
         :width: 100%
         :align: center
 
-
 .. class:: no-web no-pdf
-
 
 A word from our sponsors
 ========================
