@@ -155,7 +155,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
 
     return popt
 
-def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_enduse_tech_p_by):
+def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_tech_p_by):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
 
     Parameters
@@ -213,7 +213,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
                 fuel_switches,
                 service_fueltype_by_p,
                 service_tech_by_p,
-                fuel_enduse_tech_p_by,
+                fuel_tech_p_by,
                 installed_tech,
                 'actual_switch'
             )
@@ -225,7 +225,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
                 installed_tech,
                 service_fueltype_by_p,
                 service_tech_by_p,
-                fuel_enduse_tech_p_by
+                fuel_tech_p_by
                 )
 
         # -------------------------------------------------------------
@@ -244,7 +244,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
 
     return installed_tech, sig_param_tech
 
-def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by):
+def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_tech_p_by):
     """Calculate L value for every installed technology with maximum theoretical replacement value
 
     Parameters
@@ -283,7 +283,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
                     fuel_switches,
                     service_fueltype_p,
                     service_tech_by_p, # Percentage of service demands for every technology
-                    fuel_enduse_tech_p_by,
+                    fuel_tech_p_by,
                     {str(enduse): [technology]},
                     'max_switch'
                     )
@@ -480,7 +480,7 @@ def get_tech_installed(enduses, fuel_switches):
 
     return installed_tech
 
-def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_enduse_tech_p_by, installed_tech_switches, switch_type):
+def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_tech_p_by, installed_tech_switches, switch_type):
     """Calculate energy service demand percentages after fuel switches
 
     Parameters
@@ -497,7 +497,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
         Percentage of service demand per technology for base year
     tech_fueltype_by : dict
         Technology stock
-    fuel_enduse_tech_p_by : dict
+    fuel_tech_p_by : dict
         Fuel shares for each technology of an enduse
     installed_tech_switches : dict
         Technologies which are installed in fuel switches
@@ -538,7 +538,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
                     service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
 
                     # Get all technologies which are replaced related to this fueltype
-                    replaced_tech_fueltype = fuel_enduse_tech_p_by[enduse][fueltype_tech_replace].keys()
+                    replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
 
                     # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:

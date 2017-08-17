@@ -38,11 +38,34 @@ class Enduse(object):
 
     `self.fuel_new_y` is always overwritten in the cascade of fuel calculations
 
-    Problem: Not all enduses have technologies assigned. Therfore peaks are derived 
+    Problem: Not all enduses have technologies assigned. Therfore peaks are derived
     from techstock in case there are technologies,
     otherwise enduse load shapes are used.
     """
-    def __init__(self, region_name, data, enduse, sector, fuel, tech_stock, heating_factor_y, cooling_factor_y, fuel_switches, service_switches, fuel_enduse_tech_p_by, tech_increased_service, tech_decreased_share, tech_constant_share, installed_tech, sig_param_tech, enduse_overall_change_ey, load_profiles, dw_stock=False, reg_scenario_drivers=None, crit_flat_fuel_shape=False):
+    def __init__(
+            self,
+            region_name,
+            data,
+            enduse,
+            sector,
+            fuel,
+            tech_stock,
+            heating_factor_y,
+            cooling_factor_y,
+            fuel_switches,
+            service_switches,
+            fuel_tech_p_by,
+            tech_increased_service,
+            tech_decreased_share,
+            tech_constant_share,
+            installed_tech,
+            sig_param_tech,
+            enduse_overall_change_ey,
+            load_profiles,
+            dw_stock=False,
+            reg_scenario_drivers=None,
+            crit_flat_fuel_shape=False
+        ):
         """Enduse class constructor
         """
         #print("..create enduse {}".format(enduse))
@@ -67,11 +90,11 @@ class Enduse(object):
                 load_profiles = data['load_profile_stock_non_regional']
 
             # Get technologies of enduse
-            self.technologies_enduse = self.get_enduse_tech(fuel_enduse_tech_p_by)
+            self.technologies_enduse = self.get_enduse_tech(fuel_tech_p_by)
 
             # Calculate fuel for hybrid technologies
-            fuel_enduse_tech_p_by = self.adapt_fuel_enduse_tech_p_by(
-                fuel_enduse_tech_p_by,
+            fuel_tech_p_by = self.adapt_fuel_tech_p_by(
+                fuel_tech_p_by,
                 tech_stock,
                 data['assumptions']['hybrid_technologies']
                 )
@@ -155,7 +178,7 @@ class Enduse(object):
                 # Calculate regional energy service MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
                 # ------------------------------------------------------------------------
                 tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.fuel_to_service_cy(
-                    fuel_enduse_tech_p_by,
+                    fuel_tech_p_by,
                     tech_stock,
                     data['lu_fueltype'],
                     load_profiles
@@ -197,7 +220,7 @@ class Enduse(object):
                 # --------------------------------
                 # Fuel Switches
                 # --------------------------------
-                if crit_switch_fuel:
+                elif crit_switch_fuel:
                     service_tech = self.fuel_switch(
                         installed_tech,
                         sig_param_tech,
@@ -206,9 +229,11 @@ class Enduse(object):
                         service_fueltype_tech_cy_p,
                         service_fueltype_cy_p,
                         fuel_switches,
-                        fuel_enduse_tech_p_by,
+                        fuel_tech_p_by,
                         data['sim_param']['curr_yr']
                         )
+                else:
+                    pass #Not switch implemented
 
                 # -------------------------------------------------------
                 # Convert Service to Fuel
@@ -325,7 +350,7 @@ class Enduse(object):
         else:
             return service_to_reduce
 
-    def fuel_to_service_cy(self, fuel_enduse_tech_p_by, tech_stock, fueltypes_lu, load_profiles):
+    def fuel_to_service_cy(self, fuel_tech_p_by, tech_stock, fueltypes_lu, load_profiles):
         """Calculate energy service of each technology based on assumptions about base year fuel shares of an enduse
 
         This calculation converts fuels into energy services (e.g. fuel for heating into heat demand)
@@ -336,7 +361,7 @@ class Enduse(object):
 
         Parameters
         ----------
-        fuel_enduse_tech_p_by : dict
+        fuel_tech_p_by : dict
             Fuel composition of base year for every fueltype for each enduse (assumtions for national scale)
         tech_stock : object
             Technology stock of region
@@ -357,17 +382,17 @@ class Enduse(object):
         Notes
         -----
         The fraction of fuel is calculated based on regional temperatures. The fraction
-        of fueltypes belonging to each technology is however based on national assumptions (fuel_enduse_tech_p_by)
+        of fueltypes belonging to each technology is however based on national assumptions (fuel_tech_p_by)
         and thus changes the share of enery service in each region
 
         The service is calculated after changes to fuel were applied (in the cascade
         such as e.g. due to changes in temperatures or similar)
         """
         service_tech_cy = init.dict_zero(self.technologies_enduse)
-        service_fueltype_tech_p = init.service_type_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by)
+        service_fueltype_tech_p = init.service_type_tech_by_p(fueltypes_lu, fuel_tech_p_by)
 
         # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
-        for fueltype, tech_list in fuel_enduse_tech_p_by.items():
+        for fueltype, tech_list in fuel_tech_p_by.items():
             for tech, fuel_share in tech_list.items():
 
                 # Load profile
@@ -436,13 +461,13 @@ class Enduse(object):
             Total service yh
         service_tech_cy : array
             Service per technology
-        
+
         Returns
         -------
         service_tech_p : dict
             All tecnology services are 
             provided as a fraction of total service
-        
+
         Info
         ----
         Iterate over values in dict and apply calculations
@@ -456,14 +481,14 @@ class Enduse(object):
 
         return service_tech_p
 
-    def adapt_fuel_enduse_tech_p_by(self, fuel_enduse_tech_p_by, tech_stock, hybrid_technologies):
+    def adapt_fuel_tech_p_by(self, fuel_tech_p_by, tech_stock, hybrid_technologies):
         """Change the fuel share of low temp technologies for hybrid tech
 
         (electricity is defined, other fuel shares are calculated
         
         Parameters
         ----------
-        fuel_enduse_tech_p_by : dict
+        fuel_tech_p_by : dict
 
         tech_stock : object
             Technology stock
@@ -484,10 +509,10 @@ class Enduse(object):
                 tech_high_temp_fueltype = tech_stock.get_tech_attr(self.enduse, hybrid_tech, 'tech_high_temp_fueltype')
 
                 # Convert electricity share of heat pump into service
-                if hybrid_tech in fuel_enduse_tech_p_by[tech_high_temp_fueltype]:
+                if hybrid_tech in fuel_tech_p_by[tech_high_temp_fueltype]:
 
                     # Electricity fuel of heat pump
-                    fuel_high_tech = fuel_enduse_tech_p_by[tech_high_temp_fueltype][hybrid_tech] * self.fuel_new_y[tech_high_temp_fueltype]
+                    fuel_high_tech = fuel_tech_p_by[tech_high_temp_fueltype][hybrid_tech] * self.fuel_new_y[tech_high_temp_fueltype]
 
                     # Calculate shares of fuels of hybrid tech
 
@@ -507,19 +532,19 @@ class Enduse(object):
                     fuel_hyrid_low_temp_tech_p = (1.0 / self.fuel_new_y[tech_low_temp_fueltype]) * fuel_low_tech
 
                     # Substract % from gas boiler
-                    fuel_enduse_tech_p_by[tech_low_temp_fueltype][hybrid_tech] = fuel_hyrid_low_temp_tech_p
-                    fuel_enduse_tech_p_by[tech_low_temp_fueltype][str(tech_low)] -= fuel_hyrid_low_temp_tech_p #substract from low tech defined share
+                    fuel_tech_p_by[tech_low_temp_fueltype][hybrid_tech] = fuel_hyrid_low_temp_tech_p
+                    fuel_tech_p_by[tech_low_temp_fueltype][str(tech_low)] -= fuel_hyrid_low_temp_tech_p #substract from low tech defined share
 
         # ---------------------------------------------------------------------------------------------------------------------------------
         # Iterate all technologies and round that total sum within each fueltype is always 1 (needs to be done because of rounding errors)
         # TODO: improve rounding method: https://stackoverflow.com/questions/13483430/how-to-make-rounded-percentages-add-up-to-100
         # ---------------------------------------------------------------------------------------------------------------------------------
-        for fueltype in fuel_enduse_tech_p_by:
-            if sum(fuel_enduse_tech_p_by[fueltype].values()) != 1.0 and fuel_enduse_tech_p_by[fueltype] != {}: #if rounding error
-                for tech in fuel_enduse_tech_p_by[fueltype]:
-                    fuel_enduse_tech_p_by[fueltype][tech] = (1.0 / sum(fuel_enduse_tech_p_by[fueltype].values())) * fuel_enduse_tech_p_by[fueltype][tech]
+        for fueltype in fuel_tech_p_by:
+            if sum(fuel_tech_p_by[fueltype].values()) != 1.0 and fuel_tech_p_by[fueltype] != {}: #if rounding error
+                for tech in fuel_tech_p_by[fueltype]:
+                    fuel_tech_p_by[fueltype][tech] = (1.0 / sum(fuel_tech_p_by[fueltype].values())) * fuel_tech_p_by[fueltype][tech]
 
-        return fuel_enduse_tech_p_by
+        return fuel_tech_p_by
 
     def get_peak_fuel_day(self, fuel_yh):
         """Iterate hourly service and get day with most service (across all fueltypes)
@@ -551,14 +576,14 @@ class Enduse(object):
         #print("Peak Day Number {}  with peak fuel demand (across all fueltypes): {}   {}".format(peak_day_nr, max_fuel_dy, self.enduse))
         return peak_day_nr
 
-    def get_enduse_tech(self, fuel_enduse_tech_p_by):
+    def get_enduse_tech(self, fuel_tech_p_by):
         """Get all defined technologies of an enduse
 
         depending on assumptions on fuel switches or service switches
 
         Parameters
         ----------
-        fuel_enduse_tech_p_by : dict
+        fuel_tech_p_by : dict
             Percentage of fuel per enduse per technology
 
         Return
@@ -572,7 +597,7 @@ class Enduse(object):
         If no fuel switch and no service switch, read out base year technologies
         """
         technologies_enduse = set([])
-        for _, tech_fueltype in fuel_enduse_tech_p_by.items():
+        for _, tech_fueltype in fuel_tech_p_by.items():
             for tech in tech_fueltype.keys():
                 technologies_enduse.add(tech)
                 if tech == 'dummy_tech':
@@ -818,7 +843,7 @@ class Enduse(object):
 
         return fuels_yh
 
-    def fuel_switch(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_enduse_tech_p_by, curr_yr):
+    def fuel_switch(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_tech_p_by, curr_yr):
         """Scenaric fuel switches
 
         Based on assumptions about shares of fuels which are switched per enduse to specific
@@ -833,7 +858,7 @@ class Enduse(object):
             Total regional service for every hour for base year
         service_tech : dict
             Service for every fueltype and technology
-        fuel_enduse_tech_p_by : dict
+        fuel_tech_p_by : dict
             Definition of fule in by of technologies
 
         Returns
@@ -914,7 +939,7 @@ class Enduse(object):
             for fueltype_replace in fueltypes_replaced:
 
                 # Get all technologies of the replaced fueltype
-                technologies_replaced_fueltype = fuel_enduse_tech_p_by[fueltype_replace].keys()
+                technologies_replaced_fueltype = fuel_tech_p_by[fueltype_replace].keys()
 
                 # Find fuel switch where this fueltype is replaced
                 for fuelswitch in fuel_switches:
@@ -1193,7 +1218,6 @@ class Enduse(object):
 
         base_yr = base_sim_param['base_yr']
         curr_yr = base_sim_param['curr_yr']
-        #new_fuels = copy.deepcopy(self.fuel_new_y) #TODO (rename buillding)
         new_fuels = np.copy(self.fuel_new_y) #TODO (rename buillding)
 
         if not dw_stock: # == False:
@@ -1250,8 +1274,7 @@ class genericFlatEnduse(object):
         # Yh fuel shape per fueltype (non-peak)
         self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], 365, 24))
         for fueltype in range(len(enduse_fuel)):
-            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh) * self.fuel_new_y[fueltype] #TEST
-        #TODO: IMPROVEself.fuel_yh = np.outer(self.fuel_y, (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh)) #(fueltypes, ) * (365, 24)
+            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_dh) * self.fuel_new_y[fueltype]
 
         # Dh fuel shape per fueltype (peak)  (shape of peak & maximum fuel per fueltype)
         self.fuel_peak_dh = shape_peak_dh * max_fuel_d[:, np.newaxis]

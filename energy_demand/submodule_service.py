@@ -43,7 +43,7 @@ class ServiceModel(object):
             cooling_factor_y=region_object.ss_cooling_factor_y,
             fuel_switches=data['assumptions']['ss_fuel_switches'],
             service_switches=data['assumptions']['ss_service_switches'],
-            fuel_enduse_tech_p_by=data['assumptions']['ss_fuel_enduse_tech_p_by'][self.enduse],
+            fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][self.enduse],
             tech_increased_service=data['assumptions']['ss_tech_increased_service'],
             tech_decreased_share=data['assumptions']['ss_tech_decreased_share'],
             tech_constant_share=data['assumptions']['ss_tech_constant_share'],

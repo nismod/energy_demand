@@ -138,7 +138,7 @@ class EnergyModel(object):
 
         # -- dummy rs technologies
         for enduse in data['assumptions']['rs_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_enduse_tech_p_by'][enduse])
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
 
             load_profile_stock_non_regional.add_load_profile(
                 unique_identifier=uuid.uuid4(),
@@ -152,7 +152,7 @@ class EnergyModel(object):
 
         # - dummy ss technologies
         for enduse in data['assumptions']['ss_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_enduse_tech_p_by'][enduse])
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
             for sector in data['ss_sectors']:
                 load_profile_stock_non_regional.add_load_profile(
                     unique_identifier=uuid.uuid4(),
@@ -169,7 +169,7 @@ class EnergyModel(object):
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
         for enduse in data['assumptions']['is_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_enduse_tech_p_by'][enduse])
+            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
             for sector in data['is_sectors']:
                 load_profile_stock_non_regional.add_load_profile(
                     unique_identifier=uuid.uuid4(),

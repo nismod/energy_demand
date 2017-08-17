@@ -18,12 +18,12 @@ def dict_zero(first_level_keys):
 
     return one_level_dict
 
-def service_type_tech_by_p(fueltypes_lu, fuel_enduse_tech_p_by):
+def service_type_tech_by_p(fueltypes_lu, fuel_tech_p_by):
     """Initialise dict #TODO: Improve Speed
     """
     service_fueltype_tech_by_p = {}
     for fueltype_int in fueltypes_lu.values():
-        service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_enduse_tech_p_by[fueltype_int].keys(), 0)
+        service_fueltype_tech_by_p[fueltype_int] = dict.fromkeys(fuel_tech_p_by[fueltype_int].keys(), 0)
 
     return service_fueltype_tech_by_p
 

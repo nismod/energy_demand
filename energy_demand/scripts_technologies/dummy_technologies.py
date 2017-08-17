@@ -1,7 +1,7 @@
 """Dummy technologies
 """
 
-def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse_by, fuel_enduse_tech_p_by):
+def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse_by, fuel_tech_p_by):
     """Define dummy technologies
 
     Where no specific technologies are assigned for an enduse
@@ -33,13 +33,6 @@ def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse
         for fuel_type in tech_p_by[end_use]:
 
             if tech_p_by[end_use][fuel_type] == {}:
-                #installed_tech = True
-                #pass
-            #else:
-                #installed_tech = False
-
-            #if not installed_tech:
-                #dummpy_tech = "dummy__{}__{}__{}__tech".format(end_use, fuel_type, installed_tech)
                 all_specified_tech_enduse_by[end_use].append("dummy_tech")
 
                 # Assign total fuel demand to dummy technology

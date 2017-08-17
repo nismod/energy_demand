@@ -282,7 +282,7 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['rs_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['rs_fuel_tech_p_by'],
         base_data['rs_fuel_raw_data_enduses'],
         base_data['assumptions']['technologies']
         )
@@ -292,7 +292,7 @@ if __name__ == "__main__":
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['ss_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],
         base_data['lu_fueltype'],
-        base_data['assumptions']['is_fuel_enduse_tech_p_by'],
+        base_data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
@@ -329,7 +329,7 @@ if __name__ == "__main__":
         base_data['assumptions']['rs_enduse_tech_maxL_by_p'],
         base_data['assumptions']['rs_service_fueltype_by_p'],
         base_data['assumptions']['rs_service_tech_by_p'],
-        base_data['assumptions']['rs_fuel_enduse_tech_p_by']
+        base_data['assumptions']['rs_fuel_tech_p_by']
         )
 
     # --Service
@@ -343,7 +343,7 @@ if __name__ == "__main__":
         base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
         base_data['assumptions']['ss_service_fueltype_by_p'],
         base_data['assumptions']['ss_service_tech_by_p'],
-        base_data['assumptions']['ss_fuel_enduse_tech_p_by']
+        base_data['assumptions']['ss_fuel_tech_p_by']
         )
 
     # --Industry
@@ -357,7 +357,7 @@ if __name__ == "__main__":
         base_data['assumptions']['is_enduse_tech_maxL_by_p'],
         base_data['assumptions']['is_service_fueltype_by_p'],
         base_data['assumptions']['is_service_tech_by_p'],
-        base_data['assumptions']['is_fuel_enduse_tech_p_by']
+        base_data['assumptions']['is_fuel_tech_p_by']
         )
 
     # ---------------------------------------------
