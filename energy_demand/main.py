@@ -237,8 +237,9 @@ if __name__ == "__main__":
     data_external['sim_param']['end_yr'] = end_yr
     data_external['sim_param']['base_yr'] = base_yr
     data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
-    data_external['sim_param']['sim_period_yrs'] = end_yr + 1 - base_yr
-    data_external['sim_param']['curr_yr'] = 2015
+    data_external['sim_param']['sim_period_yrs'] = int(end_yr + 1 - base_yr)
+
+    data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
     data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     data_external['fastcalculationcrit'] = True
@@ -252,7 +253,7 @@ if __name__ == "__main__":
     print("... start model calculations outside main function")
     
     base_data['testing_crit'] = False
-    base_data['version_deliver_heat'] = True #version_deliver_heat: True --> Technologies are defined in ED model, False: heat is delievered
+    base_data['version_deliver_heat'] = False #version_deliver_heat: True --> Technologies are defined in ED model, False: heat is delievered
 
 
     # Copy external data into data container
@@ -412,7 +413,7 @@ if __name__ == "__main__":
 
         results_every_year.append(model_run_object)
 
-        '''# ---------------------------------------------------
+        # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
         
@@ -473,7 +474,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        '''
+        #'''
     # ------------------------------
     # Plotting
     # ------------------------------

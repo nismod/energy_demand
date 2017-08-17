@@ -112,11 +112,13 @@ def get_hdd_country(regions, data, t_base_type):
     hdd_regions = {}
 
     for region_name in regions:
-        longitude = data['reg_coordinates'][region_name]['longitude']
-        latitude = data['reg_coordinates'][region_name]['latitude']
 
         # Get closest weather station and temperatures
-        closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
+        closest_station_id = weather_station.get_closest_station(
+            data['reg_coordinates'][region_name]['longitude'],
+            data['reg_coordinates'][region_name]['latitude'],
+            data['weather_stations']
+            )
 
         # Temp data
         temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
@@ -232,10 +234,6 @@ def get_reg_hdd(temperatures, t_base_heating):
     """
     hdd_d = calc_hdd(t_base_heating, temperatures)
     shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
-
-    # Error testing
-    if np.sum(hdd_d) == 0:
-        sys.exit("Error: No heating degree days means no fuel for heating is necessary")
 
     return hdd_d, shape_hdd_d
 

@@ -1166,7 +1166,7 @@ class Enduse(object):
                     base_parameters['curr_yr'],
                     percent_by,
                     percent_ey,
-                    len(base_parameters['sim_period'])
+                    base_parameters['sim_period_yrs']
                 )
                 change_cy = diff_fuel_consump * abs(lin_diff_factor)
 

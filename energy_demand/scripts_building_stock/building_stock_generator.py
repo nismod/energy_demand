@@ -63,7 +63,7 @@ def ss_build_stock(data):
                     sys.exit("Error: The virtual ss building stock sector floor area assumption is not defined")
 
                 # Floor area of sector in current year considering linear diffusion
-                lin_diff_factor = diffusion.linear_diff(data['sim_param']['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, len(data['sim_param']['sim_period']))
+                lin_diff_factor = diffusion.linear_diff(data['sim_param']['base_yr'], sim_yr, 1.0, change_floorarea_p_ey, data['sim_param']['sim_period_yrs'])
 
                 floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
 
@@ -71,7 +71,7 @@ def ss_build_stock(data):
                     '''print(data['sim_param']['base_yr'])
                     print(sim_yr)
                     print(change_floorarea_p_ey)
-                    print(len(data['sim_param']['sim_period']))
+                    print(data['sim_param']['sim_period_yrs'])
                     print(floorarea_sector_by)
                     print(lin_diff_factor)
                     print(change_floorarea_p_ey)
@@ -139,7 +139,8 @@ def rs_build_stock(data):
         data['assumptions']['assump_dwtype_distr_by'],
         data['assumptions']['assump_dwtype_distr_ey'],
         base_yr,
-        data['sim_param']['sim_period']
+        data['sim_param']['sim_period'],
+        data['sim_param']['sim_period_yrs'],
         )
 
     # Get floor area per person for every simulation year
@@ -148,6 +149,7 @@ def rs_build_stock(data):
         data['population'][base_yr],
         base_yr,
         data['sim_param']['sim_period'],
+        data['sim_param']['sim_period_yrs'],
         data['assumptions']['assump_diff_floorarea_pp']
         )
 

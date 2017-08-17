@@ -177,7 +177,7 @@ class DwellingStock(object):
 
         return tot_pop
 
-def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assump_final_diff_floorarea_pp):
+def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, sim_period_yrs, assump_final_diff_floorarea_pp):
     """Calculate future floor area per person depending on assumptions on final change and base year data
 
     Assumption: Linear change of floor area per person
@@ -223,9 +223,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
                 # Change up to current year (linear)
                 #print("sim_yr" + str(sim_yr))
                 #print(assump_final_diff_floorarea_pp)
-                #print(sim_period)
-                #print(len(sim_period))
-                lin_diff_factor = diffusion.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, len(sim_period))
+                lin_diff_factor = diffusion.linear_diff(base_yr, sim_yr, 0, assump_final_diff_floorarea_pp, sim_period_yrs)
 
                 # Floor area per person of simulation year
                 sim_yrs[sim_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
@@ -234,7 +232,7 @@ def calc_floorarea_pp(reg_floorarea_resid, reg_pop_by, base_yr, sim_period, assu
 
     return data_floorarea_pp
 
-def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period):
+def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period, sim_period_yrs):
     """Calculates the yearly distribution of dw types
     based on assumption of distribution on end_yr
 
@@ -265,7 +263,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period
     dwtype_distr = {}
 
     # Iterate years
-    for sim_yr in sim_period:
+    for sim_yr in sim_period: #TODO
         sim_yr_nr = sim_yr - base_yr
 
         if sim_yr == base_yr:
@@ -277,7 +275,7 @@ def get_dwtype_dist(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period
                 val_by = dwtype_distr_by[dtype] # base year value
                 sim_y = assump_dwtype_distr_ey[dtype] # cur year value
                 diff_val = sim_y - val_by # Total difference
-                diff_y = diff_val / (len(sim_period)-1) # Linear difference per year
+                diff_y = diff_val / sim_period_yrs # Linear difference per year #TODO: Vorher war no minus 1
                 y_distr[dtype] = val_by + (diff_y * sim_yr_nr) # Difference up to current year
 
         dwtype_distr[sim_yr] = y_distr

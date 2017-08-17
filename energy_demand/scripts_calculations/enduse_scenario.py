@@ -48,7 +48,7 @@ def change_temp_climate_change(data):
                     curr_yr,
                     temp_by,
                     temp_ey,
-                    len(data['sim_param']['sim_period'])
+                    data['sim_param']['sim_period_yrs']
                 )
 
                 # Iterate hours of base year
