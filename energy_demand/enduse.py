@@ -130,12 +130,9 @@ class Enduse(object):
 
             #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
 
-            # -----------------------------------
-            # Optimised Version (providing heat)
-            # -----------------------------------
-            #self.provi
-            #TODO: if base_data['supply_demand_provide_heat'] == True
-            # If space_heating convert whole service to HEAT DEMAND and assign boiler shapes
+
+            #TODO: if data['supply_demand_provide_heat'] == True
+
 
 
             # ----------------------------------
@@ -147,6 +144,7 @@ class Enduse(object):
                 are read from dummy shape, which show the load profiles of the whole enduse.
                 No switches can be implemented and only overall change of enduse.
                 """
+                #TODO :WHAT IF supply_demand_provide_heat and no technologies assgined?
                 # Criteria if flat shape (Yes/No). If flat shape, do not store shape, 
                 # but only calculated if shape is requiested
                 if crit_flat_fuel_shape:
@@ -173,102 +171,153 @@ class Enduse(object):
 
                     self.fuel_peak_h = shape_handling.calk_peak_h_dh(self.fuel_peak_dh)
             else:
-
-                # ------------------------------------------------------------------------
-                # Calculate regional energy service MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
-                # ------------------------------------------------------------------------
-                tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.fuel_to_service_cy(
-                    fuel_tech_p_by,
-                    tech_stock,
-                    data['lu_fueltype'],
-                    load_profiles
-                    )
-
-                # ---------------------------------------------------------------------------------------
-                # Reduction of service because of heat recovery (standard sigmoid diffusion)
-                # ---------------------------------------------------------------------------------------
-                tot_service_h_cy = self.service_reduction_heat_recovery(
-                    data['assumptions'],
-                    tot_service_h_cy,
-                    'tot_service_h_cy',
-                    data['assumptions']['heat_recovered'],
-                    data['sim_param']
-                    )
-
-                service_tech = self.service_reduction_heat_recovery(
-                    data['assumptions'],
-                    service_tech,
-                    'service_tech',
-                    data['assumptions']['heat_recovered'],
-                    data['sim_param']
-                    )
-
-                # --------------------------------
-                # Energy service switches
-                # --------------------------------
-                if crit_switch_service:
-                    service_tech = self.service_switch(
-                        tot_service_h_cy,
-                        service_tech_cy_p,
-                        tech_increased_service[enduse],
-                        tech_decreased_share[enduse],
-                        tech_constant_share[enduse],
-                        sig_param_tech,
-                        data['sim_param']['curr_yr']
-                        )
-
-                # --------------------------------
-                # Fuel Switches
-                # --------------------------------
-                elif crit_switch_fuel:
-                    service_tech = self.fuel_switch(
-                        installed_tech,
-                        sig_param_tech,
-                        tot_service_h_cy,
-                        service_tech,
-                        service_fueltype_tech_cy_p,
-                        service_fueltype_cy_p,
-                        fuel_switches,
-                        fuel_tech_p_by,
-                        data['sim_param']['curr_yr']
-                        )
-                else:
-                    pass #Not switch implemented
-
-                # -------------------------------------------------------
-                # Convert Service to Fuel
-                # -------------------------------------------------------
-                # Convert annaul service to fuel per fueltype
-                self.service_to_fuel_fueltype_y(service_tech, tech_stock)
-
-                # Convert annaul service to fuel per fueltype for each technology
-                fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
-
-                # -------------------------------------------------------
-                # Assign load profiles
-                # If a flat load profile is assigned (crit_flat_fuel_shape)
-                # do not store whole 8760 profile. This is only done in
-                # the summing step
-                # -------------------------------------------------------
-                if crit_flat_fuel_shape:
-                    self.crit_flat_fuel_shape = True
-                    self.fuel_y = self.calc_fuel_tech_y(tech_stock, fuel_tech_y)
-                else:
-                    self.crit_flat_fuel_shape = False
-
+                # -------------
+                # Optimised version
+                # -------------
+                if 2 == 1: #data['version_unconstrained'] == True and self.enduse in data['assumptions']['enduse_space_heating']:
+                    
                     #---NON-PEAK
-                    self.fuel_yh = self.calc_fuel_tech_yh(fuel_tech_y, tech_stock, load_profiles)
-                    #np.testing.assert_almost_equal(np.sum(self.fuel_yh), np.sum(testsumme2), decimal=1, err_msg='Error 2')
+                    self.fuel_yh = self.unconstrained_heating(data['version_unconstrained'])
 
                     # --PEAK
-                    # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
+                    fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
                     self.fuel_peak_dh = self.calc_peak_tech_dh(data['assumptions'], fuel_tech_y, tech_stock, load_profiles)
-
-                    # Get maximum hour demand per of peak day
                     self.fuel_peak_h = shape_handling.calk_peak_h_dh(self.fuel_peak_dh)
 
-                    # Testing
-                    ## TESTINGnp.testing.assert_almost_equal(np.sum(self.fuel_yd), np.sum(self.fuel_yh), decimal=2, err_msg='', verbose=True)
+                else:
+                    # ------------------------------------------------------------------------
+                    # Calculate regional energy service MUST IT REALLY BE FOR BASE YEAR (I donpt think so)
+                    # ------------------------------------------------------------------------
+                    tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.fuel_to_service_cy(
+                        fuel_tech_p_by,
+                        tech_stock,
+                        data['lu_fueltype'],
+                        load_profiles
+                        )
+
+                    # ---------------------------------------------------------------------------------------
+                    # Reduction of service because of heat recovery (standard sigmoid diffusion)
+                    # ---------------------------------------------------------------------------------------
+                    tot_service_h_cy = self.service_reduction_heat_recovery(
+                        data['assumptions'],
+                        tot_service_h_cy,
+                        'tot_service_h_cy',
+                        data['assumptions']['heat_recovered'],
+                        data['sim_param']
+                        )
+
+                    service_tech = self.service_reduction_heat_recovery(
+                        data['assumptions'],
+                        service_tech,
+                        'service_tech',
+                        data['assumptions']['heat_recovered'],
+                        data['sim_param']
+                        )
+
+                    # --------------------------------
+                    # Energy service switches
+                    # --------------------------------
+                    if crit_switch_service:
+                        service_tech = self.service_switch(
+                            tot_service_h_cy,
+                            service_tech_cy_p,
+                            tech_increased_service[enduse],
+                            tech_decreased_share[enduse],
+                            tech_constant_share[enduse],
+                            sig_param_tech,
+                            data['sim_param']['curr_yr']
+                            )
+
+                    # --------------------------------
+                    # Fuel Switches
+                    # --------------------------------
+                    elif crit_switch_fuel:
+                        service_tech = self.fuel_switch(
+                            installed_tech,
+                            sig_param_tech,
+                            tot_service_h_cy,
+                            service_tech,
+                            service_fueltype_tech_cy_p,
+                            service_fueltype_cy_p,
+                            fuel_switches,
+                            fuel_tech_p_by,
+                            data['sim_param']['curr_yr']
+                            )
+                    else:
+                        pass #Not switch implemented
+
+                    # -------------------------------------------------------
+                    # Convert Service to Fuel
+                    # -------------------------------------------------------
+                    # Convert annaul service to fuel per fueltype
+                    self.service_to_fuel_fueltype_y(service_tech, tech_stock)
+
+                    # Convert annaul service to fuel per fueltype for each technology
+                    fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock)
+
+                    # -------------------------------------------------------
+                    # Assign load profiles
+                    # If a flat load profile is assigned (crit_flat_fuel_shape)
+                    # do not store whole 8760 profile. This is only done in
+                    # the summing step
+                    # -------------------------------------------------------
+                    if crit_flat_fuel_shape:
+                        self.crit_flat_fuel_shape = True
+                        self.fuel_y = self.calc_fuel_tech_y(tech_stock, fuel_tech_y)
+                    else:
+                        self.crit_flat_fuel_shape = False
+
+                        #---NON-PEAK
+                        self.fuel_yh = self.calc_fuel_tech_yh(fuel_tech_y, tech_stock, load_profiles)
+                        #np.testing.assert_almost_equal(np.sum(self.fuel_yh), np.sum(testsumme2), decimal=1, err_msg='Error 2')
+
+                        # --PEAK
+                        # Iterate technologies in enduse and assign technology specific shape for peak for respective fuels
+                        self.fuel_peak_dh = self.calc_peak_tech_dh(data['assumptions'], fuel_tech_y, tech_stock, load_profiles)
+
+                        # Get maximum hour demand per of peak day
+                        self.fuel_peak_h = shape_handling.calk_peak_h_dh(self.fuel_peak_dh)
+
+                        # Testing
+                        ## TESTINGnp.testing.assert_almost_equal(np.sum(self.fuel_yd), np.sum(self.fuel_yh), decimal=2, err_msg='', verbose=True)
+
+    def unconstrained_heating(self, data):
+        """
+
+        Output
+        ------
+        heat does not consider heat losses because no efficienes are used
+
+        """
+        self.crit_flat_fuel_shape = False
+
+        heat_fueltype = fueltypes_lu['heat']
+
+        if 1 == 1:
+            # Convert service for heating of all technologies into heat demand
+            service_tech_cy = init.dict_zero(self.technologies_enduse)
+            #service_fueltype_tech_p = init.service_type_tech_by_p(fueltypes_lu, fuel_tech_p_by)
+            fuels = np.zeros((len(fueltypes_lu), 365, 24))
+            for fueltype, tech_list in fuel_tech_p_by.items():
+                for tech, fuel_share in tech_list.items():
+
+                    tech_load_profile = load_profiles.get_load_profile(
+                        self.enduse,
+                        self.sector,
+                        tech,
+                        'shape_yh'
+                        )
+
+                    # Do not convert with efficiencies
+                    heat_demand_tech = self.fuel_new_y[fueltype] * fuel_share # * tech_eff
+                    #service_tech_cy[tech] += service_tech * tech_load_profile
+                    #service_fueltype_tech_p[fueltype][tech] += float(np.sum(service_tech))
+
+                    print("fdf " + str(service_tech.shape))
+                    fuels[heat_fueltype] += heat_demand_tech
+            return fuels
+        else:
+            return self.fuel_new_y
 
     def calc_fuel_tech_y(self, tech_stock, fuel_tech_y):
         """Calculate yearl fuel per fueltype (no load profile assigned)
