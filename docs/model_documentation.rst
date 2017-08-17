@@ -3,7 +3,7 @@
 Model Documentation
 ===============
 
-Model integration
+Overview
 -----------------
 
 The energy demand model of the ITRC-MISTRAL framework allows 
@@ -26,10 +26,22 @@ all ITRC models and provides demands to the supply model.
 
 Model integration
 -----------------
+#H1
 
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+ttt
 
-![Image of model integration](https://github.com/nismod/energy_demand/blob/master/docs/documentation_images/001-Supply_and_demand_overview.jpg)
+##H2
+
+rsdrasdr
+
+###H3
+
+
+
+
+
+
+![Image of model integration](../documentation_images/001-Supply_and_demand_overview.png)
 
 
 

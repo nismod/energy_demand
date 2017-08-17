@@ -9,3 +9,4 @@ isoweek
 pyinstrument
 memprof
 autopep8
+sphinx_rtd_theme
