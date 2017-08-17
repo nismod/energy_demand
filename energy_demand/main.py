@@ -4,7 +4,7 @@
 # Authors: Sven Eggimann, Nick Eyre...
 #
 # Abbreviations:
-# -------------
+# ------------
 # rs = Residential Sector
 # ss = service Sector
 # ts = transportation Sector
