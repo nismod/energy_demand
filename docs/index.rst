@@ -5,14 +5,15 @@ Energy Demand Model (MISTRAL)
 This is the documentation of Energy Demand Model within MISTRAL.
 
 .. note::
-This work is still very much work in progress...
-
+```
+This work is still very much work in progress.
+```
 
 Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    License <license>
    Authors <authors>
