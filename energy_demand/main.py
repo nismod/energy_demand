@@ -1,58 +1,26 @@
-'''Main file containing the energy demand model main function
-#
-# Description: Energy Demand Model - Run one year
-# Authors: Sven Eggimann, Nick Eyre...
-#
-# Abbreviations:
-# ------------
-# rs = Residential Sector
-# ss = service Sector
-# ts = transportation Sector
-#
-# bd = Base demand
-# by = Base year
-# cy = Current year
-# dw = dwelling
-# p  = Percent
-# e  = electricitiy
-# g  = gas
-# lu = look up
-# h = hour
-# hp = heat pump
-# tech = technology
-# temp = temperature
-# d = day
-# y = year
-# yearday = Day in a year ranging from 0 to 364
-merged
-# Write function that any amount of demand can be added up to any year
+'''
+Energy Demand Model
+=================
 
-# Shapes
-# ------
-# yd = for every year the day
-# yh = for every hour in a year
-# dh = every hour in day
-# y = for total year
-# y_dh = for every day in a year, the dh is provided
+Contains all calculation steps necessary to run the 
+energy demand module.
 
-# -fitting scipy
-# -speed with many regions
-
-Down th5e line
-- data centres (ICT about %, 3/4 end-use devices, network and data centres 1/4 NIC 2017)
-- "scenario teller": istead of diffusion path, type in known path
-
-#TODO: ASSIGN TECH STOCK FOR FLAT NO YH fueltype_share_yh_all_h
-
-#TEST WHY ADD FRACTION. Improve that daily fraction read in and not needs to be calculated here
-Chekc wheter shape_peak_yd_factor needs to be divided by (1/365) or not
-
-pip install autopep8
-autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
-import time 
-#print("..TIME A: {}".format(time.time() - start))
-# IMPEMENT TESTING CRIT
 The docs can be found here: http://ed.readthedocs.io
+
+The model has been developped within the MISTRAL
+project. A previous model has been developped within 
+NISMOD by Pranab et al..(MOREINFO) HIRE develops this model
+further into a high temporal and spatial model.abs
+
+Key contributers are:
+    - Sven Eggimann
+    - Nick Eyre
+    - 
+
+More information can be found here:
+
+    - Eggimann et al. XY (): Paper blablabla
+
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
@@ -61,31 +29,29 @@ import sys
 from datetime import date
 import numpy as np
 import energy_demand.energy_model as energy_model
-import energy_demand.assumptions as assumpt
-from energy_demand.scripts_data import data_loader
-from energy_demand.scripts_data import write_data
-from energy_demand.scripts_data import read_data
-from energy_demand.scripts_disaggregation import national_disaggregation
-from energy_demand.scripts_building_stock import building_stock_generator
-from energy_demand.scripts_technologies import diffusion_technologies as diffusion
-from energy_demand.scripts_technologies import fuel_service_switch
-from energy_demand.scripts_calculations import enduse_scenario
-from energy_demand.scripts_basic import testing_functions as testing
-from energy_demand.scripts_basic import date_handling
-from energy_demand.scripts_validation import lad_validation
-from energy_demand.scripts_validation import elec_national_data
-from energy_demand.scripts_plotting import plotting_results
+from energy_demand.assumptions import assumptions
+from energy_demand.data import data_loader
+from energy_demand.data import write_data
+from energy_demand.data import read_data
+from energy_demand.disaggregation import national_disaggregation
+from energy_demand.building_stock import building_stock_generator
+from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.technologies import fuel_service_switch
+from energy_demand.calculations import enduse_scenario
+from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import date_handling
+from energy_demand.validation import lad_validation
+from energy_demand.validation import elec_national_data
+from energy_demand.plotting import plotting_results
 print("Start Energy Demand Model with python version: " + str(sys.version))
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 
-    This function is executed in the wrapper.
-
     Parameters
     ----------
     data : dict
-        Contains all data not provided externally
+        Data container
 
     Returns
     -------
@@ -93,6 +59,12 @@ def energy_demand_model(data):
         A nested dictionary containing all data for energy supply model with
         timesteps for every hour in a year.
         [fuel_type : region : timestep]
+    model_run_object : dict
+        Object of a yearly model run
+    
+    Info
+    ----
+    This function is executed in the wrapper
     """
 
     # -------------------------
@@ -148,9 +120,9 @@ if __name__ == "__main__":
     # DUMMY DATA GENERATION----------------------
 
     base_yr = 2015
-    end_yr = 2020 #includes this year
-    sim_years = range(base_yr, end_yr + 1)
-
+    end_yr = 2050 #includes this year
+    #sim_years = range(base_yr, end_yr + 1)
+    sim_years = range(base_yr, end_yr + 1, 10)
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
@@ -174,7 +146,7 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
 
     regions = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
-    for i in sim_years:
+    for i in range(base_yr, end_yr + 1):
         y_data = {}
         for reg in regions:
             y_data[reg] = regions[reg] # + (a[reg] * 1.04)
@@ -197,7 +169,7 @@ if __name__ == "__main__":
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
     # Population
-    for i in sim_years:
+    for i in range(base_yr, end_yr + 1):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
@@ -271,7 +243,7 @@ if __name__ == "__main__":
     print("... load assumptions")
 
     # Load assumptions
-    base_data['assumptions'] = assumpt.load_assumptions(base_data)
+    base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
 
 

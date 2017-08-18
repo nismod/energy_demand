@@ -1,16 +1,16 @@
 """Residential model"""
 import uuid
 import numpy as np
-import energy_demand.region as region
-import energy_demand.WeatherRegion as WeatherRegion
-import energy_demand.submodule_residential as submodule_residential
-import energy_demand.submodule_service as submodule_service
-import energy_demand.submodule_industry as submodule_industry
-import energy_demand.submodule_transport as submodule_transport
-from energy_demand.scripts_shape_handling import load_factors as load_factors
-from energy_demand.scripts_shape_handling import shape_handling
-from energy_demand.scripts_initalisations import helper_functions
-from energy_demand.scripts_shape_handling import generic_shapes
+from energy_demand.geography import region
+from energy_demand.geography import WeatherRegion
+import energy_demand.rs_model as rs_model
+import energy_demand.ss_model as ss_model
+import energy_demand.is_model as is_model
+import energy_demand.ts_model as ts_model
+from energy_demand.shape_handling import load_factors as load_factors
+from energy_demand.shape_handling import shape_handling
+from energy_demand.initalisations import helper_functions
+from energy_demand.shape_handling import generic_shapes
 '''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class EnergyModel(object):
@@ -238,7 +238,7 @@ class EnergyModel(object):
         for region_object in self.regions:
 
             # Create submodule
-            submodule = submodule_transport.OtherModel(
+            submodule = ts_model.OtherModel(
                 region_object,
                 'generic_transport_enduse'
             )
@@ -267,7 +267,7 @@ class EnergyModel(object):
                 for enduse in enduses:
 
                     # Create submodule
-                    submodule = submodule_industry.IndustryModel(
+                    submodule = is_model.IndustryModel(
                         data,
                         region_object,
                         enduse,
@@ -285,7 +285,7 @@ class EnergyModel(object):
 
         return submodule_list
 
-    def residential_submodel(self, data, enduses, sectors=None):
+    def residential_submodel(self, data, enduses, sectors=['dummy_sector']):
         """Create the residential submodules (per enduse and region) and add them to list
 
         Parameters
@@ -294,17 +294,14 @@ class EnergyModel(object):
             Data container
         enduses : list
             All residential enduses
-        sectors : dict
-            Sectors (standard parameter is a dummy sector)
+        sectors : dict, default=['dummy_sector']
+            Sectors
 
         Returns
         -------
         submodule_list : list
             List with submodules
         """
-        if sectors is None:
-            sectors = ['dummy_sector']
-
         print("..residential submodel start")
         _scrap_cnt = 0
         submodule_list = []
@@ -315,7 +312,7 @@ class EnergyModel(object):
                 for enduse in enduses:
 
                     # Create submodule
-                    submodel_object = submodule_residential.ResidentialModel(
+                    submodel_object = rs_model.ResidentialModel(
                         data,
                         region_object,
                         enduse,
@@ -359,7 +356,7 @@ class EnergyModel(object):
                 for enduse in enduses:
 
                     # Create submodule
-                    submodule = submodule_service.ServiceModel(
+                    submodule = ss_model.ServiceModel(
                         data,
                         region_object,
                         enduse,

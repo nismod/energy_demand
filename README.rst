@@ -4,6 +4,7 @@
 High Resolution Energy Demand Model
 ====
 
+
 SUBBILBE
 
 Description
@@ -22,37 +23,16 @@ HIRE
 
 **HIRE** is written in Python (Python>=3.6).
 
+-----------------
+# H1
+
+ED_y^tot = \sum_{r} + \sum_{r}
+
+\sum_{i=1}^{10} t_i
+
+## H2
 
 
-
-
-Data
-----
-
-1. **Household Electricity Servey**
-
-    The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
-    Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
-
-    **More information**:
-    https://www.gov.uk/government/collections/household-electricity-survey 
-    https://www.gov.uk/government/publications/spreadsheet-tools-for-users (24 hour spreadsheet tool)
-
-    **Data preparation**
-
-    Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
-    
-
-2. **Carbon Trust advanced metering trial**
-
-    Metering trial for electricity and gas use across different sectors for businesses (service sector).
-
-    More information:
-
-    http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/
-    
-    Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings.
-    Retrieved from https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf
 
 
     
