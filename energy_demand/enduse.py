@@ -131,6 +131,7 @@ class Enduse(object):
             self.apply_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers, data['sim_param'])
 
             #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
+            version_deliver_heat = self.get_running_mode(data['version_deliver_heat'], data['assumptions']['enduse_space_heating'])
             if data['version_deliver_heat'] == True and self.enduse in data['assumptions']['enduse_space_heating']:
                 version_deliver_heat = True
             else:

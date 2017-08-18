@@ -9,6 +9,8 @@ This is the documentation of Energy Demand Model within MISTRAL.
 This work is still very much work in progress.
 ```
 
+``a_{tt} = b + c`` 
+
 Contents
 ========
 

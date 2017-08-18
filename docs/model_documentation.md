@@ -22,9 +22,24 @@ The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
 ### 1.1 Core concept 1
+Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 
-This summation expression $\sum_{i=1}^n X_i$ appears inline.
+![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D%20%3D%20%5Csum_%7Br%7D%20%5Csum_%7Bs%7D%5Csum_%7Be%7D%5Csum_%7Bt%7D%5Csum_%7Bf%7DED_%7BSD%7D%20&plus;%20ED_%7Beff%7D%20&plus;%20ED_%7Btech%7D%20&plus;%20ED_%7Bclimate%7D%20&plus;%20ED_%7Bbehaviour%7D "ED_{y}^{tot} = \sum_{r} \sum_{s}\sum_{e}\sum_{t}\sum_{f}ED_{SD} + ED_{eff} + ED_{tech} + ED_{climate} + ED_{behaviour}")
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D "ED_{SD}: "):        Demand change related to change in scenario driver (SD)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![equation](https://latex.codecogs.com/gif.latex?ED_%7Beff%7D "ED_{eff}"):      Demand change related to change in technology efficiency
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![equation](https://latex.codecogs.com/gif.latex?ED_%7Btech%7D "ED_{tech}"):      Demand change related to change in technology mix
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![equation](https://latex.codecogs.com/gif.latex?ED_%7Bclimate%7D "ED_{climate}"):  Demand change related to change in climate
+
+![equation](https://latex.codecogs.com/gif.latex?ED_%7Bbehaviour%7D "ED_{behaviour}"):      Demand change related to change in behaviour (e.g. smart meter, base temperatures)
+
+Energy demand change in relation to the base year (by) for end-use specific scenario drivers is defined as follows: 
+
+![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D%20%3D%20%5Cfrac%7BED_%7BSD%7D%5E%7Btot%7D%7D%7BSD%28by%29%7D%20*%20SD%28simulation%20year%29 "ED_{SD} = \frac{ED_{SD}^{tot}}{SD(by)} * SD(simulation year)")
 
 
 ## 2. Model integration
@@ -48,33 +63,36 @@ Reading the code
 
 ## Abbreviations
 
-    rs:     Residential Submodel
-    ss:     Srvice Submodel
-    ts:     Transportation Submodel
+    rs:         Residential Submodel
+    ss:         Srvice Submodel
+    ts:         Transportation Submodel
 
-    bd:     Base demand
-    by = Base year
-    cy = Current year
-    dw = dwelling
-    p  = Percent
-    e  = electricitiy
-    g  = gas
-    lu = look up
-    h = hour
-    hp = heat pump
-    tech = technology
-    temp = temperature
-    d = day
-    y = year
-    yearday = Day in a year ranging from 0 to 364
+    bd:         Base demand
+    by:         Base year
+    cy:         Current year
+    dw:         dwelling
+    p:          Percent or fraction (100% = 1.0)
+    e:          Electricitiy
+    g:          Gas
+    lu:         Look up
 
-## Shapes
+    h:          Hour
+    d:          Day
+    y:          Year
+    yearday:    Day in a year ranging from 0 to 364
 
-yd = for every year the day
-yh = for every hour in a year
-dh = every hour in day
-y = for total year
-y_dh = for every day in a year, the dh is provided
+    hp:         Heat pump
+    tech:       Technology
+    temp:       Temperature
+
+
+## Load profiles annotation
+
+    y:  Total demand in a year
+    yd: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
+    yh: 'Daily load profile'  - Profile for every hour in a year of total yearly demand (365, 24)
+    dh: Load profile of a single day
+    y_dh: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
 
 Data
 ===================
@@ -104,3 +122,10 @@ Data
     Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings.
     Retrieved from https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf
 
+
+
+<img src=“https://latex.codecogs.com/svg.latex?\inline&space;a&space;=&space;a-x^2” title=“a = x^2" />
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;a&space;=&space;x^2" target="_blank"><img src="https://latex.codecogs.com/svg.latex?\inline&space;a&space;=&space;x^2" title="a = x^2" /></a>
+
+This summation expression $\sum_{i=1}^n X_i$ appears inline.
