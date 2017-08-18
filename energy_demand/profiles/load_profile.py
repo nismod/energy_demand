@@ -119,7 +119,6 @@ class LoadProfileStock(object):
         elif shape == 'shape_yd':
             return load_profile_obj.shape_yd
         elif shape == 'shape_y_dh':
-            print("OOO")
             return load_profile_obj.shape_y_dh
         elif shape == 'enduse_peak_yd_factor':
             return load_profile_obj.enduse_peak_yd_factor

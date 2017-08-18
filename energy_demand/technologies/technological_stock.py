@@ -98,6 +98,8 @@ class TechStock(object):
             return tech_object.service_distr_hybrid_h_p
         elif attribute_to_get == 'eff_cy':
             return tech_object.eff_cy
+        elif attribute_to_get == 'eff_by':
+            return tech_object.eff_by
         elif attribute_to_get == 'tech_low_temp':
             return tech_object.tech_low_temp
         elif attribute_to_get == 'tech_low_temp_fueltype':
@@ -108,6 +110,8 @@ class TechStock(object):
             return tech_object.fueltypes_yh_p_cy
         elif attribute_to_get == 'fueltype_share_yh_all_h':
             return tech_object.fueltype_share_yh_all_h
+        else:
+            sys.exit("Error: Attribute not found")
 
 class Technology(object):
     """Technology Class

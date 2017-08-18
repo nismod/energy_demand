@@ -227,8 +227,12 @@ if __name__ == "__main__":
     print("... start model calculations outside main function")
     
     base_data['testing_crit'] = False
-    base_data['version_deliver_heat'] = False #version_deliver_heat: True --> Technologies are defined in ED model, False: heat is delievered
-
+    # -------
+    # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
+    # If unconstrained mode (False), heat demand is provided per technology
+    # ---------
+    base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
+    #
 
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
