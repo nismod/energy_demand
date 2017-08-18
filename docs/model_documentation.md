@@ -58,10 +58,13 @@ LORBEM IPSUMLORBEM IPSUMLORBEM IPSUMLORBEM IPSUM
 
 
 
-Reading the code
+10 Reading the code
 ===================
 
-## Abbreviations
+## 10.1 Abbreviations
+
+Within the code, different abbreviations are consistenly used
+across all modules.
 
     rs:         Residential Submodel
     ss:         Srvice Submodel
@@ -70,8 +73,8 @@ Reading the code
     bd:         Base demand
     by:         Base year
     cy:         Current year
-    dw:         dwelling
-    p:          Percent or fraction (100% = 1.0)
+    dw:         Dwelling
+    p:          Fraction, i.e. (100% = 1.0)
     e:          Electricitiy
     g:          Gas
     lu:         Look up
@@ -86,46 +89,40 @@ Reading the code
     temp:       Temperature
 
 
-## Load profiles annotation
+## 10.2 Load profiles annotation
 
-    y:  Total demand in a year
-    yd: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
-    yh: 'Daily load profile'  - Profile for every hour in a year of total yearly demand (365, 24)
-    dh: Load profile of a single day
-    y_dh: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
+> `y`:  Total demand in a year
 
-Data
+
+> `yd`: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
+
+> `yh`: 'Daily load profile'  - Profile for every hour in a year of total yearly demand (365, 24)
+
+> `dh`: Load profile of a single day
+
+> `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
+
+11.Data
 ===================
 
-## Household Electricity Servey
+## 11.1 Household Electricity Servey
 
-    The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
-    Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
+The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
+Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
 
-    **More information**:
-    https://www.gov.uk/government/collections/household-electricity-survey 
-    https://www.gov.uk/government/publications/spreadsheet-tools-for-users (24 hour spreadsheet tool)
+- [More information](https://www.gov.uk/government/collections/household-electricity-survey)
 
-    **Data preparation**
+- [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users)
 
-    Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
-    
+**Data preparation**
 
-## Carbon Trust advanced metering trial
-
-    Metering trial for electricity and gas use across different sectors for businesses (service sector).
-
-    More information:
-
-    http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/
-    
-    Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings.
-    Retrieved from https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf
+Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
 
 
+## 11.2 Carbon Trust advanced metering trial
 
-<img src=“https://latex.codecogs.com/svg.latex?\inline&space;a&space;=&space;a-x^2” title=“a = x^2" />
+Metering trial for electricity and gas use across different sectors for businesses (service sector).
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;a&space;=&space;x^2" target="_blank"><img src="https://latex.codecogs.com/svg.latex?\inline&space;a&space;=&space;x^2" title="a = x^2" /></a>
+- [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
 
-This summation expression $\sum_{i=1}^n X_i$ appears inline.
+- Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)

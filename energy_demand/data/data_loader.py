@@ -267,7 +267,7 @@ def load_data(path_main, data):
     '''
 
     # Generate load shapes
-    if data['fastcalculationcrit'] == False:
+    if data['fastcalculationcrit'] == False: # FALSE REALLY
 
         # Read raw files - Generate data from raw files
         data = load_shapes_from_raw(data, data['rs_all_enduses'], data['ss_all_enduses'], data['is_all_enduses'], data['is_sectors'])
@@ -326,11 +326,11 @@ def rs_collect_shapes_from_txts(data, path_to_txts):
     # Read load shapes from txt files for enduses
     for enduse in enduses:
         shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+        shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
         shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
         shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        data['rs_shapes_dh'][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+        data['rs_shapes_dh'][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
         data['rs_shapes_yd'][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return data
@@ -372,11 +372,11 @@ def ss_collect_shapes_from_txts(data, path_to_txts):
             #print("...Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
 
             shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
-            shape_non_peak_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+            shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
             shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
             shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(path_to_txts, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-            data['ss_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_dh': shape_non_peak_dh}
+            data['ss_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
             data['ss_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
     return data
@@ -447,11 +447,11 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
                 pass
 
             # Read in shape from carbon trust metering trial dataset
-            shape_non_peak_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = ss_read_data.read_raw_carbon_trust_data(folder_path)
+            shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = ss_read_data.read_raw_carbon_trust_data(folder_path)
 
             # Write shapes to txt
             joint_string_name = str(sector) + "__" + str(enduse)
-            write_data.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd)
+            write_data.create_txt_shapes(joint_string_name, data['path_dict']['path_ss_txt_shapes'], load_peak_shape_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd)
 
     # ---------------------
     # Compare Jan and Jul
@@ -469,9 +469,9 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
         'rs_home_computing': 4,
         'rs_wet': 5,
         'rs_water_heating': 6,
-        #'rs_cooking_kettle': 1,
-        #'rs_cooking_microwave': 1,
-        'NOT_USED_unkown': 9,
+        'NOT_USED_unkown_1': 7,
+        'NOT_USED_unkown_2': 8,
+        'NOT_USED_unkown_3': 9,
         'NOT_USED_showers': 10
         }
 
@@ -488,7 +488,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
             print("Warning: The enduse {} is not defined in appliances_HES_enduse_matching, i.e. no generic shape is loades from HES data but enduse needs to be defined with technologies".format(enduse))
         else:
             # Generate HES load shapes
-            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd = rs_read_data.get_hes_load_shapes(
+            shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = rs_read_data.get_hes_load_shapes(
                 appliances_HES_enduse_matching,
                 year_raw_values_hes,
                 hes_y_peak,
@@ -500,7 +500,7 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
                 enduse,
                 data['path_dict']['path_rs_txt_shapes'],
                 shape_peak_dh,
-                shape_non_peak_dh,
+                shape_non_peak_y_dh,
                 shape_peak_yd_factor,
                 shape_non_peak_yd
                 )
@@ -518,14 +518,14 @@ def load_shapes_from_raw(data, rs_enduses, ss_enduses, is_enduses, is_sectors):
             data['is_shapes_dh'][sector][enduse] = {}
 
             # Generate generic shape (so far flat)
-            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
+            shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = generic_shapes.generic_flat_shape(shape_peak_yd_factor=1)
 
             # Write txt files
             write_data.create_txt_shapes(
                 enduse,
                 data['path_dict']['path_is_txt_shapes'],
                 shape_peak_dh,
-                shape_non_peak_dh,
+                shape_non_peak_y_dh,
                 shape_peak_yd_factor,
                 shape_non_peak_yd
                 )

@@ -294,7 +294,7 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
     base_yr : int
         Base Year
     """
-    shape_non_peak_dh = np.zeros((365, 24))
+    shape_non_peak_y_dh = np.zeros((365, 24))
 
     # Create list with all dates of a whole year
     list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
@@ -313,6 +313,6 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
 
         # Add values to yearly
         _data = np.array(list(_data.items()))
-        shape_non_peak_dh[yearday_python] = np.array(_data[:, 1], dtype=float)
+        shape_non_peak_y_dh[yearday_python] = np.array(_data[:, 1], dtype=float)
 
-    return shape_non_peak_dh
+    return shape_non_peak_y_dh

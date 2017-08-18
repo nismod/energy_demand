@@ -2,16 +2,106 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-import pytest
-import energy_demand.main_functions as mf
-import energy_demand.building_stock_functions as bf
-import energy_demand.building_stock_generator as bg
-import energy_demand.national_dissaggregation as nd
+import energy_demand.energy_model as energy_model
+from energy_demand.assumptions import assumptions
+from energy_demand.data import data_loader
+from energy_demand.data import write_data
+from energy_demand.data import read_data
+from energy_demand.disaggregation import national_disaggregation
+from energy_demand.building_stock import building_stock_generator
+from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.technologies import fuel_service_switch
+from energy_demand.calculations import enduse_scenario
+from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import unit_conversions
+from energy_demand.basic import date_handling
+from energy_demand.validation import lad_validation
+from energy_demand.validation import elec_national_data
+from energy_demand.plotting import plotting_results
+from energy_demand.data import read_data
+
+import datetime
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
 
 from pytest import raises
+
+
+# --------------------------
+# date_handling
+# -------------------------
+from energy_demand.basic import date_handling
+
+def test_get_dates_week_nr():
+    """testing function
+    """
+    from isoweek import Week
+    in_year = 2017
+    week_nr = 33
+    expected = [
+        datetime.date(2017, 8, 14),
+        datetime.date(2017, 8, 15),
+        datetime.date(2017, 8, 16),
+        datetime.date(2017, 8, 17),
+        datetime.date(2017, 8, 18),
+        datetime.date(2017, 8, 19),
+        datetime.date(2017, 8, 20)
+    ]
+
+    # call function
+    out_value = date_handling.get_dates_week_nr(in_year, week_nr)
+
+    assert out_value == expected
+
+def test_convert_date_to_yearday():
+    """Testing
+    """
+    in_year = 2015
+    in_month = 6
+    in_day = 13
+    expected = 164 - 1
+
+    # call function
+    out_value = date_handling.convert_date_to_yearday(in_year, in_month, in_day)
+
+    assert out_value == expected
+
+def test_convert_yearday_to_date():
+    """Testing
+    """
+    in_year = 2015
+    in_yearday = 10
+    expected = date(2015,1,11)
+
+    # call function
+    out_value = date_handling.convert_yearday_to_date(in_year, in_yearday)
+
+    assert out_value == expected
+
+def test_get_datetime_range():
+    """Testing function"""
+    start_date = date(2015, 1, 1)
+    end_date = date(2015, 1, 2)
+
+    expected = [date(2015, 1, 1), date(2015, 1, 2)]
+    out = date_handling.get_datetime_range(start_date, end_date)
+
+    assert out == expected
+
+
+def test_get_weekday_type():
+    """Testing function"""
+    # in test value
+
+    in_value = date(2015, 1, 1)
+    expected = 0
+
+    # call function
+    out_value = date_handling.get_weekday_type(in_value)
+
+    assert out_value == expected
+
 
 # --------------Building STock generator
 def test_raises_error_get_dwtype_dist():
@@ -23,52 +113,6 @@ def test_raises_error_get_dwtype_dist():
 
     with raises(AssertionError):
         bf.get_dwtype_dist(wrong_data, in_value_2, in_value_3)
-
-
-
-
-# --------------------------
-# date_handling
-# -------------------------
-from energy_demand.basic import date_handling
-
-def test_get_dates_week_nr(year, week_nr):
-    """testing function
-    """
-    from isoweek import Week
-    in_year = 2017
-    week_nr = 33
-    expected = (date()
-
-    )
-
-    # call function
-    out_value = date_handling.get_dates_week_nr(in_year, week_nr)
-    print("dddd")
-    print(out_value)
-    assert out_value == expected
-
-def test_convert_date_to_yearday():
-
-    in_year = 2015
-    in_month = 6
-    in_day = 13
-    expected = 164 - 1
-
-    # call function
-    out_value = mf.convert_date_to_yearday(in_year, in_month, in_day)
-
-    assert out_value == expected
-
-def test_get_datetime_range():
-    """Testing function"""
-    start_date = date(2015, 1, 1)
-    end_date = date(2015, 1, 2)
-
-    expected = [date(2015, 1, 1), date(2015, 1, 2)]
-    out = mf.get_datetime_range(start_date, end_date)
-
-    assert out == expected
 
 
 
@@ -86,7 +130,7 @@ def test_read_csv_dict():
     expected = {15: {'test_value': 3}}
 
     # call function
-    out_value = mf.read_csv_dict(in_value_1)
+    out_value = read_data.read_csv_dict(in_value_1)
 
     assert out_value == expected
 
@@ -99,7 +143,7 @@ def test_read_csv_float():
     expected = np.array([[float(15), float(3)]])
 
     # call function
-    out_value = mf.read_csv_float(in_value_1)
+    out_value = read_data.read_csv_float(in_value_1)
 
     np.testing.assert_array_equal(out_value, expected)
 
@@ -112,7 +156,7 @@ def test_read_csv():
     expected = np.array([[15, 3]])
 
     # call function
-    out_value = mf.read_csv_float(in_value_1)
+    out_value = read_data.read_csv_float(in_value_1)
 
     # Raise assertion error if array are identical
     np.testing.assert_array_equal(out_value, expected)
@@ -124,22 +168,9 @@ def test_conversion_ktoe_gwh():
     expected = in_value * 11.6300000
 
     # call function
-    out_value = mf.conversion_ktoe_gwh(in_value)
+    out_value = unit_conversions.conversion_ktoe_gwh(in_value)
 
     assert out_value == expected
-
-def test_get_weekday_type():
-    """Testing function"""
-    # in test value
-
-    in_value = date(2015, 1, 1)
-    expected = 0
-
-    # call function
-    out_value = mf.get_weekday_type(in_value)
-
-    assert out_value == expected
-
 
 def test_apply_elasticity():
     """Calculate current demand based on demand elasticity"""

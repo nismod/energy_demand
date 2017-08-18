@@ -1,7 +1,9 @@
-"""Enduse
+"""
+Enduse
+========
 
-Contains the Enduse Class. This is the most important class
-where the enduse specific energy demand is change
+Contains the `Enduse` Class. This is the most important class
+where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
 import copy
@@ -15,37 +17,58 @@ from energy_demand.profiles import generic_shapes as generic_shapes
 '''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class Enduse(object):
-    """Class of an end use of the residential sector
+    """Class of an end use
 
     For every region and sector, a different instance
     is generated.
 
     Parameters
     ----------
-    region_name : int
-        The ID of the region. The actual region name is stored in `lu_reg`
+    region_name : str
+        Region name
     data : dict
-        Dictionary containing data
+        Data container
     enduse : str
-        Enduse given in a string
+        Enduse name
+    sector : str
+        Sector name
     fuel : array
-        Fuel data for the region the endu
+        Yearly fuel data for different fueltypes
     tech_stock : object
         Technology stock of region
     heating_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with HDD)
     cooling_factor_y : array
         Distribution of fuel within year to days (yd) (directly correlates with CDD)
+    fuel_switches : list
+        Fuel switches
+    service_switches : list
+        Service switches 
+    fuel_tech_p_by : dict
+        Fuel tech assumtions in base year
+    tech_increased_service : ?
+        Technologies with increased service due to scenarios
+    tech_decreased_share :?
+    tech_constant_share :?
+    installed_tech :
+    sig_param_tech :
+    enduse_overall_change_ey :
+    regional_profile_stock :
+    dw_stock : boolean,default=False
+    reg_scenario_drivers : boolean,default=None
+    crit_flat_profile : boolean,default=False
 
-    Info
+    Note
     ----
-    Every enduse can only have on shape independently of the fueltype
+    - The load profiles are assigned independently of the fueltype
 
-    `self.fuel_new_y` is always overwritten in the cascade of fuel calculations
+    - `self.fuel_new_y` is always overwritten in the cascade of fuel calculations
 
-    Problem: Not all enduses have technologies assigned. Therfore peaks are derived
-    from techstock in case there are technologies,
-    otherwise enduse load shapes are used.
+    Warning
+    -------
+    Not all enduses have technologies assigned. Therfore peaks are derived
+    from techstock in case there are technologies, otherwise enduse load shapes
+    are used.
     """
     def __init__(
             self,
@@ -66,21 +89,21 @@ class Enduse(object):
             installed_tech,
             sig_param_tech,
             enduse_overall_change_ey,
-            load_profiles,
+            regional_profile_stock,
             dw_stock=False,
             reg_scenario_drivers=None,
-            crit_flat_fuel_shape=False
+            crit_flat_profile=False
         ):
         """Enduse class constructor
         """
-        print("..create enduse {}".format(enduse))
+        #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
         self.fuel_new_y = np.copy(fuel)
 
         # If enduse has no fuel create empty shapes
         if np.sum(fuel) == 0:
-            self.crit_flat_fuel_shape = False
+            self.crit_flat_profile = False
             self.fuel_y = np.zeros((fuel.shape[0]))
             self.fuel_yh = 0
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
@@ -88,12 +111,15 @@ class Enduse(object):
         else:
 
             # Get regional or non-regional load profile data
-            if enduse in data['load_profile_stock_non_regional'].enduses_in_stock:
-                load_profiles = data['load_profile_stock_non_regional']
-            
+            load_profiles = self.get_load_profile_stock(
+                data['non_regional_profile_stock'],
+                regional_profile_stock)
+
             #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
-            version_deliver_heat = self.get_running_mode(data['version_deliver_heat'], data['assumptions']['enduse_space_heating'])
-        
+            version_deliver_heat = self.get_running_mode(
+                data['version_deliver_heat'],
+                data['assumptions']['enduse_space_heating'])
+
             # Get technologies of enduse
             self.enduse_techs = self.get_enduse_tech(fuel_tech_p_by)
 
@@ -146,11 +172,11 @@ class Enduse(object):
                 #TODO :WHAT IF version_unconstrained and no technologies assgined?
                 # Criteria if flat shape (Yes/No). If flat shape, do not store shape, 
                 # but only calculated if shape is requiested
-                if crit_flat_fuel_shape:
-                    self.crit_flat_fuel_shape = True
+                if crit_flat_profile:
+                    self.crit_flat_profile = True
                     self.fuel_y = self.fuel_new_y
                 else:
-                    self.crit_flat_fuel_shape = False
+                    self.crit_flat_profile = False
                     
                     # --fuel_yh
                     self.fuel_yh = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'shape_yh') * self.fuel_new_y[:, np.newaxis, np.newaxis]
@@ -191,7 +217,6 @@ class Enduse(object):
                     data['assumptions'],
                     tot_service_h_cy,
                     'tot_service_h_cy',
-                    data['assumptions']['heat_recovered'],
                     data['sim_param']
                     )
 
@@ -199,13 +224,13 @@ class Enduse(object):
                     data['assumptions'],
                     service_tech,
                     'service_tech',
-                    data['assumptions']['heat_recovered'],
                     data['sim_param']
                     )
 
                 crit_switch_fuel = self.get_crit_switch(fuel_switches, data['sim_param'], version_deliver_heat)
                 crit_switch_service = self.get_crit_switch(service_switches, data['sim_param'], version_deliver_heat)
                 testing.testing_switch_criteria(crit_switch_fuel, crit_switch_service, self.enduse)
+
                 # --------------------------------
                 # Energy service switches
                 # --------------------------------
@@ -236,35 +261,41 @@ class Enduse(object):
                         data['sim_param']['curr_yr']
                         )
                 else:
-                    pass #Not switch implemented
+                    pass #No switch implemented
 
                 # -------------------------------------------------------
                 # Convert Service to Fuel
                 # -------------------------------------------------------
                 # Convert annaul service to fuel per fueltype
-                self.service_to_fuel_fueltype_y(service_tech, tech_stock, data['lu_fueltype'], version_deliver_heat)
+                self.service_to_fuel(service_tech, tech_stock, data['lu_fueltype'], version_deliver_heat)
 
                 # Convert annaul service to fuel per fueltype for each technology
                 fuel_tech_y = self.service_to_fuel_per_tech(service_tech, tech_stock, version_deliver_heat)
 
                 # -------------------------------------------------------
                 # Assign load profiles
-                # If a flat load profile is assigned (crit_flat_fuel_shape)
+                # If a flat load profile is assigned (crit_flat_profile)
                 # do not store whole 8760 profile. This is only done in
                 # the summing step
                 # -------------------------------------------------------
-                if crit_flat_fuel_shape:
-                    self.crit_flat_fuel_shape = True
+                if crit_flat_profile:
+                    self.crit_flat_profile = True
                     self.fuel_y = self.calc_fuel_tech_y(
                         tech_stock,
                         fuel_tech_y,
                         data['lu_fueltype'],
                         version_deliver_heat)
                 else:
-                    self.crit_flat_fuel_shape = False
+                    self.crit_flat_profile = False
 
                     #---NON-PEAK
-                    self.fuel_yh = self.calc_fuel_tech_yh(fuel_tech_y, tech_stock, load_profiles, data['lu_fueltype'], version_deliver_heat)
+                    self.fuel_yh = self.calc_fuel_tech_yh(
+                        fuel_tech_y,
+                        tech_stock,
+                        load_profiles,
+                        data['lu_fueltype'],
+                        version_deliver_heat
+                        )
                     #np.testing.assert_almost_equal(np.sum(self.fuel_yh), np.sum(testsumme2), decimal=1, err_msg='Error 2')
 
                     # --PEAK
@@ -277,7 +308,36 @@ class Enduse(object):
                     # Testing
                     ## TESTINGnp.testing.assert_almost_equal(np.sum(self.fuel_yd), np.sum(self.fuel_yh), decimal=2, err_msg='', verbose=True)
 
-    
+    def get_load_profile_stock(self, non_regional_profile_stock, regional_profile_stock):
+        """Defines the load profile stock depending on `enduse`
+
+        If the enduse depends on regional factors, `regional_profile_stock`
+        is returned. Otherwise, non-regional load profiles which can
+        be applied for all regions is used (`non_regional_profile_stock`)
+
+        Parameters
+        ----------
+        non_regional_profile_stock : object
+            Non regional dependent load profiles
+        regional_profile_stock : object
+            Regional dependent load profiles
+
+        Returns
+        -------
+        load_profiles : object
+            Load profile
+
+        Note
+        -----
+        Because for some enduses the load profiles depend on the region
+        they are stored in the ´WeatherRegion´ Class. One such example is
+        heating. If the enduse is not dependent on the region, the 
+        """
+        if self.enduse in non_regional_profile_stock.enduses_in_stock:
+            return non_regional_profile_stock
+        else:
+            return regional_profile_stock
+
     def get_running_mode(self, version_deliver_heat, enduse_space_heating):
         """Check which mode needs to be run for an enduse
 
@@ -342,7 +402,7 @@ class Enduse(object):
 
         return fuel_y
 
-    def service_reduction_heat_recovery(self, assumptions, service_to_reduce, crit_dict, assumption_heat_recovered, base_sim_param):
+    def service_reduction_heat_recovery(self, assumptions, service_to_reduce, crit_dict, base_sim_param):
         """Reduce heating demand according to assumption on heat reuse
 
         A standard sigmoid diffusion is assumed from base year to end year
@@ -354,17 +414,16 @@ class Enduse(object):
         service_to_reduce : dict or array
             Service of current year
         crit_dict :
-        assumption_heat_recovered : 
         base_sim_param : 
 
         Returns
         -------
         service_to_reduce or service_to_reduce
         """
-        if self.enduse in assumption_heat_recovered:
+        if self.enduse in assumptions['heat_recovered']:
 
             # Fraction of heat recovered until end_year
-            heat_recovered_p_by = assumption_heat_recovered[self.enduse]
+            heat_recovered_p_by = assumptions['heat_recovered'][self.enduse]
 
             if heat_recovered_p_by == 0: # IF heat is recovered
                 return service_to_reduce
@@ -1068,8 +1127,8 @@ class Enduse(object):
 
         return service_tech_after_switch
 
-    def service_to_fuel_fueltype_y(self, service_tech, tech_stock, lu_fueltypes, version_deliver_heat):
-        """Convert energy service to yearly fuel
+    def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, version_deliver_heat):
+        """Convert yearly energy service to yearly fuel
 
         For every technology the service is taken and converted to fuel based on efficiency of current year
 

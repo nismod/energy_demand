@@ -12,4 +12,11 @@ Version 0.2
 ===========
 
 - Residential, service and industry sector
-- blabla
+- Basic working versions
+
+Version 0.3
+===========
+
+- More model documentation
+- Two modes of running heat
+- TESTING?
