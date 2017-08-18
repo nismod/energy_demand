@@ -21,7 +21,7 @@ def generic_flat_shape(shape_peak_yd_factor=1/365):
     shape_peak_yd_factor : float
         Factor peak yd (is only passed through)
     shape_non_peak_yd : array
-        Shape yd for non peak
+        Shape yd for non peak 
     """
     # linear shape_peak_dh
     shape_peak_dh = np.full((24), 1 / 24)
