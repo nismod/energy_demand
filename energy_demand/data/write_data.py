@@ -8,10 +8,10 @@ import numpy as np
 
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
-def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd):
+def create_txt_shapes(end_use, path_txt_shapes, shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd):
     """Function collecting functions to write out txt files"""
     jason_to_txt_shape_peak_dh(shape_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt')))
-    jason_to_txt_shape_non_peak_dh(shape_non_peak_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_dh') + str('.txt')))
+    jason_to_txt_shape_non_peak_y_dh(shape_non_peak_y_dh, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
     jason_to_txt_shape_peak_yd_factor(shape_peak_yd_factor, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
     jason_to_txt_shape_non_peak_yd(shape_non_peak_yd, os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
@@ -24,7 +24,7 @@ def jason_to_txt_shape_peak_dh(input_array, outfile_path):
     with open(outfile_path, 'w') as outfile:
         json.dump(np_dict, outfile)
 
-def jason_to_txt_shape_non_peak_dh(input_array, outfile_path):
+def jason_to_txt_shape_non_peak_y_dh(input_array, outfile_path):
     """Wrte to txt. Array with shape: (365, 24)
     """
     out_dict = {}

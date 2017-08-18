@@ -2,14 +2,12 @@
 Energy Demand Model (MISTRAL)
 =============
 
-This is the documentation of Energy Demand Model within MISTRAL.
+This is the full documentation of Energy Demand Model.
 
-.. note::
-```
-This work is still very much work in progress.
-```
+Note
+----
+This is sill work in progress.
 
-``a_{tt} = b + c`` 
 
 Contents
 ========

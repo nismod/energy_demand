@@ -275,7 +275,7 @@ class WeatherRegion(object):
             is_fuel_shape_any_tech, is_fuel_shape = self.ss_get_sector_enduse_shape(data, is_fuel_shape_heating_yd, 'ss_space_heating')
 
             #Flat profiles
-            shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
+            shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
@@ -525,10 +525,10 @@ class WeatherRegion(object):
         if enduse not in data['ss_all_tech_shapes_dh']:
             pass
         else:
-            shape_non_peak_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_dh']
+            shape_non_peak_y_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_y_dh']
 
-            shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_non_peak_dh #Multiplyacross row (365, ) with (365,24)
-            shape_y_dh_generic_tech = shape_non_peak_dh
+            shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_non_peak_y_dh #Multiplyacross row (365, ) with (365,24)
+            shape_y_dh_generic_tech = shape_non_peak_y_dh
 
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 

@@ -36,7 +36,7 @@ class EnergyModel(object):
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
-        data['load_profile_stock_non_regional'] = self.create_load_profile_stock(data)
+        data['non_regional_profile_stock'] = self.create_load_profile_stock(data)
 
         # --------------------
         # Industry SubModel
@@ -123,15 +123,15 @@ class EnergyModel(object):
         -------
 
         """
-        load_profile_stock_non_regional = load_profile.LoadProfileStock("non_regional_load_profiles") # Generate stock
+        non_regional_profile_stock = load_profile.LoadProfileStock("non_regional_load_profiles") # Generate stock
 
         # Lighting (residential)
-        load_profile_stock_non_regional.add_load_profile(
+        non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['rs_lighting'],
             enduses=['rs_lighting'],
             shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-            shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+            shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
             enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
             shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
@@ -140,12 +140,12 @@ class EnergyModel(object):
         for enduse in data['assumptions']['rs_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
             print("dd" + str(enduse))
-            load_profile_stock_non_regional.add_load_profile(
+            non_regional_profile_stock.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
                 shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
                 enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
                 shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
                 )
@@ -154,13 +154,13 @@ class EnergyModel(object):
         for enduse in data['assumptions']['ss_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
             for sector in data['ss_sectors']:
-                load_profile_stock_non_regional.add_load_profile(
+                non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
                     sectors=[sector],
                     shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                    shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                     enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
                     shape_peak_dh=data['ss_shapes_dh'][sector][enduse]['shape_peak_dh'] #[sector][enduse] is new
                     )
@@ -171,7 +171,7 @@ class EnergyModel(object):
         for enduse in data['assumptions']['is_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
             for sector in data['is_sectors']:
-                load_profile_stock_non_regional.add_load_profile(
+                non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
@@ -182,7 +182,7 @@ class EnergyModel(object):
                     shape_peak_dh=shape_peak_dh
                     )
 
-        return load_profile_stock_non_regional
+        return non_regional_profile_stock
 
     def get_regional_yh(self, nr_of_fueltypes, region_name):
         """Get fuel for all fueltype for yh for specific region (all submodels)
@@ -230,8 +230,8 @@ class EnergyModel(object):
     def other_submodels(self):
         """Other submodel
         """
-        print("..other submodel start")
-        _scrap_cnt = 0
+        #print("..other submodel start")
+        #_scrap_cnt = 0
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -246,8 +246,8 @@ class EnergyModel(object):
             # Add to list
             submodule_list.append(submodule)
 
-            _scrap_cnt += 1
-            print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
+            #_scrap_cnt += 1
+            #print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -258,7 +258,7 @@ class EnergyModel(object):
         """Industry subsector model
         """
         print("..industry submodel start")
-        _scrap_cnt = 0 
+        #_scrap_cnt = 0 
         submodule_list = []
 
         # Iterate regions, sectors and enduses
@@ -277,8 +277,8 @@ class EnergyModel(object):
                     # Add to list
                     submodule_list.append(submodule)
 
-                    _scrap_cnt += 1
-                    print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    #_scrap_cnt += 1
+                    #print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -303,7 +303,7 @@ class EnergyModel(object):
             List with submodules
         """
         print("..residential submodel start")
-        _scrap_cnt = 0
+        #_scrap_cnt = 0
         submodule_list = []
 
         # Iterate regions and enduses
@@ -321,8 +321,8 @@ class EnergyModel(object):
 
                     submodule_list.append(submodel_object)
 
-                    _scrap_cnt += 1
-                    print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    #_scrap_cnt += 1
+                    #print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -510,14 +510,14 @@ class EnergyModel(object):
 
         Info
         -----
-            -   For enduses where 'crit_flat_fuel_shape' in Enduse Class is True
+            -   For enduses where 'crit_flat_profile' in Enduse Class is True
                 a flat load profile is generated. Otherwise, the yh as calculated
                 for each enduse is used
         """
-        #shape_peak_dh, shape_non_peak_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
+        #shape_peak_dh, shape_non_peak_y_dh, _, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
         # If flat shape
-        if model_object.enduse_object.crit_flat_fuel_shape:
+        if model_object.enduse_object.crit_flat_profile:
 
             # Yearly fuel
             fuels_reg_y = model_object.enduse_object.fuel_y
@@ -530,9 +530,9 @@ class EnergyModel(object):
 
                 fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
 
-            elif attribute_to_get == 'shape_non_peak_dh':
-                shape_non_peak_dh = np.full((365, 24), (1.0 / 24)) #flat shape
-                fuels = fuels_reg_y * shape_non_peak_dh
+            elif attribute_to_get == 'shape_non_peak_y_dh':
+                shape_non_peak_y_dh = np.full((365, 24), (1.0 / 24)) #flat shape
+                fuels = fuels_reg_y * shape_non_peak_y_dh
             elif attribute_to_get == 'shape_non_peak_yd':
                 shape_non_peak_yd = np.ones((365)) / 365 #flat shape
                 fuels = fuels_reg_y * shape_non_peak_yd

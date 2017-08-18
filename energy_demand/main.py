@@ -17,6 +17,8 @@ Key contributers are:
     - Nick Eyre
     - 
 
+    note,tip,warning,
+
 More information can be found here:
 
     - Eggimann et al. (2018): Paper blablabla
@@ -120,9 +122,9 @@ if __name__ == "__main__":
     # DUMMY DATA GENERATION----------------------
 
     base_yr = 2015
-    end_yr = 2020 #includes this year
+    end_yr = 2050 #includes this year
     #sim_years = range(base_yr, end_yr + 1)
-    sim_years = range(base_yr, end_yr + 1, 1)
+    sim_years = range(base_yr, end_yr + 1, 5)
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}

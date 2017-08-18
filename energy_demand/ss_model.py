@@ -50,7 +50,7 @@ class ServiceModel(object):
             installed_tech=data['assumptions']['ss_installed_tech'],
             sig_param_tech=data['assumptions']['ss_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['ss_model'],
-            load_profiles=region_object.ss_load_profiles,
+            regional_profile_stock=region_object.ss_load_profiles,
             dw_stock=data['ss_dw_stock']
         )
 

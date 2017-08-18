@@ -59,15 +59,15 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
 
     # ---Calculate non-peak shapes
     shape_non_peak_yd = np.zeros((365))
-    shape_non_peak_dh = np.zeros((365, 24))
+    shape_non_peak_y_dh = np.zeros((365, 24))
 
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
 
         shape_non_peak_yd[day] = (1.0 / tot_enduse_y) * np.sum(day_values)
-        shape_non_peak_dh[day] = (1.0 / np.sum(day_values)) * day_values # daily shape
+        shape_non_peak_y_dh[day] = (1.0 / np.sum(day_values)) * day_values # daily shape
 
-    return shape_peak_dh, shape_non_peak_dh, shape_peak_yd_factor, shape_non_peak_yd
+    return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd
 
 def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     '''Fill every base year day with correct data
@@ -89,7 +89,6 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
 
     # Create list with all dates of a whole year
-    #list_dates = data['sim_param']['list_dates'] #FAST
     list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
