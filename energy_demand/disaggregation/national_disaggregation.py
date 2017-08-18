@@ -1,6 +1,6 @@
 """ This File disaggregates total national demand """
 import numpy as np
-from energy_demand.shape_handling import hdd_cdd
+from energy_demand.profiles import hdd_cdd
 # pylint: disable=I0011,C0321,C0301,C0103,C0325
 
 '''

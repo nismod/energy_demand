@@ -1,5 +1,6 @@
 """Functions related to load profiles
 """
+import sys
 import numpy as np
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
@@ -60,7 +61,12 @@ class LoadProfileStock(object):
             )
 
         # Generate lookup dictionary with triple key
-        self.generate_dict_with_tuple_keys(unique_identifier, enduses, sectors, technologies)
+        self.generate_dict_with_tuple_keys(
+            unique_identifier,
+            enduses,
+            sectors,
+            technologies
+            )
 
         # Update enduses in stock
         self.get_all_enduses_in_stock()
@@ -113,9 +119,15 @@ class LoadProfileStock(object):
         elif shape == 'shape_yd':
             return load_profile_obj.shape_yd
         elif shape == 'shape_y_dh':
+            print("OOO")
             return load_profile_obj.shape_y_dh
         elif shape == 'enduse_peak_yd_factor':
             return load_profile_obj.enduse_peak_yd_factor
+        elif shape == 'shape_peak_dh':
+            return load_profile_obj.shape_peak_dh
+        else:
+            sys.error("Specific load shape is not found in object")
+            return
 
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
@@ -164,7 +176,6 @@ class LoadProfile(object):
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
-
 
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh

@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 # pylint: disable=I0011,C0321,C0301,C0103,C0325
 
 def calc_hdd(t_base, temp_yh):
@@ -233,7 +233,7 @@ def get_reg_hdd(temperatures, t_base_heating):
     The diffusion is assumed to be sigmoid
     """
     hdd_d = calc_hdd(t_base_heating, temperatures)
-    shape_hdd_d = shape_handling.absolute_to_relative(hdd_d)
+    shape_hdd_d = load_profile.absolute_to_relative(hdd_d)
 
     return hdd_d, shape_hdd_d
 
@@ -260,6 +260,6 @@ def get_reg_cdd(temperatures, t_base_cooling):
             Fraction of heat for every day. Array-shape: 365, 1
     """
     cdd_d = calc_cdd(t_base_cooling, temperatures)
-    shape_cdd_d = shape_handling.absolute_to_relative(cdd_d)
+    shape_cdd_d = load_profile.absolute_to_relative(cdd_d)
 
     return cdd_d, shape_cdd_d

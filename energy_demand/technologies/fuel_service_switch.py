@@ -1,7 +1,7 @@
 """Function related to service or fuel switch
 """
 import numpy as np
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 from energy_demand.initalisations import initialisations as init
 from energy_demand.technologies import technologies_related
 

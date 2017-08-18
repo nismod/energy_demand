@@ -5,9 +5,9 @@ import uuid
 import numpy as np
 from energy_demand.technologies import technological_stock
 from energy_demand.basic import date_handling
-from energy_demand.shape_handling import shape_handling
-from energy_demand.shape_handling import hdd_cdd
-from energy_demand.shape_handling import generic_shapes
+from energy_demand.profiles import load_profile
+from energy_demand.profiles import hdd_cdd
+from energy_demand.profiles import generic_shapes
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -89,7 +89,7 @@ class WeatherRegion(object):
         if modeltype == 'rs_submodel':
 
             # --------Profiles
-            self.rs_load_profiles = shape_handling.LoadProfileStock("rs_load_profiles")
+            self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
             # --------HDD/CDD
             rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by)
@@ -175,7 +175,7 @@ class WeatherRegion(object):
         elif modeltype == 'ss_submodel':
 
             # --------Profiles
-            self.ss_load_profiles = shape_handling.LoadProfileStock("ss_load_profiles")
+            self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
             # --------HDD/CDD
             ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by)
@@ -196,7 +196,7 @@ class WeatherRegion(object):
             # Cooling service
             #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
             #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
-            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, shape_handling.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
+            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
             ss_fuel_shape_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(self.ss_tech_stock, 'ss_space_heating', ss_fuel_shape, ss_fuel_shape, ss_fuel_shape_heating_yd, 'hybrid_gas_electricity') #, 'boiler_gas', 'heat_pumps_electricity') # Hybrid
 
             self.ss_load_profiles.add_load_profile(
@@ -254,7 +254,7 @@ class WeatherRegion(object):
         elif modeltype == 'is_submodel':
             
             # --------Profiles
-            self.is_load_profiles = shape_handling.LoadProfileStock("is_load_profiles")
+            self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
             # --------HDD/CDD
             is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by)
@@ -357,7 +357,7 @@ class WeatherRegion(object):
         The shapes are the same for any hybrid technology with boiler and heat pump
         """
         # Create dh shapes for every day from relative dh shape of hybrid technologies
-        fuel_shape_hybrid_y_dh = shape_handling.get_hybrid_fuel_shapes_y_dh(
+        fuel_shape_hybrid_y_dh = load_profile.get_hybrid_fuel_shapes_y_dh(
             fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
             fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
             tech_low_high_p=tech_stock.get_tech_attr(enduse, hybrid_tech, 'service_distr_hybrid_h_p')
@@ -458,7 +458,7 @@ class WeatherRegion(object):
             shape_yh_hp[day] = fuel_shape_d
 
             # Add normalised daily fuel curve
-            shape_y_dh[day] = shape_handling.absolute_to_relative_without_nan(fuel_shape_d)
+            shape_y_dh[day] = load_profile.absolute_to_relative_without_nan(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = np.divide(1, np.sum(shape_yh_hp)) * shape_yh_hp

@@ -8,7 +8,7 @@ energy demand module.
 The docs can be found here: http://ed.readthedocs.io
 
 The model has been developped within the MISTRAL
-project. A previous model has been developped within 
+project. A previous model has been developped within
 NISMOD by Pranab et al..(MOREINFO) HIRE develops this model
 further into a high temporal and spatial model.abs
 
@@ -19,7 +19,7 @@ Key contributers are:
 
 More information can be found here:
 
-    - Eggimann et al. XY (): Paper blablabla
+    - Eggimann et al. (2018): Paper blablabla
 
 '''
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
@@ -120,9 +120,9 @@ if __name__ == "__main__":
     # DUMMY DATA GENERATION----------------------
 
     base_yr = 2015
-    end_yr = 2050 #includes this year
+    end_yr = 2020 #includes this year
     #sim_years = range(base_yr, end_yr + 1)
-    sim_years = range(base_yr, end_yr + 1, 10)
+    sim_years = range(base_yr, end_yr + 1, 1)
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
