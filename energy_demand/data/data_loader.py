@@ -8,7 +8,7 @@ from energy_demand.data import rs_read_data
 from energy_demand.data import ss_read_data
 from energy_demand.data import read_weather_data
 from energy_demand.data import write_data
-from energy_demand.shape_handling import generic_shapes as generic_shapes
+from energy_demand.profiles import generic_shapes as generic_shapes
 from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_results
 import csv

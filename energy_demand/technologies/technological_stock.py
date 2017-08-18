@@ -1,7 +1,7 @@
 """The technological stock for every simulation year"""
 import numpy as np
 from energy_demand.technologies import technologies_related
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class TechStock(object):
@@ -153,7 +153,7 @@ class Technology(object):
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
 
             # Calculate shape per fueltype
-            self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
+            self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
 
             #print("TIME C: {}".format(time.time() - start))
             # --------------------------------------------------------------
@@ -299,7 +299,7 @@ class HybridTechnology(object):
         # Shares of fueltype for every hour for multiple fueltypes
         self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['nr_of_fueltypes'], self.tech_low_temp_fueltype, self.tech_high_temp_fueltype)
 
-        self.fueltype_share_yh_all_h = shape_handling.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
+        self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(self.fueltypes_yh_p_cy)
 
         self.eff_by = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
 

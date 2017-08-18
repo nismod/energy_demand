@@ -2,7 +2,7 @@
 """
 from datetime import date
 import numpy as np
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 from energy_demand.basic import date_handling
 from energy_demand.data import read_data
 
@@ -49,7 +49,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = shape_handling.absolute_to_relative(peak_h_values)
+    shape_peak_dh = load_profile.absolute_to_relative(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)

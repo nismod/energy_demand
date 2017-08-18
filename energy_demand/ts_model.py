@@ -1,6 +1,6 @@
 """Dummy transportation model
 """
-from energy_demand.shape_handling import generic_shapes
+from energy_demand.profiles import generic_shapes
 
 class OtherModel(object):
     """Other Model

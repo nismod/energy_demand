@@ -7,10 +7,10 @@ import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
 import energy_demand.ts_model as ts_model
-from energy_demand.shape_handling import load_factors as load_factors
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_factors as load_factors
+from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helper_functions
-from energy_demand.shape_handling import generic_shapes
+from energy_demand.profiles import generic_shapes
 '''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class EnergyModel(object):
@@ -123,7 +123,7 @@ class EnergyModel(object):
         -------
 
         """
-        load_profile_stock_non_regional = shape_handling.LoadProfileStock("non_regional_load_profiles") # Generate stock
+        load_profile_stock_non_regional = load_profile.LoadProfileStock("non_regional_load_profiles") # Generate stock
 
         # Lighting (residential)
         load_profile_stock_non_regional.add_load_profile(
@@ -162,7 +162,7 @@ class EnergyModel(object):
                     shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                     enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                    shape_peak_dh=data['ss_shapes_dh']#[sector][enduse]['shape_peak_dh']
+                    shape_peak_dh=data['ss_shapes_dh'][sector][enduse]['shape_peak_dh'] #[sector][enduse] is new
                     )
 
         # dummy is - Flat load profile

@@ -1,7 +1,7 @@
 """Flat shape definition
 """
 import numpy as np
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def generic_flat_shape(shape_peak_yd_factor=1/365):
@@ -24,7 +24,7 @@ def generic_flat_shape(shape_peak_yd_factor=1/365):
         Shape yd for non peak
     """
     # linear shape_peak_dh
-    shape_peak_dh = np.full((24), 1 / 24) #np.ones((24)) / 24
+    shape_peak_dh = np.full((24), 1 / 24)
 
     # linear shape_non_peak_dh
     shape_non_peak_dh = np.zeros((365, 24))
@@ -61,6 +61,6 @@ class genericFlatEnduse(object):
         self.fuel_peak_dh = shape_peak_dh * max_fuel_d[:, np.newaxis]
 
         # h fuel shape per fueltype (peak)
-        self.fuel_peak_h = shape_handling.calk_peak_h_dh(self.fuel_peak_dh)
+        self.fuel_peak_h = load_profile.calk_peak_h_dh(self.fuel_peak_dh)
 
         self.crit_flat_fuel_shape = False

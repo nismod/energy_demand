@@ -5,7 +5,7 @@ import csv
 from datetime import date
 import numpy as np
 from energy_demand.basic import date_handling
-from energy_demand.shape_handling import shape_handling
+from energy_demand.profiles import load_profile
 from energy_demand.initalisations import initialisations as init
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -188,7 +188,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = shape_handling.absolute_to_relative(dh_values) # daily shape
+        load_shape_dh[day] = load_profile.absolute_to_relative(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
