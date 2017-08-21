@@ -16,6 +16,9 @@ https://readthedocs.org/projects/smif/badge/?version=latest$
     :alt: Documentation Status
 
 
+.. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
+    :target: https://travis-ci.org/nismod/energy_demand
+
 A word from our sponsors
 ========================
 
