@@ -213,10 +213,10 @@ class LoadProfile(object):
             return shape_peak_dh
         else:
             return shape_peak_dh
-            #peak_day_nr = self.get_peak_day(self.shape_yh)
+
             #shape_peak_dh = self.shape_y_dh[peak_day_nr]
 
-        return shape_peak_dh
+
         #else:
         #    shape_peak_dh = False
         #    return shape_peak_dh
