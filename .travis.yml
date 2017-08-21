@@ -1,8 +1,19 @@
+sudo: false
 language: python
-python:
-  - "3.6"
-
-# command to install dependencies
-install: "pip install -r requirements.txt"
-# command to run tests
-script: pytest
+virtualenv:
+  system_site_packages: true
+env:
+  matrix:
+  - DISTRIB="conda" PYTHON_VERSION="3.6" COVERAGE="true"
+install:
+- source tests/travis_install.sh
+- pip install git+https://github.com/behave/behave
+- pip install -r test-requirements.txt
+before_script:
+- git config --global user.email "william.usher@ouce.ox.ac.uk"
+- git config --global user.name "Will Usher"
+script:
+- python setup.py develop
+- pytest tests
+after_success:
+- if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi
