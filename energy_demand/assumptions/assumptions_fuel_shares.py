@@ -17,7 +17,7 @@ def get_fuel_stock_definition(assumptions, data):
     assumptions : dict
         Asssumptions
 
-    Info
+    Note
     ----
     - For hybrid technologies, only assign electricity shares. The other repsective fuel share gets calculated in
     the function XY TODO:

@@ -261,7 +261,8 @@ def rs_disaggregate(data, rs_national_fuel):
     -------
     rs_fueldata_disagg : dict
         Disaggregated fuel per enduse for every region (fuel[region][enduse])
-    Info
+
+    Note
     -----
     Used disaggregation factors for residential according to enduse (see Section XY Documentation TODO)
     """

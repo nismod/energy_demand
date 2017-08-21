@@ -78,7 +78,7 @@ def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     current_demand
         Demand of current year considering price elasticity.
 
-    Info
+    Note
     ------
     Price elasticity is defined as follows:
 

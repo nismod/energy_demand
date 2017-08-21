@@ -574,7 +574,7 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
     in service sector. Because no specific shape is provided for service sector,
     the overall enduse shape is used for all technologies
 
-    Info
+    Note
     ----
     The first setor is selected and all shapes of the enduses of this
     sector read out. Because all enduses exist for each sector,
@@ -602,7 +602,7 @@ def load_LAC_geocodes_info():
     Read csv file and create dictionary with 'geo_code'
 
     PROVIDED IN UNIT?? (KWH I guess)
-    Info
+    Note
     -----
     - no LAD without population must be included
     """

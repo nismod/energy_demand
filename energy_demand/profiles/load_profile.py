@@ -239,7 +239,8 @@ class LoadProfile(object):
         -------
         shape_y_dh : array
             Shape for every day
-        Info
+    
+        Note
         ----
         The output gives the shape for every day in a year (total sum == 365)
         Within each day, the sum is 1
@@ -342,7 +343,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     The daily shape is taken for TechA for 0-12 and weighted according to efficency
     Between 12 and Tech A and TechB are taken with 50% shares and weighted with either efficiency
 
-    Info
+    Note
     ----
     In case no fuel is provided for a day 'fuel_shapes_hybrid_y_dh' for this day is zero. Therfore
     the total sum of 'fuel_shapes_hybrid_y_dh not necessarily 365.

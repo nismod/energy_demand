@@ -588,7 +588,7 @@ class EnergyModel(object):
         fuels : array
             Fuels with flat load profile
 
-        Info
+        Note
         -----
         -   For enduses where 'crit_flat_profile' in Enduse Class is True
             a flat load profile is generated. Otherwise, the yh as calculated

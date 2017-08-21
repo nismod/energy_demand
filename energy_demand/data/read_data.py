@@ -119,7 +119,7 @@ def read_csv_dict_no_header(path_to_csv):
         Dictionary with first row element as main key and headers as key for nested dict.
         All entries and main key are returned as float
 
-    Info
+    Note
     -------
     Example:
 

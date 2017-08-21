@@ -131,7 +131,7 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
     hes_y_warmest : array
         HES for warmest day
 
-    Info
+    Note
     ----
         -   As only shapes are generated, the absolute
             values are irrelevant, i.e. the unit of energy

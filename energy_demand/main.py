@@ -62,8 +62,8 @@ def energy_demand_model(data):
         [fuel_type : region : timestep]
     model_run_object : dict
         Object of a yearly model run
-    
-    Info
+
+    Note
     ----
     This function is executed in the wrapper
     """
