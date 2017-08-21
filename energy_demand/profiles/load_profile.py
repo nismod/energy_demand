@@ -30,7 +30,17 @@ class LoadProfileStock(object):
 
         setattr(self, 'enduses_in_stock', all_enduses)
 
-    def add_load_profile(self, unique_identifier, technologies, enduses, sectors=['dummy_sector'], shape_yd=np.zeros((365)), shape_yh=np.zeros((365, 24)), enduse_peak_yd_factor=1/365, shape_peak_dh=np.ones((24))):
+    def add_load_profile(
+            self,
+            unique_identifier,
+            technologies,
+            enduses,
+            sectors=['dummy_sector'],
+            shape_yd=np.zeros((365)),
+            shape_yh=np.zeros((365, 24)),
+            enduse_peak_yd_factor=1/365,
+            shape_peak_dh=np.ones((24)) #None #np.ones((24)) #WHY NOT NONE
+            ):
         """Add load profile to stock
 
         Parameters
@@ -170,19 +180,57 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(self, enduses, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh=np.ones((24))):
+    def __init__(self, enduses, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh):
         """Constructor
         """
+
         self.unique_identifier = unique_identifier
         self.enduses = enduses
 
+        
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
-        self.shape_peak_dh = shape_peak_dh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
         # Calculate percentage for every day
         self.shape_y_dh = self.calc_y_dh_shape_from_yh()
+
+        self.shape_peak_dh = shape_peak_dh #self.calc_peak_dh(shape_peak_dh)
+
+    def calc_peak_dh(self, shape_peak_dh):
+        """If shape of peak dh is not provided explicitly and not flat, set to None
+
+        # TODO :MORE INFO
+        Return
+        ------
+        """
+
+        # If not read from yh fuel in enduse class
+        if np.sum(shape_peak_dh) == 24:
+            # Geat peak from shape
+            shape_peak_dh = None
+            #No shape peak dh defined
+            return shape_peak_dh
+        else:
+            return shape_peak_dh
+            #peak_day_nr = self.get_peak_day(self.shape_yh)
+            #shape_peak_dh = self.shape_y_dh[peak_day_nr]
+
+        return shape_peak_dh
+        #else:
+        #    shape_peak_dh = False
+        #    return shape_peak_dh
+            
+        # If no specific dh shape is provided
+        '''if np.sum(shape_peak_dh) != 24:
+
+            # Peak needs to be read out from yh fuel data in enduse class
+            shape_peak_dh = None
+
+            return shape_peak_dh
+        else:
+            return shape_peak_dh
+        '''
 
     def calc_y_dh_shape_from_yh(self):
         """Calculate shape for every day
@@ -196,16 +244,21 @@ class LoadProfile(object):
         The output gives the shape for every day in a year (total sum == 365)
         Within each day, the sum is 1
         """
-        sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
+        # Calculate even if flat shape is assigned
+        if 1 == 1:
+        #if self.shape_peak_dh is None:
+        #    shape_y_dh = None
+        #else:
+            sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
 
-        # Replace inf by zero
-        sum_every_day_p[np.isinf(sum_every_day_p)] = 0
+            # Replace inf by zero
+            sum_every_day_p[np.isinf(sum_every_day_p)] = 0
 
-        # Multiply (365,) + with (365, 24)
-        shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
+            # Multiply (365,) + with (365, 24)
+            shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
-        # Replace nan by zero (faster than np.nan_to_num)
-        shape_y_dh[np.isnan(shape_y_dh)] = 0
+            # Replace nan by zero (faster than np.nan_to_num)
+            shape_y_dh[np.isnan(shape_y_dh)] = 0
 
         return shape_y_dh
 
