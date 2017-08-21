@@ -93,8 +93,8 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     cy_p : float
         The fraction of the diffusion in the current year
 
-    Infos
-    -------
+    Note
+    ----
     It is always assuemed that for the simulation year the share is
     replaced with technologies having the efficencies of the current year. For technologies
     which get replaced fast (e.g. lightbulb) this is corret assumption, for longer lasting
@@ -137,7 +137,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     popt : dict
         Fitting parameters
 
-    Info
+    Note
     ----
     The Sigmoid is substacted - 2000 to allow for better fit with low values
 
@@ -176,7 +176,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     data : dict
         Data dictionary containing all calculated parameters in assumptions
 
-    Info
+    Note
     ----
     It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
     """

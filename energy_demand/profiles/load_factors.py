@@ -20,10 +20,10 @@ def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
     load_factor_h : array
         Array with load factor for every fuel type [in %]
 
-    Info
+    Note
     -----
     Load factor = average load / maximum load in given time period
-    Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+    https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     load_factor_h = np.zeros((data['nr_of_fueltypes']))
 
@@ -56,11 +56,11 @@ def load_factor_d_non_peak(self, data):
     lf_d : array
             Array with load factor for every fuel type in %
 
-    Info
+    Note
     -----
     Load factor = average load / maximum load in given time period
 
-    Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+    https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     lf_d = np.zeros((data['nr_of_fueltypes']))
 
@@ -87,11 +87,11 @@ def load_factor_h_non_peak(self, data):
     load_factor_h : array
         Array with load factor for every fuel type [in %]
 
-    Info
+    Note
     -----
     Load factor = average load / maximum load in given time period
 
-    Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+    https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     load_factor_h = np.zeros((data['nr_of_fueltypes'], 1)) # Initialise array to store fuel
 
@@ -129,11 +129,11 @@ def load_factor_d(self, data):
     lf_d : array
             Array with load factor for every fuel type in %
 
-    Info
+    Note
     -----
-    Load factor = average load / maximum load in given time period
+    - Load factor = average load / maximum load in given time period
 
-    Info: https://en.wikipedia.org/wiki/Load_factor_(electrical)
+    - https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     lf_d = np.zeros((data['nr_of_fueltypes']))
 

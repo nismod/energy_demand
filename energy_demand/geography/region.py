@@ -14,7 +14,7 @@ class Region(object):
     data : dict
         Dictionary containing data
 
-    Info
+    Note
     -------------------------
     - For each region_name, a technology stock is defined with help of regional temperature data technology specific
     - regional specific fuel shapes are assigned to technologies

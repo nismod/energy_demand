@@ -148,7 +148,7 @@ class Technology(object):
         temp_cy : array
             Temperatures of current year
         
-        Info
+        Note
         -----
         - dummy_tech explanation TODO
         """
@@ -259,7 +259,7 @@ class HybridTechnology(object):
     enduse : TODO
 
 
-    Info
+    Note
     -----
     - The higher temperature technology is always an electric heat pump
     - The lower temperature (used for peak)
@@ -379,7 +379,7 @@ class HybridTechnology(object):
         eff_hybrid_yh : array
             Efficiency of hybrid technology
 
-        Info
+        Note
         -----
         It is assumed that the temperature operating at higher temperatures is a heat pump
         """
@@ -405,7 +405,7 @@ class HybridTechnology(object):
         fueltypes_yh : array (fueltpes, days, hours)
             The share of fuel given for the fueltypes
 
-        Info
+        Note
         -----
             -   The distribution to different fueltypes is only valid within an hour,
                 i.e. the fuel is not distributed across the day. This means that within

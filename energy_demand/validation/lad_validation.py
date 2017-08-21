@@ -18,7 +18,7 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     model_run_object : object
         Model run results
 
-    Info
+    Note
     -----
     SOURCE OF LADS:
     """

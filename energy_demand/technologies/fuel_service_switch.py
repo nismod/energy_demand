@@ -35,7 +35,7 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     assumptions : dict
         assumptions
 
-    Info
+    Note
     -----
     tech_increased_service : dict
         Technologies with increased future service

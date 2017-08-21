@@ -22,7 +22,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value):
     temp_stations : dict
         Contains temperature data (e.g. {'station_id: np.array((yeardays, 24))})
 
-    Info
+    Note
     ----
     The data are obtained from the Centre for Environmental Data Analysis
 

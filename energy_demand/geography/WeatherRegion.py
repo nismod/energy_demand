@@ -21,7 +21,7 @@ class WeatherRegion(object):
     data : dict
         Dictionary containing data
 
-    Info
+    Note
     -------------------------
     - For each region_name, a technology stock is defined with help of regional temperature data technology specific
     - regional specific fuel shapes are assigned to technologies
@@ -384,7 +384,7 @@ class WeatherRegion(object):
         max_factor_yd : float
             yd maximum factor
 
-        Info
+        Note
         -----
         If the shape is taken from heat and cooling demand the assumption is made that
         HDD and CDD are directly proportional to fuel usage
@@ -415,7 +415,8 @@ class WeatherRegion(object):
             Daily shape how yearly fuel can be distributed to hourly
         shape_y_dh : array
             Shape of fuel shape for every day in a year (total sum = 365)
-        Info
+
+        Note
         ----
         The service is calculated based on the efficiency of gas heat pumps (av_heat_pump_gas)
 
@@ -490,7 +491,7 @@ class WeatherRegion(object):
         shape_yd_cooling_tech : array
             Shape of cooling devices
 
-        Info
+        Note
         ----
         Furthermore the assumption is made that the shape is the same for all fueltypes.
 
@@ -551,7 +552,7 @@ class WeatherRegion(object):
         shape_boilers_y_dh : array
             Shape of distribution of fuel within every day of a year (total sum == 365)
 
-        Info
+        Note
         ----
         The assumption is made that boilers have constant efficiency for every hour in a year.
         Therefore the fuel demand correlates directly with the heat service demand.

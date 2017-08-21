@@ -29,7 +29,7 @@ class Dwelling(object):
     hdd : float
         Heating degree days
 
-    Info
+    Note
     -----
     Depending on service or residential model, not all attributes are filled (then they are inistialised as None or zero)
 

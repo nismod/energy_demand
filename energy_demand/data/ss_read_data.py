@@ -31,7 +31,7 @@ def read_raw_carbon_trust_data(folder_path):
     -------
 
 
-    Info
+    Note
     -----
     A. Get gas peak day load shape (the max daily demand can be taken from weather data, the daily shape however is not provided by samson)
         I. Iterate individual files which are about a year (even though gaps exist)

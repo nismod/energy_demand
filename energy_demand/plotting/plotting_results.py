@@ -60,7 +60,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
 def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
-    Info
+    Note
     ----
         -   Sum across all fueltypes
 

@@ -46,7 +46,7 @@ def get_month_from_string(month_string):
 def read_raw_elec_2015_data(path_to_csv):
     """Read in national electricity values provided in MW and convert to GWh
 
-    Info
+    Note
     -----
     Half hourly measurements are aggregated to hourly values
 
@@ -105,7 +105,7 @@ def read_raw_elec_2015_data(path_to_csv):
 def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
     """Compare national electrictiy demand data with model results
 
-    Info
+    Note
     ----
     RMSE fit criteria : Lower values of RMSE indicate better fit
     https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python

@@ -66,7 +66,7 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     cdd_d : array
         Contains all CDD for every day in a year (365, 1)
 
-    Info
+    Note
     -----
     For more info see Formual 2.1: Degree-days: theory and application
 
@@ -226,7 +226,7 @@ def get_reg_hdd(temperatures, t_base_heating):
     hdd_d : array
         Heating degree days for every day in a year (365, 1)
 
-    Info
+    Note
     -----
     The shape_yd can be calcuated as follows: 1/ np.sum(hdd_d) * hdd_d
 
