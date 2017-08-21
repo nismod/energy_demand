@@ -1,7 +1,7 @@
 """Dummy technologies
 """
 
-def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse_by, fuel_tech_p_by):
+def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse_by):
     """Define dummy technologies
 
     Where no specific technologies are assigned for an enduse
@@ -32,7 +32,8 @@ def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:
 
-            # TODO write explicit in assumptions: Test if any fueltype is specified with a technology. If yes, do not insert dummy technologies
+            # TODO write explicit in assumptions: Test if any fueltype is specified with a technology. 
+            # If yes, do not insert dummy technologies
             # because in the fuel definition all technologies of all endueses need to be defined
             crit_tech_defined_in_enduse = False
             all_defined_tech_in_fueltype = tech_p_by[end_use].values()

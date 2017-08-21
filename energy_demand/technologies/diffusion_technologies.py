@@ -12,8 +12,6 @@ from energy_demand.plotting import plotting_program as plotting
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
 
-    All necessary data to run energy demand model is loaded.
-    This data is loaded in the wrapper.
     Parameters
     ----------
     base_yr : int
@@ -105,9 +103,8 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """
     if curr_yr == base_yr:
         return 0
-
-    if curr_yr == end_yr:
-        return 1 # 100 % diffusion
+    elif curr_yr == end_yr:
+        return 1
     else:
         # Translates simulation year on the sigmoid graph reaching from -6 to +6 (x-value)
         if end_yr == base_yr:
@@ -142,7 +139,6 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     The Sigmoid is substacted - 2000 to allow for better fit with low values
 
     RuntimeWarning is ignored
-
     """
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
@@ -164,10 +160,22 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
         Data
     service_switches : dict
         Service switches
-    fuel_swithes : dict
+    fuel_switches : dict
         Fuel switches
     enduses : list
         Enduses
+    tech_increased_service : list
+        Technologies with increased service
+    share_service_tech_ey_p : dict
+        Fraction of service in end year
+    enduse_tech_maxl_by_p :
+
+    service_fueltype_by_p :
+
+    service_tech_by_p :
+
+    fuel_tech_p_by :
+
     fuels : array
         Fuels
 
@@ -183,12 +191,11 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     # Test is Service Switch is implemented
     if len(service_switches) > 0:
         crit_switch_service = True
-        print("...crit_switch_service  " + str(crit_switch_service))
+        #print("...crit_switch_service  " + str(crit_switch_service))
     else:
         crit_switch_service = False
 
-    installed_tech = {}
-    sig_param_tech = {}
+    installed_tech, sig_param_tech = {}, {}
 
     for enduse in enduses:
         if crit_switch_service: # Sigmoid calculation in case of 'service switch'
@@ -327,20 +334,16 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
     Notes
     -----
-    NTH: improve fitting
+    TODO: improve fitting
 
     Manually the fitting parameters can be defined which are not considered as
     a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
-
     """
     sigmoid_parameters = {}
 
-    #-----------------
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
-    #-----------------
-    fit_crit_a = 200
-    fit_crit_b = 0.001
+    fit_crit_a, fit_crit_b = 200, 0.001
 
     if installed_tech[enduse] == []:
         print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
@@ -491,18 +494,16 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
         Fuel switches
     service_fueltype_p : dict
         Service demand per fueltype
-    fuel_tech_p_by : dict
-        Technologies in base year
     service_tech_by_p : dict
         Percentage of service demand per technology for base year
-    tech_fueltype_by : dict
-        Technology stock
+    fuel_tech_p_by : dict
+        Technologies in base year
     fuel_tech_p_by : dict
         Fuel shares for each technology of an enduse
     installed_tech_switches : dict
         Technologies which are installed in fuel switches
-    maximum_switch : crit
-        Wheater this function is executed with the switched fuel share or the maximum switchable fuel share
+    switch_type :
+
 
     Return
     ------
@@ -530,11 +531,13 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
                     # Service demand per fueltype that will be switched
                     if switch_type == 'max_switch':
-                        change_service_fueltype_p = orig_service_p * fuel_switch['max_theoretical_switch'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        change_service_fueltype_p = orig_service_p * fuel_switch['max_theoretical_switch']
                     elif switch_type == 'actual_switch':
-                        change_service_fueltype_p = orig_service_p * fuel_switch['share_fuel_consumption_switched'] # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        change_service_fueltype_p = orig_service_p * fuel_switch['share_fuel_consumption_switched']
 
-                    # ---SERVICE DEMAND ADDITION
+                    # ---Service addition
                     service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
 
                     # Get all technologies which are replaced related to this fueltype

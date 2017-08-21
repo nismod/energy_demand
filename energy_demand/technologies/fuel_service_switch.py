@@ -1,7 +1,6 @@
 """Function related to service or fuel switch
 """
 import numpy as np
-from energy_demand.profiles import load_profile
 from energy_demand.initalisations import initialisations as init
 from energy_demand.technologies import technologies_related
 
@@ -89,10 +88,10 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     Returns
     -------
-    rel_share_service_tech_decrease_by : dict
+    rel_share_service_tech_decr_by : dict
         Relative share of service of replaced technologies
     """
-    rel_share_service_tech_decrease_by = {}
+    rel_share_service_tech_decr_by = {}
 
     # Summed share of all diminishing technologies
     sum_service_tech_decrease_p = 0
@@ -101,9 +100,9 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     # Relative of each diminishing tech
     for tech in tech_decreased_share:
-        rel_share_service_tech_decrease_by[tech] = (1 / sum_service_tech_decrease_p) * service_tech_by_p[tech]
+        rel_share_service_tech_decr_by[tech] = (1 / sum_service_tech_decrease_p) * service_tech_by_p[tech]
 
-    return rel_share_service_tech_decrease_by
+    return rel_share_service_tech_decr_by
 
 def get_service_fueltype_tech(assumptions, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
