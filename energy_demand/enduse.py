@@ -17,10 +17,19 @@ from energy_demand.profiles import generic_shapes as generic_shapes
 '''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class Enduse(object):
-    """Class of an end use
+    """Enduse Class (Residential, Service and Industry)
 
     For every region and sector, a different instance
-    is generated.
+    is generated. In this class, first the change in 
+    energy demand is calculated on a yearls temporal scale.
+    Calculations are performed in a cascade (e.g. first
+    reducing climate change induced savings, then substracting
+    further behavioural savings etc.). After yearly calculations,
+    the demand is converted to hourly demand.
+
+    Also within this function, the fuel inputs are converted
+    to energy service (short: service) and later on
+    converted back to fuel demand.
 
     Parameters
     ----------
@@ -69,15 +78,16 @@ class Enduse(object):
 
     Note
     ----
-    - The load profiles are assigned independently of the fueltype
+    - Load profiles are assigned independently of the fueltype, i.e.
+    the same profiles are assumed to hold true across different fueltypes
 
-    - `self.fuel_new_y` is always overwritten in the cascade of fuel calculations
+    - `self.fuel_new_y` is always overwritten in the cascade of calculations
 
     Warning
     -------
-    Not all enduses have technologies assigned. Therfore peaks are derived
-    from techstock in case there are technologies, otherwise enduse load shapes
-    are used.
+    Not all enduses have technologies assigned. Load peaks are derived
+    from techstock in case technologies are defined. Otherwise enduse load
+    profiles are used.
     """
     def __init__(
             self,
@@ -109,8 +119,9 @@ class Enduse(object):
         self.enduse = enduse
         self.sector = sector
         self.fuel_new_y = np.copy(fuel)
+        #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
 
-        # If enduse has no fuel create empty shapes
+        # If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.crit_flat_profile = False
             self.fuel_y = np.zeros((fuel.shape[0]))
@@ -118,13 +129,16 @@ class Enduse(object):
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
             self.fuel_peak_h = 0
         else:
-
+            
+            # -----------------------------------------------------------------
+            # Get correct parameters depending on configuration
+            # -----------------------------------------------------------------
             # Get regional or non-regional load profile data
             load_profiles = self.get_load_profile_stock(
                 data['non_regional_profile_stock'],
                 regional_profile_stock)
 
-            #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
+            # Get mode
             mode_constrained = self.get_running_mode(
                 data['mode_constrained'],
                 data['assumptions']['enduse_space_heating'])
@@ -140,7 +154,7 @@ class Enduse(object):
                 )
 
             # -------------------------------
-            # Yearly fuel calculation cascade
+            # Cascade of calculations on a yearly scale
             # --------------------------------
             #print("Fuel train A: " + str(np.sum(self.fuel_new_y)))
             #testsumme = np.sum(self.fuel_new_y[2])
@@ -148,26 +162,41 @@ class Enduse(object):
             # -------------------------------------------------------------------------------
             # Change fuel consumption based on climate change induced temperature differences
             # -------------------------------------------------------------------------------
-            self.apply_climate_change(cooling_factor_y, heating_factor_y, data['assumptions'])
+            self.apply_climate_change(
+                cooling_factor_y,
+                heating_factor_y,
+                data['assumptions']
+                )
             #print("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Change fuel consumption based on smart meter induced general savings
             # -------------------------------------------------------------------------------
-            self.apply_smart_metering(data['assumptions'], data['sim_param'])
+            self.apply_smart_metering(
+                data['assumptions'],
+                data['sim_param']
+                )
             #print("Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
-            # Enduse specific consumption change in % (due e.g. to other efficiciency gains).
+            # Enduse specific consumption change in %
             # -------------------------------------------------------------------------------
-            self.apply_specific_change(data['assumptions'], enduse_overall_change_ey, data['sim_param'])
+            self.apply_specific_change(
+                data['assumptions'],
+                enduse_overall_change_ey,
+                data['sim_param'])
             #print("Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Calculate new fuel demands after scenario drivers
             # -------------------------------------------------------------------------------
-            self.apply_scenario_drivers(dw_stock, region_name, data['driver_data'], reg_scenario_drivers, data['sim_param'])
-
+            self.apply_scenario_drivers(
+                dw_stock,
+                region_name,
+                data['driver_data'],
+                reg_scenario_drivers,
+                data['sim_param']
+                )
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -179,8 +208,7 @@ class Enduse(object):
                 No switches can be implemented and only overall change of enduse.
                 """
                 #TODO :WHAT IF version_unconstrained and no technologies assgined?
-                # Criteria if flat shape (Yes/No). If flat shape, do not store shape,
-                # but only calculated if shape is requiested
+                # If flat shape, do not store flat shape explicitly for all hours
                 if crit_flat_profile:
                     self.crit_flat_profile = True
                     self.fuel_y = self.fuel_new_y
@@ -188,18 +216,23 @@ class Enduse(object):
                     self.crit_flat_profile = False
 
                     # --fuel_yh
-                    self.fuel_yh = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'shape_yh') * self.fuel_new_y[:, np.newaxis, np.newaxis]
+                    self.fuel_yh = load_profiles.get_load_profile(
+                        self.enduse,
+                        self.sector,
+                        'dummy_tech',
+                        'shape_yh') * self.fuel_new_y[:, np.newaxis, np.newaxis]
 
                     # --shape_peak_dh
-                    shape_peak_dh = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'shape_peak_dh')
+                    shape_peak_dh = load_profiles.get_load_profile(
+                        self.enduse,
+                        self.sector,
+                        'dummy_tech',
+                        'shape_peak_dh'
+                        )
 
                     if shape_peak_dh == None:
-                        try:
-                            shape_peak_dh = data['shapes_resid_dh'][enduse]['shape_peak_dh']
-
-                        except:
-                            peak_day = self.get_peak_day(self.fuel_yh)
-                            shape_peak_dh = load_profile.absolute_to_relative(self.fuel_yh[:, peak_day, :])
+                        peak_day = self.get_peak_day(self.fuel_yh)
+                        shape_peak_dh = load_profile.absolute_to_relative(self.fuel_yh[:, peak_day, :])
 
                     enduse_peak_yd_factor = load_profiles.get_load_profile(self.enduse, self.sector, 'dummy_tech', 'enduse_peak_yd_factor')
 
@@ -729,6 +762,8 @@ class Enduse(object):
         # Sum fuel within every hour for every day and get day with maximum fuel
         peak_day_nr = np.argmax(np.sum(all_fueltypes_tot_h, axis=1))
 
+        #shape_peak_dh = load_profile.absolute_to_relative(self.fuel_yh[:, peak_day, :])
+
         return peak_day_nr
 
     def get_enduse_tech(self, fuel_tech_p_by):
@@ -935,6 +970,10 @@ class Enduse(object):
         for tech in self.enduse_techs:
             #print("TECH ENDUSE    {}   {}".format(tech, self.enduse))
 
+            # -----IF crit_read_peak_from_yh=False,
+
+            # -----new
+
             # Calculate absolute fuel values for yd (multiply fuel with yd_shape) #could as well be calculted with a function in profile TODO:
             fuel_tech_y_d = enduse_fuel_tech[tech] * load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_yd')
 
@@ -948,6 +987,7 @@ class Enduse(object):
                 # Therfore, the shape_yh is read in and with help of information on peak day the hybrid dh shape generated
                 tech_peak_dh = load_profile.get_load_profile(self.enduse, self.sector, tech, 'shape_y_dh')[peak_day_nr]
             else:
+                print("GRUND")
                 # Calculate fuel for peak day
                 fuel_tech_peak_d = np.sum(enduse_fuel_tech[tech]) * load_profile.get_load_profile(self.enduse, self.sector, tech, 'enduse_peak_yd_factor')
 
@@ -955,6 +995,7 @@ class Enduse(object):
                 tech_peak_dh = load_profile.get_shape_peak_dh(self.enduse, self.sector, tech)
 
             # Multiply absolute d fuels with dh peak fuel shape
+            print("tech_peak_dh:  " + str(tech_peak_dh))
             fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
 
             # Get fueltypes (distribution) of tech for peak day

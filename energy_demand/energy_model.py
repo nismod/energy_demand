@@ -136,10 +136,9 @@ class EnergyModel(object):
             shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
 
-        # -- dummy rs technologies
+        # -- dummy rs technologies (apply enduse sepcific shape)
         for enduse in data['assumptions']['rs_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
-            print("dd" + str(enduse))
             non_regional_profile_stock.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
