@@ -24,8 +24,6 @@ More information can be found here:
     - Eggimann et al. (2018): Paper blablabla
 
 '''
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-#!python3.6
 import os
 import sys
 from datetime import date
@@ -46,7 +44,8 @@ from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 print("Start Energy Demand Model with python version: " + str(sys.version))
-
+# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+#!python3.6
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 
