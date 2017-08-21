@@ -21,7 +21,7 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-### 1.1 Core concept 1
+### 1.1 Energy demand simulation
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 
