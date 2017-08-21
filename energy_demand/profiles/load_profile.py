@@ -195,42 +195,7 @@ class LoadProfile(object):
         # Calculate percentage for every day
         self.shape_y_dh = self.calc_y_dh_shape_from_yh()
 
-        self.shape_peak_dh = shape_peak_dh #self.calc_peak_dh(shape_peak_dh)
-
-    def calc_peak_dh(self, shape_peak_dh):
-        """If shape of peak dh is not provided explicitly and not flat, set to None
-
-        # TODO :MORE INFO
-        Return
-        ------
-        """
-
-        # If not read from yh fuel in enduse class
-        if np.sum(shape_peak_dh) == 24:
-            # Geat peak from shape
-            shape_peak_dh = None
-            #No shape peak dh defined
-            return shape_peak_dh
-        else:
-            return shape_peak_dh
-
-            #shape_peak_dh = self.shape_y_dh[peak_day_nr]
-
-
-        #else:
-        #    shape_peak_dh = False
-        #    return shape_peak_dh
-            
-        # If no specific dh shape is provided
-        '''if np.sum(shape_peak_dh) != 24:
-
-            # Peak needs to be read out from yh fuel data in enduse class
-            shape_peak_dh = None
-
-            return shape_peak_dh
-        else:
-            return shape_peak_dh
-        '''
+        self.shape_peak_dh = shape_peak_dh
 
     def calc_y_dh_shape_from_yh(self):
         """Calculate shape for every day
@@ -239,32 +204,38 @@ class LoadProfile(object):
         -------
         shape_y_dh : array
             Shape for every day
-    
+
         Note
         ----
         The output gives the shape for every day in a year (total sum == 365)
         Within each day, the sum is 1
         """
         # Calculate even if flat shape is assigned
-        if 1 == 1:
-        #if self.shape_peak_dh is None:
-        #    shape_y_dh = None
-        #else:
-            sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
+        sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
 
-            # Replace inf by zero
-            sum_every_day_p[np.isinf(sum_every_day_p)] = 0
+        # Replace inf by zero
+        sum_every_day_p[np.isinf(sum_every_day_p)] = 0
 
-            # Multiply (365,) + with (365, 24)
-            shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
+        # Multiply (365,) + with (365, 24)
+        shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
-            # Replace nan by zero (faster than np.nan_to_num)
-            shape_y_dh[np.isnan(shape_y_dh)] = 0
+        # Replace nan by zero (faster than np.nan_to_num)
+        shape_y_dh[np.isnan(shape_y_dh)] = 0
 
         return shape_y_dh
 
 def absolute_to_relative_without_nan(absolute_array):
     """Convert absolute to relative (without correcting the NaN values)
+
+    Parameters
+    ----------
+    absolute_array : array
+        Input array with absolute numbers
+
+    Returns
+    -------
+    absolute_array : array
+        Array with relative numbers
     """
     try:
         return (1 / np.sum(absolute_array)) * absolute_array
@@ -273,8 +244,6 @@ def absolute_to_relative_without_nan(absolute_array):
 
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative
-
-    If the total sum is zero, return an array with zeros and raise a warning
 
     Parameters
     ----------
@@ -285,6 +254,10 @@ def absolute_to_relative(absolute_array):
     -------
     relative_array : array
         Contains relative numbers
+
+    Note
+    ----
+    - If the total sum is zero, return an array with zeros and raise a warning
     """
     try:
         relative_array = (1 / np.sum(absolute_array)) * absolute_array
