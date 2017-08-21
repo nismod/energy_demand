@@ -1,4 +1,5 @@
 """The technological stock for every simulation year"""
+import sys
 import numpy as np
 from energy_demand.technologies import technologies_related
 from energy_demand.profiles import load_profile
@@ -37,6 +38,14 @@ class TechStock(object):
             potential_enduses,
             enduse_technologies
             )
+
+    def get_attribute_tech_stock(self, technology, enduse, attribute_to_get):
+        
+        tech_obj = self.stock_technologies[(technology, enduse)]
+        
+        if attribute_to_get == 'tech_type':
+            return tech_obj.tech_type
+    
 
     @classmethod
     def create_tech_stock(cls, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, enduses, technologies):
@@ -145,8 +154,10 @@ class Technology(object):
         """
         if tech_name == 'dummy_tech':
             self.tech_name = tech_name
+            self.tech_type = tech_type
         else:
             self.tech_name = tech_name
+            self.tech_type = tech_type
             self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
             self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
             self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
@@ -258,7 +269,7 @@ class HybridTechnology(object):
         """
         self.enduse = enduse
         self.tech_name = tech_name
-
+        self.tech_type = 'hybrid'
         self.tech_low_temp = data['assumptions']['technologies'][tech_name]['tech_low_temp']
         self.tech_high_temp = data['assumptions']['technologies'][tech_name]['tech_high_temp']
 

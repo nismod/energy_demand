@@ -166,7 +166,7 @@ def load_assumptions(data):
     assumptions['smart_meter_p_ey'] = 0.1
 
     # Long term smart meter induced general savings, purley as a result of having a smart meter
-    assumptions['general_savings_smart_meter'] = {
+    assumptions['savings_smart_meter'] = {
 
         # Residential
         'rs_cold': -0.03,
