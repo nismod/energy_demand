@@ -3,7 +3,7 @@ Energy Demand Model
 =================
 
 Contains all calculation steps necessary to run the 
-energy demand module.
+energy demand module. 
 
 The docs can be found here: http://ed.readthedocs.io
 
