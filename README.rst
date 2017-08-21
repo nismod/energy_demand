@@ -3,7 +3,11 @@
 ====
 High Resolution Energy Demand Model
 ====
+**HIRE** is written in Python (Python>=3.6).
 
+.. image:: https://readthedocs.org/projects/smif/badge/?version=latest
+    :target: http://ed.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 SUBBILBE
 
@@ -17,11 +21,7 @@ Description
 BLABLABLA
 
     # THIS IS NOW IN A GREY BOX
-    
-HIRE
-=======================
 
-**HIRE** is written in Python (Python>=3.6).
 
 -----------------
 # H1
