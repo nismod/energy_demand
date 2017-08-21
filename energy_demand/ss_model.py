@@ -1,4 +1,7 @@
-"""Service Submodel
+"""
+Service Submodel
+====================
+
 """
 import energy_demand.enduse as endusefunctions
 
@@ -30,9 +33,21 @@ class ServiceModel(object):
 
     def create_enduse(self, region_object, data):
         """Create enduse for service sector
+
+        Parameters
+        ----------
+        region_object : object
+            Region
+        data : dict
+            Data container
+
+        Returns
+        -------
+        enduse_object : dict
+            Object of an enduse
         """
         # Add enduse to ServiceSector
-        service_object = endusefunctions.Enduse(
+        enduse_object = endusefunctions.Enduse(
             region_name=self.region_name,
             data=data,
             enduse=self.enduse,
@@ -54,4 +69,4 @@ class ServiceModel(object):
             dw_stock=data['ss_dw_stock']
         )
 
-        return service_object
+        return enduse_object

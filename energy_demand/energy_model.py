@@ -1,8 +1,7 @@
 """Energy Model
 ==============
 
-The main function executing all the submodels of the
-energy demand model
+The main function executing all the submodels of the energy demand model
 """
 import uuid
 import numpy as np
