@@ -1,7 +1,7 @@
 """
 
 Residential Submodel
---------------------
+====================
 
 The residential submodule models energy demand
 for the residential sector.
@@ -38,6 +38,18 @@ class ResidentialModel(object):
 
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
+
+        Parameters
+        ----------
+        region_object : object
+            Region
+        data : dict
+            Data container
+
+        Returns
+        -------
+        enduse_object : dict
+            Object of an enduse
         """
         enduse_object = endusefunctions.Enduse(
             region_name=self.region_name,

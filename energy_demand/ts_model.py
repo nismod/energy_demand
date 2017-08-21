@@ -1,4 +1,8 @@
-"""Dummy transportation model
+"""
+
+Transportation Submodel
+====================
+
 """
 from energy_demand.profiles import generic_shapes
 

@@ -4,18 +4,12 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 
 def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
-    """Calculate efficiency according to temperatur difference of base year
-
-    For every hour the temperature difference is calculated
-    and the efficiency of the heat pump calculated
-    based on efficiency assumptions
+    """Calculate efficiency according to temperature difference of base year
 
     Parameters
     ----------
     temp_yr : array
         Temperatures for every hour in a year (365, 24)
-    m_slope : float
-        Slope of efficiency of heat pump for different temperatures
     efficiency_intersect : float
         Y-value (Efficiency) at 10 degree difference
     t_base_heating : float
@@ -23,15 +17,17 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
 
     Return
     ------
-    eff_hp_yh : array (365, 24)
-        Efficiency for every hour in a year
+    eff_hp_yh : array
+        Efficiency for every hour in a year  (365, 24)
 
-    Info
+    Note
     -----
-    The efficiency assumptions of the heat pump are taken from Staffell et al. (2012).
+    - For every hour the temperature difference is calculated  and the efficiency
+      of the heat pump calculated based on efficiency assumptions
+    - The efficiency assumptions of the heat pump are taken from Staffell et al. (2012).
 
-    Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
-    Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
+      Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
+      Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
 
     # Calculate temperature difference to t_base_heating
@@ -47,20 +43,22 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     Parameters
     ----------
+    temp_diff: array
+        Temperature difference
+    efficiency_intersect : float,default=-0.08
+        Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
+    m_slope : float, default=10
+        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012),
     h_diff : float
         Temperature difference
-    efficiency_intersect : float
-        Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
-    m_slope : float
-        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012),
 
-    Returns
-    -------
-    efficiency_hp : float
+    Return
+    ------
+    efficiency_hp : array
         Efficiency of heat pump
 
-    Notes
-    -----
+    Note
+    ----
     Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
     be calculated based on slope and intersect which is provided as input for temp difference 10
     and treated as efficiency
@@ -122,7 +120,7 @@ def get_fueltype_int(fueltype_lu, fueltype_string):
     ------
     fueltype_lu : dict
         Fueltype lookup dictionary
-    fueltype_nr : int
+    fueltype_string : int
         Key which is to be found in lookup dict
 
     Returns
@@ -134,9 +132,6 @@ def get_fueltype_int(fueltype_lu, fueltype_string):
 
 def get_tech_type(tech_name, technology_list):
     """Get technology type of technology
-
-    Either a technology is a hybrid technology, a heat pump,
-    a constant heating technology or a regular technolgy
 
     Parameters
     ----------
@@ -150,6 +145,11 @@ def get_tech_type(tech_name, technology_list):
     ------
     tech_type : string
         Technology type
+    
+    Note
+    -----
+    -  Either a technology is a hybrid technology, a heat pump,
+       a constant heating technology or a regular technolgy
     """
     if tech_name in technology_list['tech_heating_hybrid']:
         tech_type = 'hybrid_tech'
@@ -169,7 +169,7 @@ def get_tech_type(tech_name, technology_list):
     return tech_type
 
 def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, heat_pump_assump):
-    """Delete all heat_pump from tech dict and define averaged new heat pump
+    """Delete all heat_pump from tech dict, define average new heat pump
     technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
 
     Parameters
@@ -179,22 +179,20 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
     technologies : dict
         Technologies
     heat_pump_assump : dict
-        The split of the ASHP and GSHP is provided
+        The split of the ASHP and GSHP
 
     Returns
     -------
     technologies : dict
         Technologies with added averaged heat pump technologies for every fueltype
-
     temp_dependent_tech_list : list
         List with added temperature dependent technologies
 
-    Info
+    Note
     ----
-    # Assumptions:
     - Market Entry of different technologies must be the same year!
       (the lowest is selected if different years)
-    - diff method is linear
+    - Diff method is linear
     """
     heat_pumps = []
 
@@ -221,7 +219,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         # Add average 'av_heat_pumps' to technology dict
         name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lu_fueltype'], fueltype)))
 
-        print("...create new averaged heat pump technology: " + str(name_av_hp))
+        #print("...create new averaged heat pump technology: " + str(name_av_hp))
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
@@ -237,9 +235,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
         heat_pumps.append(name_av_hp)
 
-    # -----------------------------------
     # Remove all heat pumps from tech dict
-    # -----------------------------------
     for fueltype in heat_pump_assump:
         for heat_pump_type in heat_pump_assump[fueltype]:
             del technologies[heat_pump_type]
@@ -251,18 +247,29 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 
     Parameters
     ----------
-    data : dict
-        All internal and external provided data
+    eff_by : array
+        Efficiency of current year
+    technology :
+    base_sim_param : dict
+        Base simulation parameters
+    assumptions : dict
+        Assumptions
+    eff_achieved_factor : dict
+        Efficiency achievement factor (how much of the efficiency is achieved)
+    diff_method : str
+        Diffusion method
 
     Returns
     -------
     eff_cy : array
-        Array with hourly efficiency over full year
+        Array with hourly efficiency of current year
 
     Notes
     -----
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
+
+    TODO: TODO: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
@@ -275,7 +282,6 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
         )
     elif diff_method == 'sigmoid':
 
-        #TODO: Generate two types of sigmoid (convex & concav)
         theor_max_eff = diffusion.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
@@ -287,7 +293,8 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
     actual_max_eff = theor_max_eff * eff_achieved_factor
 
     # Differencey in efficiency change
-    efficiency_change = actual_max_eff * (assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
+    efficiency_change = actual_max_eff * (
+        assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
 
     # Actual efficiency potential
     eff_cy = eff_by + efficiency_change
@@ -297,20 +304,39 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
     """All hybrid technologies and their charactersitics are defined
 
-    The low and high temperature technology is defined, whereby the high temperature technology
-    must be a heatpump.
+    Parameters
+    ----------
+    assumptions : dict
+        Assumptions
+    technologies : dict
+        Technologies
+    hybrid_cutoff_temp_low : float
+        Temperature below which 100% of service is provided by
+        low temperature technology (typically heat pump)
+    hybrid_cutoff_temp_high : float
+        Temperature above which 100% of service is provided by high
+        temperature technology (typically boiler)
 
-    Cut off temperatures can be defined to change the share of service for each
-    technology at a given temperature (see doumentation for more information)
-
-    So far, the standard heat pump is only electricity. Can be changed however
-    #TODO: DEFINE WITH REAL VALUES
-
-    #Assumption on share of service provided by lower temperature technology on a national scale in by
-
-    Notes
+    Return
     ------
+    technologies : dict
+        Technologies
+    hybrid_technologies : list
+        Name of hybrid technologies
+    hybrid_tech : dict
+        Definition of hybrid technologies
 
+    Note
+    ----
+    - The low and high temperature technology is defined, whereby the high temperature technology
+      must be a heatpump.
+
+    - Cut off temperatures can be defined to change the share of service for each
+      technology at a given temperature (see doumentation for more information)
+
+    - So far, the standard heat pump is only electricity. Can be changed however
+
+    #TODO: DEFINE WITH REAL VALUES
     """
     hybrid_tech = {
         'hybrid_gas_electricity': {
@@ -357,8 +383,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff
     # Add hybrid technologies to technological stock and define other attributes
     for tech_name, tech in hybrid_tech.items():
 
-        print("Add hybrid technology to technology stock {}".format(tech_name))
-        # Add other technology attributes
+        #print("Add hybrid technology to technology stock {}".format(tech_name))
         technologies[tech_name] = tech
         technologies[tech_name]['eff_achieved'] = 1
         technologies[tech_name]['diff_method'] = 'linear'
@@ -389,10 +414,9 @@ def generate_ashp_gshp_split(split_factor, data):
     installed_heat_pump : dict
         Ditionary with split of heat pumps for every fueltype
 
-    Info
+    Note
     -----
-    The heat pump technologies need to be defined.
-
+    The heat pump technologies need to be defined in ``get_all_defined_hybrid_technologies``
     """
     ashp_fraction = split_factor
     gshp_fraction = 1 - split_factor
@@ -428,32 +452,34 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
         Assumption about the overall share of the service provided
         by the technology used for lower temperatures
         (needs to be between 1.0 and 0)
+    assumptions : dict
+        Assumptions
 
     Returns
     -------
     av_eff : float
         Average efficiency of hybrid tech
 
-    Infos
+    Note
     -----
     It is necssary to define an average efficiency of hybrid technologies to calcualte
     the share of total energy service in base year for the whole country. Because
     the input is fuel for the whole country, it is not possible to calculate the
     share for individual regions
     """
-    # The average is calculated for the 10 temp difference intercept (Because input for heat pumps is provided for 10 degree differences)
+    # The average is calculated for the 10 temp difference intercept
+    # because input for heat pumps is provided for 10 degree differences
     average_h_diff_by = 10
 
     # Service shares
-    service_share_low_temp_tech = assump_service_share_low_tech
-    service_share_high_temp_tech = 1 - assump_service_share_low_tech
+    service_low_temp_tech_p = assump_service_share_low_tech
+    service_high_temp_tech_p = 1 - assump_service_share_low_tech
 
     # Efficiencies of technologies of hybrid tech
     if tech_low_temp in assumptions['technology_list']['tech_heating_temp_dep']:
         eff_tech_low_temp = eff_heat_pump(
-            assumptions['hp_slope_assumption'],
-            average_h_diff_by,
-            assumptions['technologies'][tech_low_temp]['eff_by'])
+            temp_diff=average_h_diff_by,
+            efficiency_intersect=assumptions['technologies'][tech_low_temp]['eff_by'])
     else:
         eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
 
@@ -465,6 +491,6 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
         eff_tech_high_temp = assumptions['technologies'][tech_high_temp]['eff_by']
 
     # Weighted average efficiency
-    av_eff = service_share_low_temp_tech * eff_tech_low_temp + service_share_high_temp_tech * eff_tech_high_temp
+    av_eff = service_low_temp_tech_p * eff_tech_low_temp + service_high_temp_tech_p * eff_tech_high_temp
 
     return av_eff

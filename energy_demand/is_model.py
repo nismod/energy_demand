@@ -1,4 +1,7 @@
-"""Industry Submodel
+"""
+Industry Submodel
+====================
+
 """
 import energy_demand.enduse as endusefunctions
 
