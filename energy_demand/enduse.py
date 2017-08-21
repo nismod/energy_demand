@@ -136,7 +136,6 @@ class Enduse(object):
                 data['non_regional_profile_stock'],
                 regional_profile_stock)
 
-
             # Get technologies of enduse
             self.enduse_techs = self.get_enduse_tech(fuel_tech_p_by)
 

@@ -1,4 +1,5 @@
-"""Contains funtions related to handeling date and 
+"""
+Contains funtions related to handeling date and
 time related functionality
 """
 from datetime import date
@@ -35,7 +36,6 @@ def get_dates_week_nr(year, week_nr):
 
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
-    TESTED_PYTEST
 
     Parameters
     ----------
@@ -57,7 +57,6 @@ def convert_date_to_yearday(year, month, day):
 
 def convert_yearday_to_date(year, yearday_python):
     """Gets the yearday of a year minus one to correct because of python iteration
-    TESTED_PYTEST
 
     Parameters
     ----------
@@ -66,16 +65,13 @@ def convert_yearday_to_date(year, yearday_python):
     yearday_python : int
         Yearday - 1
     """
-    # First day in year (first jan)
     date_new = date(year, 1, 1) + timedelta(yearday_python)
 
     return date_new
 
 def get_weekday_type(date_to_test):
     """Gets the weekday of a date
-    TESTED_PYTEST
 
-    Also bank holidays for the base year are defined (including whole week of christmas)
     Parameters
     ----------
     date_to_test : date
@@ -83,10 +79,15 @@ def get_weekday_type(date_to_test):
 
     Returns
     -------
-    daytype : int
-        If 1: holiday, if 0; working day
+    daytype : str
+        holiday or working day
 
-    Notes
+    Note
+    ----
+    Bank holidays are defined for the year 2002 - 2015. The whole week of christmas
+    is defined as a bank holiday
+
+    Info
     -----
     timetuple attributes:
         tm_year
@@ -102,7 +103,6 @@ def get_weekday_type(date_to_test):
     weekday = date_to_test.timetuple().tm_wday
     year = date_to_test.timetuple().tm_year
 
-    #if bank_holidays == 'not_globally_defined':
     if year == 2015:
         bank_holidays = [
             date(2015, 1, 1),
@@ -311,7 +311,7 @@ def get_weekday_type(date_to_test):
             date(2002, 12, 29),
             date(2002, 12, 30)]
     else:
-            bank_holidays = []
+        bank_holidays = []
 
     if weekday == 5 or weekday == 6:
         return 'holiday'
@@ -323,7 +323,6 @@ def get_weekday_type(date_to_test):
 
 def fullyear_dates(start, end):
     """Calculates all dates between a star and end date.
-    TESTED_PYTEST
 
     Parameters
     ----------

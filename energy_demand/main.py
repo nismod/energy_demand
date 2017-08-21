@@ -5,8 +5,6 @@ Energy Demand Model
 Contains all calculation steps necessary to run the 
 energy demand module. 
 
-The docs can be found here: http://ed.readthedocs.io
-
 The model has been developped within the MISTRAL
 project. A previous model has been developped within
 NISMOD by Pranab et al..(MOREINFO) HIRE develops this model
@@ -46,6 +44,7 @@ from energy_demand.plotting import plotting_results
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
+
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 

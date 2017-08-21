@@ -1,4 +1,5 @@
-""" This file contains all assumptions of the energy demand model"""
+"""All assumptions are either loaded in this file or definied here
+"""
 from energy_demand.data import read_data
 from energy_demand.technologies import technologies_related
 from energy_demand.technologies import dummy_technologies
@@ -24,7 +25,6 @@ def load_assumptions(data):
 
     """
     assumptions = {}
-
 
     # ============================================================
     # Residential building stock assumptions
@@ -205,8 +205,8 @@ def load_assumptions(data):
     assumptions['enduse_overall_change_ey'] = {
 
     # Lighting: E.g. how much floor area / % (social change - how much floor area is lighted (smart monitoring)) (smart-lighting)
-        # Submodel Residential
-        'rs_model': {
+    # Submodel Residential
+    'rs_model': {
             'rs_space_heating': 1,
             'rs_water_heating': 1,
             'rs_lighting': 1,

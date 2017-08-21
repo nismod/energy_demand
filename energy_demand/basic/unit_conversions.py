@@ -4,6 +4,16 @@ import numpy as np
 
 def convert_kwh_gwh(kwh):
     """"Conversion of MW to GWh TODO: CHECK
+
+    Input
+    -----
+    kwh : float
+        Kilowatthours
+
+    Return
+    ------
+    gwh : float
+        Gigawatthours
     """
     gwh = kwh * 0.000001
 
@@ -11,6 +21,19 @@ def convert_kwh_gwh(kwh):
 
 def convert_mw_gwh(megawatt, number_of_hours):
     """"Conversion of MW to GWh
+
+    Input
+    -----
+    kwh : float
+        Kilowatthours
+    number_of_hours : float
+        Number of hours
+
+    Return
+    ------
+    gwh : float
+        Gigawatthours
+
     """
     # Convert MW to MWh
     megawatt_hour = megawatt * number_of_hours
@@ -22,7 +45,7 @@ def convert_mw_gwh(megawatt, number_of_hours):
 
 def convert_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
-    TESTED_PYTEST
+
     Parameters
     ----------
     data_ktoe : float
@@ -78,11 +101,10 @@ def convert_across_all_fueltypes(fuel_dict):
     fuel_converted = {}
 
     for enduse, fuels in fuel_dict.items():
-        nr_of_fueltypes = len(fuels)
-        fuel_converted[enduse] = np.zeros((nr_of_fueltypes))
+        fuel_converted[enduse] = np.zeros((len(fuels)))
 
-        for fueltype in range(nr_of_fueltypes):
-            fuel_converted[enduse][fueltype] = convert_ktoe_gwh(fuels[fueltype])
+        for fueltype, fuel in enumerate(fuels):
+            fuel_converted[enduse][fueltype] = convert_ktoe_gwh(fuel)
 
     return fuel_converted
 
@@ -93,6 +115,7 @@ def convert_all_fueltypes_sector(fuel_dict):
     ----------
     fuel_dict : array
         Fuel per fueltype
+
     Returns
     -------
     fuel_converted : array
@@ -103,10 +126,10 @@ def convert_all_fueltypes_sector(fuel_dict):
     for enduse in fuel_dict:
         fuel_converted[enduse] = {}
         for sector, fuels in fuel_dict[enduse].items():
-            nr_of_fueltypes = len(fuels)
-            fuel_converted[enduse][sector] = np.zeros((nr_of_fueltypes))
 
-            for fueltype in range(nr_of_fueltypes):
-                fuel_converted[enduse][sector][fueltype] = convert_ktoe_gwh(fuels[fueltype])
+            fuel_converted[enduse][sector] = np.zeros((len(fuels)))
+
+            for fueltype, fuel in enumerate(fuels):
+                fuel_converted[enduse][sector][fueltype] = convert_ktoe_gwh(fuel)
 
     return fuel_converted
