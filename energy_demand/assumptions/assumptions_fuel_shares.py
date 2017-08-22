@@ -85,6 +85,14 @@ def get_fuel_stock_definition(assumptions, data):
         'fluorescent_strip_lightinging' : 0.98
         }
 
+    # ---rs_cold (Refrigeration)
+    assumptions['rs_fuel_tech_p_by']['rs_cold'][data['lu_fueltype']['electricity']] = {
+        'chest_freezer': 0.087,
+        'fridge_freezer': 0.588,
+        'refrigerator': 0.143,
+        'upright_freezer': 0.182
+        }
+
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
     # ------------------

@@ -305,7 +305,19 @@ def load_assumptions(data):
     #assumptions['list_tech_cooling_temp_dep'] = []
 
     # Lighting technologies
-    assumptions['technology_list']['rs_lighting'] = ['standard_resid_lighting_bulb', 'fluorescent_strip_lightinging', 'halogen_elec', 'energy_saving_lighting_bulb']
+    assumptions['technology_list']['rs_lighting'] = [
+        'standard_resid_lighting_bulb',
+        'fluorescent_strip_lightinging',
+        'halogen_elec',
+        'energy_saving_lighting_bulb'
+        ]
+    
+    assumptions['technology_list']['rs_cold'] = [
+        'chest_freezer',
+        'fridge_freezer',
+        'refrigerator',
+        'upright_freezer'
+        ]
     ## Is assumptions['technology_list']['tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
     # Cooking
@@ -353,6 +365,11 @@ def load_assumptions(data):
     assumptions['rs_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['rs_fuel_tech_p_by'])
     assumptions['ss_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['ss_fuel_tech_p_by'])
     assumptions['is_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['is_fuel_tech_p_by'])
+
+    # ==========
+    # Generate technology lists from ``assumptions['rs_fuel_tech_p_by']``
+    # ==========
+    #get_technology_lists(): MAYBE TOTDO
 
 
     # ============================================================

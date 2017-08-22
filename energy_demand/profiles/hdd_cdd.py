@@ -99,7 +99,7 @@ def get_hdd_country(regions, data, t_base_type):
         temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(data['sim_param'], data['assumptions'], t_base_type)
+        t_base_heating_cy = sigm_temp(data['sim_param'], data['assumptions'], t_base_type)
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
         hdd_regions[region_name] = np.sum(hdd_reg)
@@ -133,7 +133,7 @@ def get_cdd_country(regions, data, t_base_type):
         temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(
+        t_base_heating_cy = sigm_temp(
             data['sim_param'],
             data['assumptions'],
             t_base_type
@@ -144,7 +144,7 @@ def get_cdd_country(regions, data, t_base_type):
 
     return cdd_regions
 
-def sigm_t_base(base_sim_param, assumptions, t_base_type):
+def sigm_temp(base_sim_param, assumptions, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location
 
     Parameters

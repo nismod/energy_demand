@@ -1,4 +1,4 @@
-"""Weather data manipulation
+"""Weather Station location
 """
 from haversine import haversine # Package to calculate distance between two long/lat points
 
@@ -22,8 +22,8 @@ def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
         Distance
     """
     distance_in_km = haversine(
-        (long_from, lat_from), #Fromt point
-        (long_to, lat_to), # To point
+        (long_from, lat_from),
+        (long_to, lat_to),
         miles=False)
 
     return distance_in_km
@@ -44,10 +44,6 @@ def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     ------
     closest_id : int
         ID of closest weather station
-
-    Note
-    -----
-    - not faster by implementing min(dictwithdist, key=dictwithdist.get)
     """
     closest_dist = 99999999999
 
