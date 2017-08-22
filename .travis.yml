@@ -6,7 +6,7 @@ virtualenv:
   system_site_packages: true
 env:
   matrix:
-  - DISTRIB="conda" PYTHON_VERSION="3.6" COVERAGE="true"
+  - DISTRIB="conda" PYTHON_VERSION="3.6.1" COVERAGE="true"
 install:
 - source tests/travis_install.sh
 - pip install git+https://github.com/behave/behave
