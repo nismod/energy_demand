@@ -255,15 +255,15 @@ def load_data(path_main, data):
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
-    data['rs_shapes_space_heating_storage_heater_elec_heating_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
-    data['rs_shapes_space_heating_second_elec_heating_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
+    data['rs_profile_heating_storage_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_primary_heating'])
+    data['rs_profile_heating_second_heating_dh'] = read_data.read_csv_load_shapes_technology(data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
 
-    '''plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_storage_heater_elec_heating_dh'][2] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_shapes_space_heating_second_elec_heating_dh'][2] * 45.8)
+    '''plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][2] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][2] * 45.8)
     '''
 
     # Generate load shapes
