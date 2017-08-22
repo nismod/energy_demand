@@ -6,6 +6,7 @@ Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
+import copy
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 from energy_demand.initalisations import initialisations as init
@@ -699,7 +700,7 @@ class Enduse(object):
 
         Note
         -----
-        - Because in case of hybrid technologies the share for fuel is not known 
+        - Because in case of hybrid technologies the share for fuel is not known
           of the auxiliry (low-temperature) technology, this share gets calculated.
         - For hybrid technologies, only the fuel share of heat pump must be defined
         """
@@ -1128,13 +1129,13 @@ class Enduse(object):
         - Based on assumptions about shares of fuels which are switched per enduse to specific
           technologies, the installed technologies are used to calculate the new service demand
           after switching fuel shares.
-        
+
           TODO: MORE INFO
         """
 
         #print("... fuel_switch is implemented")
 
-        service_tech_after_switch = np.copy(service_tech)
+        service_tech_after_switch = copy.copy(service_tech)
 
         # Iterate all technologies which are installed in fuel switches
         for tech_installed in installed_tech[self.enduse]:
@@ -1146,7 +1147,8 @@ class Enduse(object):
                 sig_param_tech[self.enduse][tech_installed]['midpoint'],
                 sig_param_tech[self.enduse][tech_installed]['steepness'])
 
-            # Calculate increase in service based on diffusion of installed technology (diff & total service== Todays demand) - already installed service
+            # Calculate increase in service based on diffusion of installed technology
+            # (diff & total service== Todays demand) - already installed service
             '''print("eeeeeeeeeeeeeeeeee")
             print(sig_param_tech[self.enduse][tech_installed])
             print(tech_installed)
@@ -1154,7 +1156,6 @@ class Enduse(object):
             print(diffusion_cy)
             print(np.sum(tot_service_h_cy))
             '''
-
             #OLD
             ##service_tech_installed_cy = (diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]
 
@@ -1178,12 +1179,11 @@ class Enduse(object):
             # Get service for current year for technologies
             #service_tech_after_switch[tech_installed] += service_tech_installed_cy
             service_tech_after_switch[tech_installed] = service_tech_installed_cy #NEW
-            print("service_tech_after_switch:  " + str(np.sum(service_tech_after_switch[tech_installed])))
 
             # ------------
             # Remove fuel of replaced energy service demand proportinally to fuel shares in base year (of national country)
             # ------------
-            tot_service_switch_tech_instal_p = 0 # Total replaced service across different fueltypes
+            tot_service_tech_instal_p = 0 # Total replaced service across different fueltypes
             fueltypes_replaced = [] # List with fueltypes where fuel is replaced
 
             # Iterate fuelswitches and read out the shares of fuel which is switched with the installed technology
@@ -1196,10 +1196,10 @@ class Enduse(object):
                         fueltypes_replaced.append(fuelswitch['enduse_fueltype_replace'])
 
                         # Share of service demand per fueltype * fraction of fuel switched
-                        tot_service_switch_tech_instal_p += service_fueltype_cy_p[fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
+                        tot_service_tech_instal_p += service_fueltype_cy_p[fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
 
             #print("replaced fueltypes: " + str(fueltypes_replaced))
-            #print("Service demand which is switched with this technology: " + str(tot_service_switch_tech_instal_p))
+            #print("Service demand which is switched with this technology: " + str(tot_service_tech_instal_p))
 
             # Iterate all fueltypes which are affected by the technology installed
             for fueltype_replace in fueltypes_replaced:
@@ -1212,11 +1212,11 @@ class Enduse(object):
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype_replace:
 
                         # Service reduced for this fueltype (service technology cy sigmoid diff *  % of heat demand within fueltype)
-                        if tot_service_switch_tech_instal_p == 0:
+                        if tot_service_tech_instal_p == 0:
                             reduction_service_fueltype = 0
                         else:
                             # share of total service of fueltype * share of replaced fuel
-                            service_fueltype_tech_cy_p_rel = np.divide(1.0, tot_service_switch_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
+                            service_fueltype_tech_cy_p_rel = np.divide(1.0, tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
 
                             ##print("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
                             reduction_service_fueltype = service_tech_installed_cy * service_fueltype_tech_cy_p_rel

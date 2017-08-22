@@ -570,7 +570,7 @@ class EnergyModel(object):
             Summarised fuels
         """
         if crit2 == 'peak_h':
-            fuels = np.zeros((nr_of_fueltypes, ))
+            fuels = np.zeros((nr_of_fueltypes)) #np.zeros((nr_of_fueltypes, ))
         elif crit2 == 'non_peak':
             fuels = np.zeros((nr_of_fueltypes, 365, 24))
         elif crit2 == 'peak_dh':
