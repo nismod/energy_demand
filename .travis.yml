@@ -1,12 +1,12 @@
 sudo: false
 language: python
 python:
-  - "3.6.1"
+  - "3.5"
 virtualenv:
   system_site_packages: true
 env:
   matrix:
-  - DISTRIB="conda" PYTHON_VERSION="3.6.1" COVERAGE="true"
+  - DISTRIB="conda" PYTHON_VERSION="3.5" COVERAGE="true"
 install:
 - source tests/travis_install.sh
 - pip install git+https://github.com/behave/behave
