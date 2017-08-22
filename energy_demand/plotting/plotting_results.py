@@ -60,6 +60,17 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
 def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
+    Parameters
+    ----------
+    data : dict
+        Data container
+    results_objects :
+
+    enduses_data :
+
+    attribute_to_get :
+
+
     Note
     ----
         -   Sum across all fueltypes
@@ -68,9 +79,10 @@ def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_
     # INFO Cannot plot a single year?
     """
     nr_y_to_plot = data['sim_param']['sim_period_yrs']
+    years_simulated = data['sim_param']['sim_period']
 
-    x_data = range(nr_y_to_plot)
-    y_data = np.zeros((len(enduses_data), nr_y_to_plot))
+    x_data = years_simulated #range(nr_y_to_plot)
+    y_data = np.zeros((len(enduses_data), len(years_simulated))) #nr_y_to_plot))
 
     legend_entries = []
     for k, enduse in enumerate(enduses_data):
@@ -82,13 +94,12 @@ def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_
             # Sum all fueltypes
             y_data[k][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
 
-
     fig, ax = plt.subplots()
     sp = ax.stackplot(x_data, y_data)
     proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
     ax.legend(proxy, legend_entries)
 
-    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='red')
+    plt.xticks(years_simulated, years_simulated, color='red') # range(nr_y_to_plot) range(2015, 2015 + nr_y_to_plot)
     plt.axis('tight')
 
     plt.xlabel("Simulation years")

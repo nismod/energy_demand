@@ -13,13 +13,19 @@ further into a high temporal and spatial model.abs
 Key contributers are:
     - Sven Eggimann
     - Nick Eyre
-    - 
+    -
 
     note,tip,warning,
 
 More information can be found here:
 
     - Eggimann et al. (2018): Paper blablabla
+
+
+pip install autopep8
+autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
+import time 
+#print("..TIME A: {}".format(time.time() - start))
 
 '''
 import os
@@ -121,8 +127,8 @@ if __name__ == "__main__":
 
     base_yr = 2015
     end_yr = 2050 #includes this year
-    #sim_years = range(base_yr, end_yr + 1)
     sim_years = range(base_yr, end_yr + 1, 5)
+
     # dummy coordinates
     coord_dummy = {}
     coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
@@ -208,16 +214,18 @@ if __name__ == "__main__":
     data_external['sim_param'] = {}
     data_external['sim_param']['end_yr'] = end_yr
     data_external['sim_param']['base_yr'] = base_yr
-    data_external['sim_param']['sim_period'] = sim_years #range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['sim_param']['sim_period'] = sim_years
     data_external['sim_param']['sim_period_yrs'] = int(end_yr + 1 - base_yr)
 
     data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
     data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
-    data_external['fastcalculationcrit'] = True
+    
 
     # ------------------- DUMMY END
-
+    data_external['fastcalculationcrit'] = True
+    
+    base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
 
     # ----------------------------------------
     # Model calculations outside main function
@@ -228,8 +236,6 @@ if __name__ == "__main__":
     # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
     # If unconstrained mode (False), heat demand is provided per technology
     # ---------
-    base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
-
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
         base_data[str(dataset_name)] = external_data
@@ -355,27 +361,12 @@ if __name__ == "__main__":
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
-
-        #-------------PROFILER pyinstrument
-
-
+    
         #-------------PROFILER
         if instrument_profiler:
             from pyinstrument import Profiler
             profiler = Profiler(use_signal=False)
             profiler.start()
-
-            '''# Alternative profiler
-            import cProfile
-            import pstats
-            cProfile.run('energy_demand_model(base_data)')
-            stats = pstats.Stats(r'c://Users//cenv0553//GIT//model_output//STATS.txt')
-            stats.sort_stats('cumtime')
-            stats.strip_dirs()
-            stats.print_stats()
-            ##stream = open('c://Users//cenv0553//GIT//data//model_output//STATS.txt', 'w');
-            ##stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//STATS.txt', stream=stream)
-            '''
 
         _, model_run_object = energy_demand_model(base_data)
 
@@ -388,7 +379,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
-        '''
+        #'''
         winter_week = list(range(date_handling.convert_date_to_yearday(2015, 1, 12), date_handling.convert_date_to_yearday(2015, 1, 19))) #Jan
         spring_week = list(range(date_handling.convert_date_to_yearday(2015, 5, 11), date_handling.convert_date_to_yearday(2015, 5, 18))) #May
         summer_week = list(range(date_handling.convert_date_to_yearday(2015, 7, 13), date_handling.convert_date_to_yearday(2015, 7, 20))) #Jul
@@ -438,15 +429,23 @@ if __name__ == "__main__":
         print("...compare peak from data")
         peak_month = 2 #Feb
         peak_day = 18 #Day
-        elec_national_data.compare_peak(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[peak_month][peak_day]) #SCRAP: NOT PEAK BUT PEAK DAY
+        elec_national_data.compare_peak(
+            validation_elec_data_2015_INDO,
+            model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[peak_month][peak_day]
+            )
+
         print("...compare peak from max peak factors")
-        elec_national_data.compare_peak(validation_elec_data_2015_INDO, model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
+        elec_national_data.compare_peak(
+            validation_elec_data_2015_INDO,
+            model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
 
         # ---------------------------------------------------
         # Validate boxplots for every hour
         # ---------------------------------------------------
-        elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        '''
+        elec_national_data.compare_results_hour_boxplots(
+            validation_elec_data_2015_INDO,
+            model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
+
     # ------------------------------
     # Plotting
     # ------------------------------
@@ -475,40 +474,8 @@ if __name__ == "__main__":
 
     print("Finished running Energy Demand Model")
 
-    #-----------
-    # Profiler
-    #-----------
-    """
-    import cProfile
-    import pstats
-    cProfile.run('energy_demand_model(base_data)')
-
-    stats = pstats.Stats('c://Users//cenv0553//GIT//data//model_output//rs_service_tech_by_p.txt')
-    #base_data['path_dict']['path_out_stats_cProfile']
-
-    stats.strip_dirs()
-    stats.sort_stats(-1)
-    stats.print_stats()
-
-    # -------------
-    # PyCallGraph
-    # -------------
-
-    from pycallgraph import PyCallGraph
-    from pycallgraph.output import GraphvizOutput
-
-    print("Run profiler....")
-    #with PyCallGraph(output=GraphvizOutput()):
-
-    graphviz = GraphvizOutput()
-    graphviz.output_file = r'C:\\Users\\cenv0553\\GIT\\data\\model_output\\basic.png'
-
-    with PyCallGraph(output=graphviz):
-        energy_demand_model(base_data)
-    """
-
-
-'''def get_scenario_drivers(all_potential_scenario_drivers):
+'''
+def get_scenario_drivers(all_potential_scenario_drivers):
     """Prepare data for scenario drivers
     """
     reg_scenario_drivers[region_name][self.base_yr][scenario_driver]

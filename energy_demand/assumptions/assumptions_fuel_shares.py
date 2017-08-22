@@ -39,23 +39,25 @@ def get_fuel_stock_definition(assumptions, data):
     # In an enduse, either all fueltypes need to be assigned with technologies or none. No mixing possible
     # ------------------
 
-    # Coooking
-    #assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {'hob_electricity': 0.5, oven_electricity: 0.5}
-    #assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['gas']] = {'hob_gas': 0.5, oven_gas: 0.5}
-    #assumptions['rs_fuel_tech_p_by']['rs_cooking_microwave'][data['lu_fueltype']['electricity']] = {'microwave': 1.0}
+    # ---Lighting
+    assumptions['rs_fuel_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
+        'standard_resid_lighting_bulb': 0.02,
+        'fluorescent_strip_lightinging' : 0.98
+        }
 
-
-    tech_share_of_total_service = {
-        'heat_pumps_electricity': 0.02,
-        'hybrid_gas_electricity': 0.02,
-        'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56}
-
-    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = service_share_input_to_fuel(
-        total_share_fueltype=0.0572,
-        tech_share_of_total_service=tech_share_of_total_service,
-        tech_stock=assumptions['technologies'],
-        assumptions=assumptions)
+    # ---rs_cold (Refrigeration)
+    assumptions['rs_fuel_tech_p_by']['rs_cold'][data['lu_fueltype']['electricity']] = {
+        'chest_freezer': 0.087,
+        'fridge_freezer': 0.588,
+        'refrigerator': 0.143,
+        'upright_freezer': 0.182
+        }
+    # ---rs_cooking
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {
+        'hob_electricity': 0.49,
+        'oven_electricity': 0.51,
+        'hob_induction_electricity': 0.0 
+        }
 
     #---Space heating
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][data['lu_fueltype']['solid_fuel']] = {'boiler_solid_fuel': 1.0}
@@ -79,25 +81,18 @@ def get_fuel_stock_definition(assumptions, data):
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
 
-    # ---Lighting
-    assumptions['rs_fuel_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
-        'standard_resid_lighting_bulb': 0.02,
-        'fluorescent_strip_lightinging' : 0.98
-        }
+    tech_share_of_total_service = {
+        'heat_pumps_electricity': 0.02,
+        'hybrid_gas_electricity': 0.02,
+        'storage_heater_electricity': 0.40,
+        'secondary_heater_electricity': 0.56}
 
-    # ---rs_cold (Refrigeration)
-    assumptions['rs_fuel_tech_p_by']['rs_cold'][data['lu_fueltype']['electricity']] = {
-        'chest_freezer': 0.087,
-        'fridge_freezer': 0.588,
-        'refrigerator': 0.143,
-        'upright_freezer': 0.182
-        }
-    # ---rs_cooking
-    assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {
-        'hob_electricity': 0.49,
-        'oven_electricity': 0.51,
-        'hob_induction_electricity': 0.0 
-        }
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][data['lu_fueltype']['electricity']] = service_share_input_to_fuel(
+        total_share_fueltype=0.0572,
+        tech_share_of_total_service=tech_share_of_total_service,
+        tech_stock=assumptions['technologies'],
+        assumptions=assumptions)
+
 
 
     # ------------------
@@ -116,32 +111,9 @@ def get_fuel_stock_definition(assumptions, data):
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
 
-    '''# -- Space cooling and ventilation
-    share_cooling_not_ventilation = 0.5
-
-    #------------------------------
-    # Split Cooling and Ventilation
-    #------------------------------
-    for sector in data['ss_fuel_raw_data_enduses']:
-        data['ss_fuel_raw_data_enduses'][sector]['ss_space_cooling'] = data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation'] * share_cooling_not_ventilation
-        data['ss_fuel_raw_data_enduses'][sector]['ss_ventilation'] = data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation'] * (1 - share_cooling_not_ventilation)
-
-        assumptions['ss_fuel_tech_p_by']['ss_space_cooling'] = dict.fromkeys(range(data['nr_of_fueltypes']), {})
-        assumptions['ss_fuel_tech_p_by']['ss_ventilation'] = dict.fromkeys(range(data['nr_of_fueltypes']), {})
-        del data['ss_fuel_raw_data_enduses'][sector]['ss_cooling_ventilation']
-
-    data['ss_all_enduses'].remove('ss_cooling_ventilation') #delete enduse
-    data['ss_all_enduses'].append('ss_space_cooling')
-    data['ss_all_enduses'].append('ss_ventilation')
-    assumptions['ss_fuel_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
-    assumptions['ss_fuel_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['electricity']] = {'air_condition_electricity': 1.0}
-    assumptions['ss_fuel_tech_p_by']['ss_space_cooling'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
-    '''
     #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
     #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['electricity']] = {'air_fans_electricity': 0.8, 'air_condition_electricity': 0.2}
     #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
-
-     #TODO: Check that all defined technologies are inserted here, even if not defined
 
     assumptions['ss_all_specified_tech_enduse_by'] = helper_functions.get_all_specified_tech(assumptions['ss_fuel_tech_p_by'])
 
