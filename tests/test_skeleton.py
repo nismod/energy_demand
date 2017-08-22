@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+'''#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
@@ -19,12 +19,10 @@ from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 from energy_demand.data import read_data
-
 import datetime
 from datetime import date
 from datetime import timedelta as td
 import numpy as np
-
 from pytest import raises
 
 
@@ -191,10 +189,7 @@ def test_apply_elasticity():
 
 
 
-    
-    
 
-'''
 def test_raises_error_disaggregate_base_demand_for_reg():
     """ Test if the error is raised"""
 
@@ -212,9 +207,8 @@ def test_raises_error_disaggregate_base_demand_for_reg():
 
     with raises(AssertionError):
         nd.disaggregate_base_demand_for_reg(data, reg_data_assump_disaggreg, data_ext)
-'''
 
-'''def test_timesteps_full_year():
+def test_timesteps_full_year():
     """Testing function"""
 
     # in test value
@@ -225,13 +219,12 @@ def test_raises_error_disaggregate_base_demand_for_reg():
     out_value_1, out_value_1 = mf.timesteps_full_year(in_value)
 
     assert out_value == expected
-'''
-# ----
-'''
+
 def test_fib():
     assert fib(1) == 1
     assert fib(2) == 1
     assert fib(7) == 13
     with pytest.raises(AssertionError):
         fib(-10)
+
 '''
