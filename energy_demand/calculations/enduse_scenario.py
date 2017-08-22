@@ -59,7 +59,7 @@ def change_temp_climate_change(data):
 
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
-    TESTED_PYTEST
+
     As an input the base data is provided and price differences and elasticity
 
     Parameters

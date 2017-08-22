@@ -38,8 +38,8 @@ class LoadProfileStock(object):
             sectors=['dummy_sector'],
             shape_yd=np.zeros((365)),
             shape_yh=np.zeros((365, 24)),
-            enduse_peak_yd_factor=1/365,
-            shape_peak_dh=np.ones((24)) #None #np.ones((24)) #WHY NOT NONE
+            enduse_peak_yd_factor=1.0/365,
+            shape_peak_dh=np.full((24), 1.0/24)
             ):
         """Add load profile to stock
 
@@ -58,8 +58,13 @@ class LoadProfileStock(object):
         enduse_peak_yd_factor : float
             Factor to calculate daily demand from yearly demand
             Standard value is average daily amount
-        shape_peak_dh : array
+        shape_peak_dh : array, default=1/24
             Shape (dh), shape of a day for every hour
+
+        Note
+        -----
+        If no ``shape_peak_dh`` or ``enduse_peak_yd_factor`` is provided
+        a flat shape is assumed.
         """
         self.load_profile_dict[unique_identifier] = LoadProfile(
             enduses,
@@ -187,7 +192,6 @@ class LoadProfile(object):
         self.unique_identifier = unique_identifier
         self.enduses = enduses
 
-        
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor

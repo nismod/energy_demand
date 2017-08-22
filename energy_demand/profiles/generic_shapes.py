@@ -23,13 +23,13 @@ def generic_flat_shape(shape_peak_yd_factor=1/365):
         Shape yd for non peak
     """
     # linear shape_peak_dh
-    shape_peak_dh = np.full((24), 1 / 24)
+    shape_peak_dh = np.full((24), 1/24)
 
     # linear shape_non_peak_y_dh
     shape_non_peak_y_dh = np.zeros((365, 24))
 
     # Flat shape, ever hour same amount
-    shape_non_peak_y_dh = np.full((365, 24), (1.0 / 24))
+    shape_non_peak_y_dh = np.full((365, 24), (1.0/24))
 
     # linear shape_non_peak_yd
     shape_non_peak_yd = np.ones((365)) / 365
@@ -53,8 +53,8 @@ class genericFlatEnduse(object):
 
         # Yh fuel shape per fueltype (non-peak)
         self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], 365, 24))
-        for fueltype in range(len(enduse_fuel)):
-            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * self.fuel_new_y[fueltype]
+        for fueltype, fuel in enumerate(self.fuel_new_y): #range(len(enduse_fuel)):
+            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel
 
         # Dh fuel shape per fueltype (peak)  (shape of peak & maximum fuel per fueltype)
         self.fuel_peak_dh = shape_peak_dh * max_fuel_d[:, np.newaxis]
