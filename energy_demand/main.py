@@ -2,8 +2,8 @@
 Energy Demand Model
 =================
 
-Contains all calculation steps necessary to run the 
-energy demand module. 
+Contains all calculation steps necessary to run the
+energy demand module.
 
 The model has been developped within the MISTRAL
 project. A previous model has been developped within
@@ -92,8 +92,8 @@ def energy_demand_model(data):
     print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
     print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
     print("================================================")
-    for i in range(8):
-        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[i])))
+    for fff in range(8):
+        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[fff])))
     # # --- Write to csv and YAML Convert data according to region and fueltype
     #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
     ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
@@ -184,7 +184,7 @@ if __name__ == "__main__":
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in base_data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
-            
+
     base_data['rs_floorarea'] = rs_floorarea
     base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
     #'''
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     data_external['sim_param'] = {}
     data_external['sim_param']['end_yr'] = end_yr
     data_external['sim_param']['base_yr'] = base_yr
-    data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
+    data_external['sim_param']['sim_period'] = sim_years #range(base_yr, end_yr + 1, 1) # Alywas including last simulation year
     data_external['sim_param']['sim_period_yrs'] = int(end_yr + 1 - base_yr)
 
     data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
@@ -223,14 +223,12 @@ if __name__ == "__main__":
     # Model calculations outside main function
     # ----------------------------------------
     print("... start model calculations outside main function")
-    
-    base_data['testing_crit'] = False
+
     # -------
     # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
     # If unconstrained mode (False), heat demand is provided per technology
     # ---------
     base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
-    #
 
     # Copy external data into data container
     for dataset_name, external_data in data_external.items():
@@ -248,8 +246,6 @@ if __name__ == "__main__":
 
     # Load assumptions
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
-
-
 
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
@@ -392,7 +388,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
-        
+        '''
         winter_week = list(range(date_handling.convert_date_to_yearday(2015, 1, 12), date_handling.convert_date_to_yearday(2015, 1, 19))) #Jan
         spring_week = list(range(date_handling.convert_date_to_yearday(2015, 5, 11), date_handling.convert_date_to_yearday(2015, 5, 18))) #May
         summer_week = list(range(date_handling.convert_date_to_yearday(2015, 7, 13), date_handling.convert_date_to_yearday(2015, 7, 20))) #Jul
@@ -407,7 +403,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
-        
+
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
@@ -450,7 +446,7 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(validation_elec_data_2015_INDO, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
-        #'''
+        '''
     # ------------------------------
     # Plotting
     # ------------------------------
