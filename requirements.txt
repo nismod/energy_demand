@@ -1,11 +1,8 @@
 # Add your requirements here like:
 numpy
 pyyaml
-recommonmark
 matplotlib
 haversine
 scipy
 isoweek
 pyinstrument
-autopep8
-sphinx_rtd_theme
