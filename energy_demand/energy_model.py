@@ -153,7 +153,7 @@ class EnergyModel(object):
             shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
         
-        # RS_cold (residential refrigeration)
+        # rs_cold (residential refrigeration)
         non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=data['assumptions']['technology_list']['rs_cold'],
@@ -162,6 +162,17 @@ class EnergyModel(object):
             shape_yh=data['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
             enduse_peak_yd_factor=data['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
             shape_peak_dh=data['rs_shapes_dh']['rs_cold']['shape_peak_dh']
+            )
+
+        # rs_cooking
+        non_regional_profile_stock.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=data['assumptions']['technology_list']['rs_cooking'],
+            enduses=['rs_cooking'],
+            shape_yd=data['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+            shape_yh=data['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
+            shape_peak_dh=data['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
             )
 
         # -- dummy rs technologies (apply enduse sepcific shape)

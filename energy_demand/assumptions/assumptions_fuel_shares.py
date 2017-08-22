@@ -92,6 +92,13 @@ def get_fuel_stock_definition(assumptions, data):
         'refrigerator': 0.143,
         'upright_freezer': 0.182
         }
+    # ---rs_cooking
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {
+        'hob_electricity': 0.49,
+        'oven_electricity': 0.51,
+        'hob_induction_electricity': 0.0 
+        }
+
 
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
