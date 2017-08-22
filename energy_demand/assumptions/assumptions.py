@@ -311,13 +311,22 @@ def load_assumptions(data):
         'halogen_elec',
         'energy_saving_lighting_bulb'
         ]
-    
+
+    # Cold technologies
     assumptions['technology_list']['rs_cold'] = [
         'chest_freezer',
         'fridge_freezer',
         'refrigerator',
         'upright_freezer'
         ]
+
+    # Cooking technologies
+    assumptions['technology_list']['rs_cooking'] = [
+        'hob_electricity',
+        'oven_electricity',
+        'hob_induction_electricity'
+        ]
+
     ## Is assumptions['technology_list']['tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
 
     # Cooking
