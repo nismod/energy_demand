@@ -10,7 +10,7 @@ for the residential, service and industry sector on a high temporal
 and spatial scale. National end-use specific energy demand data is
 disaggregated on local authority district level and a bottom-up approach
 is implemented for hourly energy demand estimation for different fuel types
-and end-uses. 
+and end-uses.
 Future energy demand is simulated based on different
 socio-technical scenario assumptions such as technology efficiencies,
 changes in the technological mix per end-use consumptions or behavioural change.
@@ -123,6 +123,8 @@ Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated 
 
 Metering trial for electricity and gas use across different sectors for businesses (service sector).
 
-- [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
-
-- Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
+>
+> - [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
+>
+> - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
+>   [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)

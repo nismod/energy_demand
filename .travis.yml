@@ -1,5 +1,7 @@
 sudo: false
 language: python
+python:
+  - "3.6"
 virtualenv:
   system_site_packages: true
 env:
@@ -10,8 +12,8 @@ install:
 - pip install git+https://github.com/behave/behave
 - pip install -r test-requirements.txt
 before_script:
-- git config --global user.email "william.usher@ouce.ox.ac.uk"
-- git config --global user.name "Will Usher"
+- git config --global user.email "sven.eggimann@ouce.ox.ac.uk"
+- git config --global user.name "Sven Eggimann"
 script:
 - python setup.py develop
 - pytest tests

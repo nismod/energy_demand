@@ -123,13 +123,21 @@ def get_cdd_country(regions, data, t_base_type):
         latitude = data['reg_coordinates'][region_name]['latitude']
 
         # Get closest weather station and temperatures
-        closest_station_id = weather_station.get_closest_station(longitude, latitude, data['weather_stations'])
+        closest_station_id = weather_station.get_closest_station(
+            longitude,
+            latitude,
+            data['weather_stations']
+            )
 
         # Temp data
         temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_t_base(data['sim_param'], data['assumptions'], t_base_type)
+        t_base_heating_cy = sigm_t_base(
+            data['sim_param'],
+            data['assumptions'],
+            t_base_type
+            )
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
         cdd_regions[region_name] = np.sum(cdd_reg)
