@@ -128,6 +128,12 @@ def clean_weather_data_raw(temp_stations, placeholder_value=999):
             # Count number of zeroes in a day
             cnt_zeros = collections.Counter(day)[0]
 
+            '''# Count number of zeros in a day
+            cnt_zeros = 0
+            for hour in day:
+                if hour == 0:
+                    cnt_zeros += 1'''
+
             if cnt_zeros > zeros_day_crit:
                 copy_weater_station_data = False
 

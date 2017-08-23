@@ -115,52 +115,20 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
     # ------------------------------------------------------------------
-    # obs.value == 3000000
-    # obs.region == 1
-    # obs.interval == 2
-    # obs.units == 'count'
-    # External data provided from wrapper
-
     instrument_profiler = True
 
     # DUMMY DATA GENERATION----------------------
-
     base_yr = 2015
     end_yr = 2050 #includes this year
     sim_years = range(base_yr, end_yr + 1, 5)
 
-    # dummy coordinates
-    coord_dummy = {}
-    coord_dummy['Wales'] = {'longitude': 52.289288, 'latitude': -3.610933}
-    coord_dummy['Scotland'] = {'longitude': 56.483100, 'latitude': -4.027093}
-    coord_dummy['England'] = {'longitude': 52.874205, 'latitude': -0.871205}
-
-    pop_dummy = {}
-
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
-    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-
-    ss_floorarea_sector_by_dummy = {}
-
-    ss_floorarea_sector_by_dummy['Wales'] = {}
-    ss_floorarea_sector_by_dummy['Scotland'] = {}
-    ss_floorarea_sector_by_dummy['England'] = {}
-    for sector in base_data['all_sectors']:
-        ss_floorarea_sector_by_dummy['Wales'][sector] = 3000000 * 1 #10000 #[m2]
-        ss_floorarea_sector_by_dummy['Scotland'][sector] = 5300000 * 1 #10000 #[m2]
-        ss_floorarea_sector_by_dummy['England'][sector] = 53000000 * 1 #[m2]
-
-    regions = {'Wales': 3000000, 'Scotland': 5300000, 'England': 53000000}
-    for i in range(base_yr, end_yr + 1):
-        y_data = {}
-        for reg in regions:
-            y_data[reg] = regions[reg] # + (a[reg] * 1.04)
-        pop_dummy[i] = y_data
-
 
     # DUMMY DATA GENERATION----------------------
     #'''
+    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+
     # Load dummy LAC and pop
     dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
 

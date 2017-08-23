@@ -16,7 +16,7 @@ def read_weather_station_script_data(path_to_csv):
         _headings = next(read_lines) # Skip headers
 
         # Iterate rows
-        for row in read_lines: # select row
+        for row in read_lines:
             station_id = str(row[0])
             latitude = float(row[1])
             longitude = float(row[2])
@@ -36,29 +36,26 @@ def read_weather_data_script_data(path_to_csv):
     """
     temp_data = {}
 
-    # Empty initialising dict
-    dict_day_hour = {}
-    for day in range(365):
-        dict_day_hour[day] = dict.fromkeys(range(24), 0)
-
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip headers
 
         # Iterate rows
-        for row in read_lines: # select row
+        for row in read_lines:
             station_id = str(row[0])
             day = float(row[1])
             hour = float(row[2])
             temperature = float(row[3])
+
             try:
-                temp_data[station_id][day][hour] = temperature
+                temp_data[station_id][int(day)][int(hour)] = temperature
             except KeyError:
-                temp_data[station_id] = dict_day_hour
-                temp_data[station_id][day][hour] = temperature
+                temp_data[station_id] = np.zeros((365, 24))
+                temp_data[station_id][int(day)][int(hour)] = temperature
 
     return temp_data
-'''
+#'''
+
 def read_weather_data_raw(path_to_csv, placeholder_value):
     """Read in raw weather data
 
@@ -252,4 +249,4 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
                     }
 
     return weather_stations
-'''
+#'''

@@ -162,32 +162,26 @@ def load_data(path_main, data):
     else:'''
     if 1 == 1:
         print("...read in weather data")
-        print(data['path_dict']['path_scripts_data'])
         path_weather_stations = os.path.join(data['path_dict']['path_scripts_data'], 'weather_stations.csv')
         path_weather_data = os.path.join(data['path_dict']['path_scripts_data'], 'weather_data.csv')
         data['weather_stations'] = read_weather_data.read_weather_station_script_data(path_weather_stations)
         data['temperature_data'] = read_weather_data.read_weather_data_script_data(path_weather_data)
-        print("data")
-        '''# Read in raw temperature data
+
+    '''if 1 == 1:
+
+        # Read in raw temperature data
         data['temperature_data_raw'] = read_weather_data.read_weather_data_raw(data['path_dict']['folder_path_weater_data'], 9999)
 
         # Clean raw temperature data
         data['temperature_data'] = read_weather_data.clean_weather_data_raw(data['temperature_data_raw'], 9999)
 
         # Weather stations
-        data['weather_stations'] = read_weather_data.read_weather_stations_raw(
+        data['weather_stations2'] = read_weather_data.read_weather_stations_raw(
             data['path_dict']['folder_path_weater_stations'], data['temperature_data'].keys())
-        #print("...number of weater stations with cleaned data: " + str(len(data['weather_stations'].keys())))
-
-        # Print out all x y of weater data
-        #for weather_station_nr in data['weather_stations']:
-        #    print("Weaterstation {}  X and Y:  {} {}".format(weather_station_nr, data['weather_stations'][weather_station_nr]['station_latitude'], data['weather_stations'][weather_station_nr]['station_longitude']))
 
         del data['temperature_data_raw']
-        '''
-
-        
-
+    '''
+    
 
     # ------------------------------------------
     # Load ECUK fuel data
