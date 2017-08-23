@@ -288,7 +288,7 @@ def write_weather_stations(path_to_txt, weather_station):
 # ----------------------
 # Paths
 # ----------------------
-print("..start script")
+print("..start script {}".format(os.path.basename(__file__)))
 LOCAL_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
 CSV_OUT_WEATHER_DATA = os.path.join(
     os.path.dirname(__file__), '..', r'data\data_scripts\weather_data.csv')
@@ -320,4 +320,4 @@ WEATHER_STATIONS = read_weather_stations_raw(
 write_weather_stations(CSV_OUT_WEATHER_STATIONS, WEATHER_STATIONS)
 write_weather_data(CSV_OUT_WEATHER_DATA, TEMPERATURE_DATA)
 
-print("...finished script read_raw_weather_data.py")
+print("..finished script {}".format(os.path.basename(__file__)))

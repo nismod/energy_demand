@@ -47,6 +47,7 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
+from energy_demand.read_write import read_weather_data
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
@@ -225,8 +226,16 @@ if __name__ == "__main__":
     base_data['driver_data'] = {}
 
     # Change temperature data according to simple assumptions about climate change
-    base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
+    ##base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
+    path_weather_data_climate_changed = os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv')
+    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(path_weather_data_climate_changed)
 
+    #WRITE ASSUMPTIONS TO TXT
+    #------------------------------
+    path_assump_sim_param = os.path.join(base_data['path_dict']['path_assumptions_db'], "assumptions_sim_param.csv")
+
+    # Write out Sim Param to csv
+    write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(

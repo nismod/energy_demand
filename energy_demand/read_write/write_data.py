@@ -178,3 +178,39 @@ def write_out_txt(path_to_txt, enduses_service):
 
     file.close()
     return
+
+
+# -----------
+# Write out assumptions
+def write_out_temp_assumptions(path_to_txt, temp_assumptions):
+    """
+    """
+    file = open(path_to_txt, "w")
+
+    file.write("{}, {}".format(
+        'month', 'temp_change_ey') + '\n'
+              )
+    for month, temp_change_ey in enumerate(temp_assumptions):
+        file.write("{}, {}".format(
+        month, temp_change_ey) + '\n'
+                  )
+    file.close()
+
+    return
+
+def write_out_sim_param(path_to_txt, temp_assumptions):
+    """Write sim_param dictionary to csv
+    """
+    file = open(path_to_txt, "w")
+
+    file.write("{}, {}".format(
+        'month', 'temp_change_ey') + '\n'
+              )
+    for data in temp_assumptions:
+        data_entry = data
+        data_entry2 = str(temp_assumptions[data])
+        file.write("{}, {}".format(data_entry, data_entry2) + '\n'
+                  )
+    file.close()
+
+    return

@@ -1,11 +1,14 @@
 """All assumptions are either loaded in this file or definied here
 """
+import os
+import sys
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
 from energy_demand.technologies import dummy_technologies
 from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helper_functions
+from energy_demand.read_write import write_data
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #TODO: Write function which insersts zeros if a fueltype is not provided
@@ -135,11 +138,15 @@ def load_assumptions(data):
     ]
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
+    #WRITE ASSUMPTIONS TO TXT
+    path_assump_climate_change = os.path.join(
+        data['path_dict']['path_assumptions_db'],
+        "assumptions_climate_change_temp.csv")
+    write_data.write_out_temp_assumptions(path_assump_climate_change, assumptions['climate_change_temp_diff_month'])
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
-    # ============================================================
-    # Heating base temperature
+    # ============================================================    # Heating base temperature
     assumptions['rs_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
     assumptions['ss_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
 
