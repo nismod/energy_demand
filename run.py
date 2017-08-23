@@ -5,7 +5,7 @@ import os
 from smif import SpaceTimeValue
 from smif.sector_model import SectorModel
 from energy_demand.main import energy_demand_model
-from energy_demand.data_loader import load_data
+from energy_demand.read_write_loader import load_data
 from energy_demand.assumptions import load_assumptions
 from energy_demand.national_dissaggregation import disaggregate_base_demand_for_reg
 from energy_demand.building_stock_generator import resid_build_stock

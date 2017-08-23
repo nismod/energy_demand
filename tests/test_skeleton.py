@@ -4,9 +4,9 @@
 
 import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import assumptions
-from energy_demand.data import data_loader
-from energy_demand.data import write_data
-from energy_demand.data import read_data
+from energy_demand.read_write import data_loader
+from energy_demand.read_write import write_data
+from energy_demand.read_write import read_data
 from energy_demand.disaggregation import national_disaggregation
 from energy_demand.building_stock import building_stock_generator
 from energy_demand.technologies import diffusion_technologies as diffusion
@@ -18,7 +18,7 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
-from energy_demand.data import read_data
+from energy_demand.read_write import read_data
 import datetime
 from datetime import date
 from datetime import timedelta as td

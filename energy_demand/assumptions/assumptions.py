@@ -1,6 +1,6 @@
 """All assumptions are either loaded in this file or definied here
 """
-from energy_demand.data import read_data
+from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
 from energy_demand.technologies import dummy_technologies
 from energy_demand.basic import testing_functions as testing
@@ -325,6 +325,13 @@ def load_assumptions(data):
         'hob_electricity',
         'oven_electricity',
         'hob_induction_electricity'
+        ]
+    # Wet technologies
+    assumptions['technology_list']['rs_wet'] = [
+        'washing_machine',
+        'washer_dryer',
+        'dishwasher',
+        'tumble_dryer'
         ]
 
     ## Is assumptions['technology_list']['tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology

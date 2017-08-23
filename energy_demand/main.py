@@ -34,9 +34,9 @@ from datetime import date
 import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import assumptions
-from energy_demand.data import data_loader
-from energy_demand.data import write_data
-from energy_demand.data import read_data
+from energy_demand.read_write import data_loader
+from energy_demand.read_write import write_data
+from energy_demand.read_write import read_data
 from energy_demand.disaggregation import national_disaggregation
 from energy_demand.building_stock import building_stock_generator
 from energy_demand.technologies import diffusion_technologies as diffusion
@@ -220,11 +220,11 @@ if __name__ == "__main__":
     data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
     data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
-    
+
 
     # ------------------- DUMMY END
     data_external['fastcalculationcrit'] = True
-    
+
     base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
 
     # ----------------------------------------
@@ -258,6 +258,7 @@ if __name__ == "__main__":
 
     # Change temperature data according to simple assumptions about climate change
     base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
+
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(

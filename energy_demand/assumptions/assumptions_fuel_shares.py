@@ -56,7 +56,15 @@ def get_fuel_stock_definition(assumptions, data):
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][data['lu_fueltype']['electricity']] = {
         'hob_electricity': 0.49,
         'oven_electricity': 0.51,
-        'hob_induction_electricity': 0.0 
+        'hob_induction_electricity': 0.0
+        }
+
+    # ---rs_wet
+    assumptions['rs_fuel_tech_p_by']['rs_wet'][data['lu_fueltype']['electricity']] = {
+        'washing_machine': 0.305,
+        'washer_dryer': 0.157,
+        'dishwasher': 0.220,
+        'tumble_dryer': 0.318
         }
 
     #---Space heating

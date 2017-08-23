@@ -10,7 +10,7 @@ import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 from energy_demand.profiles import hdd_cdd
-from energy_demand.data import read_weather_data
+from energy_demand.read_write import read_weather_data
 from energy_demand.plotting import plotting_program
 
 # ----------------------------------

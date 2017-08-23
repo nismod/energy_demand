@@ -102,6 +102,23 @@ across all modules.
 
 > `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
 
+
+11.Technologies
+===================
+
+Based on ECUK() different technologies are assigned to enduses. Efficiencies are 
+
+11.1 Residential sector
+-----------------------
+
+
+| Enduse        | Technologies         |
+| ------------- |-------------|
+| Wet | Washing machine, tubmle dryer, dishwasher, washer dryer |
+| Cooking | Oven, Standard hub (different fueltypes), Induction hob      |
+| Cold | Chest freezer, Fridge freezer, Refrigerator, Upright freezer     |
+| Lighting | Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED     |
+| Space and Water Heating | Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)    |
 11.Data
 ===================
 
@@ -123,8 +140,8 @@ Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated 
 
 Metering trial for electricity and gas use across different sectors for businesses (service sector).
 
->
-> - [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
->
-> - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
->   [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
+
+ - [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
+
+ - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
+   [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)

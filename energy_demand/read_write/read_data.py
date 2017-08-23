@@ -423,15 +423,17 @@ def read_technologies(path_to_csv, data):
                 fueltype = 'None'
             else:
                 fueltype = data['lu_fueltype'][str(row[1])]
-
-            dict_technologies[technology] = {
-                'fuel_type': fueltype,
-                'eff_by': float(row[2]),
-                'eff_ey': float(row[3]),
-                'eff_achieved': float(row[4]),
-                'diff_method': str(row[5]),
-                'market_entry': float(row[6])
-            }
+            try:
+                dict_technologies[technology] = {
+                    'fuel_type': fueltype,
+                    'eff_by': float(row[2]),
+                    'eff_ey': float(row[3]),
+                    'eff_achieved': float(row[4]),
+                    'diff_method': str(row[5]),
+                    'market_entry': float(row[6])
+                }
+            except:
+                sys.exit("Error in technology loading table. Check if e.g. empty field")
 
     return dict_technologies
 

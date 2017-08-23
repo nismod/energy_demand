@@ -175,6 +175,17 @@ class EnergyModel(object):
             shape_peak_dh=data['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
             )
 
+        # rs_wet
+        non_regional_profile_stock.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=data['assumptions']['technology_list']['rs_wet'],
+            enduses=['rs_wet'],
+            shape_yd=data['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+            shape_yh=data['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
+            shape_peak_dh=data['rs_shapes_dh']['rs_wet']['shape_peak_dh']
+            )
+
         # -- dummy rs technologies (apply enduse sepcific shape)
         for enduse in data['assumptions']['rs_dummy_enduses']:
             tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])

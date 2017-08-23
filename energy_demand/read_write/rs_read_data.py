@@ -4,7 +4,7 @@ from datetime import date
 import numpy as np
 from energy_demand.profiles import load_profile
 from energy_demand.basic import date_handling
-from energy_demand.data import read_data
+from energy_demand.read_write import read_data
 
 def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, enduse):
     """Read in raw HES data and generate shapes
