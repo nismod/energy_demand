@@ -44,3 +44,4 @@ MANIFEST
 # Model results
 model_output/*.csv
 data/data_scripts/*.csv
+data/data_scripts/*.txt
