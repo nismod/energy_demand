@@ -21,7 +21,8 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-### 1.1 Energy demand simulation
+## 2 Energy demand simulation
+
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 
@@ -41,6 +42,18 @@ Energy demand change in relation to the base year (by) for end-use specific scen
 
 ![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D%20%3D%20%5Cfrac%7BED_%7BSD%7D%5E%7Btot%7D%7D%7BSD%28by%29%7D%20*%20SD%28simulation%20year%29 "ED_{SD} = \frac{ED_{SD}^{tot}}{SD(by)} * SD(simulation year)")
 
+For the residential and service sub-model, SD values are calculated based on a dwelling stock where scenario drivers are calculated either for dwellings or a group of dwelling (e.g. dwelling types).
+
+
+| Scenario Driver        | Enduse(s)         |
+| ------------- |-------------|
+| Floor Area | Space heating, lighting |
+| Heating Degree Days | Space heating  |
+| Cooling degree Days | Cooling and Ventilation  |
+| Population | Water heating, cooking, appliances ... |
+| GVA | Enduses in industry submodel, appliances  |
+
+*Table 1: End-use specific scenario drivers for energy demand*
 
 ## 2. Model integration
 
@@ -57,9 +70,7 @@ LORBEM IPSUMLORBEM IPSUMLORBEM IPSUMLORBEM IPSUM
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 
 
-
-10 Reading the code
-===================
+# 10. Reading the code
 
 ## 10.1 Abbreviations
 
@@ -88,11 +99,9 @@ across all modules.
     tech:       Technology
     temp:       Temperature
 
-
 ## 10.2 Load profiles annotation
 
 > `y`:  Total demand in a year
-
 
 > `yd`: 'Yearly load profile' - Profile for every day in a year of total yearly demand(365)
 
@@ -103,13 +112,11 @@ across all modules.
 > `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
 
 
-11.Technologies
-===================
+# 11.Technologies
 
 Based on ECUK() different technologies are assigned to enduses. Efficiencies are 
 
-11.1 Residential sector
------------------------
+## 11.1 Residential sector
 
 
 | Enduse        | Technologies         |
@@ -119,12 +126,18 @@ Based on ECUK() different technologies are assigned to enduses. Efficiencies are
 | Cold | Chest freezer, Fridge freezer, Refrigerator, Upright freezer     |
 | Lighting | Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED     |
 | Space and Water Heating | Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)    |
-11.Data
-===================
 
-## 11.1 Household Electricity Servey
+# 12 Used Data Sets
 
-The Household Electricity Survey (HES) was the most detailed monitoring of electricity use ever carried out in the UK.
+
+## 12.1 National Energy Data
+
+The base year energy consumption of the UK (ECUK) in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for 6 fuel types (solid fuel, gas, electricity, oil, heat sold, bioenergy and waste) in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
+
+
+## 12.2 Household Electricity Servey
+
+The Household Electricity Survey (HES) is the most detailed monitoring of electricity use ever carried out in the UK.
 Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
 
 - [More information](https://www.gov.uk/government/collections/household-electricity-survey)
@@ -136,12 +149,15 @@ Electricity consumption was monitored at an appliance level in 250 owner-occupie
 Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
 
 
-## 11.2 Carbon Trust advanced metering trial
+## 12.3 Carbon Trust advanced metering trial
 
 Metering trial for electricity and gas use across different sectors for businesses (service sector).
-
 
  - [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
 
  - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
    [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
+
+# Literature
+
+BEIS (2016) Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
