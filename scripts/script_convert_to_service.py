@@ -1,251 +1,378 @@
-'''
-Energy Demand Model
-=================
-
-Contains all calculation steps necessary to run the
-energy demand module.
-
-The model has been developped within the MISTRAL
-project. A previous model has been developped within
-NISMOD by Pranab et al..(MOREINFO) HIRE develops this model
-further into a high temporal and spatial model.abs
-
-Key contributers are:
-    - Sven Eggimann
-    - Nick Eyre
-    -
-
-    note,tip,warning,
-
-More information can be found here:
-
-    - Eggimann et al. (2018): Paper blablabla
-
-
-pip install autopep8
-autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
-import time   fdf
-#print("..TIME A: {}".format(time.time() - start)) 
-'''
+"""
+"""
 #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
 import os
 import sys
 from datetime import date
-import numpy as np
-import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
-from energy_demand.read_write import write_data
-from energy_demand.read_write import read_data
-from energy_demand.disaggregation import national_disaggregation
-from energy_demand.building_stock import building_stock_generator
-from energy_demand.technologies import diffusion_technologies as diffusion
-from energy_demand.technologies import fuel_service_switch
-from energy_demand.calculations import enduse_scenario
-from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import date_handling
-from energy_demand.validation import lad_validation
-from energy_demand.validation import elec_national_data
-from energy_demand.plotting import plotting_results
-from energy_demand.read_write import read_weather_data
+import numpy as np
+from energy_demand.initalisations import initialisations as init
+from energy_demand.technologies import technologies_related
+print("... start script {}".format(os.path.basename(__file__)))
+
+def write_service_fueltype_by_p(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}".format(
+        'service', 'fueltype', 'service_p') + '\n'
+              )
+
+    for service, fueltypes in data.items():
+        for fueltype, service_p in fueltypes.items():
+                file.write("{}, {}, {}".format(
+                    service, fueltype, float(service_p)) + '\n')
+
+    file.close()
+
+    return
+
+def write_service_fueltype_tech_by_p(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}, {}".format(
+        'service', 'fueltype', 'technology', 'service_p') + '\n'
+              )
+
+    for service, fueltype_tech in data.items():
+        for fueltype, tech_list in fueltype_tech.items():
+            if tech_list == {}:
+                file.write("{}, {}, {}, {}".format(
+                    service, fueltype, "None", 0) + '\n') #None and 0
+            else:
+                for tech, service_p in tech_list.items():
+                    file.write("{}, {}, {}, {}".format(
+                        service, fueltype, tech, float(service_p)) + '\n')
+
+    file.close()
+
+    return
+
+def write_service_tech_by_p(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}".format(
+        'enduse', 'technology', 'service_p') + '\n'
+              )
+
+    for enduse, technologies in data.items():
+        for tech, service_p in technologies.items():
+            file.write("{}, {}, {}".format(
+                str.strip(enduse), str.strip(tech), float(service_p)) + '\n'
+                      )
+
+    file.close()
+
+    return
+
+
+def init_nested_dict_brackets(first_level_keys, second_level_keys):
+    """Initialise a nested dictionary with two levels
+
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+    second_level_keys : list
+        Data to add in nested dict
+
+    Returns
+    -------
+    nested_dict : dict
+        Nested 2 level dictionary
+    """
+    nested_dict = {}
+
+    for first_level_key in first_level_keys:
+        nested_dict[first_level_key] = {}
+        for second_level_key in second_level_keys:
+            nested_dict[first_level_key][second_level_key] = {}
+
+    return nested_dict
+
+def init_nested_dict_zero(first_level_keys, second_level_keys):
+    """Initialise a nested dictionary with two levels
+
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+    second_level_keys : list
+        Data to add in nested dict
+
+    Returns
+    -------
+    nested_dict : dict
+        Nested 2 level dictionary
+    """
+    nested_dict = {}
+
+    for first_level_key in first_level_keys:
+        nested_dict[first_level_key] = {}
+        for second_level_key in second_level_keys:
+            nested_dict[first_level_key][second_level_key] = 0
+
+    return nested_dict
+
+def init_dict_brackets(first_level_keys):
+    """Initialise a  dictionary with one level
+
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+
+    Returns
+    -------
+    one_level_dict : dict
+         dictionary
+    """
+    one_level_dict = {}
+
+    for first_key in first_level_keys:
+        one_level_dict[first_key] = {}
+
+    return one_level_dict
+
+def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
+    """Aggregated fuel for all sectors according to enduse
+    """
+    aggregated_fuel_enduse = {}
+
+    for enduse in ss_enduses:
+        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
+
+    # Iterate and sum fuel per enduse
+    for _, fuels_sector in ss_fuel_raw_data_enduses.items():
+        for enduse, fuels_enduse in fuels_sector.items():
+            aggregated_fuel_enduse[enduse] += fuels_enduse
+
+    return aggregated_fuel_enduse
+
+def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
+    """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
+
+    This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
+    and then calculated how much an invidual technology contributes in percent to total energy
+    service demand.
+
+    This is calculated to determine how much the technology has already diffused up
+    to the base year to define the first point on the sigmoid technology diffusion curve.
+
+    Parameters
+    ----------
+    lu_fueltypes : dict
+        Fueltypes
+    fuel_p_tech_by : dict
+        Assumed fraction of fuel for each technology within a fueltype
+    fuels : array
+        Base year fuel demand
+    tech_stock : object
+        Technology stock of base year (region dependent)
+
+    Return
+    ------
+    service_tech_by_p : dict
+        Percentage of total energy service per technology for base year
+    service_fueltype_tech_by_p : dict
+        Percentage of energy service witin a fueltype for all technologies with this fueltype for base year
+    service_fueltype_by_p : dict
+        Percentage of energy service per fueltype
+
+    Notes
+    -----
+    Regional temperatures are not considered because otherwise the initial fuel share of
+    hourly dependent technology would differ and thus the technology diffusion within a region.
+    Therfore a constant technology efficiency of the full year needs to be assumed for all technologies.
+
+    Because regional efficiencies may differ within regions, the fuel distribution within
+    the fueltypes may also differ
+    """
+    # Energy service per technology for base year
+    service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
+    service_tech_by_p = init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
+    service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values()) # Percentage of service per technologies within the fueltypes
+    service_fueltype_by_p = init_nested_dict_zero(service_tech_by_p.keys(), range(len(lu_fueltypes))) # Percentage of service per fueltype
+
+    for enduse, fuel in fuels.items():
+
+        for fueltype, fuel_fueltype in enumerate(fuel):
+            tot_service_fueltype = 0
+
+            #Initiate NEW
+            for tech in fuel_p_tech_by[enduse][fueltype]:
+                service[enduse][fueltype][tech] = 0
+
+            # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
+            for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
+
+                # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
+                fuel_tech = fuel_alltech_by * fuel_fueltype
+                #print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
+
+                # Get technology type
+                tech_type = technologies_related.get_tech_type(tech, technology_list)
+
+                # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
+                if tech_type == 'hybrid_tech':
+                    eff_tech = hybrid_technologies[tech]['average_efficiency_national_by']
+                elif tech_type == 'heat_pump':
+                    eff_tech = technologies_related.eff_heat_pump(
+                        temp_diff=10,
+                        efficiency_intersect=tech_stock[tech]['eff_by']
+                        )
+                elif tech_type == 'dummy_tech':
+                    eff_tech = 1
+                else:
+                    eff_tech = tech_stock[tech]['eff_by']
+
+                # Energy service of end use: Service == Fuel of technoloy * efficiency
+                service_fueltype_tech = fuel_tech * eff_tech
+                print("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
+
+                # Add energy service demand
+                service[enduse][fueltype][tech] += service_fueltype_tech
+
+                # Total energy service demand within a fueltype
+                tot_service_fueltype += service_fueltype_tech
+
+            # Calculate percentage of service enduse within fueltype
+            for tech in fuel_p_tech_by[enduse][fueltype]:
+                if tot_service_fueltype == 0: # No fuel in this fueltype
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = 0
+                    service_fueltype_by_p[enduse][fueltype] += 0
+                else:
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = (1 / tot_service_fueltype) * service[enduse][fueltype][tech]
+                    service_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
+
+        # Calculate percentage of service of all technologies
+        total_service = init.sum_2_level_dict(service[enduse])
+
+        # Percentage of energy service per technology
+        for fueltype, technology_service_enduse in service[enduse].items():
+            for technology, service_tech in technology_service_enduse.items():
+                service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
+                #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
+
+        print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
+
+        # Convert service per enduse
+        for fueltype in service_fueltype_by_p[enduse]:
+            service_fueltype_by_p[enduse][fueltype] = (1.0 / total_service) * service_fueltype_by_p[enduse][fueltype]
+
+    '''# Assert does not work for endues with no defined technologies
+    # --------
+    # Test if the energy service for all technologies is 100%
+    # Test if within fueltype always 100 energy service
+    '''
+    return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
+
+
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
 
-def energy_demand_model(data):
-    """Main function of energy demand model to calculate yearly demand
+base_data = {}
+base_data['sim_param'] = {}
+base_data['sim_param']['base_yr'] = 2015
+base_data['sim_param']['end_yr'] = 2020
+base_data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+base_data['sim_param']['sim_period'] = range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr']  + 1, base_data['sim_param']['sim_years_intervall'])
+base_data['sim_param']['sim_period_yrs'] = int(base_data['sim_param']['end_yr']  + 1 - base_data['sim_param']['base_yr'])
+base_data['sim_param']['curr_yr'] = base_data['sim_param']['base_yr']
+base_data['sim_param']['list_dates'] = date_handling.fullyear_dates(
+    start=date(base_data['sim_param']['base_yr'], 1, 1),
+    end=date(base_data['sim_param']['base_yr'], 12, 31))
 
-    Parameters
-    ----------
-    data : dict
-        Data container
+# Paths
+path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
-    Returns
-    -------
-    result_dict : dict
-        A nested dictionary containing all data for energy supply model with
-        timesteps for every hour in a year.
-        [fuel_type : region : timestep]
-    model_run_object : dict
-        Object of a yearly model run
+# -----------------------------------------------------
+# Load data and assumptions
+# ------------------------------------------------------
+base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
+base_data = data_loader.load_data_lookup_data(base_data)
+base_data = data_loader.load_fuels(base_data)
+base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
-    Note
-    ----
-    This function is executed in the wrapper
-
-    Quetsiosn for Tom
-    ----------------
-    - Cluster?
-    - scripts in ed?
-    - path rel/abs
-    - nested scripts
-    """
-
-    # -------------------------
-    # Model main function
-    # --------------------------
-    fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
-
-    # Add all region instances as an attribute (region name) into the class `EnergyModel`
-    model_run_object = energy_model.EnergyModel(
-        region_names=data['lu_reg'],
-        data=data,
+# RESIDENTIAL: Convert base year fuel input assumptions to energy service
+rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(
+    base_data['assumptions']['technology_list'],
+    base_data['assumptions']['hybrid_technologies'],
+    base_data['lu_fueltype'],
+    base_data['assumptions']['rs_fuel_tech_p_by'],
+    base_data['rs_fuel_raw_data_enduses'],
+    base_data['assumptions']['technologies']
     )
 
-    # ----------------------------
-    # Summing
-    # ----------------------------
-    fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
+# SERVICE: Convert base year fuel input assumptions to energy service
+fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
+    base_data['ss_fuel_raw_data_enduses'],
+    base_data['ss_all_enduses'],
+    base_data['nr_of_fueltypes'])
+ss_service_tech_by_p, ss_service_fueltype_tech_by_p, ss_service_fueltype_by_p = get_service_fueltype_tech(
+    base_data['assumptions']['technology_list'],
+    base_data['assumptions']['hybrid_technologies'],
+    base_data['lu_fueltype'],
+    base_data['assumptions']['ss_fuel_tech_p_by'],
+    fuels_aggregated_across_sectors,
+    base_data['assumptions']['technologies']
+    )
+print("ss_service_tech_by_p")
+print(ss_service_tech_by_p)
 
-    print("================================================")
-    print("Number of regions    " + str(len(data['lu_reg'])))
-    print("Fuel input:          " + str(fuel_in))
-    print("Fuel output:         " + str(fueltot))
-    print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
-    print("elec fuel in:        " + str(fuel_in_elec))
-    print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-    print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
-    print("================================================")
-    for fff in range(8):
-        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[fff])))
-    # # --- Write to csv and YAML Convert data according to region and fueltype
-    #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
-    ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
+# INDUSTRY
+fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
+    base_data['is_fuel_raw_data_enduses'],
+    base_data['is_all_enduses'],
+    base_data['nr_of_fueltypes'])
+is_service_tech_by_p, is_service_fueltype_tech_by_p, is_service_fueltype_by_p = get_service_fueltype_tech(
+    base_data['assumptions']['technology_list'],
+    base_data['assumptions']['hybrid_technologies'],
+    base_data['lu_fueltype'],
+    base_data['assumptions']['is_fuel_tech_p_by'],
+    fuels_aggregated_across_sectors,
+    base_data['assumptions']['technologies']
+    )
 
-    print("...finished energy demand model simulation")
-    return _, model_run_object
+# ------------------
+# Write to csv files
+# ------------------
+CSV_rs_service_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_tech_by_p.csv')
+CSV_rs_service_fueltype_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_fueltype_tech_by_p.csv')
+CSV_rs_service_fueltype_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_fueltype_by_p.csv')
+CSV_ss_service_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_tech_by_p.csv')
+CSV_ss_service_fueltype_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_fueltype_tech_by_p.csv')
+CSV_ss_service_fueltype_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_fueltype_by_p.csv')
+CSV_is_service_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_tech_by_p.csv')
+CSV_is_service_fueltype_tech_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_fueltype_tech_by_p.csv')
+CSV_is_service_fueltype_by_p = os.path.join(
+    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_fueltype_by_p.csv')
 
-# Run
-if __name__ == "__main__":
-    print('start_main')
-    base_data = {}
+write_service_tech_by_p(CSV_rs_service_tech_by_p, rs_service_tech_by_p)
+write_service_tech_by_p(CSV_ss_service_tech_by_p, ss_service_tech_by_p)
+write_service_tech_by_p(CSV_is_service_tech_by_p, is_service_tech_by_p)
 
-    # ------------------------------------------------------------------
-    # Execute only once before executing energy demand module for a year
-    # ------------------------------------------------------------------
-    instrument_profiler = True
+write_service_fueltype_tech_by_p(CSV_rs_service_fueltype_tech_by_p, rs_service_fueltype_tech_by_p)
+write_service_fueltype_tech_by_p(CSV_ss_service_fueltype_tech_by_p, ss_service_fueltype_tech_by_p)
+write_service_fueltype_tech_by_p(CSV_is_service_fueltype_tech_by_p, is_service_fueltype_tech_by_p)
 
-    data_external = {}
-    data_external['sim_param'] = {}
-    data_external['sim_param']['base_yr'] = 2015
-    data_external['sim_param']['end_yr'] = 2020
-    data_external['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
-    data_external['sim_param']['sim_period'] = range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr']  + 1, data_external['sim_param']['sim_years_intervall'])
+write_service_fueltype_by_p(CSV_rs_service_fueltype_by_p, rs_service_fueltype_by_p)
+write_service_fueltype_by_p(CSV_ss_service_fueltype_by_p, ss_service_fueltype_by_p)
+write_service_fueltype_by_p(CSV_is_service_fueltype_by_p, is_service_fueltype_by_p)
 
-    data_external['sim_param']['sim_period_yrs'] = int(data_external['sim_param']['end_yr']  + 1 - data_external['sim_param']['base_yr'])
-
-    data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
-    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(
-        start=date(data_external['sim_param']['base_yr'], 1, 1),
-        end=date(data_external['sim_param']['base_yr'], 12, 31))
-
-
-    # DUMMY DATA GENERATION----------------------
-    #'''
-    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-
-    # Load dummy LAC and pop
-    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
-
-    regions = {}
-    coord_dummy = {}
-    pop_dummy = {}
-    rs_floorarea = {}
-    ss_floorarea_sector_by_dummy = {}
-
-    for geo_code, values in dummy_pop_geocodes.items():
-        regions[geo_code] = values['label'] # Label for region
-        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
-
-    # Population
-    for i in range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr'] + 1):
-        _data = {}
-        for reg_geocode in regions:
-            _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
-        pop_dummy[i] = _data
-
-    # Residenital floor area
-    for region_geocode in regions:
-        rs_floorarea[region_geocode] = pop_dummy[2015][region_geocode] #USE FLOOR AREA
-
-    # Dummy flor area
-    for region_geocode in regions:
-        ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in base_data['all_sectors']:
-            ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
-
-    base_data['rs_floorarea'] = rs_floorarea
-    base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
-    #'''
-
-    data_external['input_regions'] = regions
-    data_external['population'] = pop_dummy
-    data_external['reg_coordinates'] = coord_dummy
-    data_external['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
-    data_external['input_regions'] = regions
-
-    base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
-
-    # ----------------------------------------
-    # Model calculations outside main function
-    # ----------------------------------------
-    print("... start model calculations outside main function")
-
-    # -------
-    # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
-    # If unconstrained mode (False), heat demand is provided per technology
-    # ---------
-    # Copy external data into data container
-    for dataset_name, external_data in data_external.items():
-        base_data[str(dataset_name)] = external_data
-
-    # Paths
-    
-    #path_main = os.path.join(os.path.dirname(__file__)[:-7]) #Remove 'energy_demand'
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
-
-    #------------------------------
-    # WRITE ASSUMPTIONS TO CSV
-    #------------------------------
-    path_assump_sim_param = os.path.join(path_main, r"data\data_scripts\assumptions_from_db\assumptions_sim_param.csv")
-    write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
-
-    print("..finished reading out assumptions to csv")
-
-    # ---------
-    # Load data
-    # ---------
-    base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
-    base_data = data_loader.load_data_profiles(base_data)
-    base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        base_data['path_dict']['path_scripts_data'])
-    base_data = data_loader.load_data_tech_profiles(base_data)
-    base_data = data_loader.load_data(base_data)
-
-    # Load assumptions
-    base_data['assumptions'] = assumptions.load_assumptions(base_data)
-
-    #TODO: Prepare all dissagregated data for [region][sector][]
-    base_data['driver_data'] = {}
-
-    # ---------------------
-    # SCRIPTS REPLACEMENTS
-    # ---------------------
-    # Change temperature data according to simple assumptions about climate change
-    ### REPLACED base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
-    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv'),
-        data_external['sim_param']['sim_period'])
-
-    print("... sigmoid calculations")
-
-    # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
-        base_data['assumptions']['technology_list'],
-        base_data['assumptions']['hybrid_technologies'],
-        base_data['lu_fueltype'],
-        base_data['assumptions']['rs_fuel_tech_p_by'],
-        base_data['rs_fuel_raw_data_enduses'],
-        base_data['assumptions']['technologies']
-        )
+print("... finished script {}".format(os.path.basename(__file__)))

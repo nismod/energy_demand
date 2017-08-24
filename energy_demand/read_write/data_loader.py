@@ -142,61 +142,7 @@ def load_data_temperatures(path_scripts_data):
 
     return weather_stations, temperature_data
 
-def load_data(data):
-    """All base data no provided externally are loaded
-
-    All necessary data to run energy demand model is loaded.
-    This data is loaded in the wrapper.
-
-    Parameters
-    ----------
-    data : dict
-        Dict with own data
-    path_main : str
-        Path to all data of model run which are not provided externally by wrapper
-
-    Returns
-    -------
-    data : list
-        Returns a list where storing all data
-    """
-    print("..load other data")
-    # ------------------------------------------------
-    # Basic look up tables
-    # ------------------------------------------------
-    # Fuel look-up table
-    data['lu_fueltype'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'heat_sold': 4,
-        'biomass': 5,
-        'hydrogen': 6,
-        'heat': 7
-        }
-
-    # Number of fueltypes
-    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
-
-    # Dwelling types lookup table
-    data['dwtype_lu'] = read_data.read_csv_dict_no_header(
-        data['path_dict']['path_dwtype_lu'])
-
-    # -----------------------------
-    # Read in floor area of all regions and store in dict
-    # TODO: REPLACE WITH Newcastle if ready
-    # -----------------------------
-    #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
-    data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
-    for region_name in data['input_regions']:
-        data['lu_reg'][region_name] = region_name
-
-    #TODO: FLOOR_AREA_LOOKUP:
-    data['reg_floorarea_resid'] = {}
-    for region_name in data['population'][data['sim_param']['base_yr']]:
-        data['reg_floorarea_resid'][region_name] = 100000
-
+def load_fuels(data):
     # ------------------------------------------
     # Load ECUK fuel data
     # ------------------------------------------
@@ -222,6 +168,7 @@ def load_data(data):
     data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
     data['is_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
 
+    #TODO
     fuel_national_tranport = np.zeros((data['nr_of_fueltypes']))
 
     #Elec demand from ECUK for transport sector
@@ -229,6 +176,49 @@ def load_data(data):
 
     #fuel_national_tranport[2] = 385
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
+
+    return data
+
+def load_data_lookup_data(data):
+    """All base data no provided externally are loaded
+
+    All necessary data to run energy demand model is loaded.
+    This data is loaded in the wrapper.
+
+    Parameters
+    ----------
+    data : dict
+        Dict with own data
+    path_main : str
+        Path to all data of model run which are not provided externally by wrapper
+
+    Returns
+    -------
+    data : list
+        Returns a list where storing all data
+    """
+    print("..load other data")
+
+    data['lu_fueltype'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'biomass': 5,
+        'hydrogen': 6,
+        'heat': 7
+        }
+    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
+
+    # Dwelling types lookup table
+    data['dwtype_lu'] = {
+        0: 'detached',
+        1: 'semi_detached',
+        2: 'terraced',
+        3: 'flat',
+        4: 'bungalow'
+        }
 
     return data
 

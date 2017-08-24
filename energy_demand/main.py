@@ -26,6 +26,8 @@ pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
 import time   fdf
 #print("..TIME A: {}".format(time.time() - start)) 
+
+TODO: REMOVE HEAT BOILER
 '''
 import os
 import sys
@@ -117,26 +119,23 @@ def energy_demand_model(data):
 # Run
 if __name__ == "__main__":
     print('start_main')
-    base_data = {}
 
     # ------------------------------------------------------------------
     # Execute only once before executing energy demand module for a year
     # ------------------------------------------------------------------
     instrument_profiler = True
 
-    data_external = {}
-    data_external['sim_param'] = {}
-    data_external['sim_param']['base_yr'] = 2015
-    data_external['sim_param']['end_yr'] = 2020
-    data_external['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
-    data_external['sim_param']['sim_period'] = range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr']  + 1, data_external['sim_param']['sim_years_intervall'])
-
-    data_external['sim_param']['sim_period_yrs'] = int(data_external['sim_param']['end_yr']  + 1 - data_external['sim_param']['base_yr'])
-
-    data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
-    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(
-        start=date(data_external['sim_param']['base_yr'], 1, 1),
-        end=date(data_external['sim_param']['base_yr'], 12, 31))
+    base_data = {}
+    base_data['sim_param'] = {}
+    base_data['sim_param']['base_yr'] = 2015
+    base_data['sim_param']['end_yr'] = 2020
+    base_data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+    base_data['sim_param']['sim_period'] = range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr']  + 1, base_data['sim_param']['sim_years_intervall'])
+    base_data['sim_param']['sim_period_yrs'] = int(base_data['sim_param']['end_yr']  + 1 - base_data['sim_param']['base_yr'])
+    base_data['sim_param']['curr_yr'] = base_data['sim_param']['base_yr']
+    base_data['sim_param']['list_dates'] = date_handling.fullyear_dates(
+        start=date(base_data['sim_param']['base_yr'], 1, 1),
+        end=date(base_data['sim_param']['base_yr'], 12, 31))
 
 
     # DUMMY DATA GENERATION----------------------
@@ -157,7 +156,7 @@ if __name__ == "__main__":
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
     # Population
-    for i in range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr'] + 1):
+    for i in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
@@ -175,28 +174,37 @@ if __name__ == "__main__":
 
     base_data['rs_floorarea'] = rs_floorarea
     base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
+
+    # -----------------------------
+    # Read in floor area of all regions and store in dict
+    # TODO: REPLACE WITH Newcastle if ready
+    # -----------------------------
+    #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
+    base_data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
+    for region_name in regions:
+        base_data['lu_reg'][region_name] = region_name
+
+    #TODO: FLOOR_AREA_LOOKUP:
+    base_data['reg_floorarea_resid'] = {}
+    for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
+        base_data['reg_floorarea_resid'][region_name] = 100000
+
     #'''
 
-    data_external['input_regions'] = regions
-    data_external['population'] = pop_dummy
-    data_external['reg_coordinates'] = coord_dummy
-    data_external['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
-    data_external['input_regions'] = regions
+    base_data['input_regions'] = regions
+    base_data['population'] = pop_dummy
+    base_data['reg_coordinates'] = coord_dummy
+    base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
 
     # ----------------------------------------
     # Model calculations outside main function
     # ----------------------------------------
-    print("... start model calculations outside main function")
-
     # -------
     # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
     # If unconstrained mode (False), heat demand is provided per technology
     # ---------
-    # Copy external data into data container
-    for dataset_name, external_data in data_external.items():
-        base_data[str(dataset_name)] = external_data
 
     # Paths
     path_main = os.path.join(os.path.dirname(__file__)[:-13]) #Remove 'energy_demand'
@@ -206,39 +214,57 @@ if __name__ == "__main__":
     # WRITE ASSUMPTIONS TO CSV
     #------------------------------
     path_assump_sim_param = os.path.join(path_main, r"data\data_scripts\assumptions_from_db\assumptions_sim_param.csv")
-    write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
+    write_data.write_out_sim_param(path_assump_sim_param, base_data['sim_param'])
 
     print("..finished reading out assumptions to csv")
 
-    # ---------
-    # Load data
-    # ---------
+    # ------------------------------------------------------
+    # Load data and assumptions
+    # ------------------------------------------------------
     base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
+    base_data = data_loader.load_data_lookup_data(base_data)
     base_data = data_loader.load_data_profiles(base_data)
     base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
         base_data['path_dict']['path_scripts_data'])
+    base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
-    base_data = data_loader.load_data(base_data)
-
-    # Load assumptions
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
+
     # ---------------------
     # SCRIPTS REPLACEMENTS
     # ---------------------
+
+    print("... sigmoid calculations")
+    # Read in Services
+    base_data['assumptions']['rs_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
+    base_data['assumptions']['ss_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
+    base_data['assumptions']['is_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
+
+    base_data['assumptions']['rs_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
+    base_data['assumptions']['ss_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
+    base_data['assumptions']['is_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
+    
+    base_data['assumptions']['rs_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
+    base_data['assumptions']['ss_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
+    base_data['assumptions']['is_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
+
     # Change temperature data according to simple assumptions about climate change
     ### REPLACED base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
     base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
         os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv'),
-        data_external['sim_param']['sim_period'])
+        base_data['sim_param']['sim_period'])
 
-    print("... sigmoid calculations")
+
+    #base_data['assumptions']['rs_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
+    #base_data['assumptions']['ss_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
+    #base_data['assumptions']['is_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
+    '''_, _, _ = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions']['technology_list'],
         base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
@@ -249,7 +275,7 @@ if __name__ == "__main__":
 
     # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
-    base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
+    _, ssss, _ = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions']['technology_list'],
         base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
@@ -257,10 +283,12 @@ if __name__ == "__main__":
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
+    #print(ssss)
+    #print(":")
 
     # INDUSTRY
     fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['is_fuel_raw_data_enduses'], base_data['is_all_enduses'], base_data['nr_of_fueltypes'])
-    base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
+    _,_, _ = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions']['technology_list'],
         base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
@@ -268,15 +296,19 @@ if __name__ == "__main__":
         fuels_aggregated_across_sectors,
         base_data['assumptions']['technologies']
         )
+    '''
 
     # Write out txt file with service shares for each technology per enduse
     ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
     #print("... a file has been generated which shows the shares of each technology per enduse")
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
-    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_tech_future_service(base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
-    base_data['assumptions']['is_tech_increased_service'], base_data['assumptions']['is_tech_decreased_share'], base_data['assumptions']['is_tech_constant_share'] = fuel_service_switch.get_tech_future_service(base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_share_service_tech_ey_p'])
+    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
+        base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_share_service_tech_ey_p'])
+    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
+        base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_share_service_tech_ey_p'])
+    base_data['assumptions']['is_tech_increased_service'], base_data['assumptions']['is_tech_decreased_share'], base_data['assumptions']['is_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
+        base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_share_service_tech_ey_p'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
@@ -336,8 +368,8 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
 
-    for sim_yr in data_external['sim_param']['sim_period']:
-        data_external['sim_param']['curr_yr'] = sim_yr
+    for sim_yr in base_data['sim_param']['sim_period']:
+        base_data['sim_param']['curr_yr'] = sim_yr
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))

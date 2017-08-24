@@ -105,42 +105,6 @@ def read_csv_base_data_service(path_to_csv, nr_of_fueltypes):
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
-def read_csv_dict_no_header(path_to_csv):
-    """Read in csv file into a dict (without header)
-
-    Parameters
-    ----------
-    path_to_csv : str
-        Path to csv file
-
-    Returns
-    -------
-    out_dict : dict
-        Dictionary with first row element as main key and headers as key for nested dict.
-        All entries and main key are returned as float
-
-    Note
-    -------
-    Example:
-
-        Year    Header1 Header2
-        1990    Val1    Val2
-
-        returns {{str(Year): float(1990), str(Header1): float(Val1), str(Header2): float(Val2)}}
-    """
-    out_dict = {}
-    with open(path_to_csv, 'r') as csvfile:               # Read CSV file
-        read_lines = csv.reader(csvfile, delimiter=',')   # Read line
-        _headings = next(read_lines)                      # Skip first row
-
-        for row in read_lines: # Iterate rows
-            try:
-                out_dict[int(row[0])] = float(row[1])
-            except ValueError:
-                out_dict[int(row[0])] = str(row[1])
-
-    return out_dict
-
 def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
 
@@ -519,3 +483,100 @@ def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
                     end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
+
+def read_service_fueltype_tech_by_p(path_to_csv):
+    """Read 
+    """
+    print("... read in service data: " + str(path_to_csv))
+    service_fueltype_tech_by_p = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip headers
+
+        # Iterate rows
+        for row in read_lines:
+            service = str.strip(row[0])
+            fueltype = int(row[1])
+            tech = str.strip(row[2])
+            service_p = float(row[3])
+
+            try:
+                service_fueltype_tech_by_p[service]
+            except KeyError:
+                service_fueltype_tech_by_p[service] = {}
+            try:
+                service_fueltype_tech_by_p[service][fueltype]
+            except KeyError:
+                service_fueltype_tech_by_p[service][fueltype] = {}
+
+            if tech == 'None':
+                service_fueltype_tech_by_p[service][fueltype] = {}
+            else:
+                
+                try:
+                    service_fueltype_tech_by_p[service][fueltype][tech]
+                except KeyError:
+                    service_fueltype_tech_by_p[service][fueltype][tech] = 0
+
+                service_fueltype_tech_by_p[service][fueltype][tech] += service_p
+
+    return service_fueltype_tech_by_p
+
+def read_service_fueltype_by_p(path_to_csv):
+    """Read 
+    """
+    print("... read in service data: " + str(path_to_csv))
+    service_fueltype_by_p = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip headers
+
+        # Iterate rows
+        for row in read_lines:
+            service = str.strip(row[0])
+            fueltype = int(row[1])
+            service_p = float(row[2])
+
+            try:
+                service_fueltype_by_p[service]
+            except KeyError:
+                service_fueltype_by_p[service] = {}
+            try:
+                service_fueltype_by_p[service][fueltype]
+            except KeyError:
+                service_fueltype_by_p[service][fueltype] = 0
+
+            service_fueltype_by_p[service][fueltype] += service_p
+
+    return service_fueltype_by_p
+
+def read_service_data_service_tech_by_p(path_to_csv):
+    """Read 
+    """
+    print("... read in service data: " + str(path_to_csv))
+    service_tech_by_p = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip headers
+
+        # Iterate rows
+        for row in read_lines:
+            service = str.strip(row[0])
+            tech = str.strip(row[1])
+            service_p = float(row[2])
+
+            try:
+                service_tech_by_p[service]
+            except KeyError:
+                service_tech_by_p[service] = {}
+            try:
+                service_tech_by_p[service][tech]
+            except KeyError:
+                service_tech_by_p[service][tech] = 0
+
+            service_tech_by_p[service][tech] += service_p
+
+    return service_tech_by_p
