@@ -25,7 +25,7 @@ More information can be found here:
 pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
 import time   fdf
-#print("..TIME A: {}".format(time.time() - start))
+#print("..TIME A: {}".format(time.time() - start)) 
 
 '''
 import os
