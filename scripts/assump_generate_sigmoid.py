@@ -1,6 +1,6 @@
 
 
-    
+     
 # RESIDENTIAL: Convert base year fuel input assumptions to energy service
 base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
         base_data['assumptions'],

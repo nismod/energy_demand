@@ -104,7 +104,7 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     return rel_share_service_tech_decr_by
 
-def get_service_fueltype_tech(assumptions, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
+def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
 
     This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
@@ -166,11 +166,11 @@ def get_service_fueltype_tech(assumptions, lu_fueltypes, fuel_p_tech_by, fuels, 
                 #print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
-                tech_type = technologies_related.get_tech_type(tech, assumptions['technology_list'])
+                tech_type = technologies_related.get_tech_type(tech, technology_list)
 
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
                 if tech_type == 'hybrid_tech':
-                    eff_tech = assumptions['hybrid_technologies'][tech]['average_efficiency_national_by']
+                    eff_tech = hybrid_technologies[tech]['average_efficiency_national_by']
                 elif tech_type == 'heat_pump':
                     eff_tech = technologies_related.eff_heat_pump(
                         temp_diff=10,

@@ -45,34 +45,56 @@ Energy demand change in relation to the base year (by) for end-use specific scen
 For the residential and service sub-model, SD values are calculated based on a dwelling stock where scenario drivers are calculated either for dwellings or a group of dwelling (e.g. dwelling types).
 
 
-| Scenario Driver        | Enduse(s)         |
-| ------------- |-------------|
-| Floor Area | Space heating, lighting |
-| Heating Degree Days | Space heating  |
-| Cooling degree Days | Cooling and Ventilation  |
-| Population | Water heating, cooking, appliances ... |
-| GVA | Enduses in industry submodel, appliances  |
-
+<table align="center">
+  <tr>
+    <th align="left">Scenario Driver</th>
+    <th align="left">Enduse(s)</th>
+  </tr>
+  <tr>
+    <td>Floor Area</td>
+    <td>Space heating, lighting</td>
+  </tr>
+  <tr>
+    <td>Heating Degree Days</td>
+    <td>Space heating</td>
+  </tr>
+  <tr>
+    <td>Cooling degree Days</td>
+    <td>Cooling and Ventilation</td>
+  </tr>
+    <tr>
+    <td>Population</td>
+    <td>Water heating, cooking, appliances ...</td>
+  </tr>
+    <tr>
+    <td>GVA</td>
+    <td>Enduses in industry submodel, appliances</td>
+  </tr>
+</table>
 *Table 1: End-use specific scenario drivers for energy demand*
 
-## 2. Model integration
 
+## 3. Model integration
 
-## 2.1 Energy supply and demand model
+This sectio explains how the energy demand and energy supply model interact.
 
-LORBEM IPSUMLORBEM IPSUMLORBEM IPSUMLORBEM IPSUM
+### 3.1 Energy supply and demand model
+
+Lorem ipsum...
 ![Image of model integration](../docs/documentation_images/001-Supply_and_demand_overview.png)
 
-## 2.2 Optimised and constrained model run
+### 3.2 Optimised and constrained model run
 
-LORBEM IPSUMLORBEM IPSUMLORBEM IPSUMLORBEM IPSUM
+Lorem ipsum...
 
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 
 
-# 10. Reading the code
+## 10. Reading the code
 
-## 10.1 Abbreviations
+This section provides an overview of how to read the code.
+
+### 10.1 Abbreviations
 
 Within the code, different abbreviations are consistenly used
 across all modules.
@@ -99,7 +121,7 @@ across all modules.
     tech:       Technology
     temp:       Temperature
 
-## 10.2 Load profiles annotation
+### 10.2 Load profiles annotation
 
 > `y`:  Total demand in a year
 
@@ -112,44 +134,65 @@ across all modules.
 > `y_dh`: Daily load profile within each day (365, 25). Within each day, sums up to 1.0
 
 
-# 11.Technologies
+## 11.Technologies
 
 Based on ECUK() different technologies are assigned to enduses. Efficiencies are 
 
-## 11.1 Residential sector
+### 11.1 Residential sector
 
+<table align="center">
+  <tr>
+    <th align="left">Enduse</th>
+    <th align="left">Technologies</th>
+  </tr>
+  <tr>
+    <td>Wet</td>
+    <td>Washing machine, tubmle dryer, dishwasher, washer dryer</td>
+  </tr>
+  <tr>
+    <td>Cooking</td>
+    <td>Oven, Standard hub (different fueltypes), Induction hob</td>
+  </tr>
+  <tr>
+    <td>Cold</td>
+    <td>Chest freezer, Fridge freezer, Refrigerator, Upright freezer</td>
+  </tr>
+    <tr>
+    <td>Lighting</td>
+    <td>Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED</td>
+  </tr>
+    <tr>
+    <td>Space and Water Heating</td>
+    <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage</td>
+  </tr>
+    <tr>
+    <td>Wet</td>
+    <td>heater, Heat network generation technologies (CHP,...)</td>
+  </tr>
+</table>
 
-| Enduse        | Technologies         |
-| ------------- |-------------|
-| Wet | Washing machine, tubmle dryer, dishwasher, washer dryer |
-| Cooking | Oven, Standard hub (different fueltypes), Induction hob      |
-| Cold | Chest freezer, Fridge freezer, Refrigerator, Upright freezer     |
-| Lighting | Light bulb (incandescent), Halogen, Light saving, Fluorescent, LED     |
-| Space and Water Heating | Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)    |
+*Table 2: Technology assignement to enduses*
 
-# 12 Used Data Sets
+## 12 Used Data Sets
 
+This section provides an overview of all used datasets in HIRE and necessary data preparation.
 
-## 12.1 National Energy Data
+### 12.1 National Energy Data
 
 The base year energy consumption of the UK (ECUK) in terms of fuels and technology shares for the residential, service and industry sectors is taken from the Department for Business, Energy and Industrial Strategy ([BEIS, 2016](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)). National final energy data is provided for 6 fuel types (solid fuel, gas, electricity, oil, heat sold, bioenergy and waste) in the unit of ktoe (tonne of oil equivalents). All energy unit conversions are based on the unit converter by the International Energy Agency ([IEA, 2017](http://www.iea.org/statistics/resources/unitconverter)).
 
 
-## 12.2 Household Electricity Servey
+### 12.2 Household Electricity Servey
 
-The Household Electricity Survey (HES) is the most detailed monitoring of electricity use ever carried out in the UK.
-Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011.
+The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey) is the most detailed monitoring of electricity use ever carried out in the UK.
+Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011. The load profiles for different residential enduses are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
 
-- [More information](https://www.gov.uk/government/collections/household-electricity-survey)
-
-- [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users)
-
-**Data preparation**
-
-Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
+> **Data preparation**
+>
+> Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
 
 
-## 12.3 Carbon Trust advanced metering trial
+### 12.3 Carbon Trust advanced metering trial
 
 Metering trial for electricity and gas use across different sectors for businesses (service sector).
 
@@ -158,6 +201,6 @@ Metering trial for electricity and gas use across different sectors for business
  - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
    [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
 
-# Literature
+## Literature
 
 BEIS (2016) Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)

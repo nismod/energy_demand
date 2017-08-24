@@ -26,7 +26,6 @@ pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
 import time   fdf
 #print("..TIME A: {}".format(time.time() - start)) 
-
 '''
 import os
 import sys
@@ -72,6 +71,13 @@ def energy_demand_model(data):
     Note
     ----
     This function is executed in the wrapper
+
+    Quetsiosn for Tom
+    ----------------
+    - Cluster?
+    - scripts in ed?
+    - path rel/abs
+    - nested scripts
     """
 
     # -------------------------
@@ -118,13 +124,20 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     instrument_profiler = True
 
-    # DUMMY DATA GENERATION----------------------
-    base_yr = 2015
-    end_yr = 2020 #includes this year
+    data_external = {}
+    data_external['sim_param'] = {}
+    data_external['sim_param']['base_yr'] = 2015
+    data_external['sim_param']['end_yr'] = 2020
+    data_external['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+    data_external['sim_param']['sim_period'] = range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr']  + 1, data_external['sim_param']['sim_years_intervall'])
 
+    data_external['sim_param']['sim_period_yrs'] = int(data_external['sim_param']['end_yr']  + 1 - data_external['sim_param']['base_yr'])
 
-    # Dummy service floor area
-    # Newcastle: TODO REPLAE IF AVAILABLE.
+    data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
+    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(
+        start=date(data_external['sim_param']['base_yr'], 1, 1),
+        end=date(data_external['sim_param']['base_yr'], 12, 31))
+
 
     # DUMMY DATA GENERATION----------------------
     #'''
@@ -144,7 +157,7 @@ if __name__ == "__main__":
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
     # Population
-    for i in range(base_yr, end_yr + 1):
+    for i in range(data_external['sim_param']['base_yr'], data_external['sim_param']['end_yr'] + 1):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
@@ -164,39 +177,11 @@ if __name__ == "__main__":
     base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
     #'''
 
-
-    # Reg Floor Area? Reg lookup?
-    data_external = {
-        'input_regions': regions,
-        'population': pop_dummy,
-        'reg_coordinates': coord_dummy,
-        'glob_var' : {},
-        'ss_sector_floor_area_by': ss_floorarea_sector_by_dummy,
-
-        # Demand of other sectors
-        'external_enduses_resid': {
-            #'waste_water': {0: 0},  # Yearly fuel data
-            #'ICT_model': {}
-        }
-    }
-
-    data_external['sim_param'] = {}
-    data_external['sim_param']['end_yr'] = end_yr
-    data_external['sim_param']['base_yr'] = base_yr
-    data_external['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
-    data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, data_external['sim_param']['sim_years_intervall'])
-
-    data_external['sim_param']['sim_period_yrs'] = int(end_yr + 1 - base_yr)
-
-    data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
-    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(
-        start=date(base_yr, 1, 1),
-        end=date(base_yr, 12, 31))
-
-
-
-    # ------------------- DUMMY END
-    data_external['fastcalculationcrit'] = True
+    data_external['input_regions'] = regions
+    data_external['population'] = pop_dummy
+    data_external['reg_coordinates'] = coord_dummy
+    data_external['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    data_external['input_regions'] = regions
 
     base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
 
@@ -214,21 +199,26 @@ if __name__ == "__main__":
         base_data[str(dataset_name)] = external_data
 
     # Paths
-    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
-
-    # Path to local files which have restricted access
-    base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand'
+    path_main = os.path.join(os.path.dirname(__file__)[:-13]) #Remove 'energy_demand'
+    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     #------------------------------
     # WRITE ASSUMPTIONS TO CSV
     #------------------------------
-    path_assump_sim_param = os.path.join(path_main, r"data_scripts\assumptions_from_db\assumptions_sim_param.csv")
+    path_assump_sim_param = os.path.join(path_main, r"data\data_scripts\assumptions_from_db\assumptions_sim_param.csv")
     write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
 
     print("..finished reading out assumptions to csv")
 
+    # ---------
     # Load data
-    base_data = data_loader.load_data(path_main, base_data)
+    # ---------
+    base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
+    base_data = data_loader.load_data_profiles(base_data)
+    base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
+        base_data['path_dict']['path_scripts_data'])
+    base_data = data_loader.load_data_tech_profiles(base_data)
+    base_data = data_loader.load_data(base_data)
 
     # Load assumptions
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
@@ -236,6 +226,9 @@ if __name__ == "__main__":
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
+    # ---------------------
+    # SCRIPTS REPLACEMENTS
+    # ---------------------
     # Change temperature data according to simple assumptions about climate change
     ### REPLACED base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
     base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
@@ -246,7 +239,8 @@ if __name__ == "__main__":
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
-        base_data['assumptions'],
+        base_data['assumptions']['technology_list'],
+        base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
         base_data['assumptions']['rs_fuel_tech_p_by'],
         base_data['rs_fuel_raw_data_enduses'],
@@ -256,7 +250,8 @@ if __name__ == "__main__":
     # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['ss_fuel_raw_data_enduses'], base_data['ss_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['ss_service_tech_by_p'], base_data['assumptions']['ss_service_fueltype_tech_by_p'], base_data['assumptions']['ss_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
-        base_data['assumptions'],
+        base_data['assumptions']['technology_list'],
+        base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
         base_data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
@@ -266,7 +261,8 @@ if __name__ == "__main__":
     # INDUSTRY
     fuels_aggregated_across_sectors = fuel_service_switch.ss_sum_fuel_enduse_sectors(base_data['is_fuel_raw_data_enduses'], base_data['is_all_enduses'], base_data['nr_of_fueltypes'])
     base_data['assumptions']['is_service_tech_by_p'], base_data['assumptions']['is_service_fueltype_tech_by_p'], base_data['assumptions']['is_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
-        base_data['assumptions'],
+        base_data['assumptions']['technology_list'],
+        base_data['assumptions']['hybrid_technologies'],
         base_data['lu_fueltype'],
         base_data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
