@@ -1,13 +1,12 @@
 """File to read in all service sector related data
 """
 import os
+import sys
 import csv
 from datetime import date
 import numpy as np
-from energy_demand.basic import date_handling
-from energy_demand.profiles import load_profile
-from energy_demand.initalisations import initialisations as init
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
+from energy_demand.read_write import read_data
+from energy_demand import scripts_common_functions
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -42,9 +41,30 @@ def read_raw_carbon_trust_data(folder_path):
     2. Assign percentag of total daily demand to each hour
 
     """
+    def initialise_main_dict():
+        """Helper function to initialise dict"""
+        out_dict_av = {0: {}, 1: {}}
+        for dtype in out_dict_av:
+            month_dict = {}
+            for month in range(12):
+                month_dict[month] = {k: [] for k in range(24)}
+            out_dict_av[dtype] = month_dict
+        return out_dict_av
+
+    def initialise_out_dict_av():
+        """Helper function to initialise dict"""
+        out_dict_av = {0: {}, 1: {}}
+        for dtype in out_dict_av:
+            month_dict = {}
+            for month in range(12):
+                month_dict[month] = {k: 0 for k in range(24)}
+            out_dict_av[dtype] = month_dict
+        return out_dict_av
+
+
     # Get all files in folder
     all_csv_in_folder = os.listdir(folder_path)
-    main_dict = init.initialise_main_dict()
+    main_dict = initialise_main_dict()
     carbon_trust_raw = dict_init_carbon_trust()
 
     nr_of_line_entries = 0
@@ -95,7 +115,7 @@ def read_raw_carbon_trust_data(folder_path):
                             continue #skip leap day
 
                     date_row = date(year, month, day)
-                    daytype = date_handling.get_weekday_type(date_row)
+                    daytype = scripts_common_functions.get_weekday_type(date_row)
 
                     if daytype == 'holiday':
                         daytype = 1
@@ -159,7 +179,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Calculate average load shapes for every month
     # -----------------------------------------------
     # -- Average (initialise dict)
-    out_dict_av = init.initialise_out_dict_av()
+    out_dict_av = initialise_out_dict_av()
 
     for daytype in main_dict:
         for month in main_dict[daytype]:
@@ -188,7 +208,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = load_profile.absolute_to_relative(dh_values) # daily shape
+        load_shape_dh[day] = scripts_common_functions.absolute_to_relative(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
@@ -205,7 +225,6 @@ def read_raw_carbon_trust_data(folder_path):
 def is_leap_year(year):
     """Determine whether a year is a leap year"""
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
-
 
 '''
 def compare_jan_jul(main_dict_dayyear_absolute):
@@ -297,13 +316,13 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
     shape_non_peak_y_dh = np.zeros((365, 24))
 
     # Create list with all dates of a whole year
-    list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    list_dates = scripts_common_functions.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = date_handling.get_weekday_type(yearday)
+        daytype = scripts_common_functions.get_weekday_type(yearday)
         if daytype == 'holiday':
             daytype = 1
         else:
@@ -316,3 +335,102 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
         shape_non_peak_y_dh[yearday_python] = np.array(_data[:, 1], dtype=float)
 
     return shape_non_peak_y_dh
+
+
+# Fuel look-up table
+lu_fuelype = {
+    'solid_fuel': 0,
+    'gas': 1,
+    'electricity': 2,
+    'oil': 3,
+    'heat_sold': 4,
+    'biomass': 5,
+    'hydrogen': 6,
+    'heat': 7
+    }
+nr_of_fueltypes = int(len(lu_fuelype))
+
+# ------------------------------------------------------------------------
+print("... start script {}".format(os.path.basename(__file__)))
+# ------------------------------------------------------------------------
+#PATHS
+path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+path_ss_fuel_raw_data_enduses = os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv')
+path_ss_txt_shapes = os.path.join(path_main, 'data_scripts/load_profiles/ss_submodel')
+
+_, ss_sectors, ss_enduses = read_data.read_csv_base_data_service(
+    path_ss_fuel_raw_data_enduses,
+    nr_of_fueltypes)
+
+# Iterate sectors and read in shape
+for sector in ss_sectors:
+
+    # Match electricity shapes for every sector
+    if sector == 'community_arts_leisure':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Community')
+    elif sector == 'education':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Education')
+    elif sector == 'emergency_services':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+    elif sector == 'health':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Health')
+    elif sector == 'hospitality':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+    elif sector == 'military':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+    elif sector == 'offices':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Offices')
+    elif sector == 'retail':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Retail')
+    elif sector == 'storage':
+        sector_folder_path_elec = os.path.join(
+            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+    else:
+        sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
+
+    # ------------------------------------------------------
+    # Assign same shape across all enduse for service sector
+    # ------------------------------------------------------
+    for enduse in ss_enduses:
+        print("Enduse service: {}  in sector '{}'".format(enduse, sector))
+
+        # Select shape depending on enduse
+        if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']: #TODO: IMPROVE
+            folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
+        else:
+            if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation': #NEW
+                folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+            else:
+                folder_path = sector_folder_path_elec
+
+        # Read in shape from carbon trust metering trial dataset
+        shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(
+            folder_path)
+
+        # Write shapes to txt
+        joint_string_name = str(sector) + "__" + str(enduse)
+
+        scripts_common_functions.create_txt_shapes(
+            joint_string_name,
+            path_ss_txt_shapes,
+            load_peak_shape_dh,
+            shape_non_peak_y_dh,
+            shape_peak_yd_factor,
+            shape_non_peak_yd
+            )
+
+# ---------------------
+# Compare Jan and Jul
+# ---------------------
+#ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
+
+print("... finished script {}".format(os.path.basename(__file__)))

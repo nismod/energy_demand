@@ -196,35 +196,7 @@ def read_csv_load_shapes_technology(path_to_csv):
 
     return load_shapes_dh
 
-def read_csv(path_to_csv):
-    """This function reads in CSV files and skips header row.
 
-    Parameters
-    ----------
-    path_to_csv : str
-        Path to csv file
-    _dt : str
-        Defines dtype of array to be read in (takes float)
-
-    Returns
-    -------
-    elements_array : array_like
-        Returns an array `elements_array` with the read in csv files.
-
-    Notes
-    -----
-    The header row is always skipped.
-    """
-    service_switches = []
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
-
-        # Iterate rows
-        for row in read_lines:
-            service_switches.append(row)
-
-    return np.array(service_switches) # Convert list into array
 
 def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
     """This function reads in service assumptions from csv file

@@ -120,8 +120,8 @@ if __name__ == "__main__":
 
     # DUMMY DATA GENERATION----------------------
     base_yr = 2015
-    end_yr = 2050 #includes this year
-    sim_years = range(base_yr, end_yr + 1, 5)
+    end_yr = 2020 #includes this year
+
 
     # Dummy service floor area
     # Newcastle: TODO REPLAE IF AVAILABLE.
@@ -183,11 +183,15 @@ if __name__ == "__main__":
     data_external['sim_param'] = {}
     data_external['sim_param']['end_yr'] = end_yr
     data_external['sim_param']['base_yr'] = base_yr
-    data_external['sim_param']['sim_period'] = sim_years
+    data_external['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+    data_external['sim_param']['sim_period'] = range(base_yr, end_yr + 1, data_external['sim_param']['sim_years_intervall'])
+
     data_external['sim_param']['sim_period_yrs'] = int(end_yr + 1 - base_yr)
 
     data_external['sim_param']['curr_yr'] = data_external['sim_param']['base_yr']
-    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    data_external['sim_param']['list_dates'] = date_handling.fullyear_dates(
+        start=date(base_yr, 1, 1),
+        end=date(base_yr, 12, 31))
 
 
 
@@ -215,9 +219,16 @@ if __name__ == "__main__":
     # Path to local files which have restricted access
     base_data['local_data_path'] = r'Y:\01-Data_NISMOD\data_energy_demand'
 
+    #------------------------------
+    # WRITE ASSUMPTIONS TO CSV
+    #------------------------------
+    path_assump_sim_param = os.path.join(path_main, r"data_scripts\assumptions_from_db\assumptions_sim_param.csv")
+    write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
+
+    print("..finished reading out assumptions to csv")
+
     # Load data
     base_data = data_loader.load_data(path_main, base_data)
-    print("... load assumptions")
 
     # Load assumptions
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
@@ -226,16 +237,12 @@ if __name__ == "__main__":
     base_data['driver_data'] = {}
 
     # Change temperature data according to simple assumptions about climate change
-    ##base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
-    path_weather_data_climate_changed = os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv')
-    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(path_weather_data_climate_changed)
+    ### REPLACED base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
+    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv'),
+        data_external['sim_param']['sim_period'])
 
-    #WRITE ASSUMPTIONS TO TXT
-    #------------------------------
-    path_assump_sim_param = os.path.join(base_data['path_dict']['path_assumptions_db'], "assumptions_sim_param.csv")
-
-    # Write out Sim Param to csv
-    write_data.write_out_sim_param(path_assump_sim_param, data_external['sim_param'])
+    print("... sigmoid calculations")
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     base_data['assumptions']['rs_service_tech_by_p'], base_data['assumptions']['rs_service_fueltype_tech_by_p'], base_data['assumptions']['rs_service_fueltype_by_p'] = fuel_service_switch.get_service_fueltype_tech(
@@ -333,13 +340,13 @@ if __name__ == "__main__":
     # If several years are run:
     results_every_year = []
 
-    for sim_yr in sim_years:
+    for sim_yr in data_external['sim_param']['sim_period']:
         data_external['sim_param']['curr_yr'] = sim_yr
 
         print("-------------------------- ")
         print("SIM RUN:  " + str(sim_yr))
         print("-------------------------- ")
-    
+
         #-------------PROFILER
         if instrument_profiler:
             from pyinstrument import Profiler

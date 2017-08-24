@@ -27,6 +27,7 @@ def load_assumptions(data):
     -----
 
     """
+    print("... load assumptions")
     assumptions = {}
 
     # ============================================================
@@ -139,6 +140,7 @@ def load_assumptions(data):
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     #WRITE ASSUMPTIONS TO TXT
+    print("... write assumptions to txt")
     path_assump_climate_change = os.path.join(
         data['path_dict']['path_assumptions_db'],
         "assumptions_climate_change_temp.csv")

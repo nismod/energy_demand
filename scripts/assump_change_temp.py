@@ -7,29 +7,12 @@ from datetime import date
 from datetime import timedelta
 import numpy as np
 
+
+from energy_demand import scripts_common_functions
+
 # Functions for script
 # --------------------
-def fullyear_dates(start, end):
-    """Calculates all dates between a star and end date.
 
-    Parameters
-    ----------
-    start : date
-        Start date
-    end : date
-        End date
-
-    Returns
-    -------
-    list_dates : list
-        A list with all daily dates
-    """
-    list_dates = []
-    span = end - start
-    for day in range(span.days + 1):
-        list_dates.append(start + timedelta(days=day))
-
-    return list_dates
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
@@ -98,34 +81,6 @@ def convert_yearday_to_date(year, yearday_python):
     date_new = date(year, 1, 1) + timedelta(yearday_python)
 
     return date_new
-
-def read_assumption_sim_param(path_to_csv):
-    assumptions = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(csvfile) # Skip headers
-
-        for row in read_lines:
-            try:
-                assumptions[str(row[0])] = float(row[1])
-            except:
-                assumptions[str(row[0])] = None
-
-    # Redefine sim_period_yrs
-    assumptions['sim_period'] = range(
-        int(assumptions['base_yr']),
-        int(assumptions['end_yr']) + 1,
-        5
-        )
-
-    # Redefine sim_period_yrs
-    assumptions['list_dates'] = fullyear_dates(
-        start=date(int(assumptions['base_yr']), 1, 1),
-        end=date(int(assumptions['base_yr']), 12, 31))
-
-    return assumptions
-
 
 def read_assumption(path_to_csv):
 
@@ -217,22 +172,27 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 # Paths
 # ----------------------
 print("..start script {}".format(os.path.basename(__file__)))
+#os.path.dirname(__file__)[:-8]
+LOCAL_DATA_PATH = r'C:\Users\cenv0553\GIT'
 
 CSV_PATH = os.path.join(
-    os.path.dirname(__file__)[:-8], r'data\data_scripts\assumptions_from_db\assumptions_climate_change_temp.csv')
+    LOCAL_DATA_PATH, r'data\data_scripts\assumptions_from_db\assumptions_climate_change_temp.csv')
 PATH_WEATHER_DATA = os.path.join(
-    os.path.dirname(__file__)[:-8], r'data\data_scripts\weather_data.csv')
+    LOCAL_DATA_PATH, r'data\data_scripts\weather_data.csv')
 CSV_PATH_SIM_PARAM = os.path.join(
-    os.path.dirname(__file__)[:-8], r'data\data_scripts\assumptions_from_db\assumptions_sim_param.csv')
+    LOCAL_DATA_PATH, r'data\data_scripts\assumptions_from_db\assumptions_sim_param.csv')
 CSV_PATH_OUT_TEMP_CLIMATE = os.path.join(
-    os.path.dirname(__file__)[:-8], r'data\data_scripts\weather_data_changed_climate.csv')
+    LOCAL_DATA_PATH, r'data\data_scripts\weather_data_changed_climate.csv')
 
 # ----------------
 # Load assumptions
 # ----------------
+print(os.path.dirname(__file__))
+print(PATH_WEATHER_DATA)
+print("---")
 TEMPERATURE_DATA = read_weather_data_script_data(PATH_WEATHER_DATA)
 ASSUMPTIONS_TEMP_CHANGE = read_assumption(CSV_PATH)
-SIM_PARAM = read_assumption_sim_param(CSV_PATH_SIM_PARAM)
+SIM_PARAM = scripts_common_functions.read_assumption_sim_param(CSV_PATH_SIM_PARAM)
 
 TEMP_CLIMATE_CHANGE = change_temp_climate_change(
     TEMPERATURE_DATA, ASSUMPTIONS_TEMP_CHANGE, SIM_PARAM)

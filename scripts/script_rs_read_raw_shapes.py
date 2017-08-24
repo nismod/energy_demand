@@ -1,10 +1,45 @@
-"""Read raw data for residential sector (mainly HES data)
+"""Read residential raw files and store to txt
 """
+import os
+import csv
 from datetime import date
 import numpy as np
-from energy_demand.profiles import load_profile
-from energy_demand.basic import date_handling
+
+#Imports
+from energy_demand import scripts_common_functions
 from energy_demand.read_write import read_data
+
+print("... start script {}".format(os.path.basename(__file__)))
+
+def read_csv(path_to_csv):
+    """This function reads in CSV files and skips header row.
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file
+    _dt : str
+        Defines dtype of array to be read in (takes float)
+
+    Returns
+    -------
+    elements_array : array_like
+        Returns an array `elements_array` with the read in csv files.
+
+    Notes
+    -----
+    The header row is always skipped.
+    """
+    service_switches = []
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+
+        # Iterate rows
+        for row in read_lines:
+            service_switches.append(row)
+
+    return np.array(service_switches) # Convert list into array
 
 def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, enduse):
     """Read in raw HES data and generate shapes
@@ -49,7 +84,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = load_profile.absolute_to_relative(peak_h_values)
+    shape_peak_dh = scripts_common_functions.absolute_to_relative(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
@@ -70,7 +105,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd
 
 def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
-    '''Fill every base year day with correct data
+    """Fill every base year day with correct data
 
     Parameters
     ----------
@@ -85,17 +120,20 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     -------
     year_raw_values : array
         Energy data for every day in the base year for every appliances
-    '''
+    """
     year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
 
     # Create list with all dates of a whole year
-    list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    list_dates = scripts_common_functions.fullyear_dates(
+        start=date(base_yr, 1, 1),
+        end=date(base_yr, 12, 31)
+        )
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = date_handling.get_weekday_type(yearday)
+        daytype = scripts_common_functions.get_weekday_type(yearday)
 
         if daytype == 'holiday':
             daytype = 1
@@ -107,8 +145,8 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
 
     return year_raw_values
 
-def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
-    '''Read in HES raw csv files and provide for every day in a year (yearday) all fuels
+def read_hes_data(paths_hes, nr_app_type_lu):
+    """Read in HES raw csv files and provide for every day in a year (yearday) all fuels
 
     The fuel is provided for every daytype (weekend or working day) for every month
     and every appliance_typ
@@ -135,14 +173,22 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
     ----
         -   As only shapes are generated, the absolute
             values are irrelevant, i.e. the unit of energy
-    '''
+    """
+    # Daytypes
+    day_type_lu = {
+        0: 'weekend_day',
+        1: 'working_day',
+        2: 'coldest_day',
+        3: 'warmest_day'
+        }
+
     hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
 
     hes_y_coldest = np.zeros((24, nr_app_type_lu))
     hes_y_warmest = np.zeros((24, nr_app_type_lu))
 
     # Read in raw HES data from CSV
-    raw_elec_data = read_data.read_csv(paths_hes)
+    raw_elec_data = read_csv(paths_hes)
 
     # Iterate raw data of hourly eletrictiy demand
     for row in raw_elec_data:
@@ -164,3 +210,77 @@ def read_hes_data(paths_hes, nr_app_type_lu, day_type_lu):
                 k_header += 1
 
     return hes_data, hes_y_coldest, hes_y_warmest
+
+# ===========================================-
+# RESIDENTIAL MODEL - LOAD HES DATA
+# ===========================================
+
+#PATHS
+LODA_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
+PATH_BD_E_LOAD_PROFILES = os.path.join(
+    LODA_DATA_PATH, r'01-HES_data\HES_base_appliances_eletricity_load_profiles.csv')
+
+LODA_DATA_PATH = r'C:\Users\cenv0553\GIT'
+CSV_PATH_SIM_PARAM = os.path.join(
+    LODA_DATA_PATH, r'data\data_scripts\assumptions_from_db\assumptions_sim_param.csv')
+SIM_PARAM = scripts_common_functions.read_assumption_sim_param(CSV_PATH_SIM_PARAM)
+
+PATH_MAIN = os.path.join(os.path.dirname(__file__), '..', 'data')
+
+PATH_RS_TXT_SHAPES = os.path.join(PATH_MAIN, 'data_scripts/load_profiles/rs_submodel')
+PATH_RS_FUEL_RAW_DATA = os.path.join(PATH_MAIN, 'submodel_residential/data_residential_by_fuel_end_uses.csv')
+
+HES_APPLIANCES_MATCHING = {
+    'rs_cold': 0,
+    'rs_cooking': 1,
+    'rs_lighting': 2,
+    'rs_consumer_electronics': 3,
+    'rs_home_computing': 4,
+    'rs_wet': 5,
+    'rs_water_heating': 6,
+    'NOT_USED_unkown_1': 7,
+    'NOT_USED_unkown_2': 8,
+    'NOT_USED_unkown_3': 9,
+    'NOT_USED_showers': 10
+    }
+
+# HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
+HES_DATA, HES_Y_PEAK, _ = read_hes_data(
+    PATH_BD_E_LOAD_PROFILES,
+    len(HES_APPLIANCES_MATCHING)
+    )
+
+# Assign read in raw data to the base year
+YEAR_RAW_VALUES_HES = assign_hes_data_to_year(
+    len(HES_APPLIANCES_MATCHING),
+    HES_DATA,
+    int(SIM_PARAM['base_yr'])
+    )
+
+_, RS_ENDUSES = read_data.read_csv_base_data_resid(PATH_RS_FUEL_RAW_DATA)
+
+# Load shape for all enduses
+for enduse in RS_ENDUSES:
+
+    if enduse not in HES_APPLIANCES_MATCHING:
+        print("Warning: The enduse {} is not defined in HES_APPLIANCES_MATCHING".format(enduse))
+    else:
+        # Generate HES load shapes
+        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+            HES_APPLIANCES_MATCHING,
+            YEAR_RAW_VALUES_HES,
+            HES_Y_PEAK,
+            enduse
+            )
+
+        # Write txt files
+        scripts_common_functions.create_txt_shapes(
+            enduse,
+            PATH_RS_TXT_SHAPES,
+            shape_peak_dh,
+            shape_non_peak_y_dh,
+            shape_peak_yd_factor,
+            shape_non_peak_yd
+            )
+
+print("... finished script {}".format(os.path.basename(__file__)))

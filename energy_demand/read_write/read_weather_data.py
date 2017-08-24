@@ -55,9 +55,10 @@ def read_weather_data_script_data(path_to_csv):
 
     return temp_data
 
-def read_changed_weather_data_script_data(path_to_csv):
+def read_changed_weather_data_script_data(path_to_csv, sim_period):
     """Read in weather data from script data
     """
+    print("... read changed weather data")
     temp_data = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -72,21 +73,22 @@ def read_changed_weather_data_script_data(path_to_csv):
             hour = float(row[3])
             temperature = float(row[4])
 
-            try:
-                temp_data[station_id][year][int(day)][int(hour)] = temperature
-
-            except KeyError:
-    
-                # Add station ID or year
+            if year in sim_period:
                 try:
-                    temp_data[station_id]
-                except KeyError: 
-                    temp_data[station_id] = {}
-                try:
-                    temp_data[station_id][year]
-                except KeyError: 
-                    temp_data[station_id][year] = np.zeros((365, 24))
+                    temp_data[station_id][year][int(day)][int(hour)] = temperature
 
-                temp_data[station_id][year][int(day)][int(hour)] = temperature
+                except KeyError:
+
+                    # Add station ID or year
+                    try:
+                        temp_data[station_id]
+                    except KeyError: 
+                        temp_data[station_id] = {}
+                    try:
+                        temp_data[station_id][year]
+                    except KeyError: 
+                        temp_data[station_id][year] = np.zeros((365, 24))
+
+                    temp_data[station_id][year][int(day)][int(hour)] = temperature
 
     return temp_data

@@ -4,7 +4,7 @@ import numpy as np
 from energy_demand.basic import date_handling
 from energy_demand.technologies import diffusion_technologies as diffusion
 
-def change_temp_climate_change(data):
+'''def change_temp_climate_change(data):
     """Change temperature data for every year depending on simple climate change assumptions
 
     Parameters
@@ -17,6 +17,7 @@ def change_temp_climate_change(data):
     temp_climate_change : dict
         Adapted temperatures for all weather stations depending on climate change assumptions
     """
+    print("...apply climate change")
     temp_climate_change = {}
 
     # Change weather for all weater stations
@@ -56,7 +57,7 @@ def change_temp_climate_change(data):
                     temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
 
     return temp_climate_change
-
+'''
 def apply_elasticity(base_demand, elasticity, price_base, price_curr):
     """Calculate current demand based on demand elasticity
 

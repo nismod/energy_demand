@@ -149,29 +149,3 @@ def sum_2_level_dict(two_level_dict):
             tot_sum += two_level_dict[i][j]
 
     return tot_sum
-
-
-
-def initialise_out_dict_av():
-    """Helper function to initialise dict
-    """
-    out_dict_av = {0: {}, 1: {}}
-    for dtype in out_dict_av:
-        month_dict = {}
-        for month in range(12):
-            month_dict[month] = {k: 0 for k in range(24)}
-        out_dict_av[dtype] = month_dict
-
-    return out_dict_av
-
-def initialise_main_dict():
-    """Helper function to initialise dict
-    """
-    out_dict_av = {0: {}, 1: {}}
-    for dtype in out_dict_av:
-        month_dict = {}
-        for month in range(12):
-            month_dict[month] = {k: [] for k in range(24)}
-        out_dict_av[dtype] = month_dict
-
-    return out_dict_av
