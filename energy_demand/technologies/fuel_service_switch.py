@@ -19,63 +19,6 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
 
     return aggregated_fuel_enduse
 
-def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
-    """Get all those technologies with increased service in future
-
-    Parameters
-    ----------
-    service_tech_by_p : dict
-        Share of service per technology of base year of total service
-    share_service_tech_ey_p : dict
-        Share of service per technology of end year of total service
-
-    Returns
-    -------
-    assumptions : dict
-        assumptions
-
-    Note
-    -----
-    tech_increased_service : dict
-        Technologies with increased future service
-    tech_decreased_share : dict
-        Technologies with decreased future service
-    tech_decreased_share : dict
-        Technologies with unchanged future service
-
-    The assumptions are always relative to the simulation end year
-    """
-    tech_increased_service = {}
-    tech_decreased_share = {}
-    tech_constant_share = {}
-
-    for enduse in service_tech_by_p:
-
-        # If no service switch defined
-        if share_service_tech_ey_p[enduse] == {}:
-            tech_increased_service[enduse] = []
-            tech_decreased_share[enduse] = []
-            tech_constant_share[enduse] = []
-        else:
-            tech_increased_service[enduse] = []
-            tech_decreased_share[enduse] = []
-            tech_constant_share[enduse] = []
-
-            # Calculate fuel for each tech
-            for tech in service_tech_by_p[enduse]:
-
-                # If future larger share
-                if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:
-                    tech_increased_service[enduse].append(tech)
-
-                # If future smaller service share
-                elif service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
-                    tech_decreased_share[enduse].append(tech)
-                else:
-                    tech_constant_share[enduse].append(tech)
-
-    return tech_increased_service, tech_decreased_share, tech_constant_share
-
 def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech) 
     and get relative share of service in base year

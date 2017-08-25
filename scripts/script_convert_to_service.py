@@ -338,35 +338,34 @@ is_service_tech_by_p, is_service_fueltype_tech_by_p, is_service_fueltype_by_p = 
 # ------------------
 # Write to csv files
 # ------------------
-CSV_rs_service_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_tech_by_p.csv')
-CSV_rs_service_fueltype_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_fueltype_tech_by_p.csv')
-CSV_rs_service_fueltype_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\rs_service_fueltype_by_p.csv')
-CSV_ss_service_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_tech_by_p.csv')
-CSV_ss_service_fueltype_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_fueltype_tech_by_p.csv')
-CSV_ss_service_fueltype_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\ss_service_fueltype_by_p.csv')
-CSV_is_service_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_tech_by_p.csv')
-CSV_is_service_fueltype_tech_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_fueltype_tech_by_p.csv')
-CSV_is_service_fueltype_by_p = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\services\is_service_fueltype_by_p.csv')
+write_service_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_tech_by_p.csv'),
+    rs_service_tech_by_p)
+write_service_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_tech_by_p.csv'),
+    ss_service_tech_by_p)
+write_service_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'is_service_tech_by_p.csv'),
+    is_service_tech_by_p)
 
-write_service_tech_by_p(CSV_rs_service_tech_by_p, rs_service_tech_by_p)
-write_service_tech_by_p(CSV_ss_service_tech_by_p, ss_service_tech_by_p)
-write_service_tech_by_p(CSV_is_service_tech_by_p, is_service_tech_by_p)
+write_service_fueltype_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_tech_by_p.csv'), 
+    rs_service_fueltype_tech_by_p)
+write_service_fueltype_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_fueltype_tech_by_p.csv'),
+    ss_service_fueltype_tech_by_p)
+write_service_fueltype_tech_by_p(
+    os.path.join(os.path.dirname(__file__), '..', r'data', 'data_scripts', 'services', 'is_service_fueltype_tech_by_p.csv'),
+    is_service_fueltype_tech_by_p)
 
-write_service_fueltype_tech_by_p(CSV_rs_service_fueltype_tech_by_p, rs_service_fueltype_tech_by_p)
-write_service_fueltype_tech_by_p(CSV_ss_service_fueltype_tech_by_p, ss_service_fueltype_tech_by_p)
-write_service_fueltype_tech_by_p(CSV_is_service_fueltype_tech_by_p, is_service_fueltype_tech_by_p)
-
-write_service_fueltype_by_p(CSV_rs_service_fueltype_by_p, rs_service_fueltype_by_p)
-write_service_fueltype_by_p(CSV_ss_service_fueltype_by_p, ss_service_fueltype_by_p)
-write_service_fueltype_by_p(CSV_is_service_fueltype_by_p, is_service_fueltype_by_p)
+write_service_fueltype_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_by_p.csv'),
+    rs_service_fueltype_by_p)
+write_service_fueltype_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_fueltype_by_p.csv'),
+    ss_service_fueltype_by_p)
+write_service_fueltype_by_p(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'is_service_fueltype_by_p.csv'),
+    is_service_fueltype_by_p)
 
 print("... finished script {}".format(os.path.basename(__file__)))

@@ -1,23 +1,17 @@
 """Loads all necessary data
 """
 import os
-import sys
-from random import randint
+import csv
 import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
-from energy_demand.profiles import generic_shapes as generic_shapes
 from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_results
-import csv
 
 def load_paths(path_main, local_data_path):
     
     print("..load paths data")
-    # ------------------------------------------------------------------------------------------
-    # Paths
-    # ------------------------------------------------------------------------------------------
 
     path_dict = {
         # Local paths

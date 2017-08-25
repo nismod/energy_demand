@@ -207,8 +207,10 @@ if __name__ == "__main__":
     # ---------
 
     # Paths
-    path_main = os.path.join(os.path.dirname(__file__)[:-13]) #Remove 'energy_demand'
+    #path_main = os.path.join(os.path.dirname(__file__)[:-13]) #Remove 'energy_demand'
+    path_main = os.path.dirname(os.path.abspath(__file__))[:-13] #Remove 'energy_demand'
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+
 
     #------------------------------
     # WRITE ASSUMPTIONS TO CSV
@@ -234,9 +236,8 @@ if __name__ == "__main__":
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
-
     # ---------------------
-    # SCRIPTS REPLACEMENTS
+    # Load data from script calculations
     # ---------------------
     #read_script_data()
     print("... sigmoid calculations")
@@ -253,18 +254,6 @@ if __name__ == "__main__":
     base_data['assumptions']['rs_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
     base_data['assumptions']['ss_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
     base_data['assumptions']['is_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
-
-    # Calculate technologies with more, less and constant service based on service switch assumptions
-    '''base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
-        base_data['assumptions']['rs_service_tech_by_p'],
-        base_data['assumptions']['rs_share_service_tech_ey_p'])
-    base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
-        base_data['assumptions']['ss_service_tech_by_p'],
-        base_data['assumptions']['ss_share_service_tech_ey_p'])
-    base_data['assumptions']['is_tech_increased_service'], base_data['assumptions']['is_tech_decreased_share'], base_data['assumptions']['is_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
-        base_data['assumptions']['is_service_tech_by_p'],
-        base_data['assumptions']['is_share_service_tech_ey_p'])
-    '''
 
     # Read technologies with more, less and constant service based on service switch assumptions (from script data)
     base_data['assumptions']['rs_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))

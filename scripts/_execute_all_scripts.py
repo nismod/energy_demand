@@ -36,7 +36,7 @@ if run_scenario_scripts:
 
     # Read in temperature data and climate change assumptions and change weather data
     try:
-        import assump_change_temp
+        import script_assump_change_temp
     except Exception as e:
         print("Error: Failed assump_change_temp")
         raise e
