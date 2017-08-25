@@ -40,7 +40,7 @@ if on_rtd:
         inspect.getfile(inspect.currentframe())))
 
     output_dir = os.path.join(__location__, "../docs/api")
-    module_dir = os.path.join(__location__, "../energy_demand")
+    module_dir = os.path.join(__location__, "../energy_demand") 
     cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
     apidoc.main(cmd_line.split(" "))
@@ -226,7 +226,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'user_guide.tex', u'energy_demand Documentation',
-   u'Will Usher', 'manual'),
+   u'Sven Eggimann', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
