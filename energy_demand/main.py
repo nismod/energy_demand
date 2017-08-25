@@ -21,6 +21,7 @@ More information can be found here:
 
     - Eggimann et al. (2018): Paper blablabla
 
+build, git, docs, .eggs, .coverage, .cache, hire, scripts, data
 
 pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
