@@ -2,7 +2,8 @@
 Model Documentation
 ===================
 
-## 1. Overview
+## Overview
+
 
 The energy demand model of the ITRC-MISTRAL framework allows 
 the simulation of long-term changes in energy demand patterns
@@ -21,7 +22,7 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-## 2. Energy demand simulation
+## Energy demand simulation
 
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
@@ -71,6 +72,7 @@ For the residential and service sub-model, SD values are calculated based on a d
     <td>Enduses in industry submodel, appliances</td>
   </tr>
 </table>
+
 *Table 1: End-use specific scenario drivers for energy demand*
 
 
@@ -91,6 +93,38 @@ Lorem ipsum...
 
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 *Figure 2: Interaction*
+
+## 5.0 Model Parameters
+
+### 5.1 General model parameters
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+#### 5.1.1 Technologies
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+#### 5.1.2 Load profiles
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+#### 5.1.3 Base year fuel assignement
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+### 5.2 Scenario input parameters
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+## 6. Disaggregation
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+### 6.1 Temporal disaggregation
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+
+### 6.2 Spatial disaggregation
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
 
 ## 10. Reading the code
 
