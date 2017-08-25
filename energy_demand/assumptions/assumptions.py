@@ -2,6 +2,7 @@
 """
 import os
 import sys
+from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
 from energy_demand.technologies import dummy_technologies
@@ -9,6 +10,7 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helper_functions
 from energy_demand.read_write import write_data
+from energy_demand.basic import date_handling
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #TODO: Write function which insersts zeros if a fueltype is not provided
@@ -30,9 +32,28 @@ def load_assumptions(data):
     print("... load assumptions")
     assumptions = {}
 
+    data['sim_param'] = {}
+    data['sim_param']['base_yr'] = 2015
+    data['sim_param']['end_yr'] = 2020
+    data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+    data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr']  + 1, data['sim_param']['sim_years_intervall'])
+    data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr']  + 1 - data['sim_param']['base_yr'])
+    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
+    data['sim_param']['list_dates'] = date_handling.fullyear_dates(
+        start=date(data['sim_param']['base_yr'], 1, 1),
+        end=date(data['sim_param']['base_yr'], 12, 31))
+
     # ============================================================
     # Residential building stock assumptions
     # ============================================================
+    # Dwelling types lookup table
+    data['dwtype_lu'] = {
+        0: 'detached',
+        1: 'semi_detached',
+        2: 'terraced',
+        3: 'flat',
+        4: 'bungalow'
+        }
 
     # Change in floor area per person up to end_yr (e.g. 0.4 --> 40% increase (the one is added in the model))
     # ASSUMPTION (if minus, check if new buildings are needed)

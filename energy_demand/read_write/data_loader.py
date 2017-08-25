@@ -70,7 +70,9 @@ def load_paths(path_main, local_data_path):
         'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
         }
 
-    return path_dict
+    out_dict = {}
+    out_dict['path_dict'] = path_dict
+    return out_dict
 
 def load_data_tech_profiles(data):
     """
@@ -142,6 +144,17 @@ def load_fuels(data):
     # ------------------------------------------
     # Load ECUK fuel data
     # ------------------------------------------
+    data['lu_fueltype'] = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'biomass': 5,
+        'hydrogen': 6,
+        'heat': 7
+        }
+    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
 
     # Residential Sector (ECUK Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(
@@ -172,49 +185,6 @@ def load_fuels(data):
 
     #fuel_national_tranport[2] = 385
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
-
-    return data
-
-def load_data_lookup_data(data):
-    """All base data no provided externally are loaded
-
-    All necessary data to run energy demand model is loaded.
-    This data is loaded in the wrapper.
-
-    Parameters
-    ----------
-    data : dict
-        Dict with own data
-    path_main : str
-        Path to all data of model run which are not provided externally by wrapper
-
-    Returns
-    -------
-    data : list
-        Returns a list where storing all data
-    """
-    print("..load other data")
-
-    data['lu_fueltype'] = {
-        'solid_fuel': 0,
-        'gas': 1,
-        'electricity': 2,
-        'oil': 3,
-        'heat_sold': 4,
-        'biomass': 5,
-        'hydrogen': 6,
-        'heat': 7
-        }
-    data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
-
-    # Dwelling types lookup table
-    data['dwtype_lu'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'
-        }
 
     return data
 

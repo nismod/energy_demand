@@ -564,18 +564,6 @@ def write_tech_increased_service(path_to_txt, data):
 # ---------------------------------------
 # =======================================
 # ---------------------------------------
-base_data = {}
-base_data['sim_param'] = {}
-base_data['sim_param']['base_yr'] = 2015
-base_data['sim_param']['end_yr'] = 2020
-base_data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
-base_data['sim_param']['sim_period'] = range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr']  + 1, base_data['sim_param']['sim_years_intervall'])
-base_data['sim_param']['sim_period_yrs'] = int(base_data['sim_param']['end_yr']  + 1 - base_data['sim_param']['base_yr'])
-base_data['sim_param']['curr_yr'] = base_data['sim_param']['base_yr']
-base_data['sim_param']['list_dates'] = date_handling.fullyear_dates(
-    start=date(base_data['sim_param']['base_yr'], 1, 1),
-    end=date(base_data['sim_param']['base_yr'], 12, 31))
-
 # Paths
 path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
 local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
@@ -583,13 +571,9 @@ local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 # -----------------------------------------------------
 # Load data and assumptions
 # ------------------------------------------------------
-base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
-base_data = data_loader.load_data_lookup_data(base_data)
+base_data = data_loader.load_paths(path_main, local_data_path)
 base_data = data_loader.load_fuels(base_data)
 base_data['assumptions'] = assumptions.load_assumptions(base_data)
-# ---------------------------------------
-# =======================================
-# ---------------------------------------
 
 
 # Read in Services

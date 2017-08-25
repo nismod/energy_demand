@@ -223,13 +223,16 @@ PATH_BD_E_LOAD_PROFILES = os.path.join(
 LODA_DATA_PATH = r'C:\Users\cenv0553\GIT'
 
 SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
-    os.path.join(LODA_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv')
+    os.path.join(
+        LODA_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv')
     )
 
 PATH_MAIN = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-PATH_RS_TXT_SHAPES = os.path.join(PATH_MAIN, 'data_scripts', 'load_profiles', 'rs_submodel')
-PATH_RS_FUEL_RAW_DATA = os.path.join(PATH_MAIN, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
+PATH_RS_TXT_SHAPES = os.path.join(
+    PATH_MAIN, 'data_scripts', 'load_profiles', 'rs_submodel')
+PATH_RS_FUEL_RAW_DATA = os.path.join(
+    PATH_MAIN, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
 
 HES_APPLIANCES_MATCHING = {
     'rs_cold': 0,
