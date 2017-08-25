@@ -53,6 +53,13 @@ from energy_demand.read_write import read_weather_data
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
+'''import inspect
+__location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
+print(__location__)
+a = os.path.join(__location__, "*")
+print(a)
+##prnt(".")
+# '''
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
