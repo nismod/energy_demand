@@ -1,0 +1,662 @@
+"""
+"""
+import os
+import sys
+import copy
+import numpy as np
+from datetime import date
+from energy_demand.assumptions import assumptions
+from energy_demand.read_write import data_loader
+from energy_demand.basic import date_handling
+from energy_demand.initalisations import initialisations as init
+from energy_demand.read_write import read_data
+from energy_demand.technologies import fuel_service_switch
+from scipy.optimize import curve_fit
+from energy_demand.plotting import plotting_program as plotting
+print("... start script {}".format(os.path.basename(__file__)))    
+
+def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
+    """Fit sigmoid curve based on two points on the diffusion curve
+
+    Parameters
+    ----------
+    l_value : float
+        The sigmoids curve maximum value (max consumption)
+    x_data : array
+        X coordinate of two points
+    y_data : array
+        X coordinate of two points
+
+    Returns
+    -------
+    popt : dict
+        Fitting parameters
+
+    Note
+    ----
+    The Sigmoid is substacted - 2000 to allow for better fit with low values
+
+    RuntimeWarning is ignored
+    """
+    def sigmoid_fitting_function(x_value, x0_value, k_value):
+        """Sigmoid function used for fitting
+        """
+        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
+
+        return y_value
+
+    popt, _ = curve_fit(sigmoid_fitting_function, x_data, y_data, p0=start_parameters)
+
+    return popt
+
+def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_tech_p_by):
+    """Calculate L value for every installed technology with maximum theoretical replacement value
+
+    Parameters
+    ----------
+    enduses : list
+        List with enduses where fuel switches are defined
+    assumptions : dict
+        Assumptions
+
+    Returns
+    -------
+    l_values_sig : dict
+        L value for sigmoid diffusion of all technologies for which a switch is implemented
+
+    Notes
+    -----
+    Gets second sigmoid point
+    """
+    l_values_sig = init.init_dict_brackets(enduses)
+
+    for enduse in enduses:
+        # Check wheter there are technologies in this enduse which are switched
+
+        if installed_tech[enduse] == []:
+            #print("No technologies to calculate sigmoid  {}".format(enduse))
+            pass
+        else:
+            print("Technologes it calculate sigmoid  {}  {}".format(enduse, installed_tech[enduse]))
+
+            # Iterite list with enduses where fuel switches are defined
+            for technology in installed_tech[enduse]:
+                print("Technology: {} Enduse:  {}".format(technology, enduse))
+                # Calculate service demand for specific tech
+                tech_install_p = calc_service_fuel_switched(
+                    enduses,
+                    fuel_switches,
+                    service_fueltype_p,
+                    service_tech_by_p, # Percentage of service demands for every technology
+                    fuel_tech_p_by,
+                    {str(enduse): [technology]},
+                    'max_switch'
+                    )
+
+                # Read L-values with calculating maximum sigmoid theoretical diffusion
+                l_values_sig[enduse][technology] = tech_install_p[enduse][technology]
+
+    return l_values_sig
+
+def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_tech_p_by, installed_tech_switches, switch_type):
+    """Calculate energy service demand percentages after fuel switches
+
+    Parameters
+    ----------
+    enduses : list
+        List with enduses where fuel switches are defined
+    fuel_switches : dict
+        Fuel switches
+    service_fueltype_p : dict
+        Service demand per fueltype
+    service_tech_by_p : dict
+        Percentage of service demand per technology for base year
+    fuel_tech_p_by : dict
+        Technologies in base year
+    fuel_tech_p_by : dict
+        Fuel shares for each technology of an enduse
+    installed_tech_switches : dict
+        Technologies which are installed in fuel switches
+    switch_type :
+
+    Return
+    ------
+    service_tech_switched_p : dict
+        Service in future year with added and substracted service demand for every technology
+
+    Note
+    ----
+    Implement changes in heat demand (all technolgies within
+    a fueltypes are replaced proportionally)
+    """
+    service_tech_switched_p = copy.deepcopy(service_tech_by_p)
+
+    for enduse in enduses:
+        for fuel_switch in fuel_switches:
+            if fuel_switch['enduse'] == enduse:
+
+                tech_install = fuel_switch['technology_install']
+                fueltype_tech_replace = fuel_switch['enduse_fueltype_replace']
+
+                # Check if installed technology is considered for fuelswitch
+                if tech_install in installed_tech_switches[enduse]:
+
+                    # Share of energy service before switch
+                    orig_service_p = service_fueltype_p[enduse][fueltype_tech_replace]
+
+                    # Service demand per fueltype that will be switched
+                    if switch_type == 'max_switch':
+                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        change_service_fueltype_p = orig_service_p * fuel_switch['max_theoretical_switch']
+                    elif switch_type == 'actual_switch':
+                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                        change_service_fueltype_p = orig_service_p * fuel_switch['share_fuel_consumption_switched']
+
+                    # ---Service addition
+                    service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
+
+                    # Get all technologies which are replaced related to this fueltype
+                    replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
+
+                    # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
+                    for tech in replaced_tech_fueltype:
+                        service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
+
+    return service_tech_switched_p
+
+def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
+    """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
+
+    The future energy servie demand is calculated based on fuel switches.
+    A sigmoid diffusion is fitted.
+
+    Parameters
+    ----------
+    data : dict
+        data
+    enduses : enduses
+        enduses
+    crit_switch_service : bool
+        Criteria whether sigmoid is calculated for service switch or not
+    installed_tech : dict
+        Technologies for enduses with fuel switch
+    installed_tech : dict
+        List with installed technologies in fuel switches
+    l_values : dict
+        L values for maximum possible diffusion of technologies
+    service_tech_by_p : dict
+        Energy service demand for base year (1.sigmoid point)
+    service_tech_switched_p : dict
+        Service demand after fuelswitch
+    fuel_switches : dict
+        Fuel switch information
+
+    Returns
+    -------
+    sigmoid_parameters : dict
+        Sigmoid diffusion parameters to read energy service demand percentage (not fuel!)
+
+    Notes
+    -----
+    TODO: improve fitting
+
+    Manually the fitting parameters can be defined which are not considered as
+    a good fit: fit_crit_a, fit_crit_b
+    If service definition, the year until switched is the end model year
+    """
+    sigmoid_parameters = {}
+
+    # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
+    fit_crit_a, fit_crit_b = 200, 0.001
+
+    if installed_tech[enduse] == []:
+        print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
+    else:
+        for technology in installed_tech[enduse]:
+            print("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
+            sigmoid_parameters[technology] = {}
+
+            # If service switch
+            if crit_switch_service:
+                year_until_switched = data['sim_param']['end_yr'] # Year until service is switched
+                market_entry = data['assumptions']['technologies'][technology]['market_entry']
+            else:
+
+                # Get the most future year of the technology in the enduse which is switched to
+                year_until_switched = 0
+                for switch in fuel_switches:
+                    if switch['enduse'] == enduse and switch['technology_install'] == technology:
+                        if year_until_switched < switch['year_fuel_consumption_switched']:
+                            year_until_switched = switch['year_fuel_consumption_switched']
+
+                market_entry = data['assumptions']['technologies'][technology]['market_entry']
+
+            # --------
+            # Test whether technology has the market entry before or after base year,
+            # If afterwards, set very small number in market entry year
+            # --------
+            if market_entry > data['sim_param']['base_yr']:
+                point_x_by = market_entry
+                point_y_by = 0.001 # very small service share if market entry in a future year
+            else: # If market entry before, set to 2015
+                point_x_by = data['sim_param']['base_yr']
+                point_y_by = service_tech_by_p[enduse][technology] # current service share
+
+                #If the base year is the market entry year use a very small number
+                if point_y_by == 0:
+                    point_y_by = 0.001
+
+            # Future energy service demand (second point on sigmoid curve for fitting)
+            point_x_projected = year_until_switched
+            point_y_projected = service_tech_switched_p[enduse][technology]
+
+            # Data of the two points
+            xdata = np.array([point_x_by, point_x_projected])
+            ydata = np.array([point_y_by, point_y_projected])
+
+            print("DATA TO FIT:   {}   {}".format(xdata, ydata))
+
+            # ----------------
+            # Parameter fitting
+            # ----------------
+            # Generate possible starting parameters for fit
+            possible_start_parameters = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
+            for start in [x * 0.05 for x in range(0, 100)]:
+                possible_start_parameters.append(start)
+            for start in range(1, 59):
+                possible_start_parameters.append(start)
+
+            cnt = 0
+            successfull = False
+            while not successfull:
+                start_parameters = [
+                    possible_start_parameters[cnt],
+                    possible_start_parameters[cnt]
+                    ]
+                try:
+                    '''
+                    print("----------- Technology " + str(technology) + str("  ") + str(cnt))
+                    print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
+                    print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
+                    print("Lvalue: " + str(l_values[enduse][technology]))
+                    print("start_parameters: " + str(start_parameters))
+                    '''
+                    fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
+                    #print("fit_parameter: " + str(fit_parameter))
+
+                    # Criteria when fit did not work
+                    if fit_parameter[0] > fit_crit_a or fit_parameter[0] < fit_crit_b or fit_parameter[1] > fit_crit_a or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
+                        successfull = False
+                        cnt += 1
+                        if cnt >= len(possible_start_parameters):
+                            sys.exit("Error2: CURVE FITTING DID NOT WORK")
+                    else:
+                        successfull = True
+                        print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
+                except:
+                    #print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+                    cnt += 1
+
+                    if cnt >= len(possible_start_parameters):
+                        sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_a and fit_crit_b")
+
+            # Insert parameters
+            sigmoid_parameters[technology]['midpoint'] = fit_parameter[0] #midpoint (x0)
+            sigmoid_parameters[technology]['steepness'] = fit_parameter[1] #Steepnes (k)
+            sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
+
+            #plot sigmoid curve
+            plotting.plotout_sigmoid_tech_diff(
+                l_values,
+                technology,
+                enduse,
+                xdata,
+                ydata,
+                fit_parameter,
+                True
+                )
+
+    return sigmoid_parameters
+
+def get_tech_installed(enduses, fuel_switches):
+    """Read out all technologies which are specifically switched to
+
+    Parameter
+    ---------
+    fuel_switches : dict
+        All fuel switches where a share of a fuel of an enduse is switched to a specific technology
+
+    Return
+    ------
+    installed_tech : list
+        List with all technologies where a fuel share is switched to
+    """
+    installed_tech = {}
+
+    # Add technology list for every enduse with affected switches
+    for enduse in enduses:
+        installed_tech[enduse] = set([])
+
+    for switch in fuel_switches:
+        enduse_fuelswitch = switch['enduse']
+        installed_tech[enduse_fuelswitch].add(switch['technology_install'])
+
+    # Convert set to lists
+    for enduse in installed_tech:
+        installed_tech[enduse] = list(installed_tech[enduse])
+
+    return installed_tech
+
+def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_tech_p_by):
+    """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
+
+    Parameters
+    ----------
+    data : dict
+        Data
+    service_switches : dict
+        Service switches
+    fuel_switches : dict
+        Fuel switches
+    enduses : list
+        Enduses
+    tech_increased_service : list
+        Technologies with increased service
+    share_service_tech_ey_p : dict
+        Fraction of service in end year
+    enduse_tech_maxl_by_p :
+
+    service_fueltype_by_p :
+
+    service_tech_by_p :
+
+    fuel_tech_p_by :
+
+    fuels : array
+        Fuels
+
+    Return
+    ------
+    data : dict
+        Data dictionary containing all calculated parameters in assumptions
+
+    Note
+    ----
+    It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
+    """
+    # Test is Service Switch is implemented
+    if len(service_switches) > 0:
+        crit_switch_service = True
+        #print("...crit_switch_service  " + str(crit_switch_service))
+    else:
+        crit_switch_service = False
+
+    installed_tech, sig_param_tech = {}, {}
+
+    for enduse in enduses:
+        if crit_switch_service: # Sigmoid calculation in case of 'service switch'
+
+            # Tech with lager service shares in end year
+            installed_tech = tech_increased_service
+
+            # End year service shares (scenaric input)
+            service_tech_switched_p = share_service_tech_ey_p
+
+            # Maximum shares of each technology
+            l_values_sig = enduse_tech_maxl_by_p
+
+        else: # Sigmoid calculation in case of 'fuel switch'
+
+            # Tech with lager service shares in end year (installed in fuel switch)
+            installed_tech = get_tech_installed(enduses, fuel_switches)
+
+            # Calculate future service demand after fuel switches for each technology
+            service_tech_switched_p = calc_service_fuel_switched(
+                enduses,
+                fuel_switches,
+                service_fueltype_by_p,
+                service_tech_by_p,
+                fuel_tech_p_by,
+                installed_tech,
+                'actual_switch'
+            )
+
+            # Calculate L for every technology for sigmod diffusion
+            l_values_sig = tech_l_sigmoid(
+                enduses,
+                fuel_switches,
+                installed_tech,
+                service_fueltype_by_p,
+                service_tech_by_p,
+                fuel_tech_p_by
+                )
+
+        # -------------------------------------------------------------
+        # Calclulate sigmoid parameters for every installed technology
+        # -------------------------------------------------------------
+        sig_param_tech[enduse] = tech_sigmoid_parameters(
+            data,
+            enduse,
+            crit_switch_service,
+            installed_tech,
+            l_values_sig,
+            service_tech_by_p,
+            service_tech_switched_p,
+            fuel_switches
+        )
+
+    return installed_tech, sig_param_tech
+
+def write_installed_tech(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}".format(
+        'enduse', 'technology') + '\n'
+              )
+
+    for enduse, technologies in data.items():
+        for technology in technologies:
+            file.write("{}, {}".format(
+                str.strip(enduse), str.strip(technology) + '\n')
+                      )
+    file.close()
+
+    return
+
+def write_sig_param_tech(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}, {}, {}".format(
+        'enduse', 'technology', 'midpoint', 'steepness', 'l_parameter') + '\n'
+              )
+    for enduse, technologies in data.items():
+        for technology, parameters in technologies.items():
+            midpoint = float(parameters['midpoint'])
+            steepness = float(parameters['steepness'])
+            l_parameter = float(parameters['l_parameter'])
+
+            file.write("{}, {}, {}, {}, {}".format(
+                enduse, str.strip(technology), midpoint, steepness, l_parameter) + '\n')
+
+    file.close()
+
+    return
+
+def write_tech_increased_service(path_to_txt, data):
+    """Writ
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}, {}, {}".format(
+        'enduse', 'technology', 'midpoint', 'steepness', 'l_parameter') + '\n'
+              )
+    for enduse, technologies in data.items():
+        for technology, parameters in technologies.items():
+            midpoint = float(parameters['midpoint'])
+            steepness = float(parameters['steepness'])
+            l_parameter = float(parameters['l_parameter'])
+
+            file.write("{}, {}, {}, {}, {}".format(
+                enduse, str.strip(technology), midpoint, steepness, l_parameter) + '\n')
+
+    file.close()
+
+    return
+
+# ---------------------------------------
+# =======================================
+# ---------------------------------------
+base_data = {}
+base_data['sim_param'] = {}
+base_data['sim_param']['base_yr'] = 2015
+base_data['sim_param']['end_yr'] = 2020
+base_data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
+base_data['sim_param']['sim_period'] = range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr']  + 1, base_data['sim_param']['sim_years_intervall'])
+base_data['sim_param']['sim_period_yrs'] = int(base_data['sim_param']['end_yr']  + 1 - base_data['sim_param']['base_yr'])
+base_data['sim_param']['curr_yr'] = base_data['sim_param']['base_yr']
+base_data['sim_param']['list_dates'] = date_handling.fullyear_dates(
+    start=date(base_data['sim_param']['base_yr'], 1, 1),
+    end=date(base_data['sim_param']['base_yr'], 12, 31))
+
+# Paths
+path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+
+# -----------------------------------------------------
+# Load data and assumptions
+# ------------------------------------------------------
+base_data['path_dict'] = data_loader.load_paths(path_main, local_data_path)
+base_data = data_loader.load_data_lookup_data(base_data)
+base_data = data_loader.load_fuels(base_data)
+base_data['assumptions'] = assumptions.load_assumptions(base_data)
+# ---------------------------------------
+# =======================================
+# ---------------------------------------
+
+
+
+CSV_rs_installed_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_installed_tech.csv')
+CSV_ss_installed_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_installed_tech.csv')
+CSV_is_installed_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_installed_tech.csv')
+
+CSV_rs_sig_param_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_sig_param_tech.csv')
+CSV_ss_sig_param_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_sig_param_tech.csv')
+CSV_is_sig_param_tech = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_sig_param_tech.csv')
+
+CSV_rs_tech_increased_service = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_increased_service.csv')
+CSV_ss_tech_increased_service = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_increased_service.csv')
+CSV_is_tech_increased_service = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_increased_service.csv')
+
+CSV_rs_tech_decreased_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_decreased_share.csv')
+CSV_ss_tech_decreased_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_decreased_share.csv')
+CSV_is_tech_decreased_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_decreased_share.csv')
+
+CSV_rs_tech_constant_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_constant_share.csv')
+CSV_ss_tech_constant_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_constant_share.csv')
+CSV_is_tech_constant_share = os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_constant_share.csv')
+
+# Read in Services
+rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
+ss_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
+is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
+
+rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
+ss_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
+is_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
+
+rs_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
+ss_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
+is_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
+
+# Calculate technologies with more, less and constant service based on service switch assumptions (TWICE CALCULATION)
+'''
+rs_tech_increased_service, _, _ = fuel_service_switch.get_tech_future_service(
+    rs_service_tech_by_p,
+    base_data['assumptions']['rs_share_service_tech_ey_p'])
+ss_tech_increased_service, _, _ = fuel_service_switch.get_tech_future_service(
+    ss_service_tech_by_p,
+    base_data['assumptions']['ss_share_service_tech_ey_p'])
+is_tech_increased_service, _, _ = fuel_service_switch.get_tech_future_service(
+    is_service_tech_by_p,
+    base_data['assumptions']['is_share_service_tech_ey_p'])
+'''
+# Calculate shares 
+rs_tech_increased_service, rs_tech_decreased_share, rs_tech_constant_share = fuel_service_switch.get_tech_future_service(
+    rs_service_tech_by_p,
+    base_data['assumptions']['rs_share_service_tech_ey_p'])
+ss_tech_increased_service, ss_tech_decreased_share, ss_tech_constant_share = fuel_service_switch.get_tech_future_service(
+    ss_service_tech_by_p,
+    base_data['assumptions']['ss_share_service_tech_ey_p'])
+is_tech_increased_service, is_tech_decreased_share, is_tech_constant_share = fuel_service_switch.get_tech_future_service(
+    is_service_tech_by_p,
+    base_data['assumptions']['is_share_service_tech_ey_p'])
+
+
+# Calculate sigmoid diffusion curves based on assumptions about fuel switches
+
+# --Residential
+rs_installed_tech, rs_sig_param_tech = get_sig_diffusion(
+    base_data,
+    base_data['assumptions']['rs_service_switches'],
+    base_data['assumptions']['rs_fuel_switches'],
+    base_data['rs_all_enduses'],
+    rs_tech_increased_service,
+    base_data['assumptions']['rs_share_service_tech_ey_p'],
+    base_data['assumptions']['rs_enduse_tech_maxL_by_p'],
+    rs_service_fueltype_by_p,
+    rs_service_tech_by_p,
+    base_data['assumptions']['rs_fuel_tech_p_by']
+    )
+
+# --Service
+ss_installed_tech, ss_sig_param_tech = get_sig_diffusion(
+    base_data,
+    base_data['assumptions']['ss_service_switches'],
+    base_data['assumptions']['ss_fuel_switches'],
+    base_data['ss_all_enduses'],
+    ss_tech_increased_service,
+    base_data['assumptions']['ss_share_service_tech_ey_p'],
+    base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
+    ss_service_fueltype_by_p,
+    ss_service_tech_by_p,
+    base_data['assumptions']['ss_fuel_tech_p_by']
+    )
+
+# --Industry
+is_installed_tech, is_sig_param_tech = get_sig_diffusion(
+    base_data,
+    base_data['assumptions']['is_service_switches'],
+    base_data['assumptions']['is_fuel_switches'],
+    base_data['is_all_enduses'],
+    is_tech_increased_service,
+    base_data['assumptions']['is_share_service_tech_ey_p'],
+    base_data['assumptions']['is_enduse_tech_maxL_by_p'],
+    is_service_fueltype_by_p,
+    is_service_tech_by_p,
+    base_data['assumptions']['is_fuel_tech_p_by']
+    )
+
+# ----------------------
+# Write out to csv 
+# ----------------------
+write_installed_tech(CSV_rs_installed_tech, rs_installed_tech)
+write_installed_tech(CSV_ss_installed_tech, ss_installed_tech)
+write_installed_tech(CSV_is_installed_tech, is_installed_tech)
+
+write_sig_param_tech(CSV_rs_sig_param_tech, rs_sig_param_tech)
+write_sig_param_tech(CSV_ss_sig_param_tech, ss_sig_param_tech)
+write_sig_param_tech(CSV_is_sig_param_tech, is_sig_param_tech)
+
+write_installed_tech(CSV_rs_tech_increased_service, rs_tech_increased_service)
+write_installed_tech(CSV_ss_tech_increased_service, ss_tech_increased_service)
+write_installed_tech(CSV_is_tech_increased_service, is_tech_increased_service)
+
+write_installed_tech(CSV_rs_tech_decreased_share, rs_tech_decreased_share)
+write_installed_tech(CSV_ss_tech_decreased_share, ss_tech_decreased_share)
+write_installed_tech(CSV_is_tech_decreased_share, is_tech_decreased_share)
+
+write_installed_tech(CSV_rs_tech_constant_share, rs_tech_constant_share)
+write_installed_tech(CSV_ss_tech_constant_share, ss_tech_constant_share)
+write_installed_tech(CSV_is_tech_constant_share, is_tech_constant_share)
+print("... finished script {}".format(os.path.basename(__file__)))

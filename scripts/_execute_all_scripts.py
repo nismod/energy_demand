@@ -1,6 +1,6 @@
 """Run all scripts
 """
-run_building_scripts = True
+run_building_scripts = False
 run_scenario_scripts = True
 
 """
@@ -22,7 +22,7 @@ if run_building_scripts:
 
     # Read in temperature data from raw files
     try:
-        import read_raw_weather_data
+        import script_read_raw_weather_data
     except Exception as e:
         print("Error: Failed read_raw_weather_data")
         raise e
@@ -46,5 +46,12 @@ if run_scenario_scripts:
     except Exception as e:
         print("Error: Failed assump_change_temp")
         raise e
+
+    try:
+        import script_assump_generate_sigmoid
+    except Exception as e:
+        print("Error: Failed script_assump_generate_sigmoid")
+        raise e
+
 
 print("...  finished running all scripts")

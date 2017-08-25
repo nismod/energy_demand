@@ -291,14 +291,14 @@ def write_weather_stations(path_to_txt, weather_station):
 print("..start script {}".format(os.path.basename(__file__)))
 LOCAL_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
 CSV_OUT_WEATHER_DATA = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\weather_data.csv')
+    os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
 CSV_OUT_WEATHER_STATIONS = os.path.join(
-    os.path.dirname(__file__), '..', r'data\data_scripts\weather_stations.csv')
+    os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_stations.csv')
 
 PATH_WEATHER_DATA = os.path.join(
-    LOCAL_DATA_PATH, r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
+    LOCAL_DATA_PATH, '16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv')
 PATH_WEATHER_STATIONS = os.path.join(
-    LOCAL_DATA_PATH, r'16-Met_office_weather_data\excel_list_station_details.csv')
+    LOCAL_DATA_PATH, '16-Met_office_weather_data', 'excel_list_station_details.csv')
 
 # Read in raw temperature data
 TEMPERATURE_DATA_RAW = read_weather_data_raw(

@@ -79,6 +79,8 @@ def load_paths(path_main, local_data_path):
     return path_dict
 
 def load_data_tech_profiles(data):
+    """
+    """
     # ------------------------------------------
     # Specific technology shapes
     # ------------------------------------------
@@ -88,7 +90,7 @@ def load_data_tech_profiles(data):
 
     # Heat pump shape from Love et al. (2017)
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(
-        data['path_dict']['path_hourly_elec_shape_hp']) 
+        data['path_dict']['path_hourly_elec_shape_hp'])
 
     data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
     data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_ss_cooling']) # ??
@@ -133,7 +135,7 @@ def load_data_temperatures(path_scripts_data):
     print("..load temperature data")
 
     # ----------------------------------------------------------
-    # Read in cleaned temperature and weather station data 
+    # Read in cleaned temperature and weather station data
     # ----------------------------------------------------------
     weather_stations = read_weather_data.read_weather_station_script_data(
         os.path.join(path_scripts_data, 'weather_stations.csv'))

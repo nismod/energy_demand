@@ -225,7 +225,8 @@ if __name__ == "__main__":
     base_data = data_loader.load_data_lookup_data(base_data)
     base_data = data_loader.load_data_profiles(base_data)
     base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        base_data['path_dict']['path_scripts_data'])
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data')
+        )
     base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
@@ -237,9 +238,10 @@ if __name__ == "__main__":
     # ---------------------
     # SCRIPTS REPLACEMENTS
     # ---------------------
-
+    #read_script_data()
     print("... sigmoid calculations")
-    # Read in Services
+
+    # Read in Services (from script data)
     base_data['assumptions']['rs_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
     base_data['assumptions']['ss_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
     base_data['assumptions']['is_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
@@ -252,28 +254,8 @@ if __name__ == "__main__":
     base_data['assumptions']['ss_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
     base_data['assumptions']['is_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
 
-    # READ IN SIG PARAMETERS
-    base_data['assumptions']['rs_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_sig_param_tech.csv'))
-    base_data['assumptions']['ss_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_sig_param_tech.csv'))
-    base_data['assumptions']['is_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_sig_param_tech.csv'))
-
-    base_data['assumptions']['rs_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_installed_tech.csv'))
-    base_data['assumptions']['ss_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_installed_tech.csv'))
-    base_data['assumptions']['is_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_installed_tech.csv'))
-
-
-    # Change temperature data according to simple assumptions about climate change
-    ### REPLACED base_data['temperature_data'] = enduse_scenario.change_temp_climate_change(base_data)
-    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data_changed_climate.csv'),
-        base_data['sim_param']['sim_period'])
-
-    # Write out txt file with service shares for each technology per enduse
-    ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
-    #print("... a file has been generated which shows the shares of each technology per enduse")
-
     # Calculate technologies with more, less and constant service based on service switch assumptions
-    base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
+    '''base_data['assumptions']['rs_tech_increased_service'], base_data['assumptions']['rs_tech_decreased_share'], base_data['assumptions']['rs_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
         base_data['assumptions']['rs_service_tech_by_p'],
         base_data['assumptions']['rs_share_service_tech_ey_p'])
     base_data['assumptions']['ss_tech_increased_service'], base_data['assumptions']['ss_tech_decreased_share'], base_data['assumptions']['ss_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
@@ -282,50 +264,39 @@ if __name__ == "__main__":
     base_data['assumptions']['is_tech_increased_service'], base_data['assumptions']['is_tech_decreased_share'], base_data['assumptions']['is_tech_constant_share'] = fuel_service_switch.get_tech_future_service(
         base_data['assumptions']['is_service_tech_by_p'],
         base_data['assumptions']['is_share_service_tech_ey_p'])
+    '''
 
-    # Calculate sigmoid diffusion curves based on assumptions about fuel switches
+    # Read technologies with more, less and constant service based on service switch assumptions (from script data)
+    base_data['assumptions']['rs_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
+    base_data['assumptions']['ss_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
+    base_data['assumptions']['is_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
 
-    # --Residential
-    _, _ = diffusion.get_sig_diffusion(
-        base_data,
-        base_data['assumptions']['rs_service_switches'],
-        base_data['assumptions']['rs_fuel_switches'],
-        base_data['rs_all_enduses'],
-        base_data['assumptions']['rs_tech_increased_service'],
-        base_data['assumptions']['rs_share_service_tech_ey_p'],
-        base_data['assumptions']['rs_enduse_tech_maxL_by_p'],
-        base_data['assumptions']['rs_service_fueltype_by_p'],
-        base_data['assumptions']['rs_service_tech_by_p'],
-        base_data['assumptions']['rs_fuel_tech_p_by']
-        )
+    base_data['assumptions']['rs_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
+    base_data['assumptions']['ss_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
+    base_data['assumptions']['is_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
 
-    # --Service
-    _, _ = diffusion.get_sig_diffusion(
-        base_data,
-        base_data['assumptions']['ss_service_switches'],
-        base_data['assumptions']['ss_fuel_switches'],
-        base_data['ss_all_enduses'],
-        base_data['assumptions']['ss_tech_increased_service'],
-        base_data['assumptions']['ss_share_service_tech_ey_p'],
-        base_data['assumptions']['ss_enduse_tech_maxL_by_p'],
-        base_data['assumptions']['ss_service_fueltype_by_p'],
-        base_data['assumptions']['ss_service_tech_by_p'],
-        base_data['assumptions']['ss_fuel_tech_p_by']
-        )
+    base_data['assumptions']['rs_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
+    base_data['assumptions']['ss_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
+    base_data['assumptions']['is_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
 
-    # --Industry
-    _, _ = diffusion.get_sig_diffusion(
-        base_data,
-        base_data['assumptions']['is_service_switches'],
-        base_data['assumptions']['is_fuel_switches'],
-        base_data['is_all_enduses'],
-        base_data['assumptions']['is_tech_increased_service'],
-        base_data['assumptions']['is_share_service_tech_ey_p'],
-        base_data['assumptions']['is_enduse_tech_maxL_by_p'],
-        base_data['assumptions']['is_service_fueltype_by_p'],
-        base_data['assumptions']['is_service_tech_by_p'],
-        base_data['assumptions']['is_fuel_tech_p_by']
-        )
+    # Read in sigmoid technology diffusion parameters (from script data)
+    base_data['assumptions']['rs_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_sig_param_tech.csv'))
+    base_data['assumptions']['ss_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_sig_param_tech.csv'))
+    base_data['assumptions']['is_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_sig_param_tech.csv'))
+
+    # Read in installed technologies (from script data)
+    base_data['assumptions']['rs_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_installed_tech.csv'))
+    base_data['assumptions']['ss_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_installed_tech.csv'))
+    base_data['assumptions']['is_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_installed_tech.csv'))
+
+    # Read data after apply climate change (from script data)
+    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data', 'weather_data_changed_climate.csv'),
+        base_data['sim_param']['sim_period'])
+
+    # Write out txt file with service shares for each technology per enduse
+    ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
+    #print("... a file has been generated which shows the shares of each technology per enduse")
 
     # ---------------------------------------------
     # Disaggregate national data into regional data
@@ -437,7 +408,6 @@ if __name__ == "__main__":
     # ------------------------------
     # Plot load factors
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
-
 
     # Plot total fuel (y) per enduse
     plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')

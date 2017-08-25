@@ -77,7 +77,8 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
 def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
-    """Iterate technologies with future less service demand (replaced tech) and get relative share of service in base year
+    """Iterate technologies with future less service demand (replaced tech) 
+    and get relative share of service in base year
 
     Parameters
     ----------
