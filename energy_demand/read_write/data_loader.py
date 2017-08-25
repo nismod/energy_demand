@@ -21,59 +21,59 @@ def load_paths(path_main, local_data_path):
 
     path_dict = {
         # Local paths
-        'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data/HES_base_appliances_eletricity_load_profiles.csv'),
-        'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv'),
-        'folder_path_weater_stations': os.path.join(local_data_path, r'16-Met_office_weather_data\excel_list_station_details.csv'),
+        'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
+        'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
+        'folder_path_weater_stations': os.path.join(local_data_path, r'16-Met_office_weather_data', 'excel_list_station_details.csv'),
 
-        'folder_validation_national_elec_data': os.path.join(local_data_path, r'04-validation\03_national_elec_demand_2015\elec_demand_2015.csv'),
+        'folder_validation_national_elec_data': os.path.join(local_data_path, r'04-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
 
         # Residential
         # -----------
         'path_main': path_main,
 
-        'path_scripts_data': os.path.join(path_main, 'data/data_scripts'),
-        'path_assumptions_db': os.path.join(path_main, 'data/data_scripts/assumptions_from_db'),
+        'path_scripts_data': os.path.join(path_main, 'data', 'data_scripts'),
+        'path_assumptions_db': os.path.join(path_main, 'data', 'data_scripts', 'assumptions_from_db'),
         # Paths to txt shapes
-        'path_rs_load_profile_txt': os.path.join(path_main, 'data/data_scripts/load_profiles/rs_submodel'),
-        'path_ss_load_profile_txt': os.path.join(path_main, 'data/data_scripts/load_profiles/ss_submodel'),
+        'path_rs_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel'),
+        'path_ss_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
 
         # Path for building stock assumptions
-        'path_dwtype_lu': os.path.join(path_main, 'data/submodel_residential/lookup_dwelling_type.csv'),
-        'path_hourly_gas_shape_resid': os.path.join(path_main, 'data/submodel_residential/SANSOM_residential_gas_hourly_shape.csv'),
-        'path_dwtype_age': os.path.join(path_main, 'data/submodel_residential/data_submodel_residential_dwtype_age.csv'),
-        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'data/submodel_residential/data_submodel_residential_dwtype_floorarea.csv'),
-        'path_reg_floorarea_resid': os.path.join(path_main, 'data/submodel_residential/data_submodel_residential_floorarea.csv'),
+        'path_dwtype_lu': os.path.join(path_main, 'data', 'submodel_residential', 'lookup_dwelling_type.csv'),
+        'path_hourly_gas_shape_resid': os.path.join(path_main, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
+        'path_dwtype_age': os.path.join(path_main, 'data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),
+        'path_dwtype_floorarea_dw_type': os.path.join(path_main, 'data', 'submodel_residential', 'data_submodel_residential_dwtype_floorarea.csv'),
+        'path_reg_floorarea_resid': os.path.join(path_main, 'data', 'submodel_residential', 'data_submodel_residential_floorarea.csv'),
 
         # Path for model outputs
-        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output/rs_service_tech_by_p.txt'),
-        'path_out_stats_cProfile': os.path.join(path_main, 'model_output/stats_cProfile.txt'),
+        'path_txt_service_tech_by_p': os.path.join(path_main, 'model_output', 'rs_service_tech_by_p.txt'),
+        'path_out_stats_cProfile': os.path.join(path_main, 'model_output', 'stats_cProfile.txt'),
 
         # Path to all technologies
-        'path_technologies': os.path.join(path_main, 'data/scenario_and_base_data/technology_base_scenario.csv'),
+        'path_technologies': os.path.join(path_main, 'data', 'scenario_and_base_data', 'technology_base_scenario.csv'),
 
         # Fuel switches
-        'rs_path_fuel_switches': os.path.join(path_main, 'data/submodel_residential/switches_fuel_scenaric.csv'),
-        'ss_path_fuel_switches': os.path.join(path_main, 'data/submodel_service/switches_fuel_scenaric.csv'),
-        'is_path_fuel_switches': os.path.join(path_main, 'data/submodel_industry/switches_fuel_scenaric.csv'),
+        'rs_path_fuel_switches': os.path.join(path_main, 'data', 'submodel_residential', 'switches_fuel_scenaric.csv'),
+        'ss_path_fuel_switches': os.path.join(path_main, 'data', 'submodel_service', 'switches_fuel_scenaric.csv'),
+        'is_path_fuel_switches': os.path.join(path_main, 'data', 'submodel_industry', 'switches_fuel_scenaric.csv'),
 
         # Path to service switches
-        'rs_path_service_switch': os.path.join(path_main, 'data/submodel_residential/switches_service_scenaric.csv'),
-        'ss_path_service_switch': os.path.join(path_main, 'data/submodel_service/switches_service_scenaric.csv'),
-        'is_path_industry_switch': os.path.join(path_main, 'data/submodel_industry/switches_industry_scenaric.csv'),
+        'rs_path_service_switch': os.path.join(path_main, 'data', 'submodel_residential', 'switches_service_scenaric.csv'),
+        'ss_path_service_switch': os.path.join(path_main, 'data', 'submodel_service', 'switches_service_scenaric.csv'),
+        'is_path_industry_switch': os.path.join(path_main, 'data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
         # Paths to fuel raw data
-        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'data/submodel_residential/data_residential_by_fuel_end_uses.csv'),
-        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'data/submodel_service/data_service_by_fuel_end_uses.csv'),
-        'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'data/submodel_industry/data_industry_by_fuel_end_uses.csv'),
+        'path_rs_fuel_raw_data_enduses': os.path.join(path_main, 'data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv'),
+        'path_ss_fuel_raw_data_enduses': os.path.join(path_main, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+        'path_is_fuel_raw_data_enduses': os.path.join(path_main, 'data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
 
         # Technologies load shapes
-        #'path_hourly_gas_shape_hp': os.path.join(path_main, 'data/submodel_residential/SANSOM_residential_gas_hourly_shape_hp.csv'),
-        'path_hourly_elec_shape_hp': os.path.join(path_main, 'data/submodel_residential/LOVE_elec_shape_dh_hp.csv'),
+        #'path_hourly_gas_shape_hp': os.path.join(path_main, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
+        'path_hourly_elec_shape_hp': os.path.join(path_main, 'data', 'submodel_residential', 'LOVE_elec_shape_dh_hp.csv'),
 
-        'path_shape_rs_cooling': os.path.join(path_main, 'data/submodel_residential/shape_residential_cooling.csv'),
-        'path_shape_ss_cooling': os.path.join(path_main, 'data/submodel_service/shape_service_cooling.csv'),
-        'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'data/submodel_residential/HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
-        'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data/submodel_residential/HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
+        'path_shape_rs_cooling': os.path.join(path_main, 'data', 'submodel_residential', 'shape_residential_cooling.csv'),
+        'path_shape_ss_cooling': os.path.join(path_main, 'data', 'submodel_service', 'shape_service_cooling.csv'),
+        'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
+        'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
         }
 
     return path_dict

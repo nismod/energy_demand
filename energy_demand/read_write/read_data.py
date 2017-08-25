@@ -484,6 +484,60 @@ def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
 
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
+def read_installed_tech(path_to_csv):
+    """Read 
+    """
+    tech_installed = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip headers
+
+        # Iterate rows
+        for row in read_lines:
+            enduse = str.strip(row[0])
+            technology = str.strip(row[1])
+
+            try:
+                tech_installed[enduse]
+            except KeyError:
+                tech_installed[enduse] = {}
+            
+            tech_installed[enduse]['technology'] = technology
+    
+    return tech_installed
+
+
+def read_sig_param_tech(path_to_csv):
+    """Read 
+    """
+    print("... read in sig parameters: " + str(path_to_csv))
+    sig_param_tech = {}
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip headers
+
+        # Iterate rows
+        for row in read_lines:
+            enduse = str.strip(row[0])
+            technology = str.strip(row[1])
+            midpoint = float(row[2])
+            steepness = float(row[3])
+            l_parameter = float(row[4])
+
+            try:
+                sig_param_tech[enduse]
+            except KeyError:
+                sig_param_tech[enduse] = {}
+            
+            sig_param_tech[enduse][technology] = {}
+            sig_param_tech[enduse]['midpoint'] = midpoint
+            sig_param_tech[enduse]['steepness'] = steepness
+            sig_param_tech[enduse]['l_parameter'] = l_parameter
+
+    return sig_param_tech
+
 def read_service_fueltype_tech_by_p(path_to_csv):
     """Read 
     """

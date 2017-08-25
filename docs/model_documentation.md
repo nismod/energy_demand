@@ -203,6 +203,12 @@ Metering trial for electricity and gas use across different sectors for business
  - Carbon Trust (2007). Advanced metering for SMEs Carbon and cost savings. Retrieved from >z
    [https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf](https://www.carbontrust.com/media/77244/ctc713_advanced_metering_for_smes.pdf)
 
+### 12.4 Temperature data
+
+To calculate regional daily hourly load heating profiles, hourly temperature data are used from the [UK Met Office (2015)](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c.) and loaded for weather stations across the UK.
+
 ## Literature
 
-BEIS (2016) Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
+BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
+
+UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Available    at: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).

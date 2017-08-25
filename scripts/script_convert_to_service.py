@@ -273,10 +273,6 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
 
 
 
-print("Start Energy Demand Model with python version: " + str(sys.version))
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
-#!python3.6
-
 base_data = {}
 base_data['sim_param'] = {}
 base_data['sim_param']['base_yr'] = 2015
@@ -324,8 +320,6 @@ ss_service_tech_by_p, ss_service_fueltype_tech_by_p, ss_service_fueltype_by_p = 
     fuels_aggregated_across_sectors,
     base_data['assumptions']['technologies']
     )
-print("ss_service_tech_by_p")
-print(ss_service_tech_by_p)
 
 # INDUSTRY
 fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
