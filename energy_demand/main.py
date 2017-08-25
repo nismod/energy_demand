@@ -125,21 +125,18 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     instrument_profiler = True
 
-    
-    
     path_main = os.path.dirname(os.path.abspath(__file__))[:-13] #Remove 'energy_demand'
+    print("PATHMAIN: " + str(path_main))
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
     base_data = data_loader.load_paths(path_main, local_data_path)
 
-    
+    # Load data
     base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
 
-
     # DUMMY DATA GENERATION----------------------
-    #'''
     base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
 
     # Load dummy LAC and pop
@@ -188,7 +185,6 @@ if __name__ == "__main__":
     base_data['reg_floorarea_resid'] = {}
     for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
         base_data['reg_floorarea_resid'][region_name] = 100000
-
     #'''
 
     base_data['input_regions'] = regions
@@ -196,28 +192,13 @@ if __name__ == "__main__":
     base_data['reg_coordinates'] = coord_dummy
     base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
-    base_data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
-
-    # ----------------------------------------
-    # Model calculations outside main function
-    # ----------------------------------------
-    # -------
-    # In constrained mode, no technologies are defined in ED and heat demand is provided not for technologies
-    # If unconstrained mode (False), heat demand is provided per technology
-    # ---------
-
-    # Paths
-
-
 
     #------------------------------
     # WRITE ASSUMPTIONS TO CSV
     #------------------------------
-
-    write_data.write_out_sim_param(
-        os.path.join(
-            path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
-            base_data['sim_param'])
+    '''write_data.write_out_sim_param(
+        os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
+            base_data['sim_param'])'''
 
     print("..finished reading out assumptions to csv")
 

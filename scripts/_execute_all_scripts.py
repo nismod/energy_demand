@@ -3,6 +3,11 @@
 run_building_scripts = False
 run_scenario_scripts = True
 
+
+"""Executed if assumptions gets imported
+""" 
+from energy_demand.assumptions import assumptions
+
 """
 Scripts which need to be run for generating raw data
 """

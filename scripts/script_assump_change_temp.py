@@ -7,7 +7,7 @@ from datetime import date
 from datetime import timedelta
 import numpy as np
 
-
+from energy_demand.assumptions import assumptions
 from energy_demand import scripts_common_functions
 
 # Functions for script
@@ -176,6 +176,8 @@ LOCAL_DATA_PATH = os.path.join('C:/Users', 'cenv0553', 'GIT')
 # ----------------
 # Load assumptions
 # ----------------
+# Execute assumptions file to write out assumptions
+
 TEMPERATURE_DATA = read_weather_data_script_data(
     os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
     )

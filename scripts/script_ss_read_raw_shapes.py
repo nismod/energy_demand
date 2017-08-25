@@ -7,6 +7,8 @@ from datetime import date
 import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand import scripts_common_functions
+from energy_demand.assumptions import assumptions
+from energy_demand.read_write import data_loader
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -337,31 +339,21 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
     return shape_non_peak_y_dh
 
 
-# Fuel look-up table
-lu_fuelype = {
-    'solid_fuel': 0,
-    'gas': 1,
-    'electricity': 2,
-    'oil': 3,
-    'heat_sold': 4,
-    'biomass': 5,
-    'hydrogen': 6,
-    'heat': 7
-    }
-nr_of_fueltypes = int(len(lu_fuelype))
-
 # ------------------------------------------------------------------------
 print("... start script {}".format(os.path.basename(__file__)))
 # ------------------------------------------------------------------------
+
 #PATHS
-path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
 local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
-path_ss_fuel_raw_data_enduses = os.path.join(path_main, 'submodel_service/data_service_by_fuel_end_uses.csv')
-path_ss_txt_shapes = os.path.join(path_main, 'data_scripts/load_profiles/ss_submodel')
+
+base_data = data_loader.load_paths(path_main, local_data_path)
+base_data = data_loader.load_fuels(base_data)
+base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
 _, ss_sectors, ss_enduses = read_data.read_csv_base_data_service(
-    path_ss_fuel_raw_data_enduses,
-    nr_of_fueltypes)
+    os.path.join(path_main, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+    base_data['nr_of_fueltypes'])
 
 # Iterate sectors and read in shape
 for sector in ss_sectors:
@@ -421,7 +413,7 @@ for sector in ss_sectors:
 
         scripts_common_functions.create_txt_shapes(
             joint_string_name,
-            path_ss_txt_shapes,
+            os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
             load_peak_shape_dh,
             shape_non_peak_y_dh,
             shape_peak_yd_factor,

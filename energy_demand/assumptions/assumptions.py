@@ -17,6 +17,7 @@ from energy_demand.basic import date_handling
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
+
 def load_assumptions(data):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
@@ -42,6 +43,10 @@ def load_assumptions(data):
     data['sim_param']['list_dates'] = date_handling.fullyear_dates(
         start=date(data['sim_param']['base_yr'], 1, 1),
         end=date(data['sim_param']['base_yr'], 12, 31))
+
+    # If unconstrained mode (False), heat demand is provided per technology. If True, heat is delievered with fueltype
+    data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
+
 
     # ============================================================
     # Residential building stock assumptions
@@ -160,12 +165,6 @@ def load_assumptions(data):
     ]
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
-    #WRITE ASSUMPTIONS TO TXT
-    print("... write assumptions to txt")
-    path_assump_climate_change = os.path.join(
-        data['path_dict']['path_assumptions_db'],
-        "assumptions_climate_change_temp.csv")
-    write_data.write_out_temp_assumptions(path_assump_climate_change, assumptions['climate_change_temp_diff_month'])
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
@@ -291,7 +290,7 @@ def load_assumptions(data):
     assumptions['technology_list'] = {}
 
     # Load all technologies
-    assumptions['technologies'] = read_data.read_technologies(data['path_dict']['path_technologies'], data)
+    assumptions['technologies'] = read_data.read_technologies(data['path_dict']['path_technologies'], data['lu_fueltype'])
 
 
     # --Assumption how much of technological efficiency is reached
@@ -440,3 +439,27 @@ def load_assumptions(data):
     testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     return assumptions
+
+
+# ----------------------------------------
+# Writes out assumptions every time the assumptions file is loaded
+# ----------------------------------------
+from energy_demand.read_write import data_loader
+from energy_demand.read_write import write_data
+
+
+path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
+
+data = data_loader.load_paths(path_main, 'Y:\01-Data_NISMOD\data_energy_demand')
+data = data_loader.load_fuels(data)
+data['assumptions'] = load_assumptions(data)
+
+# Write out temperature assumptions
+write_data.write_out_temp_assumptions(
+    os.path.join(data['path_dict']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
+    data['assumptions']['climate_change_temp_diff_month'])
+
+# Write out sigmoid parameters
+write_data.write_out_sim_param(
+    os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
+        data['sim_param'])

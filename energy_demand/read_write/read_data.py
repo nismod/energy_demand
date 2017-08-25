@@ -330,7 +330,7 @@ def read_assump_fuel_switches(path_to_csv, data):
 
     return service_switches
 
-def read_technologies(path_to_csv, data):
+def read_technologies(path_to_csv, lu_fueltype):
     """This function reads in CSV files and skips header row.
 
     Parameters
@@ -358,7 +358,7 @@ def read_technologies(path_to_csv, data):
             if row[1] == 'hybrid':
                 fueltype = 'None'
             else:
-                fueltype = data['lu_fueltype'][str(row[1])]
+                fueltype = lu_fueltype[str(row[1])]
             try:
                 dict_technologies[technology] = {
                     'fuel_type': fueltype,
