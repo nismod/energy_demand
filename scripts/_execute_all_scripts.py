@@ -6,7 +6,9 @@ run_scenario_scripts = True
 
 """Executed if assumptions gets imported
 """ 
-from energy_demand.assumptions import assumptions
+if run_building_scripts == True or run_scenario_scripts == True:
+    from energy_demand.assumptions import assumptions
+    assumptions.run()
 
 """
 Scripts which need to be run for generating raw data
@@ -14,25 +16,12 @@ Scripts which need to be run for generating raw data
 if run_building_scripts:
     
     # Read in residenital submodel shapes
-    try:
-        import script_rs_read_raw_shapes
-    except Exception as e:
-        print("Error: Failed script_rs_read_raw_shapes")
-        raise e
-
-    # Read in service submodel shapes
-    except Exception as e:
-        print("Error: Failed script_ss_read_raw_shapes")
-        raise e
+    import script_rs_read_raw_shapes
+    script_rs_read_raw_shapes.run()
 
     # Read in temperature data from raw files
-    try:
-        import script_read_raw_weather_data
-    except Exception as e:
-        print("Error: Failed read_raw_weather_data")
-        raise e
-
-
+    import script_read_raw_weather_data
+    script_read_raw_weather_data.run()
 
 """
 Scripts which need to be run for every different scenario
@@ -40,23 +29,13 @@ Scripts which need to be run for every different scenario
 if run_scenario_scripts:
 
     # Read in temperature data and climate change assumptions and change weather data
-    try:
-        import script_assump_change_temp
-    except Exception as e:
-        print("Error: Failed assump_change_temp")
-        raise e
+    import script_assump_change_temp
+    script_assump_change_temp.run() # Run script
 
-    try:
-        import script_convert_to_service
-    except Exception as e:
-        print("Error: Failed assump_change_temp")
-        raise e
+    import script_convert_to_service
+    script_convert_to_service.run()
 
-    try:
-        import script_assump_generate_sigmoid
-    except Exception as e:
-        print("Error: Failed script_assump_generate_sigmoid")
-        raise e
-
+    import script_assump_generate_sigmoid
+    script_assump_generate_sigmoid.run()
 
 print("...  finished running all scripts")

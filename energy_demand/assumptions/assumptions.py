@@ -441,25 +441,28 @@ def load_assumptions(data):
     return assumptions
 
 
-# ----------------------------------------
-# Writes out assumptions every time the assumptions file is loaded
-# ----------------------------------------
-from energy_demand.read_write import data_loader
-from energy_demand.read_write import write_data
+def run():
+    # ----------------------------------------
+    # Writes out assumptions every time the assumptions file is loaded
+    # ----------------------------------------
+    from energy_demand.read_write import data_loader
+    from energy_demand.read_write import write_data
 
 
-path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
+    path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
 
-data = data_loader.load_paths(path_main, 'Y:\01-Data_NISMOD\data_energy_demand')
-data = data_loader.load_fuels(data)
-data['assumptions'] = load_assumptions(data)
+    data = data_loader.load_paths(path_main, 'Y:\01-Data_NISMOD\data_energy_demand')
+    data = data_loader.load_fuels(data)
+    data['assumptions'] = load_assumptions(data)
 
-# Write out temperature assumptions
-write_data.write_out_temp_assumptions(
-    os.path.join(data['path_dict']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
-    data['assumptions']['climate_change_temp_diff_month'])
+    # Write out temperature assumptions
+    write_data.write_out_temp_assumptions(
+        os.path.join(data['path_dict']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
+        data['assumptions']['climate_change_temp_diff_month'])
 
-# Write out sigmoid parameters
-write_data.write_out_sim_param(
-    os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
-        data['sim_param'])
+    # Write out sigmoid parameters
+    write_data.write_out_sim_param(
+        os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
+            data['sim_param'])
+    
+    return

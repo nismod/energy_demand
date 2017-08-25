@@ -169,34 +169,38 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 # ----------------------
 # Paths
 # ----------------------
-print("..start script {}".format(os.path.basename(__file__)))
 
-LOCAL_DATA_PATH = os.path.join('C:/Users', 'cenv0553', 'GIT')
+def run():
+    print("..start script {}".format(os.path.basename(__file__)))
 
-# ----------------
-# Load assumptions
-# ----------------
-# Execute assumptions file to write out assumptions
+    LOCAL_DATA_PATH = os.path.join('C:/Users', 'cenv0553', 'GIT')
 
-TEMPERATURE_DATA = read_weather_data_script_data(
-    os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
-    )
+    # ----------------
+    # Load assumptions
+    # ----------------
+    # Execute assumptions file to write out assumptions
 
-ASSUMPTIONS_TEMP_CHANGE = read_assumption(
-    os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_climate_change_temp.csv')
-    )
+    TEMPERATURE_DATA = read_weather_data_script_data(
+        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
+        )
 
-SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
-    os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
+    ASSUMPTIONS_TEMP_CHANGE = read_assumption(
+        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_climate_change_temp.csv')
+        )
 
-TEMP_CLIMATE_CHANGE = change_temp_climate_change(
-    TEMPERATURE_DATA, ASSUMPTIONS_TEMP_CHANGE, SIM_PARAM)
+    SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
+        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
 
-# ----------------
-# Write out temp_climate_change
-# ----------------
-write_chanted_temp_data(
-    os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data_changed_climate.csv'),
-    TEMP_CLIMATE_CHANGE)
+    TEMP_CLIMATE_CHANGE = change_temp_climate_change(
+        TEMPERATURE_DATA, ASSUMPTIONS_TEMP_CHANGE, SIM_PARAM)
 
-print("..finished script {}".format(os.path.basename(__file__)))
+    # ----------------
+    # Write out temp_climate_change
+    # ----------------
+    write_chanted_temp_data(
+        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data_changed_climate.csv'),
+        TEMP_CLIMATE_CHANGE)
+
+    print("..finished script {}".format(os.path.basename(__file__)))
+
+    return

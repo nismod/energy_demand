@@ -339,90 +339,93 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
     return shape_non_peak_y_dh
 
 
-# ------------------------------------------------------------------------
-print("... start script {}".format(os.path.basename(__file__)))
-# ------------------------------------------------------------------------
+def run():
+    # ------------------------------------------------------------------------
+    print("... start script {}".format(os.path.basename(__file__)))
+    # ------------------------------------------------------------------------
 
-#PATHS
-path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
-local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    #PATHS
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
-base_data = data_loader.load_paths(path_main, local_data_path)
-base_data = data_loader.load_fuels(base_data)
-base_data['assumptions'] = assumptions.load_assumptions(base_data)
+    base_data = data_loader.load_paths(path_main, local_data_path)
+    base_data = data_loader.load_fuels(base_data)
+    base_data['assumptions'] = assumptions.load_assumptions(base_data)
 
-_, ss_sectors, ss_enduses = read_data.read_csv_base_data_service(
-    os.path.join(path_main, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
-    base_data['nr_of_fueltypes'])
+    _, ss_sectors, ss_enduses = read_data.read_csv_base_data_service(
+        os.path.join(path_main, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+        base_data['nr_of_fueltypes'])
 
-# Iterate sectors and read in shape
-for sector in ss_sectors:
+    # Iterate sectors and read in shape
+    for sector in ss_sectors:
 
-    # Match electricity shapes for every sector
-    if sector == 'community_arts_leisure':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Community')
-    elif sector == 'education':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Education')
-    elif sector == 'emergency_services':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-    elif sector == 'health':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Health')
-    elif sector == 'hospitality':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-    elif sector == 'military':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-    elif sector == 'offices':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Offices')
-    elif sector == 'retail':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Retail')
-    elif sector == 'storage':
-        sector_folder_path_elec = os.path.join(
-            local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
-    else:
-        sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
-
-    # ------------------------------------------------------
-    # Assign same shape across all enduse for service sector
-    # ------------------------------------------------------
-    for enduse in ss_enduses:
-        print("Enduse service: {}  in sector '{}'".format(enduse, sector))
-
-        # Select shape depending on enduse
-        if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']: #TODO: IMPROVE
-            folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
+        # Match electricity shapes for every sector
+        if sector == 'community_arts_leisure':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Community')
+        elif sector == 'education':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Education')
+        elif sector == 'emergency_services':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'health':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Health')
+        elif sector == 'hospitality':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'military':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+        elif sector == 'offices':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Offices')
+        elif sector == 'retail':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\Retail')
+        elif sector == 'storage':
+            sector_folder_path_elec = os.path.join(
+                local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
         else:
-            if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation': #NEW
-                folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+            sys.exit("Error: The sector {} could not be assigned a service sector electricity shape".format(sector))
+
+        # ------------------------------------------------------
+        # Assign same shape across all enduse for service sector
+        # ------------------------------------------------------
+        for enduse in ss_enduses:
+            print("Enduse service: {}  in sector '{}'".format(enduse, sector))
+
+            # Select shape depending on enduse
+            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #, 'ss_cooling_and_ventilation']: #TODO: IMPROVE
+                folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_gas')
             else:
-                folder_path = sector_folder_path_elec
+                if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation': #NEW
+                    folder_path = os.path.join(local_data_path, r'09_Carbon_Trust_advanced_metering_trial\_all_elec')
+                else:
+                    folder_path = sector_folder_path_elec
 
-        # Read in shape from carbon trust metering trial dataset
-        shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(
-            folder_path)
+            # Read in shape from carbon trust metering trial dataset
+            shape_non_peak_y_dh, load_peak_shape_dh, shape_peak_yd_factor, shape_non_peak_yd = read_raw_carbon_trust_data(
+                folder_path)
 
-        # Write shapes to txt
-        joint_string_name = str(sector) + "__" + str(enduse)
+            # Write shapes to txt
+            joint_string_name = str(sector) + "__" + str(enduse)
 
-        scripts_common_functions.create_txt_shapes(
-            joint_string_name,
-            os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
-            load_peak_shape_dh,
-            shape_non_peak_y_dh,
-            shape_peak_yd_factor,
-            shape_non_peak_yd
-            )
+            scripts_common_functions.create_txt_shapes(
+                joint_string_name,
+                os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
+                load_peak_shape_dh,
+                shape_non_peak_y_dh,
+                shape_peak_yd_factor,
+                shape_non_peak_yd
+                )
 
-# ---------------------
-# Compare Jan and Jul
-# ---------------------
-#ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
+    # ---------------------
+    # Compare Jan and Jul
+    # ---------------------
+    #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
 
-print("... finished script {}".format(os.path.basename(__file__)))
+    print("... finished script {}".format(os.path.basename(__file__)))
+
+    return

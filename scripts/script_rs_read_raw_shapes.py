@@ -211,80 +211,82 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-# ===========================================-
-# RESIDENTIAL MODEL - LOAD HES DATA
-# ===========================================
+def run():
+    # ===========================================-
+    # RESIDENTIAL MODEL - LOAD HES DATA
+    # ===========================================
 
-#PATHS
-LODA_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
-PATH_BD_E_LOAD_PROFILES = os.path.join(
-    LODA_DATA_PATH, r'01-HES_data\HES_base_appliances_eletricity_load_profiles.csv')
+    #PATHS
+    LODA_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
+    PATH_BD_E_LOAD_PROFILES = os.path.join(
+        LODA_DATA_PATH, r'01-HES_data\HES_base_appliances_eletricity_load_profiles.csv')
 
-LODA_DATA_PATH = r'C:\Users\cenv0553\GIT'
+    LODA_DATA_PATH = r'C:\Users\cenv0553\GIT'
 
-SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
-    os.path.join(
-        LODA_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv')
-    )
+    SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
+        os.path.join(
+            LODA_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv')
+        )
 
-PATH_MAIN = os.path.join(os.path.dirname(__file__), '..', 'data')
+    PATH_MAIN = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-PATH_RS_TXT_SHAPES = os.path.join(
-    PATH_MAIN, 'data_scripts', 'load_profiles', 'rs_submodel')
-PATH_RS_FUEL_RAW_DATA = os.path.join(
-    PATH_MAIN, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
+    PATH_RS_TXT_SHAPES = os.path.join(
+        PATH_MAIN, 'data_scripts', 'load_profiles', 'rs_submodel')
+    PATH_RS_FUEL_RAW_DATA = os.path.join(
+        PATH_MAIN, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
 
-HES_APPLIANCES_MATCHING = {
-    'rs_cold': 0,
-    'rs_cooking': 1,
-    'rs_lighting': 2,
-    'rs_consumer_electronics': 3,
-    'rs_home_computing': 4,
-    'rs_wet': 5,
-    'rs_water_heating': 6,
-    'NOT_USED_unkown_1': 7,
-    'NOT_USED_unkown_2': 8,
-    'NOT_USED_unkown_3': 9,
-    'NOT_USED_showers': 10
-    }
+    HES_APPLIANCES_MATCHING = {
+        'rs_cold': 0,
+        'rs_cooking': 1,
+        'rs_lighting': 2,
+        'rs_consumer_electronics': 3,
+        'rs_home_computing': 4,
+        'rs_wet': 5,
+        'rs_water_heating': 6,
+        'NOT_USED_unkown_1': 7,
+        'NOT_USED_unkown_2': 8,
+        'NOT_USED_unkown_3': 9,
+        'NOT_USED_showers': 10
+        }
 
-# HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
-HES_DATA, HES_Y_PEAK, _ = read_hes_data(
-    PATH_BD_E_LOAD_PROFILES,
-    len(HES_APPLIANCES_MATCHING)
-    )
+    # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
+    HES_DATA, HES_Y_PEAK, _ = read_hes_data(
+        PATH_BD_E_LOAD_PROFILES,
+        len(HES_APPLIANCES_MATCHING)
+        )
 
-# Assign read in raw data to the base year
-YEAR_RAW_VALUES_HES = assign_hes_data_to_year(
-    len(HES_APPLIANCES_MATCHING),
-    HES_DATA,
-    int(SIM_PARAM['base_yr'])
-    )
+    # Assign read in raw data to the base year
+    YEAR_RAW_VALUES_HES = assign_hes_data_to_year(
+        len(HES_APPLIANCES_MATCHING),
+        HES_DATA,
+        int(SIM_PARAM['base_yr'])
+        )
 
-_, RS_ENDUSES = read_data.read_csv_base_data_resid(PATH_RS_FUEL_RAW_DATA)
+    _, RS_ENDUSES = read_data.read_csv_base_data_resid(PATH_RS_FUEL_RAW_DATA)
 
-# Load shape for all enduses
-for enduse in RS_ENDUSES:
+    # Load shape for all enduses
+    for enduse in RS_ENDUSES:
 
-    if enduse not in HES_APPLIANCES_MATCHING:
-        print("Warning: The enduse {} is not defined in HES_APPLIANCES_MATCHING".format(enduse))
-    else:
-        # Generate HES load shapes
-        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
-            HES_APPLIANCES_MATCHING,
-            YEAR_RAW_VALUES_HES,
-            HES_Y_PEAK,
-            enduse
-            )
+        if enduse not in HES_APPLIANCES_MATCHING:
+            print("Warning: The enduse {} is not defined in HES_APPLIANCES_MATCHING".format(enduse))
+        else:
+            # Generate HES load shapes
+            shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
+                HES_APPLIANCES_MATCHING,
+                YEAR_RAW_VALUES_HES,
+                HES_Y_PEAK,
+                enduse
+                )
 
-        # Write txt files
-        scripts_common_functions.create_txt_shapes(
-            enduse,
-            PATH_RS_TXT_SHAPES,
-            shape_peak_dh,
-            shape_non_peak_y_dh,
-            shape_peak_yd_factor,
-            shape_non_peak_yd
-            )
+            # Write txt files
+            scripts_common_functions.create_txt_shapes(
+                enduse,
+                PATH_RS_TXT_SHAPES,
+                shape_peak_dh,
+                shape_non_peak_y_dh,
+                shape_peak_yd_factor,
+                shape_non_peak_yd
+                )
 
-print("... finished script {}".format(os.path.basename(__file__)))
+    print("... finished script {}".format(os.path.basename(__file__)))
+    return
