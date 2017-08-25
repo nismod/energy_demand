@@ -1,2 +1,2 @@
-../energy_demand/
-../scripts/
+energy_demand/
+scripts/
