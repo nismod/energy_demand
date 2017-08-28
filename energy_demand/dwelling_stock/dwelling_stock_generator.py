@@ -65,6 +65,10 @@ class Dwelling(object):
         self.sector_type = sector_type
         self.gva = gva #TODO:
 
+        # FACTORS
+        # HOW MUCH MORE ENERGY e.g. certain dwelling type uses
+        #self.ed_dw_type_factor =
+
         # Testing
         assert floorarea != 0
 
@@ -136,11 +140,11 @@ class Dwelling(object):
 
         # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
         linear_fits_hlc = {
-            0: [-0.0223, 48.292], # Detached
-            1: [-0.0223, 48.251], # Semi-Detached
-            2: [-0.0223, 48.063], # Terraced Average
-            3: [-0.0223, 47.02], # Flats
-            4: [-0.0223, 48.261], # Bungalow
+            'detached': [-0.0223, 48.292],
+            'semi_detached': [-0.0223, 48.251],
+            'terraced': [-0.0223, 48.063],
+            'flat': [-0.0223, 47.02],
+            'bungalow': [-0.0223, 48.261],
             }
 
         # Get linearly fitted value
@@ -258,11 +262,59 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                     )
 
                 # Floor area per person of simulation year
-                floor_area_pp[curr_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
+                floor_area_pp[curr_yr] = floorarea_pp_by + floorarea_pp_by * lin_diff_factor
 
         data_floorarea_pp[region] = floor_area_pp
 
     return data_floorarea_pp
+
+def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_ey, sim_param):
+    """Calculates the floor area per dwelling type for every year
+
+    Parameters
+    ----------
+    dwtype_distr_by : dict
+        Distribution of dwelling types base year
+    assump_dwtype_distr_ey : dict
+        Distribution of dwelling types end year
+    sim_param : list
+        Simulation parameters
+
+    Returns
+    -------
+    dwtype_floor_area : dict
+        Contains the floor area change per dwelling type
+    Note
+    -----
+    - A linear change over time is assumed
+
+    Example
+    -------
+    out = {year: {'dwtype': 0.3}}
+    """
+    dwtype_floor_area = {}
+
+    for curr_yr in sim_param['sim_period']:
+        nr_sim_yrs = curr_yr - sim_param['base_yr']
+
+        if curr_yr == sim_param['base_yr']:
+            y_distr = dwtype_floorarea_by
+        else:
+            y_distr = {}
+
+            for dwtype in dwtype_floorarea_by:
+                val_by = dwtype_floorarea_by[dwtype]
+                val_ey = dwtype_floorarea_ey[dwtype]
+                diff_val = val_ey - val_by
+
+                # Calculate linear difference up to sim_yr
+                diff_y = diff_val / sim_param['sim_period_yrs']
+                y_distr[dwtype] = val_by + (diff_y * nr_sim_yrs)
+
+        dwtype_floor_area[curr_yr] = y_distr
+
+    return dwtype_floor_area
+
 
 def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, sim_param):
     """Calculates the annual distribution of dwelling types
@@ -432,6 +484,13 @@ def rs_dwelling_stock(regions, data):
 
     dwelling_stock = {}
 
+    # Get changes in absolute floor area per dwelling type over time NEW
+    dwtype_floor_area = get_dwtype_floor_area(
+        data['assumptions']['assump_dwtype_floorarea_by'],
+        data['assumptions']['assump_dwtype_floorarea_ey'],
+        data['sim_param']
+        )
+
     # Get distribution of dwelling types of all simulation years
     dwtype_distr = get_dwtype_distr(
         data['assumptions']['assump_dwtype_distr_by'],
@@ -450,7 +509,7 @@ def rs_dwelling_stock(regions, data):
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(
         data['dwtype_lu'],
-        data['assumptions']['assump_dwtype_floorarea'],
+        dwtype_floor_area, #data['assumptions']['assump_dwtype_floorarea'],
         dwtype_distr
         )
 
@@ -580,26 +639,24 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea_by, dwtype_distr):
     """
     dw_floorarea_p = {}
 
-    for current_yr in dwtype_distr:
+    for curr_yr, type_distr_p in dwtype_distr.items():
         area_dw_type = {}
 
         # Calculate share of dwelling area based on absolute size and distribution
-        for _, dwelling_name in dw_lookup.items():
+        for _, dw_type in dw_lookup.items():
 
             # Get distribution of dwellings of current year
-            dwelling_type_p = dwtype_distr[current_yr][dwelling_name]
+            dwelling_type_p = type_distr_p[dw_type]
 
             # Get absolut size of dw_type
-            area_dw = dwelling_type_p * dw_floorarea_by[dwelling_name]
-
-            area_dw_type[dwelling_name] = area_dw
+            area_dw_type[dw_type] = dwelling_type_p * dw_floorarea_by[curr_yr][dw_type] #dw_floorarea_by[dw_type]
 
         # Convert absolute values into percentages
         tot_area = sum(area_dw_type.values())
         for dw_type, dw_type_area in area_dw_type.items():
             area_dw_type[dw_type] = dw_type_area / tot_area
 
-        dw_floorarea_p[current_yr] = area_dw_type
+        dw_floorarea_p[curr_yr] = area_dw_type
 
     return dw_floorarea_p
 
@@ -637,7 +694,7 @@ def generate_dw_existing(data, region, curr_yr, dw_lu, floorarea_p, floorarea_by
     dw_stock_by, control_pop, control_floorarea = [], 0, 0
 
     # Iterate dwelling types
-    for dw_type, dw_type_name in dw_lu.items():
+    for _, dw_type_name in dw_lu.items():
 
         # Calculate floor area per dwelling type
         dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by
@@ -665,7 +722,7 @@ def generate_dw_existing(data, region, curr_yr, dw_lu, floorarea_p, floorarea_by
                     driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age_id),
-                    dwtype=dw_type,
+                    dwtype=dw_type_name,
                     gva=data['GVA'][curr_yr][region]
                     )
                 )
@@ -722,7 +779,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for dwelling_type, dw_type_name in data['dwtype_lu'].items():
+    for _, dw_type_name in data['dwtype_lu'].items():
 
         # Calculate new floor area per dewlling type
         dw_type_new_floorarea = floorarea_p_by[dw_type_name] * new_floorarea_cy
@@ -741,7 +798,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
-                dwtype=dwelling_type,
+                dwtype=dw_type_name,
                 gva=data['GVA'][curr_yr][region]
                 )
             )

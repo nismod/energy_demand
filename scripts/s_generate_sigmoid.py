@@ -538,10 +538,15 @@ def write_installed_tech(path_to_txt, data):
               )
 
     for enduse, technologies in data.items():
-        for technology in technologies:
+        if str(technologies) == "[]":
             file.write("{}, {}".format(
-                str.strip(enduse), str.strip(technology) + '\n')
-                      )
+                str.strip(enduse), str(technologies) + '\n')
+                    )
+        else:
+            for technology in technologies:
+                file.write("{}, {}".format(
+                    str.strip(enduse), str.strip(technology) + '\n')
+                        )
     file.close()
 
     return
@@ -724,3 +729,4 @@ def run():
 
     print("... finished script {}".format(os.path.basename(__file__)))
     return
+run()

@@ -35,7 +35,6 @@ TODO: REMOVE HEAT BOILER
     - scripts in ed?
     - path rel/abs
     - nested scripts
-m
 '''
 import os
 import sys
@@ -149,9 +148,8 @@ if __name__ == "__main__":
     base_data['rs_dw_stock'] = dwelling_stock_generator.rs_dwelling_stock(base_data['lu_reg'], base_data)
     base_data['ss_dw_stock'] = dwelling_stock_generator.ss_build_stock(base_data['lu_reg'], base_data)
 
-    # If several years are run:
-    results_every_year = []
 
+    results_every_year = []
     for sim_yr in base_data['sim_param']['sim_period']:
         base_data['sim_param']['curr_yr'] = sim_yr
 
@@ -205,8 +203,8 @@ if __name__ == "__main__":
 
         # Compare different models
         elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
-        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
-        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
+        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
         #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
         #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
         #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
@@ -234,7 +232,7 @@ if __name__ == "__main__":
         print("...compare peak from max peak factors")
         elec_national_data.compare_peak(
             validation_elec_data_2015_INDO,
-            model_run_object.peak_all_models_all_enduses_fueltype[2]) #for electricity only
+            model_run_object.peak_all_models_all_enduses_fueltype[2])
 
         # ---------------------------------------------------
         # Validate boxplots for every hour

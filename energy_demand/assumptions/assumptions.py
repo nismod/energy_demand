@@ -10,6 +10,7 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helper_functions
 from energy_demand.read_write import write_data
 from energy_demand.basic import date_handling
+from energy_demand.read_write import data_loader
 # pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #TODO: Write function which insersts zeros if a fueltype is not provided
@@ -58,7 +59,10 @@ def load_assumptions(data):
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 0
 
-    # Dwelling type distribution
+    # Specific Energy Demand factors per dwelling type could be defined
+    # (e.g. per dwelling type or GVA class or residents....) #TODO
+
+    # Dwelling type distribution base year (fixed)
     assumptions['assump_dwtype_distr_by'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -67,6 +71,7 @@ def load_assumptions(data):
         'bungalow': 0.088
         }
 
+    # Dwelling type distribution end year
     assumptions['assump_dwtype_distr_ey'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -76,13 +81,31 @@ def load_assumptions(data):
         }
 
     # Floor area per dwelling type
-    assumptions['assump_dwtype_floorarea'] = {
+    assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
         'bungalow': 77
         } # SOURCE?
+
+    # Floor area per dwelling type #TODO
+    assumptions['assump_dwtype_floorarea_ey'] = {
+        'semi_detached': 200,
+        'terraced': 82.5,
+        'flat': 61,
+        'detached': 147,
+        'bungalow': 77
+        } # SOURCE?
+
+    # SCRAP NEW
+
+
+
+
+
+
+    # ----------------------
 
     # Assumption about age distribution
     assumptions['dwtype_age_distr'] = {
@@ -92,11 +115,11 @@ def load_assumptions(data):
             '1977.5': 0.3,
             '1996.5': 0.08,
             '2002': 0.05}
-            }
+        }
 
     # TODO: Get assumptions for heat loss coefficient
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
-    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> 
+    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses -->
     # Which then again influences HLC
 
     # ============================================================
@@ -234,6 +257,7 @@ def load_assumptions(data):
     assumptions['smart_meter_diff_params'] = {}
     assumptions['smart_meter_diff_params']['sig_midpoint'] = 0
     assumptions['smart_meter_diff_params']['sig_steeppness'] = 1
+
     # ============================================================
     # Heat recycling & Reuse
     # ============================================================
@@ -312,8 +336,8 @@ def load_assumptions(data):
         data['paths']['path_technologies'],
         data['lu_fueltype'])
 
-    # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
-    split_heat_pump_ASHP_GSHP = 0.7
+    # Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
+    split_heat_pump_ASHP_GSHP = 0.5
 
     # --Assumption how much of technological efficiency is reached
     efficiency_achieving_factor = 1.0
@@ -323,8 +347,13 @@ def load_assumptions(data):
         split_heat_pump_ASHP_GSHP,
         data)
 
-    #TODO: MAKE NICER
-    assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['installed_heat_pump'])
+    # Add heat pumps to technologies
+    assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(
+        data,
+        [],
+        assumptions['technologies'],
+        assumptions['installed_heat_pump']
+        )
 
     # --Hybrid technologies
     assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = technologies_related.get_all_defined_hybrid_technologies(
@@ -334,7 +363,7 @@ def load_assumptions(data):
         hybrid_cutoff_temp_high=7)
 
     # ------------------
-    # --Technology list definition
+    # --Technology list definition (fixed)
     # ------------------
     # Regular heating technologies which are not dependent on temperature
     assumptions['technology_list']['tech_heating_const'] = [
@@ -351,8 +380,9 @@ def load_assumptions(data):
         'stirling_micro_CHP'
         ]
 
-    assumptions['technology_list']['primary_heating_electricity'] = ['storage_heater_electricity'] # FROM HES Electricity heating
-    assumptions['technology_list']['secondary_heating_electricity'] = ['secondary_heater_electricity'] # FROM HES Electricity heating
+    # FROM HES Electricity heating
+    assumptions['technology_list']['primary_heating_electricity'] = ['storage_heater_electricity']
+    assumptions['technology_list']['secondary_heating_electricity'] = ['secondary_heater_electricity']
 
     # Lighting technologies
     assumptions['technology_list']['rs_lighting'] = [
@@ -395,11 +425,14 @@ def load_assumptions(data):
     assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # Helper function
-    assumptions['technologies'] = helper_functions.helper_set_same_eff_all_tech(assumptions['technologies'], efficiency_achieving_factor)
+    assumptions['technologies'] = helper_functions.helper_set_same_eff_all_tech(
+        assumptions['technologies'],
+        efficiency_achieving_factor
+        )
 
     # ============================================================
     # Fuel Stock Definition (necessary to define before model run)
-    #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
+    # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(assumptions, data)
 
@@ -429,28 +462,18 @@ def load_assumptions(data):
     assumptions['ss_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['ss_fuel_tech_p_by'])
     assumptions['is_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['is_fuel_tech_p_by'])
 
-    # ==========
-    # Generate technology lists from ``assumptions['rs_fuel_tech_p_by']``
-    # ==========
-    #get_technology_lists(): MAYBE TOTDO
-
 
     # ============================================================
     # Helper functions
     # ============================================================
-    #TODO: TESTING IF ALL TECHNOLOGIES Available are assigned in service switch
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
     ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
-
 
     # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
     testing.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
     testing.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
 
-    # ----------
-    # Testing
-    # ----------
     testing.testing_tech_defined(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
     testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_all_specified_tech_enduse_by'])
     testing.testing_tech_defined(assumptions['technologies'], assumptions['is_all_specified_tech_enduse_by'])
@@ -462,9 +485,6 @@ def load_assumptions(data):
 def run():
     """Function to write out assumptions
     """
-    from energy_demand.read_write import data_loader
-    from energy_demand.read_write import write_data
-
     path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
 
     data = data_loader.load_paths(path_main, 'Y:\01-Data_NISMOD\data_energy_demand')
@@ -478,7 +498,13 @@ def run():
 
     # Write out sigmoid parameters
     write_data.write_out_sim_param(
-        os.path.join(path_main, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
-            data['sim_param'])
-    
+        os.path.join(
+            path_main,
+            'data',
+            'data_scripts',
+            'assumptions_from_db',
+            'assumptions_sim_param.csv'),
+        data['sim_param']
+    )
+
     return

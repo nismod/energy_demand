@@ -27,13 +27,13 @@ def load_script_data(data):
     data['assumptions']['ss_tech_increased_service'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'ss_tech_increased_service.csv'))
     data['assumptions']['is_tech_increased_service'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'is_tech_increased_service.csv'))
 
-    data['assumptions']['rs_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'rs_tech_increased_service.csv'))
-    data['assumptions']['ss_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'ss_tech_increased_service.csv'))
-    data['assumptions']['is_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'is_tech_increased_service.csv'))
+    data['assumptions']['rs_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'rs_tech_decreased_share.csv'))
+    data['assumptions']['ss_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'ss_tech_decreased_share.csv'))
+    data['assumptions']['is_tech_decreased_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'is_tech_decreased_share.csv'))
 
-    data['assumptions']['rs_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'rs_tech_increased_service.csv'))
-    data['assumptions']['ss_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'ss_tech_increased_service.csv'))
-    data['assumptions']['is_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'is_tech_increased_service.csv'))
+    data['assumptions']['rs_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'rs_tech_constant_share.csv'))
+    data['assumptions']['ss_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'ss_tech_constant_share.csv'))
+    data['assumptions']['is_tech_constant_share'] = read_installed_tech(os.path.join(data['paths']['path_scripts_data'], 'is_tech_constant_share.csv'))
 
     # Read in sigmoid technology diffusion parameters (from script data)
     data['assumptions']['rs_sig_param_tech'] = read_sig_param_tech(os.path.join(data['paths']['path_scripts_data'], 'rs_sig_param_tech.csv'))
@@ -555,10 +555,13 @@ def read_installed_tech(path_to_csv):
             try:
                 tech_installed[enduse]
             except KeyError:
-                tech_installed[enduse] = {}
-            
-            tech_installed[enduse]['technology'] = technology
-    
+                tech_installed[enduse] = []
+
+            if technology == "[]": # If no tech
+                pass
+            else:
+                tech_installed[enduse].append(technology)
+
     return tech_installed
 
 
@@ -585,9 +588,9 @@ def read_sig_param_tech(path_to_csv):
                 sig_param_tech[enduse] = {}
             
             sig_param_tech[enduse][technology] = {}
-            sig_param_tech[enduse]['midpoint'] = midpoint
-            sig_param_tech[enduse]['steepness'] = steepness
-            sig_param_tech[enduse]['l_parameter'] = l_parameter
+            sig_param_tech[enduse][technology] ['midpoint'] = midpoint
+            sig_param_tech[enduse][technology] ['steepness'] = steepness
+            sig_param_tech[enduse][technology] ['l_parameter'] = l_parameter
 
     return sig_param_tech
 

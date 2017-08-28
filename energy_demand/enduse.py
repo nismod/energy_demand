@@ -138,7 +138,7 @@ class Enduse(object):
 
             # Get technologies of enduse
             self.enduse_techs = self.get_enduse_tech(fuel_tech_p_by)
-
+            print("Technologies enduse: " + str(self.enduse_techs))
             # Calculate fuel for hybrid technologies
             fuel_tech_p_by = self.adapt_fuel_tech_p_by(
                 fuel_tech_p_by,
@@ -274,7 +274,9 @@ class Enduse(object):
                     data['sim_param']
                     )
 
-                # --------------------------------
+                print("0: ")
+                print(service_tech.keys())
+
                 # Energy service switches
                 # --------------------------------
                 if crit_switch_service:
@@ -306,6 +308,8 @@ class Enduse(object):
                 else:
                     pass #No switch implemented
 
+                print("b: ")
+                print(service_tech.keys())
                 # -------------------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------------------
@@ -322,6 +326,7 @@ class Enduse(object):
                     tech_stock,
                     mode_constrained
                     )
+                print("EEE  " + str(fuel_tech_y))
 
                 # -------------------------------------------------------
                 # Assign load profiles
@@ -903,13 +908,15 @@ class Enduse(object):
         # -------------
         # Technology with constant service
         # -------------
+        print("tech_constant_service")
+        print(tech_constant_service)
         # Add all technologies with unchanged service in the future
         for tech_constant in tech_constant_service:
             service_tech_cy_p[tech_constant] = service_tech_by_p[tech_constant]
 
         # Multiply share of each tech with hourly service
         for tech, enduse_share in service_tech_cy_p.items():
-            # Total yearly hourly service * share of enduse
+            # Total yearly hourly service * share of endusers_tech_decreased_share
             service_tech_cy[tech] = tot_service_h_cy * enduse_share
 
         return service_tech_cy
@@ -1086,7 +1093,8 @@ class Enduse(object):
                 fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
         else:
             for tech in self.enduse_techs:
-
+                print("enduse_fuel_tech df")
+                print(enduse_fuel_tech)
                 # Fuel distribution
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(
                     self.enduse, self.sector, tech, 'shape_yh')
@@ -1131,9 +1139,7 @@ class Enduse(object):
 
           TODO: MORE INFO
         """
-
         #print("... fuel_switch is implemented")
-
         service_tech_after_switch = copy.copy(service_tech)
 
         # Iterate all technologies which are installed in fuel switches
