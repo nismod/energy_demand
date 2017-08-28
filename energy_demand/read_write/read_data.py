@@ -175,7 +175,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
     -------
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
-    enduse_tech_maxl_by_p : dict
+    tech_maxl_by_p : dict
         Maximum service per technology which can be switched
     service_switches : dict
         Service switches
@@ -192,7 +192,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
     """
     service_switches = []
     enduse_tech_ey_p = {}
-    enduse_tech_maxl_by_p = {}
+    tech_maxl_by_p = {}
     service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     # Read CSV file
@@ -221,7 +221,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_ey_p[enduse] = {}
-            enduse_tech_maxl_by_p[enduse] = {}
+            tech_maxl_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
@@ -229,7 +229,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
             if line['enduse'] == enduse:
                 tech = line['tech']
                 enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
-                enduse_tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
+                tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -257,7 +257,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
         if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
 
-    return enduse_tech_ey_p, enduse_tech_maxl_by_p, service_switches
+    return enduse_tech_ey_p, tech_maxl_by_p, service_switches
 
 def read_assump_fuel_switches(path_to_csv, data):
     """This function reads in from CSV file defined fuel switch assumptions

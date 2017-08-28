@@ -32,7 +32,6 @@ TODO: REMOVE HEAT BOILER
 '''
 import os
 import sys
-from datetime import date
 import numpy as np
 import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import assumptions
@@ -78,7 +77,7 @@ def energy_demand_model(data):
     model_run_object : dict
         Object of a yearly model run
 
-    Note
+    Note 
     ----
     This function is executed in the wrapper
 
@@ -134,21 +133,23 @@ if __name__ == "__main__":
     instrument_profiler = True
 
     path_main = os.path.dirname(os.path.abspath(__file__))[:-13] #Remove 'energy_demand'
-    print("PATHMAIN: " + str(path_main))
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
-    base_data = data_loader.load_paths(path_main, local_data_path)
 
     # Load data
+    base_data = data_loader.load_paths(path_main, local_data_path)
     base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
+    base_data = data_loader.load_data_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
-
+    base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data')
+        )
 
     # DUMMY DATA GENERATION----------------------
     base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
 
-    # Load dummy LAC and pop
-    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info()
+    
+    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info() # Load dummy LAC and pop
 
     regions = {}
     coord_dummy = {}
@@ -181,8 +182,7 @@ if __name__ == "__main__":
     base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
 
     # -----------------------------
-    # Read in floor area of all regions and store in dict
-    # TODO: REPLACE WITH Newcastle if ready
+    # Read in floor area of all regions and store in dic# TODO: REPLACE WITH Newcastle if ready
     # -----------------------------
     #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
     base_data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
@@ -201,36 +201,12 @@ if __name__ == "__main__":
     base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
 
-    #------------------------------
-    # WRITE ASSUMPTIONS TO CSV
-    #------------------------------
-    '''write_data.write_out_sim_param(
-        os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
-            base_data['sim_param'])'''
-
-    print("..finished reading out assumptions to csv")
-
-    # ------------------------------------------------------
-    # Load data and assumptions
-    # ------------------------------------------------------
-    
-    
-    base_data = data_loader.load_data_profiles(base_data)
-    base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data')
-        )
-
-    
-
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
     # ---------------------
     # Load data from script calculations
     # ---------------------
-    #read_script_data()
-    print("... sigmoid calculations")
-
     # Read in Services (from script data)
     base_data['assumptions']['rs_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
     base_data['assumptions']['ss_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))

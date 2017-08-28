@@ -10,10 +10,22 @@ from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_results
 
 def load_paths(path_main, local_data_path):
-    
-    print("..load paths data")
+    """Load all paths
 
-    path_dict = {
+    Parameters
+    ----------
+    path_main : str
+        Main path
+    local_data_path : str
+        Local path
+
+    Return
+    ------
+    out_dict : dict
+        Data container containing dics
+    """
+    out_dict = {}
+    out_dict['path_dict'] = {
         # Local paths
         'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
@@ -67,12 +79,10 @@ def load_paths(path_main, local_data_path):
         'path_shape_rs_cooling': os.path.join(path_main, 'data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(path_main, 'data', 'submodel_service', 'shape_service_cooling.csv'),
         'path_shape_rs_space_heating_primary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
-        'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv'),
+        'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv')
         }
 
-    out_dict = {}
-    out_dict['path_dict'] = path_dict
-    return out_dict
+    return  out_dict
 
 def load_data_tech_profiles(data):
     """

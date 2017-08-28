@@ -4,16 +4,12 @@ import os
 import sys
 import copy
 import numpy as np
-from datetime import date
+from scipy.optimize import curve_fit
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
-from energy_demand.basic import date_handling
-from energy_demand.initalisations import initialisations as init
 from energy_demand.read_write import read_data
-from energy_demand.technologies import fuel_service_switch
-from scipy.optimize import curve_fit
+from energy_demand.initalisations import initialisations as init
 from energy_demand.plotting import plotting_program as plotting
-print("... start script {}".format(os.path.basename(__file__)))    
 
 def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
@@ -129,7 +125,6 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
-
         if installed_tech[enduse] == []:
             #print("No technologies to calculate sigmoid  {}".format(enduse))
             pass
@@ -179,7 +174,8 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     Return
     ------
     service_tech_switched_p : dict
-        Service in future year with added and substracted service demand for every technology
+        Service in future year with added and substracted
+        service demand for every technology
 
     Note
     ----
@@ -422,29 +418,27 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     share_service_tech_ey_p : dict
         Fraction of service in end year
     enduse_tech_maxl_by_p :
-
+        Maximum service (L crit) per technology
     service_fueltype_by_p :
 
     service_tech_by_p :
 
     fuel_tech_p_by :
 
-    fuels : array
-        Fuels
-
     Return
     ------
     data : dict
-        Data dictionary containing all calculated parameters in assumptions
+        Data dictionary containing all calculated 
+        parameters in assumptions
 
     Note
     ----
-    It is assumed that the technology diffusion is the same over all the uk (no regional different diffusion)
+    It is assumed that the technology diffusion is the same over
+    all the uk (no regional different diffusion)
     """
     # Test is Service Switch is implemented
     if len(service_switches) > 0:
         crit_switch_service = True
-        #print("...crit_switch_service  " + str(crit_switch_service))
     else:
         crit_switch_service = False
 
@@ -561,10 +555,11 @@ def write_tech_increased_service(path_to_txt, data):
 
     return
 
-# ---------------------------------------
-# =======================================
-# ---------------------------------------
 def run():
+    """Function run script
+    """
+    print("... start script {}".format(os.path.basename(__file__)))
+    
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
@@ -578,17 +573,19 @@ def run():
 
 
     # Read in Services
-    rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
-    ss_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
-    is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
+    rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
+        base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
+    ss_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
+        base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
+    is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
 
-    rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
-    ss_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
-    is_service_fueltype_by_p = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
-
-    rs_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
-    ss_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
-    is_service_fueltype_tech_by_p = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
+    rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
+    ss_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
+    is_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
+        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
     rs_tech_increased_service, rs_tech_decreased_share, rs_tech_constant_share = get_tech_future_service(
@@ -647,7 +644,7 @@ def run():
         )
 
     # ----------------------
-    # Write out to csv 
+    # Write out to csv
     # ----------------------
     write_installed_tech(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_installed_tech.csv'),
@@ -659,45 +656,42 @@ def run():
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_installed_tech.csv'),
         is_installed_tech)
 
-    write_sig_param_tech(os.path.join(
-        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_sig_param_tech.csv'),
+    write_sig_param_tech(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_sig_param_tech.csv'),
         rs_sig_param_tech)
+
     write_sig_param_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_sig_param_tech.csv'),
-        ss_sig_param_tech)
+                         ss_sig_param_tech)
     write_sig_param_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_sig_param_tech.csv'),
-        is_sig_param_tech)
-
+                         is_sig_param_tech)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_increased_service.csv'),
-        rs_tech_increased_service)
+                         rs_tech_increased_service)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_increased_service.csv'),
-        ss_tech_increased_service)
+                         ss_tech_increased_service)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_increased_service.csv'),
-        is_tech_increased_service)
-
+                         is_tech_increased_service)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_decreased_share.csv'),
-        rs_tech_decreased_share)
+                         rs_tech_decreased_share)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_decreased_share.csv'),
-        ss_tech_decreased_share)
+                         ss_tech_decreased_share)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_decreased_share.csv'),
-        is_tech_decreased_share)
-
+                         is_tech_decreased_share)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_tech_constant_share.csv'),
-        rs_tech_constant_share)
+                         rs_tech_constant_share)
     write_installed_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_tech_constant_share.csv'),
-        ss_tech_constant_share)
-    write_installed_tech(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_constant_share.csv'),
-        is_tech_constant_share)
+                         ss_tech_constant_share)
+    write_installed_tech(os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_tech_constant_share.csv'),
+                         is_tech_constant_share)
 
     print("... finished script {}".format(os.path.basename(__file__)))
     return

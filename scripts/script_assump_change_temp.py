@@ -1,16 +1,12 @@
-"""This file changes temperatures for every year based on
-assumptions about changing climte
+"""This script changes temperatures for every year based on
+assumptions about changing climte.
 """
 import os
 import csv
 from datetime import date
 from datetime import timedelta
 import numpy as np
-
-from energy_demand.assumptions import assumptions
 from energy_demand import scripts_common_functions
-
-# Functions for script
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
@@ -81,7 +77,17 @@ def convert_yearday_to_date(year, yearday_python):
     return date_new
 
 def read_assumption(path_to_csv):
+    """
+    Parameters
+    ----------
+    path_to_csv : str
+        Path
 
+    Return
+    ------
+    assumptions : dict
+        Assumptions
+    """
     assumptions = []
 
     with open(path_to_csv, 'r') as csvfile:
@@ -159,7 +165,11 @@ def write_chanted_temp_data(path_to_txt, weather_data):
             for day in range(365):
                 for hour in range(24):
                     file.write("{}, {}, {}, {}, {}".format(
-                        station_id, year, day, hour, weather_data[station_id][year][day][hour]) + '\n'
+                        station_id,
+                        year,
+                        day,
+                        hour,
+                        weather_data[station_id][year][day][hour]) + '\n'
                               )
     file.close()
 
@@ -171,35 +181,56 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 # ----------------------
 
 def run():
+    """Function to run script
+    """
     print("..start script {}".format(os.path.basename(__file__)))
 
-    LOCAL_DATA_PATH = os.path.join('C:/Users', 'cenv0553', 'GIT')
+    local_data_path = os.path.join('C:/Users', 'cenv0553', 'GIT')
 
     # ----------------
     # Load assumptions
     # ----------------
     # Execute assumptions file to write out assumptions
 
-    TEMPERATURE_DATA = read_weather_data_script_data(
-        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
+    temperature_data = read_weather_data_script_data(
+        os.path.join(local_data_path, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
         )
 
-    ASSUMPTIONS_TEMP_CHANGE = read_assumption(
-        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_climate_change_temp.csv')
+    assumptions_temp_change = read_assumption(
+        os.path.join(
+            local_data_path,
+            'data',
+            'data_scripts',
+            'assumptions_from_db',
+            'assumptions_climate_change_temp.csv'
         )
+    )
 
-    SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
-        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
+    sim_param = scripts_common_functions.read_assumption_sim_param(
+        os.path.join(
+            local_data_path,
+            'data',
+            'data_scripts',
+            'assumptions_from_db',
+            'assumptions_sim_param.csv'
+        )
+    )
 
-    TEMP_CLIMATE_CHANGE = change_temp_climate_change(
-        TEMPERATURE_DATA, ASSUMPTIONS_TEMP_CHANGE, SIM_PARAM)
+    temp_climate_change = change_temp_climate_change(
+        temperature_data, assumptions_temp_change, sim_param)
 
     # ----------------
     # Write out temp_climate_change
     # ----------------
     write_chanted_temp_data(
-        os.path.join(LOCAL_DATA_PATH, 'data', 'data_scripts', 'weather_data', 'weather_data_changed_climate.csv'),
-        TEMP_CLIMATE_CHANGE)
+        os.path.join(
+            local_data_path,
+            'data',
+            'data_scripts',
+            'weather_data',
+            'weather_data_changed_climate.csv'
+            ),
+        temp_climate_change)
 
     print("..finished script {}".format(os.path.basename(__file__)))
 
