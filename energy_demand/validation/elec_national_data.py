@@ -65,7 +65,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
         hour = 0
         counter_half_hour = 0
-        # Iterate rows
+
         for line in read_lines:
             month = get_month_from_string(line[0].split("-")[1])
             day = int(line[0].split("-")[0])

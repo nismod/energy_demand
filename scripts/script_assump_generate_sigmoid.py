@@ -609,17 +609,17 @@ def run():
 
     # Read in Services
     rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
-        base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
+        base_data['paths']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
     ss_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
-        base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
+        base_data['paths']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
     is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
+        os.path.join(base_data['paths']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
     rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
+        os.path.join(base_data['paths']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
     ss_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
+        os.path.join(base_data['paths']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
     is_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
+        os.path.join(base_data['paths']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
 
     # Calculate technologies with more, less and constant service based on service switch assumptions
     rs_tech_increased_service, rs_tech_decreased_share, rs_tech_constant_share = get_tech_future_service(

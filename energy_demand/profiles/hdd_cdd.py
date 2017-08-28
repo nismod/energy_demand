@@ -95,7 +95,6 @@ def get_hdd_country(regions, data, t_base_type):
             data['weather_stations']
             )
 
-        # Temp data
         temperatures = data['temperature_data'][closest_station_id][data['sim_param']['base_yr']]
 
         # Base temperature for base year

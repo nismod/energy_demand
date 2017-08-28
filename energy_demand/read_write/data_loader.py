@@ -9,6 +9,64 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_results
 
+def dummy_data_generation(base_data):
+    """TODO: REPLACE WITH NEWCASTLE DATA
+    """
+    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
+
+    dummy_pop_geocodes = load_LAC_geocodes_info() # Load dummy LAC and pop
+
+    regions = {}
+    coord_dummy = {}
+    pop_dummy = {}
+    rs_floorarea = {}
+    ss_floorarea_sector_by_dummy = {}
+
+    for geo_code, values in dummy_pop_geocodes.items():
+        regions[geo_code] = values['label'] # Label for region
+        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
+
+    # Population
+    for i in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+        _data = {}
+        for reg_geocode in regions:
+            _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
+        pop_dummy[i] = _data
+
+    # Residenital floor area
+    for region_geocode in regions:
+        rs_floorarea[region_geocode] = pop_dummy[2015][region_geocode] #USE FLOOR AREA
+
+    # Dummy flor area
+    for region_geocode in regions:
+        ss_floorarea_sector_by_dummy[region_geocode] = {}
+        for sector in base_data['all_sectors']:
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
+
+    base_data['rs_floorarea'] = rs_floorarea
+    base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
+
+    # -----------------------------
+    # Read in floor area of all regions and store in dic# TODO: REPLACE WITH Newcastle if ready
+    # -----------------------------
+    #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
+    base_data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
+    for region_name in regions:
+        base_data['lu_reg'][region_name] = region_name
+
+    #TODO: FLOOR_AREA_LOOKUP:
+    base_data['reg_floorarea_resid'] = {}
+    for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
+        base_data['reg_floorarea_resid'][region_name] = 100000
+    
+    
+    base_data['input_regions'] = regions
+    base_data['population'] = pop_dummy
+    base_data['reg_coordinates'] = coord_dummy
+    base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+
+    return base_data
+
 def load_paths(path_main, local_data_path):
     """Load all paths
 
@@ -25,7 +83,7 @@ def load_paths(path_main, local_data_path):
         Data container containing dics
     """
     out_dict = {}
-    out_dict['path_dict'] = {
+    out_dict['paths'] = {
         # Local paths
         'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
@@ -92,23 +150,23 @@ def load_data_tech_profiles(data):
     # ------------------------------------------
     # Boiler shape from Robert Sansom
     data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_load_shapes_technology(
-        data['path_dict']['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
+        data['paths']['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
 
     # Heat pump shape from Love et al. (2017)
     data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(
-        data['path_dict']['path_hourly_elec_shape_hp'])
+        data['paths']['path_hourly_elec_shape_hp'])
 
-    data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_rs_cooling']) # ??
-    data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['path_dict']['path_shape_ss_cooling']) # ??
+    data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['paths']['path_shape_rs_cooling']) # ??
+    data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['paths']['path_shape_ss_cooling']) # ??
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     data['rs_profile_heating_storage_dh'] = read_data.read_csv_load_shapes_technology(
-        data['path_dict']['path_shape_rs_space_heating_primary_heating'])
+        data['paths']['path_shape_rs_space_heating_primary_heating'])
     data['rs_profile_heating_second_heating_dh'] = read_data.read_csv_load_shapes_technology(
-        data['path_dict']['path_shape_rs_space_heating_secondary_heating'])
+        data['paths']['path_shape_rs_space_heating_secondary_heating'])
 
     '''plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][0] * 45.8)
     plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][1] * 45.8)
@@ -127,9 +185,9 @@ def load_data_profiles(data):
     # Collect load profiles from txt files (needs to be preprocssed with scripts)
     # --------------------
     print("...read in load shapes from txt files")
-    data = rs_collect_shapes_from_txts(data, data['path_dict']['path_rs_load_profile_txt'])
+    data = rs_collect_shapes_from_txts(data, data['paths']['path_rs_load_profile_txt'])
 
-    data = ss_collect_shapes_from_txts(data, data['path_dict']['path_ss_load_profile_txt'])
+    data = ss_collect_shapes_from_txts(data, data['paths']['path_ss_load_profile_txt'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
@@ -168,16 +226,16 @@ def load_fuels(data):
 
     # Residential Sector (ECUK Table XY and Table XY )
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(
-        data['path_dict']['path_rs_fuel_raw_data_enduses'])
+        data['paths']['path_rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)
     data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(
-        data['path_dict']['path_ss_fuel_raw_data_enduses'],
+        data['paths']['path_ss_fuel_raw_data_enduses'],
         data['nr_of_fueltypes'])
     print("RS Sectors: {}".format(data['ss_sectors']))
     print(data['ss_all_enduses'])
     # Industry fuel (ECUK Table 4.04)
-    data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['path_dict']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
+    data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['paths']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
     print("RS Sectors: {}".format(data['is_sectors']))
 
     # ----------------------------------------
@@ -368,7 +426,6 @@ def load_LAC_geocodes_info():
         _headings = next(read_lines) # Skip first row
         data = {}
 
-        # Iterate rows
         for row in read_lines:
             values_line = {}
             for nr, value in enumerate(row[1:], 1):

@@ -286,7 +286,7 @@ def load_assumptions(data):
 
     # Load all technologies
     assumptions['technologies'] = read_data.read_technologies(
-        data['path_dict']['path_technologies'],
+        data['paths']['path_technologies'],
         data['lu_fueltype'])
 
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
@@ -383,16 +383,16 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['rs_path_fuel_switches'], data)
-    assumptions['ss_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['ss_path_fuel_switches'], data)
-    assumptions['is_fuel_switches'] = read_data.read_assump_fuel_switches(data['path_dict']['is_path_fuel_switches'], data)
+    assumptions['rs_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['rs_path_fuel_switches'], data)
+    assumptions['ss_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['ss_path_fuel_switches'], data)
+    assumptions['is_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['is_path_fuel_switches'], data)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['path_dict']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'])
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['path_dict']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'])
-    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['path_dict']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'])
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['paths']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'])
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['paths']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'])
+    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['paths']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
@@ -453,7 +453,7 @@ def run():
 
     # Write out temperature assumptions
     write_data.write_out_temp_assumptions(
-        os.path.join(data['path_dict']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
+        os.path.join(data['paths']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
         data['assumptions']['climate_change_temp_diff_month'])
 
     # Write out sigmoid parameters

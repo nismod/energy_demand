@@ -216,9 +216,7 @@ class LoadProfile(object):
         """
         # Calculate even if flat shape is assigned
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
-
-        # Replace inf by zero
-        sum_every_day_p[np.isinf(sum_every_day_p)] = 0
+        sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
         # Multiply (365,) + with (365, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
@@ -242,7 +240,8 @@ def absolute_to_relative_without_nan(absolute_array):
         Array with relative numbers
     """
     try:
-        return (1 / np.sum(absolute_array)) * absolute_array
+        relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
+        return relative_array
     except ZeroDivisionError:
         return absolute_array # If the total sum is zero, return same array
 
@@ -261,14 +260,13 @@ def absolute_to_relative(absolute_array):
 
     Note
     ----
-    - If the total sum is zero, return an array with zeros and raise a warning
+    - If the total sum is zero, return an array with zeros
     """
     try:
-        relative_array = (1 / np.sum(absolute_array)) * absolute_array
-        relative_array[np.isnan(relative_array)] = 0 # replace nan by zero, faster than np.nan_to_num
-
-    except ZeroDivisionError: # a[np.isinf(a)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
-        relative_array = absolute_array # If the total sum is zero, return same array
+        relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
+        relative_array[np.isnan(relative_array)] = 0
+    except ZeroDivisionError:
+        relative_array = absolute_array
 
     return relative_array
 

@@ -84,7 +84,7 @@ def write_final_result(data, result_dict, year, lu_reg, crit_YAML):
     print("...write data to YAML")
 
     # Remove data from path_main
-    main_path = data['path_dict']['path_main'][:-21]
+    main_path = data['paths']['path_main'][:-21]
 
     for fueltype in data['lu_fueltype'].keys():
 

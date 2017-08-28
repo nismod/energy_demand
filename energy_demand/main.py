@@ -38,11 +38,7 @@ from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
-from energy_demand.disaggregation import national_disaggregation
 from energy_demand.building_stock import building_stock_generator
-from energy_demand.technologies import diffusion_technologies as diffusion
-from energy_demand.technologies import fuel_service_switch
-from energy_demand.calculations import enduse_scenario
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
@@ -52,7 +48,8 @@ from energy_demand.read_write import read_weather_data
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
-'''import inspect
+'''
+import inspect
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
 print(__location__)
 a = os.path.join(__location__, "*")
@@ -77,7 +74,7 @@ def energy_demand_model(data):
     model_run_object : dict
         Object of a yearly model run
 
-    Note 
+    Note
     ----
     This function is executed in the wrapper
 
@@ -123,15 +120,13 @@ def energy_demand_model(data):
     print("...finished energy demand model simulation")
     return _, model_run_object
 
-# Run
 if __name__ == "__main__":
     print('start_main')
 
-    # ------------------------------------------------------------------
-    # Execute only once before executing energy demand module for a year
-    # ------------------------------------------------------------------
+
     instrument_profiler = True
 
+    # Paths
     path_main = os.path.dirname(os.path.abspath(__file__))[:-13] #Remove 'energy_demand'
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
@@ -142,81 +137,20 @@ if __name__ == "__main__":
     base_data = data_loader.load_data_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
     base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data')
+        os.path.join(base_data['paths']['path_scripts_data'], 'weather_data')
         )
 
-    # DUMMY DATA GENERATION----------------------
-    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-
-    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info() # Load dummy LAC and pop
-
-    regions = {}
-    coord_dummy = {}
-    pop_dummy = {}
-    rs_floorarea = {}
-    ss_floorarea_sector_by_dummy = {}
-
-    for geo_code, values in dummy_pop_geocodes.items():
-        regions[geo_code] = values['label'] # Label for region
-        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
-
-    # Population
-    for i in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
-        _data = {}
-        for reg_geocode in regions:
-            _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
-        pop_dummy[i] = _data
-
-    # Residenital floor area
-    for region_geocode in regions:
-        rs_floorarea[region_geocode] = pop_dummy[2015][region_geocode] #USE FLOOR AREA
-
-    # Dummy flor area
-    for region_geocode in regions:
-        ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in base_data['all_sectors']:
-            ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
-
-    base_data['rs_floorarea'] = rs_floorarea
-    base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
-
-    # -----------------------------
-    # Read in floor area of all regions and store in dic# TODO: REPLACE WITH Newcastle if ready
-    # -----------------------------
-    #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
-    base_data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
-    for region_name in regions:
-        base_data['lu_reg'][region_name] = region_name
-
-    #TODO: FLOOR_AREA_LOOKUP:
-    base_data['reg_floorarea_resid'] = {}
-    for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
-        base_data['reg_floorarea_resid'][region_name] = 100000
-    #'''
-
-    base_data['input_regions'] = regions
-    base_data['population'] = pop_dummy
-    base_data['reg_coordinates'] = coord_dummy
-    base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
+    base_data = data_loader.dummy_data_generation(base_data)
+    # <<<<<<<<<<<<<<<<<< FINISHED UMMY GENERATION DATA
 
     #TODO: Prepare all dissagregated data for [region][sector][]
-    base_data['driver_data'] = {}
+    base_data['driver_data'] = {} # TODO: Read in data from script
 
     # Load data from script calculations
     base_data = read_data.load_script_data(base_data)
 
-    # Write out txt file with service shares for each technology per enduse
-    ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])
-    #print("... a file has been generated which shows the shares of each technology per enduse")
-
-    # ---------------------------------------------
-    # Disaggregate national data into regional data
-    # ---------------------------------------------
-    base_data = national_disaggregation.disaggregate_base_demand(base_data)
-
-    # ---------------------------------------------
     # Generate building stocks over whole simulation period
-    # ---------------------------------------------
     base_data['rs_dw_stock'] = building_stock_generator.rs_build_stock(base_data)
     base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data)
 
@@ -261,7 +195,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------------------------------
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
-        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['path_dict']['folder_validation_national_elec_data'])
+        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['paths']['folder_validation_national_elec_data'])
 
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))

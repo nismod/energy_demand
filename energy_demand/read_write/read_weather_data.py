@@ -15,7 +15,6 @@ def read_weather_station_script_data(path_to_csv):
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip headers
 
-        # Iterate rows
         for row in read_lines:
             station_id = str(row[0])
             latitude = float(row[1])
@@ -40,7 +39,6 @@ def read_weather_data_script_data(path_to_csv):
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip headers
 
-        # Iterate rows
         for row in read_lines:
             station_id = str(row[0])
             day = float(row[1])
@@ -65,7 +63,6 @@ def read_changed_weather_data_script_data(path_to_csv, sim_period):
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip headers
 
-        # Iterate rows
         for row in read_lines:
             station_id = str(row[0])
             year = int(row[1])
@@ -82,11 +79,11 @@ def read_changed_weather_data_script_data(path_to_csv, sim_period):
                     # Add station ID or year
                     try:
                         temp_data[station_id]
-                    except KeyError: 
+                    except KeyError:
                         temp_data[station_id] = {}
                     try:
                         temp_data[station_id][year]
-                    except KeyError: 
+                    except KeyError:
                         temp_data[station_id][year] = np.zeros((365, 24))
 
                     temp_data[station_id][year][int(day)][int(hour)] = temperature

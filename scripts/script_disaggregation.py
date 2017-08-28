@@ -1,7 +1,12 @@
-""" This File disaggregates total national demand """
+"""Script to disaggregate national data into regional data
+"""
+import os
 import numpy as np
+from energy_demand.assumptions import assumptions
+from energy_demand.read_write import data_loader
+from energy_demand.read_write import read_data
+from energy_demand.plotting import plotting_program as plotting
 from energy_demand.profiles import hdd_cdd
-# pylint: disable=I0011,C0321,C0301,C0103,C0325
 
 '''
 ============================================
@@ -64,6 +69,7 @@ def disaggregate_base_demand(data):
     test_sum_before = sum_fuels_before(data['rs_fuel_raw_data_enduses'])
     test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
     np.testing.assert_almost_equal(test_sum_before, test_sum_after, decimal=2, err_msg="")
+
     return data
 
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
@@ -343,3 +349,121 @@ def rs_disaggregate(data, rs_national_fuel):
             rs_fueldata_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
 
     return rs_fueldata_disagg
+
+def write_disagg_fuel(path_to_txt, data):
+    """Write out disaggregated fuel
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}, {}".format(
+        'region', 'enduse', 'fueltype', 'fuel') + '\n'
+              )
+
+    for region, enduses in data.items():
+        for enduse, fuels in enduses.items():
+            for fueltype, fuel in enumerate(fuels):
+                file.write("{}, {}, {}, {}".format(
+                    str.strip(region), str.strip(enduse), str(int(fueltype)), str(float(fuel)) + '\n')
+                          )
+    file.close()
+
+    return
+
+def write_disagg_fuel_ts(path_to_txt, data):
+    """Write out disaggregated fuel
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}".format(
+        'region', 'fueltype', 'fuel') + '\n'
+              )
+
+    for region, fuels in data.items():
+        for fueltype, fuel in enumerate(fuels):
+            file.write("{}, {}, {}".format(
+                str.strip(region), str(int(fueltype)), str(float(fuel)) + '\n')
+                        )
+    file.close()
+
+    return
+
+def write_disagg_fuel_sector(path_to_txt, data):
+    """Write out disaggregated fuel
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
+    """
+    file = open(path_to_txt, "w")
+    file.write("{}, {}, {}, {}, {}".format(
+        'region', 'enduse', 'sector', 'fueltype', 'fuel') + '\n'
+              )
+
+    for region, sectors in data.items():
+        for sector, enduses in sectors.items():
+            for enduse, fuels in enduses.items():
+                for fueltype, fuel in enumerate(fuels):
+                    file.write("{}, {}, {}, {}, {}".format(
+                        str.strip(region), str.strip(enduse), str.strip(sector), str(int(fueltype)), str(float(fuel)) + '\n')
+                              )
+    file.close()
+
+    return
+
+def run():
+    """Function run script
+    """
+    print("... start script {}".format(os.path.basename(__file__)))
+
+    # Paths
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+
+    # Load data and assumptions
+    base_data = data_loader.load_paths(path_main, local_data_path)
+    base_data = data_loader.load_fuels(base_data)
+    base_data['assumptions'] = assumptions.load_assumptions(base_data)
+    base_data['weather_stations'], temperature_data = data_loader.load_data_temperatures(
+        os.path.join(base_data['paths']['path_scripts_data'], 'weather_data')
+        )
+    base_data['temperature_data'] = {}
+    for weather_station, base_yr_temp in temperature_data.items():
+        base_data['temperature_data'][weather_station] = {2015: base_yr_temp}
+
+    # IMPROVE TODO: LOAD FLOOR AREA DATA
+    base_data = data_loader.dummy_data_generation(base_data)
+
+    # Disaggregation
+    base_data = disaggregate_base_demand(base_data)
+
+    #Write to csv file disaggregated demand
+    write_disagg_fuel(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'rs_fueldata_disagg.csv'),
+        base_data['rs_fueldata_disagg'])
+    write_disagg_fuel_sector(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'ss_fueldata_disagg.csv'),
+        base_data['ss_fueldata_disagg'])
+    write_disagg_fuel_sector(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'is_fueldata_disagg.csv'),
+        base_data['is_fueldata_disagg'])
+    write_disagg_fuel_ts(
+        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'ts_fueldata_disagg.csv'),
+        base_data['ts_fueldata_disagg'])
+
+    print("... finished script {}".format(os.path.basename(__file__)))
+    return

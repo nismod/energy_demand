@@ -49,6 +49,9 @@ def run(run_basic_scripts=False, run_scenario_scripts=True):
         import script_assump_generate_sigmoid
         script_assump_generate_sigmoid.run()
 
+        import script_disaggregation
+        script_disaggregation.run()
+
     print("...  finished running all scripts")
 
 # Execute script
