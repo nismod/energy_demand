@@ -1509,7 +1509,7 @@ class Enduse(object):
 
         Note
         -----
-        - If no building specific scenario driver is found, the identical fuel is returned.
+        - If no dwelling specific scenario driver is found, the identical fuel is returned.
 
           TODO
         """
@@ -1522,7 +1522,7 @@ class Enduse(object):
         new_fuels = np.copy(self.fuel_new_y)
 
         if not dw_stock:
-            """Calculate non-building related scenario drivers, if no dwelling stock
+            """Calculate non-dwelling related scenario drivers, if no dwelling stock
             Info: No dwelling stock is defined for this submodel
             """
             scenario_drivers = reg_scenario_drivers[self.enduse]
@@ -1553,10 +1553,10 @@ class Enduse(object):
 
             setattr(self, 'fuel_new_y', new_fuels)
         else:
-            # Test if enduse has a building related scenario driver
+            # Test if enduse has a dwelling related scenario driver
             if hasattr(dw_stock[region_name][base_yr], self.enduse) and curr_yr != base_yr:
 
-                # Scenariodriver of building stock base year and new stock
+                # Scenariodriver of dwelling stock base year and new stock
                 by_driver = getattr(dw_stock[region_name][base_yr], self.enduse)
                 cy_driver = getattr(dw_stock[region_name][curr_yr], self.enduse)
 

@@ -45,7 +45,7 @@ from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
-from energy_demand.building_stock import building_stock_generator
+from energy_demand.dwelling_stock import dwelling_stock_generator
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
@@ -145,9 +145,9 @@ if __name__ == "__main__":
     # Load data from script calculations
     base_data = read_data.load_script_data(base_data)
 
-    # Generate building stocks over whole simulation period
-    base_data['rs_dw_stock'] = building_stock_generator.rs_dwelling_stock(base_data['lu_reg'], base_data)
-    base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data['lu_reg'], base_data)
+    # Generate dwelling stocks over whole simulation period
+    base_data['rs_dw_stock'] = dwelling_stock_generator.rs_dwelling_stock(base_data['lu_reg'], base_data)
+    base_data['ss_dw_stock'] = dwelling_stock_generator.ss_build_stock(base_data['lu_reg'], base_data)
 
     # If several years are run:
     results_every_year = []

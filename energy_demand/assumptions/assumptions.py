@@ -43,7 +43,7 @@ def load_assumptions(data):
     data['mode_constrained'] = False # True --> Technologies are defined in ED model, False: heat is delievered
 
     # ============================================================
-    # Residential building stock assumptions
+    # Residential dwelling stock assumptions
     # ============================================================
     # Dwelling types lookup table
     data['dwtype_lu'] = {
@@ -55,7 +55,7 @@ def load_assumptions(data):
         }
 
     # Change in floor area per person up to end_yr (e.g. 0.4 --> 40% increase (the one is added in the model))
-    # ASSUMPTION (if minus, check if new buildings are needed)
+    # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 0
 
     # Dwelling type distribution
@@ -76,17 +76,28 @@ def load_assumptions(data):
         }
 
     # Floor area per dwelling type
-    assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?
+    assumptions['assump_dwtype_floorarea'] = {
+        'semi_detached': 96,
+        'terraced': 82.5,
+        'flat': 61,
+        'detached': 147,
+        'bungalow': 77
+        } # SOURCE?
 
     # Assumption about age distribution
-    assumptions['dwtype_age_distr'] = {2015.0: {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}}
+    assumptions['dwtype_age_distr'] = {
+        2015.0: {
+            '1918':0.21, #Average builing age within age class, fraction
+            '1941': 0.36,
+            '1977.5': 0.3,
+            '1996.5': 0.08,
+            '2002': 0.05}
+            }
 
     # TODO: Get assumptions for heat loss coefficient
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
-    #assumptions['dwtype_age_distr_by'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
-    #assumptions['dwtype_age_distr'] = plotting_results.calc_age_distribution()
-    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
+    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> 
+    # Which then again influences HLC
 
     # ============================================================
     #  Scenario drivers

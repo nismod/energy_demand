@@ -108,7 +108,7 @@ def load_paths(path_main, local_data_path):
         'path_rs_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel'),
         'path_ss_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
 
-        # Path for building stock assumptions
+        # Path for dwelling stock assumptions
         'path_dwtype_lu': os.path.join(path_main, 'data', 'submodel_residential', 'lookup_dwelling_type.csv'),
         'path_hourly_gas_shape_resid': os.path.join(path_main, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
         'path_dwtype_age': os.path.join(path_main, 'data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),

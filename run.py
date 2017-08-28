@@ -8,7 +8,7 @@ from energy_demand.main import energy_demand_model
 from energy_demand.read_write_loader import load_data
 from energy_demand.assumptions import load_assumptions
 from energy_demand.national_dissaggregation import disaggregate_base_demand_for_reg
-from energy_demand.building_stock_generator import resid_build_stock
+from energy_demand.dwelling_stock_generator import resid_build_stock
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
@@ -68,7 +68,7 @@ class EDWrapper(SectorModel):
         base_data = disaggregate_base_demand_for_reg(
             base_data, 1, data_external)
 
-        # Generate virtual building stock over whole simulatin period
+        # Generate virtual dwelling stock over whole simulatin period
         base_data = resid_build_stock(
             base_data, base_data['assumptions'], data_external)
 
