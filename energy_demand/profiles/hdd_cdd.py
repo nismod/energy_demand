@@ -175,8 +175,8 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
         base_sim_param['base_yr'],
         base_sim_param['curr_yr'],
         base_sim_param['end_yr'],
-        assumptions['sig_midpoint'],
-        assumptions['sig_steeppness']
+        assumptions['smart_meter_diff_params']['sig_midpoint'],
+        assumptions['smart_meter_diff_params']['sig_steeppness']
         )
 
     # Temp diff until current year

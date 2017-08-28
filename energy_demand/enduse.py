@@ -1474,7 +1474,8 @@ class Enduse(object):
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
                 base_sim_param['end_yr'],
-                assumptions['sig_midpoint'], assumptions['sig_steeppness']
+                assumptions['smart_meter_diff_params']['sig_midpoint'], 
+                assumptions['smart_meter_diff_params']['sig_steeppness']
                 )
 
             # Smart Meter penetration (percentage of people having smart meters)

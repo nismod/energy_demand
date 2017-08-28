@@ -25,10 +25,6 @@ def load_assumptions(data):
     -------
     data : dict
         Data dictionary with added ssumption dict
-
-    Notes
-    -----
-
     """
     print("... load assumptions")
     assumptions = {}
@@ -45,8 +41,7 @@ def load_assumptions(data):
         end=date(data['sim_param']['base_yr'], 12, 31))
 
     # If unconstrained mode (False), heat demand is provided per technology. If True, heat is delievered with fueltype
-    data['mode_constrained'] = False #mode_constrained: True --> Technologies are defined in ED model, False: heat is delievered
-
+    data['mode_constrained'] = False # True --> Technologies are defined in ED model, False: heat is delievered
 
     # ============================================================
     # Residential building stock assumptions
@@ -80,9 +75,6 @@ def load_assumptions(data):
     #assumptions['dwtype_age_distr_ey'] = {'1918': 20.8, '1941': 36.3, '1977.5': 29.5, '1996.5': 8.0, '2002': 5.4}
     #assumptions['dwtype_age_distr'] = plotting_results.calc_age_distribution()
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses --> Which then again influences HLC
-
-
-
 
     # ============================================================
     #  Scenario drivers
@@ -142,12 +134,9 @@ def load_assumptions(data):
         'other': 1
         }
 
-
-    #Testing (test if all provided fueltypes)
-    #test_if_enduses_are_assigneddata['rs_all_enduses']
     # ========================================================================================================================
     # Climate Change assumptions
-    #     Temperature changes for every month until end year for every month
+    # Temperature changes for every month until end year for every month
     # ========================================================================================================================
     assumptions['climate_change_temp_diff_month'] = [
         0, # January (can be plus or minus)
@@ -167,8 +156,8 @@ def load_assumptions(data):
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
-    # The diffusion is asumed to be sigmoid (can be made linear with minor adaptions)
-    # ============================================================    # Heating base temperature
+    # The diffusion is asumed to be linear
+    # ============================================================
     assumptions['rs_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
     assumptions['ss_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
 
@@ -176,6 +165,11 @@ def load_assumptions(data):
     assumptions['rs_t_base_cooling'] = {'base_yr': 21.0, 'end_yr': 21.0}
     assumptions['ss_t_base_cooling'] = {'base_yr': 15.5, 'end_yr': 21.0}
 
+
+    # Sigmoid parameters for diffusion of penetration of smart meters
+    assumptions['base_temp_diff_params'] = {}
+    assumptions['base_temp_diff_params']['sig_midpoint'] = 0
+    assumptions['base_temp_diff_params']['sig_steeppness'] = 1
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
@@ -186,7 +180,7 @@ def load_assumptions(data):
     #
     # DECC 2015: Smart Metering Early Learning Project: Synthesis report
     # https://www.gov.uk/government/publications/smart-metering-early-learning-project-and-small-scale-behaviour-trials
-    # Reasonable assumption is between 3 and 10 % (DECC 2015)
+    # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # NTH: saturation year
     # ============================================================
 
@@ -213,6 +207,10 @@ def load_assumptions(data):
         'is_space_heating': -0.03
     }
 
+    # Sigmoid parameters for diffusion of penetration of smart meters
+    assumptions['smart_meter_diff_params'] = {}
+    assumptions['smart_meter_diff_params']['sig_midpoint'] = 0
+    assumptions['smart_meter_diff_params']['sig_steeppness'] = 1
     # ============================================================
     # Heat recycling & Reuse
     # ============================================================
@@ -233,9 +231,9 @@ def load_assumptions(data):
     # ---------------------------------------------------------------------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
-    # Lighting: E.g. how much floor area / % (social change - how much floor area is lighted (smart monitoring)) (smart-lighting)
-    # Submodel Residential
-    'rs_model': {
+        # Lighting: E.g. how much floor area / % (social change - how much floor area is lighted (smart monitoring)) (smart-lighting)
+        # Submodel Residential
+        'rs_model': {
             'rs_space_heating': 1,
             'rs_water_heating': 1,
             'rs_lighting': 1,
@@ -281,33 +279,35 @@ def load_assumptions(data):
             }
         }
 
-    assumptions['sig_midpoint'] = 0 # Midpoint of sigmoid diffusion
-    assumptions['sig_steeppness'] = 1 # Steepness of sigmoid diffusion
-
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
     assumptions['technology_list'] = {}
 
     # Load all technologies
-    assumptions['technologies'] = read_data.read_technologies(data['path_dict']['path_technologies'], data['lu_fueltype'])
-
-
-    # --Assumption how much of technological efficiency is reached
-    efficiency_achieving_factor = 1.0
+    assumptions['technologies'] = read_data.read_technologies(
+        data['path_dict']['path_technologies'],
+        data['lu_fueltype'])
 
     # --Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.7
 
+    # --Assumption how much of technological efficiency is reached
+    efficiency_achieving_factor = 1.0
+
     # --Heat pumps
-    assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(split_heat_pump_ASHP_GSHP, data)
+    assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(
+        split_heat_pump_ASHP_GSHP,
+        data)
+
+    #TODO: MAKE NICER
     assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(data, [], assumptions['technologies'], assumptions['installed_heat_pump'])
 
     # --Hybrid technologies
     assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = technologies_related.get_all_defined_hybrid_technologies(
         assumptions,
         assumptions['technologies'],
-        hybrid_cutoff_temp_low=-5, #Input parameters
+        hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
         hybrid_cutoff_temp_high=7)
 
     # ------------------
@@ -337,7 +337,8 @@ def load_assumptions(data):
         'fluorescent_strip_lightinging',
         'halogen_elec',
         'energy_saving_lighting_bulb',
-        'LED'
+        'LED',
+        'halogen'
         ]
 
     # Cold technologies
@@ -354,6 +355,7 @@ def load_assumptions(data):
         'oven_electricity',
         'hob_induction_electricity'
         ]
+
     # Wet technologies
     assumptions['technology_list']['rs_wet'] = [
         'washing_machine',
@@ -362,11 +364,6 @@ def load_assumptions(data):
         'tumble_dryer'
         ]
 
-    ## Is assumptions['technology_list']['tech_heating_temp_dep'] = [] # To store all temperature dependent heating technology
-
-    # Cooking
-    #assumptions['list_tech_rs_cooking_kettle'] = ['kettler']
-    #assumptions['list_tech_rs_cooking_microwave'] = ['microwave']
     # ----------
     # Enduse definition list
     # ----------
@@ -381,7 +378,7 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     #    --Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions = assumptions_fuel_shares.get_fuel_stock_definition(assumptions, data)
+    assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(assumptions, data)
 
     # ============================================================
     # Scenaric FUEL switches

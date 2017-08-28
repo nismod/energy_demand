@@ -1,5 +1,5 @@
 technology, fueltype, eff_by, eff_ey, eff_achieved,diff_method,market_entry,NOTES,EFF_OLD_MODEL_EY,,,,,,,,,,
-halogen_electricity,electricity,0.036,0.036,1,linear,2010,Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100,,,,,,,,,,,
+halogen,electricity,0.036,0.036,1,linear,2010,Relative derived eff: 80% efficiency gaing to standard lighting blub RElative calculated to be 80% better than standard lighting bulb (180*0.02) / 100,,,,,,,,,,,
 standard_lighting_bulb,electricity,0.02,0.02,1,linear,2010,Found on wikipedia,,,,,,,,,,,
 fluorescent_strip_lightinging,electricity,0.054,0.054,1,linear,2010,Relative derived eff: 50% efficiency gain to halogen (0.036*150) / 100,,,,,,,,,,,
 energy_saving_lighting_bulb,electricity,0.034,0.034,1,linear,2010,Relative derived eff: 70% efficiency gain to standard lightingbulg,,,,,,,,,,,

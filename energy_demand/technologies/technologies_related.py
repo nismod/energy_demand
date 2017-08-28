@@ -286,8 +286,8 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
             base_sim_param['end_yr'],
-            assumptions['sig_midpoint'],
-            assumptions['sig_steeppness'])
+            assumptions['other_enduse_mode_info']['sig_midpoint'],
+            assumptions['other_enduse_mode_info']['sig_steeppness'])
 
     # Consider actual achieved efficiency
     actual_max_eff = theor_max_eff * eff_achieved_factor

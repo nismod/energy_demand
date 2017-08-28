@@ -15,8 +15,8 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     for enduse in fuel_tech_fueltype_p:
         for fueltype in fuel_tech_fueltype_p[enduse]:
             if fuel_tech_fueltype_p[enduse][fueltype] != {}:
-                if sum(fuel_tech_fueltype_p[enduse][fueltype].values()) != 1.0:
-                    sys.exit("Error: The fuel shares assumptions are wrong for enduse  {}  and fueltype {}".format(enduse, fueltype))
+                if round(sum(fuel_tech_fueltype_p[enduse][fueltype].values()), 3) != 1.0:
+                    sys.exit("Error: The fuel shares assumptions are wrong for enduse  {}  and fueltype {}  SUM: {}".format(enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
 
 def testing_tech_defined(technologies, all_tech_enduse):
     """Test if all technologies are defined for assigned fuels
