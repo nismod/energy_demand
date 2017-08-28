@@ -287,40 +287,40 @@ def write_weather_stations(path_to_txt, weather_station):
 
 
 def run():
-    # ----------------------
-    # Paths
-    # ----------------------
+    """Function to run script
+    """
     print("..start script {}".format(os.path.basename(__file__)))
-    LOCAL_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
-    CSV_OUT_WEATHER_DATA = os.path.join(
-        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
-    CSV_OUT_WEATHER_STATIONS = os.path.join(
-        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_stations.csv')
 
-    PATH_WEATHER_DATA = os.path.join(
-        LOCAL_DATA_PATH, '16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv')
-    PATH_WEATHER_STATIONS = os.path.join(
-        LOCAL_DATA_PATH, '16-Met_office_weather_data', 'excel_list_station_details.csv')
+    # Paths
+    loca_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    out_path_weather_data = os.path.join(
+        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
+    out_path_weather_stations = os.path.join(
+        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_stations.csv')
+    path_weather_data = os.path.join(
+        loca_data_path, '16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv')
+    path_weather_stations = os.path.join(
+        loca_data_path, '16-Met_office_weather_data', 'excel_list_station_details.csv')
 
     # Read in raw temperature data
-    TEMPERATURE_DATA_RAW = read_weather_data_raw(
-        PATH_WEATHER_DATA)
+    temperature_data_raw = read_weather_data_raw(
+        path_weather_data)
 
     # Clean raw temperature data
-    TEMPERATURE_DATA = clean_weather_data_raw(
-        TEMPERATURE_DATA_RAW)
+    temperature_data = clean_weather_data_raw(
+        temperature_data_raw)
 
     # Weather stations
-    WEATHER_STATIONS = read_weather_stations_raw(
-        PATH_WEATHER_STATIONS,
-        TEMPERATURE_DATA.keys()
+    weather_stations = read_weather_stations_raw(
+        path_weather_stations,
+        temperature_data.keys()
         )
 
     # ----------------------
     # Write out to csv files
     # ----------------------
-    write_weather_stations(CSV_OUT_WEATHER_STATIONS, WEATHER_STATIONS)
-    write_weather_data(CSV_OUT_WEATHER_DATA, TEMPERATURE_DATA)
+    write_weather_stations(out_path_weather_stations, weather_stations)
+    write_weather_data(out_path_weather_data, temperature_data)
 
     print("..finished script {}".format(os.path.basename(__file__)))
     return

@@ -321,24 +321,23 @@ def load_assumptions(data):
         'boiler_biomass',
         'boiler_solid_fuel',
         'boiler_oil',
-        'boiler_heat_sold']
+        'boiler_heat_sold',
+        'storage_heater_electricity',
+        'secondary-heater_electricity',
+        'fuel_cell_CHP',
+        'stirling_micro_CHP'
+        ]
 
     assumptions['technology_list']['primary_heating_electricity'] = ['storage_heater_electricity'] # FROM HES Electricity heating
     assumptions['technology_list']['secondary_heating_electricity'] = ['secondary_heater_electricity'] # FROM HES Electricity heating
 
-    # Regular cooling technlogies...
-    assumptions['list_tech_cooling_ventilation'] = ['air_fans_electricity', 'air_condition_electricity', 'air_condition_gas', 'air_condition_oil']
-    assumptions['list_tech_ventilation'] = ['air_fans_electricity']
-    assumptions['list_tech_cooling'] = ['air_condition_electricity', 'air_condition_gas', 'air_condition_oil'] #[ 'air_condition_electricity']
-    #assumptions['list_tech_cooling_const'] = ['cooling_tech_lin']
-    #assumptions['list_tech_cooling_temp_dep'] = []
-
     # Lighting technologies
     assumptions['technology_list']['rs_lighting'] = [
-        'standard_resid_lighting_bulb',
+        'standard_lighting_bulb',
         'fluorescent_strip_lightinging',
         'halogen_elec',
-        'energy_saving_lighting_bulb'
+        'energy_saving_lighting_bulb',
+        'LED'
         ]
 
     # Cold technologies

@@ -148,7 +148,6 @@ if __name__ == "__main__":
     # DUMMY DATA GENERATION----------------------
     base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
 
-    
     dummy_pop_geocodes = data_loader.load_LAC_geocodes_info() # Load dummy LAC and pop
 
     regions = {}
@@ -200,53 +199,11 @@ if __name__ == "__main__":
     base_data['reg_coordinates'] = coord_dummy
     base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
-
     #TODO: Prepare all dissagregated data for [region][sector][]
     base_data['driver_data'] = {}
 
-    # ---------------------
     # Load data from script calculations
-    # ---------------------
-    # Read in Services (from script data)
-    base_data['assumptions']['rs_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_tech_by_p.csv'))
-    base_data['assumptions']['ss_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
-    base_data['assumptions']['is_service_tech_by_p'] = read_data.read_service_data_service_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
-
-    base_data['assumptions']['rs_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
-    base_data['assumptions']['ss_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_by_p.csv'))
-    base_data['assumptions']['is_service_fueltype_by_p'] = read_data.read_service_fueltype_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_by_p.csv'))
-    
-    base_data['assumptions']['rs_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_tech_by_p.csv'))
-    base_data['assumptions']['ss_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_fueltype_tech_by_p.csv'))
-    base_data['assumptions']['is_service_fueltype_tech_by_p'] = read_data.read_service_fueltype_tech_by_p(os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_fueltype_tech_by_p.csv'))
-
-    # Read technologies with more, less and constant service based on service switch assumptions (from script data)
-    base_data['assumptions']['rs_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
-    base_data['assumptions']['ss_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
-    base_data['assumptions']['is_tech_increased_service'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
-
-    base_data['assumptions']['rs_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
-    base_data['assumptions']['ss_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
-    base_data['assumptions']['is_tech_decreased_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
-
-    base_data['assumptions']['rs_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_tech_increased_service.csv'))
-    base_data['assumptions']['ss_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_tech_increased_service.csv'))
-    base_data['assumptions']['is_tech_constant_share'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_tech_increased_service.csv'))
-
-    # Read in sigmoid technology diffusion parameters (from script data)
-    base_data['assumptions']['rs_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_sig_param_tech.csv'))
-    base_data['assumptions']['ss_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_sig_param_tech.csv'))
-    base_data['assumptions']['is_sig_param_tech'] = read_data.read_sig_param_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_sig_param_tech.csv'))
-
-    # Read in installed technologies (from script data)
-    base_data['assumptions']['rs_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'rs_installed_tech.csv'))
-    base_data['assumptions']['ss_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'ss_installed_tech.csv'))
-    base_data['assumptions']['is_installed_tech'] = read_data.read_installed_tech(os.path.join(base_data['path_dict']['path_scripts_data'], 'is_installed_tech.csv'))
-
-    # Read data after apply climate change (from script data)
-    base_data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
-        os.path.join(base_data['path_dict']['path_scripts_data'], 'weather_data', 'weather_data_changed_climate.csv'),
-        base_data['sim_param']['sim_period'])
+    base_data = read_data.load_script_data(base_data)
 
     # Write out txt file with service shares for each technology per enduse
     ##write_data.write_out_txt(base_data['path_dict']['path_txt_service_tech_by_p'], base_data['assumptions']['rs_service_tech_by_p'])

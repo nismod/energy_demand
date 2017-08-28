@@ -4,8 +4,8 @@ import os
 import csv
 from datetime import date
 from datetime import timedelta
-import numpy as np
 import json
+import numpy as np
 
 def create_txt_shapes(
         end_use,
@@ -20,7 +20,7 @@ def create_txt_shapes(
 
     def jason_shape_peak_dh(input_array, outfile_path):
         """Wrte to txt. Array with shape: (24,)
-    """
+        """
         np_dict = dict(enumerate(input_array))
         with open(outfile_path, 'w') as outfile:
             json.dump(np_dict, outfile)
@@ -49,7 +49,6 @@ def create_txt_shapes(
             json.dump(out_dict, outfile)
 
     # Main function
-    # ------------------------
     jason_shape_peak_dh(
         shape_peak_dh,
         os.path.join(path_txt_shapes, str(end_use) + str("__") + str('shape_peak_dh') + str('.txt'))
@@ -92,6 +91,18 @@ def fullyear_dates(start, end):
     return list_dates
 
 def read_assumption_sim_param(path_to_csv):
+    """Read assumptions from dict
+
+    Parameters
+    ----------
+    path_to_csv : str
+        Path to csv file with info
+
+    Return
+    -----
+    assumptions : dict
+        Assumptions
+    """
     assumptions = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -101,7 +112,7 @@ def read_assumption_sim_param(path_to_csv):
         for row in read_lines:
             try:
                 assumptions[str(row[0])] = float(row[1])
-            except:
+            except ValueError:
                 assumptions[str(row[0])] = None
 
     # Redefine sim_period_yrs
@@ -137,10 +148,10 @@ def absolute_to_relative(absolute_array):
     """
     try:
         relative_array = (1 / np.sum(absolute_array)) * absolute_array
-        relative_array[np.isnan(relative_array)] = 0 # replace nan by zero, faster than np.nan_to_num
-
-    except ZeroDivisionError: # a[np.isinf(a)] = 0   # replace inf by zero (not necessary because ZeroDivsionError)
-        relative_array = absolute_array # If the total sum is zero, return same array
+        relative_array[np.isnan(relative_array)] = 0
+    except ZeroDivisionError:
+        # If the total sum is zero, return same array
+        relative_array = absolute_array
 
     return relative_array
 

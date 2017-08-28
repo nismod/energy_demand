@@ -41,8 +41,10 @@ def get_fuel_stock_definition(assumptions, data):
 
     # ---Lighting
     assumptions['rs_fuel_tech_p_by']['rs_lighting'][data['lu_fueltype']['electricity']] = {
-        'standard_resid_lighting_bulb': 0.02,
-        'fluorescent_strip_lightinging' : 0.98
+        'standard_lighting_bulb': 0.02,
+        'fluorescent_strip_lightinging' : 0.98,
+        'energy_saving_lighting_bulb' : 0, #??,
+        'LED': 0 #
         }
 
     # ---rs_cold (Refrigeration)
@@ -101,8 +103,6 @@ def get_fuel_stock_definition(assumptions, data):
         tech_stock=assumptions['technologies'],
         assumptions=assumptions)
 
-
-
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
     # ------------------
@@ -118,10 +118,6 @@ def get_fuel_stock_definition(assumptions, data):
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][data['lu_fueltype']['heat_sold']] = {'boiler_heat_sold': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][data['lu_fueltype']['biomass']] = {'boiler_biomass': 1.0}
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][data['lu_fueltype']['hydrogen']] = {'boiler_hydrogen': 1.0}
-
-    #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['gas']] = {'air_condition_gas': 1.0}
-    #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['electricity']] = {'air_fans_electricity': 0.8, 'air_condition_electricity': 0.2}
-    #assumptions['ss_fuel_tech_p_by']['ss_cooling_ventilation'][data['lu_fueltype']['oil']] = {'air_condition_oil': 1.0}
 
     assumptions['ss_all_specified_tech_enduse_by'] = helper_functions.get_all_specified_tech(assumptions['ss_fuel_tech_p_by'])
 

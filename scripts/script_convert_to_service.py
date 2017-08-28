@@ -1,19 +1,20 @@
+"""Script to convert fuel to energy service
 """
-"""
-#path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
 import os
-import sys
-from datetime import date
+import numpy as np
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
-from energy_demand.basic import date_handling
-import numpy as np
-from energy_demand.initalisations import initialisations as init
 from energy_demand.technologies import technologies_related
-print("... start script {}".format(os.path.basename(__file__)))
 
 def write_service_fueltype_by_p(path_to_txt, data):
-    """Writ
+    """Write out function
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}".format(
@@ -22,7 +23,8 @@ def write_service_fueltype_by_p(path_to_txt, data):
 
     for service, fueltypes in data.items():
         for fueltype, service_p in fueltypes.items():
-                file.write("{}, {}, {}".format(
+            file.write(
+                "{}, {}, {}".format(
                     service, fueltype, float(service_p)) + '\n')
 
     file.close()
@@ -30,7 +32,14 @@ def write_service_fueltype_by_p(path_to_txt, data):
     return
 
 def write_service_fueltype_tech_by_p(path_to_txt, data):
-    """Writ
+    """Write out function
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}".format(
@@ -52,7 +61,14 @@ def write_service_fueltype_tech_by_p(path_to_txt, data):
     return
 
 def write_service_tech_by_p(path_to_txt, data):
-    """Writ
+    """Write out function
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}".format(
@@ -68,7 +84,6 @@ def write_service_tech_by_p(path_to_txt, data):
     file.close()
 
     return
-
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
@@ -138,6 +153,31 @@ def init_dict_brackets(first_level_keys):
 
     return one_level_dict
 
+def sum_2_level_dict(two_level_dict):
+    """Sum all entries in a two level dict
+
+    Parameters
+    ----------
+    two_level_dict : dict
+        Nested dict
+
+    Returns
+    -------
+    tot_sum : float
+        Number of all entries in nested dict
+    """
+    '''tot_sum = 0
+    for i in two_level_dict:
+        for j in two_level_dict[i]:
+            tot_sum += two_level_dict[i][j]
+    '''
+    tot_sum = 0
+    for _, j in two_level_dict.items():
+        tot_sum += sum(j.values())
+
+    return tot_sum
+
+
 def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
     """Aggregated fuel for all sectors according to enduse
     """
@@ -154,14 +194,16 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
     return aggregated_fuel_enduse
 
 def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
-    """Calculate total energy service percentage of each technology and energy service percentage within the fueltype
+    """Calculate total energy service percentage of each technology
+    and energy service percentage within the fueltype
 
-    This calculation converts fuels into energy services (e.g. heating for fuel into heat demand)
-    and then calculated how much an invidual technology contributes in percent to total energy
-    service demand.
+    This calculation converts fuels into energy services (e.g. heating
+    for fuel into heat demand) and then calculated how much an invidual
+    technology contributes in percent to total energy service demand.
 
-    This is calculated to determine how much the technology has already diffused up
-    to the base year to define the first point on the sigmoid technology diffusion curve.
+    This is calculated to determine how much the technology
+    has already diffused up to the base year to define the
+    first point on the sigmoid technology diffusion curve.
 
     Parameters
     ----------
@@ -179,7 +221,8 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     service_tech_by_p : dict
         Percentage of total energy service per technology for base year
     service_fueltype_tech_by_p : dict
-        Percentage of energy service witin a fueltype for all technologies with this fueltype for base year
+        Percentage of energy service witin a fueltype for all
+        technologies with this fueltype for base year
     service_fueltype_by_p : dict
         Percentage of energy service per fueltype
 
@@ -187,23 +230,28 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     -----
     Regional temperatures are not considered because otherwise the initial fuel share of
     hourly dependent technology would differ and thus the technology diffusion within a region.
-    Therfore a constant technology efficiency of the full year needs to be assumed for all technologies.
+    Therfore a constant technology efficiency of the full year needs to
+    be assumed for all technologies.
 
     Because regional efficiencies may differ within regions, the fuel distribution within
     the fueltypes may also differ
     """
     # Energy service per technology for base year
     service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
-    service_tech_by_p = init_dict_brackets(fuels) # Percentage of total energy service per technology for base year
-    service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values()) # Percentage of service per technologies within the fueltypes
-    service_fueltype_by_p = init_nested_dict_zero(service_tech_by_p.keys(), range(len(lu_fueltypes))) # Percentage of service per fueltype
+
+     # Percentage of total energy service per technology for base year
+    service_tech_by_p = init_dict_brackets(fuels)
+
+    # Percentage of service per technologies within the fueltypes
+    service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values())
+
+    # Percentage of service per fueltype
+    service_fueltype_by_p = init_nested_dict_zero(service_tech_by_p.keys(), range(len(lu_fueltypes)))
 
     for enduse, fuel in fuels.items():
-
         for fueltype, fuel_fueltype in enumerate(fuel):
             tot_service_fueltype = 0
 
-            #Initiate NEW
             for tech in fuel_p_tech_by[enduse][fueltype]:
                 service[enduse][fueltype][tech] = 0
 
@@ -250,7 +298,7 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
                     service_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
-        total_service = init.sum_2_level_dict(service[enduse])
+        total_service = sum_2_level_dict(service[enduse])
 
         # Percentage of energy service per technology
         for fueltype, technology_service_enduse in service[enduse].items():
@@ -272,16 +320,15 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
 def run():
-    # ----------------------------------------------------------
-    # Calculations of script
-    # ----------------------------------------------------------
+    """Function to run script
+    """
+    print("... start script {}".format(os.path.basename(__file__)))
+
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
-    # -----------------------------------------------------
     # Load data and assumptions
-    # ------------------------------------------------------
     base_data = data_loader.load_paths(path_main, local_data_path)
     base_data = data_loader.load_fuels(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
@@ -324,9 +371,7 @@ def run():
         base_data['assumptions']['technologies']
         )
 
-    # ------------------
     # Write to csv files
-    # ------------------
     write_service_tech_by_p(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_tech_by_p.csv'),
         rs_service_tech_by_p)
@@ -336,7 +381,6 @@ def run():
     write_service_tech_by_p(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'is_service_tech_by_p.csv'),
         is_service_tech_by_p)
-
     write_service_fueltype_tech_by_p(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_tech_by_p.csv'), 
         rs_service_fueltype_tech_by_p)
@@ -346,7 +390,6 @@ def run():
     write_service_fueltype_tech_by_p(
         os.path.join(os.path.dirname(__file__), '..', r'data', 'data_scripts', 'services', 'is_service_fueltype_tech_by_p.csv'),
         is_service_fueltype_tech_by_p)
-
     write_service_fueltype_by_p(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_by_p.csv'),
         rs_service_fueltype_by_p)

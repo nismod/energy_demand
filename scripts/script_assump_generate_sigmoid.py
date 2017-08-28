@@ -1,4 +1,8 @@
-"""
+"""Script to fit technology diffusion
+
+This script calculates the three parameters of a sigmoid diffusion
+for every technology which is diffused and has a larger service
+fraction at the model end year
 """
 import os
 import sys
@@ -8,8 +12,27 @@ from scipy.optimize import curve_fit
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
-from energy_demand.initalisations import initialisations as init
 from energy_demand.plotting import plotting_program as plotting
+
+def init_dict_brackets(first_level_keys):
+    """Initialise a  dictionary with one level
+
+    Parameters
+    ----------
+    first_level_keys : list
+        First level data
+
+    Returns
+    -------
+    one_level_dict : dict
+         dictionary
+    """
+    one_level_dict = {}
+
+    for first_key in first_level_keys:
+        one_level_dict[first_key] = {}
+
+    return one_level_dict
 
 def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
@@ -121,7 +144,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
     -----
     Gets second sigmoid point
     """
-    l_values_sig = init.init_dict_brackets(enduses)
+    l_values_sig = init_dict_brackets(enduses)
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
@@ -420,15 +443,16 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     enduse_tech_maxl_by_p :
         Maximum service (L crit) per technology
     service_fueltype_by_p :
-
+        Fraction of service per fueltype in base year
     service_tech_by_p :
-
+        Fraction of service per technology in base year
     fuel_tech_p_by :
+        Fraction of fuel per technology in base year
 
     Return
     ------
     data : dict
-        Data dictionary containing all calculated 
+        Data dictionary containing all calculated
         parameters in assumptions
 
     Note
@@ -445,8 +469,9 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     installed_tech, sig_param_tech = {}, {}
 
     for enduse in enduses:
-        if crit_switch_service: # Sigmoid calculation in case of 'service switch'
-
+        if crit_switch_service:
+            """Sigmoid calculation in case of 'service switch'
+            """
             # Tech with lager service shares in end year
             installed_tech = tech_increased_service
 
@@ -456,8 +481,9 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
             # Maximum shares of each technology
             l_values_sig = enduse_tech_maxl_by_p
 
-        else: # Sigmoid calculation in case of 'fuel switch'
-
+        else:
+            """Sigmoid calculation in case of 'fuel switch'
+            """
             # Tech with lager service shares in end year (installed in fuel switch)
             installed_tech = get_tech_installed(enduses, fuel_switches)
 
@@ -482,9 +508,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
                 fuel_tech_p_by
                 )
 
-        # -------------------------------------------------------------
         # Calclulate sigmoid parameters for every installed technology
-        # -------------------------------------------------------------
         sig_param_tech[enduse] = tech_sigmoid_parameters(
             data,
             enduse,
@@ -499,7 +523,14 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     return installed_tech, sig_param_tech
 
 def write_installed_tech(path_to_txt, data):
-    """Writ
+    """Write out all technologies
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}".format(
@@ -516,7 +547,7 @@ def write_installed_tech(path_to_txt, data):
     return
 
 def write_sig_param_tech(path_to_txt, data):
-    """Writ
+    """Write out sigmoid parameters per technology
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}, {}".format(
@@ -536,7 +567,14 @@ def write_sig_param_tech(path_to_txt, data):
     return
 
 def write_tech_increased_service(path_to_txt, data):
-    """Writ
+    """Write out function
+
+    Parameters
+    ----------
+    path_to_txt : str
+        Path to txt file
+    data : dict
+        Data to write out
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}, {}".format(
@@ -559,18 +597,15 @@ def run():
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-    
+
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
-    # -----------------------------------------------------
     # Load data and assumptions
-    # ------------------------------------------------------
     base_data = data_loader.load_paths(path_main, local_data_path)
     base_data = data_loader.load_fuels(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
-
 
     # Read in Services
     rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
@@ -579,7 +614,6 @@ def run():
         base_data['path_dict']['path_scripts_data'], 'services', 'ss_service_tech_by_p.csv'))
     is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(
         os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'is_service_tech_by_p.csv'))
-
     rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
         os.path.join(base_data['path_dict']['path_scripts_data'], 'services', 'rs_service_fueltype_by_p.csv'))
     ss_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
@@ -597,7 +631,6 @@ def run():
     is_tech_increased_service, is_tech_decreased_share, is_tech_constant_share = get_tech_future_service(
         is_service_tech_by_p,
         base_data['assumptions']['is_share_service_tech_ey_p'])
-
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
@@ -643,23 +676,19 @@ def run():
         base_data['assumptions']['is_fuel_tech_p_by']
         )
 
-    # ----------------------
     # Write out to csv
-    # ----------------------
     write_installed_tech(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_installed_tech.csv'),
-        rs_installed_tech)
+                         rs_installed_tech)
     write_installed_tech(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_installed_tech.csv'),
-        ss_installed_tech)
+                         ss_installed_tech)
     write_installed_tech(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'is_installed_tech.csv'),
-        is_installed_tech)
-
+                         is_installed_tech)
     write_sig_param_tech(
         os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'rs_sig_param_tech.csv'),
-        rs_sig_param_tech)
-
+                         rs_sig_param_tech)
     write_sig_param_tech(os.path.join(
         os.path.dirname(__file__), '..', 'data', 'data_scripts', 'ss_sig_param_tech.csv'),
                          ss_sig_param_tech)

@@ -4,12 +4,8 @@ import os
 import csv
 from datetime import date
 import numpy as np
-
-#Imports
 from energy_demand import scripts_common_functions
 from energy_demand.read_write import read_data
-
-print("... start script {}".format(os.path.basename(__file__)))
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -212,30 +208,26 @@ def read_hes_data(paths_hes, nr_app_type_lu):
     return hes_data, hes_y_coldest, hes_y_warmest
 
 def run():
-    # ===========================================-
-    # RESIDENTIAL MODEL - LOAD HES DATA
-    # ===========================================
+    """Function to run script
+    """
+    print("... start script {}".format(os.path.basename(__file__)))
 
-    #PATHS
-    LODA_DATA_PATH = r'Y:\01-Data_NISMOD\data_energy_demand'
-    PATH_BD_E_LOAD_PROFILES = os.path.join(
-        LODA_DATA_PATH, r'01-HES_data\HES_base_appliances_eletricity_load_profiles.csv')
+    # Paths
+    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    script_data_path = r'C:\Users\cenv0553\GIT'
 
-    LODA_DATA_PATH = r'C:\Users\cenv0553\GIT'
-
-    SIM_PARAM = scripts_common_functions.read_assumption_sim_param(
+    path_hes_load_profiles = os.path.join(
+        local_data_path, r'01-hes_data\HES_base_appliances_eletricity_load_profiles.csv')
+    sim_param = scripts_common_functions.read_assumption_sim_param(
         os.path.join(
-            LODA_DATA_PATH, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv')
-        )
+            script_data_path, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
+    path_rs_txt_shapes = os.path.join(
+        path_main, 'data_scripts', 'load_profiles', 'rs_submodel')
+    path_rs_fuel_raw_data = os.path.join(
+        path_main, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
 
-    PATH_MAIN = os.path.join(os.path.dirname(__file__), '..', 'data')
-
-    PATH_RS_TXT_SHAPES = os.path.join(
-        PATH_MAIN, 'data_scripts', 'load_profiles', 'rs_submodel')
-    PATH_RS_FUEL_RAW_DATA = os.path.join(
-        PATH_MAIN, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
-
-    HES_APPLIANCES_MATCHING = {
+    hes_appliances_matching = {
         'rs_cold': 0,
         'rs_cooking': 1,
         'rs_lighting': 2,
@@ -249,39 +241,39 @@ def run():
         'NOT_USED_showers': 10
         }
 
-    # HES data -- Generate generic load profiles (shapes) for all electricity appliances from HES data
-    HES_DATA, HES_Y_PEAK, _ = read_hes_data(
-        PATH_BD_E_LOAD_PROFILES,
-        len(HES_APPLIANCES_MATCHING)
+    # HES data -- Generate generic load profiles
+    # for all electricity appliances from HES data
+    hes_data, hes_y_peak, _ = read_hes_data(
+        path_hes_load_profiles,
+        len(hes_appliances_matching)
         )
 
     # Assign read in raw data to the base year
-    YEAR_RAW_VALUES_HES = assign_hes_data_to_year(
-        len(HES_APPLIANCES_MATCHING),
-        HES_DATA,
-        int(SIM_PARAM['base_yr'])
+    year_raw_hes_values = assign_hes_data_to_year(
+        len(hes_appliances_matching),
+        hes_data,
+        int(sim_param['base_yr'])
         )
 
-    _, RS_ENDUSES = read_data.read_csv_base_data_resid(PATH_RS_FUEL_RAW_DATA)
+    _, rs_enduses = read_data.read_csv_base_data_resid(path_rs_fuel_raw_data)
 
     # Load shape for all enduses
-    for enduse in RS_ENDUSES:
-
-        if enduse not in HES_APPLIANCES_MATCHING:
-            print("Warning: The enduse {} is not defined in HES_APPLIANCES_MATCHING".format(enduse))
+    for enduse in rs_enduses:
+        if enduse not in hes_appliances_matching:
+            print("Warning: The enduse {} is not defined in hes_appliances_matching".format(enduse))
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
-                HES_APPLIANCES_MATCHING,
-                YEAR_RAW_VALUES_HES,
-                HES_Y_PEAK,
+                hes_appliances_matching,
+                year_raw_hes_values,
+                hes_y_peak,
                 enduse
                 )
 
             # Write txt files
             scripts_common_functions.create_txt_shapes(
                 enduse,
-                PATH_RS_TXT_SHAPES,
+                path_rs_txt_shapes,
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,
