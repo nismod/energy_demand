@@ -29,28 +29,32 @@ def run(run_basic_scripts=False, run_scenario_scripts=True):
     if run_basic_scripts:
 
         # Read in residenital submodel shapes
-        import script_rs_read_raw_shapes
-        script_rs_read_raw_shapes.run()
+        import s_rs_raw_shapes
+        s_rs_raw_shapes.run()
+
+        # Read in service submodel shapes
+        import s_ss_raw_shapes
+        s_ss_raw_shapes.run()
 
         # Read in temperature data from raw files
-        import script_read_raw_weather_data
-        script_read_raw_weather_data.run()
+        import s_raw_weather_data
+        s_raw_weather_data.run()
 
     # Scripts which need to be run for every different scenario
     if run_scenario_scripts:
 
         # Read in temperature data and climate change assumptions and change weather data
-        import script_assump_change_temp
-        script_assump_change_temp.run()
+        import s_change_temp
+        s_change_temp.run()
 
-        import script_convert_to_service
-        script_convert_to_service.run()
+        import s_fuel_to_service
+        s_fuel_to_service.run()
 
-        import script_assump_generate_sigmoid
-        script_assump_generate_sigmoid.run()
+        import s_generate_sigmoid
+        s_generate_sigmoid.run()
 
-        import script_disaggregation
-        script_disaggregation.run()
+        import s_disaggregation
+        s_disaggregation.run()
 
     print("...  finished running all scripts")
 

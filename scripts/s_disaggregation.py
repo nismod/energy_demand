@@ -4,8 +4,6 @@ import os
 import numpy as np
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
-from energy_demand.read_write import read_data
-from energy_demand.plotting import plotting_program as plotting
 from energy_demand.profiles import hdd_cdd
 
 '''
@@ -75,7 +73,7 @@ def disaggregate_base_demand(data):
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
     """Disaggregate fuel for service submodel (per enduse and sector)
     """
-    print("...disaggregate service demand")
+    print("... disaggregate service demand")
     ss_fueldata_disagg = {}
 
     # ---------------------------------------
@@ -270,9 +268,10 @@ def rs_disaggregate(data, rs_national_fuel):
 
     Note
     -----
-    Used disaggregation factors for residential according to enduse (see Section XY Documentation TODO)
+    Used disaggregation factors for residential according
+    to enduse (see Section XY Documentation TODO)
     """
-    print("...disagreggate residential demand")
+    print("... disagreggate residential demand")
 
     # ---------------------------------------
     # Calculate heating degree days for regions
@@ -369,7 +368,10 @@ def write_disagg_fuel(path_to_txt, data):
         for enduse, fuels in enduses.items():
             for fueltype, fuel in enumerate(fuels):
                 file.write("{}, {}, {}, {}".format(
-                    str.strip(region), str.strip(enduse), str(int(fueltype)), str(float(fuel)) + '\n')
+                    str.strip(region),
+                    str.strip(enduse),
+                    str(int(fueltype)),
+                    str(float(fuel)) + '\n')
                           )
     file.close()
 
@@ -394,7 +396,7 @@ def write_disagg_fuel_ts(path_to_txt, data):
         for fueltype, fuel in enumerate(fuels):
             file.write("{}, {}, {}".format(
                 str.strip(region), str(int(fueltype)), str(float(fuel)) + '\n')
-                        )
+                      )
     file.close()
 
     return
@@ -419,7 +421,11 @@ def write_disagg_fuel_sector(path_to_txt, data):
             for enduse, fuels in enduses.items():
                 for fueltype, fuel in enumerate(fuels):
                     file.write("{}, {}, {}, {}, {}".format(
-                        str.strip(region), str.strip(enduse), str.strip(sector), str(int(fueltype)), str(float(fuel)) + '\n')
+                        str.strip(region),
+                        str.strip(enduse),
+                        str.strip(sector),
+                        str(int(fueltype)),
+                        str(float(fuel)) + '\n')
                               )
     file.close()
 
@@ -446,8 +452,9 @@ def run():
         base_data['temperature_data'][weather_station] = {2015: base_yr_temp}
 
     # IMPROVE TODO: LOAD FLOOR AREA DATA
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     base_data = data_loader.dummy_data_generation(base_data)
-
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     # Disaggregation
     base_data = disaggregate_base_demand(base_data)
 

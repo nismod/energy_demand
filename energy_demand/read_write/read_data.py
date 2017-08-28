@@ -50,7 +50,9 @@ def load_script_data(data):
         os.path.join(data['paths']['path_scripts_data'], 'weather_data', 'weather_data_changed_climate.csv'),
         data['sim_param']['sim_period'])
 
-    # Load disaggregated fuel per enduse and sector
+    # ---------------------------------------
+    # Disaggregation: Load disaggregated fuel per enduse and sector
+    # ---------------------------------------
     data['rs_fueldata_disagg'] = read_disaggregated_fuel(os.path.join(
         data['paths']['path_scripts_data'], 'disaggregated', 'rs_fueldata_disagg.csv'),
         data['nr_of_fueltypes'])

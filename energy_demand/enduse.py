@@ -13,7 +13,6 @@ from energy_demand.initalisations import initialisations as init
 from energy_demand.profiles import load_profile as lp
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.basic import testing_functions as testing
-'''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class Enduse(object):
     """Enduse Class (Residential, Service and Industry)
@@ -187,7 +186,7 @@ class Enduse(object):
             self.apply_scenario_drivers(
                 dw_stock,
                 region_name,
-                data['driver_data'],
+                data,
                 reg_scenario_drivers,
                 data['sim_param']
                 )
@@ -1406,9 +1405,7 @@ class Enduse(object):
                     )
                 change_cy = diff_fuel_consump * sig_diff_factor
 
-            # Calculate new fuel consumption percentage #Improve speed
-            #for fueltype, fuel in enumerate(self.fuel_new_y):
-            #    new_fuels[fueltype] = fuel * (1.0 + change_cy)
+            # Calculate new fuel consumption percentage
             new_fuels = self.fuel_new_y * (1.0 + change_cy)
 
             setattr(self, 'fuel_new_y', new_fuels)
@@ -1489,7 +1486,7 @@ class Enduse(object):
 
             setattr(self, 'fuel_new_y', new_fuels)
 
-    def apply_scenario_drivers(self, dw_stock, region_name, driver_data, reg_scenario_drivers, base_sim_param):
+    def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scenario_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         Parameters
@@ -1498,8 +1495,8 @@ class Enduse(object):
             Dwelling stock
         region_name : str
             Region name
-        driver_data : dict
-
+        data : dict
+            Data container
         reg_scenario_drivers : dict
             Scenario drivers per enduse
         base_sim_param : dict
@@ -1521,26 +1518,36 @@ class Enduse(object):
 
         base_yr = base_sim_param['base_yr']
         curr_yr = base_sim_param['curr_yr']
-        #TODO (rename buillding)
+
         new_fuels = np.copy(self.fuel_new_y)
 
         if not dw_stock:
-            # Calculate non-building related scenario drivers
-            #print("       Info: No dwelling stock is defined for this submodel")
-            #TODO: PREPARE DATA: POP, GVA, ... --> from disaggregated data probably
+            """Calculate non-building related scenario drivers, if no dwelling stock
+            Info: No dwelling stock is defined for this submodel
+            """
             scenario_drivers = reg_scenario_drivers[self.enduse]
 
-            by_driver = 1 #not 0
-            cy_driver = 1 #not 0
+            by_driver, cy_driver = 1, 1 #not 0
 
-            '''for scenario_driver in scenario_drivers:
-                by_driver *= driver_data[region_name][self.sector][base_yr][scenario_driver] #getattr(dw_stock[region_name][base_yr], self.enduse) #multiply drivers
-                cy_driver *= driver_data[region_name][self.sector][curr_yr][scenario_driver] #getattr(dw_stock[region_name][curr_yr], self.enduse)
+            for scenario_driver in scenario_drivers:
+                
+                # Get correct data depending on driver
+                if scenario_driver == 'GVA':
+                    by_driver_data = data['GVA'][base_yr][region_name]
+                    cy_driver_data = data['GVA'][curr_yr][region_name]
+                elif scenario_driver == 'population':
+                    by_driver_data = data['population'][base_yr][region_name]
+                    cy_driver_data = data['population'][curr_yr][region_name]
+                #TODO :ADD OTHER ENDSES
 
-            # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
-            '''
-            factor_driver = np.divide(cy_driver, by_driver) # FROZEN
-            factor_driver = 1
+                # Multiply drivers
+                by_driver *= by_driver_data
+                cy_driver *= cy_driver_data
+
+            try:
+                factor_driver = cy_driver / by_driver # FROZEN (as in chapter 3.1.2 EQ E-2)
+            except ZeroDivisionError:
+                factor_driver = 1
 
             new_fuels *= factor_driver
 
@@ -1554,7 +1561,10 @@ class Enduse(object):
                 cy_driver = getattr(dw_stock[region_name][curr_yr], self.enduse)
 
                 # base year / current (checked) (as in chapter 3.1.2 EQ E-2)
-                factor_driver = np.divide(cy_driver, by_driver) # FROZEN
+                try:
+                    factor_driver = cy_driver / by_driver # FROZEN
+                except ZeroDivisionError:
+                    factor_driver = 1
 
                 new_fuels *= factor_driver
 

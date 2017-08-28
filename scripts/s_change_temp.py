@@ -173,7 +173,7 @@ def write_chanted_temp_data(path_to_txt, weather_data):
                               )
     file.close()
 
-    print("...finished write_weather_data")
+    print("... finished write_weather_data")
     return
 
 # ----------------------
@@ -183,7 +183,7 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 def run():
     """Function to run script
     """
-    print("..start script {}".format(os.path.basename(__file__)))
+    print("... start script {}".format(os.path.basename(__file__)))
 
     local_data_path = os.path.join('C:/Users', 'cenv0553', 'GIT')
 
@@ -219,9 +219,7 @@ def run():
     temp_climate_change = change_temp_climate_change(
         temperature_data, assumptions_temp_change, sim_param)
 
-    # ----------------
     # Write out temp_climate_change
-    # ----------------
     write_chanted_temp_data(
         os.path.join(
             local_data_path,
@@ -232,6 +230,6 @@ def run():
             ),
         temp_climate_change)
 
-    print("..finished script {}".format(os.path.basename(__file__)))
+    print("... finished script {}".format(os.path.basename(__file__)))
 
     return

@@ -26,12 +26,19 @@ def dummy_data_generation(base_data):
         regions[geo_code] = values['label'] # Label for region
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
+    # GVA
+    gva_data = {}
+    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+        gva_data[year] = {}
+        for region_geocode in regions:
+            gva_data[year][region_geocode] = 999
+
     # Population
-    for i in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
-        pop_dummy[i] = _data
+        pop_dummy[year] = _data
 
     # Residenital floor area
     for region_geocode in regions:
@@ -59,7 +66,7 @@ def dummy_data_generation(base_data):
     for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
         base_data['reg_floorarea_resid'][region_name] = 100000
     
-    
+    base_data['GVA'] = gva_data
     base_data['input_regions'] = regions
     base_data['population'] = pop_dummy
     base_data['reg_coordinates'] = coord_dummy
@@ -196,11 +203,20 @@ def load_data_profiles(data):
     return data
 
 def load_data_temperatures(path_scripts_data):
-    print("..load temperature data")
+    """Read in cleaned temperature and weather station data
 
-    # ----------------------------------------------------------
-    # Read in cleaned temperature and weather station data
-    # ----------------------------------------------------------
+    Parameters
+    ----------
+    path_scripts_data : str
+        Path to data
+
+    Returns
+    -------
+    weather_stations : dict
+        Weather stations
+    temperature_data : dict
+        Temperatures
+    """
     weather_stations = read_weather_data.read_weather_station_script_data(
         os.path.join(path_scripts_data, 'weather_stations.csv'))
     temperature_data = read_weather_data.read_weather_data_script_data(

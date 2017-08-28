@@ -1,5 +1,4 @@
 """ Functions for building stock"""
-# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 
@@ -31,31 +30,34 @@ class Dwelling(object):
 
     Note
     -----
-    Depending on service or residential model, not all attributes are filled (then they are inistialised as None or zero)
+    Depending on service or residential model, not all attributes
+    are filled (then they are inistialised as None or zero)
 
     """
-    def __init__(self, curr_yr, region_name, longitude, latitude, floorarea, enduses, driver_assumptions, population=0, age=None, dwtype=None, sector_type=None):
+    def __init__(self, curr_yr, region_name, coordinates, floorarea, enduses, driver_assumptions, population=0, age=None, dwtype=None, sector_type=None):
         """Constructor of Dwelling Class
         """
-        self.dw_ID = 'To_IMPEMENT'
         self.dw_region_name = region_name
         self.curr_yr = curr_yr
         self.enduses = enduses
-        self.longitude = longitude
-        self.latitude = latitude
+        self.longitude =coordinates['longitude']
+        self.latitude = coordinates['longitude']
         self.dwtype = dwtype
         self.age = age
         self.population = population
         self.floorarea = floorarea
         self.sector_type = sector_type
+        # GVA: Not for 
+        self.GVA = 999 #TODO:
 
-        self.hlc = self.get_hlc(dwtype, age) #: Calculate heat loss coefficient with age and dwelling type if possible
-
-        # Testing
-        assert floorarea != 0
+        #: Calculate heat loss coefficient with age and dwelling type if possible
+        self.hlc = self.get_hlc(dwtype, age) 
 
         # Generate attribute for each enduse containing calculated scenario driver value
         self.calc_scenario_driver(driver_assumptions)
+
+        # Testing
+        assert floorarea != 0
 
     def calc_scenario_driver(self, driver_assumptions):
         """Sum scenario drivers per enduse and add as attribute

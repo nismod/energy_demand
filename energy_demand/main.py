@@ -26,9 +26,16 @@ build, git, docs, .eggs, .coverage, .cache, hire, scripts, data
 pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
 import time   fdf
-#print("..TIME A: {}".format(time.time() - start)) 
+#print("..TIME A: {}".format(time.time() - start))
 
 TODO: REMOVE HEAT BOILER
+    Quetsiosn for Tom
+    ----------------
+    - Cluster?
+    - scripts in ed?
+    - path rel/abs
+    - nested scripts
+
 '''
 import os
 import sys
@@ -44,7 +51,6 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
-from energy_demand.read_write import read_weather_data
 print("Start Energy Demand Model with python version: " + str(sys.version))
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
@@ -77,18 +83,7 @@ def energy_demand_model(data):
     Note
     ----
     This function is executed in the wrapper
-
-    Quetsiosn for Tom
-    ----------------
-    - Cluster?
-    - scripts in ed?
-    - path rel/abs
-    - nested scripts
     """
-
-    # -------------------------
-    # Model main function
-    # --------------------------
     fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
@@ -97,9 +92,7 @@ def energy_demand_model(data):
         data=data,
     )
 
-    # ----------------------------
     # Summing
-    # ----------------------------
     fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
 
     print("================================================")
@@ -121,8 +114,9 @@ def energy_demand_model(data):
     return _, model_run_object
 
 if __name__ == "__main__":
-    print('start_main')
-
+    """
+    """
+    print('Start HIRE')
 
     instrument_profiler = True
 
@@ -141,18 +135,19 @@ if __name__ == "__main__":
         )
 
     # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
+    # Population
+    # GVA
+    # Floor Area
+    # ...
     base_data = data_loader.dummy_data_generation(base_data)
     # <<<<<<<<<<<<<<<<<< FINISHED UMMY GENERATION DATA
-
-    #TODO: Prepare all dissagregated data for [region][sector][]
-    base_data['driver_data'] = {} # TODO: Read in data from script
 
     # Load data from script calculations
     base_data = read_data.load_script_data(base_data)
 
     # Generate building stocks over whole simulation period
-    base_data['rs_dw_stock'] = building_stock_generator.rs_build_stock(base_data)
-    base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data)
+    base_data['rs_dw_stock'] = building_stock_generator.rs_dwelling_stock(base_data['lu_reg'], base_data)
+    base_data['ss_dw_stock'] = building_stock_generator.ss_build_stock(base_data['lu_reg'], base_data)
 
     # If several years are run:
     results_every_year = []
@@ -274,19 +269,3 @@ if __name__ == "__main__":
     plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
 
     print("Finished running Energy Demand Model")
-
-'''
-def get_scenario_drivers(all_potential_scenario_drivers):
-    """Prepare data for scenario drivers
-    """
-    reg_scenario_drivers[region_name][self.base_yr][scenario_driver]
-    reg_scenario_drivers = {}
-
-    for driver in all_potential_scenario_drivers:
-            
-        if driver == 'GVA':
-                reg_scenario_drivers[driver]
-        #if driver ==
-    #data['driver_data']
-    return reg_scenario_drivers
-'''

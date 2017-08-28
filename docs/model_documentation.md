@@ -94,6 +94,10 @@ Lorem ipsum...
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 *Figure 2: Interaction*
 
+## 4. Virtual Building Stock
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapib
+
 ## 5.0 Model Parameters
 
 ### 5.1 General model parameters

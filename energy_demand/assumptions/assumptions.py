@@ -1,7 +1,6 @@
 """All assumptions are either loaded in this file or definied here
 """
 import os
-import sys
 from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
@@ -107,7 +106,7 @@ def load_assumptions(data):
 
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
-        'is_high_temp_process': [],
+        'is_high_temp_process': ['GVA'],
         'is_low_temp_process': [],
         'is_drying_separation': [],
         'is_motors': [],
@@ -397,7 +396,6 @@ def load_assumptions(data):
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
-    #add dummy technology if no technologies are defined per enduse
     assumptions['rs_fuel_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'])
     assumptions['ss_fuel_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'])
     assumptions['is_fuel_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'])
@@ -438,12 +436,10 @@ def load_assumptions(data):
 
 
 def run():
-    # ----------------------------------------
-    # Writes out assumptions every time the assumptions file is loaded
-    # ----------------------------------------
+    """Function to write out assumptions
+    """
     from energy_demand.read_write import data_loader
     from energy_demand.read_write import write_data
-
 
     path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
 
@@ -458,7 +454,7 @@ def run():
 
     # Write out sigmoid parameters
     write_data.write_out_sim_param(
-        os.path.join(path_main,'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'),
             data['sim_param'])
     
     return

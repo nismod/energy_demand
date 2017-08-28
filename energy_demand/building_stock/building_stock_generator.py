@@ -1,13 +1,14 @@
-""" Building Generator"""
-# pylint: disable=I0011,C0321,C0301,C0103, C0325, R0902, R0913, R0914
+"""Virtual Building Generator
+
+"""
 import sys
 import numpy as np
 from energy_demand.building_stock import building_stock_functions
 from energy_demand.technologies import diffusion_technologies as diffusion
 
-def ss_build_stock(data):
+def ss_build_stock(regions, data):
     """Create dwelling stock for service sector with service dwellings
- 
+
     Iterate years and change floor area depending on assumption on
     linear change up to ey
 
@@ -20,19 +21,10 @@ def ss_build_stock(data):
     -------
 
     """
-
-    # ------------TODO: REPLACE Newcastle
-    # Generate floor area data for service sector
-    # All info is necessary with the following structure
-    # --data['ss_dw_input_data'][sim_yr][region][sector]['floorarea']
-    # --data['ss_dw_input_data'][sim_yr][region][sector]['age']
-    # ..
-    # ------------
-
     dw_stock_every_year = {}
 
     # Iterate regions
-    for region_name in data['lu_reg']:
+    for region_name in regions:
         dw_stock_every_year[region_name] = {}
 
         # Iterate simulation year
@@ -68,14 +60,6 @@ def ss_build_stock(data):
                 floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
 
                 if floorarea_sector_cy == 0:
-                    '''print(data['sim_param']['base_yr'])
-                    print(sim_yr)
-                    print(change_floorarea_p_ey)
-                    print(data['sim_param']['sim_period_yrs'])
-                    print(floorarea_sector_by)
-                    print(lin_diff_factor)
-                    print(change_floorarea_p_ey)
-                    '''
                     sys.exit("ERROR: FLOORAREA CANNOT BE ZERO")
 
                 # create building object
@@ -83,8 +67,7 @@ def ss_build_stock(data):
                     building_stock_functions.Dwelling(
                         curr_yr=sim_yr,
                         region_name=region_name,
-                        longitude=data['reg_coordinates'][region_name]['longitude'],
-                        latitude=data['reg_coordinates'][region_name]['latitude'],
+                        coordinates = data['reg_coordinates'][region_name],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
@@ -101,35 +84,30 @@ def ss_build_stock(data):
 
     return dw_stock_every_year
 
-def rs_build_stock(data):
-    """Creates a virtual building stock based on base year data and assumptions for every region
-
-    Because the heating degree days are calculated for every region,
+def rs_dwelling_stock(regions, data):
+    """Creates a virtual building stock for every year and region
 
     Parameters
     ----------
+    regions : dict
+        Regions
     data : dict
-        Base data (data loaded)
+        Data container
 
     Returns
     -------
-    data : dict
-        Adds reg_dw_stock_by and reg_building_stock_yr to the data dictionary:
+    dw_stock_every_year : dict
+        Building stock wei
 
-        reg_dw_stock_by : Base year building stock
+    reg_dw_stock_by : Base year building stock
         reg_building_stock_yr : Building stock for every simulation year
 
     Notes
     -----
-    The assumption about internal temperature change is used as for each dwelling the hdd are calculated
-    based on wheater data and assumption on t_base.
-
-    The header row is always skipped.
-    Needs as an input all population changes up to simulation period....(to calculate built housing)
-
+    - The assumption about internal temperature change is
+      used as for each dwelling the hdd are calculated
+      based on wheater data and assumption on t_base
     """
-    print("...created dwelling stock")
-
     base_yr = data['sim_param']['base_yr']
 
     dw_stock_every_year = {}
@@ -163,8 +141,7 @@ def rs_build_stock(data):
         dwtype_distr_sim
         )
 
-    # Iterate regions
-    for region_name in data['lu_reg']:
+    for region_name in regions:
         floorarea_by = data['reg_floorarea_resid'][region_name]
         pop_by = data['population'][base_yr][region_name]
 
@@ -340,8 +317,7 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
                 building_stock_functions.Dwelling(
                     curr_yr=curr_yr,
                     region_name=region_name,
-                    longitude=data['reg_coordinates'][region_name]['longitude'],
-                    latitude=data['reg_coordinates'][region_name]['latitude'],
+                    coordinates = data['reg_coordinates'][region_name],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
@@ -402,8 +378,7 @@ def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy,
             building_stock_functions.Dwelling(
                 curr_yr=curr_yr,
                 region_name=region_name,
-                longitude=data['reg_coordinates'][region_name]['longitude'],
-                latitude=data['reg_coordinates'][region_name]['latitude'],
+                coordinates = data['reg_coordinates'][region_name],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
@@ -413,7 +388,9 @@ def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy,
                 )
             )
 
-    assert round(new_floorarea_sy, 3) == round(control_floorarea, 3)  # Test if floor area are the same
-    assert round(new_floorarea_sy/floorarea_pp_sy, 3) == round(control_pop, 3) # Test if pop is the same
+    # Test if floor area are the same
+    assert round(new_floorarea_sy, 3) == round(control_floorarea, 3)
+    # Test if pop is the same
+    assert round(new_floorarea_sy/floorarea_pp_sy, 3) == round(control_pop, 3)
 
     return dw_stock_new_dw
