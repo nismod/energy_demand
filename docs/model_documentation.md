@@ -96,7 +96,8 @@ Lorem ipsum...
 
 ## 4. Virtual Building Stock
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapib
+A virtual building model is implemented in HIRE. For every region, floor area is calculated.... MORE INFO
+
 
 ## 5.0 Model Parameters
 

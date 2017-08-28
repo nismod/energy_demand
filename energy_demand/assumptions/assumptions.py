@@ -59,8 +59,21 @@ def load_assumptions(data):
     assumptions['assump_diff_floorarea_pp'] = 0
 
     # Dwelling type distribution
-    assumptions['assump_dwtype_distr_by'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088}
-    assumptions['assump_dwtype_distr_ey'] = {'semi_detached': 0.26, 'terraced': 0.283, 'flat': 0.203, 'detached': 0.166, 'bungalow': 0.088}
+    assumptions['assump_dwtype_distr_by'] = {
+        'semi_detached': 0.26,
+        'terraced': 0.283,
+        'flat': 0.203,
+        'detached': 0.166,
+        'bungalow': 0.088
+        }
+
+    assumptions['assump_dwtype_distr_ey'] = {
+        'semi_detached': 0.26,
+        'terraced': 0.283,
+        'flat': 0.203,
+        'detached': 0.166,
+        'bungalow': 0.088
+        }
 
     # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea'] = {'semi_detached': 96, 'terraced': 82.5, 'flat': 61, 'detached': 147, 'bungalow': 77} # SOURCE?

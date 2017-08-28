@@ -3,8 +3,299 @@
 """
 import sys
 import numpy as np
-from energy_demand.building_stock import building_stock_functions
 from energy_demand.technologies import diffusion_technologies as diffusion
+
+class Dwelling(object):
+    """Dwelling or aggregated group of dwellings
+
+    Parameters
+    ----------
+    curr_yr : int
+        Current year of simulation
+    coordinates : float
+        coordinates
+    dwtype : int
+        Dwelling type id. Description can be found in `daytype_lu`
+    house_id : int
+        Unique ID of dwelling or dwelling group
+    age : int
+        Age of dwelling in years (year the building was built)
+    pop : float
+        Dwelling population
+    floorarea : float
+        Floor area of dwelling
+    hlc : float
+        Heat loss coefficient
+    hdd : float
+        Heating degree days
+
+    Note
+    -----
+    - Depending on service or residential model, not all attributes
+      are filled (then they are inistialised as None or zero)
+    - For every dwelling, the scenario drivers are calculated for each enduse
+
+    """
+    def __init__(self, curr_yr, region_name, coordinates, floorarea, enduses, driver_assumptions, population=0, age=None, dwtype=None, sector_type=None):
+        """Constructor of Dwelling Class
+        """
+        self.dw_region_name = region_name
+        self.curr_yr = curr_yr
+        self.enduses = enduses
+        self.longitude = coordinates['longitude']
+        self.latitude = coordinates['longitude']
+        self.dwtype = dwtype
+        self.age = age
+        self.population = population
+        self.floorarea = floorarea
+        self.sector_type = sector_type
+
+        self.gva = 999 #TODO:
+
+        #: Calculate heat loss coefficient with age and dwelling type if possible
+        self.hlc = self.get_hlc(dwtype, age)
+
+        # Generate attribute for each enduse containing calculated scenario driver value
+        self.calc_scenario_driver(driver_assumptions)
+
+        # Testing
+        assert floorarea != 0
+
+    def calc_scenario_driver(self, driver_assumptions):
+        """Sum scenario drivers per enduse and add as attribute
+
+        Parameters
+        ---------
+        driver_assumptions : dict
+            Scenario drivers for every enduse
+        """
+        for enduse in self.enduses:
+            scenario_driver_value = 1 #used to sum (not zero!)
+
+            # If there is no scenario drivers for enduse, set to standard value 1
+            if enduse not in driver_assumptions:
+                Dwelling.__setattr__(self, enduse, scenario_driver_value)
+            else:
+                scenario_drivers = driver_assumptions[enduse]
+
+                # Iterate scenario driver and get attriute to multiply values
+                for scenario_driver in scenario_drivers:
+                    scenario_driver_value *= getattr(self, scenario_driver) # sum drivers
+
+                # Set attribute
+                Dwelling.__setattr__(
+                    self,
+                    enduse,
+                    scenario_driver_value
+                    )
+
+            # Testing
+            assert scenario_driver_value != 0
+
+        return
+
+    @classmethod
+    def get_hlc(cls, dw_type, age):
+        """Calculates the linearly derived heat loss coeeficients depending on age and dwelling type
+
+        Parameters
+        ----------
+        dw_type : int
+            Dwelling type
+        age : int
+            Age of dwelling
+
+        Returns
+        -------
+        hls : Heat loss coefficient [W/m2 * K]
+
+        Notes
+        -----
+        Source: Linear trends derived from Table 3.17 ECUK Tables
+        https://www.gov.uk/government/collections/energy-consumption-in-the-uk
+        """
+
+        if dw_type is None or age is None:
+            print("The HLC could not be calculated of a dwelling")
+            return None
+
+        # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
+        linear_fits_hlc = {
+            0: [-0.0223, 48.292], # Detached
+            1: [-0.0223, 48.251], # Semi-Detached
+            2: [-0.0223, 48.063], # Terraced Average
+            3: [-0.0223, 47.02], # Flats
+            4: [-0.0223, 48.261], # Bungalow
+            }
+
+        # Get linearly fitted value
+        hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
+
+        return hlc
+
+class DwellingStock(object):
+    """Class of the building stock in a region_name
+    """
+    def __init__(self, region_name, dwellings, enduses):
+        """Returns a new building stock region_name object.
+
+        Parameters
+        ----------
+        region_name : float
+            Region of the dwelling
+        dwellings : list
+            List containing all dwelling objects
+        enduses : list
+            Enduses
+        """
+        self.region_name = region_name
+        self.dwellings = dwellings
+
+        self.population = self.get_tot_pop()
+
+        # SUM: (but same name as in dwelling)Summed scenario drivers across all dwellings for every enduse
+        # Set for the dwelling stock attributes for every enduse
+        for enduse in enduses:
+            DwellingStock.__setattr__(
+                self,
+                enduse,
+                self.get_scenario_driver_enduse(enduse)
+                )
+
+    def get_scenario_driver_enduse(self, enduse):
+        """Sum all scenario driver for space heating
+
+        Parameters
+        ----------
+        enduse: string
+            Enduse
+        """
+        sum_driver = 0
+        for dwelling in self.dwellings:
+            sum_driver += getattr(dwelling, enduse)
+
+        return sum_driver
+
+    def get_tot_pop(self):
+        """Get total population of all dwellings
+        """
+        tot_pop = 0
+        for dwelling in self.dwellings:
+            tot_pop += dwelling.population
+
+        return tot_pop
+
+def get_floorare_pp_cy(floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp):
+    """Calculate future floor area per person depending
+    on assumptions on final change and base year data
+
+    Parameters
+    ----------
+    floorarea : dict
+        Floor area base year for all regions
+    reg_pop_by : dict
+        Population of base year for all regions
+    sim_param, : int
+        Simulation parameters
+    assump_final_diff_floorarea_pp : float
+        Assumption of change in floor area up to end of simulation
+
+    Returns
+    -------
+    data_floorarea_pp_cy : dict
+        Contains all values for floor area per person for every year
+
+    Note
+    ----
+    - Linear change of floor area per person is assumed over time
+    """
+    data_floorarea_pp_cy = {}
+
+    for region, region_pop in reg_pop_by.items():
+        sim_yrs = {}
+
+        if region_pop == 0:
+            floorarea_pp_by = 0
+        else:
+            # Floor area per person of base year
+            floorarea_pp_by = floorarea[region] / region_pop
+
+        for curr_yr in sim_param['sim_period']:
+            if curr_yr == sim_param['base_yr']:
+                sim_yrs[curr_yr] = floorarea_pp_by
+            else:
+                # Change up to current year (linear)
+                lin_diff_factor = diffusion.linear_diff(
+                    sim_param['base_yr'],
+                    curr_yr,
+                    0,
+                    assump_final_diff_floorarea_pp,
+                    sim_param['sim_period_yrs']
+                    )
+
+                # Floor area per person of simulation year
+                sim_yrs[curr_yr] = floorarea_pp_by + (floorarea_pp_by * lin_diff_factor)
+
+        data_floorarea_pp_cy[region] = sim_yrs
+
+    return data_floorarea_pp_cy
+
+def get_dwtype_distr_cy(dwtype_distr_by, assump_dwtype_distr_ey, sim_param):
+    """Calculates the annual distribution of dwelling types
+    based on assumption of base and end year distribution
+
+    Parameters
+    ----------
+    dwtype_distr_by : dict
+        Distribution of dwelling types base year
+    assump_dwtype_distr_ey : dict
+        Distribution of dwelling types end year
+    sim_param : list
+        Simulation parameters
+
+    Returns
+    -------
+    dwtype_distr : dict
+        Contains all dwelling type distribution for every year
+    Note
+    -----
+    - A linear change over time is assumed
+
+    Example
+    -------
+    out = {year: {'dwtype': 0.3}}
+    """
+    dwtype_distr = {}
+
+    for curr_yr in sim_param['sim_period']:
+        nr_sim_yrs = curr_yr - sim_param['base_yr']
+
+        if curr_yr == sim_param['base_yr']:
+            y_distr = dwtype_distr_by
+        else:
+            y_distr = {}
+
+            for dwtype in dwtype_distr_by:
+                val_by = dwtype_distr_by[dwtype]
+                val_ey = assump_dwtype_distr_ey[dwtype]
+                diff_val = val_ey - val_by
+
+                # Calculate linear difference up to sim_yr
+                diff_y = diff_val / sim_param['sim_period_yrs']
+                y_distr[dwtype] = val_by + (diff_y * nr_sim_yrs)
+
+        dwtype_distr[curr_yr] = y_distr
+
+    # Test if distribution is 100%
+    for year in dwtype_distr:
+        np.testing.assert_almost_equal(
+            sum(dwtype_distr[year].values()),
+            1.0,
+            decimal=5,
+            err_msg='The distribution of dwelling types went wrong', verbose=True
+            )
+
+    return dwtype_distr
 
 def ss_build_stock(regions, data):
     """Create dwelling stock for service sector with service dwellings
@@ -21,11 +312,11 @@ def ss_build_stock(regions, data):
     -------
 
     """
-    dw_stock_every_year = {}
+    dwelling_stock = {}
 
     # Iterate regions
     for region_name in regions:
-        dw_stock_every_year[region_name] = {}
+        dwelling_stock[region_name] = {}
 
         # Iterate simulation year
         for sim_yr in data['sim_param']['sim_period']:
@@ -64,10 +355,10 @@ def ss_build_stock(regions, data):
 
                 # create building object
                 dw_stock.append(
-                    building_stock_functions.Dwelling(
+                    Dwelling(
                         curr_yr=sim_yr,
                         region_name=region_name,
-                        coordinates = data['reg_coordinates'][region_name],
+                        coordinates=data['reg_coordinates'][region_name],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
@@ -76,13 +367,13 @@ def ss_build_stock(regions, data):
                 )
 
             # Add regional base year dwelling to dwelling stock
-            dw_stock_every_year[region_name][sim_yr] = building_stock_functions.DwellingStock(
+            dwelling_stock[region_name][sim_yr] = DwellingStock(
                 region_name,
                 dw_stock,
                 data['ss_all_enduses']
                 )
 
-    return dw_stock_every_year
+    return dwelling_stock
 
 def rs_dwelling_stock(regions, data):
     """Creates a virtual building stock for every year and region
@@ -96,7 +387,7 @@ def rs_dwelling_stock(regions, data):
 
     Returns
     -------
-    dw_stock_every_year : dict
+    dwelling_stock : dict
         Building stock wei
 
     reg_dw_stock_by : Base year building stock
@@ -110,24 +401,20 @@ def rs_dwelling_stock(regions, data):
     """
     base_yr = data['sim_param']['base_yr']
 
-    dw_stock_every_year = {}
+    dwelling_stock = {}
 
     # Get distribution of dwelling types of all simulation years
-    dwtype_distr_sim = building_stock_functions.get_dwtype_dist(
+    dwtype_distr_cy = get_dwtype_distr_cy(
         data['assumptions']['assump_dwtype_distr_by'],
         data['assumptions']['assump_dwtype_distr_ey'],
-        base_yr,
-        data['sim_param']['sim_period'],
-        data['sim_param']['sim_period_yrs'],
+        data['sim_param']
         )
 
     # Get floor area per person for every simulation year
-    data_floorarea_pp = building_stock_functions.calc_floorarea_pp(
+    data_floorarea_pp_cy = get_floorare_pp_cy(
         data['reg_floorarea_resid'],
         data['population'][base_yr],
-        base_yr,
-        data['sim_param']['sim_period'],
-        data['sim_param']['sim_period_yrs'],
+        data['sim_param'],
         data['assumptions']['assump_diff_floorarea_pp']
         )
 
@@ -138,7 +425,7 @@ def rs_dwelling_stock(regions, data):
     floorarea_p_sy = p_floorarea_dwtype(
         data['dwtype_lu'],
         data['assumptions']['assump_dwtype_floorarea'],
-        dwtype_distr_sim
+        dwtype_distr_cy
         )
 
     for region_name in regions:
@@ -150,13 +437,13 @@ def rs_dwelling_stock(regions, data):
         else:
             floorarea_pp_by = 0
 
-        dw_stock_every_year[region_name] = {}
+        dwelling_stock[region_name] = {}
 
         # Iterate simulation year
         for sim_yr in data['sim_param']['sim_period']:
 
             # Calculate new necessary floor area of simulation year
-            floorarea_pp_sy = data_floorarea_pp[region_name][sim_yr] # Get floor area per person of sim_yr
+            floorarea_pp_sy = data_floorarea_pp_cy[region_name][sim_yr] # Get floor area per person of sim_yr
 
             # Floor area per person simulation year * population of simulation year in region
             tot_floorarea_sy = floorarea_pp_sy * data['population'][sim_yr][region_name] # TODO: WHy not + 1?
@@ -178,7 +465,7 @@ def rs_dwelling_stock(regions, data):
                     )
 
                 # Add regional base year building stock
-                dw_stock_every_year[region_name][base_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+                dwelling_stock[region_name][base_yr] = DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
                 #dw_stock_new_dw = dw_stock_base # IF base year, the cy dwellign stock is the base year stock (bug found)
             else:
                 # - existing dwellings
@@ -227,14 +514,14 @@ def rs_dwelling_stock(regions, data):
                         )
 
                 # Generate region and save it in dictionary
-                dw_stock_every_year[region_name][sim_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
+                dwelling_stock[region_name][sim_yr] = DwellingStock(region_name, dw_stock_new_dw, data['rs_all_enduses']) # Add old and new buildings to stock
 
         # Add regional base year building stock
-        #dw_stock_every_year[region_name][base_yr] = building_stock_functions.DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
+        #dwelling_stock[region_name][base_yr] = DwellingStock(region_name, dw_stock_base, data['rs_all_enduses']) # Add base year stock
 
-    return dw_stock_every_year
+    return dwelling_stock
 
-def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
+def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_cy):
     """Calculates the percentage of the total floor area belonging to each dwelling type
 
     Depending on average floor area per dwelling type and the dwelling type
@@ -248,7 +535,7 @@ def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
         floor area per type
     dw_nr_by : int
         Number of dwellings of base year
-    dwtype_distr_sim : dict
+    dwtype_distr_cy : dict
         Distribution of dwelling time over the simulation period
     dwtype_floorarea : dict
         Average Floor are per dwelling type of base year
@@ -266,14 +553,14 @@ def p_floorarea_dwtype(dw_lookup, dw_floorarea_by, dwtype_distr_sim):
     dw_floorarea_p = {}
 
     # Itreate simulation years
-    for sim_yr in dwtype_distr_sim:
+    for sim_yr in dwtype_distr_cy:
         y_dict, _tot_area = {}, 0
 
         for dw_id in dw_lookup:
             dw_name = dw_lookup[dw_id]
 
             # Calculate share of dwelling area based on absolute size and distribution
-            p_buildings_dw = dwtype_distr_sim[sim_yr][dw_name]  # Get distribution of dwellings of simulation year
+            p_buildings_dw = dwtype_distr_cy[sim_yr][dw_name]  # Get distribution of dwellings of simulation year
             _area_dw = p_buildings_dw * dw_floorarea_by[dw_name] # Get absolut size of dw_type
 
             _tot_area += _area_dw
@@ -314,10 +601,10 @@ def generate_dw_existing(data, region_name, curr_yr, dw_lu, floorarea_p, floorar
 
             # create building object
             dw_stock_base.append(
-                building_stock_functions.Dwelling(
+                Dwelling(
                     curr_yr=curr_yr,
                     region_name=region_name,
-                    coordinates = data['reg_coordinates'][region_name],
+                    coordinates=data['reg_coordinates'][region_name],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
@@ -375,10 +662,10 @@ def generate_dw_new(data, region_name, curr_yr, floorarea_p_by, floorarea_pp_sy,
 
         # create building object
         dw_stock_new_dw.append(
-            building_stock_functions.Dwelling(
+            Dwelling(
                 curr_yr=curr_yr,
                 region_name=region_name,
-                coordinates = data['reg_coordinates'][region_name],
+                coordinates=data['reg_coordinates'][region_name],
                 floorarea=dw_type_floorarea_new_build,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
