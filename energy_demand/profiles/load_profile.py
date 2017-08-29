@@ -213,6 +213,10 @@ class LoadProfile(object):
         ----
         The output gives the shape for every day in a year (total sum == 365)
         Within each day, the sum is 1
+
+        A RuntimeWarning may be raised if in one day a zero value is found.
+        The resulting inf are replaced however and thus this warning
+        can be ignored
         """
         # Calculate even if flat shape is assigned
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)

@@ -138,7 +138,7 @@ class Enduse(object):
 
             # Get technologies of enduse
             self.enduse_techs = self.get_enduse_tech(fuel_tech_p_by)
-            print("Technologies enduse: " + str(self.enduse_techs))
+
             # Calculate fuel for hybrid technologies
             fuel_tech_p_by = self.adapt_fuel_tech_p_by(
                 fuel_tech_p_by,
@@ -274,9 +274,6 @@ class Enduse(object):
                     data['sim_param']
                     )
 
-                print("0: ")
-                print(service_tech.keys())
-
                 # Energy service switches
                 # --------------------------------
                 if crit_switch_service:
@@ -308,8 +305,6 @@ class Enduse(object):
                 else:
                     pass #No switch implemented
 
-                print("b: ")
-                print(service_tech.keys())
                 # -------------------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------------------
@@ -326,7 +321,6 @@ class Enduse(object):
                     tech_stock,
                     mode_constrained
                     )
-                print("EEE  " + str(fuel_tech_y))
 
                 # -------------------------------------------------------
                 # Assign load profiles
@@ -678,7 +672,7 @@ class Enduse(object):
         Iterate over values in dict and apply calculations
         """
         try:
-            _total_service = 1.0 / np.sum(tot_service_yh)
+            _total_service = 1.0 / float(np.sum(tot_service_yh))
         except ZeroDivisionError:
             _total_service = 0
 
@@ -1093,8 +1087,7 @@ class Enduse(object):
                 fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
         else:
             for tech in self.enduse_techs:
-                print("enduse_fuel_tech df")
-                print(enduse_fuel_tech)
+
                 # Fuel distribution
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_load_profile(
                     self.enduse, self.sector, tech, 'shape_yh')
@@ -1310,7 +1303,7 @@ class Enduse(object):
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
 
-        setattr(self, 'fuel_new_y', enduse_fuels) #TODO: TEST IF self.fuel_new_y = enduse_fuels is faster
+        self.fuel_new_y = enduse_fuels
 
     def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained):
         """Calculate fraction of fuel per technology within fueltype
@@ -1414,7 +1407,7 @@ class Enduse(object):
             # Calculate new fuel consumption percentage
             new_fuels = self.fuel_new_y * (1.0 + change_cy)
 
-            setattr(self, 'fuel_new_y', new_fuels)
+            self.fuel_new_y = new_fuels
 
     def apply_climate_change(self, cooling_factor_y, heating_factor_y, assumptions):
         """Change fuel demand for heat and cooling service depending on changes in
@@ -1441,10 +1434,10 @@ class Enduse(object):
           directly with HDD or CDD.
         """
         if self.enduse in assumptions['enduse_space_heating']:
-            setattr(self, 'fuel_new_y', self.fuel_new_y * heating_factor_y)
+            self.fuel_new_y = self.fuel_new_y * heating_factor_y
 
         elif self.enduse in assumptions['enduse_space_cooling']:
-            setattr(self, 'fuel_new_y', self.fuel_new_y * cooling_factor_y)
+            self.fuel_new_y = self.fuel_new_y * cooling_factor_y
 
     def apply_smart_metering(self, assumptions, base_sim_param):
         """Calculate fuel savings depending on smart meter penetration
@@ -1490,7 +1483,7 @@ class Enduse(object):
                 saved_fuel = fuel * (penetration_by - penetration_cy) * assumptions['savings_smart_meter'][self.enduse]
                 new_fuels[fueltype] = fuel - saved_fuel
 
-            setattr(self, 'fuel_new_y', new_fuels)
+            self.fuel_new_y = new_fuels
 
     def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scenario_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
@@ -1557,7 +1550,7 @@ class Enduse(object):
 
             new_fuels *= factor_driver
 
-            setattr(self, 'fuel_new_y', new_fuels)
+            self.fuel_new_y = new_fuels
         else:
             # Test if enduse has a dwelling related scenario driver
             if hasattr(dw_stock[region_name][base_yr], self.enduse) and curr_yr != base_yr:
@@ -1574,6 +1567,6 @@ class Enduse(object):
 
                 new_fuels *= factor_driver
 
-                setattr(self, 'fuel_new_y', new_fuels)
+                self.fuel_new_y = new_fuels
             else:
                 pass #enduse not define with scenario drivers

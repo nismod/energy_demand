@@ -71,7 +71,7 @@ class WeatherRegion(object):
                 data['assumptions']['ss_t_base_heating']['base_yr'],
                 data['is_all_enduses'],
                 ss_t_base_heating_cy,
-                data['assumptions']['is_all_specified_tech_enduse_by']
+                data['assumptions']['is_specified_tech_enduse_by']
                 )
         elif modeltype == 'rs_submodel':
             self.rs_tech_stock = technological_stock.TechStock(
@@ -82,7 +82,7 @@ class WeatherRegion(object):
                 data['assumptions']['rs_t_base_heating']['base_yr'],
                 data['rs_all_enduses'],
                 rs_t_base_heating_cy,
-                data['assumptions']['rs_all_specified_tech_enduse_by']
+                data['assumptions']['rs_specified_tech_enduse_by']
                 )
         elif modeltype == 'ss_submodel':
             self.ss_tech_stock = technological_stock.TechStock(
@@ -93,7 +93,7 @@ class WeatherRegion(object):
                 data['assumptions']['ss_t_base_heating']['base_yr'],
                 data['ss_all_enduses'],
                 ss_t_base_heating_cy,
-                data['assumptions']['ss_all_specified_tech_enduse_by']
+                data['assumptions']['ss_specified_tech_enduse_by']
                 )
 
         # -------------------
@@ -114,9 +114,9 @@ class WeatherRegion(object):
             # (Assumption: Demand for heat correlates directly with fuel)
             try:
                 self.rs_heating_factor_y = np.nan_to_num(
-                    1.0 / np.sum(rs_hdd_by)) * np.sum(rs_hdd_cy)
+                    1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
                 self.rs_cooling_factor_y = np.nan_to_num(
-                    1.0 / np.sum(rs_cdd_by)) * np.sum(rs_cdd_cy)
+                    1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
             except ZeroDivisionError:
                 self.rs_heating_factor_y = 0
                 self.rs_cooling_factor_y = 0

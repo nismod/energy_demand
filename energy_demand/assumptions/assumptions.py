@@ -7,7 +7,7 @@ from energy_demand.technologies import technologies_related
 from energy_demand.technologies import dummy_technologies
 from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
-from energy_demand.initalisations import helper_functions
+from energy_demand.initalisations import helpers
 from energy_demand.read_write import write_data
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
@@ -431,7 +431,7 @@ def load_assumptions(data):
     assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # Helper function
-    assumptions['technologies'] = helper_functions.helper_set_same_eff_all_tech(
+    assumptions['technologies'] = helpers.helper_set_same_eff_all_tech(
         assumptions['technologies'],
         efficiency_achieving_factor
         )
@@ -440,7 +440,10 @@ def load_assumptions(data):
     # Fuel Stock Definition (necessary to define before model run)
     # Provide for every fueltype of an enduse the share of fuel which is used by technologies
     # ============================================================
-    assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(assumptions, data)
+    assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
+        assumptions,
+        data
+        )
 
     # ============================================================
     # Scenaric FUEL switches
@@ -452,16 +455,16 @@ def load_assumptions(data):
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['paths']['rs_path_service_switch'], assumptions['rs_all_specified_tech_enduse_by'])
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['paths']['ss_path_service_switch'], assumptions['ss_all_specified_tech_enduse_by'])
-    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['paths']['is_path_industry_switch'], assumptions['is_all_specified_tech_enduse_by'])
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['paths']['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['paths']['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
+    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['paths']['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
-    assumptions['rs_fuel_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_all_specified_tech_enduse_by'])
-    assumptions['ss_fuel_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_all_specified_tech_enduse_by'])
-    assumptions['is_fuel_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_all_specified_tech_enduse_by'])
+    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
+    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'])
+    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = dummy_technologies.insert_dummy_technologies(assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
 
     # All enduses with dummy technologies
     assumptions['rs_dummy_enduses'] = dummy_technologies.get_enduses_with_dummy_tech(assumptions['rs_fuel_tech_p_by'])
@@ -480,9 +483,9 @@ def load_assumptions(data):
     testing.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
     testing.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
 
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['rs_all_specified_tech_enduse_by'])
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_all_specified_tech_enduse_by'])
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['is_all_specified_tech_enduse_by'])
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
+    testing.testing_tech_defined(assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
     testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     return assumptions

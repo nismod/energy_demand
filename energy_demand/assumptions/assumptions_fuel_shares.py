@@ -5,7 +5,7 @@ All fuel shares of the base year for the different technologies are defined
 """
 from energy_demand.technologies import technologies_related
 from energy_demand.initalisations import initialisations
-from energy_demand.initalisations import helper_functions
+from energy_demand.initalisations import helpers
 
 def assign_by_fuel_tech_p(assumptions, data):
     """Assigning fuel share per enduse for different
@@ -28,7 +28,7 @@ def assign_by_fuel_tech_p(assumptions, data):
     - For hybrid technologies, only assign electricity shares.
       The other repsective fuel share gets calculated in
       the function ``adapt_fuel_tech_p_by`` in the ``Enduse`` Class.
-    - In an enduse, either all fueltypes need to be 
+    - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
     """
     rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
@@ -135,37 +135,59 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_hydrogen': 1.0
         }
 
-    # TODO:
-    tech_share_of_total_service = {
+    # --------------
+    # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
+    # --------------
+    '''# Service share within a fueltype
+    tech_share_tot_service = {
         'heat_pumps_electricity': 0.02,
         'hybrid_gas_electricity': 0.02,
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56}
 
+    # Calculate what this means in fuel shares
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = service_share_input_to_fuel(
         total_share_fueltype=0.0572,
-        tech_share_of_total_service=tech_share_of_total_service,
+        tech_share_tot_service=tech_share_tot_service,
         tech_stock=assumptions['technologies'],
         assumptions=assumptions)
+    '''
 
     assumptions['rs_fuel_tech_p_by'] = rs_fuel_tech_p_by
+    # --------------
+    # TODO: Make that e.g. GW can be added to calculate fuel
+    # --------------
+    # add_GWH_heating_change_serivce_ey()
+
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
     # ------------------
 
     # ---Space heating
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_solid_fuel] = {'boiler_solid_fuel': 1.0}
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_gas] = {'boiler_gas': 1.0}
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_solid_fuel] = {
+        'boiler_solid_fuel': 1.0
+        }
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_gas] = {
+        'boiler_gas': 1.0
+        }
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_elec] = {
         'boiler_electricity': 0.98,
         'hybrid_gas_electricity': 0.02
         }
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {'boiler_oil': 1.0}
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_heat_sold] = {'boiler_heat_sold': 1.0}
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_biomass] = {'boiler_biomass': 1.0}
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_hydrogen] = {'boiler_hydrogen': 1.0}
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {
+        'boiler_oil': 1.0
+        }
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_heat_sold] = {
+        'boiler_heat_sold': 1.0
+        }
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_biomass] = {
+        'boiler_biomass': 1.0
+        }
+    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_hydrogen] = {
+        'boiler_hydrogen': 1.0
+        }
 
-    assumptions['ss_all_specified_tech_enduse_by'] = helper_functions.get_all_specified_tech(
+    assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
         ss_fuel_tech_p_by)
 
     assumptions['ss_fuel_tech_p_by'] = ss_fuel_tech_p_by
@@ -174,39 +196,53 @@ def assign_by_fuel_tech_p(assumptions, data):
     # ------------------
 
     # ---Space heating
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_solid_fuel] = {'boiler_solid_fuel': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_gas] = {'boiler_gas': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_elec] = {'boiler_electricity': 0.5, 'heat_pumps_electricity': 0.5}  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_oil] = {'boiler_oil': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_heat_sold] = {'boiler_heat_sold': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_biomass] = {'boiler_biomass': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_hydrogen] = {'boiler_hydrogen': 1.0}
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_solid_fuel] = {
+        'boiler_solid_fuel': 1.0}
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_gas] = {
+        'boiler_gas': 1.0
+        }
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_elec] = {
+        'boiler_electricity': 0.5,
+        'heat_pumps_electricity': 0.5
+        }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_oil] = {
+        'boiler_oil': 1.0
+        }
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_heat_sold] = {
+        'boiler_heat_sold': 1.0
+        }
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_biomass] = {
+        'boiler_biomass': 1.0
+        }
+    is_fuel_tech_p_by['is_space_heating'][fuel_nr_hydrogen] = {
+        'boiler_hydrogen': 1.0
+    }
 
     assumptions['is_fuel_tech_p_by'] = is_fuel_tech_p_by
     # ------------------
     # Helper functions
     # ------------------
-    assumptions['rs_all_specified_tech_enduse_by'] = helper_functions.get_all_specified_tech(assumptions['rs_fuel_tech_p_by'])
-    assumptions['is_all_specified_tech_enduse_by'] = helper_functions.get_all_specified_tech(assumptions['is_fuel_tech_p_by'])
+    assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['rs_fuel_tech_p_by'])
+    assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['is_fuel_tech_p_by'])
 
-    assumptions['rs_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['heat_pumps'], assumptions['rs_all_specified_tech_enduse_by'], 'rs_space_heating')
-    assumptions['as_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['heat_pumps'], assumptions['ss_all_specified_tech_enduse_by'], 'ss_space_heating')
-    assumptions['is_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['heat_pumps'], assumptions['is_all_specified_tech_enduse_by'], 'is_space_heating')
+    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
+    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
+    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
 
-    assumptions['rs_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['hybrid_technologies'], assumptions['rs_all_specified_tech_enduse_by'], 'rs_space_heating')
-    assumptions['as_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['hybrid_technologies'], assumptions['ss_all_specified_tech_enduse_by'], 'ss_space_heating')
-    assumptions['is_all_specified_tech_enduse_by'] = helper_functions.add_undefined_tech(assumptions['hybrid_technologies'], assumptions['is_all_specified_tech_enduse_by'], 'is_space_heating')
+    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
+    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
+    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
 
     return assumptions
 
-def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_service, tech_stock, assumptions):
+def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, tech_stock, assumptions):
     """Convert share of service to fuel share
 
     Parameters
     ----------
     total_share_fueltype : dict
-        Shares per fueltype
-    tech_share_of_total_service : dict
+        Shares of total service of this fueltype
+    tech_share_tot_service : dict
         Service share of technologies of a fueltype
         e.g. service_share_tech = {'tech_A': 0.4, 'tech_B': 0.6}¨
     tech_stock : object
@@ -216,8 +252,8 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_servic
 
     Returns
     -------
-    fuel_share_tech_within_fueltype : dict
-        Fuel share
+    fuel_share_tech_fueltype : dict
+        Fuel share per technology of a fueltype
 
     Note
     -----
@@ -228,11 +264,11 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_servic
     calculate fuel share.
     TODO:  IMPROVE
     """
-    fuel_share_tech_within_fueltype = {}
+    fuel_share_tech_fueltype = {}
 
-    for technology, service_share_tech in tech_share_of_total_service.items():
+    for technology, service_share_tech in tech_share_tot_service.items():
 
-        # Get efficiency (depending whether hybrid or regular technology or heat pumps for base year)
+        # Get by efficiency
         tech_type = technologies_related.get_tech_type(
             technology,
             assumptions['technology_list']
@@ -248,17 +284,15 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_of_total_servic
         else:
             eff_tech_by = tech_stock[technology]['eff_by']
 
-        # Convert total share of fueltype to fuel_share
+        # Convert total share of service to fuel share (service to fuel)
         fueltype_tech_share = (total_share_fueltype * service_share_tech) / eff_tech_by
 
-        fuel_share_tech_within_fueltype[technology] = fueltype_tech_share
+        fuel_share_tech_fueltype[technology] = fueltype_tech_share
 
     # Make that fuel shares sum up to 1
-    total_fuel = 0
-    for tech in fuel_share_tech_within_fueltype:
-        total_fuel += fuel_share_tech_within_fueltype[tech]
+    total_fuel = sum(fuel_share_tech_fueltype.values())
 
-    for tech, fuel in fuel_share_tech_within_fueltype.items():
-        fuel_share_tech_within_fueltype[tech] = (1.0 / total_fuel) * fuel
+    for tech, fuel in fuel_share_tech_fueltype.items():
+        fuel_share_tech_fueltype[tech] = (1.0 / total_fuel) * fuel
 
-    return fuel_share_tech_within_fueltype
+    return fuel_share_tech_fueltype

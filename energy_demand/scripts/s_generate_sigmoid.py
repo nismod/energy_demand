@@ -2,7 +2,7 @@
 
 This script calculates the three parameters of a sigmoid diffusion
 for every technology which is diffused and has a larger service
-fraction at the model end year
+fraction at the model end year 
 """
 import os
 import sys
@@ -730,4 +730,3 @@ def run():
 
     print("... finished script {}".format(os.path.basename(__file__)))
     return
-run()

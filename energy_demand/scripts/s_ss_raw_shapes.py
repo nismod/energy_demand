@@ -6,7 +6,7 @@ import csv
 from datetime import date
 import numpy as np
 from energy_demand.read_write import read_data
-from energy_demand.scripts import scripts_common_functions
+from energy_demand.scripts import s_shared_functions
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 
@@ -31,17 +31,17 @@ def read_raw_carbon_trust_data(folder_path):
     Returns
     -------
 
+    TODO:
 
     Note
     -----
-    A. Get gas peak day load shape (the max daily demand can be taken from weather data, the daily shape however is not provided by samson)
-        I. Iterate individual files which are about a year (even though gaps exist)
-        II. Select those day with the maximum load
-        III. Get the hourly shape of this day
-
-    1. Calculate total demand of every day
-    2. Assign percentag of total daily demand to each hour
-
+    1. Get gas peak day load shape (the max daily demand can be taken from weather data, 
+       the daily shape however is not provided by samson)
+    2. Iterate individual files which are about a year (even though gaps exist)
+    3. Select those day with the maximum load
+    4. Get the hourly shape of this day
+    5. Calculate total demand of every day
+    6. Assign percentag of total daily demand to each hour
     """
     def initialise_main_dict():
         """Helper function to initialise dict"""
@@ -117,7 +117,7 @@ def read_raw_carbon_trust_data(folder_path):
                             continue #skip leap day
 
                     date_row = date(year, month, day)
-                    daytype = scripts_common_functions.get_weekday_type(date_row)
+                    daytype = s_shared_functions.get_weekday_type(date_row)
 
                     if daytype == 'holiday':
                         daytype = 1
@@ -210,7 +210,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = scripts_common_functions.absolute_to_relative(dh_values) # daily shape
+        load_shape_dh[day] = s_shared_functions.absolute_to_relative(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
@@ -318,13 +318,13 @@ def assign_carbon_trust_data_to_year(carbon_trust_data, base_yr):
     shape_non_peak_y_dh = np.zeros((365, 24))
 
     # Create list with all dates of a whole year
-    list_dates = scripts_common_functions.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    list_dates = s_shared_functions.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = scripts_common_functions.get_weekday_type(yearday)
+        daytype = s_shared_functions.get_weekday_type(yearday)
         if daytype == 'holiday':
             daytype = 1
         else:
@@ -413,7 +413,7 @@ def run():
             # Write shapes to txt
             joint_string_name = str(sector) + "__" + str(enduse)
 
-            scripts_common_functions.create_txt_shapes(
+            s_shared_functions.create_txt_shapes(
                 joint_string_name,
                 os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
                 load_peak_shape_dh,

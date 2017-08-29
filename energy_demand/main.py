@@ -44,7 +44,7 @@ from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import write_data
 from energy_demand.read_write import read_data
-from energy_demand.dwelling_stock import dwelling_stock_generator
+from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
@@ -56,10 +56,7 @@ print("Start Energy Demand Model with python version: " + str(sys.version))
 '''
 import inspect
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
-print(__location__)
 a = os.path.join(__location__, "*")
-print(a)
-##prnt(".")
 # '''
 
 def energy_demand_model(data):
@@ -145,9 +142,8 @@ if __name__ == "__main__":
     base_data = read_data.load_script_data(base_data)
 
     # Generate dwelling stocks over whole simulation period
-    base_data['rs_dw_stock'] = dwelling_stock_generator.rs_dwelling_stock(base_data['lu_reg'], base_data)
-    base_data['ss_dw_stock'] = dwelling_stock_generator.ss_build_stock(base_data['lu_reg'], base_data)
-
+    base_data['rs_dw_stock'] = dw_stock.rs_dwelling_stock(base_data['lu_reg'], base_data)
+    base_data['ss_dw_stock'] = dw_stock.ss_build_stock(base_data['lu_reg'], base_data)
 
     results_every_year = []
     for sim_yr in base_data['sim_param']['sim_period']:
@@ -188,7 +184,8 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------------------------------
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
-        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(base_data['paths']['folder_validation_national_elec_data'])
+        validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
+            base_data['paths']['folder_validation_national_elec_data'])
 
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))

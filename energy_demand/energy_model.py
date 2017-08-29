@@ -13,7 +13,7 @@ import energy_demand.is_model as is_model
 import energy_demand.ts_model as ts_model
 from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
-from energy_demand.initalisations import helper_functions
+from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
 '''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
@@ -188,7 +188,7 @@ class EnergyModel(object):
 
         # -- dummy rs technologies (apply enduse sepcific shape)
         for enduse in data['assumptions']['rs_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
+            tech_list = helpers.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
             non_regional_profile_stock.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
@@ -201,7 +201,7 @@ class EnergyModel(object):
 
         # - dummy ss technologies
         for enduse in data['assumptions']['ss_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
+            tech_list = helpers.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
             for sector in data['ss_sectors']:
                 non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
@@ -218,7 +218,7 @@ class EnergyModel(object):
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
         for enduse in data['assumptions']['is_dummy_enduses']:
-            tech_list = helper_functions.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
+            tech_list = helpers.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
             for sector in data['is_sectors']:
                 non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),

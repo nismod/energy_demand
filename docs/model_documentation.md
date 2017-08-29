@@ -94,11 +94,11 @@ Lorem ipsum...
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 *Figure 2: Interaction*
 
-## 4. Virtual Building Stock
+## 4. Dwelling Stock Model
 
-A virtual building model is implemented in HIRE. For every region, floor area is calculated.... MORE INFO
+A virtual dwelling model is implemented in HIRE. For every region, floor area is calculated.... MORE INFO
 
-
+![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
 ## 5.0 Model Parameters
 
 ### 5.1 General model parameters

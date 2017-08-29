@@ -4,7 +4,7 @@ import os
 import csv
 from datetime import date
 import numpy as np
-from energy_demand.scripts import scripts_common_functions
+from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
 
 def read_csv(path_to_csv):
@@ -80,7 +80,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = scripts_common_functions.absolute_to_relative(peak_h_values)
+    shape_peak_dh = s_shared_functions.absolute_to_relative(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
@@ -120,7 +120,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
 
     # Create list with all dates of a whole year
-    list_dates = scripts_common_functions.fullyear_dates(
+    list_dates = s_shared_functions.fullyear_dates(
         start=date(base_yr, 1, 1),
         end=date(base_yr, 12, 31)
         )
@@ -129,7 +129,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = scripts_common_functions.get_weekday_type(yearday)
+        daytype = s_shared_functions.get_weekday_type(yearday)
 
         if daytype == 'holiday':
             daytype = 1
@@ -220,7 +220,7 @@ def run():
 
     path_hes_load_profiles = os.path.join(
         local_data_path, r'01-hes_data\HES_base_appliances_eletricity_load_profiles.csv')
-    sim_param = scripts_common_functions.read_assumption_sim_param(
+    sim_param = s_shared_functions.read_assumption_sim_param(
         os.path.join(
             script_data_path, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
     path_rs_txt_shapes = os.path.join(
@@ -272,7 +272,7 @@ def run():
                 )
 
             # Write txt files
-            scripts_common_functions.create_txt_shapes(
+            s_shared_functions.create_txt_shapes(
                 enduse,
                 path_rs_txt_shapes,
                 shape_peak_dh,

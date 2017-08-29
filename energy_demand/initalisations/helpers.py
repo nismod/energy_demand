@@ -1,7 +1,7 @@
 """Short diverse helper functions
 """
 
-def add_undefined_tech(heat_pumps, all_specified_tech_enduse, enduse):
+def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
     """Add technology to dict
 
     Parameters
@@ -24,7 +24,7 @@ def add_undefined_tech(heat_pumps, all_specified_tech_enduse, enduse):
 
     return all_specified_tech_enduse
 
-def get_all_specified_tech(fuel_tech_p_by):
+def get_def_techs(fuel_tech_p_by):
     """Collect all technologies across all fueltypes for all endueses where
     a service share is defined for the end_year
 

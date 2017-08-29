@@ -1,14 +1,13 @@
 """The sector model wrapper for smif to run the energy demand model
 """
 import os
-
 from smif import SpaceTimeValue
 from smif.sector_model import SectorModel
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write_loader import load_data
 from energy_demand.assumptions import load_assumptions
 from energy_demand.national_dissaggregation import disaggregate_base_demand_for_reg
-from energy_demand.dwelling_stock_generator import resid_build_stock
+from energy_demand.dw_stock import resid_build_stock
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
