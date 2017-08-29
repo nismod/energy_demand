@@ -29,6 +29,10 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     # Relative of each diminishing tech
     for tech in tech_decreased_share:
-        rel_share_service_tech_decr_by[tech] = (1 / sum_service_tech_decrease_p) * service_tech_by_p[tech]
+
+        try:
+            rel_share_service_tech_decr_by[tech] = (1 / float(sum_service_tech_decrease_p)) * service_tech_by_p[tech]
+        except ZeroDivisionError:
+            rel_share_service_tech_decr_by[tech] = 0
 
     return rel_share_service_tech_decr_by
