@@ -672,7 +672,8 @@ class Enduse(object):
         Iterate over values in dict and apply calculations
         """
         try:
-            _total_service = 1.0 / float(np.sum(tot_service_yh))
+            #_total_service = 1.0 / float(np.sum(tot_service_yh)) #SHARK
+            _total_service = 1.0 / np.sum(tot_service_yh)
         except ZeroDivisionError:
             _total_service = 0
 
