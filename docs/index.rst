@@ -13,11 +13,11 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    License <license>
    Authors <authors>
-   Model Documentation <model_documentation>
+   Model Documentation <documentation>
    Changelog <changes>
    Module Reference <api/modules>
    

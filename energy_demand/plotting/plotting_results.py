@@ -28,8 +28,7 @@ def plot_x_days(all_hours_year, region, days):
     plt.ylabel("Energy demand in kWh")
     plt.title("Energy Demand")
     plt.legend()
-    plt.show()
-
+    #plt.show()
 
 def plot_load_shape_yd(daily_load_shape):
     """With input 2 dim array plot daily load"""
@@ -43,7 +42,7 @@ def plot_load_shape_yd(daily_load_shape):
     plt.ylabel("Percentage of daily demand")
     plt.title("Load curve of a day")
     plt.legend()
-    plt.show()
+    #plt.show()
 
 def plot_load_shape_yd_non_resid(daily_load_shape):
     """With input 2 dim array plot daily load"""
@@ -55,9 +54,9 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
 
     plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
     plt.legend()
-    plt.show()
+    #plt.show()
 
-def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_to_get):
+def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
     Parameters
@@ -104,9 +103,9 @@ def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_
 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
-
-    plt.savefig(os.path.join(data['path_main'], 'model_output', '01-charts', 'plot_figure_01.pdf'))
-    plt.show()
+    print("...plot figure")
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    #plt.show()
 
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
     """Plots stacked end_use for a region
@@ -156,9 +155,9 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     plt.xlabel("Simulation years")
     plt.title("Load factor of maximum hour across all enduses")
 
-    plt.show()
+    #plt.show()
 
-def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
+def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -213,16 +212,16 @@ def plot_fuels_tot_all_enduses_week(results_resid, data, attribute_to_get):
     plt.ylabel("Fuel")
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
-    plt.show()
 
-def plot_fuels_tot_all_enduses(results_resid, data, attribute_to_get):
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    #plt.show()
+
+def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
-
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-
     fig, ax = plt.subplots()
     nr_y_to_plot = len(results_resid) #number of simluated years
     x = range(nr_y_to_plot)
@@ -261,7 +260,8 @@ def plot_fuels_tot_all_enduses(results_resid, data, attribute_to_get):
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Total yearly fuels of all enduses per fueltype")
-    plt.show()
+    fig_name
+    #plt.show()
 
 def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
@@ -306,7 +306,7 @@ def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Fuels for peak hour in a year across all enduses")
-    plt.show()
+    #plt.show()
 
 def plot_load_profile_dh(array_dh):
 
@@ -314,4 +314,4 @@ def plot_load_profile_dh(array_dh):
 
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
     
-    plt.show()
+    #plt.show()

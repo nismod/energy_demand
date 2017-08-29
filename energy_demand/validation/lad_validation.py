@@ -1,6 +1,8 @@
 """Compare gas/elec demand on Local Authority Districts with modelled demand
 """
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+import os
+import sys
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +10,7 @@ from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 
-def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
+def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
 
     Parameters
@@ -67,7 +69,6 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
         y_values_modelled_electricity_demand.append(result_dict['modelled_electricity_demand'][sorted_region[0]])
         labels.append(sorted_region)
 
-
     # RMSE calculations
     rmse_value = basic_functions.rmse(np.array(y_values_modelled_electricity_demand), np.array(y_values_REAL_electricity_demand))
 
@@ -89,4 +90,5 @@ def compare_lad_regions(lad_infos_shapefile, model_run_object, nr_of_fueltypes, 
     plt.ylabel("Sub-regional yearly electricity demand [GW]")
     plt.legend()
 
-    plt.show()
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    #plt.show()

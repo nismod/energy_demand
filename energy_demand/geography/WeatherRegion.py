@@ -114,14 +114,12 @@ class WeatherRegion(object):
             # (Assumption: Demand for heat correlates directly with fuel)
             try:
                 self.rs_heating_factor_y = np.nan_to_num(
-                    #1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy) #SHARK
-                    1.0 / np.sum(rs_hdd_by)) * np.sum(rs_hdd_cy)
+                    1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
                 self.rs_cooling_factor_y = np.nan_to_num(
-                    #1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy) #SHARK
-                    1.0 / np.sum(rs_cdd_by)) * np.sum(rs_cdd_cy)
+                    1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
             except ZeroDivisionError:
-                self.rs_heating_factor_y = 0
-                self.rs_cooling_factor_y = 0
+                self.rs_heating_factor_y = 1
+                self.rs_cooling_factor_y = 1
 
             # yd peak factors for heating and cooling
             rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
@@ -220,14 +218,12 @@ class WeatherRegion(object):
 
             try:
                 self.ss_heating_factor_y = np.nan_to_num(
-                    #1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy) #SHARK
-                    1.0 / np.sum(ss_hdd_by)) * np.sum(ss_hdd_cy)
+                    1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
                 self.ss_cooling_factor_y = np.nan_to_num(
-                    #1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy) #SHARK
-                    1.0 / np.sum(ss_cdd_by)) * np.sum(ss_cdd_cy)
+                    1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
             except ZeroDivisionError:
-                self.ss_heating_factor_y = 0
-                self.ss_cooling_factor_y = 0
+                self.ss_heating_factor_y = 1
+                self.ss_cooling_factor_y = 1
 
             ss_peak_yd_heating_factor = self.get_shape_peak_yd_factor(ss_hdd_cy)
             #ss_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(ss_cdd_cy)
@@ -317,13 +313,11 @@ class WeatherRegion(object):
             is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy)
 
             try:
-                #self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy) #SHARK
-                self.is_heating_factor_y = np.nan_to_num(1.0 / np.sum(is_hdd_by)) * np.sum(is_hdd_cy)
-                #self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy) #SHARK
-                self.is_cooling_factor_y = np.nan_to_num(1.0 / np.sum(is_cdd_by)) * np.sum(is_cdd_cy)
+                self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
+                self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
             except ZeroDivisionError:
-                self.is_heating_factor_y = 0
-                self.is_cooling_factor_y = 0
+                self.is_heating_factor_y = 1
+                self.is_cooling_factor_y = 1
 
             is_peak_yd_heating_factor = self.get_shape_peak_yd_factor(is_hdd_cy)
             #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
@@ -390,7 +384,7 @@ class WeatherRegion(object):
 
         Parameters
         ----------
-        tech_stock :
+        tech_stock : TODO
         enduse :
         fuel_shape_boilers_y_dh : array
             Fuel shape of boilers (dh) for evey day in a year

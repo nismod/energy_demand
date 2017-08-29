@@ -1,5 +1,6 @@
 """This scripts reads the national electricity data for the base year"""
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
+import os
 import sys
 import csv
 import numpy as np
@@ -102,7 +103,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
     return elec_data_INDO, elec_data_ITSDO
 
-def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
+def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
     """Compare national electrictiy demand data with model results
 
     Note
@@ -156,12 +157,14 @@ def compare_results(y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_ca
 
     plt.xlabel("Hours", fontsize=10)
     plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
+    
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', name_fig))
 
     plt.legend()
 
-    plt.show()
+    #plt.show()
 
-def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype):
+def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
     """
     print("...compare elec peak results")
@@ -187,14 +190,6 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     # -------------------------------
     # Compare values
     # -------------------------------
-    '''#Scrap
-    a = []
-    for day in range(365):
-        for hour in range(24):
-            a.append(validation_elec_data_2015[day][hour])
-    plt.plot(range(8760), a, color='green', label='real')
-    plt.show()
-    '''
     x = range(24)
 
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -212,9 +207,11 @@ def compare_peak(validation_elec_data_2015, peak_all_models_all_enduses_fueltype
     plt.xlabel("Hours")
     plt.ylabel("National electrictiy use [GWh / h]")
     plt.legend()
-    plt.show()
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', name_fig))
 
-def compare_results_hour_boxplots(data_real, data_calculated):
+    #plt.show()
+
+def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
     for the full year
 
@@ -258,7 +255,9 @@ def compare_results_hour_boxplots(data_real, data_calculated):
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
-    plt.show()
+    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', name_fig))
+
+    #plt.show()
 
 '''def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     """Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
@@ -301,7 +300,6 @@ def compare_results_hour_boxplots(data_real, data_calculated):
     plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
     plt.plot(t, ysg, 'r', label='Filtered signal')
     plt.legend()
-    plt.show()
 
     References
     ----------

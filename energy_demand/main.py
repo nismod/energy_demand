@@ -200,12 +200,12 @@ if __name__ == "__main__":
         #GET SPECIFIC REGION
 
         # Compare different models
-        elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
-        #elec_national_data.compare_results(validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
+        elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot_full_year)
+        #elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2], 'all_submodels', days_to_plot)
+        #elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.rs_sum_uk_specfuelype_enduses_y[2], 'rs_model', days_to_plot)
+        #elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ss_sum_uk_specfuelype_enduses_y[2], 'ss_model', days_to_plot)
+        #elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
+        #elec_national_data.compare_results('plot_figure_01.pdf', base_data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
         print("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
         print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
@@ -214,7 +214,15 @@ if __name__ == "__main__":
         # Validation of spatial disaggregation
         # ---------------------------------------------------
         lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
-        lad_validation.compare_lad_regions(lad_infos_shapefile, model_run_object, base_data['nr_of_fueltypes'], base_data['lu_fueltype'], base_data['lu_reg'])
+        lad_validation.compare_lad_regions(
+            'compare_lad_regions.pdf',
+            base_data,
+            lad_infos_shapefile,
+            model_run_object,
+            base_data['nr_of_fueltypes'],
+            base_data['lu_fueltype'],
+            base_data['lu_reg']
+            )
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
@@ -223,12 +231,16 @@ if __name__ == "__main__":
         peak_month = 2 #Feb
         peak_day = 18 #Day
         elec_national_data.compare_peak(
+            "peak_comparison_01.pdf",
+            base_data,
             validation_elec_data_2015_INDO,
             model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[peak_month][peak_day]
             )
 
         print("...compare peak from max peak factors")
         elec_national_data.compare_peak(
+            "peak_comparison_02.pdf",
+            base_data,
             validation_elec_data_2015_INDO,
             model_run_object.peak_all_models_all_enduses_fueltype[2])
 
@@ -236,6 +248,8 @@ if __name__ == "__main__":
         # Validate boxplots for every hour
         # ---------------------------------------------------
         elec_national_data.compare_results_hour_boxplots(
+            "hourly_boxplots_01.pdf",
+            base_data,
             validation_elec_data_2015_INDO,
             model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])
 
@@ -246,22 +260,22 @@ if __name__ == "__main__":
     ##pf.plot_load_curves_fueltype(results_every_year, base_data)
 
     # Plot total fuel (y) per enduse
-    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
-    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use("figure_stacked_country01.pdf", base_data, results_every_year, base_data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
+    plotting_results.plot_stacked_Country_end_use("figure_stacked_country02.pdf", base_data, results_every_year, base_data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
 
     # Plot total fuel (y) per fueltype
-    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plot_fuels_tot_all_enduses(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses("figure_tot_all_enduse01.pdf", results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses("figure_tot_all_enduse02.pdf",results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     # Plot peak demand (h) per fueltype
     plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_fuel_y_max_allenduse_fueltyp')
     plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'ss_tot_fuel_y_max_allenduse_fueltyp')
 
     # Plot a full week
-    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plot_fuels_tot_all_enduses_week(results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses_week("figure_tot_all_enduse03.pdf", results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses_week("figure_tot_all_enduse04.pdf", results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     # Plot all enduses
-    plotting_results.plot_stacked_Country_end_use(base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
-
-    print("Finished running Energy Demand Model")
+    plotting_results.plot_stacked_Country_end_use("figure_stacked_country_final.pdf", base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
+    
+    print("... Finished running Energy Demand Model")

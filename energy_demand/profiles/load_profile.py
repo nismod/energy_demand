@@ -244,11 +244,11 @@ def absolute_to_relative_without_nan(absolute_array):
         Array with relative numbers
     """
     try:
-        #relative_array = (1 / float(np.sum(absolute_array))) * absolute_array #SHARK
-        relative_array = (1 / np.sum(absolute_array)) * absolute_array
+        relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
         return relative_array
     except ZeroDivisionError:
-        return absolute_array # If the total sum is zero, return same array
+        # If the total sum is zero, return same array
+        return absolute_array
 
 def absolute_to_relative(absolute_array):
     """Convert absolute numbers in an array to relative

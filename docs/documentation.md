@@ -1,4 +1,3 @@
-
 Model Documentation
 ===================
 
@@ -73,7 +72,7 @@ For the residential and service sub-model, SD values are calculated based on a d
   </tr>
 </table>
 
-*Table 1: End-use specific scenario drivers for energy demand*
+*Table 1.1: End-use specific scenario drivers for energy demand*
 
 
 
@@ -85,14 +84,14 @@ This section explains how the energy demand and energy supply model interact.
 
 Lorem ipsum...
 ![Image of model integration](../docs/documentation_images/001-Supply_and_demand_overview.png)
-*Figure 1: Interaction*
+*Figure 3.1: Interaction*
 
 ### 3.2 Optimised and constrained model run
 
 Lorem ipsum...
 
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
-*Figure 2: Interaction*
+*Figure 3.2: Interaction*
 
 ## 4. Dwelling Model
 
@@ -155,7 +154,7 @@ Within the code, different abbreviations are consistenly used
 across all modules.
 
     rs:         Residential Submodel
-    ss:         Srvice Submodel
+    ss:         Service Submodel
     ts:         Transportation Submodel
 
     bd:         Base demand
@@ -163,6 +162,7 @@ across all modules.
     cy:         Current year
     dw:         Dwelling
     p:          Fraction, i.e. (100% = 1.0)
+    pp:         Per person
     e:          Electricitiy
     g:          Gas
     lu:         Look up
