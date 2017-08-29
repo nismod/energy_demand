@@ -138,7 +138,8 @@ def assign_by_fuel_tech_p(assumptions, data):
     # --------------
     # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
     # --------------
-    '''# Service share within a fueltype
+    '''
+    # Service share within a fueltype
     tech_share_tot_service = {
         'heat_pumps_electricity': 0.02,
         'hybrid_gas_electricity': 0.02,

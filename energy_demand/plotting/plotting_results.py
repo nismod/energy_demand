@@ -1,6 +1,6 @@
 """
 """
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -105,6 +105,7 @@ def plot_stacked_Country_end_use(data, results_objects, enduses_data, attribute_
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
 
+    plt.savefig(os.path.join(data['path_main'], 'model_output', '01-charts', 'plot_figure_01.pdf'))
     plt.show()
 
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):

@@ -190,7 +190,7 @@ class Enduse(object):
                 reg_scenario_drivers,
                 data['sim_param']
                 )
-
+            
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------

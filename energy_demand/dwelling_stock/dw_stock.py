@@ -373,47 +373,36 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, sim_param):
 
     return dwtype_distr
 
-def ss_build_stock(regions, data):
-    """Create dwelling stock for service sector with service dwellings
-
-    Iterate years and change floor area depending on assumption on
-    linear change up to ey
+def ss_dw_stock(regions, data):
+    """Create dwelling stock for service sector
 
     Parameters
     ----------
+    regions : dict
+        Regions
     data : dict
-        Data
+        Data container
 
     Returns
     -------
+    dwelling_stock : list
+        List with objects
 
+    Note
+    ----
+    - Iterate years and change floor area depending on assumption on
+      linear change up to ey
     """
     dwelling_stock = {}
 
-    # Iterate regions
     for region in regions:
         dwelling_stock[region] = {}
 
         # Iterate simulation year
         for curr_yr in data['sim_param']['sim_period']:
 
-            # ------------------
-            # Generate serivce dwellings
-            # ------------------
             dw_stock = []
-
-            # Iterate sectors
             for sector in data['ss_sectors']:
-
-                # -------------------------
-                #TODO: READ FROM Newcastle DATASET
-                # -------------------------
-
-                # -------------------------
-                # -- Virstual service stock (so far very simple, e.g. not age considered)
-                # -------------------------
-                # Base year floor area
-                floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
 
                 # Change in floor area up to end year
                 if sector in data['assumptions']['ss_floorarea_change_ey_p']:
@@ -431,9 +420,10 @@ def ss_build_stock(regions, data):
                     data['sim_param']['sim_period_yrs']
                     )
 
-                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
+                floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
+                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor #TODO MULTIPLY
 
-                # create building object
+                # create dwelling objects
                 dw_stock.append(
                     Dwelling(
                         curr_yr=curr_yr,
@@ -456,7 +446,7 @@ def ss_build_stock(regions, data):
 
     return dwelling_stock
 
-def rs_dwelling_stock(regions, data):
+def rs_dw_stock(regions, data):
     """Creates a virtual building stock for every year and region
 
     Parameters

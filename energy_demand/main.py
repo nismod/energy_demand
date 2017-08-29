@@ -92,6 +92,7 @@ def energy_demand_model(data):
     fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
 
     print("================================================")
+    print("Simulation year:     " + str(model_run_object.curr_yr))
     print("Number of regions    " + str(len(data['lu_reg'])))
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(fueltot))
@@ -142,8 +143,8 @@ if __name__ == "__main__":
     base_data = read_data.load_script_data(base_data)
 
     # Generate dwelling stocks over whole simulation period
-    base_data['rs_dw_stock'] = dw_stock.rs_dwelling_stock(base_data['lu_reg'], base_data)
-    base_data['ss_dw_stock'] = dw_stock.ss_build_stock(base_data['lu_reg'], base_data)
+    base_data['rs_dw_stock'] = dw_stock.rs_dw_stock(base_data['lu_reg'], base_data)
+    base_data['ss_dw_stock'] = dw_stock.ss_dw_stock(base_data['lu_reg'], base_data)
 
     results_every_year = []
     for sim_yr in base_data['sim_param']['sim_period']:

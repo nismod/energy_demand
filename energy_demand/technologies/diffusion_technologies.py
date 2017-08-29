@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 from energy_demand.plotting import plotting_program as plotting
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
-    """This function assumes a linear fuel_enduse_switch diffusion.
+    """This function assumes a linear diffusion
 
     Parameters
     ----------
@@ -25,11 +25,15 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     Returns
     -------
     fract_sy : float
-        The fraction of the fuel_enduse_switch in the simulation year
+        The fraction in the simulation year
+
+    Note
+    ----
+    - returns ``value_start`` if no change or ``curr_yr`` == ``base_yr``
     """
     # If current year is base year, return zero
-    if curr_yr == base_yr or sim_years == 0:
-        fract_sy = 0
+    if curr_yr == base_yr or sim_years == 0 or value_end == value_start:
+        fract_sy = value_start #0
     else:
         #-1 because in base year no change
         fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)

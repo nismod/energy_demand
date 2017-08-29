@@ -91,7 +91,7 @@ def load_assumptions(data):
 
     # Floor area per dwelling type #TODO
     assumptions['assump_dwtype_floorarea_ey'] = {
-        'semi_detached': 200,
+        'semi_detached': 96,
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
