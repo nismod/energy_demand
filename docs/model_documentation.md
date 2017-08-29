@@ -94,11 +94,25 @@ Lorem ipsum...
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 *Figure 2: Interaction*
 
-## 4. Dwelling Stock Model
+## 4. Dwelling Model
 
-A virtual dwelling model is implemented in HIRE. For every region, floor area is calculated.... MORE INFO
+A generic dwelling model is implemented in HIRE. Instead of modelling every individual building, a abstracted dwelling respresentation of the dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``region``:
+
+> 1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``).
+  The floor area per person can be changed over the simulation period.
+>
+> 2. Based on ``floor_area_pp`` and scenario population input, total necessary new and existing floor area is calculated (total         new floor area minus existing floor area).
+>
+> 3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is
+     calculated.
+>
+> 4. Based on assumptions on the age of the dwelling types, different ``dwelling`` objects are generated.
 
 ![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
+*Figure 4.1: Modelling steps of the residential dwelling module*
+
+The ``dwelling`` object can however directly be implemented, if the information is available from another source. 
+
 ## 5.0 Model Parameters
 
 ### 5.1 General model parameters
