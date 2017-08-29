@@ -325,7 +325,9 @@ def run():
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21]) #Remove energy_demand/scripts
+    path_main = os.path.dirname(os.path.abspath(__file__))[:-21]
+
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data and assumptions
@@ -373,31 +375,31 @@ def run():
 
     # Write to csv files
     write_service_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_tech_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_tech_by_p.csv'),
         rs_service_tech_by_p)
     write_service_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_tech_by_p.csv'),
+        os.path.join(path_main,'data', 'data_scripts', 'services', 'ss_service_tech_by_p.csv'),
         ss_service_tech_by_p)
     write_service_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'is_service_tech_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_tech_by_p.csv'),
         is_service_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_tech_by_p.csv'), 
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_fueltype_tech_by_p.csv'), 
         rs_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_fueltype_tech_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'ss_service_fueltype_tech_by_p.csv'),
         ss_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(os.path.dirname(__file__), '..', r'data', 'data_scripts', 'services', 'is_service_fueltype_tech_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_fueltype_tech_by_p.csv'),
         is_service_fueltype_tech_by_p)
     write_service_fueltype_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'rs_service_fueltype_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_fueltype_by_p.csv'),
         rs_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'ss_service_fueltype_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'ss_service_fueltype_by_p.csv'),
         ss_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'services', 'is_service_fueltype_by_p.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
     print("... finished script {}".format(os.path.basename(__file__)))

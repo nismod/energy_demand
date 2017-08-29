@@ -250,11 +250,9 @@ def load_fuels(data):
     data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(
         data['paths']['path_ss_fuel_raw_data_enduses'],
         data['nr_of_fueltypes'])
-    print("RS Sectors: {}".format(data['ss_sectors']))
-    print(data['ss_all_enduses'])
+
     # Industry fuel (ECUK Table 4.04)
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['paths']['path_is_fuel_raw_data_enduses'], data['nr_of_fueltypes'], data['lu_fueltype'])
-    print("RS Sectors: {}".format(data['is_sectors']))
 
     # ----------------------------------------
     # Convert units

@@ -6,7 +6,7 @@ import csv
 from datetime import date
 import numpy as np
 from energy_demand.read_write import read_data
-from energy_demand import scripts_common_functions
+from energy_demand.scripts import scripts_common_functions
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
 
@@ -345,7 +345,8 @@ def run():
     # ------------------------------------------------------------------------
 
     #PATHS
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))) #[:-7])
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21], 'data')
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     base_data = data_loader.load_paths(path_main, local_data_path)

@@ -7,17 +7,17 @@ def run(run_basic_scripts=False, run_scenario_scripts=True):
     Parameters
     ----------
     run_basic_scripts : bool,default=False
-        If ´True´ all basic scripts are run
+        If `True` all basic scripts are run
     run_scenario_scripts : bool
-        If ´True´ all scenario scripts are run
+        If `True` all scenario scripts are run
 
     Note
     ----
-    If ´run_basic_scripts´ is true, all scripts are executed
+    If `run_basic_scripts` is true, all scripts are executed
     which only need to be executed once, independently of the scenario.
     E.g. load profiles are loaded from raw files
 
-    ´run_scenario_scripts´ needs to be run everytime scenario
+    `run_scenario_scripts` needs to be run everytime scenario
     assumptiosn are changed
     """
 

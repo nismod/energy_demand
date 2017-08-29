@@ -156,7 +156,7 @@ class DwellingStock(object):
     """Class of the building stock in a region
     """
     def __init__(self, region, dwellings, enduses):
-        """Returns a new building stock object for every ´region´.
+        """Returns a new building stock object for every `region`.
 
         Parameters
         ----------
@@ -201,7 +201,7 @@ class DwellingStock(object):
         Return
         ------
         tot_pop : float or bool
-            If population is not provided, return ´None´,
+            If population is not provided, return `None`,
             otherwise summed population of all dwellings
         """
         tot_pop = 0
@@ -484,7 +484,7 @@ def rs_dwelling_stock(regions, data):
       based on floor area pp parameter. However, floor area
       could be read in by:
       
-      1.) Inserting ´tot_floorarea_cy = data['rs_floorarea'][curr_yr]´
+      1.) Inserting `tot_floorarea_cy = data['rs_floorarea'][curr_yr]`
       
       2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
           with more specific information from real building stock model

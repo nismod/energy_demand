@@ -437,7 +437,8 @@ def run():
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-7])
+    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))) #[:-7])
+    path_main = os.path.dirname(os.path.abspath(__file__))[:-21]
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data and assumptions
@@ -460,16 +461,16 @@ def run():
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'rs_fueldata_disagg.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'rs_fueldata_disagg.csv'),
         base_data['rs_fueldata_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'ss_fueldata_disagg.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'ss_fueldata_disagg.csv'),
         base_data['ss_fueldata_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'is_fueldata_disagg.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'is_fueldata_disagg.csv'),
         base_data['is_fueldata_disagg'])
     write_disagg_fuel_ts(
-        os.path.join(os.path.dirname(__file__), '..', 'data', 'data_scripts', 'disaggregated', 'ts_fueldata_disagg.csv'),
+        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'ts_fueldata_disagg.csv'),
         base_data['ts_fueldata_disagg'])
 
     print("... finished script {}".format(os.path.basename(__file__)))

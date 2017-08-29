@@ -4,7 +4,7 @@ import os
 import csv
 from datetime import date
 import numpy as np
-from energy_demand import scripts_common_functions
+from energy_demand.scripts import scripts_common_functions
 from energy_demand.read_write import read_data
 
 def read_csv(path_to_csv):
@@ -213,7 +213,8 @@ def run():
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+    #path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21], 'data')
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
     script_data_path = r'C:\Users\cenv0553\GIT'
 

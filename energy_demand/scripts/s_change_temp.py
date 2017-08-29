@@ -6,7 +6,7 @@ import csv
 from datetime import date
 from datetime import timedelta
 import numpy as np
-from energy_demand import scripts_common_functions
+from energy_demand.scripts import scripts_common_functions
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear fuel_enduse_switch diffusion.
