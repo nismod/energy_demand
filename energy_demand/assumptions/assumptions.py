@@ -204,8 +204,14 @@ def load_assumptions(data):
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
     # ============================================================
-    assumptions['rs_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
-    assumptions['ss_t_base_heating'] = {'base_yr': 15.5, 'end_yr': 15.5}
+    assumptions['rs_t_base_heating'] = {
+        'base_yr': 15.5,
+        'end_yr': 15.5
+        }
+    assumptions['ss_t_base_heating'] = {
+        'base_yr': 15.5,
+        'end_yr': 15.5
+        }
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {'base_yr': 21.0, 'end_yr': 21.0}

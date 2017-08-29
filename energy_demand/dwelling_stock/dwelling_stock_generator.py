@@ -479,6 +479,15 @@ def rs_dwelling_stock(regions, data):
     - The assumption about internal temperature change is
       used as for each dwelling the hdd are calculated
       based on wheater data and assumption on t_base
+    
+    - Doesn't take floor area as an input but calculates floor area
+      based on floor area pp parameter. However, floor area
+      could be read in by:
+      
+      1.) Inserting ´tot_floorarea_cy = data['rs_floorarea'][curr_yr]´
+      
+      2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
+          with more specific information from real building stock model
     """
     base_yr = data['sim_param']['base_yr']
 
@@ -516,10 +525,10 @@ def rs_dwelling_stock(regions, data):
     for region in regions:
 
         floorarea_by = data['reg_floorarea_resid'][region]
-        pop_by = data['population'][base_yr][region]
+        population_by = data['population'][base_yr][region]
 
-        if pop_by != 0:
-            floorarea_pp_by = floorarea_by / pop_by # [m2 / person]
+        if population_by != 0:
+            floorarea_pp_by = floorarea_by / population_by # [m2 / person]
         else:
             floorarea_pp_by = 0
 
@@ -533,6 +542,12 @@ def rs_dwelling_stock(regions, data):
 
             # Calculate new floor area
             tot_floorarea_cy = floorarea_pp_cy * population_cy
+
+            """
+            #If floor_area is read in from model, this would be here
+            tot_floorarea_cy = data['rs_floorarea'][curr_yr][region]
+            """
+
             new_floorarea_cy = tot_floorarea_cy - floorarea_by
 
             # Only calculate changing
@@ -548,7 +563,7 @@ def rs_dwelling_stock(regions, data):
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
                     floorarea_pp=floorarea_pp_by,
                     tot_floorarea_cy=floorarea_by,
-                    pop_by=pop_by
+                    pop_by=population_by
                     )
 
                 # Create regional base year building stock
@@ -563,7 +578,7 @@ def rs_dwelling_stock(regions, data):
                 people will be living in too large houses. It is not assumed
                 that area is demolished.
                 """
-                floor_area_cy = pop_by * floorarea_pp_cy
+                floor_area_cy = floorarea_pp_cy * population_by
 
                 if floor_area_cy > floorarea_by:
                     demolished_area = 0
@@ -573,8 +588,9 @@ def rs_dwelling_stock(regions, data):
                 remaining_area = floorarea_by - demolished_area
 
                 # In existing building stock fewer people are living, i.e. density changes
-                pop_by = floorarea_by / floorarea_pp_cy
+                population_by_existing = floorarea_by / floorarea_pp_cy
 
+                # Generate stock for existing area
                 dw_stock_cy = generate_dw_existing(
                     data=data,
                     region=region,
@@ -585,7 +601,7 @@ def rs_dwelling_stock(regions, data):
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
                     floorarea_pp=floorarea_pp_cy,
                     tot_floorarea_cy=remaining_area,
-                    pop_by=pop_by
+                    pop_by=population_by_existing
                     )
 
                 # Append buildings of new floor area to
@@ -611,7 +627,7 @@ def rs_dwelling_stock(regions, data):
 
     return dwelling_stock
 
-def get_floorarea_dwtype_p(dw_lookup, dw_floorarea_by, dwtype_distr):
+def get_floorarea_dwtype_p(dw_lookup, dw_floorarea, dwtype_distr):
     """Calculates the percentage of the total floor area
     belonging to each dwelling type. Depending on average
     floor area per dwelling type and the dwelling type
@@ -622,8 +638,8 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea_by, dwtype_distr):
     ----------
     dw_lookup : dw_lookup
         Dwelling types
-    dw_floorarea_by : dict
-        floor area per type
+    dw_floorarea : dict
+        Floor area per type and year
     dwtype_distr : dict
         Distribution of dwelling type over the simulation period
 
@@ -645,11 +661,8 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea_by, dwtype_distr):
         # Calculate share of dwelling area based on absolute size and distribution
         for _, dw_type in dw_lookup.items():
 
-            # Get distribution of dwellings of current year
-            dwelling_type_p = type_distr_p[dw_type]
-
             # Get absolut size of dw_type
-            area_dw_type[dw_type] = dwelling_type_p * dw_floorarea_by[curr_yr][dw_type] #dw_floorarea_by[dw_type]
+            area_dw_type[dw_type] = type_distr_p[dw_type] * dw_floorarea[curr_yr][dw_type] #dw_floorarea_by[dw_type]
 
         # Convert absolute values into percentages
         tot_area = sum(area_dw_type.values())

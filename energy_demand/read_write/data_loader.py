@@ -41,8 +41,10 @@ def dummy_data_generation(base_data):
         pop_dummy[year] = _data
 
     # Residenital floor area
-    for region_geocode in regions:
-        rs_floorarea[region_geocode] = pop_dummy[2015][region_geocode] #USE FLOOR AREA
+    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+        rs_floorarea[year] = {}
+        for region_geocode in regions:
+            rs_floorarea[year][region_geocode] = pop_dummy[year][region_geocode] #USE FLOOR AREA
 
     # Dummy flor area
     for region_geocode in regions:

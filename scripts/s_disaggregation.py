@@ -297,7 +297,7 @@ def rs_disaggregate(data, rs_national_fuel):
         reg_hdd = rs_hdd_individ_region[region_name]
 
         # Floor Area across all sectors
-        reg_floor_area = data['rs_floorarea'][region_name]
+        reg_floor_area = data['rs_floorarea'][data['sim_param']['base_yr']][region_name]
 
         # Population
         reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
@@ -321,7 +321,7 @@ def rs_disaggregate(data, rs_national_fuel):
 
         reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
-        reg_floor_area = data['rs_floorarea'][region_name]
+        reg_floor_area = data['rs_floorarea'][data['sim_param']['base_yr']][region_name]
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
