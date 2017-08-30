@@ -62,4 +62,4 @@ def run(run_basic_scripts=False, run_scenario_scripts=True):
     return
 
 # Execute script
-run(run_basic_scripts=True, run_scenario_scripts=True)
+run(run_basic_scripts=False, run_scenario_scripts=True)

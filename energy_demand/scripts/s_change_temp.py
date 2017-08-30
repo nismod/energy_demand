@@ -7,37 +7,7 @@ from datetime import date
 from datetime import timedelta
 import numpy as np
 from energy_demand.scripts import s_shared_functions
-
-def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
-    """This function assumes a linear fuel_enduse_switch diffusion.
-
-    Parameters
-    ----------
-    base_yr : int
-        The year of the current simulation.
-    curr_yr : int
-        The year of the current simulation.
-    value_start : float
-        Fraction of population served with fuel_enduse_switch in base year
-    value_end : float
-        Fraction of population served with fuel_enduse_switch in end year
-    sim_years : str
-        Total number of simulated years.
-
-    Returns
-    -------
-    fract_sy : float
-        The fraction of the fuel_enduse_switch in the simulation year
-    """
-    # SHARK
-    # If current year is base year, return zero
-    if curr_yr == base_yr or sim_years == 0:
-        fract_sy = 0
-    else:
-        #-1 because in base year no change
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)
-
-    return fract_sy
+from energy_demand.technologies import diffusion_technologies
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
@@ -139,7 +109,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
                 temp_by = 0
                 temp_ey = assumptions_temp_change[month_yearday]
 
-                lin_diff_f = linear_diff(
+                lin_diff_f = diffusion_technologies.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
                     temp_by,
@@ -149,8 +119,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
                 # Iterate hours of base year
                 for hour, temp_old in enumerate(temperature_data[station_id][yearday]):
-                    #temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
-                    temp_climate_change[station_id][curr_yr][yearday][hour] = lin_diff_f #SHARK
+                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
 
     return temp_climate_change
 

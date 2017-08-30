@@ -281,7 +281,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
             base_sim_param['sim_period_yrs']
         )
     elif diff_method == 'sigmoid':
-
+        #TODO: TEST SHARK
         theor_max_eff = diffusion.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
@@ -291,13 +291,17 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 
     # Consider actual achieved efficiency
     actual_max_eff = theor_max_eff * eff_achieved_factor
-
+    
+    #SHARK NEW
+    eff_cy = actual_max_eff 
+    '''
     # Differencey in efficiency change
     efficiency_change = actual_max_eff * (
         assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
-
+    
     # Actual efficiency potential
     eff_cy = eff_by + efficiency_change
+    '''
 
     return eff_cy
 

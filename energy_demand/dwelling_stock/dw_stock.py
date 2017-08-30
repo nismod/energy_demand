@@ -256,14 +256,15 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                 lin_diff_factor = diffusion.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
-                    0, #vorher 0 #SHARK
+                    1, #vorher 0 #SHARK
                     assump_final_diff_floorarea_pp,
                     sim_param['sim_period_yrs']
                     )
 
                 # Floor area per person of simulation year
-                floor_area_pp[curr_yr] = floorarea_pp_by + floorarea_pp_by * lin_diff_factor
-                #floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor #SHARK
+                print("A: " + str(lin_diff_factor))
+                #floor_area_pp[curr_yr] = floorarea_pp_by + floorarea_pp_by * lin_diff_factor
+                floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor #SHARK
 
         data_floorarea_pp[region] = floor_area_pp
 
@@ -422,8 +423,9 @@ def ss_dw_stock(regions, data):
                     )
 
                 floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
-                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
-                #floorarea_sector_cy = floorarea_sector_by * lin_diff_factor #TODO MULTIPLY todo TODO SHARK
+                #floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
+                print("B: " + str(lin_diff_factor))
+                floorarea_sector_cy = floorarea_sector_by * lin_diff_factor #TODO MULTIPLY todo TODO SHARK
 
                 # create dwelling objects
                 dw_stock.append(
@@ -534,7 +536,7 @@ def rs_dw_stock(regions, data):
 
             # Calculate new floor area
             tot_floorarea_cy = floorarea_pp_cy * population_cy
-
+            #print(" sdf {}  {}  {}".format(tot_floorarea_cy, floorarea_pp_cy, population_cy))
             """
             #If floor_area is read in from model, this would be here
             tot_floorarea_cy = data['rs_floorarea'][curr_yr][region]
@@ -608,7 +610,7 @@ def rs_dw_stock(regions, data):
                         new_floorarea_cy=new_floorarea_cy
                         )
                 else:
-                    pass  ## no new floor area is added
+                    pass # no new floor area is added
 
                 # Generate region and save it in dictionary (Add old and new buildings to stock)
                 dwelling_stock[region][curr_yr] = DwellingStock(

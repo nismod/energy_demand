@@ -1389,7 +1389,9 @@ class Enduse(object):
                     percent_ey,
                     base_parameters['sim_period_yrs']
                 )
-                change_cy = diff_fuel_consump * abs(lin_diff_factor)
+                #change_cy = diff_fuel_consump * abs(lin_diff_factor) SHARK
+                print("C: " + str(lin_diff_factor))
+                change_cy = lin_diff_factor
 
             # Sigmoid diffusion up to cy
             elif diffusion_choice == 'sigmoid':
@@ -1403,7 +1405,8 @@ class Enduse(object):
                 change_cy = diff_fuel_consump * sig_diff_factor
 
             # Calculate new fuel consumption percentage
-            new_fuels = self.fuel_new_y * (1.0 + change_cy)
+            #new_fuels = self.fuel_new_y * (1.0 + change_cy) #SHARK
+            new_fuels = self.fuel_new_y * change_cy #SHARK
 
             self.fuel_new_y = new_fuels
 

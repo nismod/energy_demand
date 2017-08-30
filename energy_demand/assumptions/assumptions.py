@@ -34,7 +34,7 @@ def load_assumptions(data):
     data['sim_param']['end_yr'] = 2020
     data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
     data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr']  + 1, data['sim_param']['sim_years_intervall'])
-    data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr']  + 1 - data['sim_param']['base_yr'])
+    data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['list_dates'] = date_handling.fullyear_dates(
         start=date(data['sim_param']['base_yr'], 1, 1),
@@ -57,8 +57,8 @@ def load_assumptions(data):
 
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
-    assumptions['assump_diff_floorarea_pp'] = 0
-    #assumptions['assump_diff_floorarea_pp'] = 1 #SHARK (vorher 0)
+    #assumptions['assump_diff_floorarea_pp'] = 0
+    assumptions['assump_diff_floorarea_pp'] = 1 #SHARK (vorher 0)
 
     # Specific Energy Demand factors per dwelling type could be defined
     # (e.g. per dwelling type or GVA class or residents....) #TODO
