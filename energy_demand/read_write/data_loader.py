@@ -12,9 +12,22 @@ from energy_demand.plotting import plotting_results
 def dummy_data_generation(base_data):
     """TODO: REPLACE WITH NEWCASTLE DATA
     """
-    base_data['all_sectors'] = ['community_arts_leisure', 'education', 'emergency_services', 'health', 'hospitality', 'military', 'offices', 'retail', 'storage', 'other']
-
-    dummy_pop_geocodes = load_LAC_geocodes_info() # Load dummy LAC and pop
+    base_data['all_sectors'] = [
+        'community_arts_leisure',
+        'education',
+        'emergency_services',
+        'health',
+        'hospitality',
+        'military',
+        'offices',
+        'retail',
+        'storage',
+        'other'
+        ]
+    # Load dummy LAC and pop (Full List is : infuse_dist_lyr_2011.csv  otherwise infuse_dist_lyr_2011_saved.)
+    dummy_pop_geocodes = load_LAC_geocodes_info(
+        base_data['paths']['path_dummpy_regions']
+        ) 
 
     regions = {}
     coord_dummy = {}
@@ -23,7 +36,7 @@ def dummy_data_generation(base_data):
     ss_floorarea_sector_by_dummy = {}
 
     for geo_code, values in dummy_pop_geocodes.items():
-        regions[geo_code] = values['label'] # Label for region
+        regions[geo_code] = values['label']
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
     # GVA
@@ -100,7 +113,8 @@ def load_paths(path_main, local_data_path):
         'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(local_data_path, r'16-Met_office_weather_data', 'excel_list_station_details.csv'),
         'folder_validation_national_elec_data': os.path.join(local_data_path, r'04-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
-
+        'path_dummpy_regions': r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved_short.csv',
+        
         # Residential
         # -----------
         'path_main': path_main,
@@ -425,7 +439,7 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
-def load_LAC_geocodes_info():
+def load_LAC_geocodes_info(path_to_csv):
     """Import local area unit district codes
 
     Read csv file and create dictionary with 'geo_code'
@@ -435,9 +449,6 @@ def load_LAC_geocodes_info():
     -----
     - no LAD without population must be included
     """
-    path_to_csv = r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved_short.csv'
-
-    # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',') # Read line
         _headings = next(read_lines) # Skip first row

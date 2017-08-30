@@ -131,7 +131,7 @@ if __name__ == "__main__":
     # Floor Area
     # ...
     base_data = data_loader.dummy_data_generation(base_data)
-    # <<<<<<<<<<<<<<<<<< FINISHED UMMY GENERATION DATA
+    # <<<<<<<<<<<<<<<<<< FINISHED DUMMY GENERATION DATA
 
     # Load data from script calculations
     base_data = read_data.load_script_data(base_data)
@@ -208,7 +208,9 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
-        lad_infos_shapefile = data_loader.load_LAC_geocodes_info()
+        lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
+            base_data['paths']['path_dummpy_regions']
+        )
         lad_validation.compare_lad_regions(
             'compare_lad_regions.pdf',
             base_data,

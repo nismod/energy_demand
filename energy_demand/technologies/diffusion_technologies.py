@@ -32,8 +32,8 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     - returns ``value_start`` if no change or ``curr_yr`` == ``base_yr``
     """
     # If current year is base year, return zero
-    if curr_yr == base_yr or sim_years == 0 or value_end == value_start: #SHARK
-        fract_sy = value_start #0 SHARK
+    if curr_yr == base_yr or sim_years == 0 or value_end == value_start:
+        fract_sy = value_start
     else:
         #-1 because in base year no change
         fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)

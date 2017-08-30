@@ -256,15 +256,13 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                 lin_diff_factor = diffusion.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
-                    1, #vorher 0 #SHARK
+                    1,
                     assump_final_diff_floorarea_pp,
                     sim_param['sim_period_yrs']
                     )
 
                 # Floor area per person of simulation year
-                print("A: " + str(lin_diff_factor))
-                #floor_area_pp[curr_yr] = floorarea_pp_by + floorarea_pp_by * lin_diff_factor
-                floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor #SHARK
+                floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
 
         data_floorarea_pp[region] = floor_area_pp
 
@@ -423,9 +421,7 @@ def ss_dw_stock(regions, data):
                     )
 
                 floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
-                #floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
-                print("B: " + str(lin_diff_factor))
-                floorarea_sector_cy = floorarea_sector_by * lin_diff_factor #TODO MULTIPLY todo TODO SHARK
+                floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
                 # create dwelling objects
                 dw_stock.append(

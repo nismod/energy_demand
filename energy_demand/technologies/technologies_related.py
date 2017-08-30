@@ -280,8 +280,14 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
             assumptions['technologies'][technology]['eff_ey'],
             base_sim_param['sim_period_yrs']
         )
+
+        # Consider actual achieved efficiency
+        eff_cy = theor_max_eff * eff_achieved_factor
+
+        return eff_cy
+
     elif diff_method == 'sigmoid':
-        #TODO: TEST SHARK
+
         theor_max_eff = diffusion.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
@@ -289,21 +295,14 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
             assumptions['other_enduse_mode_info']['sig_midpoint'],
             assumptions['other_enduse_mode_info']['sig_steeppness'])
 
-    # Consider actual achieved efficiency
-    actual_max_eff = theor_max_eff * eff_achieved_factor
-    
-    #SHARK NEW
-    eff_cy = actual_max_eff 
-    '''
-    # Differencey in efficiency change
-    efficiency_change = actual_max_eff * (
-        assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
-    
-    # Actual efficiency potential
-    eff_cy = eff_by + efficiency_change
-    '''
+        # Differencey in efficiency change
+        efficiency_change = theor_max_eff * (
+            assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
 
-    return eff_cy
+        # Actual efficiency potential
+        eff_cy = eff_by + efficiency_change
+
+        return eff_cy
 
 def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
     """All hybrid technologies and their charactersitics are defined
