@@ -180,18 +180,12 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 # Paths
 # ----------------------
 
-def run():
+def run(local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    local_data_path = os.path.join('C:/Users', 'cenv0553', 'GIT')
-
-    # ----------------
-    # Load assumptions
-    # ----------------
     # Execute assumptions file to write out assumptions
-
     temperature_data = read_weather_data_script_data(
         os.path.join(local_data_path, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
         )

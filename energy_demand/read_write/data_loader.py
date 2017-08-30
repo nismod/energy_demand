@@ -93,11 +93,12 @@ def load_paths(path_main, local_data_path):
     """
     out_dict = {}
     out_dict['paths'] = {
+
         # Local paths
         'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
+        'folder_raw_carbon_trust': os.path.join(local_data_path, r"09_Carbon_Trust_advanced_metering_trial"),
         'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(local_data_path, r'16-Met_office_weather_data', 'excel_list_station_details.csv'),
-
         'folder_validation_national_elec_data': os.path.join(local_data_path, r'04-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
 
         # Residential
@@ -106,6 +107,7 @@ def load_paths(path_main, local_data_path):
 
         'path_scripts_data': os.path.join(path_main, 'data', 'data_scripts'),
         'path_assumptions_db': os.path.join(path_main, 'data', 'data_scripts', 'assumptions_from_db'),
+        
         # Paths to txt shapes
         'path_rs_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel'),
         'path_ss_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
@@ -152,7 +154,7 @@ def load_paths(path_main, local_data_path):
     return  out_dict
 
 def load_data_tech_profiles(data):
-    """
+    """TODO
     """
     # ------------------------------------------
     # Specific technology shapes
@@ -186,7 +188,6 @@ def load_data_tech_profiles(data):
     '''
     return data
 
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
 def load_data_profiles(data):
     """
     """

@@ -319,16 +319,12 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     '''
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
-def run():
+def run(path_main, local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    # Paths
-    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21]) #Remove energy_demand/scripts
-    path_main = os.path.dirname(os.path.abspath(__file__))[:-21]
-
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    path_out = os.path.join(path_main, 'data', 'data_scripts', 'services')
 
     # Load data and assumptions
     base_data = data_loader.load_paths(path_main, local_data_path)
@@ -375,31 +371,31 @@ def run():
 
     # Write to csv files
     write_service_tech_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_tech_by_p.csv'),
+        os.path.join(path_out, 'rs_service_tech_by_p.csv'),
         rs_service_tech_by_p)
     write_service_tech_by_p(
-        os.path.join(path_main,'data', 'data_scripts', 'services', 'ss_service_tech_by_p.csv'),
+        os.path.join(path_out, 'ss_service_tech_by_p.csv'),
         ss_service_tech_by_p)
     write_service_tech_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_tech_by_p.csv'),
+        os.path.join(path_out, 'is_service_tech_by_p.csv'),
         is_service_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_fueltype_tech_by_p.csv'), 
+        os.path.join(path_out, 'rs_service_fueltype_tech_by_p.csv'), 
         rs_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'ss_service_fueltype_tech_by_p.csv'),
+        os.path.join(path_out, 'ss_service_fueltype_tech_by_p.csv'),
         ss_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_fueltype_tech_by_p.csv'),
+        os.path.join(path_out, 'is_service_fueltype_tech_by_p.csv'),
         is_service_fueltype_tech_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'rs_service_fueltype_by_p.csv'),
+        os.path.join(path_out, 'rs_service_fueltype_by_p.csv'),
         rs_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'ss_service_fueltype_by_p.csv'),
+        os.path.join(path_out, 'ss_service_fueltype_by_p.csv'),
         ss_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_main, 'data', 'data_scripts', 'services', 'is_service_fueltype_by_p.csv'),
+        os.path.join(path_out, 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
     print("... finished script {}".format(os.path.basename(__file__)))

@@ -431,15 +431,10 @@ def write_disagg_fuel_sector(path_to_txt, data):
 
     return
 
-def run():
+def run(path_main, local_data_path):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-
-    # Paths
-    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))) #[:-7])
-    path_main = os.path.dirname(os.path.abspath(__file__))[:-21]
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data and assumptions
     base_data = data_loader.load_paths(path_main, local_data_path)
@@ -456,6 +451,7 @@ def run():
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     base_data = data_loader.dummy_data_generation(base_data)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
     # Disaggregation
     base_data = disaggregate_base_demand(base_data)
 

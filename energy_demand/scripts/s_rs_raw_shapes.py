@@ -207,26 +207,22 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-def run():
+#def run():
+def run(path_main, local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    #path_main = os.path.join(os.path.dirname(__file__), '..', 'data')
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21], 'data')
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
-    script_data_path = r'C:\Users\cenv0553\GIT'
-
     path_hes_load_profiles = os.path.join(
         local_data_path, r'01-hes_data\HES_base_appliances_eletricity_load_profiles.csv')
     sim_param = s_shared_functions.read_assumption_sim_param(
         os.path.join(
-            script_data_path, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
+            path_main, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
     path_rs_txt_shapes = os.path.join(
-        path_main, 'data_scripts', 'load_profiles', 'rs_submodel')
+        path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel')
     path_rs_fuel_raw_data = os.path.join(
-        path_main, 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
+        path_main, 'data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
 
     hes_appliances_matching = {
         'rs_cold': 0,

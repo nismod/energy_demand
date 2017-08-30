@@ -6,6 +6,7 @@ import csv
 from datetime import date
 import collections
 import numpy as np
+from energy_demand.read_write import data_loader
 
 def read_weather_data_raw(path_to_csv, placeholder_value=999):
     """Read in raw weather data
@@ -282,29 +283,19 @@ def write_weather_stations(path_to_txt, weather_station):
 
     file.close()
     print("...finished write_weather_stations")
-
     return
 
-
-def run():
+def run(main_path, local_data_path):
     """Function to run script
     """
     print("..start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    loca_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
-    out_path_weather_data = os.path.join(
-        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
-    out_path_weather_stations = os.path.join(
-        os.path.dirname(__file__), '..', 'data', 'data_scripts', 'weather_data', 'weather_stations.csv')
-    path_weather_data = os.path.join(
-        loca_data_path, '16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv')
-    path_weather_stations = os.path.join(
-        loca_data_path, '16-Met_office_weather_data', 'excel_list_station_details.csv')
+    base_data = data_loader.load_paths(main_path, local_data_path)
 
     # Read in raw temperature data
     temperature_data_raw = read_weather_data_raw(
-        path_weather_data)
+        base_data['paths']['folder_path_weater_data'])
 
     # Clean raw temperature data
     temperature_data = clean_weather_data_raw(
@@ -312,15 +303,17 @@ def run():
 
     # Weather stations
     weather_stations = read_weather_stations_raw(
-        path_weather_stations,
+        base_data['paths']['folder_path_weater_stations'],
         temperature_data.keys()
         )
 
-    # ----------------------
     # Write out to csv files
-    # ----------------------
-    write_weather_stations(out_path_weather_stations, weather_stations)
-    write_weather_data(out_path_weather_data, temperature_data)
+    write_weather_stations(
+        os.path.join(main_path, 'data', 'data_scripts', 'weather_data', 'weather_stations.csv'),
+        weather_stations)
+    write_weather_data(
+        os.path.join(main_path, 'data', 'data_scripts', 'weather_data', 'weather_data.csv'),
+        temperature_data)
 
     print("..finished script {}".format(os.path.basename(__file__)))
     return

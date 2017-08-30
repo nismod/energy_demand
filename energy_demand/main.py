@@ -51,13 +51,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 print("Start Energy Demand Model with python version: " + str(sys.version))
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 #!python3.6
-'''
-import inspect
-__location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
-a = os.path.join(__location__, "*")
-# '''
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -164,6 +158,7 @@ if __name__ == "__main__":
 
         if instrument_profiler:
             profiler.stop()
+            print("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
@@ -265,7 +260,7 @@ if __name__ == "__main__":
 
     # Plot total fuel (y) per fueltype
     plotting_results.plot_fuels_tot_all_enduses("figure_tot_all_enduse01.pdf", results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plot_fuels_tot_all_enduses("figure_tot_all_enduse02.pdf",results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
+    plotting_results.plot_fuels_tot_all_enduses("figure_tot_all_enduse02.pdf", results_every_year, base_data, 'rs_tot_fuels_all_enduses_y')
 
     # Plot peak demand (h) per fueltype
     plotting_results.plot_fuels_peak_hour(results_every_year, base_data, 'rs_tot_fuel_y_max_allenduse_fueltyp')
@@ -277,5 +272,5 @@ if __name__ == "__main__":
 
     # Plot all enduses
     plotting_results.plot_stacked_Country_end_use("figure_stacked_country_final.pdf", base_data, results_every_year, base_data['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
-    
+
     print("... Finished running Energy Demand Model")

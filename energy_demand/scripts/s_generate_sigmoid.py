@@ -598,15 +598,12 @@ def write_tech_increased_service(path_to_txt, data):
 
     return
 
-def run():
+def run(path_main, local_data_path):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    # Paths
-    #path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))) #[:-7])
-    path_main = os.path.dirname(os.path.abspath(__file__))[:-21]
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    path_out = os.path.join(path_main, 'data', 'data_scripts')
 
     # Load data and assumptions
     base_data = data_loader.load_paths(path_main, local_data_path)
@@ -684,48 +681,48 @@ def run():
 
     # Write out to csv
     write_installed_tech(
-        os.path.join(path_main, 'data', 'data_scripts', 'rs_installed_tech.csv'),
+        os.path.join(path_out, 'rs_installed_tech.csv'),
                          rs_installed_tech)
     write_installed_tech(
-        os.path.join(path_main, 'data', 'data_scripts', 'ss_installed_tech.csv'),
+        os.path.join(path_out, 'ss_installed_tech.csv'),
                          ss_installed_tech)
     write_installed_tech(
-        os.path.join(path_main, 'data', 'data_scripts', 'is_installed_tech.csv'),
+        os.path.join(path_out, 'is_installed_tech.csv'),
                          is_installed_tech)
     write_sig_param_tech(
-        os.path.join(path_main, 'data', 'data_scripts', 'rs_sig_param_tech.csv'),
+        os.path.join(path_out, 'rs_sig_param_tech.csv'),
                          rs_sig_param_tech)
     write_sig_param_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'ss_sig_param_tech.csv'),
+        path_out, 'ss_sig_param_tech.csv'),
                          ss_sig_param_tech)
     write_sig_param_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'is_sig_param_tech.csv'),
+        path_out, 'is_sig_param_tech.csv'),
                          is_sig_param_tech)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'rs_tech_increased_service.csv'),
+        path_out, 'rs_tech_increased_service.csv'),
                          rs_tech_increased_service)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'ss_tech_increased_service.csv'),
+        path_out, 'ss_tech_increased_service.csv'),
                          ss_tech_increased_service)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'is_tech_increased_service.csv'),
+        path_out, 'is_tech_increased_service.csv'),
                          is_tech_increased_service)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'rs_tech_decreased_share.csv'),
+        path_out, 'rs_tech_decreased_share.csv'),
                          rs_tech_decreased_share)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'ss_tech_decreased_share.csv'),
+        path_out, 'ss_tech_decreased_share.csv'),
                          ss_tech_decreased_share)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'is_tech_decreased_share.csv'),
+        path_out, 'is_tech_decreased_share.csv'),
                          is_tech_decreased_share)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'rs_tech_constant_share.csv'),
+        path_out, 'rs_tech_constant_share.csv'),
                          rs_tech_constant_share)
     write_installed_tech(os.path.join(
-        path_main, 'data', 'data_scripts', 'ss_tech_constant_share.csv'),
+        path_out, 'ss_tech_constant_share.csv'),
                          ss_tech_constant_share)
-    write_installed_tech(os.path.join(path_main, 'data', 'data_scripts', 'is_tech_constant_share.csv'),
+    write_installed_tech(os.path.join(path_out, 'is_tech_constant_share.csv'),
                          is_tech_constant_share)
 
     print("... finished script {}".format(os.path.basename(__file__)))
