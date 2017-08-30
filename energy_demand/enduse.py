@@ -236,7 +236,7 @@ class Enduse(object):
                 # Get enduse specific configurations
                 # ----
                 mode_constrained = self.get_running_mode(
-                    data['mode_constrained'],
+                    data['assumptions']['mode_constrained'],
                     data['assumptions']['enduse_space_heating'])
 
                 crit_switch_fuel = self.get_crit_switch(

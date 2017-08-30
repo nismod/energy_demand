@@ -82,8 +82,8 @@ def energy_demand_model(data):
         data=data,
     )
 
-    # Summing
-    fueltot = model_run_object.sum_uk_fueltypes_enduses_y # Total fuel of country
+    # Total fuel of country
+    fueltot = model_run_object.sum_uk_fueltypes_enduses_y 
 
     print("================================================")
     print("Simulation year:     " + str(model_run_object.curr_yr))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     instrument_profiler = True
 
     # Paths
-    path_main = os.path.dirname(os.path.abspath(__file__))[:-13] #Remove 'energy_demand'
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..") #[:-13] #Remove 'energy_demand'
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data

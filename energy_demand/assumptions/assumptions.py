@@ -17,7 +17,6 @@ from energy_demand.read_write import data_loader
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
-
 def load_assumptions(data):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
@@ -40,8 +39,9 @@ def load_assumptions(data):
         start=date(data['sim_param']['base_yr'], 1, 1),
         end=date(data['sim_param']['base_yr'], 12, 31))
 
+    # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology. If True, heat is delievered with fueltype
-    data['mode_constrained'] = False # True --> Technologies are defined in ED model, False: heat is delievered
+    assumptions['mode_constrained'] = False # True --> Technologies are defined in ED model, False: heat is delievered
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -98,14 +98,6 @@ def load_assumptions(data):
         'bungalow': 77
         } # SOURCE?
 
-    # SCRAP NEW
-
-
-
-
-
-
-    # ----------------------
 
     # Assumption about age distribution
     assumptions['dwtype_age_distr'] = {
@@ -206,17 +198,23 @@ def load_assumptions(data):
     # ============================================================
     assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5
+        'end_yr': 15.5 #replaced by rs_t_base_heating_ey
         }
+
     assumptions['ss_t_base_heating'] = {
         'base_yr': 15.5,
         'end_yr': 15.5
         }
 
     # Cooling base temperature
-    assumptions['rs_t_base_cooling'] = {'base_yr': 21.0, 'end_yr': 21.0}
-    assumptions['ss_t_base_cooling'] = {'base_yr': 15.5, 'end_yr': 21.0}
-
+    assumptions['rs_t_base_cooling'] = {
+        'base_yr': 21.0,
+        'end_yr': 21.0
+        }
+    assumptions['ss_t_base_cooling'] = {
+        'base_yr': 15.5,
+        'end_yr': 15.5
+        }
 
     # Sigmoid parameters for diffusion of penetration of smart meters
     assumptions['base_temp_diff_params'] = {}
@@ -490,7 +488,6 @@ def load_assumptions(data):
 
     return assumptions
 
-
 def run():
     """Function to write out assumptions
     """
@@ -501,7 +498,7 @@ def run():
     data['assumptions'] = load_assumptions(data)
 
     # Write out temperature assumptions
-    write_data.write_out_temp_assumptions(
+    '''write_data.write_out_temp_assumptions(
         os.path.join(data['paths']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
         data['assumptions']['climate_change_temp_diff_month'])
 
@@ -515,5 +512,6 @@ def run():
             'assumptions_sim_param.csv'),
         data['sim_param']
     )
+    '''
 
     return

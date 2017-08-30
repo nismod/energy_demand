@@ -47,7 +47,7 @@ def run(run_basic_scripts=False, run_scenario_scripts=True):
     if run_scenario_scripts:
 
         import s_change_temp
-        s_change_temp.run(path_main)
+        s_change_temp.run(path_main, local_data_path)
 
         import s_fuel_to_service
         s_fuel_to_service.run(path_main, local_data_path)

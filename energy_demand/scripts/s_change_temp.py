@@ -8,6 +8,8 @@ from datetime import timedelta
 import numpy as np
 from energy_demand.scripts import s_shared_functions
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.read_write import data_loader
+from energy_demand.assumptions import assumptions
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
@@ -151,17 +153,21 @@ def write_chanted_temp_data(path_to_txt, weather_data):
 # Paths
 # ----------------------
 
-def run(local_data_path):
+def run(path_main, local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Execute assumptions file to write out assumptions
     temperature_data = read_weather_data_script_data(
-        os.path.join(local_data_path, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
+        os.path.join(path_main, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
         )
 
-    assumptions_temp_change = read_assumption(
+    data = data_loader.load_paths(path_main, local_data_path)
+    base_data = data_loader.load_fuels(data)
+    data['assumptions'] = assumptions.load_assumptions(data)
+    assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
+    '''assumptions_temp_change = read_assumption(
         os.path.join(
             local_data_path,
             'data',
@@ -179,15 +185,15 @@ def run(local_data_path):
             'assumptions_from_db',
             'assumptions_sim_param.csv'
         )
-    )
-
+    )'''
+    sim_param = data['sim_param']
     temp_climate_change = change_temp_climate_change(
         temperature_data, assumptions_temp_change, sim_param)
 
     # Write out temp_climate_change
     write_chanted_temp_data(
         os.path.join(
-            local_data_path,
+            path_main,
             'data',
             'data_scripts',
             'weather_data',

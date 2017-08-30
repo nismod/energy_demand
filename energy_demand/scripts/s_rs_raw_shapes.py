@@ -6,6 +6,7 @@ from datetime import date
 import numpy as np
 from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
+from energy_demand.read_write import data_loader
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -212,13 +213,17 @@ def run(path_main, local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-
+    
     # Paths
     path_hes_load_profiles = os.path.join(
         local_data_path, r'01-hes_data\HES_base_appliances_eletricity_load_profiles.csv')
-    sim_param = s_shared_functions.read_assumption_sim_param(
+    '''sim_param = s_shared_functions.read_assumption_sim_param(
         os.path.join(
             path_main, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
+    '''
+    data = data_loader.load_paths(path_main, local_data_path)
+    sim_param = data['assumptions']['sim_param']
+    
     path_rs_txt_shapes = os.path.join(
         path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel')
     path_rs_fuel_raw_data = os.path.join(
