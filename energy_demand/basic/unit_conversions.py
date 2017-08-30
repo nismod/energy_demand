@@ -3,7 +3,7 @@
 import numpy as np
 
 def convert_kwh_gwh(kwh):
-    """"Conversion of MW to GWh TODO: CHECK
+    """"Conversion of MW to GWh
 
     Input
     -----

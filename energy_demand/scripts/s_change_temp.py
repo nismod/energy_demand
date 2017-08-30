@@ -29,6 +29,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     fract_sy : float
         The fraction of the fuel_enduse_switch in the simulation year
     """
+    # SHARK
     # If current year is base year, return zero
     if curr_yr == base_yr or sim_years == 0:
         fract_sy = 0
@@ -148,7 +149,8 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
                 # Iterate hours of base year
                 for hour, temp_old in enumerate(temperature_data[station_id][yearday]):
-                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
+                    #temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
+                    temp_climate_change[station_id][curr_yr][yearday][hour] = lin_diff_f #SHARK
 
     return temp_climate_change
 

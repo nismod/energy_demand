@@ -63,7 +63,7 @@ class Dwelling(object):
         self.population = population
         self.floorarea = floorarea
         self.sector_type = sector_type
-        self.gva = gva #TODO:
+        self.gva = gva
 
         # FACTORS
         # HOW MUCH MORE ENERGY e.g. certain dwelling type uses
@@ -256,13 +256,14 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                 lin_diff_factor = diffusion.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
-                    0,
+                    0, #vorher 0 #SHARK
                     assump_final_diff_floorarea_pp,
                     sim_param['sim_period_yrs']
                     )
 
                 # Floor area per person of simulation year
                 floor_area_pp[curr_yr] = floorarea_pp_by + floorarea_pp_by * lin_diff_factor
+                #floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor #SHARK
 
         data_floorarea_pp[region] = floor_area_pp
 
@@ -421,7 +422,8 @@ def ss_dw_stock(regions, data):
                     )
 
                 floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
-                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor #TODO MULTIPLY
+                floorarea_sector_cy = floorarea_sector_by + lin_diff_factor
+                #floorarea_sector_cy = floorarea_sector_by * lin_diff_factor #TODO MULTIPLY todo TODO SHARK
 
                 # create dwelling objects
                 dw_stock.append(

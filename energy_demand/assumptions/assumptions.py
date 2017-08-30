@@ -55,9 +55,10 @@ def load_assumptions(data):
         4: 'bungalow'
         }
 
-    # Change in floor area per person up to end_yr (e.g. 0.4 --> 40% increase (the one is added in the model))
+    # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 0
+    #assumptions['assump_diff_floorarea_pp'] = 1 #SHARK (vorher 0)
 
     # Specific Energy Demand factors per dwelling type could be defined
     # (e.g. per dwelling type or GVA class or residents....) #TODO
