@@ -366,61 +366,6 @@ def load_assumptions(data):
         hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
         hybrid_cutoff_temp_high=7)
 
-    # ------------------
-    # --Technology list definition (fixed)
-    # ------------------
-    '''# Regular heating technologies which are not dependent on temperature
-    assumptions['technology_list']['tech_heating_const'] = [
-        'boiler_gas',
-        'boiler_electricity',
-        'boiler_hydrogen',
-        'boiler_biomass',
-        'boiler_solid_fuel',
-        'boiler_oil',
-        'boiler_heat_sold',
-        'storage_heater_electricity',
-        'secondary-heater_electricity',
-        'fuel_cell_CHP',
-        'stirling_micro_CHP'
-        ]
-
-    # FROM HES Electricity heating
-    assumptions['technology_list']['primary_heating_electricity'] = ['storage_heater_electricity']
-    assumptions['technology_list']['secondary_heating_electricity'] = ['secondary_heater_electricity']
-
-    # Lighting technologies
-    assumptions['technology_list']['rs_lighting'] = [
-        'standard_lighting_bulb',
-        'fluorescent_strip_lightinging',
-        'halogen_elec',
-        'energy_saving_lighting_bulb',
-        'LED',
-        'halogen'
-        ]
-
-    # Cold technologies
-    assumptions['technology_list']['rs_cold'] = [
-        'chest_freezer',
-        'fridge_freezer',
-        'refrigerator',
-        'upright_freezer'
-        ]
-
-    # Cooking technologies
-    assumptions['technology_list']['rs_cooking'] = [
-        'hob_electricity',
-        'oven_electricity',
-        'hob_induction_electricity'
-        ]
-
-    # Wet technologies
-    assumptions['technology_list']['rs_wet'] = [
-        'washing_machine',
-        'washer_dryer',
-        'dishwasher',
-        'tumble_dryer'
-        ]
-    '''
     # ----------
     # Enduse definition list
     # ----------
