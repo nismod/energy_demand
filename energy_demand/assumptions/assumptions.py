@@ -336,7 +336,7 @@ def load_assumptions(data):
     assumptions['technology_list'] = {}
 
     # Load all technologies
-    assumptions['technologies'] = read_data.read_technologies(
+    assumptions['technologies'], assumptions['technology_list'] = read_data.read_technologies(
         data['paths']['path_technologies'],
         data['lu_fueltype'])
 
@@ -351,7 +351,7 @@ def load_assumptions(data):
         split_heat_pump_ASHP_GSHP,
         data)
 
-    # Add heat pumps to technologies
+    # Add heat pumps to technologies #SHARK
     assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(
         data,
         [],
@@ -369,7 +369,7 @@ def load_assumptions(data):
     # ------------------
     # --Technology list definition (fixed)
     # ------------------
-    # Regular heating technologies which are not dependent on temperature
+    '''# Regular heating technologies which are not dependent on temperature
     assumptions['technology_list']['tech_heating_const'] = [
         'boiler_gas',
         'boiler_electricity',
@@ -420,7 +420,7 @@ def load_assumptions(data):
         'dishwasher',
         'tumble_dryer'
         ]
-
+    '''
     # ----------
     # Enduse definition list
     # ----------

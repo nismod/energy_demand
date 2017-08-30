@@ -390,6 +390,8 @@ def read_assump_fuel_switches(path_to_csv, data):
 def read_technologies(path_to_csv, lu_fueltype):
     """This function reads in CSV files and skips header row.
 
+    TODO: READ OUT LISTS
+
     Parameters
     ----------
     path_to_csv : str
@@ -401,6 +403,7 @@ def read_technologies(path_to_csv, lu_fueltype):
         All technologies and their assumptions provided as input
     """
     dict_technologies = {}
+    dict_technology_lists = {}
 
     # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
@@ -415,19 +418,25 @@ def read_technologies(path_to_csv, lu_fueltype):
                 fueltype = 'None'
             else:
                 fueltype = lu_fueltype[str(row[1])]
-            try:
+            #try:
+            if 1 == 1:
                 dict_technologies[technology] = {
                     'fuel_type': fueltype,
                     'eff_by': float(row[2]),
                     'eff_ey': float(row[3]),
                     'eff_achieved': float(row[4]),
                     'diff_method': str(row[5]),
-                    'market_entry': float(row[6])
+                    'market_entry': float(row[6]),
+                    'technology_list': str.strip(row[7])
                 }
-            except:
-                sys.exit("Error in technology loading table. Check if e.g. empty field")
+                try:
+                    dict_technology_lists[str.strip(row[7])].append(technology)
+                except KeyError:
+                    dict_technology_lists[str.strip(row[7])] = [technology]
+            #except:
+            #    sys.exit("Error in technology loading table. Check if e.g. empty field")
 
-    return dict_technologies
+    return dict_technologies, dict_technology_lists
 
 def read_csv_base_data_resid(path_to_csv):
     """This function reads in base_data_CSV all fuel types

@@ -112,7 +112,7 @@ if __name__ == "__main__":
     instrument_profiler = True
 
     # Paths
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..") #[:-13] #Remove 'energy_demand'
+    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
 
     # Load data
