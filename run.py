@@ -1,8 +1,8 @@
 """The sector model wrapper for smif to run the energy demand model
 """
 import os
-from smif import SpaceTimeValue
-from smif.sector_model import SectorModel
+import numpy as np
+from smif.model.sector_model import SectorModel
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write_loader import load_data
 from energy_demand.assumptions import load_assumptions
@@ -12,14 +12,7 @@ from energy_demand.dw_stock import resid_build_stock
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
 
-    def simulate(self, decisions, state, data):
-        """This method should allow run model with inputs and outputs as arrays
-
-        Arguments
-        =========
-        decision_variables : x-by-1 :class:`numpy.ndarray`
-        """
-        timestep = data['timestep']
+    def simulate(self, timestep, data=None):
 
         # Population
         pop = {}
@@ -71,15 +64,16 @@ class EDWrapper(SectorModel):
         base_data = resid_build_stock(
             base_data, base_data['assumptions'], data_external)
 
+        base_data.update(data_external)
         # Run Model
-        results = energy_demand_model(base_data, data_external)
+        results = energy_demand_model(base_data)
 
         # results will be written to results.yaml by default
         output = {}
         for parameter, results_list in results.items():
             if parameter in ['electricity', 'gas']:
                 output[parameter + '_demand'] = [
-                    SpaceTimeValue(region_name, hour, demand, units)
+                    np.array([region_name, hour, demand, units])
                     for region_name, hour, demand, units in results_list
                 ]
 
