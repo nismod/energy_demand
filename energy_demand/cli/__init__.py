@@ -1,11 +1,13 @@
 """Provides an entry point from the command line to the energy demand model
 """
+from pkg_resources import Requirement, resource_filename
 from argparse import ArgumentParser
+import os
+import sys
 import energy_demand
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import assumptions
-import os
 
 def run_model(args):
     """
@@ -17,7 +19,8 @@ def run_model(args):
     to the model
 
     """
-    path_main = ''
+    path_main = resource_filename(Requirement.parse("hire"), "data"))
+
     local_data_path = args.data_folder
 
     # Load data
