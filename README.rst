@@ -11,9 +11,12 @@ High Resolution Energy Demand Model
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-
 .. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
     :target: https://travis-ci.org/nismod/energy_demand
+
+.. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
+    :target: https://coveralls.io/github/nismod/energy_demand
+
 
 A word from our sponsors
 ========================
