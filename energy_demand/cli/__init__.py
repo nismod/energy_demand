@@ -19,7 +19,7 @@ def run_model(args):
     to the model
 
     """
-    path_main = resource_filename(Requirement.parse("hire"), "data"))
+    path_main = resource_filename(Requirement.parse("energy_demand"), "data"))
 
     local_data_path = args.data_folder
 
