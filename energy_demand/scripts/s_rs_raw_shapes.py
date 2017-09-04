@@ -7,6 +7,7 @@ import numpy as np
 from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
 from energy_demand.read_write import data_loader
+from energy_demand.assumptions import assumptions
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -208,26 +209,17 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-#def run():
 def run(path_main, local_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-    
-    # Paths
-    path_hes_load_profiles = os.path.join(
-        local_data_path, r'01-hes_data\HES_base_appliances_eletricity_load_profiles.csv')
-    '''sim_param = s_shared_functions.read_assumption_sim_param(
-        os.path.join(
-            path_main, 'data', 'data_scripts', 'assumptions_from_db', 'assumptions_sim_param.csv'))
-    '''
-    data = data_loader.load_paths(path_main, local_data_path)
-    sim_param = data['assumptions']['sim_param']
-    
-    path_rs_txt_shapes = os.path.join(
-        path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel')
-    path_rs_fuel_raw_data = os.path.join(
-        path_main, 'data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv')
+
+    # Load paths
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data = data_loader.load_fuels(data)
+    data['assumptions'] = assumptions.load_assumptions(data)
 
     hes_appliances_matching = {
         'rs_cold': 0,
@@ -246,7 +238,7 @@ def run(path_main, local_data_path):
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
     hes_data, hes_y_peak, _ = read_hes_data(
-        path_hes_load_profiles,
+        data['local_paths']['path_bd_e_load_profiles'],
         len(hes_appliances_matching)
         )
 
@@ -254,10 +246,12 @@ def run(path_main, local_data_path):
     year_raw_hes_values = assign_hes_data_to_year(
         len(hes_appliances_matching),
         hes_data,
-        int(sim_param['base_yr'])
+        int(data['sim_param']['base_yr'])
         )
 
-    _, rs_enduses = read_data.read_csv_base_data_resid(path_rs_fuel_raw_data)
+    _, rs_enduses = read_data.read_csv_base_data_resid(
+        data['paths']['path_rs_fuel_raw_data_enduses']
+        )
 
     # Load shape for all enduses
     for enduse in rs_enduses:
@@ -275,7 +269,7 @@ def run(path_main, local_data_path):
             # Write txt files
             s_shared_functions.create_txt_shapes(
                 enduse,
-                path_rs_txt_shapes,
+                data['local_paths']['path_rs_load_profiles'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

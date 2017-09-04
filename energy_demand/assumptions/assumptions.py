@@ -432,31 +432,3 @@ def load_assumptions(data):
     testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
     return assumptions
-
-def run():
-    """Function to write out assumptions
-    """
-    path_main = os.path.dirname(os.path.abspath(__file__))[:-25] #Remove 'energy_demand'
-
-    data = data_loader.load_paths(path_main, 'Y:\01-Data_NISMOD\data_energy_demand')
-    data = data_loader.load_fuels(data)
-    data['assumptions'] = load_assumptions(data)
-
-    # Write out temperature assumptions
-    '''write_data.write_out_temp_assumptions(
-        os.path.join(data['paths']['path_assumptions_db'], "assumptions_climate_change_temp.csv"),
-        data['assumptions']['climate_change_temp_diff_month'])
-
-    # Write out sigmoid parameters
-    write_data.write_out_sim_param(
-        os.path.join(
-            path_main,
-            'data',
-            'data_scripts',
-            'assumptions_from_db',
-            'assumptions_sim_param.csv'),
-        data['sim_param']
-    )
-    '''
-
-    return

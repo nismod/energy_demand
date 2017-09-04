@@ -41,15 +41,21 @@ def read_weather_data_script_data(path_to_csv):
 
         for row in read_lines:
             station_id = str(row[0])
-            day = float(row[1])
-            hour = float(row[2])
-            temperature = float(row[3])
+            year = float(row[1])
+            day = int(row[2])
+            hour = int(row[3])
+            temperature = float(row[4])
 
             try:
-                temp_data[station_id][int(day)][int(hour)] = temperature
+                temp_data[station_id]
             except KeyError:
-                temp_data[station_id] = np.zeros((365, 24))
-                temp_data[station_id][int(day)][int(hour)] = temperature
+                temp_data[station_id] = {}
+            try:
+                temp_data[station_id][year]
+            except KeyError:
+                temp_data[station_id][year] = np.zeros((365, 24))
+
+            temp_data[station_id][year][day][hour] = temperature
 
     return temp_data
 

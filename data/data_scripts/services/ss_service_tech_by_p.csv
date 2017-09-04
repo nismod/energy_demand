@@ -1,0 +1,16 @@
+enduse, technology, service_p
+ss_other_electricity, dummy_tech, nan
+ss_cooling_ventilation, dummy_tech, nan
+ss_catering, dummy_tech, nan
+ss_computing, dummy_tech, nan
+ss_other_gas, dummy_tech, nan
+ss_water_heating, dummy_tech, nan
+ss_space_heating, boiler_solid_fuel, 0.0
+ss_space_heating, boiler_gas, 0.7329995706383317
+ss_space_heating, boiler_electricity, 0.1253744408919051
+ss_space_heating, hybrid_gas_electricity, 0.005013943832824076
+ss_space_heating, boiler_oil, 0.08625584119454253
+ss_space_heating, boiler_heat_sold, 0.03331513062182409
+ss_space_heating, boiler_biomass, 0.01704107282057268
+ss_space_heating, boiler_hydrogen, 0.0
+ss_lighting, dummy_tech, nan

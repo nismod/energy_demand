@@ -9,10 +9,10 @@ from energy_demand.read_write import write_data
 from energy_demand.basic import unit_conversions
 from energy_demand.plotting import plotting_results
 
-def dummy_data_generation(base_data):
+def dummy_data_generation(data):
     """TODO: REPLACE WITH NEWCASTLE DATA
     """
-    base_data['all_sectors'] = [
+    data['all_sectors'] = [
         'community_arts_leisure',
         'education',
         'emergency_services',
@@ -26,7 +26,7 @@ def dummy_data_generation(base_data):
         ]
     # Load dummy LAC and pop (Full List is : infuse_dist_lyr_2011.csv  otherwise infuse_dist_lyr_2011_saved.)
     dummy_pop_geocodes = load_LAC_geocodes_info(
-        base_data['paths']['path_dummpy_regions']
+        data['local_paths']['path_dummy_regions']
         ) 
 
     regions = {}
@@ -41,20 +41,20 @@ def dummy_data_generation(base_data):
 
     # GVA
     gva_data = {}
-    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
         gva_data[year] = {}
         for region_geocode in regions:
             gva_data[year][region_geocode] = 999
 
     # Population
-    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
 
     # Residenital floor area
-    for year in range(base_data['sim_param']['base_yr'], base_data['sim_param']['end_yr'] + 1):
+    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
         rs_floorarea[year] = {}
         for region_geocode in regions:
             rs_floorarea[year][region_geocode] = pop_dummy[year][region_geocode] #USE FLOOR AREA
@@ -62,69 +62,102 @@ def dummy_data_generation(base_data):
     # Dummy flor area
     for region_geocode in regions:
         ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in base_data['all_sectors']:
+        for sector in data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
 
-    base_data['rs_floorarea'] = rs_floorarea
-    base_data['ss_floorarea'] = ss_floorarea_sector_by_dummy
+    data['rs_floorarea'] = rs_floorarea
+    data['ss_floorarea'] = ss_floorarea_sector_by_dummy
 
     # -----------------------------
     # Read in floor area of all regions and store in dic# TODO: REPLACE WITH Newcastle if ready
     # -----------------------------
     #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
-    base_data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
+    data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
     for region_name in regions:
-        base_data['lu_reg'][region_name] = region_name
+        data['lu_reg'][region_name] = region_name
 
     #TODO: FLOOR_AREA_LOOKUP:
-    base_data['reg_floorarea_resid'] = {}
-    for region_name in pop_dummy[base_data['sim_param']['base_yr']]:
-        base_data['reg_floorarea_resid'][region_name] = 100000
+    data['reg_floorarea_resid'] = {}
+    for region_name in pop_dummy[data['sim_param']['base_yr']]:
+        data['reg_floorarea_resid'][region_name] = 100000
     
-    base_data['GVA'] = gva_data
-    base_data['input_regions'] = regions
-    base_data['population'] = pop_dummy
-    base_data['reg_coordinates'] = coord_dummy
-    base_data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    data['GVA'] = gva_data
+    data['input_regions'] = regions
+    data['population'] = pop_dummy
+    data['reg_coordinates'] = coord_dummy
+    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
-    return base_data
+    return data
 
-def load_paths(path_main, local_data_path):
-    """Load all paths
+def load_local_paths(local_path):
+    """Create all local paths and folders
+    """
+    paths = {
+        'path_bd_e_load_profiles': os.path.join(local_path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
+        'folder_raw_carbon_trust': os.path.join(local_path, '_raw_data', "G_Carbon_Trust_advanced_metering_trial"),
+        'folder_path_weater_data': os.path.join(local_path, '_raw_data', 'H-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
+        'folder_path_weater_stations': os.path.join(local_path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
+        'folder_validation_national_elec_data': os.path.join(local_path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
+        'path_dummy_regions': os.path.join(local_path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved_short.csv'),
+        
+        'path_assumptions_db': os.path.join(local_path, '_processed_data', 'assumptions_from_db'),
+        
+        'path_rs_load_profile_txt': os.path.join(local_path, '_processed_data', 'load_profiles', 'rs_submodel'),
+        'path_ss_load_profile_txt': os.path.join(local_path, '_processed_data', 'load_profiles', 'ss_submodel'),
+
+        # Output Data
+        'path_data_processed': os.path.join(local_path, '_processed_data'),
+        'path_data_results': os.path.join(local_path, '_result_data'),
+        'path_processed_weather_data': os.path.join(local_path, '_processed_data', 'weather_data','weather_data.csv'),
+        'path_changed_weather_station_data': os.path.join(local_path, '_processed_data', 'weather_data', 'weather_stations.csv'),
+        'path_changed_weather_data': os.path.join(local_path, '_processed_data', 'weather_data', 'weather_data_changed_climate.csv'),
+
+        'path_load_profiles': os.path.join(local_path, '_processed_data', 'load_profiles'),
+        'path_rs_load_profiles': os.path.join(local_path, '_processed_data', 'load_profiles', 'rs_submodel'),
+        'path_ss_load_profiles': os.path.join(local_path, '_processed_data', 'load_profiles', 'ss_submodel'),
+        'path_dir_changed_weather_data': os.path.join(local_path, '_processed_data', 'weather_data'),
+        
+        'path_dir_disattregated': os.path.join(local_path, '_processed_data', 'disaggregated'),
+        'path_dir_services': os.path.join(local_path, '_processed_data', 'services') 
+        }
+
+    # Create folders is they do not exist yet
+    if not os.path.exists(paths['path_data_processed']):
+        os.makedirs(paths['path_data_processed'])
+    if not os.path.exists(paths['path_data_results']):
+        os.makedirs(paths['path_data_results'])
+    if not os.path.exists(paths['path_load_profiles']):
+        os.makedirs(paths['path_load_profiles'])
+    if not os.path.exists(paths['path_rs_load_profiles']):
+        os.makedirs(paths['path_rs_load_profiles'])
+    if not os.path.exists(paths['path_ss_load_profiles']):
+        os.makedirs(paths['path_ss_load_profiles'])
+    if not os.path.exists(paths['path_dir_disattregated']):
+        os.makedirs(paths['path_dir_disattregated'])
+    if not os.path.exists(paths['path_dir_services']):
+        os.makedirs(paths['path_dir_services'])
+    if not os.path.exists(paths['path_dir_changed_weather_data']):
+        os.makedirs(paths['path_dir_changed_weather_data'])
+
+    return paths
+
+def load_paths(path_main):
+    """Load all paths and create folders
 
     Parameters
     ----------
     path_main : str
         Main path
-    local_data_path : str
-        Local path
 
     Return
     ------
     out_dict : dict
         Data container containing dics
     """
-    out_dict = {}
-    out_dict['paths'] = {
+    paths = {
 
-        # Local paths
-        'path_bd_e_load_profiles': os.path.join(local_data_path, r'01-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
-        'folder_raw_carbon_trust': os.path.join(local_data_path, r"09_Carbon_Trust_advanced_metering_trial"),
-        'folder_path_weater_data': os.path.join(local_data_path, r'16-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
-        'folder_path_weater_stations': os.path.join(local_data_path, r'16-Met_office_weather_data', 'excel_list_station_details.csv'),
-        'folder_validation_national_elec_data': os.path.join(local_data_path, r'04-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
-        'path_dummpy_regions': r'Y:\01-Data_NISMOD\data_energy_demand\02-census_data\regions_local_area_districts\_quick_and_dirty_spatial_disaggregation\infuse_dist_lyr_2011_saved_short.csv',
-        
         # Residential
-        # -----------
         'path_main': path_main,
-
-        'path_scripts_data': os.path.join(path_main, 'data', 'data_scripts'),
-        'path_assumptions_db': os.path.join(path_main, 'data', 'data_scripts', 'assumptions_from_db'),
-        
-        # Paths to txt shapes
-        'path_rs_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'rs_submodel'),
-        'path_ss_load_profile_txt': os.path.join(path_main, 'data', 'data_scripts', 'load_profiles', 'ss_submodel'),
 
         # Path for dwelling stock assumptions
         'path_dwtype_lu': os.path.join(path_main, 'data', 'submodel_residential', 'lookup_dwelling_type.csv'),
@@ -165,7 +198,7 @@ def load_paths(path_main, local_data_path):
         'path_shape_rs_space_heating_secondary_heating': os.path.join(path_main, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv')
         }
 
-    return  out_dict
+    return paths
 
 def load_data_tech_profiles(data):
     """TODO
@@ -219,13 +252,13 @@ def load_data_profiles(data):
 
     return data
 
-def load_data_temperatures(path_scripts_data):
+def load_data_temperatures(local_paths):
     """Read in cleaned temperature and weather station data
 
     Parameters
     ----------
-    path_scripts_data : str
-        Path to data
+    paths : dict
+        Local paths
 
     Returns
     -------
@@ -235,13 +268,15 @@ def load_data_temperatures(path_scripts_data):
         Temperatures
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
-        os.path.join(path_scripts_data, 'weather_stations.csv'))
+        local_paths['path_changed_weather_station_data'])
     temperature_data = read_weather_data.read_weather_data_script_data(
-        os.path.join(path_scripts_data, 'weather_data.csv'))
+        local_paths['path_changed_weather_data'])
 
     return weather_stations, temperature_data
 
 def load_fuels(data):
+    """
+    """
     # ------------------------------------------
     # Load ECUK fuel data
     # ------------------------------------------
@@ -255,6 +290,7 @@ def load_fuels(data):
         'hydrogen': 6,
         'heat': 7
         }
+
     data['nr_of_fueltypes'] = int(len(data['lu_fueltype']))
 
     # Residential Sector (ECUK Table XY and Table XY )
@@ -262,7 +298,7 @@ def load_fuels(data):
         data['paths']['path_rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)
-    data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_base_data_service(
+    data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_data_service(
         data['paths']['path_ss_fuel_raw_data_enduses'],
         data['nr_of_fueltypes'])
 

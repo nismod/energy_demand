@@ -1,65 +1,72 @@
-"""Function to execute different scripts
+"""Script functions which are executed after model installation and 
+after each scenario definition
 """
-import os
+from pkg_resources import Requirement, resource_filename
 
-def run(run_basic_scripts=False, run_scenario_scripts=True):
-    """Run scripts
+def post_install_setup(args):
+    """Run initialisation scripts
 
     Parameters
     ----------
-    run_basic_scripts : bool,default=False
-        If `True` all basic scripts are run
-    run_scenario_scripts : bool
-        If `True` all scenario scripts are run
+    args : object
+        Arguments defined in ``./cli/__init__.py``
 
     Note
     ----
-    If `run_basic_scripts` is true, all scripts are executed
-    which only need to be executed once, independently of the scenario.
-    E.g. load profiles are loaded from raw files
-
-    `run_scenario_scripts` needs to be run everytime scenario
-    assumptiosn are changed
+    Only needs to be executed once after the energy_demand
+    model has been installed
     """
-    path_main = os.path.join(os.path.dirname(os.path.abspath(__file__))[:-21])
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    print("...  start running initialisation scripts")
 
-    # Assumptions are written out to csv files
-    from energy_demand.assumptions import assumptions
-    assumptions.run()
+    #Subfolder where module is installed
+    path_main = resource_filename(Requirement.parse("energy_demand"), "") 
+    local_data_path = args.data_energy_demand #Energy demand data folder
 
-    # Scripts which need to be run for generating raw data
-    if run_basic_scripts:
+    # Read in temperature data from raw files
+    from energy_demand.scripts import s_raw_weather_data
+    s_raw_weather_data.run(local_data_path)
 
-        # Read in temperature data from raw files
-        import s_raw_weather_data
-        s_raw_weather_data.run(path_main, local_data_path)
+    # Read in residenital submodel shapes
+    from energy_demand.scripts import s_rs_raw_shapes
+    s_rs_raw_shapes.run(path_main, local_data_path)
 
-        # Read in residenital submodel shapes
-        import s_rs_raw_shapes
-        s_rs_raw_shapes.run(path_main, local_data_path)
+    # Read in service submodel shapes
+    from energy_demand.scripts import s_ss_raw_shapes
+    s_ss_raw_shapes.run(path_main, local_data_path)
 
-        # Read in service submodel shapes
-        import s_ss_raw_shapes
-        s_ss_raw_shapes.run(path_main, local_data_path)
+def scenario_initalisation(args):
+    """Scripts which need to be run for every different scenario
 
-    # Scripts which need to be run for every different scenario
-    if run_scenario_scripts:
+    Parameters
+    ----------
+    args : object
+        Arguments defined in ``./cli/__init__.py``
 
-        import s_change_temp
-        s_change_temp.run(path_main, local_data_path)
+    Note
+    ----
+    Only needs to be executed once for each scenario (not for every
+    simulation year)
 
-        import s_fuel_to_service
-        s_fuel_to_service.run(path_main, local_data_path)
+    The ``path_processed_data`` must be in the local path provided to
+    post_install_setup
+    """
+    path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
-        import s_generate_sigmoid
-        s_generate_sigmoid.run(path_main, local_data_path)
+    data_energy_demand = args.data_energy_demand
+    print("PATH MAIN: " + str(path_main))
+    print("processed_data_path: " + str(data_energy_demand))
 
-        import s_disaggregation
-        s_disaggregation.run(path_main, local_data_path)
+    from energy_demand.scripts import s_change_temp
+    s_change_temp.run(path_main, data_energy_demand)
 
-    print("...  finished running all scripts")
+    from energy_demand.scripts import s_fuel_to_service
+    s_fuel_to_service.run(path_main, data_energy_demand)
+
+    from energy_demand.scripts import s_generate_sigmoid
+    s_generate_sigmoid.run(path_main, data_energy_demand)
+
+    from energy_demand.scripts import s_disaggregation
+    s_disaggregation.run(path_main, data_energy_demand)
+
+    print("...  finished running scripts for the specified scenario")
     return
-
-# Execute script
-run(run_basic_scripts=False, run_scenario_scripts=True)

@@ -280,7 +280,7 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
-                print("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
+                ###print("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
 
                 # Add energy service demand
                 service[enduse][fueltype][tech] += service_fueltype_tech
@@ -306,7 +306,7 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
                 service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
                 #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
 
-        print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
+        ###print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
@@ -319,83 +319,87 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     '''
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
-def run(path_main, local_data_path):
+def run(path_main, processed_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    path_out = os.path.join(path_main, 'data', 'data_scripts', 'services')
-
     # Load data and assumptions
-    base_data = data_loader.load_paths(path_main, local_data_path)
-    base_data = data_loader.load_fuels(base_data)
-    base_data['assumptions'] = assumptions.load_assumptions(base_data)
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(processed_data_path) #Must be in the same folder
+
+    data = data_loader.load_fuels(data)
+    data['assumptions'] = assumptions.load_assumptions(data)
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(
-        base_data['assumptions']['technology_list'],
-        base_data['assumptions']['hybrid_technologies'],
-        base_data['lu_fueltype'],
-        base_data['assumptions']['rs_fuel_tech_p_by'],
-        base_data['rs_fuel_raw_data_enduses'],
-        base_data['assumptions']['technologies']
+        data['assumptions']['technology_list'],
+        data['assumptions']['hybrid_technologies'],
+        data['lu_fueltype'],
+        data['assumptions']['rs_fuel_tech_p_by'],
+        data['rs_fuel_raw_data_enduses'],
+        data['assumptions']['technologies']
         )
 
     # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
-        base_data['ss_fuel_raw_data_enduses'],
-        base_data['ss_all_enduses'],
-        base_data['nr_of_fueltypes'])
+        data['ss_fuel_raw_data_enduses'],
+        data['ss_all_enduses'],
+        data['nr_of_fueltypes'])
+
     ss_service_tech_by_p, ss_service_fueltype_tech_by_p, ss_service_fueltype_by_p = get_service_fueltype_tech(
-        base_data['assumptions']['technology_list'],
-        base_data['assumptions']['hybrid_technologies'],
-        base_data['lu_fueltype'],
-        base_data['assumptions']['ss_fuel_tech_p_by'],
+        data['assumptions']['technology_list'],
+        data['assumptions']['hybrid_technologies'],
+        data['lu_fueltype'],
+        data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
-        base_data['assumptions']['technologies']
+        data['assumptions']['technologies']
         )
 
     # INDUSTRY
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
-        base_data['is_fuel_raw_data_enduses'],
-        base_data['is_all_enduses'],
-        base_data['nr_of_fueltypes'])
+        data['is_fuel_raw_data_enduses'],
+        data['is_all_enduses'],
+        data['nr_of_fueltypes'])
+
     is_service_tech_by_p, is_service_fueltype_tech_by_p, is_service_fueltype_by_p = get_service_fueltype_tech(
-        base_data['assumptions']['technology_list'],
-        base_data['assumptions']['hybrid_technologies'],
-        base_data['lu_fueltype'],
-        base_data['assumptions']['is_fuel_tech_p_by'],
+        data['assumptions']['technology_list'],
+        data['assumptions']['hybrid_technologies'],
+        data['lu_fueltype'],
+        data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
-        base_data['assumptions']['technologies']
+        data['assumptions']['technologies']
         )
 
     # Write to csv files
     write_service_tech_by_p(
-        os.path.join(path_out, 'rs_service_tech_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'rs_service_tech_by_p.csv'),
         rs_service_tech_by_p)
+
     write_service_tech_by_p(
-        os.path.join(path_out, 'ss_service_tech_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'ss_service_tech_by_p.csv'),
         ss_service_tech_by_p)
     write_service_tech_by_p(
-        os.path.join(path_out, 'is_service_tech_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'is_service_tech_by_p.csv'),
         is_service_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_out, 'rs_service_fueltype_tech_by_p.csv'), 
+        os.path.join(data['local_paths']['path_dir_services'], 'rs_service_fueltype_tech_by_p.csv'), 
         rs_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_out, 'ss_service_fueltype_tech_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'ss_service_fueltype_tech_by_p.csv'),
         ss_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(path_out, 'is_service_fueltype_tech_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'is_service_fueltype_tech_by_p.csv'),
         is_service_fueltype_tech_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_out, 'rs_service_fueltype_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'rs_service_fueltype_by_p.csv'),
         rs_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_out, 'ss_service_fueltype_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'ss_service_fueltype_by_p.csv'),
         ss_service_fueltype_by_p)
     write_service_fueltype_by_p(
-        os.path.join(path_out, 'is_service_fueltype_by_p.csv'),
+        os.path.join(data['local_paths']['path_dir_services'], 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
     print("... finished script {}".format(os.path.basename(__file__)))

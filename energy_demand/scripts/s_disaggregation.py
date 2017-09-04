@@ -431,43 +431,42 @@ def write_disagg_fuel_sector(path_to_txt, data):
 
     return
 
-def run(path_main, local_data_path):
+def run(path_main, processed_data_path):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Load data and assumptions
-    base_data = data_loader.load_paths(path_main, local_data_path)
-    base_data = data_loader.load_fuels(base_data)
-    base_data['assumptions'] = assumptions.load_assumptions(base_data)
-    base_data['weather_stations'], temperature_data = data_loader.load_data_temperatures(
-        os.path.join(base_data['paths']['path_scripts_data'], 'weather_data')
-        )
-    base_data['temperature_data'] = {}
-    for weather_station, base_yr_temp in temperature_data.items():
-        base_data['temperature_data'][weather_station] = {2015: base_yr_temp}
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(processed_data_path)
+
+    data = data_loader.load_fuels(data)
+    data['assumptions'] = assumptions.load_assumptions(data)
+    data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+        data['local_paths'])
 
     # IMPROVE TODO: LOAD FLOOR AREA DATA
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    base_data = data_loader.dummy_data_generation(base_data)
+    data = data_loader.dummy_data_generation(data)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Disaggregation
-    base_data = disaggregate_base_demand(base_data)
+    data = disaggregate_base_demand(data)
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'rs_fueldata_disagg.csv'),
-        base_data['rs_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'rs_fueldata_disagg.csv'),
+        data['rs_fueldata_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'ss_fueldata_disagg.csv'),
-        base_data['ss_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'ss_fueldata_disagg.csv'),
+        data['ss_fueldata_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'is_fueldata_disagg.csv'),
-        base_data['is_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'is_fueldata_disagg.csv'),
+        data['is_fueldata_disagg'])
     write_disagg_fuel_ts(
-        os.path.join(path_main, 'data', 'data_scripts', 'disaggregated', 'ts_fueldata_disagg.csv'),
-        base_data['ts_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'ts_fueldata_disagg.csv'),
+        data['ts_fueldata_disagg'])
 
     print("... finished script {}".format(os.path.basename(__file__)))
     return

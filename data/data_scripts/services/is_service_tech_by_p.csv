@@ -1,0 +1,17 @@
+enduse, technology, service_p
+is_motors, dummy_tech, nan
+is_lighting, dummy_tech, nan
+is_high_temp_process, dummy_tech, 1.0
+is_refrigeration, dummy_tech, nan
+is_low_temp_process, dummy_tech, 1.0
+is_other, dummy_tech, 1.0
+is_space_heating, boiler_solid_fuel, 0.04471956395580387
+is_space_heating, boiler_gas, 0.3349415687122358
+is_space_heating, boiler_electricity, 0.1734845984911414
+is_space_heating, heat_pumps_electricity, 0.39428317838895777
+is_space_heating, boiler_oil, 0.052571090451861036
+is_space_heating, boiler_heat_sold, 0.0
+is_space_heating, boiler_biomass, 0.0
+is_space_heating, boiler_hydrogen, 0.0
+is_compressed_air, dummy_tech, nan
+is_drying_separation, dummy_tech, 1.0

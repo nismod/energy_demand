@@ -285,17 +285,18 @@ def write_weather_stations(path_to_txt, weather_station):
     print("...finished write_weather_stations")
     return
 
-def run(main_path, local_data_path):
+def run(local_data_path):
     """Function to run script
     """
     print("..start script {}".format(os.path.basename(__file__)))
 
     # Paths
-    base_data = data_loader.load_paths(main_path, local_data_path)
+    data = {}
+    data['local_paths'] = data_loader.load_local_paths(local_data_path)
 
     # Read in raw temperature data
     temperature_data_raw = read_weather_data_raw(
-        base_data['paths']['folder_path_weater_data'])
+        data['local_paths']['folder_path_weater_data'])
 
     # Clean raw temperature data
     temperature_data = clean_weather_data_raw(
@@ -303,16 +304,16 @@ def run(main_path, local_data_path):
 
     # Weather stations
     weather_stations = read_weather_stations_raw(
-        base_data['paths']['folder_path_weater_stations'],
+        data['local_paths']['folder_path_weater_stations'],
         temperature_data.keys()
         )
 
     # Write out to csv files
     write_weather_stations(
-        os.path.join(main_path, 'data', 'data_scripts', 'weather_data', 'weather_stations.csv'),
+        data['local_paths']['path_changed_weather_station_data'],
         weather_stations)
     write_weather_data(
-        os.path.join(main_path, 'data', 'data_scripts', 'weather_data', 'weather_data.csv'),
+        data['local_paths']['path_processed_weather_data'],
         temperature_data)
 
     print("..finished script {}".format(os.path.basename(__file__)))

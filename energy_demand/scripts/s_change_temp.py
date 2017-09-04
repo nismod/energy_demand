@@ -89,6 +89,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
     # Change weather for all weater stations
     for station_id in temperature_data:
+        print("... change climate for station_id {}".format(station_id))
         temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
@@ -129,11 +130,12 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     """Write wheather data to csv file
     """
     file = open(path_to_txt, "w")
-    file.write("{}, {}, {}, {}".format(
-        'station_id', 'day', 'hour', 'temp_in_celsius') + '\n'
+    file.write("{}, {}, {}, {}, {}".format(
+        'station_id', 'year', 'day', 'hour', 'temp_in_celsius') + '\n'
               )
 
     for station_id in weather_data:
+        print("... write temp data to csv for station_ID {}".format(station_id))
         for year in weather_data[station_id]:
             for day in range(365):
                 for hour in range(24):
@@ -149,56 +151,29 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     print("... finished write_weather_data")
     return
 
-# ----------------------
-# Paths
-# ----------------------
-
-def run(path_main, local_data_path):
+def run(path_main, path_processed_data):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    # Execute assumptions file to write out assumptions
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(path_processed_data)
+
+    data = data_loader.load_fuels(data)
     temperature_data = read_weather_data_script_data(
-        os.path.join(path_main, 'data', 'data_scripts', 'weather_data', 'weather_data.csv')
+        data['local_paths']['path_processed_weather_data']
         )
 
-    data = data_loader.load_paths(path_main, local_data_path)
-    base_data = data_loader.load_fuels(data)
     data['assumptions'] = assumptions.load_assumptions(data)
     assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
-    '''assumptions_temp_change = read_assumption(
-        os.path.join(
-            local_data_path,
-            'data',
-            'data_scripts',
-            'assumptions_from_db',
-            'assumptions_climate_change_temp.csv'
-        )
-    )
 
-    sim_param = s_shared_functions.read_assumption_sim_param(
-        os.path.join(
-            local_data_path,
-            'data',
-            'data_scripts',
-            'assumptions_from_db',
-            'assumptions_sim_param.csv'
-        )
-    )'''
-    sim_param = data['sim_param']
     temp_climate_change = change_temp_climate_change(
-        temperature_data, assumptions_temp_change, sim_param)
+        temperature_data, assumptions_temp_change, data['sim_param'])
 
     # Write out temp_climate_change
     write_chanted_temp_data(
-        os.path.join(
-            path_main,
-            'data',
-            'data_scripts',
-            'weather_data',
-            'weather_data_changed_climate.csv'
-            ),
+        data['local_paths']['path_changed_weather_data'],
         temp_climate_change)
 
     print("... finished script {}".format(os.path.basename(__file__)))

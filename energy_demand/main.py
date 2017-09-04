@@ -39,6 +39,7 @@ TODO: REMOVE HEAT BOILER
 import os
 import sys
 import numpy as np
+from pyinstrument import Profiler
 import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import assumptions
 from energy_demand.read_write import data_loader
@@ -50,6 +51,7 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
+
 print("Start Energy Demand Model with python version: " + str(sys.version))
 #!python3.6
 
@@ -83,7 +85,7 @@ def energy_demand_model(data):
     )
 
     # Total fuel of country
-    fueltot = model_run_object.sum_uk_fueltypes_enduses_y 
+    fueltot = model_run_object.sum_uk_fueltypes_enduses_y
 
     print("================================================")
     print("Simulation year:     " + str(model_run_object.curr_yr))
@@ -113,23 +115,21 @@ if __name__ == "__main__":
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = r'Y:\01-Data_NISMOD\data_energy_demand'
+    local_data_path = r'Y:\A-Data_NISMOD\data_energy_demand'
 
     # Load data
-    base_data = data_loader.load_paths(path_main, local_data_path)
+    base_data = {}
+    base_data['paths'] = data_loader.load_paths(path_main)
+
     base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
     base_data = data_loader.load_data_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
     base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        os.path.join(base_data['paths']['path_scripts_data'], 'weather_data')
+        os.path.join(base_data['paths']['path_processed_data'], 'weather_data')
         )
 
     # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
-    # Population
-    # GVA
-    # Floor Area
-    # ...
     base_data = data_loader.dummy_data_generation(base_data)
     # <<<<<<<<<<<<<<<<<< FINISHED DUMMY GENERATION DATA
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
         #-------------PROFILER
         if instrument_profiler:
-            from pyinstrument import Profiler
+            
             profiler = Profiler(use_signal=False)
             profiler.start()
 
@@ -209,7 +209,7 @@ if __name__ == "__main__":
         # Validation of spatial disaggregation
         # ---------------------------------------------------
         lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
-            base_data['paths']['path_dummpy_regions']
+            base_data['paths']['path_dummy_regions']
         )
         lad_validation.compare_lad_regions(
             'compare_lad_regions.pdf',
