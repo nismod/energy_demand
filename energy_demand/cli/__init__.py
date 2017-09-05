@@ -31,14 +31,12 @@ def run_model(args):
     - local_data_path is the path to the restricted data which must be provided
     to the model
 
+    #NOTE: TO RUN FROM COMMAND LINE
     """
     #Subfolder where module is installed
-    path_main = resource_filename(Requirement.parse("energy_demand"), "data")
-    path_main = os.path.join(path_main, '../')
+    path_main_data = resource_filename(Requirement.parse("energy_demand"), "data")
+    path_main = os.path.join(path_main_data, '../')
     local_data_path = args.data_folder
-
-    print("path_main:       " + str(path_main))
-    print("local_data_path: " + str(local_data_path))
 
     # Load data
     data = {}
@@ -53,10 +51,7 @@ def run_model(args):
     data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
         data['local_paths']
         )
-
-    # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
     data = data_loader.dummy_data_generation(data)
-    # <<<<<<<<<<<<<<<<<< FINISHED DUMMY GENERATION DATA
 
     # Load data from script calculations
     data = read_data.load_script_data(data)

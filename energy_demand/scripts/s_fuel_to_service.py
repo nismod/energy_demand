@@ -317,7 +317,7 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     '''
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
-def run(data, path_main, processed_data_path):
+def run(data):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))

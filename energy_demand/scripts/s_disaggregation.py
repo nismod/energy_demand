@@ -2,8 +2,6 @@
 """
 import os
 import numpy as np
-from energy_demand.assumptions import assumptions
-from energy_demand.read_write import data_loader
 from energy_demand.profiles import hdd_cdd
 
 '''
@@ -431,7 +429,7 @@ def write_disagg_fuel_sector(path_to_txt, data):
 
     return
 
-def run(data, path_main, processed_data_path):
+def run(data):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))

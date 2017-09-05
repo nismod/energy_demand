@@ -596,7 +596,7 @@ def write_tech_increased_service(path_to_txt, data):
 
     return
  
-def run(data, path_main, processed_data_path):
+def run(data):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))

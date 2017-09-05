@@ -22,7 +22,7 @@ def post_install_setup(args):
     print("... start running initialisation scripts")
 
     #Subfolder where module is installed
-    path_main = resource_filename(Requirement.parse("energy_demand"), "") 
+    path_main = resource_filename(Requirement.parse("energy_demand"), "")
     local_data_path = args.data_energy_demand #Energy demand data folder
 
     # Read in temperature data from raw files
@@ -55,10 +55,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     """
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
-    print("PATH MAIN: " + str(path_main))
-    print("processed_data_path: " + str(path_data_energy_demand))
-
-    # 
     if data == False:
         data = {}
         data['paths'] = data_loader.load_paths(path_main)
@@ -74,16 +70,16 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         pass
 
     from energy_demand.scripts import s_change_temp
-    s_change_temp.run(data, path_main, path_data_energy_demand)
+    s_change_temp.run(data)
 
     from energy_demand.scripts import s_fuel_to_service
-    s_fuel_to_service.run(data, path_main, path_data_energy_demand)
+    s_fuel_to_service.run(data)
 
     from energy_demand.scripts import s_generate_sigmoid
-    s_generate_sigmoid.run(data, path_main, path_data_energy_demand)
+    s_generate_sigmoid.run(data)
 
     from energy_demand.scripts import s_disaggregation
-    s_disaggregation.run(data, path_main, path_data_energy_demand)
+    s_disaggregation.run(data)
 
     print("...  finished running scripts for the specified scenario")
     return

@@ -40,7 +40,8 @@ class EDWrapper(SectorModel):
 
         """
         energy_demand_data_path = '/vagrant/energy_demand_data'
-        energy_demand_data_out_path = '/vagrant/energy_demand_data/_result_data'
+        #energy_demand_data_processed_path = '/vagrant/energy_demand_data/_processed_data'
+        #energy_demand_data_result_path = '/vagrant/energy_demand_data/_result_data'
 
         # Scenario data
         population = data['population']
@@ -48,8 +49,7 @@ class EDWrapper(SectorModel):
         floor_area = data['floor_area']
 
 
-        # Load data and initialise scenario
-
+        # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data = {}
         ed_data['paths'] = data_loader.load_paths(path_main)
@@ -57,16 +57,15 @@ class EDWrapper(SectorModel):
         ed_data = data_loader.load_fuels(data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(data['local_paths'])
-        ed_data = data_loader.dummy_data_generation(data)
+        ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Initialise SCNEARIO == NEEDS TO BE IN INIT
-        scenario_initalisation(energy_demand_data_out_path, ed_data)
+        scenario_initalisation(energy_demand_data_path, ed_data)
 
         # Write data from smif to data container from energy demand model
-
         ed_data['sim_param']['current_year'] = timestep
-        #ed_data['sim_param']['end_year'] = timestep
-        #ed_data['sim_param']['sim_years_intervall'] = 
+        #ed_data['sim_param']['end_year'] = ???
+        #ed_data['sim_param']['sim_years_intervall'] = ???
 
         ed_data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
         ed_data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']

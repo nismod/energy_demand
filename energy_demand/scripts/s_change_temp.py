@@ -6,8 +6,8 @@ import csv
 from datetime import date
 from datetime import timedelta
 import numpy as np
-from energy_demand.scripts import s_shared_functions
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.basic import date_handling
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
@@ -32,20 +32,6 @@ def read_weather_data_script_data(path_to_csv):
                 temp_data[station_id][int(day)][int(hour)] = temperature
 
     return temp_data
-
-def convert_yearday_to_date(year, yearday_python):
-    """Gets the yearday of a year minus one to correct because of python iteration
-
-    Parameters
-    ----------
-    year : int
-        Year
-    yearday_python : int
-        Yearday - 1
-    """
-    date_new = date(year, 1, 1) + timedelta(yearday_python)
-
-    return date_new
 
 def read_assumption(path_to_csv):
     """
@@ -75,9 +61,12 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
     Parameters
     ---------
-    data : dict
+    temperature_data : dict
         Data
+    assumptions_temp_change : dict
 
+    sim_param : dict
+        TODO
     Returns
     -------
     temp_climate_change : dict
@@ -98,7 +87,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = convert_yearday_to_date(
+                date_object = date_handling.convert_yearday_to_date(
                     int(sim_param['base_yr']),
                     int(yearday)
                     )
@@ -149,7 +138,7 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     print("... finished write_weather_data")
     return
 
-def run(data, path_main, path_data_processed):
+def run(data):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
