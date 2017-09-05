@@ -8,8 +8,6 @@ from datetime import timedelta
 import numpy as np
 from energy_demand.scripts import s_shared_functions
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.read_write import data_loader
-from energy_demand.assumptions import assumptions
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
@@ -58,19 +56,19 @@ def read_assumption(path_to_csv):
 
     Return
     ------
-    assumptions : dict
+    assumpt : dict
         Assumptions
     """
-    assumptions = []
+    assumpt = []
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(csvfile) # Skip headers
 
         for row in read_lines:
-            assumptions.append(float(row[1]))
+            assumpt.append(float(row[1]))
 
-    return assumptions
+    return assumpt
 
 def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending on simple climate change assumptions
@@ -151,21 +149,15 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     print("... finished write_weather_data")
     return
 
-def run(path_main, path_data_processed):
+def run(data, path_main, path_data_processed):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(path_data_processed)
-
-    data = data_loader.load_fuels(data)
     temperature_data = read_weather_data_script_data(
         data['local_paths']['path_processed_weather_data']
         )
 
-    data['assumptions'] = assumptions.load_assumptions(data)
     assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
 
     temp_climate_change = change_temp_climate_change(

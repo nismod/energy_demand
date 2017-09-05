@@ -431,25 +431,10 @@ def write_disagg_fuel_sector(path_to_txt, data):
 
     return
 
-def run(path_main, processed_data_path):
+def run(data, path_main, processed_data_path):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-
-    # Load data and assumptions
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(processed_data_path)
-
-    data = data_loader.load_fuels(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
-    data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
-        data['local_paths'])
-
-    # IMPROVE TODO: LOAD FLOOR AREA DATA
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    data = data_loader.dummy_data_generation(data)
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Disaggregation
     data = disaggregate_base_demand(data)

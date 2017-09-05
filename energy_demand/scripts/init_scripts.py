@@ -3,6 +3,8 @@ after each scenario definition
 """
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
+from energy_demand.read_write import data_loader
+from energy_demand.assumptions import assumptions
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -35,12 +37,12 @@ def post_install_setup(args):
     from energy_demand.scripts import s_ss_raw_shapes
     s_ss_raw_shapes.run(path_main, local_data_path)
 
-def scenario_initalisation(data_energy_demand):
+def scenario_initalisation(path_data_energy_demand):
     """Scripts which need to be run for every different scenario
 
     Parameters
     ----------
-    data_energy_demand : str
+    path_data_energy_demand : str
         Path to the energy demand data folder
 
     Note
@@ -54,19 +56,33 @@ def scenario_initalisation(data_energy_demand):
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
     print("PATH MAIN: " + str(path_main))
-    print("processed_data_path: " + str(data_energy_demand))
+    print("processed_data_path: " + str(path_data_energy_demand))
+
+    # Load stuff
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
+    data = data_loader.load_fuels(data)
+    data['assumptions'] = assumptions.load_assumptions(data)
+    data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+        data['local_paths'])
+
+    # IMPROVE TODO: LOAD FLOOR AREA DATA
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    data = data_loader.dummy_data_generation(data)
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     from energy_demand.scripts import s_change_temp
-    s_change_temp.run(path_main, data_energy_demand)
+    s_change_temp.run(data, path_main, path_data_energy_demand)
 
     from energy_demand.scripts import s_fuel_to_service
-    s_fuel_to_service.run(path_main, data_energy_demand)
+    s_fuel_to_service.run(data, path_main, path_data_energy_demand)
 
     from energy_demand.scripts import s_generate_sigmoid
-    s_generate_sigmoid.run(path_main, data_energy_demand)
+    s_generate_sigmoid.run(data, path_main, path_data_energy_demand)
 
     from energy_demand.scripts import s_disaggregation
-    s_disaggregation.run(path_main, data_energy_demand)
+    s_disaggregation.run(data, path_main, path_data_energy_demand)
 
     print("...  finished running scripts for the specified scenario")
     return

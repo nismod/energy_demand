@@ -2,8 +2,6 @@
 """
 import os
 import numpy as np
-from energy_demand.assumptions import assumptions
-from energy_demand.read_write import data_loader
 from energy_demand.technologies import technologies_related
 
 def write_service_fueltype_by_p(path_to_txt, data):
@@ -319,18 +317,10 @@ def get_service_fueltype_tech(technology_list, hybrid_technologies, lu_fueltypes
     '''
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
-def run(path_main, processed_data_path):
+def run(data, path_main, processed_data_path):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-
-    # Load data and assumptions
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(processed_data_path) #Must be in the same folder
-
-    data = data_loader.load_fuels(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(

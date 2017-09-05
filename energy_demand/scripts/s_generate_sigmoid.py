@@ -9,8 +9,6 @@ import sys
 import copy
 import numpy as np
 from scipy.optimize import curve_fit
-from energy_demand.assumptions import assumptions
-from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
 from energy_demand.plotting import plotting_program as plotting
 
@@ -598,18 +596,10 @@ def write_tech_increased_service(path_to_txt, data):
 
     return
  
-def run(path_main, processed_data_path):
+def run(data, path_main, processed_data_path):
     """Function run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-    print("A: " + str(path_main))
-    print("B: " + str(processed_data_path))
-
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(processed_data_path)
-    data = data_loader.load_fuels(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
 
     # Read in Services
     rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
