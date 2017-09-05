@@ -25,31 +25,35 @@ In order to run the model, the following steps are necessary. Step 1, 2 and 3
 only needs to be execute once. Step 4 and 5 every time the model is run
 with different assumptions.
 
-1. Add the data into a local directory as ``path/to/energy_data_folder`` and
+**1**. Add the data into a local directory as ``path/to/energy_data_folder`` and
    download the energy_demand python code.
 
-2. Navigate to the folder where the python code is saved. Open a command and type into
+
+**2**. Navigate to the folder where the python code is saved. Open a command and type into
    a command line:
 
-  ``setup.py develop``
+   ``setup.py develop``
 
-3. Install the energy demand model from the console with the command
+
+**3**. Install the energy demand model from the console with the command
 
    ``energy_demand post_install_setup -d path/to/energy_data_folder``
 
-   The `path/to/energy_data_folder` is the path to the location with
+   The ``path/to/energy_data_folder`` is the path to the location with
    the necessary data to run the model.
 
    Note: The `post_install_setup` generates new folders in the 
-   `energy_data_folder`.
+   ``energy_data_folder``.
 
-4. For every scenario run, the energy demand module needs to be
+
+**4**. For every scenario run, the energy demand module needs to be
    initialised from the command line as follows:
 
    ``energy_demand scenario_initialisation -d path/to/energy_data_folder``
 
    Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
    folder which contain assumption specific data.
+
 
 5. Run the energy demand model from the console with the command
 
