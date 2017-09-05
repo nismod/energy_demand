@@ -93,6 +93,7 @@ class EDWrapper(SectorModel):
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(energy_demand_data_path)
+        ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data = data_loader.load_fuels(ed_data)
         ed_data = data_loader.load_data_profiles(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
