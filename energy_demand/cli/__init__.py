@@ -15,6 +15,10 @@ from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results
 
+def init_scenario(args):
+    data_energy_demand = args.data_energy_demand
+    scenario_initalisation(data_energy_demand)
+
 def run_model(args):
     """
     Main function to run the energy demand model from the command line
@@ -121,7 +125,7 @@ def parse_arguments():
         help='Path to main data folder'
         )
 
-    scenario_init.set_defaults(func=scenario_initalisation)
+    scenario_init.set_defaults(func=init_scenario)
 
     return parser
 

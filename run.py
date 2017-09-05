@@ -3,81 +3,54 @@
 import os
 import numpy as np
 from smif.model.sector_model import SectorModel
-from energy_demand.main import energy_demand_model
-from energy_demand.read_write_loader import load_data
-from energy_demand.assumptions import load_assumptions
-from energy_demand.national_dissaggregation import disaggregate_base_demand_for_reg
-from energy_demand.dw_stock import resid_build_stock
+
+from energy_demand.scripts.init_scripts import scenario_initalisation
+from energy_demand.cli import run_model
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper"""
 
     def simulate(self, timestep, data=None):
+        """
 
-        # Population
-        pop = {}
-        pop[timestep] = {}
-        for obs in data['population']:
-            pop[timestep][obs.region] = obs.value
+        1. Get scenario data
 
-        # Fuel prices
-        # - corresponds to `data/scenario_and_base_data/lookup_fuel_types.csv`
-        #   with `_price` appended to each type
-        fuel_price_index = {
-            "solid_fuel_price": 0,
-            "gas_price": 1,
-            "electricity_price": 2,
-            "oil_price": 3,
-            "heat_sold_price": 4,
-            "bioenergy_waste_price": 5,
-            "hydrogen_price": 6,
-            "future_fuel_price": 7,
-        }
-        price = {}
-        price[timestep] = {}
-        for data_key, fuel_type_id in fuel_price_index.items():
-            # expect single value (annual/national) for each fuel price
-            price[timestep][fuel_type_id] = data[data_key][0].value
+        Population data is required as a nested dict::
 
-        data_external = {
-            'population': pop,
-            'glob_var': {
-                'base_year': timestep,
-                'current_yr': timestep,
-                'end_yr': timestep
-            },
-            'fuel_price': price
-        }
+            data[year][region_geocode]
 
-        # Load data needed for energy demand model
-        path_main = os.path.join(os.path.dirname(__file__), 'data')
-        base_data = load_data(path_main, data_external)
+        GVA is the same::
 
-        # Load assumptions
-        base_data = load_assumptions(base_data)
+            data[year][region_geocode]
 
-        # Disaggregate national data into regional data
-        base_data = disaggregate_base_demand_for_reg(
-            base_data, 1, data_external)
+        Floor area::
 
-        # Generate virtual dwelling stock over whole simulatin period
-        base_data = resid_build_stock(
-            base_data, base_data['assumptions'], data_external)
+            data[year][region_geoode][sector]
 
-        base_data.update(data_external)
-        # Run Model
-        results = energy_demand_model(base_data)
+        2. Run initialise scenarios
+        3. For each timestep, run the model
 
-        # results will be written to results.yaml by default
-        output = {}
-        for parameter, results_list in results.items():
-            if parameter in ['electricity', 'gas']:
-                output[parameter + '_demand'] = [
-                    np.array([region_name, hour, demand, units])
-                    for region_name, hour, demand, units in results_list
-                ]
+        """
+        energy_demand_data_path = '/vagrant/energy_demand_data'
 
-        return output
+        # Scenario data
+        population = data['population']
+        gva = data['gva']
+        floor_area = data['floor_area']
+
+        data = load_assumptions()
+
+        scenario_initalisation(data, output_path)
+
+        data['sim_param']['current_year'] = timestep
+
+        # Parameters
+        assump_diff_floorarea_pp = data['assump_diff_floorarea_pp']
+        climate_change_temp_diff_month = data['climate_change_temp_diff_month']
+        rs_t_base_heating_ey = data['rs_t_base_heating_ey']
+        efficiency_achieving_factor = data['efficiency_achieving_factor']
+
+        return results
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function
