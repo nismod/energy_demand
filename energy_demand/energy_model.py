@@ -35,7 +35,7 @@ class EnergyModel(object):
     def __init__(self, region_names, data):
         """Constructor
         """
-        print("..start main energy demand function")
+        print("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
@@ -323,7 +323,7 @@ class EnergyModel(object):
             #print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         del self.regions, self.weather_regions
-        print("...finished other submodel")
+        print("... finished other submodel")
         return submodules
 
     def industry_submodel(self, data, enduses, sectors):
@@ -347,7 +347,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("..industry submodel start")
+        print("... industry submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -395,7 +395,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("..residential submodel start")
+        print("... residential submodel start")
         #_scrap_cnt = 0
         submodule_list = []
 
@@ -443,7 +443,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("..service submodel start")
+        print("... service submodel start")
         _scrap_cnt = 0
         submodule_list = []
 
@@ -514,7 +514,7 @@ class EnergyModel(object):
 
         # Iterate all regions
         for region_name in region_names:
-            print("...creating region: '{}'  {}".format(region_name, submodel_type))
+            print("... creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
             region_object = region.Region(
                 region_name=region_name,

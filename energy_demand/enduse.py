@@ -845,7 +845,7 @@ class Enduse(object):
         substracted of the replaced technologies proportionally
         to the base year distribution of these technologies
         """
-        print("...Service switch is implemented "  + str(self.enduse))
+        print("... Service switch is implemented "  + str(self.enduse))
         service_tech_cy_p = {}
         service_tech_cy = {}
 

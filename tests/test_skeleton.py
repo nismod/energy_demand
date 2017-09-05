@@ -25,81 +25,7 @@ from datetime import timedelta as td
 import numpy as np
 from pytest import raises
 
-
-# --------------------------
-# date_handling
-# -------------------------
 from energy_demand.basic import date_handling
-
-def test_get_dates_week_nr():
-    """testing function
-    """
-    from isoweek import Week
-    in_year = 2017
-    week_nr = 33
-    expected = [
-        datetime.date(2017, 8, 14),
-        datetime.date(2017, 8, 15),
-        datetime.date(2017, 8, 16),
-        datetime.date(2017, 8, 17),
-        datetime.date(2017, 8, 18),
-        datetime.date(2017, 8, 19),
-        datetime.date(2017, 8, 20)
-    ]
-
-    # call function
-    out_value = date_handling.get_dates_week_nr(in_year, week_nr)
-
-    assert out_value == expected
-
-def test_convert_date_to_yearday():
-    """Testing
-    """
-    in_year = 2015
-    in_month = 6
-    in_day = 13
-    expected = 164 - 1
-
-    # call function
-    out_value = date_handling.convert_date_to_yearday(in_year, in_month, in_day)
-
-    assert out_value == expected
-
-def test_convert_yearday_to_date():
-    """Testing
-    """
-    in_year = 2015
-    in_yearday = 10
-    expected = date(2015,1,11)
-
-    # call function
-    out_value = date_handling.convert_yearday_to_date(in_year, in_yearday)
-
-    assert out_value == expected
-
-def test_get_datetime_range():
-    """Testing function"""
-    start_date = date(2015, 1, 1)
-    end_date = date(2015, 1, 2)
-
-    expected = [date(2015, 1, 1), date(2015, 1, 2)]
-    out = date_handling.get_datetime_range(start_date, end_date)
-
-    assert out == expected
-
-
-def test_get_weekday_type():
-    """Testing function"""
-    # in test value
-
-    in_value = date(2015, 1, 1)
-    expected = 0
-
-    # call function
-    out_value = date_handling.get_weekday_type(in_value)
-
-    assert out_value == expected
-
 
 # --------------Building STock generator
 def test_raises_error_get_dwtype_distr_cy():
@@ -111,9 +37,6 @@ def test_raises_error_get_dwtype_distr_cy():
 
     with raises(AssertionError):
         bf.get_dwtype_distr_cy(wrong_data, in_value_2, in_value_3)
-
-
-
 
 
 # --------------------------
@@ -159,16 +82,6 @@ def test_read_csv():
     # Raise assertion error if array are identical
     np.testing.assert_array_equal(out_value, expected)
 
-def test_conversion_ktoe_gwh():
-    """Testing function"""
-    # in test value
-    in_value = 10
-    expected = in_value * 11.6300000
-
-    # call function
-    out_value = unit_conversions.conversion_ktoe_gwh(in_value)
-
-    assert out_value == expected
 
 def test_apply_elasticity():
     """Calculate current demand based on demand elasticity"""
@@ -184,10 +97,6 @@ def test_apply_elasticity():
     out_value = mf.apply_elasticity(in_value, elasticity, price_base, price_curr)
 
     np.testing.assert_array_equal(out_value, expected)
-
-
-
-
 
 
 def test_raises_error_disaggregate_base_demand_for_reg():

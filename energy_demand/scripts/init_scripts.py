@@ -1,7 +1,8 @@
 """Script functions which are executed after model installation and 
 after each scenario definition
 """
-from pkg_resources import Requirement, resource_filename
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -16,7 +17,7 @@ def post_install_setup(args):
     Only needs to be executed once after the energy_demand
     model has been installed
     """
-    print("...  start running initialisation scripts")
+    print("... start running initialisation scripts")
 
     #Subfolder where module is installed
     path_main = resource_filename(Requirement.parse("energy_demand"), "") 

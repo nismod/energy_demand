@@ -288,7 +288,7 @@ def write_weather_stations(path_to_txt, weather_station):
 def run(local_data_path):
     """Function to run script
     """
-    print("..start script {}".format(os.path.basename(__file__)))
+    print("... start script {}".format(os.path.basename(__file__)))
 
     # Paths
     data = {}

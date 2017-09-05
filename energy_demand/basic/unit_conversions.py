@@ -2,6 +2,27 @@
 """
 import numpy as np
 
+def convert_ktoe_gwh(data_ktoe):
+    """Conversion of ktoe to gwh
+
+    Parameters
+    ----------
+    data_ktoe : float
+        Energy demand in ktoe
+
+    Returns
+    -------
+    data_gwh : float
+        Energy demand in GWh
+
+    Notes
+    -----
+    https://www.iea.org/statistics/resources/unitconverter/
+    """
+    data_gwh = data_ktoe * 11.6300000
+
+    return data_gwh
+
 def convert_kwh_gwh(kwh):
     """"Conversion of MW to GWh
 
@@ -42,27 +63,6 @@ def convert_mw_gwh(megawatt, number_of_hours):
     gigawatthour = megawatt_hour / 1000.0
 
     return gigawatthour
-
-def convert_ktoe_gwh(data_ktoe):
-    """Conversion of ktoe to gwh
-
-    Parameters
-    ----------
-    data_ktoe : float
-        Energy demand in ktoe
-
-    Returns
-    -------
-    data_gwh : float
-        Energy demand in GWh
-
-    Notes
-    -----
-    https://www.iea.org/statistics/resources/unitconverter/
-    """
-    data_gwh = data_ktoe * 11.6300000
-
-    return data_gwh
 
 def convert_ktoe_twh(data_ktoe):
     """Conversion of ktoe to TWh

@@ -9,8 +9,8 @@ import energy_demand
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import assumptions
-from energy_demand.scripts._execute_all_scripts import post_install_setup
-from energy_demand.scripts._execute_all_scripts import scenario_initalisation
+from energy_demand.scripts.init_scripts import post_install_setup
+from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results
@@ -58,7 +58,9 @@ def run_model(args):
 
     _, results = energy_demand_model(data)
 
-    print(results)
+    print("... Result section")
+    #results.all_submodels_sum_uk_specfuelype_enduses_y[2]
+
     results_every_year = [results]
     plotting_results.plot_stacked_Country_end_use(
         "figure_stacked_country01.pdf", data, results_every_year, data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')

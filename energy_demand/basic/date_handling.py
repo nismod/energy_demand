@@ -322,6 +322,7 @@ def get_weekday_type(date_to_test):
 
 def fullyear_dates(start, end):
     """Calculates all dates between a star and end date.
+    The star and end date are included in the list.
 
     Parameters
     ----------
