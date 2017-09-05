@@ -48,7 +48,7 @@ def run_model(args):
     data = data_loader.load_data_profiles(data)
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-    
+
     data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
         data['local_paths']
         )

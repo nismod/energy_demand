@@ -285,14 +285,10 @@ def write_weather_stations(path_to_txt, weather_station):
     print("...finished write_weather_stations")
     return
 
-def run(local_data_path):
+def run(data):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
-
-    # Paths
-    data = {}
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
 
     # Read in raw temperature data
     temperature_data_raw = read_weather_data_raw(

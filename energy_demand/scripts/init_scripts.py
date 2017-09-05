@@ -25,17 +25,27 @@ def post_install_setup(args):
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
     local_data_path = args.data_energy_demand #Energy demand data folder
 
+    # Load data
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data['lookups'] = data_loader.load_basic_lookups()
+    data = data_loader.load_fuels(data)
+    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
+    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+
     # Read in temperature data from raw files
     from energy_demand.scripts import s_raw_weather_data
-    s_raw_weather_data.run(local_data_path)
+    s_raw_weather_data.run(data)
 
     # Read in residenital submodel shapes
     from energy_demand.scripts import s_rs_raw_shapes
-    s_rs_raw_shapes.run(path_main, local_data_path)
+    s_rs_raw_shapes.run(data)
 
     # Read in service submodel shapes
     from energy_demand.scripts import s_ss_raw_shapes
-    s_ss_raw_shapes.run(path_main, local_data_path)
+    s_ss_raw_shapes.run(data)
 
 def scenario_initalisation(path_data_energy_demand, data=False):
     """Scripts which need to be run for every different scenario

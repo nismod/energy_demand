@@ -7,7 +7,6 @@ from energy_demand.technologies import dummy_technologies
 from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
-from energy_demand.read_write import write_data
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
 
@@ -38,8 +37,10 @@ def load_assumptions(data):
         end=date(sim_param['base_yr'], 12, 31))
 
     # ============================================================
-    # If unconstrained mode (False), heat demand is provided per technology. If True, heat is delievered with fueltype
-    assumptions['mode_constrained'] = False # True --> Technologies are defined in ED model, False: heat is delievered
+    # If unconstrained mode (False), heat demand is provided per technology.
+    # True --> Technologies are defined in ED model
+    # False: heat is delievered
+    assumptions['mode_constrained'] = False 
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -329,15 +330,15 @@ def load_assumptions(data):
         data['paths']['path_technologies'],
         data['lookups']['fueltype_lu'])
 
-    # Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
-    split_heat_pump_ASHP_GSHP = 0.5
+    # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
+    split_hp_ashp_gshp = 0.5
 
     # --Assumption how much of technological efficiency is reached
     assumptions['efficiency_achieving_factor'] = 1
 
     # --Heat pumps
     assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(
-        split_heat_pump_ASHP_GSHP,
+        split_hp_ashp_gshp,
         data)
 
     # Add heat pumps to technologies #SHARK
@@ -361,8 +362,6 @@ def load_assumptions(data):
     assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
     assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
-
-
 
     # ============================================================
     # Fuel Stock Definition (necessary to define before model run)

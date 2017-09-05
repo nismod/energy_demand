@@ -93,28 +93,28 @@ def test_function_fuel_sum(data):
     fuel_in = 0
     fuel_in_elec = 0
 
-    for region in data['rs_fueldata_disagg']:
-        for enduse in data['rs_fueldata_disagg'][region]:
-            fuel_in += np.sum(data['rs_fueldata_disagg'][region][enduse])
-            fuel_in_elec += np.sum(data['rs_fueldata_disagg'][region][enduse][2])
+    for region in data['rs_fuel_disagg']:
+        for enduse in data['rs_fuel_disagg'][region]:
+            fuel_in += np.sum(data['rs_fuel_disagg'][region][enduse])
+            fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][2])
 
-    for region in data['ss_fueldata_disagg']:
-        for sector in data['ss_fueldata_disagg'][region]:
-            for enduse in data['ss_fueldata_disagg'][region][sector]:
-                fuel_in += np.sum(data['ss_fueldata_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['ss_fueldata_disagg'][region][sector][enduse][2])
+    for region in data['ss_fuel_disagg']:
+        for sector in data['ss_fuel_disagg'][region]:
+            for enduse in data['ss_fuel_disagg'][region][sector]:
+                fuel_in += np.sum(data['ss_fuel_disagg'][region][sector][enduse])
+                fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][2])
 
-    for region in data['is_fueldata_disagg']:
-        for sector in data['is_fueldata_disagg'][region]:
-            for enduse in data['is_fueldata_disagg'][region][sector]:
-                fuel_in += np.sum(data['is_fueldata_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['is_fueldata_disagg'][region][sector][enduse][2])
+    for region in data['is_fuel_disagg']:
+        for sector in data['is_fuel_disagg'][region]:
+            for enduse in data['is_fuel_disagg'][region][sector]:
+                fuel_in += np.sum(data['is_fuel_disagg'][region][sector][enduse])
+                fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][2])
 
     fuel_elec_transport = 0
-    for region in data['ts_fueldata_disagg']:
-        fuel_in += np.sum(data['ts_fueldata_disagg'][region])
-        fuel_elec_transport += np.sum(data['ts_fueldata_disagg'][region])
-        fuel_in_elec += np.sum(data['ts_fueldata_disagg'][region][2])
+    for region in data['ts_fuel_disagg']:
+        fuel_in += np.sum(data['ts_fuel_disagg'][region])
+        fuel_elec_transport += np.sum(data['ts_fuel_disagg'][region])
+        fuel_in_elec += np.sum(data['ts_fuel_disagg'][region][2])
 
     '''fuel_elec_transport = 0
     for region in data['ag_fueldata_disagg']:

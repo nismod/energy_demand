@@ -50,20 +50,20 @@ def disaggregate_base_demand(data):
         return tot
 
     # Disaggregate residential submodel data
-    data['rs_fueldata_disagg'] = rs_disaggregate(data, data['rs_fuel_raw_data_enduses'])
+    data['rs_fuel_disagg'] = rs_disaggregate(data, data['rs_fuel_raw_data_enduses'])
 
     # Disaggregate service submodel data
-    data['ss_fueldata_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
+    data['ss_fuel_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
 
     # Disaggregate industry submodel data
-    data['is_fueldata_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
+    data['is_fuel_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
 
     # Disaggregate transportation sector
-    data['ts_fueldata_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses'])
+    data['ts_fuel_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses'])
 
     # Check if total fuel is the same before and after aggregation
     test_sum_before = sum_fuels_before(data['rs_fuel_raw_data_enduses'])
-    test_sum_after = sum_fuels_after(data['rs_fueldata_disagg'])
+    test_sum_after = sum_fuels_after(data['rs_fuel_disagg'])
     np.testing.assert_almost_equal(test_sum_before, test_sum_after, decimal=2, err_msg="")
 
     return data
@@ -72,7 +72,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     """Disaggregate fuel for service submodel (per enduse and sector)
     """
     print("... disaggregate service demand")
-    ss_fueldata_disagg = {}
+    ss_fuel_disagg = {}
 
     # ---------------------------------------
     # Calculate heating degree days for regions
@@ -136,9 +136,9 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # Disaggregate according to enduse
     # ---------------------------------------
     for region_name in data['lu_reg']:
-        ss_fueldata_disagg[region_name] = {}
+        ss_fuel_disagg[region_name] = {}
         for sector in data['ss_sectors']:
-            ss_fueldata_disagg[region_name][sector] = {}
+            ss_fuel_disagg[region_name][sector] = {}
             for enduse in data['ss_all_enduses']:
 
                 # HDD
@@ -169,15 +169,15 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                     reg_diasg_factor = reg_pop / f_ss_other_gas[sector]
 
                 # Disaggregate (fuel * factor)
-                ss_fueldata_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
+                ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
     control_sum1 = 0
     control_sum2 = 0
-    for reg in ss_fueldata_disagg:
-        for sector in ss_fueldata_disagg[reg]:
-            for enduse in ss_fueldata_disagg[reg][sector]:
-                control_sum1 += np.sum(ss_fueldata_disagg[reg][sector][enduse])
+    for reg in ss_fuel_disagg:
+        for sector in ss_fuel_disagg[reg]:
+            for enduse in ss_fuel_disagg[reg][sector]:
+                control_sum1 += np.sum(ss_fuel_disagg[reg][sector][enduse])
 
     for sector in data['ss_sectors']:
         for enduse in data['ss_all_enduses']:
@@ -186,7 +186,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     #The loaded floor area must correspond to provided fuel sectors numers
     np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="")
 
-    return ss_fueldata_disagg
+    return ss_fuel_disagg
 
 def scrap_ts_disaggregate(data, fuel_national):
     """Disaggregate transport sector
@@ -215,7 +215,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
     #TODO: DISAGGREGATE WITH OTHER DATA
     """
-    is_fueldata_disagg = {}
+    is_fuel_disagg = {}
 
     national_floorarea_sector = 0
     for region_name in data['lu_reg']:
@@ -223,11 +223,11 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
     # Iterate regions
     for region_name in data['lu_reg']:
-        is_fueldata_disagg[region_name] = {}
+        is_fuel_disagg[region_name] = {}
 
         # Iterate sector
         for sector in data['is_sectors']:
-            is_fueldata_disagg[region_name][sector] = {}
+            is_fuel_disagg[region_name][sector] = {}
 
             # Sector specifid info
             reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
@@ -245,9 +245,9 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
                 # Disaggregated national fuel
                 reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
 
-                is_fueldata_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
+                is_fuel_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
 
-    return is_fueldata_disagg
+    return is_fuel_disagg
 
 def rs_disaggregate(data, rs_national_fuel):
     """Disaggregate residential fuel demand
@@ -261,7 +261,7 @@ def rs_disaggregate(data, rs_national_fuel):
 
     Returns
     -------
-    rs_fueldata_disagg : dict
+    rs_fuel_disagg : dict
         Disaggregated fuel per enduse for every region (fuel[region][enduse])
 
     Note
@@ -313,9 +313,9 @@ def rs_disaggregate(data, rs_national_fuel):
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
-    rs_fueldata_disagg = {}
+    rs_fuel_disagg = {}
     for region_name in data['lu_reg']:
-        rs_fueldata_disagg[region_name] = {}
+        rs_fuel_disagg[region_name] = {}
 
         reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
@@ -343,9 +343,9 @@ def rs_disaggregate(data, rs_national_fuel):
                 reg_diasg_factor = reg_pop / total_pop
 
             # Disaggregate
-            rs_fueldata_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+            rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
 
-    return rs_fueldata_disagg
+    return rs_fuel_disagg
 
 def write_disagg_fuel(path_to_txt, data):
     """Write out disaggregated fuel
@@ -439,17 +439,17 @@ def run(data):
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'rs_fueldata_disagg.csv'),
-        data['rs_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'rs_fuel_disagg.csv'),
+        data['rs_fuel_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'ss_fueldata_disagg.csv'),
-        data['ss_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'ss_fuel_disagg.csv'),
+        data['ss_fuel_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'is_fueldata_disagg.csv'),
-        data['is_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'is_fuel_disagg.csv'),
+        data['is_fuel_disagg'])
     write_disagg_fuel_ts(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'ts_fueldata_disagg.csv'),
-        data['ts_fueldata_disagg'])
+        os.path.join(data['local_paths']['path_dir_disattregated'], 'ts_fuel_disagg.csv'),
+        data['ts_fuel_disagg'])
 
     print("... finished script {}".format(os.path.basename(__file__)))
     return

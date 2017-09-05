@@ -43,6 +43,10 @@ class EDWrapper(SectorModel):
 
         # # Initialise SCNEARIO == NEEDS TO BE IN INIT
         # scenario_initalisation(energy_demand_data_path, ed_data)
+
+        #ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
+        #ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
+
         pass
 
     def simulate(self, timestep, data=None):
@@ -122,7 +126,8 @@ class EDWrapper(SectorModel):
 
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
-        # Generate dwelling stocks over whole simulation period
+        TODO: ONLY NEEDS TO BE EXECUTED ONCE
+        # Generate dwelling stocks over whole simulation period 
         ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
         ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
 

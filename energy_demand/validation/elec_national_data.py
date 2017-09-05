@@ -6,7 +6,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.basic import date_handling
-from energy_demand.basic import unit_conversions
+from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 #from energy_demand.technologies import diffusion_technologies as diffusion
@@ -83,8 +83,8 @@ def read_raw_elec_2015_data(path_to_csv):
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
-                hour_elec_demand_gwh_INDO = unit_conversions.convert_mw_gwh(hour_elec_demand_INDO, 0.5)
-                hour_elec_demand_gwh_ITSDO = unit_conversions.convert_mw_gwh(hour_elec_demand_ITSDO, 0.5)
+                hour_elec_demand_gwh_INDO = conversions.convert_mw_gwh(hour_elec_demand_INDO, 0.5)
+                hour_elec_demand_gwh_ITSDO = conversions.convert_mw_gwh(hour_elec_demand_ITSDO, 0.5)
 
                 # Add to array
                 #print(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))

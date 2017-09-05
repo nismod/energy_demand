@@ -1,5 +1,5 @@
 import numpy as np
-from energy_demand.basic import unit_conversions
+from energy_demand.basic import conversions
 
 def test_conversion_ktoe_gwh():
     """Testing function
@@ -8,7 +8,7 @@ def test_conversion_ktoe_gwh():
     expected = in_value * 11.6300000
 
     # call function
-    out_value = unit_conversions.convert_ktoe_gwh(in_value)
+    out_value = conversions.convert_ktoe_gwh(in_value)
 
     assert out_value == expected
 
@@ -19,7 +19,7 @@ def test_convert_kwh_gwh():
     expected = in_value *  0.000001
 
     # call function
-    out_value = unit_conversions.convert_kwh_gwh(in_value)
+    out_value = conversions.convert_kwh_gwh(in_value)
 
     assert out_value == expected
 
@@ -30,7 +30,7 @@ def test_convert_ktoe_twh():
     expected = in_value *  0.01163
 
     # call function
-    out_value = unit_conversions.convert_ktoe_twh(in_value)
+    out_value = conversions.convert_ktoe_twh(in_value)
 
     assert out_value == expected
 
@@ -43,7 +43,7 @@ def test_convert_mw_gwhh():
     expected = (megawatt_hour * number_of_hours) / 1000.0
 
     # call function
-    out_value = unit_conversions.convert_mw_gwh(megawatt_hour, number_of_hours)
+    out_value = conversions.convert_mw_gwh(megawatt_hour, number_of_hours)
 
     assert out_value == expected
 
@@ -59,7 +59,7 @@ def test_convert_across_all_fueltypes():
     expected['enduse'][1] = 20 * 11.6300000
 
     # call function
-    out_value = unit_conversions.convert_across_all_fueltypes(in_value)
+    out_value = conversions.convert_across_all_fueltypes(in_value)
 
     np.testing.assert_array_almost_equal(out_value['enduse'][0], expected['enduse'][0])
     np.testing.assert_array_almost_equal(out_value['enduse'][1], expected['enduse'][1])
@@ -76,7 +76,7 @@ def test_convert_all_fueltypes_sector():
     expected['enduse']['sector'][1] = 20 * 11.6300000
 
     # call function
-    out_value = unit_conversions.convert_all_fueltypes_sector(in_value)
+    out_value = conversions.convert_all_fueltypes_sector(in_value)
 
     np.testing.assert_array_almost_equal(out_value['enduse']['sector'][0], expected['enduse']['sector'][0])
     np.testing.assert_array_almost_equal(out_value['enduse']['sector'][1], expected['enduse']['sector'][1])

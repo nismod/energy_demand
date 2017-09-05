@@ -209,19 +209,19 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     return hes_data, hes_y_coldest, hes_y_warmest
 
-def run(path_main, local_data_path):
+def run(data):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     # Load paths
-    data = {}
+    '''data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data = data_loader.load_fuels(data)
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-
+    '''
     hes_appliances_matching = {
         'rs_cold': 0,
         'rs_cooking': 1,

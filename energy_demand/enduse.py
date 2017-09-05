@@ -129,14 +129,13 @@ class Enduse(object):
         else:
 
             # -----------------------------------------------------------------
-            # Get correct parameters depending on configuration
+            # Get correct parameters depending on model configuration
             # -----------------------------------------------------------------
             # Get regional or non-regional load profile data
             load_profiles = self.get_load_profile_stock(
                 data['non_regional_profile_stock'],
                 regional_profile_stock)
 
-            # Get technologies of enduse
             self.enduse_techs = self.get_enduse_tech(fuel_tech_p_by)
 
             # Calculate fuel for hybrid technologies
@@ -190,7 +189,7 @@ class Enduse(object):
                 reg_scenario_drivers,
                 data['sim_param']
                 )
-            
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -1527,7 +1526,7 @@ class Enduse(object):
             by_driver, cy_driver = 1, 1 #not 0
 
             for scenario_driver in scenario_drivers:
-                
+
                 # Get correct data depending on driver
                 if scenario_driver == 'GVA':
                     by_driver_data = data['GVA'][base_yr][region_name]

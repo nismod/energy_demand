@@ -25,12 +25,12 @@ class Region(object):
         self.region_name = region_name
 
         # Fuels
-        self.rs_enduses_fuel = data['rs_fueldata_disagg'][region_name]
-        self.ss_enduses_sectors_fuels = data['ss_fueldata_disagg'][region_name]
-        self.is_enduses_sectors_fuels = data['is_fueldata_disagg'][region_name]
-        self.ts_fuels = data['ts_fueldata_disagg'][region_name]
+        self.rs_enduses_fuel = data['rs_fuel_disagg'][region_name]
+        self.ss_enduses_sectors_fuels = data['ss_fuel_disagg'][region_name]
+        self.is_enduses_sectors_fuels = data['is_fuel_disagg'][region_name]
+        self.ts_fuels = data['ts_fuel_disagg'][region_name]
 
-        closest_station_id = wl.get_closest_station(data['reg_coordinates'][region_name]['longitude'], data['reg_coordinates'][region_name]['latitude'], data['weather_stations'])
+        closest_station_id = wl.get_closest_station(data['reg_coord'][region_name]['longitude'], data['reg_coord'][region_name]['latitude'], data['weather_stations'])
 
         # Get weather region object (closest weather station to Region)
         weatherregion_object = self.get_correct_weather_point(weather_regions, closest_station_id)

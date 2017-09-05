@@ -6,7 +6,7 @@ import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
-from energy_demand.basic import unit_conversions
+from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_results
 
 def load_basic_lookups():
@@ -111,7 +111,7 @@ def dummy_data_generation(data):
     data['GVA'] = gva_data
     data['input_regions'] = regions
     data['population'] = pop_dummy
-    data['reg_coordinates'] = coord_dummy
+    data['reg_coord'] = coord_dummy
     data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     return data
@@ -145,7 +145,7 @@ def load_local_paths(path):
         'path_data_results': os.path.join(
             path, '_result_data'),
         'path_processed_weather_data': os.path.join(
-            path, '_processed_data', 'weather_data','weather_data.csv'),
+            path, '_processed_data', 'weather_data', 'weather_data.csv'),
         'path_changed_weather_station_data': os.path.join(
             path, '_processed_data', 'weather_data', 'weather_stations.csv'),
         'path_changed_weather_data': os.path.join(
@@ -306,15 +306,19 @@ def load_data_tech_profiles(data):
     return data
 
 def load_data_profiles(data):
-    """
-    """
-    # --------------------
-    # Collect load profiles from txt files (needs to be preprocssed with scripts)
-    # --------------------
-    print("...read in load shapes from txt files")
-    data = rs_collect_shapes_from_txts(data, data['local_paths']['path_rs_load_profile_txt'])
+    """Collect load profiles from txt files
 
-    data = ss_collect_shapes_from_txts(data, data['local_paths']['path_ss_load_profile_txt'])
+    Parameters
+    ----------
+    data : dict
+        Data container
+    """
+    print("... read in load shapes from txt files")
+    data = rs_collect_shapes_from_txts(
+        data, data['local_paths']['path_rs_load_profile_txt'])
+
+    data = ss_collect_shapes_from_txts(
+        data, data['local_paths']['path_ss_load_profile_txt'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
@@ -345,13 +349,15 @@ def load_data_temperatures(paths):
     return weather_stations, temperature_data
 
 def load_fuels(data):
-    """
-    """
-    # ------------------------------------------
-    # Load ECUK fuel data
-    # ------------------------------------------
+    """Load in ECUK fuel data
 
-    # Residential Sector (ECUK Table XY and Table XY )
+    Parameters
+    ---------
+    data : dict
+        Data container
+    """
+
+    # Residential Sector (ECUK Table XY and Table XY)
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(
         data['paths']['path_rs_fuel_raw_data_enduses'])
 
@@ -363,18 +369,16 @@ def load_fuels(data):
     # Industry fuel (ECUK Table 4.04)
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['paths']['path_is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype_lu'])
 
-    # ----------------------------------------
     # Convert units
-    # ----------------------------------------
-    data['rs_fuel_raw_data_enduses'] = unit_conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
-    data['ss_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
-    data['is_fuel_raw_data_enduses'] = unit_conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
+    data['rs_fuel_raw_data_enduses'] = conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
+    data['ss_fuel_raw_data_enduses'] = conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
+    data['is_fuel_raw_data_enduses'] = conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
 
     #TODO
     fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
 
     #Elec demand from ECUK for transport sector
-    fuel_national_tranport[2] = unit_conversions.convert_ktoe_gwh(385)
+    fuel_national_tranport[2] = conversions.convert_ktoe_gwh(385)
 
     #fuel_national_tranport[2] = 385
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
@@ -412,10 +416,14 @@ def rs_collect_shapes_from_txts(data, txt_path):
 
     # Read load shapes from txt files for enduses
     for enduse in enduses:
-        shape_peak_dh = write_data.read_txt_shape_peak_dh(os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
-        shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
-        shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
-        shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+        shape_peak_dh = write_data.read_txt_shape_peak_dh(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_dh') + str('.txt')))
+        shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
+        shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+        shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(
+            os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         data['rs_shapes_dh'][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
         data['rs_shapes_yd'][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}

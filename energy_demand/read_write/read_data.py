@@ -54,17 +54,17 @@ def load_script_data(data):
     # ---------------------------------------
     # Disaggregation: Load disaggregated fuel per enduse and sector
     # ---------------------------------------
-    data['rs_fueldata_disagg'] = read_disaggregated_fuel(os.path.join(
-        data['local_paths']['path_data_processed'], 'disaggregated', 'rs_fueldata_disagg.csv'),
+    data['rs_fuel_disagg'] = read_disaggregated_fuel(os.path.join(
+        data['local_paths']['path_data_processed'], 'disaggregated', 'rs_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
-    data['ss_fueldata_disagg'] = read_disaggregated_fuel_sector(os.path.join(
-        data['local_paths']['path_data_processed'], 'disaggregated', 'ss_fueldata_disagg.csv'),
+    data['ss_fuel_disagg'] = read_disaggregated_fuel_sector(os.path.join(
+        data['local_paths']['path_data_processed'], 'disaggregated', 'ss_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
-    data['is_fueldata_disagg'] = read_disaggregated_fuel_sector(os.path.join(
-        data['local_paths']['path_data_processed'], 'disaggregated', 'is_fueldata_disagg.csv'),
+    data['is_fuel_disagg'] = read_disaggregated_fuel_sector(os.path.join(
+        data['local_paths']['path_data_processed'], 'disaggregated', 'is_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
-    data['ts_fueldata_disagg'] = read_disaggregated_ts(os.path.join(
-        data['local_paths']['path_data_processed'], 'disaggregated', 'ts_fueldata_disagg.csv'),
+    data['ts_fuel_disagg'] = read_disaggregated_ts(os.path.join(
+        data['local_paths']['path_data_processed'], 'disaggregated', 'ts_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
 
     return data

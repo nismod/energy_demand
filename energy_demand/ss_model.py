@@ -27,7 +27,7 @@ class ServiceModel(object):
         self.region_name = region_object.region_name
         self.enduse = enduse
         self.sector = sector
-        self.fuels_all_enduses = data['ss_fueldata_disagg'][self.region_name][self.sector]
+        self.fuels_all_enduses = data['ss_fuel_disagg'][self.region_name][self.sector]
 
         self.enduse_object = self.create_enduse(region_object, data)
 

@@ -428,7 +428,7 @@ def ss_dw_stock(regions, data):
                     Dwelling(
                         curr_yr=curr_yr,
                         region=region,
-                        coordinates=data['reg_coordinates'][region],
+                        coordinates=data['reg_coord'][region],
                         floorarea=floorarea_sector_cy,
                         enduses=data['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
@@ -719,7 +719,7 @@ def generate_dw_existing(data, region, curr_yr, dw_lu, floorarea_p, floorarea_by
                 Dwelling(
                     curr_yr=curr_yr,
                     region=region,
-                    coordinates=data['reg_coordinates'][region],
+                    coordinates=data['reg_coord'][region],
                     floorarea=dw_type_age_class_floorarea,
                     enduses=data['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
@@ -795,7 +795,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
             Dwelling(
                 curr_yr=curr_yr,
                 region=region,
-                coordinates=data['reg_coordinates'][region],
+                coordinates=data['reg_coord'][region],
                 floorarea=dw_type_new_floorarea,
                 enduses=data['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],

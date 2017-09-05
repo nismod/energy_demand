@@ -1,21 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# --------------------------
-# Testing file ``date_handling``
-# -------------------------
-
-import datetime
+"""Testing functions ``basic`` ``date_handling``
+"""
 from datetime import date
-from datetime import timedelta as td
-import numpy as np
-from pytest import raises
 from energy_demand.basic import date_handling
 
-'''
-def test_get_dates_week_nr():
+'''def test_get_dates_week_nr():
     """testing function
     """
+    import datetime
     from isoweek import Week
     in_year = 2017
     week_nr = 33
@@ -33,9 +24,7 @@ def test_get_dates_week_nr():
     out_value = date_handling.get_dates_week_nr(in_year, week_nr)
 
     assert out_value == expected
-
 '''
-
 def test_convert_date_to_yearday():
     """Testing
     """
@@ -67,7 +56,7 @@ def test_fullyear_dates():
     """Testing
     """
     start_date = date(2015, 1, 1)
-    end_date =  date(2015, 1, 4)
+    end_date = date(2015, 1, 4)
     expected = [
         date(2015, 1, 1),
         date(2015, 1, 2),
@@ -76,5 +65,16 @@ def test_fullyear_dates():
 
     # call function
     out_value = date_handling.fullyear_dates(start_date, end_date)
+
+    assert out_value == expected
+
+def test_get_weekday_type():
+    """Testing
+    """
+    date_to_test = date(2015, 4, 3)
+    expected = 'holiday'
+
+    # call function
+    out_value = date_handling.get_weekday_type(date_to_test)
 
     assert out_value == expected

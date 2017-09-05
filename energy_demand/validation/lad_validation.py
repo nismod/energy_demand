@@ -6,7 +6,7 @@ import sys
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
-from energy_demand.basic import unit_conversions
+from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 
@@ -37,7 +37,7 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
             if reg_csv_geocode == region_name:
 
                 # --Sub Regional Electricity
-                #value_gwh = unit_conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
+                #value_gwh = conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
                 result_dict['REAL_electricity_demand'][region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
                 all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode)
