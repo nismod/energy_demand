@@ -96,6 +96,7 @@ class EDWrapper(SectorModel):
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data = data_loader.load_fuels(ed_data)
         ed_data = data_loader.load_data_profiles(ed_data)
+        ed_data = data_loader.load_data_tech_profiles(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
         ed_data = data_loader.dummy_data_generation(ed_data)
