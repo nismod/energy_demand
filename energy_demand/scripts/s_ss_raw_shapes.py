@@ -273,8 +273,9 @@ def run(path_main, local_data_path):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data = data_loader.load_fuels(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
-
+    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
+    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+    
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
         data['paths']['path_ss_fuel_raw_data_enduses'],
         data['nr_of_fueltypes'])

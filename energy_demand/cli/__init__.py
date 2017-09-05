@@ -16,6 +16,8 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results
 
 def init_scenario(args):
+    """
+    """
     data_energy_demand = args.data_energy_demand
     scenario_initalisation(data_energy_demand)
 
@@ -45,7 +47,9 @@ def run_model(args):
     data = data_loader.load_fuels(data)
     data = data_loader.load_data_tech_profiles(data)
     data = data_loader.load_data_profiles(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
+    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
+    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+    
     data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
         data['local_paths']
         )

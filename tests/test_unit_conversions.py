@@ -34,7 +34,7 @@ def test_convert_ktoe_twh():
 
     assert out_value == expected
 
-'''def test_convert_across_all_fueltypes():
+def test_convert_across_all_fueltypes():
     """Testing function
     """
     in_value = {'enduse': np.zeros((2))}
@@ -48,4 +48,5 @@ def test_convert_ktoe_twh():
     # call function
     out_value = unit_conversions.convert_across_all_fueltypes(in_value)
 
-    np.testing.assert_array_almost_equal(out_value, expected)'''
+    np.testing.assert_array_almost_equal(out_value['enduse'][0], expected['enduse'][0])
+    np.testing.assert_array_almost_equal(out_value['enduse'][1], expected['enduse'][1])

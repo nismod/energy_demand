@@ -37,7 +37,7 @@ def post_install_setup(args):
     from energy_demand.scripts import s_ss_raw_shapes
     s_ss_raw_shapes.run(path_main, local_data_path)
 
-def scenario_initalisation(path_data_energy_demand):
+def scenario_initalisation(path_data_energy_demand, data=False):
     """Scripts which need to be run for every different scenario
 
     Parameters
@@ -58,19 +58,20 @@ def scenario_initalisation(path_data_energy_demand):
     print("PATH MAIN: " + str(path_main))
     print("processed_data_path: " + str(path_data_energy_demand))
 
-    # Load stuff
-    data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
-    data = data_loader.load_fuels(data)
-    data['assumptions'] = assumptions.load_assumptions(data)
-    data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
-        data['local_paths'])
-
-    # IMPROVE TODO: LOAD FLOOR AREA DATA
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    data = data_loader.dummy_data_generation(data)
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # 
+    if data == False:
+        data = {}
+        data['paths'] = data_loader.load_paths(path_main)
+        data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
+        data = data_loader.load_fuels(data)
+        data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
+        data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+        data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+            data['local_paths'])
+        # IMPROVE TODO: LOAD FLOOR AREA DATA
+        data = data_loader.dummy_data_generation(data)
+    else:
+        pass
 
     from energy_demand.scripts import s_change_temp
     s_change_temp.run(data, path_main, path_data_energy_demand)

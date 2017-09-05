@@ -28,16 +28,16 @@ def load_assumptions(data):
     print("... load assumptions")
     assumptions = {}
 
-    data['sim_param'] = {}
-    data['sim_param']['base_yr'] = 2015
-    data['sim_param']['end_yr'] = 2020
-    data['sim_param']['sim_years_intervall'] = 5 # Make calculation only every X year
-    data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr']  + 1, data['sim_param']['sim_years_intervall'])
-    data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
-    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['list_dates'] = date_handling.fullyear_dates(
-        start=date(data['sim_param']['base_yr'], 1, 1),
-        end=date(data['sim_param']['base_yr'], 12, 31))
+    sim_param = {}
+    sim_param['base_yr'] = 2015
+    sim_param['end_yr'] = 2020
+    sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr']  + 1, sim_param['sim_years_intervall'])
+    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+    sim_param['curr_yr'] = sim_param['base_yr']
+    sim_param['list_dates'] = date_handling.fullyear_dates(
+        start=date(sim_param['base_yr'], 1, 1),
+        end=date(sim_param['base_yr'], 12, 31))
 
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology. If True, heat is delievered with fueltype
@@ -344,7 +344,7 @@ def load_assumptions(data):
     split_heat_pump_ASHP_GSHP = 0.5
 
     # --Assumption how much of technological efficiency is reached
-    efficiency_achieving_factor = 1.0
+    assumptions['efficiency_achieving_factor'] = 1
 
     # --Heat pumps
     assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(
@@ -373,11 +373,7 @@ def load_assumptions(data):
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
     assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
-    # Helper function
-    assumptions['technologies'] = helpers.helper_set_same_eff_all_tech(
-        assumptions['technologies'],
-        efficiency_achieving_factor
-        )
+
 
     # ============================================================
     # Fuel Stock Definition (necessary to define before model run)
@@ -430,5 +426,20 @@ def load_assumptions(data):
     testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing.testing_tech_defined(assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
     testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
+
+    return sim_param, assumptions
+
+def update_assumptions(assumptions):
+    """Updates calculations based on assumptions
+
+    Note
+    ----
+    This needs to be run everytime an assumption is changedf
+
+    """
+    assumptions['technologies'] = helpers.helper_set_same_eff_all_tech(
+        assumptions['technologies'],
+        assumptions['efficiency_achieving_factor']
+        )
 
     return assumptions
