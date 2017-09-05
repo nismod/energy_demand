@@ -32,19 +32,19 @@ def assign_by_fuel_tech_p(assumptions, data):
       assigned with technologies or none. No mixing possible
     """
     rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['rs_all_enduses'], data['nr_of_fueltypes'])
+        data['rs_all_enduses'], data['lookups']['nr_of_fueltypes'])
     ss_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['ss_all_enduses'], data['nr_of_fueltypes'])
+        data['ss_all_enduses'], data['lookups']['nr_of_fueltypes'])
     is_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['is_all_enduses'], data['nr_of_fueltypes'])
+        data['is_all_enduses'], data['lookups']['nr_of_fueltypes'])
 
-    fuel_nr_oil = data['lu_fueltype']['oil']
-    fuel_nr_elec = data['lu_fueltype']['electricity']
-    fuel_nr_gas = data['lu_fueltype']['gas']
-    fuel_nr_heat_sold = data['lu_fueltype']['heat_sold']
-    fuel_nr_biomass = data['lu_fueltype']['biomass']
-    fuel_nr_hydrogen = data['lu_fueltype']['hydrogen']
-    fuel_nr_solid_fuel = data['lu_fueltype']['solid_fuel']
+    fuel_nr_oil = data['lookups']['fueltype_lu']['oil']
+    fuel_nr_elec = data['lookups']['fueltype_lu']['electricity']
+    fuel_nr_gas = data['lookups']['fueltype_lu']['gas']
+    fuel_nr_heat_sold = data['lookups']['fueltype_lu']['heat_sold']
+    fuel_nr_biomass = data['lookups']['fueltype_lu']['biomass']
+    fuel_nr_hydrogen = data['lookups']['fueltype_lu']['hydrogen']
+    fuel_nr_solid_fuel = data['lookups']['fueltype_lu']['solid_fuel']
 
     # ------------------
     # Residential subModel

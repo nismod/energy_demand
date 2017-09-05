@@ -507,7 +507,7 @@ def rs_dw_stock(regions, data):
 
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(
-        data['dwtype_lu'],
+        data['lookups']['dwtype_lu'],
         dwtype_floor_area, #data['assumptions']['assump_dwtype_floorarea'],
         dwtype_distr
         )
@@ -547,7 +547,7 @@ def rs_dw_stock(regions, data):
                     data=data,
                     region=region,
                     curr_yr=curr_yr,
-                    dw_lu=data['dwtype_lu'],
+                    dw_lu=data['lookups']['dwtype_lu'],
                     floorarea_p=floorarea_p[base_yr],
                     floorarea_by=floorarea_by,
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
@@ -585,7 +585,7 @@ def rs_dw_stock(regions, data):
                     data=data,
                     region=region,
                     curr_yr=curr_yr,
-                    dw_lu=data['dwtype_lu'],
+                    dw_lu=data['lookups']['dwtype_lu'],
                     floorarea_p=floorarea_p[curr_yr],
                     floorarea_by=remaining_area,
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
@@ -782,7 +782,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for _, dw_type_name in data['dwtype_lu'].items():
+    for _, dw_type_name in data['lookups']['dwtype_lu'].items():
 
         # Calculate new floor area per dewlling type
         dw_type_new_floorarea = floorarea_p_by[dw_type_name] * new_floorarea_cy

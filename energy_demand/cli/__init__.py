@@ -42,6 +42,7 @@ def run_model(args):
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data['lookups'] = data_loader.load_basic_lookups()
     data = data_loader.load_fuels(data)
     data = data_loader.load_data_tech_profiles(data)
     data = data_loader.load_data_profiles(data)

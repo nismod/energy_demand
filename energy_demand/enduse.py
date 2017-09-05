@@ -252,7 +252,7 @@ class Enduse(object):
                 tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.fuel_to_service(
                     fuel_tech_p_by,
                     tech_stock,
-                    data['lu_fueltype'],
+                    data['lookups']['fueltype_lu'],
                     load_profiles,
                     mode_constrained
                     )
@@ -311,7 +311,7 @@ class Enduse(object):
                 self.service_to_fuel(
                     service_tech,
                     tech_stock,
-                    data['lu_fueltype'],
+                    data['lookups']['fueltype_lu'],
                     mode_constrained
                     )
 
@@ -335,7 +335,7 @@ class Enduse(object):
                     self.fuel_y = self.calc_fuel_tech_y(
                         tech_stock,
                         fuel_tech_y,
-                        data['lu_fueltype'],
+                        data['lookups']['fueltype_lu'],
                         mode_constrained)
                 else:
                     self.crit_flat_profile = False
@@ -345,7 +345,7 @@ class Enduse(object):
                         fuel_tech_y,
                         tech_stock,
                         load_profiles,
-                        data['lu_fueltype'],
+                        data['lookups']['fueltype_lu'],
                         mode_constrained
                         )
 

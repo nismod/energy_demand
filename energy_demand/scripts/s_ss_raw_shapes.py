@@ -278,7 +278,7 @@ def run(path_main, local_data_path):
     
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
         data['paths']['path_ss_fuel_raw_data_enduses'],
-        data['nr_of_fueltypes'])
+        data['lookups']['nr_of_fueltypes'])
 
     # Iterate sectors and read in shape
     for sector in ss_sectors:

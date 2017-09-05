@@ -86,7 +86,7 @@ def write_final_result(data, result_dict, year, lu_reg, crit_YAML):
     # Remove data from path_main
     main_path = data['paths']['path_main'][:-21]
 
-    for fueltype in data['lu_fueltype'].keys():
+    for fueltype in data['lookups']['fueltype_lu'].keys():
 
         # Path to create csv file
         path = os.path.join(main_path, 'model_output/_fueltype_{}_hourly_results.csv'.format(fueltype))

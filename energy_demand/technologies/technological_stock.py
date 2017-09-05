@@ -203,7 +203,7 @@ class Technology(object):
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                data['assumptions']['technologies'][tech_name]['fuel_type'], data['nr_of_fueltypes'])
+                data['assumptions']['technologies'][tech_name]['fuel_type'], data['lookups']['nr_of_fueltypes'])
 
             # Calculate shape per fueltype
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
@@ -348,7 +348,7 @@ class HybridTechnology(object):
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['nr_of_fueltypes'])
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['lookups']['nr_of_fueltypes'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
             self.fueltypes_yh_p_cy)

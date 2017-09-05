@@ -217,7 +217,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
                 market_entry_lowest = market_entry
 
         # Add average 'av_heat_pumps' to technology dict
-        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lu_fueltype'], fueltype)))
+        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)))
 
         #print("...create new averaged heat pump technology: " + str(name_av_hp))
 
@@ -425,15 +425,15 @@ def generate_ashp_gshp_split(split_factor, data):
     gshp_fraction = 1 - split_factor
 
     installed_heat_pump = {
-        data['lu_fueltype']['hydrogen']: {
+        data['lookups']['fueltype_lu']['hydrogen']: {
             'heat_pump_ASHP_hydro': ashp_fraction,
             'heat_pump_GSHP_hydro': gshp_fraction
             },
-        data['lu_fueltype']['electricity']: {
+        data['lookups']['fueltype_lu']['electricity']: {
             'heat_pump_ASHP_electricity': ashp_fraction,
             'heat_pump_GSHP_electricity': gshp_fraction
             },
-        data['lu_fueltype']['gas']: {
+        data['lookups']['fueltype_lu']['gas']: {
             'heat_pump_ASHP_gas': ashp_fraction,
             'heat_pump_GSHP_gas': gshp_fraction
             },

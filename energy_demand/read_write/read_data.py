@@ -56,16 +56,16 @@ def load_script_data(data):
     # ---------------------------------------
     data['rs_fueldata_disagg'] = read_disaggregated_fuel(os.path.join(
         data['local_paths']['path_data_processed'], 'disaggregated', 'rs_fueldata_disagg.csv'),
-        data['nr_of_fueltypes'])
+        data['lookups']['nr_of_fueltypes'])
     data['ss_fueldata_disagg'] = read_disaggregated_fuel_sector(os.path.join(
         data['local_paths']['path_data_processed'], 'disaggregated', 'ss_fueldata_disagg.csv'),
-        data['nr_of_fueltypes'])
+        data['lookups']['nr_of_fueltypes'])
     data['is_fueldata_disagg'] = read_disaggregated_fuel_sector(os.path.join(
         data['local_paths']['path_data_processed'], 'disaggregated', 'is_fueldata_disagg.csv'),
-        data['nr_of_fueltypes'])
+        data['lookups']['nr_of_fueltypes'])
     data['ts_fueldata_disagg'] = read_disaggregated_ts(os.path.join(
         data['local_paths']['path_data_processed'], 'disaggregated', 'ts_fueldata_disagg.csv'),
-        data['nr_of_fueltypes'])
+        data['lookups']['nr_of_fueltypes'])
 
     return data
 
@@ -88,13 +88,13 @@ def convert_out_format_es(data, model_run_object, sub_modules):
     control_total_sum = 0
     results = {}
 
-    for fueltype, fueltype_id in data['lu_fueltype'].items():
+    for fueltype, fueltype_id in data['lookups']['fueltype_lu'].items():
         results[fueltype] = []
         control_sum = 0
         for region_name in data['lu_reg']:
 
             hourly_all_fuels = model_run_object.get_fuel_region_all_models_yh(
-                data['nr_of_fueltypes'],
+                data['lookups']['nr_of_fueltypes'],
                 region_name,
                 sub_modules,
                 'fuel_yh')
@@ -343,7 +343,7 @@ def read_assump_fuel_switches(path_to_csv, data):
                 service_switches.append(
                     {
                         'enduse': str(row[0]),
-                        'enduse_fueltype_replace': data['lu_fueltype'][str(row[1])],
+                        'enduse_fueltype_replace': data['lookups']['fueltype_lu'][str(row[1])],
                         'technology_install': str(row[2]),
                         'year_fuel_consumption_switched': float(row[3]),
                         'share_fuel_consumption_switched': float(row[4]),

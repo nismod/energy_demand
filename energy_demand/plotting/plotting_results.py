@@ -122,13 +122,13 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lu_fueltype']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
 
         # Legend
-        for fueltype_str in data['lu_fueltype']:
-            if data['lu_fueltype'][fueltype_str] == fueltype:
+        for fueltype_str in data['lookups']['fueltype_lu']:
+            if data['lookups']['fueltype_lu'][fueltype_str] == fueltype:
                 fueltype_in_string = fueltype_str
         legend_entries.append(fueltype_in_string)
 
@@ -177,11 +177,11 @@ def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['nr_of_fueltypes'], nr_of_h_to_plot))
+    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_of_h_to_plot))
 
-    for fueltype, _ in enumerate(data['lu_fueltype']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lu_fueltype'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         for model_year_object in results_resid:
@@ -228,12 +228,12 @@ def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lu_fueltype']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lu_fueltype'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         # Read out fueltype specific max h load
@@ -277,12 +277,12 @@ def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lu_fueltype']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lu_fueltype'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
 
         legend_entries.append(fueltype_in_string)
 

@@ -31,11 +31,12 @@ class EDWrapper(SectorModel):
         ed_data['ss_floorarea'] = data['floor_area'] #Wrong TODO
         ed_data['reg_floorarea_resid'] = data['floor_area']
         ed_data['lu_reg'] = self.regions.get_entry('lad').get_entry_names()
-
+        
         # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(energy_demand_data_path)
+        ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data = data_loader.load_fuels(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
@@ -83,6 +84,7 @@ class EDWrapper(SectorModel):
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(energy_demand_data_path)
         ed_data = data_loader.load_fuels(ed_data)
+        ed_data = data_loader.load_data_profiles(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
         ed_data = data_loader.dummy_data_generation(ed_data)

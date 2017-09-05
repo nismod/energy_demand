@@ -122,7 +122,7 @@ if __name__ == "__main__":
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
-
+    data['lookups'] = data_loader.load_basic_lookups()
     data = data_loader.load_fuels(data)
     data = data_loader.load_data_tech_profiles(data)
     data = data_loader.load_data_profiles(data)
@@ -221,8 +221,8 @@ if __name__ == "__main__":
             data,
             lad_infos_shapefile,
             model_run_object,
-            data['nr_of_fueltypes'],
-            data['lu_fueltype'],
+            data['lookups']['nr_of_fueltypes'],
+            data['lookups']['fueltype_lu'],
             data['lu_reg']
             )
 

@@ -25,7 +25,7 @@ def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
     Load factor = average load / maximum load in given time period
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
-    load_factor_h = np.zeros((data['nr_of_fueltypes']))
+    load_factor_h = np.zeros((data['lookups']['nr_of_fueltypes']))
 
     # Iterate fueltypes to calculate load factors for each fueltype
     for fueltype, fuels in enumerate(fuels_tot_enduses_h):
@@ -62,7 +62,7 @@ def load_factor_d_non_peak(self, data):
 
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
-    lf_d = np.zeros((data['nr_of_fueltypes']))
+    lf_d = np.zeros((data['lookups']['nr_of_fueltypes']))
 
     # Iterate fueltypes to calculate load factors for each fueltype
     for k, fueldata in enumerate(self.rs_fuels_tot_enduses_d):
@@ -93,7 +93,7 @@ def load_factor_h_non_peak(self, data):
 
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
-    load_factor_h = np.zeros((data['nr_of_fueltypes'], 1)) # Initialise array to store fuel
+    load_factor_h = np.zeros((data['lookups']['nr_of_fueltypes'], 1)) # Initialise array to store fuel
 
     # Iterate fueltypes to calculate load factors for each fueltype
     for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
@@ -135,7 +135,7 @@ def load_factor_d(self, data):
 
     - https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
-    lf_d = np.zeros((data['nr_of_fueltypes']))
+    lf_d = np.zeros((data['lookups']['nr_of_fueltypes']))
 
     # Get day with maximum demand (in percentage of year)
     peak_d_demand = self.fuels_peak_d

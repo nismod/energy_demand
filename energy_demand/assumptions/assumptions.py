@@ -1,6 +1,5 @@
 """All assumptions are either loaded in this file or definied here
 """
-import os
 from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
@@ -11,7 +10,6 @@ from energy_demand.initalisations import helpers
 from energy_demand.read_write import write_data
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 #TODO: Write function which insersts zeros if a fueltype is not provided
 #TODO: Make that HLC can be improved
@@ -46,15 +44,6 @@ def load_assumptions(data):
     # ============================================================
     # Residential dwelling stock assumptions
     # ============================================================
-    # Dwelling types lookup table
-    data['dwtype_lu'] = {
-        0: 'detached',
-        1: 'semi_detached',
-        2: 'terraced',
-        3: 'flat',
-        4: 'bungalow'
-        }
-
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
@@ -338,7 +327,7 @@ def load_assumptions(data):
     # Load all technologies
     assumptions['technologies'], assumptions['technology_list'] = read_data.read_technologies(
         data['paths']['path_technologies'],
-        data['lu_fueltype'])
+        data['lookups']['fueltype_lu'])
 
     # Share of installed heat pumps for every fueltype (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_heat_pump_ASHP_GSHP = 0.5

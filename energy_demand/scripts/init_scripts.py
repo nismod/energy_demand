@@ -59,6 +59,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data = {}
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
+        data['lookups'] = data_loader.load_basic_lookups()
         data = data_loader.load_fuels(data)
         data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
