@@ -17,46 +17,43 @@ High Resolution Energy Demand Model
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
     :target: https://coveralls.io/github/nismod/energy_demand
 
+
 Running the model
 ========================
 
-1. Navigate to the folder where the python code is saved. Open a command and type into
-a command line:
+In order to run the model, the following steps are necessary. Step 1, 2 and 3
+only needs to be execute once. Step 4 and 5 every time the model is run
+with different assumptions.
 
-``setup.py develop``
+1. Add the data into a local directory as ``path/to/energy_data_folder`` and
+   download the energy_demand python code.
 
-2. Install the energy demand model from the console with the command
+2. Navigate to the folder where the python code is saved. Open a command and type into
+   a command line:
 
-``energy_demand post_install_setup -d path/to/energy_data_folder``
+  ``setup.py develop``
 
-The ``path/to/energy_data_folder`` is the path to the location with
-the necessary data to run the model.
+3. Install the energy demand model from the console with the command
 
-Note: The ``post_install_setup`` generates new folders in the 
-``energy_data_folder``.
+   ``energy_demand post_install_setup -d path/to/energy_data_folder``
 
-3. For every scenario run, the energy demand module needs to be
-initialised from the command line as follows:
+   The `path/to/energy_data_folder` is the path to the location with
+   the necessary data to run the model.
 
-``energy_demand scenario_initialisation -d path/to/energy_data_folder``
+   Note: The `post_install_setup` generates new folders in the 
+   `energy_data_folder`.
 
-Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
-folder which contain assumption specific data.
+4. For every scenario run, the energy demand module needs to be
+   initialised from the command line as follows:
 
-4. Run the energy demand model from the console with the command
+   ``energy_demand scenario_initialisation -d path/to/energy_data_folder``
 
-``energy_demand run -d path/to/energy_data_folder``
+   Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
+   folder which contain assumption specific data.
 
-Note: Step 1 and 2 only needs to be execute once, Step 3 and 4 every time
-the model is run with different assumptions.
+5. Run the energy demand model from the console with the command
 
-You'll need to python setup.py develop to install the simlink to the package.
-You can change the actual command to run this in the setup.cfg file under
-the heading console_scripts.
-Also, add the data directory as data_files when the package is installed, 
-so that the data files are accessible to the library. This needs a bit of extra work, 
-but should allow any module within the package to access these data files programmatically, 
-ithout having to specify a path. This will also work across platform.
+   ``energy_demand run -d path/to/energy_data_folder``
 
 
 A word from our sponsors
