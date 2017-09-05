@@ -382,15 +382,15 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
 
             #plot sigmoid curve
-            plotting.plotout_sigmoid_tech_diff(
-                l_values,
-                technology,
-                enduse,
-                xdata,
-                ydata,
-                fit_parameter,
-                True
-                )
+            # plotting.plotout_sigmoid_tech_diff(
+            #     l_values,
+            #     technology,
+            #     enduse,
+            #     xdata,
+            #     ydata,
+            #     fit_parameter,
+            #     True
+            #     )
 
     return sigmoid_parameters
 
