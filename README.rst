@@ -20,26 +20,35 @@ High Resolution Energy Demand Model
 Running the model
 ========================
 
-Navigate to the folder with the python code. Open a command and type in
+1. Navigate to the folder where the python code is saved. Open a command and type into
+a command line:
 
 ``setup.py develop``
 
-Install the energy demand model from the console with the command
+2. Install the energy demand model from the console with the command
 
 ``energy_demand post_install_setup -d path/to/energy_data_folder``
 
-Initialise for every scenario from the command
+The ``path/to/energy_data_folder`` is the path to the location with
+the necessary data to run the model.
 
-``energy_demand scenario_initialisation -d2 path/to/energy_data_folder``
+Note: The ``post_install_setup`` generates new folders in the 
+``energy_data_folder``.
 
-Note: The processed data folder gets generated upon the ``post_install_setup``
-and is stored in the same folder as the path/to/data
+3. For every scenario run, the energy demand module needs to be
+initialised from the command line as follows:
 
-Run the energy demand model from the console with the command
+``energy_demand scenario_initialisation -d path/to/energy_data_folder``
 
-``energy_demand run -d path/to/data``
+Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
+folder which contain assumption specific data.
 
+4. Run the energy demand model from the console with the command
 
+``energy_demand run -d path/to/energy_data_folder``
+
+Note: Step 1 and 2 only needs to be execute once, Step 3 and 4 every time
+the model is run with different assumptions.
 
 You'll need to python setup.py develop to install the simlink to the package.
 You can change the actual command to run this in the setup.cfg file under

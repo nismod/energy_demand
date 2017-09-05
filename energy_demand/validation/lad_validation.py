@@ -90,5 +90,5 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
     plt.ylabel("Sub-regional yearly electricity demand [GW]")
     plt.legend()
 
-    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], fig_name))
     #plt.show()

@@ -118,7 +118,9 @@ def load_local_paths(local_path):
         'path_dir_changed_weather_data': os.path.join(local_path, '_processed_data', 'weather_data'),
         
         'path_dir_disattregated': os.path.join(local_path, '_processed_data', 'disaggregated'),
-        'path_dir_services': os.path.join(local_path, '_processed_data', 'services') 
+        'path_dir_services': os.path.join(local_path, '_processed_data', 'services'),
+
+        'path_data_results_PDF': os.path.join(local_path, '_result_data', 'PDF')
         }
 
     # Create folders is they do not exist yet
@@ -126,6 +128,8 @@ def load_local_paths(local_path):
         os.makedirs(paths['path_data_processed'])
     if not os.path.exists(paths['path_data_results']):
         os.makedirs(paths['path_data_results'])
+    if not os.path.exists(paths['path_data_results_PDF']):
+        os.makedirs(paths['path_data_results_PDF'])
     if not os.path.exists(paths['path_load_profiles']):
         os.makedirs(paths['path_load_profiles'])
     if not os.path.exists(paths['path_rs_load_profiles']):
@@ -242,9 +246,9 @@ def load_data_profiles(data):
     # Collect load profiles from txt files (needs to be preprocssed with scripts)
     # --------------------
     print("...read in load shapes from txt files")
-    data = rs_collect_shapes_from_txts(data, data['paths']['path_rs_load_profile_txt'])
+    data = rs_collect_shapes_from_txts(data, data['local_paths']['path_rs_load_profile_txt'])
 
-    data = ss_collect_shapes_from_txts(data, data['paths']['path_ss_load_profile_txt'])
+    data = ss_collect_shapes_from_txts(data, data['local_paths']['path_ss_load_profile_txt'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
@@ -252,7 +256,7 @@ def load_data_profiles(data):
 
     return data
 
-def load_data_temperatures(local_paths):
+def load_data_temperatures(paths):
     """Read in cleaned temperature and weather station data
 
     Parameters
@@ -268,9 +272,9 @@ def load_data_temperatures(local_paths):
         Temperatures
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
-        local_paths['path_changed_weather_station_data'])
+        paths['path_changed_weather_station_data'])
     temperature_data = read_weather_data.read_weather_data_script_data(
-        local_paths['path_changed_weather_data'])
+        paths['path_changed_weather_data'])
 
     return weather_stations, temperature_data
 

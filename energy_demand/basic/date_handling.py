@@ -5,7 +5,6 @@ time related functionality
 from datetime import date
 from datetime import timedelta
 from isoweek import Week
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,R0912
 
 def get_dates_week_nr(year, week_nr):
     """Get all dates from a ISO week_nr in a list
@@ -36,7 +35,7 @@ def get_dates_week_nr(year, week_nr):
 
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
-
+ 
     Parameters
     ----------
     date_base_yr : int

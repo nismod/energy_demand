@@ -47,7 +47,7 @@ def scenario_initalisation(args):
     Only needs to be executed once for each scenario (not for every
     simulation year)
 
-    The ``path_processed_data`` must be in the local path provided to
+    The ``path_data_processed`` must be in the local path provided to
     post_install_setup
     """
     path_main = resource_filename(Requirement.parse("energy_demand"), "")

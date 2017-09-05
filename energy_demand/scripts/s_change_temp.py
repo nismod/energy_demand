@@ -151,14 +151,14 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     print("... finished write_weather_data")
     return
 
-def run(path_main, path_processed_data):
+def run(path_main, path_data_processed):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(path_processed_data)
+    data['local_paths'] = data_loader.load_local_paths(path_data_processed)
 
     data = data_loader.load_fuels(data)
     temperature_data = read_weather_data_script_data(

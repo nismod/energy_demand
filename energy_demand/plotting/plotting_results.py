@@ -104,7 +104,7 @@ def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
     print("...plot figure")
-    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], fig_name))
     #plt.show()
 
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
@@ -213,7 +213,7 @@ def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
-    plt.savefig(os.path.join(data['paths']['path_main'], 'model_output', '01-charts', fig_name))
+    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], fig_name))
     #plt.show()
 
 def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):

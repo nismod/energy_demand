@@ -35,6 +35,8 @@ TODO: REMOVE HEAT BOILER
     - scripts in ed?
     - path rel/abs
     - nested scripts
+
+Todo: Clan in data / data_scripts and data / model_output
 '''
 import os
 import sys
@@ -51,7 +53,6 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
-
 print("Start Energy Demand Model with python version: " + str(sys.version))
 #!python3.6
 
@@ -115,18 +116,19 @@ if __name__ == "__main__":
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = r'Y:\A-Data_NISMOD\data_energy_demand'
+    local_data_path = r'Y:\Data_NISMOD\data_energy_demand' 
 
     # Load data
     base_data = {}
     base_data['paths'] = data_loader.load_paths(path_main)
+    base_data['local_paths'] = data_loader.load_local_paths(local_data_path)
 
     base_data = data_loader.load_fuels(base_data)
     base_data = data_loader.load_data_tech_profiles(base_data)
     base_data = data_loader.load_data_profiles(base_data)
     base_data['assumptions'] = assumptions.load_assumptions(base_data)
     base_data['weather_stations'], base_data['temperature_data'] = data_loader.load_data_temperatures(
-        os.path.join(base_data['paths']['path_processed_data'], 'weather_data')
+        base_data['local_paths']
         )
 
     # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
@@ -181,7 +183,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy shape with Elexon Data for Base year for different regions
         # ---------------------------------------------------------------------------------------------
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
-            base_data['paths']['folder_validation_national_elec_data'])
+            base_data['local_paths']['folder_validation_national_elec_data'])
 
         print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
         print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         # Validation of spatial disaggregation
         # ---------------------------------------------------
         lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
-            base_data['paths']['path_dummy_regions']
+            base_data['local_paths']['path_dummy_regions']
         )
         lad_validation.compare_lad_regions(
             'compare_lad_regions.pdf',

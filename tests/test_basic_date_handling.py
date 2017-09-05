@@ -26,3 +26,17 @@ def test_convert_date_to_yearday():
     out_value = date_handling.convert_date_to_yearday(in_year, in_month, in_day)
 
     assert out_value == expected
+
+def test_convert_yearday_to_date():
+    """Testing
+    """
+    in_year = 2015
+    in_month = 6
+    in_day = 13
+    in_yearday = 163
+    expected = date(2015, in_month, in_day)
+
+    # call function
+    out_value = date_handling.convert_yearday_to_date(in_year, in_yearday)
+
+    assert out_value == expected
