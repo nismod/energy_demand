@@ -67,12 +67,7 @@ def dummy_data_generation(data):
 
     data['rs_floorarea'] = rs_floorarea
     data['ss_floorarea'] = ss_floorarea_sector_by_dummy
-
-    # -----------------------------
-    # Read in floor area of all regions and store in dic# TODO: REPLACE WITH Newcastle if ready
-    # -----------------------------
-    #REPLACE: Generate region_lookup from input data (Maybe read in region_lookup from shape?)
-    data['lu_reg'] = {} #TODO: DO NOT READ REGIONS FROM POP BUT DIRECTLY
+    data['lu_reg'] = {}
     for region_name in regions:
         data['lu_reg'][region_name] = region_name
 
