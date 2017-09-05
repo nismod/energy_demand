@@ -152,3 +152,27 @@ class EDWrapper(SectorModel):
             A scalar component generated from the simulation model results
         """
         pass
+
+
+if __name__ == '__main__':
+
+    data = {'population': {},
+            'gva': {},
+            'floor_area': {}}
+
+
+    data['assump_diff_floorarea_pp'] = 1
+    data['climate_change_temp_diff_month'] = 1
+    data['rs_t_base_heating_ey'] = 1
+    data['efficiency_achieving_factor'] = 1
+
+    ed = EDWrapper('ed')
+    from smif.convert.area import get_register as get_region_register
+    from smif.convert.area import RegionSet
+    from smif.convert.interval import get_register as get_interval_register
+    from smif.convert.interval import IntervalSet
+    from unittest.mock import Mock
+    regions = get_region_register()
+    regions.register(RegionSet('lad', []))
+
+    ed.simulate(2010, data)
