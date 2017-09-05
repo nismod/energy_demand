@@ -356,8 +356,7 @@ def load_fuels(data):
     data : dict
         Data container
     """
-
-    # Residential Sector (ECUK Table XY and Table XY)
+    # Residential Sector (ECUK Table XY and Table XY) 
     data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(
         data['paths']['path_rs_fuel_raw_data_enduses'])
 

@@ -214,14 +214,6 @@ def run(data):
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
-    # Load paths
-    '''data = {}
-    data['paths'] = data_loader.load_paths(path_main)
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data = data_loader.load_fuels(data)
-    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
-    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-    '''
     hes_appliances_matching = {
         'rs_cold': 0,
         'rs_cooking': 1,
