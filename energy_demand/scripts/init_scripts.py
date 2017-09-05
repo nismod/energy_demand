@@ -35,13 +35,13 @@ def post_install_setup(args):
     from energy_demand.scripts import s_ss_raw_shapes
     s_ss_raw_shapes.run(path_main, local_data_path)
 
-def scenario_initalisation(args):
+def scenario_initalisation(data_energy_demand):
     """Scripts which need to be run for every different scenario
 
     Parameters
     ----------
-    args : object
-        Arguments defined in ``./cli/__init__.py``
+    data_energy_demand : str
+        Path to the energy demand data folder
 
     Note
     ----
@@ -53,7 +53,6 @@ def scenario_initalisation(args):
     """
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
-    data_energy_demand = args.data_energy_demand
     print("PATH MAIN: " + str(path_main))
     print("processed_data_path: " + str(data_energy_demand))
 
