@@ -120,11 +120,11 @@ class EDWrapper(SectorModel):
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
         # Generate dwelling stocks over whole simulation period
-        ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], ed_data)
-        ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], ed_data)
+        ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
+        ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
 
         # Run model
-        data = read_data.load_script_data(data)
+        ed_data = read_data.load_script_data(ed_data)
 
         _, results = energy_demand_model(ed_data)
 
