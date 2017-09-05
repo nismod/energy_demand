@@ -27,7 +27,8 @@ def run_model(args):
 
     """
     #Subfolder where module is installed
-    path_main = resource_filename(Requirement.parse("energy_demand"), "")
+    path_main = resource_filename(Requirement.parse("energy_demand"), "data")
+    path_main = os.path.join(path_main, '../')
     local_data_path = args.data_folder
 
     print("path_main:       " + str(path_main))
@@ -62,10 +63,6 @@ def run_model(args):
     #results.all_submodels_sum_uk_specfuelype_enduses_y[2]
 
     results_every_year = [results]
-    plotting_results.plot_stacked_Country_end_use(
-        "figure_stacked_country01.pdf", data, results_every_year, data['rs_all_enduses'], 'rs_tot_fuel_y_enduse_specific_h')
-    plotting_results.plot_stacked_Country_end_use(
-        "figure_stacked_country02.pdf", data, results_every_year, data['ss_all_enduses'], 'ss_tot_fuel_enduse_specific_h')
 
     print("Finished energy demand model from command line execution")
 
@@ -113,18 +110,18 @@ def parse_arguments():
     parser_init.set_defaults(func=post_install_setup)
 
     # Scenario initialisation
-    parser_init = subparsers.add_parser(
+    scenario_init = subparsers.add_parser(
         'scenario_initialisation',
         help='Needs to be initialised')
 
-    parser_init.add_argument(
+    scenario_init.add_argument(
         '-d',
         '--data_energy_demand',
         default='./data_energy_demand',
         help='Path to main data folder'
         )
 
-    parser_init.set_defaults(func=scenario_initalisation)
+    scenario_init.set_defaults(func=scenario_initalisation)
 
     return parser
 
