@@ -106,8 +106,6 @@ class EnergyModel(object):
 
 
         # Sum across all regions, enduses for peak hour
-
-        # NEW
         self.peak_all_models_all_enduses_fueltype = self.sum_reg('fuel_peak_dh', data['lookups']['nr_of_fueltypes'], [self.rs_submodel, self.ss_submodel, self.is_submodel, self.ts_submodel], 'no_sum', 'peak_dh')
 
         self.rs_tot_fuel_y_max_allenduse_fueltyp = self.sum_reg('fuel_peak_h', data['lookups']['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h')
@@ -121,9 +119,22 @@ class EnergyModel(object):
         # Across all enduses calc_load_factor_h
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, self.rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.ss_tot_fuels_all_enduses_y, self.ss_fuels_peak_h)
-
+        
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
+
+        # Sum across all regions, all enduse and sectors sum_reg
+        self.fuel_individual_regions = {}
+        for region in region_names:
+            self.fuel_individual_regions[region] = self.sum_reg(
+                'fuel_yh',
+                data['lookups']['nr_of_fueltypes'],
+                [self.ss_submodel, self.rs_submodel,
+                self.is_submodel, self.ts_submodel],
+                'sum',
+                'non_peak',
+                region
+                )
 
     @classmethod
     def create_load_profile_stock(cls, data):

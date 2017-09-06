@@ -47,6 +47,8 @@ def post_install_setup(args):
     from energy_demand.scripts import s_ss_raw_shapes
     s_ss_raw_shapes.run(data)
 
+    print("... finished post_install_setup")
+
 def scenario_initalisation(path_data_energy_demand, data=False):
     """Scripts which need to be run for every different scenario
 
@@ -63,25 +65,36 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     The ``path_data_processed`` must be in the local path provided to
     post_install_setup
     """
+    if data == False:
+        run_locally = True
+    else:
+        run_locally = False
+    
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
-    if data == False:
+    if run_locally is True:
         data = {}
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
+        #data['lu_reg'] = self.regions.get_entry('lad').get_entry_names()
         data = data_loader.load_fuels(data)
         data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-        data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
-            data['local_paths'])
-        # IMPROVE TODO: LOAD FLOOR AREA DATA
+        
+        # SCRAP
         data = data_loader.dummy_data_generation(data)
     else:
         pass
 
     from energy_demand.scripts import s_change_temp
-    s_change_temp.run(data)
+    s_change_temp.run(data['local_paths'], data['assumptions'], data['sim_param'])
+
+    if run_locally is True:
+        data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+            data['local_paths'])
+    else:
+        pass
 
     from energy_demand.scripts import s_fuel_to_service
     s_fuel_to_service.run(data)
@@ -92,5 +105,5 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     from energy_demand.scripts import s_disaggregation
     s_disaggregation.run(data)
 
-    print("...  finished running scripts for the specified scenario")
+    print("...  finished scenario_initalisation")
     return

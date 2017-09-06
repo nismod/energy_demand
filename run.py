@@ -44,9 +44,9 @@ class EDWrapper(SectorModel):
         # # Initialise SCNEARIO == NEEDS TO BE IN INIT
         # scenario_initalisation(energy_demand_data_path, ed_data)
 
-        #ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
-        #ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
-
+        # Generate dwelling stocks over whole simulation period 
+        #self.system['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
+        #self.system['ss_dw_stock']= dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
         pass
 
     def simulate(self, timestep, data=None):
@@ -78,11 +78,8 @@ class EDWrapper(SectorModel):
 
         2. Run initialise scenarios
         3. For each timestep, run the model
-
         """
         energy_demand_data_path = '/vagrant/energy_demand_data'
-        #energy_demand_data_processed_path = '/vagrant/energy_demand_data/_processed_data'
-        #energy_demand_data_result_path = '/vagrant/energy_demand_data/_result_data'
 
         # Scenario data
         ed_data = {}
@@ -104,12 +101,15 @@ class EDWrapper(SectorModel):
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
         ed_data = data_loader.dummy_data_generation(ed_data)
-    
+
+        # ---------------------
+        #TODO: MOVE TO INIT
+        # ---------------------
         scenario_initalisation(energy_demand_data_path, ed_data)
 
         # Write data from smif to data container from energy demand model
         ed_data['sim_param']['current_year'] = timestep
-        ed_data['sim_param']['end_year'] = 2015
+        ed_data['sim_param']['end_year'] = 2020
         ed_data['sim_param']['sim_years_intervall'] = 1
 
         ed_data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
@@ -126,10 +126,9 @@ class EDWrapper(SectorModel):
 
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
-        TODO: ONLY NEEDS TO BE EXECUTED ONCE
-        # Generate dwelling stocks over whole simulation period 
-        ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
-        ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
+        #TODO: MOVE TO INIT
+        ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data) #self.system['rs_dw_stock']
+        ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data) #self.system['ss_dw_stock']
 
         # Run model
         ed_data = read_data.load_script_data(ed_data)
@@ -137,6 +136,8 @@ class EDWrapper(SectorModel):
         _, results = energy_demand_model(ed_data)
 
         print("FINISHED WRAPPER CALCULATIONS")
+        out_to_supply = results.fuel_individual_regions
+
         return results
 
     def extract_obj(self, results):
@@ -159,7 +160,7 @@ class EDWrapper(SectorModel):
         pass
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
 
     data = {'population': {},
             'gva': {},
@@ -181,3 +182,4 @@ if __name__ == '__main__':
     regions.register(RegionSet('lad', []))
 
     ed.simulate(2010, data)
+'''

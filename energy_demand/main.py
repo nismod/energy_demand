@@ -88,6 +88,7 @@ def energy_demand_model(data):
     # Total fuel of country
     fueltot = model_run_object.sum_uk_fueltypes_enduses_y
 
+    # Fuel per region
     print("================================================")
     print("Simulation year:     " + str(model_run_object.curr_yr))
     print("Number of regions    " + str(len(data['lu_reg'])))
@@ -159,13 +160,16 @@ if __name__ == "__main__":
             profiler.start()
 
         _, model_run_object = energy_demand_model(data)
-
+        
         if instrument_profiler:
             profiler.stop()
             print("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
+
+        # FUEL PER REGION SCRAP
+        out_to_supply = model_run_object.fuel_individual_regions
 
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year

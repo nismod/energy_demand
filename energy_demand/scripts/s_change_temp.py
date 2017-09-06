@@ -138,23 +138,23 @@ def write_chanted_temp_data(path_to_txt, weather_data):
     print("... finished write_weather_data")
     return
 
-def run(data):
+def run(local_paths, assumptions, sim_param):
     """Function to run script
     """
     print("... start script {}".format(os.path.basename(__file__)))
 
     temperature_data = read_weather_data_script_data(
-        data['local_paths']['path_processed_weather_data']
+        local_paths['path_processed_weather_data']
         )
 
-    assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
+    assumptions_temp_change = assumptions['climate_change_temp_diff_month']
 
     temp_climate_change = change_temp_climate_change(
-        temperature_data, assumptions_temp_change, data['sim_param'])
+        temperature_data, assumptions_temp_change, sim_param)
 
     # Write out temp_climate_change
     write_chanted_temp_data(
-        data['local_paths']['path_changed_weather_data'],
+        local_paths['path_changed_weather_data'],
         temp_climate_change)
 
     print("... finished script {}".format(os.path.basename(__file__)))
