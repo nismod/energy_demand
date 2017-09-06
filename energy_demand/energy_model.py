@@ -126,15 +126,20 @@ class EnergyModel(object):
         # Sum across all regions, all enduse and sectors sum_reg
         self.fuel_individual_regions = {}
         for region in region_names:
-            self.fuel_individual_regions[region] = self.sum_reg(
+            self.fuel_individual_regions[region] = {}
+
+            fuels = self.sum_reg(
                 'fuel_yh',
                 data['lookups']['nr_of_fueltypes'],
                 [self.ss_submodel, self.rs_submodel,
                 self.is_submodel, self.ts_submodel],
-                'sum',
+                'no_sum',
                 'non_peak',
                 region
                 )
+
+            for fueltype_nr, fueltype in data['lookups']['fueltype_lu'].items():
+                self.fuel_individual_regions[region][fueltype] = fuels[fueltype_nr]
 
     @classmethod
     def create_load_profile_stock(cls, data):
@@ -592,7 +597,7 @@ class EnergyModel(object):
             Summarised fuels
         """
         if crit2 == 'peak_h':
-            fuels = np.zeros((nr_of_fueltypes)) #np.zeros((nr_of_fueltypes, ))
+            fuels = np.zeros((nr_of_fueltypes))
         elif crit2 == 'non_peak':
             fuels = np.zeros((nr_of_fueltypes, 365, 24))
         elif crit2 == 'peak_dh':

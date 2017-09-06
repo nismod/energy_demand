@@ -170,7 +170,8 @@ if __name__ == "__main__":
 
         # FUEL PER REGION SCRAP
         out_to_supply = model_run_object.fuel_individual_regions
-
+        print("A")
+        print(out_to_supply)
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
