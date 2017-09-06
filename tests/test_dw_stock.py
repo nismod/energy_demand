@@ -21,7 +21,7 @@ def test_dwelling():
     classobject = dw_stock.Dwelling(
         2015,
         "UK",
-        {'long': 10, 'lat': 10},
+        {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],
         {'heating': 2.2}

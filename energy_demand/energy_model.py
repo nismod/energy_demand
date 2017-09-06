@@ -123,24 +123,27 @@ class EnergyModel(object):
         # SUMMARISE FOR EVERY REGION AND ENDSE
         #self.tot_country_fuel_y_load_max_h = self.peak_loads_per_fueltype(data, self.regions, 'rs_reg_load_factor_h')
 
+        # ------------------------------------------------------
         # Sum across all regions, all enduse and sectors sum_reg
+        # ------------------------------------------------------
+        #{'final_electricity_demand': np.zeros((320, 8760)), dtype=float}
         self.fuel_individual_regions = {}
-        for region in region_names:
-            self.fuel_individual_regions[region] = {}
+        for fueltype, fueltype_nr in data['lookups']['fueltype_lu'].items():
+            self.fuel_individual_regions[fueltype] = np.zeros((len(region_names), 8760))
 
-            fuels = self.sum_reg(
-                'fuel_yh',
-                data['lookups']['nr_of_fueltypes'],
-                [self.ss_submodel, self.rs_submodel,
-                self.is_submodel, self.ts_submodel],
-                'no_sum',
-                'non_peak',
-                region
-                )
-
-            for fueltype_nr, fueltype in data['lookups']['fueltype_lu'].items():
-                self.fuel_individual_regions[region][fueltype] = fuels[fueltype_nr]
-
+            for array_entry_region, region_name in enumerate(region_names):
+                fuels = self.sum_reg(
+                    'fuel_yh',
+                    data['lookups']['nr_of_fueltypes'],
+                    [self.ss_submodel, self.rs_submodel,
+                    self.is_submodel, self.ts_submodel],
+                    'no_sum',
+                    'non_peak',
+                    region_name
+                    )
+                # Reshape 365,24 to 8760
+                self.fuel_individual_regions[fueltype][array_entry_region] = fuels[fueltype_nr].reshape(8760)
+                    
     @classmethod
     def create_load_profile_stock(cls, data):
         """Assign load profiles which are the same for all regions

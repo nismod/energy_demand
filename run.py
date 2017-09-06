@@ -135,9 +135,16 @@ class EDWrapper(SectorModel):
 
         _, results = energy_demand_model(ed_data)
 
-        print("FINISHED WRAPPER CALCULATIONS")
+        # Restuls for ES Form: {'electricity': np.array((region, 8760hourdata))}
         out_to_supply = results.fuel_individual_regions
 
+
+        print("FINISHED WRAPPER CALCULATIONS")
+        '''
+        out_to_supply = {
+            {'final_electricity_demand': np.zeros((320, 8760)), dtype=float}
+        }
+        '''
         return results
 
     def extract_obj(self, results):

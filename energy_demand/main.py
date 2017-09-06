@@ -53,6 +53,7 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
+from energy_demand.basic import logging_settings as log
 print("Start Energy Demand Model with python version: " + str(sys.version))
 #!python3.6
 
@@ -77,6 +78,7 @@ def energy_demand_model(data):
     ----
     This function is executed in the wrapper
     """
+    
     fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
@@ -135,6 +137,18 @@ if __name__ == "__main__":
         data['local_paths']
         )
 
+    logger = log.create_logger(data['local_paths']['path_logging'])
+
+    # 'application' code
+    logger.debug('debug message')
+    logger.info('info message')
+    logger.warn('warn message')
+    logger.error('error message')
+    logger.critical('critical message')
+
+    logger.info("Info model run")
+    logger.info("--------------")
+    logger.info("main path {}".format(path_main))
     # >>>>>>>>>>>>>>>DUMMY DATA GENERATION
     data = data_loader.dummy_data_generation(data)
     # <<<<<<<<<<<<<<<<<< FINISHED DUMMY GENERATION DATA
@@ -170,12 +184,10 @@ if __name__ == "__main__":
 
         # FUEL PER REGION SCRAP
         out_to_supply = model_run_object.fuel_individual_regions
-        print("A")
-        print(out_to_supply)
+
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
-        #'''
         winter_week = list(range(date_handling.convert_date_to_yearday(2015, 1, 12), date_handling.convert_date_to_yearday(2015, 1, 19))) #Jan
         spring_week = list(range(date_handling.convert_date_to_yearday(2015, 5, 11), date_handling.convert_date_to_yearday(2015, 5, 18))) #May
         summer_week = list(range(date_handling.convert_date_to_yearday(2015, 7, 13), date_handling.convert_date_to_yearday(2015, 7, 20))) #Jul

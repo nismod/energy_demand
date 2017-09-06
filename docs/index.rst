@@ -15,11 +15,11 @@ Contents
 .. toctree::
    :maxdepth: 4
 
-   License <license>
-   Authors <authors>
    Model Documentation <documentation>
-   Changelog <changes>
    Module Reference <api/modules>
+   Authors <authors>
+   Changelog <changes>
+   License <license>
    
 
 

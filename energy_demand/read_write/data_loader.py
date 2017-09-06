@@ -120,6 +120,7 @@ def load_local_paths(path):
     """Create all local paths and folders
     """
     paths = {
+        'path_logging': os.path.join(path, 'logging_energy_demand.log'),
         'path_bd_e_load_profiles': os.path.join(
             path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_raw_carbon_trust': os.path.join(
@@ -205,8 +206,8 @@ def load_paths(path):
     """
     paths = {
 
-        # Residential
         'path_main': path,
+
 
         # Path for dwelling stock assumptions
         'path_dwtype_lu': os.path.join(
