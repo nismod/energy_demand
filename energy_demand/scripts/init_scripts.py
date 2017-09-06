@@ -65,7 +65,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     The ``path_data_processed`` must be in the local path provided to
     post_install_setup
     """
-    if data == False:
+    if data is False:
         run_locally = True
     else:
         run_locally = False
@@ -77,7 +77,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
-        #data['lu_reg'] = self.regions.get_entry('lad').get_entry_names()
         data = data_loader.load_fuels(data)
         data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])

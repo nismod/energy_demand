@@ -11,42 +11,58 @@ from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import assumptions
 from energy_demand.basic import date_handling
-from pkg_resources import Requirement
-from pkg_resources import resource_filename
+from pkg_resources import Requirement, resource_filename
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
-    def initialise(self, initial_conditions):
+
+    def before_model_run(self):
+        """Runs prior to any ``simulate()`` step
         
-        # energy_demand_data_path = '/vagrant/energy_demand_data'
-        #energy_demand_data_processed_path = '/vagrant/energy_demand_data/_processed_data'
-        #energy_demand_data_result_path = '/vagrant/energy_demand_data/_result_data'
+        Writes scenario data out into the scenario files
 
-        # Scenario data
-        # ed_data = {}
-        # ed_data['population'] = data['population']
-        # ed_data['GVA'] = data['gva']
-        # ed_data['rs_floorarea'] = data['floor_area']
-        # ed_data['ss_floorarea'] = data['floor_area'] #Wrong TODO
-        # ed_data['reg_floorarea_resid'] = data['floor_area']
-        # ed_data['lu_reg'] = self.regions.get_entry('lad').get_entry_names()
+        Saves useful data into the ``self.user_data`` dictionary for access
+        in the ``simulate()`` method
 
-        # # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
-        # path_main = resource_filename(Requirement.parse("energy_demand"), "")
-        # ed_data['paths'] = data_loader.load_paths(path_main)
-        # ed_data['local_paths'] = data_loader.load_local_paths(energy_demand_data_path)
-        # ed_data = data_loader.load_fuels(ed_data)
-        # ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
-        # ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
-        # ed_data = data_loader.dummy_data_generation(ed_data)
+        Data is accessed using the `get_scenario_data()` method is provided
+        as a numpy array with the dimensions timesteps-by-regions-by-intervals.
+        """
 
-        # # Initialise SCNEARIO == NEEDS TO BE IN INIT
-        # scenario_initalisation(energy_demand_data_path, ed_data)
+        self.user_data['data_path'] = '/vagrant/energy_demand_data'
+        self.processed_path = '/vagrant/energy_demand_data/_processed_data'
+        self.result_path = '/vagrant/energy_demand_data/_result_data'
+
+        # Obtain scenario data
+        ed_data = {}
+        ed_data['population'] = self.get_scenario_data('population')
+        ed_data['GVA'] = self.get_scenario_data('gva')
+        ed_data['rs_floorarea'] = self.get_scenario_data('floor_area')
+        ed_data['ss_floorarea'] = self.get_scenario_data('floor_area')
+        ed_data['reg_floorarea_resid'] = self.get_scenario_data('floor_area')
+        ed_data['lu_reg'] = self.get_region_names('lad')
+
+        # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
+        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        ed_data['paths'] = data_loader.load_paths(path_main)
+        ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+        ed_data['lookups'] = data_loader.load_basic_lookups()
+        ed_data = data_loader.load_fuels(ed_data)
+        ed_data = data_loader.load_data_profiles(ed_data)
+        ed_data = data_loader.load_data_tech_profiles(ed_data)
+        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
+        ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
+        ed_data = data_loader.dummy_data_generation(ed_data)
+
+        # Initialise scenario
+        scenario_initalisation(self.user_data['data_path'], ed_data)
 
         # Generate dwelling stocks over whole simulation period 
-        #self.system['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
-        #self.system['ss_dw_stock']= dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
+        self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
+        self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
+
+    def initialise(self, initial_conditions):
+        
         pass
 
     def simulate(self, timestep, data=None):
@@ -78,8 +94,15 @@ class EDWrapper(SectorModel):
 
         2. Run initialise scenarios
         3. For each timestep, run the model
+
+        Data is provided to these methods in the format::
+        
+            {'parameter_name': value_array}
+
+        where ``value_array`` is a regions-by-intervals numpy array.
+
         """
-        energy_demand_data_path = '/vagrant/energy_demand_data'
+        self.user_data['data_path'] = '/vagrant/energy_demand_data'
 
         # Scenario data
         ed_data = {}
@@ -93,7 +116,7 @@ class EDWrapper(SectorModel):
         # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data['paths'] = data_loader.load_paths(path_main)
-        ed_data['local_paths'] = data_loader.load_local_paths(energy_demand_data_path)
+        ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data = data_loader.load_fuels(ed_data)
         ed_data = data_loader.load_data_profiles(ed_data)
@@ -101,11 +124,6 @@ class EDWrapper(SectorModel):
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
         ed_data = data_loader.dummy_data_generation(ed_data)
-
-        # ---------------------
-        #TODO: MOVE TO INIT
-        # ---------------------
-        scenario_initalisation(energy_demand_data_path, ed_data)
 
         # Write data from smif to data container from energy demand model
         ed_data['sim_param']['current_year'] = timestep
@@ -127,8 +145,8 @@ class EDWrapper(SectorModel):
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
         #TODO: MOVE TO INIT
-        ed_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data) #self.system['rs_dw_stock']
-        ed_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data) #self.system['ss_dw_stock']
+        ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
+        ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
         # Run model
         ed_data = read_data.load_script_data(ed_data)
@@ -167,7 +185,7 @@ class EDWrapper(SectorModel):
         pass
 
 
-'''if __name__ == '__main__':
+if __name__ == '__main__':
 
     data = {'population': {},
             'gva': {},
@@ -188,5 +206,6 @@ class EDWrapper(SectorModel):
     regions = get_region_register()
     regions.register(RegionSet('lad', []))
 
+    ed.before_model_run()
+
     ed.simulate(2010, data)
-'''
