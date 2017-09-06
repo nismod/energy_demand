@@ -2,18 +2,28 @@
 """
 from energy_demand.dwelling_stock import dw_stock
 
-'''def test_get_scenario_driver_enduse():
+def test_get_scenario_driver_enduse():
     """Testing
     """
+    scenario_drivers = {'heating': ['population']}
+    classobject1 = dw_stock.Dwelling(
+        2015,
+        "UK",
+        {'longitude': 10, 'latitude': 10},
+        1000,
+        ['heating'],
+        scenario_drivers,
+        population=2.2
+    )
+    dwellings = [classobject1, classobject1]
+    dw_stock_object = dw_stock.DwellingStock('bern', dwellings, ['heating'])
 
-    classobject = DwellingStock()
-    
-    expected
+    expected = 4.4
+
     # call function
-    out_value = classobject.get_scenario_driver_enduse('heating')
+    out_value = dw_stock_object.get_scenario_driver_enduse('population')
 
     assert out_value == expected
-'''
 
 def test_dwelling():
     """Testing

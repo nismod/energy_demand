@@ -85,7 +85,7 @@ def convert_ktoe_twh(data_ktoe):
 
     return data_twh
 
-def convert_across_all_fueltypes(fuel_dict):
+def convert_fueltypes(fuel_dict):
     """Iterature ktoe in fueltypes and convert to GWh
 
     Parameters
@@ -108,7 +108,7 @@ def convert_across_all_fueltypes(fuel_dict):
 
     return fuel_converted
 
-def convert_all_fueltypes_sector(fuel_dict):
+def convert_fueltypes_sectors(fuel_dict):
     """Iterate fueltypes and convert ktoe to gwh
 
     Parameters

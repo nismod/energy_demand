@@ -372,9 +372,9 @@ def load_fuels(data):
     data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['paths']['path_is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype_lu'])
 
     # Convert units
-    data['rs_fuel_raw_data_enduses'] = conversions.convert_across_all_fueltypes(data['rs_fuel_raw_data_enduses'])
-    data['ss_fuel_raw_data_enduses'] = conversions.convert_all_fueltypes_sector(data['ss_fuel_raw_data_enduses'])
-    data['is_fuel_raw_data_enduses'] = conversions.convert_all_fueltypes_sector(data['is_fuel_raw_data_enduses'])
+    data['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(data['rs_fuel_raw_data_enduses'])
+    data['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(data['ss_fuel_raw_data_enduses'])
+    data['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(data['is_fuel_raw_data_enduses'])
 
     #TODO
     fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
@@ -382,7 +382,6 @@ def load_fuels(data):
     #Elec demand from ECUK for transport sector
     fuel_national_tranport[2] = conversions.convert_ktoe_gwh(385)
 
-    #fuel_national_tranport[2] = 385
     data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
 
     return data

@@ -2,12 +2,20 @@ import logging
 
 def create_logger(path_log_file):
     """Create logger
+
+    Note
+    ----
+    logger.debug('debug message')
+    logger.info('info message')
+    logger.warn('warn message')
+    logger.error('error message')
+    logger.critical('critical message')
     """
     print("path_log_file: " + str(path_log_file))
     # create logger
     logging.basicConfig(
         filename=path_log_file,
-        filemode='w'
+        filemode='a' #'w'
         )
     logger = logging.getLogger('Main Logger')
     logger.setLevel(logging.DEBUG)

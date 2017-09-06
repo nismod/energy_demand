@@ -15,7 +15,7 @@ from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
-'''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
+from energy_demand.basic import logging_settings as log
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -35,7 +35,8 @@ class EnergyModel(object):
     def __init__(self, region_names, data):
         """Constructor
         """
-        print("... start main energy demand function")
+        logger = log.create_logger(data['local_paths']['path_logging'])
+        logger.info("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
@@ -83,7 +84,7 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
-        print("...summarise fuel")
+        logger.info("...summarise fuel")
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors sum_reg
@@ -322,7 +323,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        #print("..other submodel start")
+        #logger.info("..other submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -339,10 +340,11 @@ class EnergyModel(object):
             submodules.append(submodule)
 
             #_scrap_cnt += 1
-            #print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
+            #logger.info("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         del self.regions, self.weather_regions
-        print("... finished other submodel")
+        logger = log.create_logger(data['local_paths']['path_logging'])
+        logger.info("... finished other submodel")
         return submodules
 
     def industry_submodel(self, data, enduses, sectors):
@@ -366,7 +368,8 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("... industry submodel start")
+        logger = log.create_logger(data['local_paths']['path_logging'])
+        logger.info("... industry submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -387,7 +390,7 @@ class EnergyModel(object):
                     submodules.append(submodule)
 
                     #_scrap_cnt += 1
-                    #print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    #logger.info("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         del self.regions, self.weather_regions
 
@@ -414,7 +417,8 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("... residential submodel start")
+        logger = log.create_logger(data['local_paths']['path_logging'])
+        logger.info("... residential submodel start")
         #_scrap_cnt = 0
         submodule_list = []
 
@@ -434,7 +438,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     #_scrap_cnt += 1
-                    #print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    #logger.info("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -462,7 +466,8 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        print("... service submodel start")
+        logger = log.create_logger(data['local_paths']['path_logging'])
+        logger.info("... service submodel start")
         _scrap_cnt = 0
         submodule_list = []
 
@@ -483,7 +488,8 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    print("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    logger = log.create_logger(data['local_paths']['path_logging'])
+                    logger.info("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -533,7 +539,8 @@ class EnergyModel(object):
 
         # Iterate all regions
         for region_name in region_names:
-            print("... creating region: '{}'  {}".format(region_name, submodel_type))
+            logger = log.create_logger(data['local_paths']['path_logging'])
+            logger.info("... creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
             region_object = region.Region(
                 region_name=region_name,

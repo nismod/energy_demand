@@ -28,7 +28,6 @@ class EDWrapper(SectorModel):
         Data is accessed using the `get_scenario_data()` method is provided
         as a numpy array with the dimensions timesteps-by-regions-by-intervals.
         """
-
         self.user_data['data_path'] = '/vagrant/energy_demand_data'
         self.processed_path = '/vagrant/energy_demand_data/_processed_data'
         self.result_path = '/vagrant/energy_demand_data/_result_data'
@@ -52,7 +51,7 @@ class EDWrapper(SectorModel):
         ed_data = data_loader.load_data_tech_profiles(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
-        ed_data = data_loader.dummy_data_generation(ed_data)
+        #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Initialise scenario
         scenario_initalisation(self.user_data['data_path'], ed_data)
@@ -62,7 +61,8 @@ class EDWrapper(SectorModel):
         self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
 
     def initialise(self, initial_conditions):
-        
+        """
+        """
         pass
 
     def simulate(self, timestep, data=None):
@@ -104,16 +104,20 @@ class EDWrapper(SectorModel):
         """
         self.user_data['data_path'] = '/vagrant/energy_demand_data'
 
+        # ---------
         # Scenario data
+        # ---------
         ed_data = {}
         ed_data['population'] = data['population']
         ed_data['GVA'] = data['gva']
         ed_data['rs_floorarea'] = data['floor_area']
-        ed_data['ss_floorarea'] = data['floor_area'] #Wrong TODO
+        ed_data['ss_floorarea'] = data['floor_area']
         ed_data['reg_floorarea_resid'] = data['floor_area']
-        ed_data['lu_reg'] = self.regions.get_entry('lad').get_entry_names()
 
-        # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
+        # ---------
+        # Replace data in ed_data with data provided from wrapper or before_model_run
+        # ---------
+        ed_data['lu_reg'] = self.get_region_names('lad')
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
@@ -123,7 +127,7 @@ class EDWrapper(SectorModel):
         ed_data = data_loader.load_data_tech_profiles(ed_data)
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
-        ed_data = data_loader.dummy_data_generation(ed_data)
+        #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Write data from smif to data container from energy demand model
         ed_data['sim_param']['current_year'] = timestep
@@ -144,7 +148,6 @@ class EDWrapper(SectorModel):
 
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
-        #TODO: MOVE TO INIT
         ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
         ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
@@ -158,11 +161,6 @@ class EDWrapper(SectorModel):
 
 
         print("FINISHED WRAPPER CALCULATIONS")
-        '''
-        out_to_supply = {
-            {'final_electricity_demand': np.zeros((320, 8760)), dtype=float}
-        }
-        '''
         return results
 
     def extract_obj(self, results):
