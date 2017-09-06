@@ -4,7 +4,6 @@
 import math
 import numpy as np
 from scipy.optimize import curve_fit
-from energy_demand.plotting import plotting_program as plotting
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear diffusion

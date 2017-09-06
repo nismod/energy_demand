@@ -127,7 +127,6 @@ class Dwelling(object):
         Source: Linear trends derived from Table 3.17 ECUK Tables
         https://www.gov.uk/government/collections/energy-consumption-in-the-uk
         """
-
         if dw_type is None or age is None:
             print("The HLC could not be calculated of a dwelling")
             return None
@@ -646,7 +645,7 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea, dwtype_distr):
         for _, dw_type in dw_lookup.items():
 
             # Get absolut size of dw_type
-            area_dw_type[dw_type] = type_distr_p[dw_type] * dw_floorarea[curr_yr][dw_type] #dw_floorarea_by[dw_type]
+            area_dw_type[dw_type] = type_distr_p[dw_type] * dw_floorarea[curr_yr][dw_type]
 
         # Convert absolute values into percentages
         tot_area = sum(area_dw_type.values())
@@ -803,9 +802,8 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
         control_floorarea += dw_type_new_floorarea
         control_pop += pop_dwtype_new_build_cy
 
-    # Test if floor area are the same
+    # Test if floor area and pop are the same
     assert round(new_floorarea_cy, 3) == round(control_floorarea, 3)
-    # Test if pop is the same
     assert round(new_floorarea_cy/floorarea_pp_cy, 3) == round(control_pop, 3)
 
     return dw_stock_new_dw

@@ -10,7 +10,7 @@ import copy
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
-from energy_demand.plotting import plotting_program as plotting
+#from energy_demand.plotting import plotting_program
 
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level
@@ -380,7 +380,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             sigmoid_parameters[technology]['l_parameter'] = l_values[enduse][technology]
 
             #plot sigmoid curve
-            # plotting.plotout_sigmoid_tech_diff(
+            # plotting_program.plotout_sigmoid_tech_diff(
             #     l_values,
             #     technology,
             #     enduse,

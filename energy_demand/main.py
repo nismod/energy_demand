@@ -78,7 +78,6 @@ def energy_demand_model(data):
     ----
     This function is executed in the wrapper
     """
-    
     fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
@@ -174,7 +173,7 @@ if __name__ == "__main__":
             profiler.start()
 
         _, model_run_object = energy_demand_model(data)
-        
+
         if instrument_profiler:
             profiler.stop()
             print("Profiler Results")

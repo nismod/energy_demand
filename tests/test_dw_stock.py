@@ -18,20 +18,23 @@ from energy_demand.dwelling_stock import dw_stock
 def test_dwelling():
     """Testing
     """
+    scenario_drivers = {'heating': ['population']}
     classobject = dw_stock.Dwelling(
         2015,
         "UK",
         {'longitude': 10, 'latitude': 10},
         1000,
         ['heating'],
-        {'heating': 2.2}
+        scenario_drivers,
+        population=2.2
     )
 
     # Driver
     expected = 2.2
 
     # call function
-    out_object = classobject.calc_scenario_driver('heating')
-    out_value = out_object.heating
+    classobject.calc_scenario_driver(scenario_drivers)
+
+    out_value = classobject.heating
 
     assert out_value == expected
