@@ -8,7 +8,7 @@ depending on scenaric assumptions.
 """
 import copy
 import numpy as np
-from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.technologies import diffusion_technologies
 from energy_demand.initalisations import initialisations as init
 from energy_demand.profiles import load_profile as lp
 from energy_demand.technologies import fuel_service_switch
@@ -496,7 +496,7 @@ class Enduse(object):
             else:
 
                 # Fraction of heat recovered in current year
-                sig_diff_factor = diffusion.sigmoid_diffusion(
+                sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                     base_sim_param['base_yr'],
                     base_sim_param['curr_yr'],
                     base_sim_param['end_yr'],
@@ -933,7 +933,7 @@ class Enduse(object):
 
         for tech_installed in tech_increased_service:
             # Get service for current year based on sigmoid diffusion
-            service_tech_cy_p[tech_installed] = diffusion.sigmoid_function(
+            service_tech_cy_p[tech_installed] = diffusion_technologies.sigmoid_function(
                 curr_yr,
                 sig_param_tech[self.enduse][tech_installed]['l_parameter'],
                 sig_param_tech[self.enduse][tech_installed]['midpoint'],
@@ -1136,7 +1136,7 @@ class Enduse(object):
         for tech_installed in installed_tech[self.enduse]:
 
             # Read out sigmoid diffusion of service of this technology for the current year
-            diffusion_cy = diffusion.sigmoid_function(
+            diffusion_cy = diffusion_technologies.sigmoid_function(
                 curr_yr,
                 sig_param_tech[self.enduse][tech_installed]['l_parameter'],
                 sig_param_tech[self.enduse][tech_installed]['midpoint'],
@@ -1381,7 +1381,7 @@ class Enduse(object):
 
             # Lineare diffusion up to cy
             if diffusion_choice == 'linear':
-                lin_diff_factor = diffusion.linear_diff(
+                lin_diff_factor = diffusion_technologies.linear_diff(
                     base_parameters['base_yr'],
                     base_parameters['curr_yr'],
                     percent_by,
@@ -1392,7 +1392,7 @@ class Enduse(object):
 
             # Sigmoid diffusion up to cy
             elif diffusion_choice == 'sigmoid':
-                sig_diff_factor = diffusion.sigmoid_diffusion(
+                sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                     base_parameters['base_yr'],
                     base_parameters['curr_yr'],
                     base_parameters['end_yr'],
@@ -1463,7 +1463,7 @@ class Enduse(object):
             new_fuels = np.zeros((self.fuel_new_y.shape[0]))
 
             # Sigmoid diffusion up to current year
-            sigm_factor = diffusion.sigmoid_diffusion(
+            sigm_factor = diffusion_technologies.sigmoid_diffusion(
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
                 base_sim_param['end_yr'],

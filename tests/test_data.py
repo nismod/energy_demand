@@ -9,7 +9,7 @@ class TestDataPath:
     def test_get_path(self):
         path_main = resource_filename(Requirement.parse("energy_demand"), 
                                       "data")
-                                      
+                   
         expected = os.path.join(path_main, 'submodel_residential')
         assert os.path.exists(expected)
 

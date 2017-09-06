@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = r'Y:\Data_NISMOD\data_energy_demand' 
+    local_data_path = os.path.join('Y:\Data_NISMOD', 'data_energy_demand')
 
     # Load data
     data = {}
@@ -155,7 +155,6 @@ if __name__ == "__main__":
 
         #-------------PROFILER
         if instrument_profiler:
-            
             profiler = Profiler(use_signal=False)
             profiler.start()
 

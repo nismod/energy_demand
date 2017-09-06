@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.technologies import diffusion_technologies
 
 def cm2inch(*tupl):
     """Convert input cm to inches
@@ -22,7 +22,7 @@ def plotout_sigmoid_tech_diff(L_values, technology, enduse, xdata, ydata, fit_pa
 
     L = L_values[enduse][technology]
     x = np.linspace(2015, 2100, 100)
-    y = diffusion.sigmoid_function(x, L, *fit_parameter)
+    y = diffusion_technologies.sigmoid_function(x, L, *fit_parameter)
 
     fig = plt.figure()
 

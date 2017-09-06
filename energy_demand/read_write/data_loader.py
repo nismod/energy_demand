@@ -142,8 +142,12 @@ def load_local_paths(path):
         # Output Data
         'path_data_processed': os.path.join(
             path, '_processed_data'),
+        'path_data_processed_disaggregated': os.path.join(
+            path, '_processed_data', 'disaggregated'),
         'path_data_results': os.path.join(
             path, '_result_data'),
+        'path_dir_changed_weather_data': os.path.join(
+            path, '_processed_data', 'weather_data'),
         'path_processed_weather_data': os.path.join(
             path, '_processed_data', 'weather_data', 'weather_data.csv'),
         'path_changed_weather_station_data': os.path.join(
@@ -156,8 +160,6 @@ def load_local_paths(path):
             path, '_processed_data', 'load_profiles', 'rs_submodel'),
         'path_ss_load_profiles': os.path.join(
             path, '_processed_data', 'load_profiles', 'ss_submodel'),
-        'path_dir_changed_weather_data': os.path.join(
-            path, '_processed_data', 'weather_data'),
         'path_dir_disattregated': os.path.join(
             path, '_processed_data', 'disaggregated'),
         'path_dir_services': os.path.join(

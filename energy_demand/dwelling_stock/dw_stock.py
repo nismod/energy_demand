@@ -4,7 +4,7 @@ Generates a virtual dwelling stock
 """
 import sys
 import numpy as np
-from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.technologies import diffusion_technologies
 
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
@@ -35,7 +35,6 @@ class Dwelling(object):
     - Depending on service or residential model, not all attributes
       are filled (then they are inistialised as None or zero)
     - For every dwelling, the scenario drivers are calculated for each enduse
-
     """
     def __init__(
             self,
@@ -106,12 +105,7 @@ class Dwelling(object):
                     scenario_driver_value
                     )
 
-            if scenario_driver_value == 0:
-                print("ddd")
-
             assert scenario_driver_value != 0
-
-        return
 
     @classmethod
     def get_hlc(cls, dw_type, age):
@@ -253,7 +247,7 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                 floor_area_pp[curr_yr] = floorarea_pp_by
             else:
                 # Change up to current year (linear)
-                lin_diff_factor = diffusion.linear_diff(
+                lin_diff_factor = diffusion_technologies.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
                     1,
@@ -412,7 +406,7 @@ def ss_dw_stock(regions, data):
                         "Error: The ss building stock sector floor area assumption is not defined")
 
                 # Floor area of sector in current year considering linear diffusion
-                lin_diff_factor = diffusion.linear_diff(
+                lin_diff_factor = diffusion_technologies.linear_diff(
                     data['sim_param']['base_yr'],
                     curr_yr,
                     1.0,
@@ -469,13 +463,13 @@ def rs_dw_stock(regions, data):
     - The assumption about internal temperature change is
       used as for each dwelling the hdd are calculated
       based on wheater data and assumption on t_base
-    
+
     - Doesn't take floor area as an input but calculates floor area
       based on floor area pp parameter. However, floor area
       could be read in by:
-      
+
       1.) Inserting `tot_floorarea_cy = data['rs_floorarea'][curr_yr]`
-      
+
       2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
           with more specific information from real building stock model
     """
