@@ -35,6 +35,7 @@ class EDWrapper(SectorModel):
 
         # Obtain scenario data
         ed_data = {}
+        ed_data['print_criteria'] = True #Print criteria
         ed_data['population'] = self.get_scenario_data('population')
         ed_data['GVA'] = self.get_scenario_data('gva')
         ed_data['rs_floorarea'] = self.get_scenario_data('floor_area')
@@ -50,7 +51,7 @@ class EDWrapper(SectorModel):
         ed_data['fuels'] = data_loader.load_fuels(ed_data)
         ed_data['tech_load_profiles']['ss_all_tech_shapes_dh'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
-        ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
+        ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
         #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Initialise scenario
@@ -125,7 +126,7 @@ class EDWrapper(SectorModel):
         ed_data['fuels'] = data_loader.load_fuels(ed_data)
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
-        ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
+        ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
         #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Write data from smif to data container from energy demand model
@@ -156,7 +157,7 @@ class EDWrapper(SectorModel):
         _, results = energy_demand_model(ed_data)
 
         # Restuls for ES Form: {'electricity': np.array((region, 8760hourdata))}
-        out_to_supply = results.fuel_individual_regions
+        out_to_supply = results.fuel_indiv_regions_yh
 
 
         logging.debug("FINISHED WRAPPER CALCULATIONS")

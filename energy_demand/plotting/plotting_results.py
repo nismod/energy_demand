@@ -1,12 +1,11 @@
 """
 """
 import os
-import numpy as np
 import logging
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from energy_demand.technologies import technologies_related
-
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def plot_x_days(all_hours_year, region, days):
@@ -57,7 +56,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend()
     #plt.show()
 
-def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, attribute_to_get):
+def plt_stacked_end_use(fig_name, data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
     Arguments
@@ -106,8 +105,13 @@ def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, 
     plt.title("Stacked energy demand for simulation years for whole UK")
     logging.debug("...plot figure")
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
-    #plt.show()
 
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
     """Plots stacked end_use for a region
 
@@ -158,7 +162,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_get):
+def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -217,7 +221,7 @@ def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
     #plt.show()
 
-def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
+def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
@@ -256,15 +260,19 @@ def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
     ax.legend(legend_entries)
 
     plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='green')
-    
 
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Total yearly fuels of all enduses per fueltype")
-    fig_name
-    #plt.show()
 
-def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return
+
+def plt_fuels_peak_h(results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
 
 
@@ -307,10 +315,17 @@ def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Fuels for peak hour in a year across all enduses")
-    #plt.show()
+
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return
 
 def plot_load_profile_dh(array_dh):
-
+    """plot daily profile
+    """
     x_values = range(24)
 
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,

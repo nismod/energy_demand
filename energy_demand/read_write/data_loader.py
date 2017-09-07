@@ -348,7 +348,7 @@ def load_data_profiles(paths, local_paths):
 
     return tech_load_profiles
 
-def load_data_temperatures(paths):
+def load_temp_data(paths):
     """Read in cleaned temperature and weather station data
 
     Arguments

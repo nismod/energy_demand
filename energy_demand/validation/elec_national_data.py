@@ -163,7 +163,10 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
 
     plt.legend()
 
-    #plt.show()
+    if data['print_criteria'] == True:
+        plt.show()
+    else:
+        pass
 
 def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
@@ -210,7 +213,12 @@ def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_
     plt.legend()
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
-    #plt.show()
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return
 
 def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
@@ -258,7 +266,13 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
 
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
-    #plt.show()
+
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return
 
 '''def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     """Smooth (and optionally differentiate) data with a Savitzky-Golay filter.

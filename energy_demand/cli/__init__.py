@@ -41,6 +41,7 @@ def run_model(args):
 
     # Load data
     data = {}
+    data['print_criteria'] = True #Print criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -48,7 +49,7 @@ def run_model(args):
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-    data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
         data['local_paths'])
     # SCRAP    data = data_loader.dummy_data_generation(data)
 
@@ -62,7 +63,7 @@ def run_model(args):
     _, results = energy_demand_model(data)
 
     logging.debug("... Result section")
-    #results.all_submodels_sum_uk_specfuelype_enduses_y[2]
+    #results.all_submodels_reg_enduses_fueltype_y[2]
 
     results_every_year = [results]
 

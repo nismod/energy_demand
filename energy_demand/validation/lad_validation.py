@@ -92,4 +92,10 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
     plt.legend()
 
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
-    #plt.show()
+
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
+
+    return

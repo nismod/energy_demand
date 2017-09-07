@@ -28,6 +28,7 @@ def post_install_setup(args):
 
     # Load data
     data = {}
+    data['print_criteria'] = True #Print criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -76,6 +77,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     if run_locally is True:
         data = {}
+        data['print_criteria'] = True #Print criteria
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
@@ -90,7 +92,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     s_change_temp.run(data['local_paths'], data['assumptions'], data['sim_param'])
 
     if run_locally is True:
-        data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(
+        data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
             data['local_paths'])
     else:
         pass

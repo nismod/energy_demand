@@ -47,7 +47,7 @@ def load_script_data(data):
     data['assumptions']['is_installed_tech'] = read_installed_tech(os.path.join(data['local_paths']['data_processed'], 'is_installed_tech.csv'))
 
     # Read data after apply climate change (from script data)
-    data['temperature_data'] = read_weather_data.read_changed_weather_data_script_data(
+    data['temp_data'] = read_weather_data.read_changed_weather_data_script_data(
         os.path.join(data['local_paths']['dir_changed_weather_data'], 'weather_data_changed_climate.csv'),
         data['sim_param']['sim_period'])
 
