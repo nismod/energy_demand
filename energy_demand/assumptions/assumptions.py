@@ -375,9 +375,9 @@ def load_assumptions(data, nismod_mode=True):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(data['paths']['rs_path_fuel_switches'], data)
-    assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(data['paths']['ss_path_fuel_switches'], data)
-    assumptions['is_fuel_switches'] = read_data.read_fuel_switches(data['paths']['is_path_fuel_switches'], data)
+    assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(data['paths']['rs_path_fuel_switches'], data['enduses'], data['lookups'])
+    assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(data['paths']['ss_path_fuel_switches'], data['enduses'], data['lookups'])
+    assumptions['is_fuel_switches'] = read_data.read_fuel_switches(data['paths']['is_path_fuel_switches'], data['enduses'], data['lookups'])
 
     # ============================================================
     # Scenaric SERVICE switches

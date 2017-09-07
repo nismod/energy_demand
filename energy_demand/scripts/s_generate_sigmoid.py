@@ -7,8 +7,8 @@ fraction at the model end year
 import os
 import sys
 import copy
-import numpy as np
 import logging
+import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
 #from energy_demand.plotting import plotting_program
@@ -603,11 +603,11 @@ def run(data):
     logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     # Read in Services
-    rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
+    rs_service_tech_by_p = read_data.read_service_tech_by_p(os.path.join(
         data['local_paths']['dir_services'], 'rs_service_tech_by_p.csv'))
-    ss_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
+    ss_service_tech_by_p = read_data.read_service_tech_by_p(os.path.join(
         data['local_paths']['dir_services'], 'ss_service_tech_by_p.csv'))
-    is_service_tech_by_p = read_data.read_service_data_service_tech_by_p(
+    is_service_tech_by_p = read_data.read_service_tech_by_p(
         os.path.join(data['local_paths']['dir_services'], 'is_service_tech_by_p.csv'))
     rs_service_fueltype_by_p = read_data.read_service_fueltype_by_p(
         os.path.join(data['local_paths']['dir_services'], 'rs_service_fueltype_by_p.csv'))

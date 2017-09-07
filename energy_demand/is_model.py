@@ -50,7 +50,7 @@ class IndustryModel(object):
             installed_tech=data['assumptions']['is_installed_tech'],
             sig_param_tech=data['assumptions']['is_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
-            regional_profile_stock=region_obj.is_load_profiles,
+            regional_lp_stock=region_obj.is_load_profiles,
             reg_scenario_drivers=data['assumptions']['scenario_drivers']['is_submodule'],
             crit_flat_profile=True
         )

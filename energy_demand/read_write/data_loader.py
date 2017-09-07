@@ -335,17 +335,17 @@ def load_data_profiles(paths, local_paths):
     data : dict
         Data container
     """
+    logging.debug("... read in load shapes from txt files")
+
     tech_load_profiles = {}
 
-    # ---------------------------------------
     # Load technology specific load profiles
-    # ---------------------------------------
     tech_load_profiles = load_data_tech_profiles(
         tech_load_profiles,
         paths
         )
 
-    logging.debug("... read in load shapes from txt files")
+    # Load enduse load profiles
     tech_load_profiles['rs_shapes_dh'], tech_load_profiles['rs_shapes_yd'] = rs_collect_shapes_from_txts(
         local_paths['rs_load_profile_txt'])
 
@@ -447,7 +447,6 @@ def rs_collect_shapes_from_txts(txt_path):
 
     enduses = set([])
     for file_name in all_csv_in_folder:
-        # two dashes because individual enduses may contain a single slash
         enduse = file_name.split("__")[0]
         enduses.add(enduse)
 
@@ -501,7 +500,6 @@ def ss_collect_shapes_from_txts(txt_path):
 
         for enduse in enduses:
             joint_string_name = str(sector) + "__" + str(enduse)
-            #logging.debug("...Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
             shape_peak_dh = write_data.read_txt_shape_peak_dh(
                 os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
             shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(

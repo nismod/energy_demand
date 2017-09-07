@@ -40,7 +40,7 @@ class EnergyModel(object):
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
-        data['non_regional_profile_stock'] = self.create_load_profile_stock(
+        data['non_regional_lp_stock'] = self.create_load_profile_stock(
             data['tech_load_profiles'],
             data['assumptions'],
             data['sectors']
@@ -180,13 +180,13 @@ class EnergyModel(object):
 
         Returns
         -------
-        non_regional_profile_stock : object
+        non_regional_lp_stock : object
             Load profile stock with non regional dependent load profiles
         """
-        non_regional_profile_stock = load_profile.LoadProfileStock("non_regional_load_profiles")
+        non_regional_lp_stock = load_profile.LoadProfileStock("non_regional_load_profiles")
 
         # Lighting (residential)
-        non_regional_profile_stock.add_load_profile(
+        non_regional_lp_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_lighting'],
             enduses=['rs_lighting'],
@@ -197,7 +197,7 @@ class EnergyModel(object):
             )
 
         # rs_cold (residential refrigeration)
-        non_regional_profile_stock.add_load_profile(
+        non_regional_lp_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_cold'],
             enduses=['rs_cold'],
@@ -208,7 +208,7 @@ class EnergyModel(object):
             )
 
         # rs_cooking
-        non_regional_profile_stock.add_load_profile(
+        non_regional_lp_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_cooking'],
             enduses=['rs_cooking'],
@@ -219,7 +219,7 @@ class EnergyModel(object):
             )
 
         # rs_wet
-        non_regional_profile_stock.add_load_profile(
+        non_regional_lp_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_wet'],
             enduses=['rs_wet'],
@@ -232,7 +232,7 @@ class EnergyModel(object):
         # -- dummy rs technologies (apply enduse sepcific shape)
         for enduse in assumptions['rs_dummy_enduses']:
             tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
-            non_regional_profile_stock.add_load_profile(
+            non_regional_lp_stock.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
@@ -246,7 +246,7 @@ class EnergyModel(object):
         for enduse in assumptions['ss_dummy_enduses']:
             tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
             for sector in sectors['ss_sectors']:
-                non_regional_profile_stock.add_load_profile(
+                non_regional_lp_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
@@ -263,7 +263,7 @@ class EnergyModel(object):
         for enduse in assumptions['is_dummy_enduses']:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
-                non_regional_profile_stock.add_load_profile(
+                non_regional_lp_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
@@ -274,7 +274,7 @@ class EnergyModel(object):
                     shape_peak_dh=shape_peak_dh
                     )
 
-        return non_regional_profile_stock
+        return non_regional_lp_stock
 
     def get_regional_yh(self, nr_of_fueltypes, region_name):
         """Get yh fuel for all fueltype for a specific region of all submodels

@@ -105,7 +105,7 @@ class LoadProfileStock(object):
                 for technology in technologies:
                     self.dict_with_tuple_keys[(enduse, sector, technology)] = unique_identifier
 
-    def get_load_profile(self, enduse, sector, technology, shape):
+    def get_lp(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
 
         Arguments

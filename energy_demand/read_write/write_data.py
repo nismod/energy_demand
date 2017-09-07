@@ -1,8 +1,8 @@
 """Functions which are writing data
 """
+import logging
 import json
 import yaml
-import logging
 import numpy as np
 
 def read_txt_shape_peak_dh(file_path):

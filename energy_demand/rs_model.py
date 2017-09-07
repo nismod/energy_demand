@@ -69,7 +69,7 @@ class ResidentialModel(object):
             installed_tech=data['assumptions']['rs_installed_tech'],
             sig_param_tech=data['assumptions']['rs_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['rs_model'],
-            regional_profile_stock=region_obj.rs_load_profiles,
+            regional_lp_stock=region_obj.rs_load_profiles,
             dw_stock=data['rs_dw_stock']
             )
 

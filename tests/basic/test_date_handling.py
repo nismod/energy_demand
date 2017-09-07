@@ -119,3 +119,48 @@ def test_get_weekday_type():
     expected = 'holiday'
     out_value = date_handling.get_weekday_type(date_to_test)
     assert out_value == expected
+    
+    date_to_test = date(2010, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+    
+    date_to_test = date(2009, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+    
+    date_to_test = date(2008, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+    
+    date_to_test = date(2007, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2006, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2005, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2004, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2003, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2002, 12, 25)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
