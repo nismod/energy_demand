@@ -158,7 +158,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     plt.xlabel("Hours", fontsize=10)
     plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
     
-    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
     plt.legend()
 
@@ -207,7 +207,7 @@ def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_
     plt.xlabel("Hours")
     plt.ylabel("National electrictiy use [GWh / h]")
     plt.legend()
-    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
     #plt.show()
 
@@ -255,7 +255,7 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
-    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
     #plt.show()
 

@@ -18,7 +18,7 @@ def load_basic_lookups():
     """
     lookups = {}
 
-    lookups['dwtype_lu'] = {
+    lookups['dwtype'] = {
         0: 'detached',
         1: 'semi_detached',
         2: 'terraced',
@@ -26,7 +26,7 @@ def load_basic_lookups():
         4: 'bungalow'
         }
 
-    lookups['fueltype_lu'] = {
+    lookups['fueltype'] = {
         'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,
@@ -37,7 +37,7 @@ def load_basic_lookups():
         'heat': 7
         }
 
-    lookups['nr_of_fueltypes'] = int(len(lookups['fueltype_lu']))
+    lookups['nr_of_fueltypes'] = int(len(lookups['fueltype']))
 
     return lookups
 
@@ -135,59 +135,59 @@ def load_local_paths(path):
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved_short.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
-        'path_rs_load_profile_txt': os.path.join(
+        'rs_load_profile_txt': os.path.join(
             path, '_processed_data', 'load_profiles', 'rs_submodel'),
-        'path_ss_load_profile_txt': os.path.join(
+        'ss_load_profile_txt': os.path.join(
             path, '_processed_data', 'load_profiles', 'ss_submodel'),
 
         # Output Data
-        'path_data_processed': os.path.join(
+        'data_processed': os.path.join(
             path, '_processed_data'),
-        'path_data_processed_disaggregated': os.path.join(
+        'data_processed_disaggregated': os.path.join(
             path, '_processed_data', 'disaggregated'),
-        'path_data_results': os.path.join(
+        'data_results': os.path.join(
             path, '_result_data'),
-        'path_dir_changed_weather_data': os.path.join(
+        'dir_changed_weather_data': os.path.join(
             path, '_processed_data', 'weather_data'),
         'path_processed_weather_data': os.path.join(
             path, '_processed_data', 'weather_data', 'weather_data.csv'),
-        'path_changed_weather_station_data': os.path.join(
+        'changed_weather_station_data': os.path.join(
             path, '_processed_data', 'weather_data', 'weather_stations.csv'),
-        'path_changed_weather_data': os.path.join(
+        'changed_weather_data': os.path.join(
             path, '_processed_data', 'weather_data', 'weather_data_changed_climate.csv'),
-        'path_load_profiles': os.path.join(
+        'load_profiles': os.path.join(
             path, '_processed_data', 'load_profiles'),
-        'path_rs_load_profiles': os.path.join(
+        'rs_load_profiles': os.path.join(
             path, '_processed_data', 'load_profiles', 'rs_submodel'),
-        'path_ss_load_profiles': os.path.join(
+        'ss_load_profiles': os.path.join(
             path, '_processed_data', 'load_profiles', 'ss_submodel'),
-        'path_dir_disattregated': os.path.join(
+        'dir_disattregated': os.path.join(
             path, '_processed_data', 'disaggregated'),
-        'path_dir_services': os.path.join(
+        'dir_services': os.path.join(
             path, '_processed_data', 'services'),
-        'path_data_results_PDF': os.path.join(
+        'data_results_PDF': os.path.join(
             path, '_result_data', 'PDF')
         }
 
     # Create folders is they do not exist yet
-    if not os.path.exists(paths['path_data_processed']):
-        os.makedirs(paths['path_data_processed'])
-    if not os.path.exists(paths['path_data_results']):
-        os.makedirs(paths['path_data_results'])
-    if not os.path.exists(paths['path_data_results_PDF']):
-        os.makedirs(paths['path_data_results_PDF'])
-    if not os.path.exists(paths['path_load_profiles']):
-        os.makedirs(paths['path_load_profiles'])
-    if not os.path.exists(paths['path_rs_load_profiles']):
-        os.makedirs(paths['path_rs_load_profiles'])
-    if not os.path.exists(paths['path_ss_load_profiles']):
-        os.makedirs(paths['path_ss_load_profiles'])
-    if not os.path.exists(paths['path_dir_disattregated']):
-        os.makedirs(paths['path_dir_disattregated'])
-    if not os.path.exists(paths['path_dir_services']):
-        os.makedirs(paths['path_dir_services'])
-    if not os.path.exists(paths['path_dir_changed_weather_data']):
-        os.makedirs(paths['path_dir_changed_weather_data'])
+    if not os.path.exists(paths['data_processed']):
+        os.makedirs(paths['data_processed'])
+    if not os.path.exists(paths['data_results']):
+        os.makedirs(paths['data_results'])
+    if not os.path.exists(paths['data_results_PDF']):
+        os.makedirs(paths['data_results_PDF'])
+    if not os.path.exists(paths['load_profiles']):
+        os.makedirs(paths['load_profiles'])
+    if not os.path.exists(paths['rs_load_profiles']):
+        os.makedirs(paths['rs_load_profiles'])
+    if not os.path.exists(paths['ss_load_profiles']):
+        os.makedirs(paths['ss_load_profiles'])
+    if not os.path.exists(paths['dir_disattregated']):
+        os.makedirs(paths['dir_disattregated'])
+    if not os.path.exists(paths['dir_services']):
+        os.makedirs(paths['dir_services'])
+    if not os.path.exists(paths['dir_changed_weather_data']):
+        os.makedirs(paths['dir_changed_weather_data'])
 
     return paths
 
@@ -210,7 +210,7 @@ def load_paths(path):
 
 
         # Path for dwelling stock assumptions
-        'path_dwtype_lu': os.path.join(
+        'path_dwtype': os.path.join(
             path, 'data', 'submodel_residential', 'lookup_dwelling_type.csv'),
         'path_hourly_gas_shape_resid': os.path.join(
             path, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
@@ -248,11 +248,11 @@ def load_paths(path):
             path, 'data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
         # Paths to fuel raw data
-        'path_rs_fuel_raw_data_enduses': os.path.join(
+        'rs_fuel_raw_data_enduses': os.path.join(
             path, 'data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv'),
-        'path_ss_fuel_raw_data_enduses': os.path.join(
+        'ss_fuel_raw_data_enduses': os.path.join(
             path, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
-        'path_is_fuel_raw_data_enduses': os.path.join(
+        'is_fuel_raw_data_enduses': os.path.join(
             path, 'data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
 
         # Technologies load shapes
@@ -273,42 +273,51 @@ def load_paths(path):
 
     return paths
 
-def load_data_tech_profiles(data):
-    """TODO
+def load_data_tech_profiles(tech_load_profiles, paths):
+    """Load technology specific load profiles
+
+    Parameters
+    ----------
+    data : dict
+        Data container
+
+    Returns
+    ------
+    data : dict
+        Data container containing new load profiles
     """
-    # ------------------------------------------
-    # Specific technology shapes
-    # ------------------------------------------
+    tech_load_profiles = {}
+
     # Boiler shape from Robert Sansom
-    data['rs_shapes_heating_boilers_dh'] = read_data.read_csv_load_shapes_technology(
-        data['paths']['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
+    tech_load_profiles['rs_lp_heating_boilers_dh'] = read_data.read_load_shapes_tech(
+        paths['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
 
     # Heat pump shape from Love et al. (2017)
-    data['rs_shapes_heating_heat_pump_dh'] = read_data.read_csv_load_shapes_technology(
-        data['paths']['path_hourly_elec_shape_hp'])
+    tech_load_profiles['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
+        paths['path_hourly_elec_shape_hp'])
 
-    data['rs_shapes_cooling_dh'] = read_data.read_csv_float(data['paths']['path_shape_rs_cooling']) # ??
-    data['ss_shapes_cooling_dh'] = read_data.read_csv_float(data['paths']['path_shape_ss_cooling']) # ??
-    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][0] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_shapes_heating_boilers_dh'][2] * 45.8)
+    tech_load_profiles['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
+    tech_load_profiles['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
-    data['rs_profile_heating_storage_dh'] = read_data.read_csv_load_shapes_technology(
-        data['paths']['path_shape_rs_space_heating_primary_heating'])
-    data['rs_profile_heating_second_heating_dh'] = read_data.read_csv_load_shapes_technology(
-        data['paths']['path_shape_rs_space_heating_secondary_heating'])
+    tech_load_profiles['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
+        paths['path_shape_rs_space_heating_primary_heating'])
+    tech_load_profiles['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
+        paths['path_shape_rs_space_heating_secondary_heating'])
 
-    '''plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_profile_heating_storage_dh'][2] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['rs_profile_heating_second_heating_dh'][2] * 45.8)
+    '''plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][2] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][2] * 45.8)
     '''
-    return data
+    return tech_load_profiles
 
-def load_data_profiles(data):
+def load_data_profiles(paths, local_paths):
     """Collect load profiles from txt files
 
     Parameters
@@ -316,18 +325,28 @@ def load_data_profiles(data):
     data : dict
         Data container
     """
-    print("... read in load shapes from txt files")
-    data = rs_collect_shapes_from_txts(
-        data, data['local_paths']['path_rs_load_profile_txt'])
+    tech_load_profiles = {}
 
-    data = ss_collect_shapes_from_txts(
-        data, data['local_paths']['path_ss_load_profile_txt'])
+    # ---------------------------------------
+    # Load technology specific load profiles
+    # ---------------------------------------
+    tech_load_profiles = load_data_tech_profiles(
+        tech_load_profiles,
+        paths
+        )
+
+    print("... read in load shapes from txt files")
+    tech_load_profiles['rs_shapes_dh'], tech_load_profiles['rs_shapes_yd'] = rs_collect_shapes_from_txts(
+        local_paths['rs_load_profile_txt'])
+
+    tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'] = ss_collect_shapes_from_txts(
+        local_paths['ss_load_profile_txt'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
-    data['ss_all_tech_shapes_dh'], data['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
-        data['ss_shapes_dh'], data['ss_shapes_yd'])
+    tech_load_profiles['ss_all_tech_shapes_dh'], tech_load_profiles['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
+        tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'])
 
-    return data
+    return tech_load_profiles
 
 def load_data_temperatures(paths):
     """Read in cleaned temperature and weather station data
@@ -345,9 +364,9 @@ def load_data_temperatures(paths):
         Temperatures
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
-        paths['path_changed_weather_station_data'])
+        paths['changed_weather_station_data'])
     temperature_data = read_weather_data.read_weather_data_script_data(
-        paths['path_changed_weather_data'])
+        paths['changed_weather_data'])
 
     return weather_stations, temperature_data
 
@@ -359,17 +378,20 @@ def load_fuels(data):
     data : dict
         Data container
     """
+    data['enduses'] = {}
+    data['sectors'] = {}
     # Residential Sector (ECUK Table XY and Table XY) 
-    data['rs_fuel_raw_data_enduses'], data['rs_all_enduses'] = read_data.read_csv_base_data_resid(
-        data['paths']['path_rs_fuel_raw_data_enduses'])
+    data['rs_fuel_raw_data_enduses'], data['enduses']['rs_all_enduses'] = read_data.read_csv_base_data_resid(
+        data['paths']['rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)
-    data['ss_fuel_raw_data_enduses'], data['ss_sectors'], data['ss_all_enduses'] = read_data.read_csv_data_service(
-        data['paths']['path_ss_fuel_raw_data_enduses'],
+    data['ss_fuel_raw_data_enduses'], data['sectors']['ss_sectors'], data['enduses']['ss_all_enduses'] = read_data.read_csv_data_service(
+        data['paths']['ss_fuel_raw_data_enduses'],
         data['lookups']['nr_of_fueltypes'])
 
     # Industry fuel (ECUK Table 4.04)
-    data['is_fuel_raw_data_enduses'], data['is_sectors'], data['is_all_enduses'] = read_data.read_csv_base_data_industry(data['paths']['path_is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype_lu'])
+    data['is_fuel_raw_data_enduses'], data['sectors']['is_sectors'], data['enduses']['is_all_enduses'] = read_data.read_csv_base_data_industry(
+        data['paths']['is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype'])
 
     # Convert units
     data['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(data['rs_fuel_raw_data_enduses'])
@@ -386,7 +408,7 @@ def load_fuels(data):
 
     return data
 
-def rs_collect_shapes_from_txts(data, txt_path):
+def rs_collect_shapes_from_txts(txt_path):
     """All pre-processed load shapes are read in from .txt files without accesing raw files
 
     This loads HES files for residential sector
@@ -400,11 +422,11 @@ def rs_collect_shapes_from_txts(data, txt_path):
 
     Return
     ------
-    data : dict
+    data : dict TODO
         Data
     """
-    data['rs_shapes_dh'] = {}
-    data['rs_shapes_yd'] = {}
+    rs_shapes_dh = {}
+    rs_shapes_yd = {}
 
     # Iterate folders and get all enduse
     all_csv_in_folder = os.listdir(txt_path)
@@ -426,12 +448,12 @@ def rs_collect_shapes_from_txts(data, txt_path):
         shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        data['rs_shapes_dh'][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
-        data['rs_shapes_yd'][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+        rs_shapes_dh[enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
+        rs_shapes_yd[enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
-    return data
+    return rs_shapes_dh, rs_shapes_yd
 
-def ss_collect_shapes_from_txts(data, txt_path):
+def ss_collect_shapes_from_txts(txt_path):
     """Collect service shapes from txt files for every setor and enduse
 
     Parameters
@@ -455,13 +477,13 @@ def ss_collect_shapes_from_txts(data, txt_path):
         enduses.add(enduse)
         sectors.add(sector)
 
-    data['ss_shapes_dh'] = {}
-    data['ss_shapes_yd'] = {}
+    ss_shapes_dh = {}
+    ss_shapes_yd = {}
 
     # Read load shapes from txt files for enduses
     for sector in sectors:
-        data['ss_shapes_dh'][sector] = {}
-        data['ss_shapes_yd'][sector] = {}
+        ss_shapes_dh[sector] = {}
+        ss_shapes_yd[sector] = {}
 
         for enduse in enduses:
             joint_string_name = str(sector) + "__" + str(enduse)
@@ -475,10 +497,10 @@ def ss_collect_shapes_from_txts(data, txt_path):
             shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(
                 os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-            data['ss_shapes_dh'][sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
-            data['ss_shapes_yd'][sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
+            ss_shapes_dh[sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
+            ss_shapes_yd[sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
 
-    return data
+    return ss_shapes_dh, ss_shapes_yd
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):
     """Create dictionary with all residential enduses and store in data dict
@@ -539,7 +561,7 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
             ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
         #only iterate first sector as all enduses are the same in all sectors
         break
-
+    #TODO: IS YD NEEDED?
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
 def load_LAC_geocodes_info(path_to_csv):

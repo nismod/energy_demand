@@ -129,7 +129,7 @@ def read_assumption_sim_param(path_to_csv):
 
     return assumptions
 
-def absolute_to_relative(absolute_array):
+def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 
     Parameters

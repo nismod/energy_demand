@@ -8,7 +8,7 @@ def create_logger(path_log_file):
     Note
     ----
     logger.debug('debug message')
-    logger.info('info message')
+    print('info message')
     logger.warn('warn message')
     logger.error('error message')
     logger.critical('critical message')
@@ -35,8 +35,6 @@ def create_logger(path_log_file):
     # add ch to logger
     logger.addHandler(ch)
 
-    #
-    logger.error('error message')
     '''
     logging.basicConfig(
         filename=path_log_file,

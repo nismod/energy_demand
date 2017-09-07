@@ -213,7 +213,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = s_shared_functions.absolute_to_relative(dh_values) # daily shape
+        load_shape_dh[day] = s_shared_functions.abs_to_rel(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
@@ -269,7 +269,7 @@ def run(data):
     """
     print("... start script {}".format(os.path.basename(__file__)))
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
-        data['paths']['path_ss_fuel_raw_data_enduses'],
+        data['paths']['ss_fuel_raw_data_enduses'],
         data['lookups']['nr_of_fueltypes'])
 
     # Iterate sectors and read in shape
@@ -336,7 +336,7 @@ def run(data):
 
             s_shared_functions.create_txt_shapes(
                 joint_string_name,
-                data['local_paths']['path_ss_load_profiles'],
+                data['local_paths']['ss_load_profiles'],
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

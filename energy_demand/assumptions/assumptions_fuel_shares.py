@@ -32,19 +32,19 @@ def assign_by_fuel_tech_p(assumptions, data):
       assigned with technologies or none. No mixing possible
     """
     rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['rs_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['rs_all_enduses'], data['lookups']['nr_of_fueltypes'])
     ss_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['ss_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['ss_all_enduses'], data['lookups']['nr_of_fueltypes'])
     is_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['is_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['is_all_enduses'], data['lookups']['nr_of_fueltypes'])
 
-    fuel_nr_oil = data['lookups']['fueltype_lu']['oil']
-    fuel_nr_elec = data['lookups']['fueltype_lu']['electricity']
-    fuel_nr_gas = data['lookups']['fueltype_lu']['gas']
-    fuel_nr_heat_sold = data['lookups']['fueltype_lu']['heat_sold']
-    fuel_nr_biomass = data['lookups']['fueltype_lu']['biomass']
-    fuel_nr_hydrogen = data['lookups']['fueltype_lu']['hydrogen']
-    fuel_nr_solid_fuel = data['lookups']['fueltype_lu']['solid_fuel']
+    fuel_nr_oil = data['lookups']['fueltype']['oil']
+    fuel_nr_elec = data['lookups']['fueltype']['electricity']
+    fuel_nr_gas = data['lookups']['fueltype']['gas']
+    fuel_nr_heat_sold = data['lookups']['fueltype']['heat_sold']
+    fuel_nr_biomass = data['lookups']['fueltype']['biomass']
+    fuel_nr_hydrogen = data['lookups']['fueltype']['hydrogen']
+    fuel_nr_solid_fuel = data['lookups']['fueltype']['solid_fuel']
 
     # ------------------
     # Residential subModel
@@ -272,7 +272,7 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
         # Get by efficiency
         tech_type = technologies_related.get_tech_type(
             technology,
-            assumptions['technology_list']
+            assumptions['tech_list']
             )
 
         if tech_type == 'hybrid_tech':

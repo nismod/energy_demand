@@ -82,7 +82,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = s_shared_functions.absolute_to_relative(peak_h_values)
+    shape_peak_dh = s_shared_functions.abs_to_rel(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
@@ -243,7 +243,7 @@ def run(data):
         )
 
     _, rs_enduses = read_data.read_csv_base_data_resid(
-        data['paths']['path_rs_fuel_raw_data_enduses']
+        data['paths']['rs_fuel_raw_data_enduses']
         )
 
     # Load shape for all enduses
@@ -262,7 +262,7 @@ def run(data):
             # Write txt files
             s_shared_functions.create_txt_shapes(
                 enduse,
-                data['local_paths']['path_rs_load_profiles'],
+                data['local_paths']['rs_load_profiles'],
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,

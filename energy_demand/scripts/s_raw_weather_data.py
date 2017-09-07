@@ -306,7 +306,7 @@ def run(data):
 
     # Write out to csv files
     write_weather_stations(
-        data['local_paths']['path_changed_weather_station_data'],
+        data['local_paths']['changed_weather_station_data'],
         weather_stations)
     write_weather_data(
         data['local_paths']['path_processed_weather_data'],

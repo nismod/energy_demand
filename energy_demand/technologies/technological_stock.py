@@ -11,7 +11,7 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, stock_name, data, temp_by, temp_cy, t_base_heating_by, potential_enduses, t_base_heating_cy, enduse_technologies):
+    def __init__(self, stock_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, potential_enduses, t_base_heating_cy, enduse_technologies):
         """Constructor of technologies for residential sector
 
         Parameters
@@ -42,7 +42,7 @@ class TechStock(object):
         self.stock_name = stock_name
 
         self.stock_technologies = self.create_tech_stock(
-            data,
+            assumptions, sim_param, lookups,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -73,7 +73,7 @@ class TechStock(object):
             return tech_obj.tech_type
 
     @classmethod
-    def create_tech_stock(cls, data, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
+    def create_tech_stock(cls, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
         """Create technologies and add to dict with key_tuple
 
         Parameters
@@ -98,14 +98,14 @@ class TechStock(object):
         for enduse in enduses:
             for technology_name in technologies[enduse]:
                 #print("         ...{}   {}".format(sector, technology))
-                tech_type = technologies_related.get_tech_type(technology_name, data['assumptions']['technology_list'])
+                tech_type = technologies_related.get_tech_type(technology_name, assumptions['tech_list'])
 
                 if tech_type == 'hybrid_tech':
                     # Create hybrid technology object
                     tech_object = HybridTechnology(
                         enduse,
                         technology_name,
-                        data,
+                        assumptions, sim_param, lookups,
                         temp_by,
                         temp_cy,
                         t_base_heating_by,
@@ -114,7 +114,7 @@ class TechStock(object):
                 else:
                     tech_object = Technology(
                         technology_name,
-                        data,
+                        assumptions, sim_param, lookups,
                         temp_by,
                         temp_cy,
                         t_base_heating_by,
@@ -188,7 +188,7 @@ class Technology(object):
     -----
 
     """
-    def __init__(self, tech_name, data, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
+    def __init__(self, tech_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
         """Contructor
         """
         if tech_name == 'dummy_tech':
@@ -197,13 +197,13 @@ class Technology(object):
         else:
             self.tech_name = tech_name
             self.tech_type = tech_type
-            self.market_entry = data['assumptions']['technologies'][tech_name]['market_entry']
-            self.eff_achieved_factor = data['assumptions']['technologies'][self.tech_name]['eff_achieved']
-            self.diff_method = data['assumptions']['technologies'][self.tech_name]['diff_method']
+            self.market_entry = assumptions['technologies'][tech_name]['market_entry']
+            self.eff_achieved_factor = assumptions['technologies'][self.tech_name]['eff_achieved']
+            self.diff_method = assumptions['technologies'][self.tech_name]['diff_method']
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                data['assumptions']['technologies'][tech_name]['fuel_type'], data['lookups']['nr_of_fueltypes'])
+                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'])
 
             # Calculate shape per fueltype
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
@@ -215,27 +215,27 @@ class Technology(object):
             if tech_type == 'heat_pump':
                 self.eff_by = technologies_related.get_heatpump_eff(
                     temp_by,
-                    data['assumptions']['technologies'][tech_name]['eff_by'],
+                    assumptions['technologies'][tech_name]['eff_by'],
                     t_base_heating)
 
                 self.eff_cy = technologies_related.get_heatpump_eff(
                     temp_cy,
                     technologies_related.calc_eff_cy(
-                        data['assumptions']['technologies'][tech_name]['eff_by'],
+                        assumptions['technologies'][tech_name]['eff_by'],
                         tech_name,
-                        data['sim_param'],
-                        data['assumptions'],
+                        sim_param,
+                        assumptions,
                         self.eff_achieved_factor,
                         self.diff_method
                         ),
                     t_base_heating_cy)
             else:
-                self.eff_by = data['assumptions']['technologies'][tech_name]['eff_by']
+                self.eff_by = assumptions['technologies'][tech_name]['eff_by']
                 self.eff_cy = technologies_related.calc_eff_cy(
-                    data['assumptions']['technologies'][tech_name]['eff_by'],
+                    assumptions['technologies'][tech_name]['eff_by'],
                     tech_name,
-                    data['sim_param'],
-                    data['assumptions'],
+                    sim_param,
+                    assumptions,
                     self.eff_achieved_factor,
                     self.diff_method
                     )
@@ -301,40 +301,40 @@ class HybridTechnology(object):
     - The higher temperature technology is always an electric heat pump
     - The lower temperature (used for peak)
     """
-    def __init__(self, enduse, tech_name, data, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy):
+    def __init__(self, enduse, tech_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy):
         """
         """
         self.enduse = enduse
         self.tech_name = tech_name
         self.tech_type = 'hybrid'
 
-        self.tech_low_temp = data['assumptions']['technologies'][tech_name]['tech_low_temp']
-        self.tech_high_temp = data['assumptions']['technologies'][tech_name]['tech_high_temp']
+        self.tech_low_temp = assumptions['technologies'][tech_name]['tech_low_temp']
+        self.tech_high_temp = assumptions['technologies'][tech_name]['tech_high_temp']
 
-        self.tech_low_temp_fueltype = data['assumptions']['technologies'][self.tech_low_temp]['fuel_type']
-        self.tech_high_temp_fueltype = data['assumptions']['technologies'][self.tech_high_temp]['fuel_type']
+        self.tech_low_temp_fueltype = assumptions['technologies'][self.tech_low_temp]['fuel_type']
+        self.tech_high_temp_fueltype =assumptions['technologies'][self.tech_high_temp]['fuel_type']
 
-        self.eff_tech_low_by = data['assumptions']['technologies'][self.tech_low_temp]['eff_by']
+        self.eff_tech_low_by = assumptions['technologies'][self.tech_low_temp]['eff_by']
         self.eff_tech_high_by = technologies_related.get_heatpump_eff(
-            temp_by, data['assumptions']['technologies'][self.tech_high_temp]['eff_by'], t_base_heating_by)
+            temp_by, assumptions['technologies'][self.tech_high_temp]['eff_by'], t_base_heating_by)
 
         # Efficiencies
         self.eff_tech_low_cy = technologies_related.calc_eff_cy(
-            data['assumptions']['technologies'][self.tech_low_temp]['eff_by'],
+            assumptions['technologies'][self.tech_low_temp]['eff_by'],
             self.tech_low_temp,
-            data['sim_param'],
-            data['assumptions'],
-            data['assumptions']['technologies'][self.tech_low_temp]['eff_achieved'],
-            data['assumptions']['technologies'][self.tech_low_temp]['diff_method']
+            sim_param,
+            assumptions,
+            assumptions['technologies'][self.tech_low_temp]['eff_achieved'],
+            assumptions['technologies'][self.tech_low_temp]['diff_method']
             )
 
         eff_tech_high_cy = technologies_related.calc_eff_cy(
-            data['assumptions']['technologies'][self.tech_high_temp]['eff_by'],
+            assumptions['technologies'][self.tech_high_temp]['eff_by'],
             self.tech_high_temp,
-            data['sim_param'],
-            data['assumptions'],
-            data['assumptions']['technologies'][self.tech_high_temp]['eff_achieved'],
-            data['assumptions']['technologies'][self.tech_high_temp]['diff_method']
+            sim_param,
+            assumptions,
+            assumptions['technologies'][self.tech_high_temp]['eff_achieved'],
+            assumptions['technologies'][self.tech_high_temp]['diff_method']
             )
 
         self.eff_tech_high_cy = technologies_related.get_heatpump_eff(
@@ -343,12 +343,12 @@ class HybridTechnology(object):
         # Get fraction of service for hybrid technologies for every hour
         self.service_distr_hybrid_h_p = self.service_hybrid_tech_low_high_h_p(
             temp_cy,
-            data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_low'],
-            data['assumptions']['technologies'][tech_name]['hybrid_cutoff_temp_high']
+            assumptions['technologies'][tech_name]['hybrid_cutoff_temp_low'],
+            assumptions['technologies'][tech_name]['hybrid_cutoff_temp_high']
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(data['lookups']['nr_of_fueltypes'])
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
             self.fueltypes_yh_p_cy)

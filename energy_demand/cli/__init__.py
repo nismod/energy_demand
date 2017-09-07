@@ -44,8 +44,7 @@ def run_model(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data = data_loader.load_fuels(data)
-    data = data_loader.load_data_tech_profiles(data)
-    data = data_loader.load_data_profiles(data)
+    data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(

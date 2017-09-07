@@ -36,11 +36,17 @@ class EnergyModel(object):
         """Constructor
         """
         logger = log.create_logger(data['local_paths']['path_logging'])
-        logger.info("... start main energy demand function")
+        print("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
-        data['non_regional_profile_stock'] = self.create_load_profile_stock(data)
+        data['non_regional_profile_stock'] = self.create_load_profile_stock(
+            data['tech_load_profiles'],
+            data['assumptions'],
+            data['sectors']
+            )
+
+
 
         # --------------------
         # Industry SubModel
@@ -50,7 +56,7 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'is_submodel')
         self.is_submodel = self.industry_submodel(
-            data, data['is_all_enduses'], data['is_sectors'])
+            data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
 
         # --------------------
         # Residential SubModel
@@ -60,7 +66,7 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'rs_submodel')
         self.rs_submodel = self.residential_submodel(
-            data, data['rs_all_enduses'])
+            data, data['enduses']['rs_all_enduses'])
 
         # --------------------
         # Service SubModel
@@ -70,7 +76,7 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'ss_submodel')
         self.ss_submodel = self.service_submodel(
-            data, data['ss_all_enduses'], data['ss_sectors'])
+            data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
 
         # --------------------
         # Transport SubModel
@@ -84,7 +90,7 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
-        logger.info("...summarise fuel")
+        #print("...summarise fuel")
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors sum_reg
@@ -129,7 +135,7 @@ class EnergyModel(object):
         # ------------------------------------------------------
         #{'final_electricity_demand': np.zeros((320, 8760)), dtype=float}
         self.fuel_individual_regions = {}
-        for fueltype, fueltype_nr in data['lookups']['fueltype_lu'].items():
+        for fueltype, fueltype_nr in data['lookups']['fueltype'].items():
             self.fuel_individual_regions[fueltype] = np.zeros((len(region_names), 8760))
 
             for array_entry_region, region_name in enumerate(region_names):
@@ -146,14 +152,13 @@ class EnergyModel(object):
                 self.fuel_individual_regions[fueltype][array_entry_region] = fuels[fueltype_nr].reshape(8760)
                     
     @classmethod
-    def create_load_profile_stock(cls, data):
+    def create_load_profile_stock(cls, tech_load_profiles, assumptions, sectors):
         """Assign load profiles which are the same for all regions
         ``non_regional_load_profiles``
 
         Parameters
         ----------
-        data : dict
-            Data container
+        
 
         Returns
         -------
@@ -165,81 +170,81 @@ class EnergyModel(object):
         # Lighting (residential)
         non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
-            technologies=data['assumptions']['technology_list']['rs_lighting'],
+            technologies=assumptions['tech_list']['rs_lighting'],
             enduses=['rs_lighting'],
-            shape_yd=data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-            shape_yh=data['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
-            shape_peak_dh=data['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
+            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
         
         # rs_cold (residential refrigeration)
         non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
-            technologies=data['assumptions']['technology_list']['rs_cold'],
+            technologies=assumptions['tech_list']['rs_cold'],
             enduses=['rs_cold'],
-            shape_yd=data['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-            shape_yh=data['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-            shape_peak_dh=data['rs_shapes_dh']['rs_cold']['shape_peak_dh']
+            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_cold']['shape_peak_dh']
             )
 
         # rs_cooking
         non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
-            technologies=data['assumptions']['technology_list']['rs_cooking'],
+            technologies=assumptions['tech_list']['rs_cooking'],
             enduses=['rs_cooking'],
-            shape_yd=data['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-            shape_yh=data['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
-            shape_peak_dh=data['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
+            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
             )
 
         # rs_wet
         non_regional_profile_stock.add_load_profile(
             unique_identifier=uuid.uuid4(),
-            technologies=data['assumptions']['technology_list']['rs_wet'],
+            technologies=assumptions['tech_list']['rs_wet'],
             enduses=['rs_wet'],
-            shape_yd=data['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-            shape_yh=data['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * data['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=data['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
-            shape_peak_dh=data['rs_shapes_dh']['rs_wet']['shape_peak_dh']
+            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_wet']['shape_peak_dh']
             )
 
         # -- dummy rs technologies (apply enduse sepcific shape)
-        for enduse in data['assumptions']['rs_dummy_enduses']:
-            tech_list = helpers.get_nested_dict_key(data['assumptions']['rs_fuel_tech_p_by'][enduse])
+        for enduse in assumptions['rs_dummy_enduses']:
+            tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
             non_regional_profile_stock.add_load_profile(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
-                shape_yd=data['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                shape_yh=data['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * data['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                enduse_peak_yd_factor=data['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=data['rs_shapes_dh'][enduse]['shape_peak_dh']
+                shape_yd=tech_load_profiles['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                shape_yh=tech_load_profiles['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
+                shape_peak_dh=tech_load_profiles['rs_shapes_dh'][enduse]['shape_peak_dh']
                 )
 
         # - dummy ss technologies
-        for enduse in data['assumptions']['ss_dummy_enduses']:
-            tech_list = helpers.get_nested_dict_key(data['assumptions']['ss_fuel_tech_p_by'][enduse])
-            for sector in data['ss_sectors']:
+        for enduse in assumptions['ss_dummy_enduses']:
+            tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
+            for sector in sectors['ss_sectors']:
                 non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
                     sectors=[sector],
-                    shape_yd=data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                    shape_yh=data['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * data['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                    enduse_peak_yd_factor=data['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                    shape_peak_dh=data['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
+                    shape_yd=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
+                    shape_peak_dh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
                     )
 
         # dummy is - Flat load profile
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.generic_flat_shape()
 
-        for enduse in data['assumptions']['is_dummy_enduses']:
-            tech_list = helpers.get_nested_dict_key(data['assumptions']['is_fuel_tech_p_by'][enduse])
-            for sector in data['is_sectors']:
+        for enduse in assumptions['is_dummy_enduses']:
+            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+            for sector in sectors['is_sectors']:
                 non_regional_profile_stock.add_load_profile(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
@@ -323,7 +328,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        #logger.info("..other submodel start")
+        #print("..other submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -340,11 +345,11 @@ class EnergyModel(object):
             submodules.append(submodule)
 
             #_scrap_cnt += 1
-            #logger.info("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
+            #print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         del self.regions, self.weather_regions
         #logger = log.create_logger(data['local_paths']['path_logging'])
-        #logger.info("... finished other submodel")
+        #print("... finished other submodel")
         return submodules
 
     def industry_submodel(self, data, enduses, sectors):
@@ -369,7 +374,7 @@ class EnergyModel(object):
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
         logger = log.create_logger(data['local_paths']['path_logging'])
-        logger.info("... industry submodel start")
+        print("... industry submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -390,7 +395,7 @@ class EnergyModel(object):
                     submodules.append(submodule)
 
                     #_scrap_cnt += 1
-                    #logger.info("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    #print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         del self.regions, self.weather_regions
 
@@ -418,7 +423,7 @@ class EnergyModel(object):
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
         logger = log.create_logger(data['local_paths']['path_logging'])
-        logger.info("... residential submodel start")
+        print("... residential submodel start")
         #_scrap_cnt = 0
         submodule_list = []
 
@@ -438,7 +443,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     #_scrap_cnt += 1
-                    #logger.info("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    #print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -467,7 +472,7 @@ class EnergyModel(object):
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
         logger = log.create_logger(data['local_paths']['path_logging'])
-        logger.info("... service submodel start")
+        print("... service submodel start")
         _scrap_cnt = 0
         submodule_list = []
 
@@ -489,7 +494,7 @@ class EnergyModel(object):
 
                     _scrap_cnt += 1
                     logger = log.create_logger(data['local_paths']['path_logging'])
-                    logger.info("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    print("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -515,7 +520,13 @@ class EnergyModel(object):
 
             region_object = WeatherRegion.WeatherRegion(
                 weather_region_name=weather_region_name,
-                data=data,
+                sim_param=data['sim_param'],
+                assumptions=data['assumptions'],
+                lookups=data['lookups'],
+                all_enduses=data['enduses'],
+                temperature_data=data['temperature_data'],
+                tech_load_profiles=data['tech_load_profiles'],
+                sectors=data['sectors'],
                 modeltype=model_type
                 )
 
@@ -540,7 +551,7 @@ class EnergyModel(object):
         # Iterate all regions
         for region_name in region_names:
             logger = log.create_logger(data['local_paths']['path_logging'])
-            logger.info("... creating region: '{}'  {}".format(region_name, submodel_type))
+            print("... creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
             region_object = region.Region(
                 region_name=region_name,

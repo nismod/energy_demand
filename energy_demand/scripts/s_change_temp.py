@@ -154,7 +154,7 @@ def run(local_paths, assumptions, sim_param):
 
     # Write out temp_climate_change
     write_chanted_temp_data(
-        local_paths['path_changed_weather_data'],
+        local_paths['changed_weather_data'],
         temp_climate_change)
 
     print("... finished script {}".format(os.path.basename(__file__)))

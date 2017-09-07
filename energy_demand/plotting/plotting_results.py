@@ -104,7 +104,7 @@ def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
     print("...plot figure")
-    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], fig_name))
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
     #plt.show()
 
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
@@ -124,11 +124,11 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        for fueltype_str in data['lookups']['fueltype_lu']:
-            if data['lookups']['fueltype_lu'][fueltype_str] == fueltype:
+        for fueltype_str in data['lookups']['fueltype']:
+            if data['lookups']['fueltype'][fueltype_str] == fueltype:
                 fueltype_in_string = fueltype_str
         legend_entries.append(fueltype_in_string)
 
@@ -179,9 +179,9 @@ def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_of_h_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype']):
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         for model_year_object in results_resid:
@@ -213,7 +213,7 @@ def plot_fuels_tot_all_enduses_week(fig_name, results_resid, data, attribute_to_
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
-    plt.savefig(os.path.join(data['local_paths']['path_data_results_PDF'], fig_name))
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
     #plt.show()
 
 def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
@@ -230,10 +230,10 @@ def plot_fuels_tot_all_enduses(fig_name, results_resid, data, attribute_to_get):
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         # Read out fueltype specific max h load
@@ -279,10 +279,10 @@ def plot_fuels_peak_hour(results_resid, data, attribute_to_get):
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype_lu']):
+    for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)
+        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
 
         legend_entries.append(fueltype_in_string)
 

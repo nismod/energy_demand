@@ -160,6 +160,7 @@ across all modules.
     bd:         Base demand
     by:         Base year
     cy:         Current year
+    lp:         Load profile
     dw:         Dwelling
     p:          Fraction, i.e. (100% = 1.0)
     pp:         Per person

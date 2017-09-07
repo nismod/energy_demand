@@ -14,7 +14,7 @@ from energy_demand.read_write import data_loader
 #TODO: Make that HLC can be improved
 # Assumption share of existing dwelling stock which is assigned new HLC coefficients
 
-def load_assumptions(data):
+def load_assumptions(data, nismod_mode=True):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -24,17 +24,17 @@ def load_assumptions(data):
     """
     print("... load assumptions")
     assumptions = {}
-
-    sim_param = {}
-    sim_param['base_yr'] = 2015
-    sim_param['end_yr'] = 2020
-    sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr']  + 1, sim_param['sim_years_intervall'])
-    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
-    sim_param['curr_yr'] = sim_param['base_yr']
-    sim_param['list_dates'] = date_handling.fullyear_dates(
-        start=date(sim_param['base_yr'], 1, 1),
-        end=date(sim_param['base_yr'], 12, 31))
+    if not nismod_mode:
+        sim_param = {}
+        sim_param['base_yr'] = 2015
+        sim_param['end_yr'] = 2020
+        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+        sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr']  + 1, sim_param['sim_years_intervall'])
+        sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+        sim_param['curr_yr'] = sim_param['base_yr']
+        sim_param['list_dates'] = date_handling.fullyear_dates(
+            start=date(sim_param['base_yr'], 1, 1),
+            end=date(sim_param['base_yr'], 12, 31))
 
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
@@ -323,12 +323,12 @@ def load_assumptions(data):
     # ============================================================
     # Technologies & efficiencies
     # ============================================================
-    assumptions['technology_list'] = {}
+    assumptions['tech_list'] = {}
 
     # Load all technologies
-    assumptions['technologies'], assumptions['technology_list'] = read_data.read_technologies(
+    assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
         data['paths']['path_technologies'],
-        data['lookups']['fueltype_lu'])
+        data['lookups']['fueltype'])
 
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_hp_ashp_gshp = 0.5
@@ -342,7 +342,7 @@ def load_assumptions(data):
         data)
 
     # Add heat pumps to technologies #SHARK
-    assumptions['technologies'], assumptions['technology_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(
+    assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(
         data,
         [],
         assumptions['technologies'],
@@ -350,7 +350,7 @@ def load_assumptions(data):
         )
 
     # --Hybrid technologies
-    assumptions['technologies'], assumptions['technology_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = technologies_related.get_all_defined_hybrid_technologies(
+    assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = technologies_related.get_all_defined_hybrid_technologies(
         assumptions,
         assumptions['technologies'],
         hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
@@ -361,7 +361,7 @@ def load_assumptions(data):
     # ----------
     assumptions['enduse_space_heating'] = ['rs_space_heating', 'rs_space_heating', 'is_space_heating']
     assumptions['enduse_space_cooling'] = ['rs_space_cooling', 'ss_space_cooling', 'is_space_cooling']
-    assumptions['technology_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
+    assumptions['tech_list']['enduse_water_heating'] = ['rs_water_heating', 'ss_water_heating']
 
     # ============================================================
     # Fuel Stock Definition (necessary to define before model run)

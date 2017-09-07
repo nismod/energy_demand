@@ -94,12 +94,12 @@ def const_eff_yh(input_eff):
 
     return eff_yh
 
-def get_fueltype_str(fueltype_lu, fueltype_nr):
+def get_fueltype_str(fueltype, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
 
     Inputs
     ------
-    fueltype_lu : dict
+    fueltype : dict
         Fueltype lookup dictionary
     fueltype_nr : int
         Key which is to be found in lookup dict
@@ -109,16 +109,16 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
     fueltype_in_string : str
         Fueltype string
     """
-    for fueltype_str in fueltype_lu:
-        if fueltype_lu[fueltype_str] == fueltype_nr:
+    for fueltype_str in fueltype:
+        if fueltype[fueltype_str] == fueltype_nr:
             return fueltype_str
 
-def get_fueltype_int(fueltype_lu, fueltype_string):
+def get_fueltype_int(fueltype, fueltype_string):
     """Read from dict the fueltype string based on fueltype KeyError
 
     Inputs
     ------
-    fueltype_lu : dict
+    fueltype : dict
         Fueltype lookup dictionary
     fueltype_string : int
         Key which is to be found in lookup dict
@@ -128,9 +128,9 @@ def get_fueltype_int(fueltype_lu, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    return fueltype_lu[fueltype_string]
+    return fueltype[fueltype_string]
 
-def get_tech_type(tech_name, technology_list):
+def get_tech_type(tech_name, tech_list):
     """Get technology type of technology
 
     Parameters
@@ -138,7 +138,7 @@ def get_tech_type(tech_name, technology_list):
     tech_name : string
         Technology name
 
-    technology_list : dict
+    tech_list : dict
         All technology lists are defined in assumptions
 
     Returns
@@ -151,15 +151,15 @@ def get_tech_type(tech_name, technology_list):
     -  Either a technology is a hybrid technology, a heat pump,
        a constant heating technology or a regular technolgy
     """
-    if tech_name in technology_list['tech_heating_hybrid']:
+    if tech_name in tech_list['tech_heating_hybrid']:
         tech_type = 'hybrid_tech'
-    elif tech_name in technology_list['tech_heating_temp_dep']:
+    elif tech_name in tech_list['tech_heating_temp_dep']:
         tech_type = 'heat_pump'
-    elif tech_name in technology_list['tech_heating_const']:
+    elif tech_name in tech_list['tech_heating_const']:
         tech_type = 'boiler_heating_tech'
-    elif tech_name in technology_list['primary_heating_electricity']:
+    elif tech_name in tech_list['primary_heating_electricity']:
         tech_type = 'storage_heating_electricity'
-    elif tech_name in technology_list['secondary_heating_electricity']:
+    elif tech_name in tech_list['secondary_heating_electricity']:
         tech_type = 'secondary_heating_electricity'
     elif tech_name == 'dummy_tech':
         tech_type = 'dummy_tech'
@@ -217,7 +217,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
                 market_entry_lowest = market_entry
 
         # Add average 'av_heat_pumps' to technology dict
-        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype_lu'], fueltype)))
+        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype'], fueltype)))
 
         #print("...create new averaged heat pump technology: " + str(name_av_hp))
 
@@ -425,15 +425,15 @@ def generate_ashp_gshp_split(split_factor, data):
     gshp_fraction = 1 - split_factor
 
     installed_heat_pump = {
-        data['lookups']['fueltype_lu']['hydrogen']: {
+        data['lookups']['fueltype']['hydrogen']: {
             'heat_pump_ASHP_hydro': ashp_fraction,
             'heat_pump_GSHP_hydro': gshp_fraction
             },
-        data['lookups']['fueltype_lu']['electricity']: {
+        data['lookups']['fueltype']['electricity']: {
             'heat_pump_ASHP_electricity': ashp_fraction,
             'heat_pump_GSHP_electricity': gshp_fraction
             },
-        data['lookups']['fueltype_lu']['gas']: {
+        data['lookups']['fueltype']['gas']: {
             'heat_pump_ASHP_gas': ashp_fraction,
             'heat_pump_GSHP_gas': gshp_fraction
             },
@@ -479,14 +479,14 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     service_high_temp_tech_p = 1 - assump_service_share_low_tech
 
     # Efficiencies of technologies of hybrid tech
-    if tech_low_temp in assumptions['technology_list']['tech_heating_temp_dep']:
+    if tech_low_temp in assumptions['tech_list']['tech_heating_temp_dep']:
         eff_tech_low_temp = eff_heat_pump(
             temp_diff=average_h_diff_by,
             efficiency_intersect=assumptions['technologies'][tech_low_temp]['eff_by'])
     else:
         eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
 
-    if tech_high_temp in assumptions['technology_list']['tech_heating_temp_dep']:
+    if tech_high_temp in assumptions['tech_list']['tech_heating_temp_dep']:
         eff_tech_high_temp = eff_heat_pump(
             temp_diff=average_h_diff_by,
             efficiency_intersect=assumptions['technologies'][tech_high_temp]['eff_by'])

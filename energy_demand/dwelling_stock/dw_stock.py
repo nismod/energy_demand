@@ -395,7 +395,7 @@ def ss_dw_stock(regions, data):
         for curr_yr in data['sim_param']['sim_period']:
 
             dw_stock = []
-            for sector in data['ss_sectors']:
+            for sector in data['sectors']['ss_sectors']:
 
                 # Change in floor area up to end year
                 if sector in data['assumptions']['ss_floorarea_change_ey_p']:
@@ -423,7 +423,7 @@ def ss_dw_stock(regions, data):
                         region=region,
                         coordinates=data['reg_coord'][region],
                         floorarea=floorarea_sector_cy,
-                        enduses=data['ss_all_enduses'],
+                        enduses=data['enduses']['ss_all_enduses'],
                         driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
                         sector_type=sector,
                         gva=data['GVA'][curr_yr][region]
@@ -434,7 +434,7 @@ def ss_dw_stock(regions, data):
             dwelling_stock[region][curr_yr] = DwellingStock(
                 region,
                 dw_stock,
-                data['ss_all_enduses']
+                data['enduses']['ss_all_enduses']
                 )
 
     return dwelling_stock
@@ -500,7 +500,7 @@ def rs_dw_stock(regions, data):
 
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(
-        data['lookups']['dwtype_lu'],
+        data['lookups']['dwtype'],
         dwtype_floor_area, #data['assumptions']['assump_dwtype_floorarea'],
         dwtype_distr
         )
@@ -540,7 +540,7 @@ def rs_dw_stock(regions, data):
                     data=data,
                     region=region,
                     curr_yr=curr_yr,
-                    dw_lu=data['lookups']['dwtype_lu'],
+                    dw_lu=data['lookups']['dwtype'],
                     floorarea_p=floorarea_p[base_yr],
                     floorarea_by=floorarea_by,
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
@@ -553,7 +553,7 @@ def rs_dw_stock(regions, data):
                 dwelling_stock[region][base_yr] = DwellingStock(
                     region,
                     dw_stock_base,
-                    data['rs_all_enduses']
+                    data['enduses']['rs_all_enduses']
                     )
             else:
                 """The number of people in the base year dwelling stock may change.
@@ -578,7 +578,7 @@ def rs_dw_stock(regions, data):
                     data=data,
                     region=region,
                     curr_yr=curr_yr,
-                    dw_lu=data['lookups']['dwtype_lu'],
+                    dw_lu=data['lookups']['dwtype'],
                     floorarea_p=floorarea_p[curr_yr],
                     floorarea_by=remaining_area,
                     dwtype_age_distr_by=data['assumptions']['dwtype_age_distr'][base_yr],
@@ -605,7 +605,7 @@ def rs_dw_stock(regions, data):
                 dwelling_stock[region][curr_yr] = DwellingStock(
                     region,
                     dw_stock_cy,
-                    data['rs_all_enduses']
+                    data['enduses']['rs_all_enduses']
                     )
 
     return dwelling_stock
@@ -714,7 +714,7 @@ def generate_dw_existing(data, region, curr_yr, dw_lu, floorarea_p, floorarea_by
                     region=region,
                     coordinates=data['reg_coord'][region],
                     floorarea=dw_type_age_class_floorarea,
-                    enduses=data['rs_all_enduses'],
+                    enduses=data['enduses']['rs_all_enduses'],
                     driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age_id),
@@ -775,7 +775,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for _, dw_type_name in data['lookups']['dwtype_lu'].items():
+    for _, dw_type_name in data['lookups']['dwtype'].items():
 
         # Calculate new floor area per dewlling type
         dw_type_new_floorarea = floorarea_p_by[dw_type_name] * new_floorarea_cy
@@ -790,7 +790,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
                 region=region,
                 coordinates=data['reg_coord'][region],
                 floorarea=dw_type_new_floorarea,
-                enduses=data['rs_all_enduses'],
+                enduses=data['enduses']['rs_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,

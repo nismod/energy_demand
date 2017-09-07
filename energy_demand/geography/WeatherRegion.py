@@ -4,7 +4,6 @@ Weather Region
 Depending on the number of weather stations, a ``WeatherRegion``
 is generated per weather station. Within this regions,
 regional load profiles are calculated.
-
 """
 from datetime import date
 import uuid
@@ -13,7 +12,6 @@ from energy_demand.technologies import technological_stock
 from energy_demand.basic import date_handling
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
-'''# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member'''
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -22,8 +20,7 @@ class WeatherRegion(object):
     ----------
     weather_region_name : str
         Unique identifyer of region_name
-    data : dict
-        Dictionary containing data
+    TODO
     modeltype : str
         Model type
 
@@ -33,31 +30,42 @@ class WeatherRegion(object):
       regional temperature data technology specific
     - regional specific fuel shapes are assigned to technologies
     """
-    def __init__(self, weather_region_name, data, modeltype):
+    def __init__(
+            self,
+            weather_region_name,
+            sim_param,
+            assumptions,
+            lookups,
+            all_enduses,
+            temperature_data,
+            tech_load_profiles,
+            sectors,
+            modeltype
+        ):
         """Constructor
         """
         self.weather_region_name = weather_region_name
 
         # Temperatures
-        temp_by = data['temperature_data'][weather_region_name][data['sim_param']['base_yr']]
-        temp_cy = data['temperature_data'][weather_region_name][data['sim_param']['curr_yr']]
+        temp_by = temperature_data[weather_region_name][sim_param['base_yr']]
+        temp_cy = temperature_data[weather_region_name][sim_param['curr_yr']]
 
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'rs_t_base_heating')
+            sim_param, assumptions, 'rs_t_base_heating')
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'rs_t_base_cooling')
+            sim_param, assumptions, 'rs_t_base_cooling')
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'rs_t_base_heating')
+            sim_param, assumptions, 'rs_t_base_heating')
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'rs_t_base_cooling')
+            sim_param, assumptions, 'rs_t_base_cooling')
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'ss_t_base_heating')
+            sim_param, assumptions, 'ss_t_base_heating')
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'ss_t_base_cooling')
+            sim_param, assumptions, 'ss_t_base_cooling')
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'ss_t_base_heating')
+            sim_param, assumptions, 'ss_t_base_heating')
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            data['sim_param'], data['assumptions'], 'ss_t_base_cooling')
+            sim_param, assumptions, 'ss_t_base_cooling')
 
         # -------------------
         # Technology stock
@@ -65,35 +73,35 @@ class WeatherRegion(object):
         if modeltype == 'is_submodel':
             self.is_tech_stock = technological_stock.TechStock(
                 'is_tech_stock',
-                data,
+                assumptions, sim_param, lookups,
                 temp_by,
                 temp_cy,
-                data['assumptions']['ss_t_base_heating']['base_yr'],
-                data['is_all_enduses'],
+                assumptions['ss_t_base_heating']['base_yr'],
+                all_enduses['is_all_enduses'],
                 ss_t_base_heating_cy,
-                data['assumptions']['is_specified_tech_enduse_by']
+                assumptions['is_specified_tech_enduse_by']
                 )
         elif modeltype == 'rs_submodel':
             self.rs_tech_stock = technological_stock.TechStock(
                 'rs_tech_stock',
-                data,
+                assumptions, sim_param, lookups,
                 temp_by,
                 temp_cy,
-                data['assumptions']['rs_t_base_heating']['base_yr'],
-                data['rs_all_enduses'],
+                assumptions['rs_t_base_heating']['base_yr'],
+                all_enduses['rs_all_enduses'],
                 rs_t_base_heating_cy,
-                data['assumptions']['rs_specified_tech_enduse_by']
+                assumptions['rs_specified_tech_enduse_by']
                 )
         elif modeltype == 'ss_submodel':
             self.ss_tech_stock = technological_stock.TechStock(
                 'ss_tech_stock',
-                data,
+                assumptions, sim_param, lookups,
                 temp_by,
                 temp_cy,
-                data['assumptions']['ss_t_base_heating']['base_yr'],
-                data['ss_all_enduses'],
+                assumptions['ss_t_base_heating']['base_yr'],
+                all_enduses['ss_all_enduses'],
                 ss_t_base_heating_cy,
-                data['assumptions']['ss_specified_tech_enduse_by']
+                assumptions['ss_specified_tech_enduse_by']
                 )
 
         # -------------------
@@ -127,15 +135,15 @@ class WeatherRegion(object):
 
             # --Specific heating technologies for residential sector
             rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                data, rs_fuel_shape_heating_yd, 'rs_profile_heating_storage_dh')
+                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_storage_heating_dh')
             rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                data, rs_fuel_shape_heating_yd, 'rs_profile_heating_second_heating_dh')
+                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_second_heating_dh')
             # boiler, non-peak
             rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
-                data, rs_fuel_shape_heating_yd, 'rs_shapes_heating_boilers_dh')
+                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_heating_boilers_dh')
             # heat pumps, non-peak
             rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
-                data, self.rs_tech_stock, rs_hdd_cy, 'rs_shapes_heating_heat_pump_dh')
+                sim_param, tech_load_profiles, self.rs_tech_stock, rs_hdd_cy, 'rs_lp_heating_hp_dh')
 
             rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
                 self.rs_tech_stock,
@@ -153,40 +161,40 @@ class WeatherRegion(object):
             # Heating boiler
             self.rs_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_const'],
+                technologies=assumptions['tech_list']['tech_heating_const'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
                 shape_yd=rs_fuel_shape_heating_yd,
                 shape_yh=rs_profile_boilers_yh,
                 enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=data['rs_shapes_heating_boilers_dh']['peakday']
+                shape_peak_dh=tech_load_profiles['rs_lp_heating_boilers_dh']['peakday']
                 )
 
             # Electric heating, primary...(storage)
             self.rs_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
+                technologies=assumptions['tech_list']['primary_heating_electricity'],
                 enduses=['rs_space_heating'],
                 shape_yd=rs_fuel_shape_heating_yd,
                 shape_yh=rs_profile_storage_heater_yh,
                 enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=data['rs_profile_heating_storage_dh']['peakday']
+                shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
                 )
 
             # Electric heating, secondary...
             self.rs_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
+                technologies=assumptions['tech_list']['secondary_heating_electricity'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
                 shape_yd=rs_fuel_shape_heating_yd,
                 shape_yh=rs_profile_elec_heater_yh,
                 enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=data['rs_profile_heating_second_heating_dh']['peakday']
+                shape_peak_dh=tech_load_profiles['rs_lp_second_heating_dh']['peakday']
                 )
 
             # Hybrid heating
             self.rs_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
+                technologies=assumptions['tech_list']['tech_heating_hybrid'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
                 shape_yd=rs_fuel_shape_heating_yd,
                 shape_yh=rs_fuel_shape_hybrid_tech_yh,
@@ -196,12 +204,12 @@ class WeatherRegion(object):
             # Heat pump heating
             self.rs_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
+                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
                 shape_yd=rs_fuel_shape_heating_yd,
                 shape_yh=rs_fuel_shape_hp_yh,
                 enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=data['rs_shapes_heating_heat_pump_dh']['peakday']
+                shape_peak_dh=tech_load_profiles['rs_lp_heating_hp_dh']['peakday']
                 )
 
         elif modeltype == 'ss_submodel':
@@ -231,12 +239,12 @@ class WeatherRegion(object):
             # --Heating technologies for service sector
             # (the heating shape follows the gas shape of aggregated sectors)
             ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(
-                data, ss_fuel_shape_heating_yd, 'ss_space_heating')
+                tech_load_profiles, ss_fuel_shape_heating_yd, 'ss_space_heating')
 
             # Cooling service
             #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
             #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
-            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.absolute_to_relative(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
+            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
             # Hybrid
             ss_profile_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(
@@ -249,31 +257,31 @@ class WeatherRegion(object):
 
             self.ss_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_const'],
+                technologies=assumptions['tech_list']['tech_heating_const'],
                 enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=data['ss_sectors'],
+                sectors=sectors['ss_sectors'],
                 shape_yd=ss_fuel_shape_heating_yd,
                 shape_yh=ss_fuel_shape_any_tech,
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                shape_peak_dh=data['ss_shapes_dh']
+                shape_peak_dh=tech_load_profiles['ss_shapes_dh']
                 )
 
             self.ss_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
+                technologies=assumptions['tech_list']['primary_heating_electricity'],
                 enduses=['ss_space_heating'],
-                sectors=data['ss_sectors'],
+                sectors=sectors['ss_sectors'],
                 shape_yd=ss_fuel_shape_heating_yd,
                 shape_yh=ss_fuel_shape_any_tech,
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                shape_peak_dh=data['rs_profile_heating_storage_dh']['peakday']
+                shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
                 )
 
             self.ss_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
+                technologies=assumptions['tech_list']['secondary_heating_electricity'],
                 enduses=['rs_space_heating', 'rs_water_heating'],
-                sectors=data['ss_sectors'],
+                sectors=sectors['ss_sectors'],
                 shape_yd=ss_fuel_shape_heating_yd,
                 shape_yh=ss_fuel_shape_any_tech,
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor
@@ -281,9 +289,9 @@ class WeatherRegion(object):
 
             self.ss_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
+                technologies=assumptions['tech_list']['tech_heating_hybrid'],
                 enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=data['ss_sectors'],
+                sectors=sectors['ss_sectors'],
                 shape_yd=ss_fuel_shape_heating_yd,
                 shape_yh=ss_profile_hybrid_gas_elec_yh,
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor,
@@ -291,9 +299,9 @@ class WeatherRegion(object):
 
             self.ss_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
+                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
                 enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=data['ss_sectors'],
+                sectors=sectors['ss_sectors'],
                 shape_yd=ss_fuel_shape_heating_yd,
                 shape_yh=ss_fuel_shape_any_tech,
                 enduse_peak_yd_factor=ss_peak_yd_heating_factor
@@ -326,13 +334,13 @@ class WeatherRegion(object):
             # the gas shape of aggregated sectors)
             #Take from service sector
             is_fuel_shape_any_tech, _ = self.ss_get_sector_enduse_shape(
-                data, is_fuel_shape_heating_yd, 'ss_space_heating')
+                tech_load_profiles, is_fuel_shape_heating_yd, 'ss_space_heating')
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_const'],
+                technologies=assumptions['tech_list']['tech_heating_const'],
                 enduses=['is_space_heating'],
-                sectors=data['is_sectors'],
+                sectors=sectors['is_sectors'],
                 shape_yd=is_fuel_shape_heating_yd,
                 shape_yh=is_fuel_shape_any_tech,
                 enduse_peak_yd_factor=is_peak_yd_heating_factor
@@ -340,9 +348,9 @@ class WeatherRegion(object):
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['primary_heating_electricity'],
+                technologies=assumptions['tech_list']['primary_heating_electricity'],
                 enduses=['is_space_heating'],
-                sectors=data['is_sectors'],
+                sectors=sectors['is_sectors'],
                 shape_yd=is_fuel_shape_heating_yd,
                 enduse_peak_yd_factor=is_peak_yd_heating_factor,
                 shape_yh=is_fuel_shape_any_tech
@@ -350,9 +358,9 @@ class WeatherRegion(object):
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['secondary_heating_electricity'],
+                technologies=assumptions['tech_list']['secondary_heating_electricity'],
                 enduses=['is_space_heating'],
-                sectors=data['is_sectors'],
+                sectors=sectors['is_sectors'],
                 shape_yd=is_fuel_shape_heating_yd,
                 shape_yh=is_fuel_shape_any_tech,
                 enduse_peak_yd_factor=is_peak_yd_heating_factor,
@@ -360,9 +368,9 @@ class WeatherRegion(object):
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_hybrid'],
+                technologies=assumptions['tech_list']['tech_heating_hybrid'],
                 enduses=['is_space_heating'],
-                sectors=data['is_sectors'],
+                sectors=sectors['is_sectors'],
                 shape_yd=is_fuel_shape_heating_yd,
                 shape_yh=is_fuel_shape_any_tech,
                 enduse_peak_yd_factor=is_peak_yd_heating_factor,
@@ -370,9 +378,9 @@ class WeatherRegion(object):
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
-                technologies=data['assumptions']['technology_list']['tech_heating_temp_dep'],
+                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
                 enduses=['is_space_heating'],
-                sectors=data['is_sectors'],
+                sectors=sectors['is_sectors'],
                 shape_yd=is_fuel_shape_heating_yd,
                 shape_yh=is_fuel_shape_any_tech,
                 enduse_peak_yd_factor=is_peak_yd_heating_factor
@@ -447,15 +455,15 @@ class WeatherRegion(object):
         return max_factor_yd
 
     @classmethod
-    def get_fuel_shape_heating_hp_yh(cls, data, tech_stock, rs_hdd_cy, tech):
+    def get_fuel_shape_heating_hp_yh(cls, sim_param, tech_load_profiles, tech_stock, rs_hdd_cy, tech):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump TODO
 
         This is for non-peak.
 
         Parameters
         ---------
-        data : dict
-            data
+        sim_param : dict
+            Simulation parameters
         tech_stock : object
             Technology stock
         rs_hdd_cy : array
@@ -488,12 +496,12 @@ class WeatherRegion(object):
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
-        daily_fuel_profile_holiday = data[tech]['holiday'] / np.sum(data[tech]['holiday'])
-        daily_fuel_profile_workday = data[tech]['workday'] / np.sum(data[tech]['workday'])
+        daily_fuel_profile_holiday = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
+        daily_fuel_profile_workday = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        for day, date_gasday in enumerate(data['sim_param']['list_dates']):
+        for day, date_gasday in enumerate(sim_param['list_dates']):
 
             # Take respectve daily fuel curve depending on weekday or weekend
             # from Robert Sansom for heat pumps
@@ -518,10 +526,10 @@ class WeatherRegion(object):
             shape_yh_hp[day] = fuel_shape_d
 
             # Add normalised daily fuel curve
-            shape_y_dh[day] = load_profile.absolute_to_relative_without_nan(fuel_shape_d)
+            shape_y_dh[day] = load_profile.abs_to_rel_no_nan(fuel_shape_d)
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
-        shape_yh = load_profile.absolute_to_relative(shape_yh_hp)
+        shape_yh = load_profile.abs_to_rel(shape_yh_hp)
 
         return shape_yh, shape_y_dh
 
@@ -561,7 +569,7 @@ class WeatherRegion(object):
         return shape_yd_cooling_tech
 
     @classmethod
-    def ss_get_sector_enduse_shape(cls, data, heating_shape, enduse):
+    def ss_get_sector_enduse_shape(cls, tech_load_profiles, heating_shape, enduse):
         """Read generic shape for all technologies in a service sector enduse
 
         Parameters
@@ -583,10 +591,10 @@ class WeatherRegion(object):
         """
         shape_yh_generic_tech = np.zeros((365, 24))
 
-        if enduse not in data['ss_all_tech_shapes_dh']:
+        if enduse not in tech_load_profiles['ss_all_tech_shapes_dh']:
             pass
         else:
-            shape_non_peak_y_dh = data['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_y_dh']
+            shape_non_peak_y_dh = tech_load_profiles['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_y_dh']
 
             shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_non_peak_y_dh
             shape_y_dh_generic_tech = shape_non_peak_y_dh
@@ -594,17 +602,17 @@ class WeatherRegion(object):
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 
     @classmethod
-    def get_shape_heating_boilers_yh(cls, data, heating_shape, tech_to_get_shape):
+    def get_shape_heating_boilers_yh(cls, sim_param, tech_load_profiles, heating_shape, technology):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
         Parameters
         ---------
-        data : dict
-            data
+        sim_param : dict
+            Simulation parameters
         heating_shape : array
             Profile (yh) for heat (percentage of yearly heat demand for every day)
-        tech_to_get_shape : str
-            Technology
+        technology : str
+            Technology to get shape
 
         Returns
         -------
@@ -630,8 +638,8 @@ class WeatherRegion(object):
         shape_boilers_y_dh = np.zeros((365, 24))
 
         list_dates = date_handling.fullyear_dates(
-            start=date(data['sim_param']['base_yr'], 1, 1),
-            end=date(data['sim_param']['base_yr'], 12, 31)
+            start=date(sim_param['base_yr'], 1, 1),
+            end=date(sim_param['base_yr'], 12, 31)
             )
 
         for day, date_gasday in enumerate(list_dates):
@@ -639,10 +647,10 @@ class WeatherRegion(object):
 
             # Take respectve daily fuel curve depending on weekday or weekend
             if weekday_type == 'holiday': # Wkend Hourly gas shape.
-                shape_boilers_yh[day] = heating_shape[day] * data[tech_to_get_shape]['holiday']
-                shape_boilers_y_dh[day] = data[tech_to_get_shape]['holiday']
+                shape_boilers_yh[day] = heating_shape[day] * tech_load_profiles[technology]['holiday']
+                shape_boilers_y_dh[day] = tech_load_profiles[technology]['holiday']
             else: # Wkday Hourly gas shape.
-                shape_boilers_yh[day] = heating_shape[day] * data[tech_to_get_shape]['workday'] #yd
-                shape_boilers_y_dh[day] = data[tech_to_get_shape]['workday'] #dh
+                shape_boilers_yh[day] = heating_shape[day] * tech_load_profiles[technology]['workday'] #yd
+                shape_boilers_y_dh[day] = tech_load_profiles[technology]['workday'] #dh
 
         return shape_boilers_yh, shape_boilers_y_dh

@@ -230,7 +230,7 @@ class LoadProfile(object):
 
         return shape_y_dh
 
-def absolute_to_relative_without_nan(absolute_array):
+def abs_to_rel_no_nan(absolute_array):
     """Convert absolute to relative (without correcting the NaN values)
 
     Parameters
@@ -250,7 +250,7 @@ def absolute_to_relative_without_nan(absolute_array):
         # If the total sum is zero, return same array
         return absolute_array
 
-def absolute_to_relative(absolute_array):
+def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 
     Parameters
@@ -333,7 +333,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
 
     # Absolute to relative for every row
-    fuel_shapes_hybrid_y_dh = np.apply_along_axis(absolute_to_relative, 1, _var) #absolute_to_relative_without_nan not possible
+    fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var) #abs_to_rel_no_nan not possible
     '''plt.plot(fuel_shapes_hybrid_y_dh[1])
     plt.show()
     '''

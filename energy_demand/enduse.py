@@ -113,11 +113,9 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        #print("..create enduse {}".format(enduse))
         self.enduse = enduse
         self.sector = sector
         self.fuel_new_y = np.copy(fuel)
-        #print("Fuel all fueltypes E: " + str(np.sum(self.fuel_new_y)))
 
         # If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
@@ -131,7 +129,6 @@ class Enduse(object):
             # -----------------------------------------------------------------
             # Get correct parameters depending on model configuration
             # -----------------------------------------------------------------
-            # Get regional or non-regional load profile data
             load_profiles = self.get_load_profile_stock(
                 data['non_regional_profile_stock'],
                 regional_profile_stock)
@@ -218,7 +215,7 @@ class Enduse(object):
                     # Read dh profile from peak day
                     peak_day = self.get_peak_day()
 
-                    shape_peak_dh = lp.absolute_to_relative(
+                    shape_peak_dh = lp.abs_to_rel(
                         self.fuel_yh[:, peak_day, :]
                         )
                     enduse_peak_yd_factor = load_profiles.get_load_profile(
@@ -249,7 +246,7 @@ class Enduse(object):
                 tot_service_h_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = self.fuel_to_service(
                     fuel_tech_p_by,
                     tech_stock,
-                    data['lookups']['fueltype_lu'],
+                    data['lookups']['fueltype'],
                     load_profiles,
                     mode_constrained
                     )
@@ -308,7 +305,7 @@ class Enduse(object):
                 self.service_to_fuel(
                     service_tech,
                     tech_stock,
-                    data['lookups']['fueltype_lu'],
+                    data['lookups']['fueltype'],
                     mode_constrained
                     )
 
@@ -332,7 +329,7 @@ class Enduse(object):
                     self.fuel_y = self.calc_fuel_tech_y(
                         tech_stock,
                         fuel_tech_y,
-                        data['lookups']['fueltype_lu'],
+                        data['lookups']['fueltype'],
                         mode_constrained)
                 else:
                     self.crit_flat_profile = False
@@ -342,7 +339,7 @@ class Enduse(object):
                         fuel_tech_y,
                         tech_stock,
                         load_profiles,
-                        data['lookups']['fueltype_lu'],
+                        data['lookups']['fueltype'],
                         mode_constrained
                         )
 
@@ -362,11 +359,8 @@ class Enduse(object):
                     ## TESTINGnp.testing.assert_almost_equal(np.sum(self.fuel_yd), np.sum(self.fuel_yh), decimal=2, err_msg='', verbose=True)
 
     def get_load_profile_stock(self, non_regional_profile_stock, regional_profile_stock):
-        """Defines the load profile stock depending on `enduse`
-
-        If the enduse depends on regional factors, `regional_profile_stock`
-        is returned. Otherwise, non-regional load profiles which can
-        be applied for all regions is used (`non_regional_profile_stock`)
+        """Defines the load profile stock depending on `enduse`.
+        (Get regional or non-regional load profile data)
 
         Parameters
         ----------
@@ -386,6 +380,10 @@ class Enduse(object):
         they are stored in the ´WeatherRegion´ Class. One such example is
         heating. If the enduse is not dependent on the region, the same
         load profile can be used for all regions
+
+        If the enduse depends on regional factors, `regional_profile_stock`
+        is returned. Otherwise, non-regional load profiles which can
+        be applied for all regions is used (`non_regional_profile_stock`)
         """
         if self.enduse in non_regional_profile_stock.enduses_in_stock:
             return non_regional_profile_stock
@@ -1293,7 +1291,7 @@ class Enduse(object):
                     self.enduse, tech, 'fueltype_share_yh_all_h')
 
                 # Calculate share of fuel per fueltype
-                fuel_fueltype_p = lp.absolute_to_relative(fueltype_share_yh_all_h)
+                fuel_fueltype_p = lp.abs_to_rel(fueltype_share_yh_all_h)
 
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
@@ -1372,7 +1370,7 @@ class Enduse(object):
 
         # Share of fuel consumption difference
         diff_fuel_consump = percent_ey - percent_by
-        diffusion_choice = assumptions['other_enduse_mode_info']['diff_method'] # Diffusion choice
+        diffusion_choice = assumptions['other_enduse_mode_info']['diff_method']
 
         if diff_fuel_consump != 0: # If change in fuel consumption
             new_fuels = np.zeros((self.fuel_new_y.shape[0]))

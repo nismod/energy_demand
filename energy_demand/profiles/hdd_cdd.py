@@ -215,7 +215,7 @@ def get_reg_hdd(temperatures, t_base_heating):
     - The diffusion is assumed to be sigmoid
     """
     hdd_d = calc_hdd(t_base_heating, temperatures)
-    shape_hdd_d = load_profile.absolute_to_relative(hdd_d)
+    shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
     return hdd_d, shape_hdd_d
 
@@ -244,6 +244,6 @@ def get_reg_cdd(temperatures, t_base_cooling):
       the base temperature of the current year.
     """
     cdd_d = calc_cdd(t_base_cooling, temperatures)
-    shape_cdd_d = load_profile.absolute_to_relative(cdd_d)
+    shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
     return cdd_d, shape_cdd_d

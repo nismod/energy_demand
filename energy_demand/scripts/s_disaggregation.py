@@ -86,7 +86,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # ---------------------------------------
     # Total floor area for every enduse per sector
     national_floorarea_by_sector = {}
-    for sector in data['ss_sectors']:
+    for sector in data['sectors']['ss_sectors']:
         national_floorarea_by_sector[sector] = 0
         for region in data['lu_reg']:
             national_floorarea_by_sector[sector] += data['ss_sector_floor_area_by'][region][sector]
@@ -137,9 +137,9 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # ---------------------------------------
     for region_name in data['lu_reg']:
         ss_fuel_disagg[region_name] = {}
-        for sector in data['ss_sectors']:
+        for sector in data['sectors']['ss_sectors']:
             ss_fuel_disagg[region_name][sector] = {}
-            for enduse in data['ss_all_enduses']:
+            for enduse in data['enduses']['ss_all_enduses']:
 
                 # HDD
                 reg_hdd = ss_hdd_individ_region[region_name]
@@ -179,8 +179,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in ss_fuel_disagg[reg][sector]:
                 control_sum1 += np.sum(ss_fuel_disagg[reg][sector][enduse])
 
-    for sector in data['ss_sectors']:
-        for enduse in data['ss_all_enduses']:
+    for sector in data['sectors']['ss_sectors']:
+        for enduse in data['enduses']['ss_all_enduses']:
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
@@ -226,14 +226,14 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
         is_fuel_disagg[region_name] = {}
 
         # Iterate sector
-        for sector in data['is_sectors']:
+        for sector in data['sectors']['is_sectors']:
             is_fuel_disagg[region_name][sector] = {}
 
             # Sector specifid info
             reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
 
             # Iterate enduse
-            for enduse in data['is_all_enduses']:
+            for enduse in data['enduses']['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
 
                 #print("national_fuel_sector_by: " + str(national_fuel_sector_by))
@@ -439,16 +439,16 @@ def run(data):
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'rs_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disattregated'], 'rs_fuel_disagg.csv'),
         data['rs_fuel_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'ss_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disattregated'], 'ss_fuel_disagg.csv'),
         data['ss_fuel_disagg'])
     write_disagg_fuel_sector(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'is_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disattregated'], 'is_fuel_disagg.csv'),
         data['is_fuel_disagg'])
     write_disagg_fuel_ts(
-        os.path.join(data['local_paths']['path_dir_disattregated'], 'ts_fuel_disagg.csv'),
+        os.path.join(data['local_paths']['dir_disattregated'], 'ts_fuel_disagg.csv'),
         data['ts_fuel_disagg'])
 
     print("... finished script {}".format(os.path.basename(__file__)))
