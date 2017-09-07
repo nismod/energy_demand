@@ -385,7 +385,7 @@ def load_fuels(paths, lookups):
     sectors = {}
     fuels = {}
     # Residential Sector (ECUK Table XY and Table XY) 
-    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_csv_base_data_resid(
+    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_base_data_resid(
         paths['rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)

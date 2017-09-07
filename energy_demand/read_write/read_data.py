@@ -398,7 +398,7 @@ def read_technologies(path_to_csv, lu_fueltype):
 
     return dict_technologies, dict_tech_lists
 
-def read_csv_base_data_resid(path_to_csv):
+def read_base_data_resid(path_to_csv):
     """This function reads in base_data_CSV all fuel types
 
     (first row is fueltype, subkey), header is appliances

@@ -243,7 +243,7 @@ def run(data):
         int(data['sim_param']['base_yr'])
         )
 
-    _, rs_enduses = read_data.read_csv_base_data_resid(
+    _, rs_enduses = read_data.read_base_data_resid(
         data['paths']['rs_fuel_raw_data_enduses']
         )
 
