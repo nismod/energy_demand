@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
+import logging
 
 def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
 
-    Parameters
+    Arguments
     ----------
     lad_infos_shapefile : dict
         Infos of shapefile (dbf / csv)
@@ -24,7 +25,7 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
     -----
     SOURCE OF LADS:
     """
-    print("..Validation of spatial disaggregation")
+    logging.debug("..Validation of spatial disaggregation")
     result_dict = {}
     result_dict['REAL_electricity_demand'] = {}
     result_dict['modelled_electricity_demand'] = {}

@@ -16,7 +16,7 @@ from energy_demand.profiles import hdd_cdd
 class WeatherRegion(object):
     """WeaterRegion
 
-    Parameters
+    Arguments
     ----------
     weather_region_name : str
         Unique identifyer of region_name
@@ -390,7 +390,7 @@ class WeatherRegion(object):
     def get_shape_heating_hybrid_yh(cls, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
-        Parameters
+        Arguments
         ----------
         tech_stock : TODO
         enduse :
@@ -433,7 +433,7 @@ class WeatherRegion(object):
     def get_shape_peak_yd_factor(cls, demand_yd):
         """From yd shape calculate maximum relative yearly service demand which is provided in a day
 
-        Parameters
+        Arguments
         ----------
         demand_yd : shape
             Demand for energy service for every day in year
@@ -460,7 +460,7 @@ class WeatherRegion(object):
 
         This is for non-peak.
 
-        Parameters
+        Arguments
         ---------
         sim_param : dict
             Simulation parameters
@@ -537,7 +537,7 @@ class WeatherRegion(object):
     def get_shape_cooling_yh(cls, data, cooling_shape, tech):
         """Convert daily shape to hourly based on robert sansom daily load for boilers
 
-        Parameters
+        Arguments
         ---------
         data : dict
             data
@@ -572,7 +572,7 @@ class WeatherRegion(object):
     def ss_get_sector_enduse_shape(cls, tech_load_profiles, heating_shape, enduse):
         """Read generic shape for all technologies in a service sector enduse
 
-        Parameters
+        Arguments
         ---------
         data : dict
             data
@@ -605,7 +605,7 @@ class WeatherRegion(object):
     def get_shape_heating_boilers_yh(cls, sim_param, tech_load_profiles, heating_shape, technology):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
-        Parameters
+        Arguments
         ---------
         sim_param : dict
             Simulation parameters

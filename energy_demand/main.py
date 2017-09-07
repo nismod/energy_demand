@@ -26,7 +26,7 @@ build, git, docs, .eggs, .coverage, .cache, hire, scripts, data
 pip install autopep8
 autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
 import time   fdf
-#print("..TIME A: {}".format(time.time() - start))
+#logging.debug("..TIME A: {}".format(time.time() - start))
 TODO: Make end year more explicit with yearliy number
 TODO: REMOVE HEAT BOILER
     Quetsiosn for Tom
@@ -40,6 +40,7 @@ Todo: Clan in data / data_scripts and data / model_output
 '''
 import os
 import sys
+import logging
 import numpy as np
 from pyinstrument import Profiler
 import energy_demand.energy_model as energy_model
@@ -53,13 +54,13 @@ from energy_demand.basic import date_handling
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
-from energy_demand.basic import logging_settings as log
+from energy_demand.basic import logger_setup as log
 #!python3.6
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data container
@@ -89,52 +90,56 @@ def energy_demand_model(data):
     fueltot = model_run_object.sum_uk_fueltypes_enduses_y
 
     # Fuel per region
-    print("================================================")
-    print("Simulation year:     " + str(model_run_object.curr_yr))
-    print("Number of regions    " + str(len(data['lu_reg'])))
-    print("Fuel input:          " + str(fuel_in))
-    print("Fuel output:         " + str(fueltot))
-    print("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
-    print("elec fuel in:        " + str(fuel_in_elec))
-    print("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-    print("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
-    print("================================================")
+    logging.info("================================================")
+    logging.info("Simulation year:     " + str(model_run_object.curr_yr))
+    logging.info("Number of regions    " + str(len(data['lu_reg'])))
+    logging.info("Fuel input:          " + str(fuel_in))
+    logging.info("Fuel output:         " + str(fueltot))
+    logging.info("FUEL DIFFERENCE:     " + str(round((fueltot - fuel_in), 4)))
+    logging.info("elec fuel in:        " + str(fuel_in_elec))
+    logging.info("elec fuel out:       " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+    logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]), 4))) #ithout transport
+    logging.info("================================================")
     for fff in range(8):
-        print("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[fff])))
-    # # --- Write to csv and YAML Convert data according to region and fueltype
-    #result_dict = read_data.convert_out_format_es(data, model_run_object, ['rs_submodel', 'ss_submodel', 'is_submodel', 'ts_submodel'])
-    ###write_data.write_final_result(data, result_dict, model_run_object.curr_yr, data['lu_reg'], False)
+        logging.debug("FF: " + str(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[fff])))
 
-    print("...finished energy demand model simulation")
+    logging.debug("...finished energy demand model simulation")
     return _, model_run_object
 
 if __name__ == "__main__":
     """
     """
+
     instrument_profiler = True
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     local_data_path = os.path.join('Y:\Data_NISMOD', 'data_energy_demand')
 
+    # Initialise logger
+    log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
+    logging.info("... start local energy demand calculations")
+    logging.info(" ")
+
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data = data_loader.load_fuels(data)
+    data['fuels'] = data_loader.load_fuels(data)
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, False)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temperature_data'] = data_loader.load_data_temperatures(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
 
-    logger = log.create_logger(data['local_paths']['path_logging'])
-    print("Start Energy Demand Model with python version: " + str(sys.version))
-    print("Info model run")
-    print("--------------")
-    print("main path {}".format(path_main))
 
+
+    logging.info("Start Energy Demand Model with python version: " + str(sys.version))
+    logging.info("Info model run")
+    logging.info("--------------")
+    logging.info("main path {}".format(path_main))
+    print("--------")
     # Load data from script calculations
     data = read_data.load_script_data(data)
 
@@ -146,9 +151,9 @@ if __name__ == "__main__":
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
 
-        print("-------------------------- ")
-        print("SIM RUN:  " + str(sim_yr))
-        print("-------------------------- ")
+        logging.debug("-------------------------- ")
+        logging.debug("SIM RUN:  " + str(sim_yr))
+        logging.debug("-------------------------- ")
 
         #-------------PROFILER
         if instrument_profiler:
@@ -159,7 +164,7 @@ if __name__ == "__main__":
 
         if instrument_profiler:
             profiler.stop()
-            print("Profiler Results")
+            logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
@@ -186,14 +191,14 @@ if __name__ == "__main__":
         validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
             data['local_paths']['folder_validation_national_elec_data'])
 
-        print("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
-        print("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-        print("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
+        logging.debug("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
+        logging.debug("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+        logging.debug("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[1])))
         diff_factor_TD_ECUK_Input = (1.0 / np.sum(validation_elec_data_2015_INDO)) * np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2]) # 1.021627962194478
-        print("FACTOR: " + str(diff_factor_TD_ECUK_Input))
+        logging.debug("FACTOR: " + str(diff_factor_TD_ECUK_Input))
 
         INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
-        print("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
+        logging.debug("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
         #GET SPECIFIC REGION
 
@@ -205,8 +210,8 @@ if __name__ == "__main__":
         #elec_national_data.compare_results('plot_figure_01.pdf', data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.is_sum_uk_specfuelype_enduses_y[2], 'is_model', days_to_plot)
         #elec_national_data.compare_results('plot_figure_01.pdf', data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.ts_sum_uk_specfuelype_enduses_y[2], 'ts_model', days_to_plot)
 
-        print("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
-        print("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
+        logging.debug("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])))
+        logging.debug("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[2])/11.63))
 
         # ---------------------------------------------------
         # Validation of spatial disaggregation
@@ -227,7 +232,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of national electrictiy demand for peak
         # ---------------------------------------------------
-        print("...compare peak from data")
+        logging.debug("...compare peak from data")
         peak_month = 2 #Feb
         peak_day = 18 #Day
         elec_national_data.compare_peak(
@@ -237,7 +242,7 @@ if __name__ == "__main__":
             model_run_object.all_submodels_sum_uk_specfuelype_enduses_y[peak_month][peak_day]
             )
 
-        print("...compare peak from max peak factors")
+        logging.debug("...compare peak from max peak factors")
         elec_national_data.compare_peak(
             "peak_comparison_02.pdf",
             data,
@@ -278,4 +283,5 @@ if __name__ == "__main__":
     # Plot all enduses
     plotting_results.plot_stacked_Country_end_use("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'all_models_tot_fuel_y_enduse_specific_h')
 
+    logging.debug("... Finished running Energy Demand Model")
     print("... Finished running Energy Demand Model")

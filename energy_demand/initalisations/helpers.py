@@ -4,7 +4,7 @@
 def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
     """Add technology to dict
 
-    Parameters
+    Arguments
     ----------
     heat_pumps : list
         List with heat pumps
@@ -28,7 +28,7 @@ def get_def_techs(fuel_tech_p_by):
     """Collect all technologies across all fueltypes for all endueses where
     a service share is defined for the end_year
 
-    Parameters
+    Arguments
     ----------
     fuel_tech_p_by : dict
         Fuel share per technology for base year
@@ -49,7 +49,7 @@ def get_def_techs(fuel_tech_p_by):
 def get_nested_dict_key(nested_dict):
     """Get all keys of nested dict
 
-    Parameters
+    Arguments
     ----------
     nested_dict : dict
         Nested dictionary
@@ -69,7 +69,7 @@ def get_nested_dict_key(nested_dict):
 def helper_set_same_eff_all_tech(technologies, eff_achieved_factor=1):
     """Helper function to assing same achieved efficiency
 
-    Parameters
+    Arguments
     ----------
     technologies : dict
         Technologies

@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear diffusion
 
-    Parameters
+    Arguments
     ----------
     base_yr : int
         The year of the current simulation.
@@ -71,7 +71,7 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value with
     assumed saturation at the end year
 
-    Parameters
+    Arguments
     ----------
     base_yr : int
         Base year of simulation period

@@ -6,6 +6,7 @@ import csv
 from datetime import date
 from datetime import timedelta
 import numpy as np
+import logging
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.basic import date_handling
 
@@ -35,7 +36,7 @@ def read_weather_data_script_data(path_to_csv):
 
 def read_assumption(path_to_csv):
     """
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path
@@ -59,7 +60,7 @@ def read_assumption(path_to_csv):
 def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending on simple climate change assumptions
 
-    Parameters
+    Arguments
     ---------
     temperature_data : dict
         Data
@@ -76,7 +77,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
     # Change weather for all weater stations
     for station_id in temperature_data:
-        print("... change climate for station_id {}".format(station_id))
+        logging.debug("... change climate for station_id {}".format(station_id))
         temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
@@ -122,7 +123,7 @@ def write_chanted_temp_data(path_to_txt, weather_data):
               )
 
     for station_id in weather_data:
-        print("... write temp data to csv for station_ID {}".format(station_id))
+        logging.debug("... write temp data to csv for station_ID {}".format(station_id))
         for year in weather_data[station_id]:
             for day in range(365):
                 for hour in range(24):
@@ -135,13 +136,13 @@ def write_chanted_temp_data(path_to_txt, weather_data):
                               )
     file.close()
 
-    print("... finished write_weather_data")
+    logging.debug("... finished write_weather_data")
     return
 
 def run(local_paths, assumptions, sim_param):
     """Function to run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     temperature_data = read_weather_data_script_data(
         local_paths['path_processed_weather_data']
@@ -157,6 +158,6 @@ def run(local_paths, assumptions, sim_param):
         local_paths['changed_weather_data'],
         temp_climate_change)
 
-    print("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script {}".format(os.path.basename(__file__)))
 
     return

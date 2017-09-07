@@ -5,7 +5,7 @@ import numpy as np
 def convert_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
 
-    Parameters
+    Arguments
     ----------
     data_ktoe : float
         Energy demand in ktoe
@@ -67,7 +67,7 @@ def convert_mw_gwh(megawatt, number_of_hours):
 def convert_ktoe_twh(data_ktoe):
     """Conversion of ktoe to TWh
 
-    Parameters
+    Arguments
     ----------
     data_ktoe : float
         Energy demand in ktoe
@@ -88,7 +88,7 @@ def convert_ktoe_twh(data_ktoe):
 def convert_fueltypes(fuel_dict):
     """Iterature ktoe in fueltypes and convert to GWh
 
-    Parameters
+    Arguments
     ----------
     fuel_dict : dict
         Dictionary with stored ktoe for different fueltypes
@@ -111,7 +111,7 @@ def convert_fueltypes(fuel_dict):
 def convert_fueltypes_sectors(fuel_dict):
     """Iterate fueltypes and convert ktoe to gwh
 
-    Parameters
+    Arguments
     ----------
     fuel_dict : array
         Fuel per fueltype

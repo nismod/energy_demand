@@ -13,7 +13,7 @@ class ServiceModel(object):
     def __init__(self, data, region_object, enduse, sector):
         """Constructor of ResidentialModel
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data
@@ -34,7 +34,7 @@ class ServiceModel(object):
     def create_enduse(self, region_object, data):
         """Create enduse for service sector
 
-        Parameters
+        Arguments
         ----------
         region_object : object
             Region

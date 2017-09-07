@@ -19,4 +19,5 @@ Version 0.3
 
 - More model documentation
 - Two modes of running heat
-- TESTING?
+- Started testing
+- first version to run with smif

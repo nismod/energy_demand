@@ -15,12 +15,12 @@ from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
-from energy_demand.basic import logging_settings as log
+import logging
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
 
-    Parameters
+    Arguments
     ----------
     region_names : list
         Region names
@@ -35,8 +35,7 @@ class EnergyModel(object):
     def __init__(self, region_names, data):
         """Constructor
         """
-        logger = log.create_logger(data['local_paths']['path_logging'])
-        print("... start main energy demand function")
+        logging.debug("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Non regional load profiles
@@ -90,7 +89,7 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Functions to summarise data for all Regions in the EnergyModel class
         #  ---------------------------------------------------------------------
-        #print("...summarise fuel")
+        #logging.debug("...summarise fuel")
         # Sum according to weekend, working day
 
         # Sum across all regions, all enduse and sectors sum_reg
@@ -133,30 +132,47 @@ class EnergyModel(object):
         # ------------------------------------------------------
         # Sum across all regions, all enduse and sectors sum_reg
         # ------------------------------------------------------
-        #{'final_electricity_demand': np.zeros((320, 8760)), dtype=float}
-        self.fuel_individual_regions = {}
-        for fueltype, fueltype_nr in data['lookups']['fueltype'].items():
-            self.fuel_individual_regions[fueltype] = np.zeros((len(region_names), 8760))
+        self.fuel_individual_regions = self.fuel_regions_fueltype(data['lookups'], region_names)
+    
+    def fuel_regions_fueltype(self, lookups, region_names):
+        """Collect fuels for every fueltype and region (unconstrained mode). The
+        regions are stored in an array for every timestep
 
-            for array_entry_region, region_name in enumerate(region_names):
+        Arguments
+        ---------
+        lookups : dict
+            Lookup container
+        region_names : list
+            All region names
+
+        Example
+        -------
+        {'final_electricity_demand': np.array((regions, 8760)), dtype=float}
+        """
+        fuel_fueltype_regions = {}
+        for fueltype, fueltype_nr in lookups['fueltype'].items():
+            fuel_fueltype_regions[fueltype] = np.zeros((len(region_names), 8760), dtype=float)
+
+            for array_region, region_name in enumerate(region_names):
                 fuels = self.sum_reg(
                     'fuel_yh',
-                    data['lookups']['nr_of_fueltypes'],
-                    [self.ss_submodel, self.rs_submodel,
-                    self.is_submodel, self.ts_submodel],
+                    lookups['nr_of_fueltypes'],
+                    [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
                     'no_sum',
                     'non_peak',
                     region_name
                     )
                 # Reshape 365,24 to 8760
-                self.fuel_individual_regions[fueltype][array_entry_region] = fuels[fueltype_nr].reshape(8760)
-                    
+                fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(8760)
+
+        return fuel_fueltype_regions
+
     @classmethod
     def create_load_profile_stock(cls, tech_load_profiles, assumptions, sectors):
         """Assign load profiles which are the same for all regions
         ``non_regional_load_profiles``
 
-        Parameters
+        Arguments
         ----------
         
 
@@ -261,7 +277,7 @@ class EnergyModel(object):
     def get_regional_yh(self, nr_of_fueltypes, region_name):
         """Get yh fuel for all fueltype for a specific region of all submodels
 
-        Parameters
+        Arguments
         ----------
         region_name : str
             Name of region to get attributes
@@ -291,7 +307,7 @@ class EnergyModel(object):
     def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get):
         """Summarise fuel yh for a certain region
 
-        Parameters
+        Arguments
         ----------
         nr_of_fueltypes : int
             Number of fueltypes
@@ -328,7 +344,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        #print("..other submodel start")
+        #logging.debug("..other submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -345,17 +361,16 @@ class EnergyModel(object):
             submodules.append(submodule)
 
             #_scrap_cnt += 1
-            #print("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
+            #logging.debug("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         del self.regions, self.weather_regions
-        #logger = log.create_logger(data['local_paths']['path_logging'])
-        #print("... finished other submodel")
+        #logging.debug("... finished other submodel")
         return submodules
 
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data containter
@@ -373,8 +388,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        logger = log.create_logger(data['local_paths']['path_logging'])
-        print("... industry submodel start")
+        logging.debug("... industry submodel start")
         #_scrap_cnt = 0
         submodules = []
 
@@ -395,7 +409,7 @@ class EnergyModel(object):
                     submodules.append(submodule)
 
                     #_scrap_cnt += 1
-                    #print("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    #logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         del self.regions, self.weather_regions
 
@@ -404,7 +418,7 @@ class EnergyModel(object):
     def residential_submodel(self, data, enduses, sectors=['dummy_sector']):
         """Create the residential submodules (per enduse and region) and add them to list
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data container
@@ -422,8 +436,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        logger = log.create_logger(data['local_paths']['path_logging'])
-        print("... residential submodel start")
+        logging.debug("... residential submodel start")
         #_scrap_cnt = 0
         submodule_list = []
 
@@ -443,7 +456,7 @@ class EnergyModel(object):
                     submodule_list.append(submodel_object)
 
                     #_scrap_cnt += 1
-                    #print("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    #logging.debug("   ...running residential model {} {}  of total".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -453,7 +466,7 @@ class EnergyModel(object):
     def service_submodel(self, data, enduses, sectors):
         """Create the service submodules per enduse, sector and region and add to list
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data container
@@ -471,8 +484,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        logger = log.create_logger(data['local_paths']['path_logging'])
-        print("... service submodel start")
+        logging.debug("... service submodel start")
         _scrap_cnt = 0
         submodule_list = []
 
@@ -493,8 +505,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    logger = log.create_logger(data['local_paths']['path_logging'])
-                    print("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
+                    logging.debug("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
         del self.regions, self.weather_regions
@@ -509,7 +520,7 @@ class EnergyModel(object):
         -stocks
         -load profiles
 
-        Parameters
+        Arguments
         ----------
         weather_region : list
             The name of the Weather Region
@@ -537,7 +548,7 @@ class EnergyModel(object):
     def create_regions(self, region_names, data, submodel_type):
         """Create all regions and add them in a list
 
-        Parameters
+        Arguments
         ----------
         region_names : list
             Regions
@@ -550,8 +561,7 @@ class EnergyModel(object):
 
         # Iterate all regions
         for region_name in region_names:
-            logger = log.create_logger(data['local_paths']['path_logging'])
-            print("... creating region: '{}'  {}".format(region_name, submodel_type))
+            logging.debug("... creating region: '{}'  {}".format(region_name, submodel_type))
             # Generate region object
             region_object = region.Region(
                 region_name=region_name,
@@ -568,7 +578,7 @@ class EnergyModel(object):
     def sum_enduse_all_regions(self, attribute_to_get, sector_models):
         """Summarise an enduse attribute across all regions
 
-        Parameters
+        Arguments
         ----------
         attribute_to_get : string
             Enduse attribute to summarise
@@ -594,10 +604,10 @@ class EnergyModel(object):
 
         return enduse_dict
 
-    def sum_reg(self, attribute_to_get, nr_of_fueltypes, sector_models, crit, crit2, region_name=False):
+    def sum_reg(self, attribute_to_get, nr_of_fueltypes, sector_models, sum_crit, lp_crit, region_name=False):
         """Collect hourly data from all regions and sum across all fuel types and enduses
 
-        Parameters
+        Arguments
         ----------
         attribute_to_get : str
             Attribue to summarise
@@ -605,10 +615,8 @@ class EnergyModel(object):
             Number of fueltypes
         sector_models : list
             Sector models to summarise
-        crit : str
+        lp_crit, sum_crit : str
             Criteria
-        crit2 : str
-        Criteria
         region_name : str
             Name of region
 
@@ -617,18 +625,18 @@ class EnergyModel(object):
         fuels : array
             Summarised fuels
         """
-        if crit2 == 'peak_h':
+        if lp_crit == 'peak_h':
             fuels = np.zeros((nr_of_fueltypes))
-        elif crit2 == 'non_peak':
+        elif lp_crit == 'non_peak':
             fuels = np.zeros((nr_of_fueltypes, 365, 24))
-        elif crit2 == 'peak_dh':
+        elif lp_crit == 'peak_dh':
             fuels = np.zeros((nr_of_fueltypes, 24))
 
         # Iterate all submodel
         for sector_model in sector_models:
             for model_object in sector_model:
 
-                # Select specific region
+                # Select specific region if defined
                 if region_name:
                     if model_object.region_name == region_name:
                         fuels += self.get_fuels_yh(model_object, attribute_to_get)
@@ -636,9 +644,9 @@ class EnergyModel(object):
                     fuels += self.get_fuels_yh(model_object, attribute_to_get)
 
         # Criteria if fuel is summed or not
-        if crit == 'no_sum':
+        if sum_crit == 'no_sum':
             fuels = fuels
-        elif crit == 'sum':
+        elif sum_crit == 'sum':
             fuels = np.sum(fuels)
 
         return fuels
@@ -646,7 +654,7 @@ class EnergyModel(object):
     def get_fuels_yh(self, model_object, attribute_to_get):
         """Assign yh shape for enduses with flat load profiles
 
-        Parameters
+        Arguments
         ----------
         model_object : dict
             Object of submodel run

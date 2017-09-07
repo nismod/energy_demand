@@ -4,6 +4,7 @@ import os
 import sys
 import csv
 import numpy as np
+import logging
 import matplotlib.pyplot as plt
 from energy_demand.basic import date_handling
 from energy_demand.basic import conversions
@@ -87,7 +88,7 @@ def read_raw_elec_2015_data(path_to_csv):
                 hour_elec_demand_gwh_ITSDO = conversions.convert_mw_gwh(hour_elec_demand_ITSDO, 0.5)
 
                 # Add to array
-                #print(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))
+                #logging.debug(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))
                 elec_data_INDO[yearday][hour] = hour_elec_demand_gwh_INDO
                 elec_data_ITSDO[yearday][hour] = hour_elec_demand_gwh_ITSDO
 
@@ -111,7 +112,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     RMSE fit criteria : Lower values of RMSE indicate better fit
     https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python
     """
-    print("...compare elec results")
+    logging.debug("...compare elec results")
     nr_of_h_to_plot = len(days_to_plot) * 24
 
     x = range(nr_of_h_to_plot)
@@ -167,7 +168,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
 def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
     """
-    print("...compare elec peak results")
+    logging.debug("...compare elec peak results")
     # -------------------------------
     # Find maximumg peak in real data
     # -------------------------------
@@ -181,11 +182,11 @@ def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_
             max_h_year = max_h_day
             max_day = day
 
-    print("Max Peak Day:                    " + str(max_day))
-    print("max_h_year (real):               " + str(max_h_year))
-    print("max_h_year (modelled):           " + str(np.max(peak_all_models_all_enduses_fueltype)))
-    print("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
-    print("Fuel max peak day (modelled):    " + str(np.sum(peak_all_models_all_enduses_fueltype)))
+    logging.debug("Max Peak Day:                    " + str(max_day))
+    logging.debug("max_h_year (real):               " + str(max_h_year))
+    logging.debug("max_h_year (modelled):           " + str(np.max(peak_all_models_all_enduses_fueltype)))
+    logging.debug("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
+    logging.debug("Fuel max peak day (modelled):    " + str(np.sum(peak_all_models_all_enduses_fueltype)))
 
     # -------------------------------
     # Compare values
@@ -266,7 +267,7 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     features of the signal better than other types of filtering
     approaches, such as moving averages techniques.
 
-    Parameters
+    Arguments
     ----------
     y : array_like, shape (N,)
         the values of the time history of the signal.

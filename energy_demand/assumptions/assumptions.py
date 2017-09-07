@@ -1,5 +1,6 @@
 """All assumptions are either loaded in this file or definied here
 """
+import logging
 from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technologies_related
@@ -22,7 +23,7 @@ def load_assumptions(data, nismod_mode=True):
     data : dict
         Data dictionary with added ssumption dict
     """
-    print("... load assumptions")
+    logging.debug("... load assumptions")
     assumptions = {}
     if not nismod_mode:
         sim_param = {}

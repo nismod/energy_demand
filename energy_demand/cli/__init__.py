@@ -5,6 +5,7 @@ import sys
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from argparse import ArgumentParser
+import logging
 import energy_demand
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
@@ -43,7 +44,7 @@ def run_model(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data = data_loader.load_fuels(data)
+    data['fuels'] = data_loader.load_fuels(data)
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
@@ -60,12 +61,12 @@ def run_model(args):
 
     _, results = energy_demand_model(data)
 
-    print("... Result section")
+    logging.debug("... Result section")
     #results.all_submodels_sum_uk_specfuelype_enduses_y[2]
 
     results_every_year = [results]
 
-    print("Finished energy demand model from command line execution")
+    logging.debug("Finished energy demand model from command line execution")
 
 def parse_arguments():
     """Parse command line arguments

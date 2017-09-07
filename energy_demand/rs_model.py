@@ -14,7 +14,7 @@ class ResidentialModel(object):
     def __init__(self, data, region_object, enduse, sector):
         """Constructor of ResidentialModel
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data
@@ -39,7 +39,7 @@ class ResidentialModel(object):
     def create_enduse(self, region_object, data):
         """Create enduse objects and add to list
 
-        Parameters
+        Arguments
         ----------
         region_object : object
             Region

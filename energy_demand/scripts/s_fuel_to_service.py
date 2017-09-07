@@ -2,12 +2,13 @@
 """
 import os
 import numpy as np
+import logging
 from energy_demand.technologies import technologies_related
 
 def write_service_fueltype_by_p(path_to_txt, data):
     """Write out function
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -32,7 +33,7 @@ def write_service_fueltype_by_p(path_to_txt, data):
 def write_service_fueltype_tech_by_p(path_to_txt, data):
     """Write out function
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -61,7 +62,7 @@ def write_service_fueltype_tech_by_p(path_to_txt, data):
 def write_service_tech_by_p(path_to_txt, data):
     """Write out function
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -86,7 +87,7 @@ def write_service_tech_by_p(path_to_txt, data):
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
 
-    Parameters
+    Arguments
     ----------
     first_level_keys : list
         First level data
@@ -110,7 +111,7 @@ def init_nested_dict_brackets(first_level_keys, second_level_keys):
 def init_nested_dict_zero(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
 
-    Parameters
+    Arguments
     ----------
     first_level_keys : list
         First level data
@@ -134,7 +135,7 @@ def init_nested_dict_zero(first_level_keys, second_level_keys):
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level
 
-    Parameters
+    Arguments
     ----------
     first_level_keys : list
         First level data
@@ -154,7 +155,7 @@ def init_dict_brackets(first_level_keys):
 def sum_2_level_dict(two_level_dict):
     """Sum all entries in a two level dict
 
-    Parameters
+    Arguments
     ----------
     two_level_dict : dict
         Nested dict
@@ -203,7 +204,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
     has already diffused up to the base year to define the
     first point on the sigmoid technology diffusion curve.
 
-    Parameters
+    Arguments
     ----------
     lu_fueltypes : dict
         Fueltypes
@@ -258,7 +259,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 
                 # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
-                #print("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
+                #logging.debug("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
                 tech_type = technologies_related.get_tech_type(tech, tech_list)
@@ -278,7 +279,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
-                ###print("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
+                ###logging.debug("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
 
                 # Add energy service demand
                 service[enduse][fueltype][tech] += service_fueltype_tech
@@ -302,9 +303,9 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
                 service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
-                #print("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
+                #logging.debug("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
 
-        ###print("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
+        ###logging.debug("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
@@ -320,7 +321,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 def run(data):
     """Function to run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(
@@ -328,13 +329,13 @@ def run(data):
         data['assumptions']['hybrid_technologies'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
-        data['rs_fuel_raw_data_enduses'],
+        data['fuels']['rs_fuel_raw_data_enduses'],
         data['assumptions']['technologies']
         )
 
     # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
-        data['ss_fuel_raw_data_enduses'],
+        data['fuels']['ss_fuel_raw_data_enduses'],
         data['enduses']['ss_all_enduses'],
         data['lookups']['nr_of_fueltypes'])
 
@@ -349,7 +350,7 @@ def run(data):
 
     # INDUSTRY
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
-        data['is_fuel_raw_data_enduses'],
+        data['fuels']['is_fuel_raw_data_enduses'],
         data['enduses']['is_all_enduses'],
         data['lookups']['nr_of_fueltypes'])
 
@@ -392,5 +393,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_services'], 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
-    print("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script {}".format(os.path.basename(__file__)))
     return

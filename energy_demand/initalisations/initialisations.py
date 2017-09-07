@@ -5,7 +5,7 @@
 def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
     """Helper function to define stocks for all enduse and fueltype
 
-    Parameters
+    Arguments
     ----------
     all_enduses_with_fuels : dict
         Provided fuels
@@ -27,7 +27,7 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
 def dict_zero(first_level_keys):
     """Initialise a dictionary with one level
 
-    Parameters
+    Arguments
     ----------
     first_level_keys : list
         First level data
@@ -44,7 +44,7 @@ def dict_zero(first_level_keys):
 def service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by):
     """Initialise dict and fill with zeros
 
-    Parameters
+    Arguments
     ----------
     lu_fueltypes : dict
         Look-up dictionary

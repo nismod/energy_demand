@@ -11,7 +11,7 @@ class IndustryModel(object):
     def __init__(self, data, region_object, enduse, sector):
         """Constructor of industry submodel
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data

@@ -9,7 +9,7 @@ from isoweek import Week
 def get_dates_week_nr(year, week_nr):
     """Get all dates from a ISO week_nr in a list
 
-    Parameters
+    Arguments
     ----------
     year : int
         Year
@@ -36,7 +36,7 @@ def get_dates_week_nr(year, week_nr):
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 
-    Parameters
+    Arguments
     ----------
     date_base_yr : int
         Year
@@ -57,7 +57,7 @@ def convert_date_to_yearday(year, month, day):
 def convert_yearday_to_date(year, yearday_python):
     """Gets the yearday of a year minus one to correct because of python iteration
 
-    Parameters
+    Arguments
     ----------
     year : int
         Year
@@ -71,7 +71,7 @@ def convert_yearday_to_date(year, yearday_python):
 def get_weekday_type(date_to_test):
     """Gets the weekday of a date
 
-    Parameters
+    Arguments
     ----------
     date_to_test : date
         Date of a day in ayear
@@ -324,7 +324,7 @@ def fullyear_dates(start, end):
     """Calculates all dates between a star and end date.
     The star and end date are included in the list.
 
-    Parameters
+    Arguments
     ----------
     start : date
         Start date

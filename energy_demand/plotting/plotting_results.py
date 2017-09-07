@@ -2,6 +2,7 @@
 """
 import os
 import numpy as np
+import logging
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from energy_demand.technologies import technologies_related
@@ -59,7 +60,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
 def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data container
@@ -103,7 +104,7 @@ def plot_stacked_Country_end_use(fig_name, data, results_objects, enduses_data, 
 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
-    print("...plot figure")
+    logging.debug("...plot figure")
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
     #plt.show()
 

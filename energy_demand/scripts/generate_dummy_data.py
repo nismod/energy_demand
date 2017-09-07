@@ -1,7 +1,7 @@
 """Generate dummy data to use in smif as scenario data for testing
 """
 from pprint import pprint
-
+import logging
 from energy_demand.read_write.data_loader import dummy_data_generation
 import yaml
 
@@ -16,7 +16,7 @@ def main():
             'end_yr': 2050
         }
     })
-    pprint(data)
+    plogging.debug(data)
 
     # regions
 

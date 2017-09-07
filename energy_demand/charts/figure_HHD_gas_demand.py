@@ -7,6 +7,7 @@ National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
 """
 import os
 import numpy as np
+import logging
 from scipy import stats
 import matplotlib.pyplot as plt
 from energy_demand.profiles import hdd_cdd
@@ -20,15 +21,15 @@ path_data_temp = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-Met_
 path_data_stations = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-Met_office_weather_data\excel_list_station_details.csv')
 
 # Read temp data
-print("...read temp")
+logging.debug("...read temp")
 temperature_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9999)
 
 # Clean raw temperature data
-print("...clean temp")
+logging.debug("...clean temp")
 temperature_data = read_weather_data.clean_weather_data_raw(temperature_data_raw, 9999)
 
 # Weather stations
-print("...weatherstations")
+logging.debug("...weatherstations")
 weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temperature_data.keys())
 
 # Temperature weather data weater station 
@@ -46,19 +47,19 @@ for day in temperatures:
 # ----------------------------------
 # Calculate HDD
 # ----------------------------------
-print("...calc hdd")
-print(temperatures.shape)
+logging.debug("...calc hdd")
+logging.debug(temperatures.shape)
 
 t_base_heating = 15.5 # Heating t_base temp
 
 # HDD
 hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
-print("shape hdd  " + str(hdd_reg.shape))
+logging.debug("shape hdd  " + str(hdd_reg.shape))
 '''
 hdd_reg = np.zeros((365))
 for weaterstaion in temperature_data.keys():
-    print("Station: " + str(weaterstaion))
-    print(temperature_data[weaterstaion][:1])
+    logging.debug("Station: " + str(weaterstaion))
+    logging.debug(temperature_data[weaterstaion][:1])
     hdd_reg += hdd_cdd.calc_hdd(t_base_heating, temperature_data[weaterstaion])
 '''
 # Test if correlation with mean temp is better than with HDd
@@ -443,14 +444,14 @@ def lin_func(x, slope, intercept):
     y = slope * x + intercept
     return y
 
-print("...regression")
+logging.debug("...regression")
 slope, intercept, r_value, p_value, std_err = stats.linregress(gas_demand_NDM_2015_2016, hdd_reg)
 
-print("Slope:         " + str(slope))
-print("intercept:     " + str(intercept))
-print("r_value:       " + str(r_value))
-print("p_value:       " + str(p_value))
-print("std_err:       " + str(std_err))
+logging.debug("Slope:         " + str(slope))
+logging.debug("intercept:     " + str(intercept))
+logging.debug("r_value:       " + str(r_value))
+logging.debug("p_value:       " + str(p_value))
+logging.debug("std_err:       " + str(std_err))
 
 # Set figure size in cm
 plt.figure(figsize=plotting_program.cm2inch(8, 8))

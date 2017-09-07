@@ -21,7 +21,7 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
 def testing_tech_defined(technologies, all_tech_enduse):
     """Test if all technologies are defined for assigned fuels
 
-    Parameters
+    Arguments
     ----------
     technologies : dict
         Technologies
@@ -36,7 +36,7 @@ def testing_tech_defined(technologies, all_tech_enduse):
 def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_service_tech_ey_p, technologies):
     """Test if end_year service switch technology is not assigned in base year and test if fuel share of hybrid tech is assigned
 
-    Parameters
+    Arguments
     ----------
     hybrid_technologies : list
         Hybrid technologies

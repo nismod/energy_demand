@@ -6,7 +6,7 @@ from energy_demand.profiles import load_profile
 def generic_flat_shape(shape_peak_yd_factor=1/365):
     """Create completely flat shape for peak and non-peak
 
-    Parameters
+    Arguments
     ---------
     shape_peak_yd_factor : float
         Factor for peak yd

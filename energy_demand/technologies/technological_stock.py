@@ -2,6 +2,7 @@
 """
 import sys
 import numpy as np
+import logging
 from energy_demand.technologies import technologies_related
 from energy_demand.profiles import load_profile
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
@@ -14,7 +15,7 @@ class TechStock(object):
     def __init__(self, stock_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, potential_enduses, t_base_heating_cy, enduse_technologies):
         """Constructor of technologies for residential sector
 
-        Parameters
+        Arguments
         ----------
         stock_name : str
             Name of technology stock
@@ -54,7 +55,7 @@ class TechStock(object):
     def get_attribute_tech_stock(self, technology, enduse, attribute_to_get):
         """Get attribuet from technology stock
 
-        Parameters
+        Arguments
         ----------
         technology : str
             Technology
@@ -76,7 +77,7 @@ class TechStock(object):
     def create_tech_stock(cls, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
         """Create technologies and add to dict with key_tuple
 
-        Parameters
+        Arguments
         ----------
         data : dict
             All data
@@ -97,7 +98,7 @@ class TechStock(object):
 
         for enduse in enduses:
             for technology_name in technologies[enduse]:
-                #print("         ...{}   {}".format(sector, technology))
+                #logging.debug("         ...{}   {}".format(sector, technology))
                 tech_type = technologies_related.get_tech_type(technology_name, assumptions['tech_list'])
 
                 if tech_type == 'hybrid_tech':
@@ -129,7 +130,7 @@ class TechStock(object):
     def get_tech_attr(self, enduse, tech_name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
 
-        Parameters
+        Arguments
         ----------
         enduse : string
             Enduse to read technology specified for this enduse
@@ -167,7 +168,7 @@ class TechStock(object):
 class Technology(object):
     """Technology Class
 
-    Parameters
+    Arguments
     ----------
     tech_name : str
         Technology Name
@@ -244,7 +245,7 @@ class Technology(object):
     def set_constant_fueltype(fueltype, len_fueltypes):
         """Create dictionary with constant single fueltype
 
-        Parameters
+        Arguments
         ----------
         fueltype : int
             Single fueltype for defined technology
@@ -275,7 +276,7 @@ class Technology(object):
 class HybridTechnology(object):
     """Hybrid technology which consist of two different technologies
 
-    Parameters
+    Arguments
     ----------
     enduse : string
         Enduse
@@ -364,7 +365,7 @@ class HybridTechnology(object):
     def service_hybrid_tech_low_high_h_p(cls, temp_cy, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
         """Calculate fraction of service for every hour within each hour
 
-        Parameters
+        Arguments
         ----------
         temp_cy : array
             Temperature of current year
@@ -409,7 +410,7 @@ class HybridTechnology(object):
         The weighted efficiency for every hour is calculated based
         on fraction of service delieverd with eigher hybrid technology
 
-        Parameters
+        Arguments
         ----------
         eff_tech_low : float
             Efficiency of technology operating at lower temperatures
@@ -433,7 +434,7 @@ class HybridTechnology(object):
     def calc_hybrid_fueltypes_p(self, nr_fueltypes):
         """Calculate share of fueltypes for every hour for hybrid technology
 
-        Parameters
+        Arguments
         -----------
         nr_fueltypes : int
             Number of fuels

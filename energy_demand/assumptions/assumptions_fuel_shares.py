@@ -11,7 +11,7 @@ def assign_by_fuel_tech_p(assumptions, data):
     """Assigning fuel share per enduse for different
     technologies for the base year
 
-    Parameters
+    Arguments
     ----------
     assumptions : dict
         Assumptions
@@ -239,7 +239,7 @@ def assign_by_fuel_tech_p(assumptions, data):
 def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, tech_stock, assumptions):
     """Convert share of service to fuel share
 
-    Parameters
+    Arguments
     ----------
     total_share_fueltype : dict
         Shares of total service of this fueltype

@@ -9,7 +9,7 @@ from energy_demand.profiles import load_profile
 def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
 
-    Parameters
+    Arguments
     ----------
     t_base : int
         Base temperature
@@ -43,7 +43,7 @@ def calc_hdd(t_base, temp_yh):
 def calc_cdd(rs_t_base_cooling, temperatures):
     """Calculate cooling degree days
 
-    Parameters
+    Arguments
     ----------
     rs_t_base_cooling : float
         Base temperature for cooling
@@ -77,7 +77,7 @@ def calc_cdd(rs_t_base_cooling, temperatures):
 def get_hdd_country(regions, data, t_base_type):
     """Calculate total number of heating degree days in a region for the base year
 
-    Parameters
+    Arguments
     ----------
     regions : dict
         Dictionary containing regions
@@ -108,7 +108,7 @@ def get_hdd_country(regions, data, t_base_type):
 def get_cdd_country(regions, data, t_base_type):
     """Calculate total number of cooling degree days in a region for the base year
 
-    Parameters
+    Arguments
     ----------
     regions : dict
         Dictionary containing regions
@@ -146,7 +146,7 @@ def get_cdd_country(regions, data, t_base_type):
 def sigm_temp(base_sim_param, assumptions, t_base_type):
     """Calculate base temperature depending on sigmoid diff and location
 
-    Parameters
+    Arguments
     ----------
     base_sim_param : dict
         Base simulation assumptions
@@ -189,7 +189,7 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
 def get_reg_hdd(temperatures, t_base_heating):
     """Calculate HDD for every day and daily yd shape of cooling demand
 
-    Parameters
+    Arguments
     ----------
     temperatures : array
         Temperatures
@@ -222,7 +222,7 @@ def get_reg_hdd(temperatures, t_base_heating):
 def get_reg_cdd(temperatures, t_base_cooling):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
-    Parameters
+    Arguments
     ----------
     temperatures : array
         Temperatures

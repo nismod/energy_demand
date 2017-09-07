@@ -71,7 +71,7 @@ def create_txt_shapes(
 def fullyear_dates(start, end):
     """Calculates all dates between a star and end date.
 
-    Parameters
+    Arguments
     ----------
     start : date
         Start date
@@ -93,7 +93,7 @@ def fullyear_dates(start, end):
 def read_assumption_sim_param(path_to_csv):
     """Read assumptions from dict
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file with info
@@ -132,7 +132,7 @@ def read_assumption_sim_param(path_to_csv):
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 
-    Parameters
+    Arguments
     ----------
     absolute_array : array
         Contains absolute numbers in it
@@ -158,7 +158,7 @@ def abs_to_rel(absolute_array):
 def get_weekday_type(date_to_test):
     """Gets the weekday of a date
 
-    Parameters
+    Arguments
     ----------
     date_to_test : date
         Date of a day in ayear

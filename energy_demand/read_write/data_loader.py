@@ -3,6 +3,7 @@
 import os
 import csv
 import numpy as np
+import logging
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
@@ -120,7 +121,6 @@ def load_local_paths(path):
     """Create all local paths and folders
     """
     paths = {
-        'path_logging': os.path.join(path, 'logging_energy_demand.log'),
         'path_bd_e_load_profiles': os.path.join(
             path, '_raw_data', 'A-HES_data', 'HES_base_appliances_eletricity_load_profiles.csv'),
         'folder_raw_carbon_trust': os.path.join(
@@ -194,7 +194,7 @@ def load_local_paths(path):
 def load_paths(path):
     """Load all paths and create folders
 
-    Parameters
+    Arguments
     ----------
     path : str
         Main path
@@ -276,7 +276,7 @@ def load_paths(path):
 def load_data_tech_profiles(tech_load_profiles, paths):
     """Load technology specific load profiles
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data container
@@ -320,7 +320,7 @@ def load_data_tech_profiles(tech_load_profiles, paths):
 def load_data_profiles(paths, local_paths):
     """Collect load profiles from txt files
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data container
@@ -335,7 +335,7 @@ def load_data_profiles(paths, local_paths):
         paths
         )
 
-    print("... read in load shapes from txt files")
+    logging.debug("... read in load shapes from txt files")
     tech_load_profiles['rs_shapes_dh'], tech_load_profiles['rs_shapes_yd'] = rs_collect_shapes_from_txts(
         local_paths['rs_load_profile_txt'])
 
@@ -351,7 +351,7 @@ def load_data_profiles(paths, local_paths):
 def load_data_temperatures(paths):
     """Read in cleaned temperature and weather station data
 
-    Parameters
+    Arguments
     ----------
     paths : dict
         Local paths
@@ -373,30 +373,31 @@ def load_data_temperatures(paths):
 def load_fuels(data):
     """Load in ECUK fuel data
 
-    Parameters
+    Arguments
     ---------
     data : dict
         Data container
     """
     data['enduses'] = {}
     data['sectors'] = {}
+    data['fuels'] = {}
     # Residential Sector (ECUK Table XY and Table XY) 
-    data['rs_fuel_raw_data_enduses'], data['enduses']['rs_all_enduses'] = read_data.read_csv_base_data_resid(
+    rs_fuel_raw_data_enduses, data['enduses']['rs_all_enduses'] = read_data.read_csv_base_data_resid(
         data['paths']['rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)
-    data['ss_fuel_raw_data_enduses'], data['sectors']['ss_sectors'], data['enduses']['ss_all_enduses'] = read_data.read_csv_data_service(
+    ss_fuel_raw_data_enduses, data['sectors']['ss_sectors'], data['enduses']['ss_all_enduses'] = read_data.read_csv_data_service(
         data['paths']['ss_fuel_raw_data_enduses'],
         data['lookups']['nr_of_fueltypes'])
 
     # Industry fuel (ECUK Table 4.04)
-    data['is_fuel_raw_data_enduses'], data['sectors']['is_sectors'], data['enduses']['is_all_enduses'] = read_data.read_csv_base_data_industry(
+    is_fuel_raw_data_enduses, data['sectors']['is_sectors'], data['enduses']['is_all_enduses'] = read_data.read_csv_base_data_industry(
         data['paths']['is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype'])
 
     # Convert units
-    data['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(data['rs_fuel_raw_data_enduses'])
-    data['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(data['ss_fuel_raw_data_enduses'])
-    data['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(data['is_fuel_raw_data_enduses'])
+    data['fuels']['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)
+    data['fuels']['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(ss_fuel_raw_data_enduses)
+    data['fuels']['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(is_fuel_raw_data_enduses)
 
     #TODO
     fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
@@ -404,7 +405,7 @@ def load_fuels(data):
     #Elec demand from ECUK for transport sector
     fuel_national_tranport[2] = conversions.convert_ktoe_gwh(385)
 
-    data['ts_fuel_raw_data_enduses'] = fuel_national_tranport
+    data['fuels']['ts_fuel_raw_data_enduses'] = fuel_national_tranport
 
     return data
 
@@ -413,7 +414,7 @@ def rs_collect_shapes_from_txts(txt_path):
 
     This loads HES files for residential sector
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data
@@ -456,7 +457,7 @@ def rs_collect_shapes_from_txts(txt_path):
 def ss_collect_shapes_from_txts(txt_path):
     """Collect service shapes from txt files for every setor and enduse
 
-    Parameters
+    Arguments
     ----------
     txt_path : string
         Path to txt shapes files
@@ -487,7 +488,7 @@ def ss_collect_shapes_from_txts(txt_path):
 
         for enduse in enduses:
             joint_string_name = str(sector) + "__" + str(enduse)
-            #print("...Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
+            #logging.debug("...Read in txt file sector: {}  enduse: {}  {}".format(sector, enduse, joint_string_name))
             shape_peak_dh = write_data.read_txt_shape_peak_dh(
                 os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
             shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(
@@ -507,7 +508,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
 
     For residential model
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Main data dictionary
@@ -532,7 +533,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
 def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
     """Iterate carbon trust dataset and read out shapes for enduses
 
-    Parameters
+    Arguments
     ----------
     ss_shapes_yd : dict
         Data

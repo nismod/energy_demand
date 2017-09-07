@@ -1,6 +1,7 @@
 """The sector model wrapper for smif to run the energy demand model
 """
 import numpy as np
+import logging
 from datetime import date
 from smif.model.sector_model import SectorModel
 from energy_demand.scripts.init_scripts import scenario_initalisation
@@ -46,7 +47,7 @@ class EDWrapper(SectorModel):
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data = data_loader.load_fuels(ed_data)
+        ed_data['fuels'] = data_loader.load_fuels(ed_data)
         ed_data['tech_load_profiles']['ss_all_tech_shapes_dh'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
@@ -121,7 +122,7 @@ class EDWrapper(SectorModel):
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data = data_loader.load_fuels(ed_data)
+        ed_data['fuels'] = data_loader.load_fuels(ed_data)
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temperature_data'] = data_loader.load_data_temperatures(ed_data['local_paths'])
@@ -158,7 +159,7 @@ class EDWrapper(SectorModel):
         out_to_supply = results.fuel_individual_regions
 
 
-        print("FINISHED WRAPPER CALCULATIONS")
+        logging.debug("FINISHED WRAPPER CALCULATIONS")
         return results
 
     def extract_obj(self, results):

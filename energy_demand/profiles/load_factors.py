@@ -8,7 +8,7 @@ import numpy as np
 def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
     """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
 
-    Parameters
+    Arguments
     ------------
     rs_fuels_peak_h : array
         Fuels for peak day (fueltype, data)
@@ -120,7 +120,7 @@ def load_factor_h_non_peak(self, data):
 def load_factor_d(self, data):
     """Calculate load factor of a day in a year from peak values
 
-    Parameters
+    Arguments
     -----------
     data
 

@@ -2,6 +2,7 @@
 """
 import os
 import numpy as np
+import logging
 from energy_demand.profiles import hdd_cdd
 
 '''
@@ -25,7 +26,7 @@ def disaggregate_base_demand(data):
     The residential, service and industry demand is disaggregated according to
     different factors
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Contains all data not provided externally
@@ -50,16 +51,16 @@ def disaggregate_base_demand(data):
         return tot
 
     # Disaggregate residential submodel data
-    data['rs_fuel_disagg'] = rs_disaggregate(data, data['rs_fuel_raw_data_enduses'])
+    data['rs_fuel_disagg'] = rs_disaggregate(data, data['fuels']['rs_fuel_raw_data_enduses'])
 
     # Disaggregate service submodel data
-    data['ss_fuel_disagg'] = ss_disaggregate(data, data['ss_fuel_raw_data_enduses'])
+    data['ss_fuel_disagg'] = ss_disaggregate(data, data['fuels']['ss_fuel_raw_data_enduses'])
 
     # Disaggregate industry submodel data
-    data['is_fuel_disagg'] = is_disaggregate(data, data['is_fuel_raw_data_enduses'])
+    data['is_fuel_disagg'] = is_disaggregate(data, data['fuels']['is_fuel_raw_data_enduses'])
 
     # Disaggregate transportation sector
-    data['ts_fuel_disagg'] = scrap_ts_disaggregate(data, data['ts_fuel_raw_data_enduses'])
+    data['ts_fuel_disagg'] = scrap_ts_disaggregate(data, data['fuels']['ts_fuel_raw_data_enduses'])
 
     # Check if total fuel is the same before and after aggregation
     test_sum_before = sum_fuels_before(data['rs_fuel_raw_data_enduses'])
@@ -71,7 +72,7 @@ def disaggregate_base_demand(data):
 def ss_disaggregate(data, raw_fuel_sectors_enduses):
     """Disaggregate fuel for service submodel (per enduse and sector)
     """
-    print("... disaggregate service demand")
+    logging.debug("... disaggregate service demand")
     ss_fuel_disagg = {}
 
     # ---------------------------------------
@@ -236,7 +237,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in data['enduses']['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
 
-                #print("national_fuel_sector_by: " + str(national_fuel_sector_by))
+                #logging.debug("national_fuel_sector_by: " + str(national_fuel_sector_by))
                 # ----------------------
                 # Disaggregating factors
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
@@ -252,7 +253,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 def rs_disaggregate(data, rs_national_fuel):
     """Disaggregate residential fuel demand
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data container
@@ -269,7 +270,7 @@ def rs_disaggregate(data, rs_national_fuel):
     Used disaggregation factors for residential according
     to enduse (see Section XY Documentation TODO)
     """
-    print("... disagreggate residential demand")
+    logging.debug("... disagreggate residential demand")
 
     # ---------------------------------------
     # Calculate heating degree days for regions
@@ -350,7 +351,7 @@ def rs_disaggregate(data, rs_national_fuel):
 def write_disagg_fuel(path_to_txt, data):
     """Write out disaggregated fuel
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -378,7 +379,7 @@ def write_disagg_fuel(path_to_txt, data):
 def write_disagg_fuel_ts(path_to_txt, data):
     """Write out disaggregated fuel
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -402,7 +403,7 @@ def write_disagg_fuel_ts(path_to_txt, data):
 def write_disagg_fuel_sector(path_to_txt, data):
     """Write out disaggregated fuel
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -432,7 +433,7 @@ def write_disagg_fuel_sector(path_to_txt, data):
 def run(data):
     """Function run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     # Disaggregation
     data = disaggregate_base_demand(data)
@@ -451,5 +452,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_disattregated'], 'ts_fuel_disagg.csv'),
         data['ts_fuel_disagg'])
 
-    print("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script {}".format(os.path.basename(__file__)))
     return

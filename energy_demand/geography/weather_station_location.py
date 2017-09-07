@@ -5,7 +5,7 @@ from haversine import haversine # Package to calculate distance between two long
 def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
     """Calculate distance between two points
 
-    Parameters
+    Arguments
     ----------
     long_from : float
         Longitute coordinate from point
@@ -31,7 +31,7 @@ def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
 def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     """Search ID of closest weater station
 
-    Parameters
+    Arguments
     ----------
     longitude_reg : float
         Longitute coordinate of Region Object

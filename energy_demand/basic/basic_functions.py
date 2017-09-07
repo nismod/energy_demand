@@ -5,7 +5,7 @@ import numpy as np
 def rmse(predictions, targets):
     """RMSE calculations
 
-    Parameters
+    Arguments
     ----------
     predictions : any
         Model prediction (real value)

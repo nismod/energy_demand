@@ -4,6 +4,7 @@ import os
 import sys
 import csv
 import numpy as np
+import logging
 from energy_demand.technologies import technologies_related
 from energy_demand.read_write import read_weather_data
 
@@ -68,53 +69,10 @@ def load_script_data(data):
 
     return data
 
-def convert_out_format_es(data, model_run_object, sub_modules):
-    """Adds total hourly fuel data into nested dict
-
-    Parameters
-    ----------
-    data : dict
-        Dict with own data
-    model_run_object : object
-        Contains objects of the region
-
-    Returns
-    -------
-    results : dict
-        Returns a list for energy supply model with fueltype, region, hour
-    """
-    print("...Convert to dict for energy_supply_model")
-    control_total_sum = 0
-    results = {}
-
-    for fueltype, fueltype_id in data['lookups']['fueltype'].items():
-        results[fueltype] = []
-        control_sum = 0
-        for region_name in data['lu_reg']:
-
-            hourly_all_fuels = model_run_object.get_fuel_region_all_models_yh(
-                data['lookups']['nr_of_fueltypes'],
-                region_name,
-                sub_modules,
-                'fuel_yh')
-
-            for day, day_demand in enumerate(hourly_all_fuels[fueltype_id]):
-                for hour, hour_demand in enumerate(day_demand):
-                    result = (region_name, "{}_{}".format(day, hour), float(hour_demand), "units")
-                    results[fueltype].append(result)
-
-                    control_sum += hour_demand
-
-        print("Model output: fueltype {}   {}".format(fueltype, control_sum))
-        control_total_sum += control_sum
-    print(" ----------")
-    print("Total Sum  {} ".format(control_total_sum))
-    return results
-
 def read_csv_data_service(path_to_csv, nr_of_fueltypes):
     """This function reads in base_data_CSV all fuel types
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -169,7 +127,7 @@ def read_csv_data_service(path_to_csv, nr_of_fueltypes):
 def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -198,7 +156,7 @@ def read_csv_float(path_to_csv):
 def read_load_shapes_tech(path_to_csv):
     """This function reads in csv technology shapes
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -224,7 +182,7 @@ def read_load_shapes_tech(path_to_csv):
 def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
     """This function reads in service assumptions from csv file
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -320,7 +278,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
 def read_assump_fuel_switches(path_to_csv, data):
     """This function reads in from CSV file defined fuel switch assumptions
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -375,7 +333,7 @@ def read_assump_fuel_switches(path_to_csv, data):
                 tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
 
         if tot_share_fueltype_switched > 1.0:
-            print("SHARE: " + str(tot_share_fueltype_switched))
+            logging.debug("SHARE: " + str(tot_share_fueltype_switched))
             sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
     # Test whether defined enduse exist
@@ -392,7 +350,7 @@ def read_technologies(path_to_csv, lu_fueltype):
 
     TODO: READ OUT LISTS
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -443,7 +401,7 @@ def read_csv_base_data_resid(path_to_csv):
 
     (first row is fueltype, subkey), header is appliances
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -493,7 +451,7 @@ def read_csv_base_data_resid(path_to_csv):
 def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
     """This function reads in base_data_CSV all fuel types
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -577,7 +535,7 @@ def read_installed_tech(path_to_csv):
 def read_sig_param_tech(path_to_csv):
     """Read 
     """
-    print("... read in sig parameters: " + str(path_to_csv))
+    logging.debug("... read in sig parameters: " + str(path_to_csv))
     sig_param_tech = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -606,7 +564,7 @@ def read_sig_param_tech(path_to_csv):
 def read_service_fueltype_tech_by_p(path_to_csv):
     """Read in service data
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv
@@ -649,7 +607,7 @@ def read_service_fueltype_tech_by_p(path_to_csv):
 def read_service_fueltype_by_p(path_to_csv):
     """Read 
     """
-    print("... read in service data: " + str(path_to_csv))
+    logging.debug("... read in service data: " + str(path_to_csv))
     service_fueltype_by_p = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -677,7 +635,7 @@ def read_service_fueltype_by_p(path_to_csv):
 def read_service_data_service_tech_by_p(path_to_csv):
     """Read 
     """
-    print("... read in service data: " + str(path_to_csv))
+    logging.debug("... read in service data: " + str(path_to_csv))
     service_tech_by_p = {}
 
     with open(path_to_csv, 'r') as csvfile:

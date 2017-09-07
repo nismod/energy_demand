@@ -13,7 +13,7 @@ def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse
     to technologies (e.g. definieng definin overall
     eficiency change)
 
-    Parameters
+    Arguments
     ----------
     tech_p_by : dict
         Fuel assignement of technologies in base year
@@ -60,7 +60,7 @@ def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse
 def get_enduses_with_dummy_tech(enduse_tech_p_by):
     """Find all enduses with defined dummy technologies
 
-    Parameters
+    Arguments
     ----------
     enduse_tech_p_by : dict
         Fuel share definition of technologies

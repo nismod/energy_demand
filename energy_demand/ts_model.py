@@ -12,7 +12,7 @@ class OtherModel(object):
     def __init__(self, region_object, enduse):
         """Constructor
 
-        Parameters
+        Arguments
         ----------
         data : dict
             Data

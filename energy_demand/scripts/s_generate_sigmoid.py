@@ -8,6 +8,7 @@ import os
 import sys
 import copy
 import numpy as np
+import logging
 from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
 #from energy_demand.plotting import plotting_program
@@ -15,7 +16,7 @@ from energy_demand.read_write import read_data
 def init_dict_brackets(first_level_keys):
     """Initialise a  dictionary with one level
 
-    Parameters
+    Arguments
     ----------
     first_level_keys : list
         First level data
@@ -35,7 +36,7 @@ def init_dict_brackets(first_level_keys):
 def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
 
-    Parameters
+    Arguments
     ----------
     service_tech_by_p : dict
         Share of service per technology of base year of total service
@@ -92,7 +93,7 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
 def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """Fit sigmoid curve based on two points on the diffusion curve
 
-    Parameters
+    Arguments
     ----------
     l_value : float
         The sigmoids curve maximum value (max consumption)
@@ -126,7 +127,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
 def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_tech_p_by):
     """Calculate L value for every installed technology with maximum theoretical replacement value
 
-    Parameters
+    Arguments
     ----------
     enduses : list
         List with enduses where fuel switches are defined
@@ -147,14 +148,14 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
         if installed_tech[enduse] == []:
-            #print("No technologies to calculate sigmoid  {}".format(enduse))
+            #logging.debug("No technologies to calculate sigmoid  {}".format(enduse))
             pass
         else:
-            print("Technologes it calculate sigmoid  {}  {}".format(enduse, installed_tech[enduse]))
+            logging.debug("Technologes it calculate sigmoid  {}  {}".format(enduse, installed_tech[enduse]))
 
             # Iterite list with enduses where fuel switches are defined
             for technology in installed_tech[enduse]:
-                print("Technology: {} Enduse:  {}".format(technology, enduse))
+                logging.debug("Technology: {} Enduse:  {}".format(technology, enduse))
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     enduses,
@@ -174,7 +175,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_tech_p_by, installed_tech_switches, switch_type):
     """Calculate energy service demand percentages after fuel switches
 
-    Parameters
+    Arguments
     ----------
     enduses : list
         List with enduses where fuel switches are defined
@@ -244,7 +245,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
     The future energy servie demand is calculated based on fuel switches.
     A sigmoid diffusion is fitted.
 
-    Parameters
+    Arguments
     ----------
     data : dict
         data
@@ -284,10 +285,10 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
     fit_crit_a, fit_crit_b = 200, 0.001
 
     if installed_tech[enduse] == []:
-        print("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
+        logging.debug("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
     else:
         for technology in installed_tech[enduse]:
-            print("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
+            logging.debug("... create sigmoid difufsion parameters {}  {}".format(enduse, technology))
             sigmoid_parameters[technology] = {}
 
             # If service switch
@@ -328,7 +329,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
 
-            print("DATA TO FIT:   {}   {}".format(xdata, ydata))
+            logging.debug("DATA TO FIT:   {}   {}".format(xdata, ydata))
 
             # ----------------
             # Parameter fitting
@@ -349,14 +350,14 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
                     ]
                 try:
                     '''
-                    print("----------- Technology " + str(technology) + str("  ") + str(cnt))
-                    print("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
-                    print("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
-                    print("Lvalue: " + str(l_values[enduse][technology]))
-                    print("start_parameters: " + str(start_parameters))
+                    logging.debug("----------- Technology " + str(technology) + str("  ") + str(cnt))
+                    logging.debug("xdata: " + str(point_x_by) + str("  ") + str(point_x_projected))
+                    logging.debug("ydata: " + str(point_y_by) + str("  ") + str(point_y_projected))
+                    logging.debug("Lvalue: " + str(l_values[enduse][technology]))
+                    logging.debug("start_parameters: " + str(start_parameters))
                     '''
                     fit_parameter = fit_sigmoid_diffusion(l_values[enduse][technology], xdata, ydata, start_parameters)
-                    #print("fit_parameter: " + str(fit_parameter))
+                    #logging.debug("fit_parameter: " + str(fit_parameter))
 
                     # Criteria when fit did not work
                     if fit_parameter[0] > fit_crit_a or fit_parameter[0] < fit_crit_b or fit_parameter[1] > fit_crit_a or fit_parameter[1] < 0  or fit_parameter[0] == start_parameters[0] or fit_parameter[1] == start_parameters[1]:
@@ -366,9 +367,9 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
                             sys.exit("Error2: CURVE FITTING DID NOT WORK")
                     else:
                         successfull = True
-                        print("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
+                        logging.debug("Fit successful {} for Technology: {} with fitting parameters: {} ".format(successfull, technology, fit_parameter))
                 except:
-                    #print("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+                    #logging.debug("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
                     cnt += 1
 
                     if cnt >= len(possible_start_parameters):
@@ -424,7 +425,7 @@ def get_tech_installed(enduses, fuel_switches):
 def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_tech_p_by):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
 
-    Parameters
+    Arguments
     ----------
     data : dict
         Data
@@ -523,7 +524,7 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
 def write_installed_tech(path_to_txt, data):
     """Write out all technologies
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -572,7 +573,7 @@ def write_sig_param_tech(path_to_txt, data):
 def write_tech_increased_service(path_to_txt, data):
     """Write out function
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Path to txt file
@@ -599,7 +600,7 @@ def write_tech_increased_service(path_to_txt, data):
 def run(data):
     """Function run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     # Read in Services
     rs_service_tech_by_p = read_data.read_service_data_service_tech_by_p(os.path.join(
@@ -717,5 +718,5 @@ def run(data):
         data['local_paths']['data_processed'], 'is_tech_constant_share.csv'),
                          is_tech_constant_share)
 
-    print("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script {}".format(os.path.basename(__file__)))
     return

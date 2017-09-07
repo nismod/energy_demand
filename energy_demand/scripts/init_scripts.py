@@ -1,6 +1,7 @@
 """Script functions which are executed after model installation and
 after each scenario definition
 """
+import logging
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.read_write import data_loader
@@ -9,7 +10,7 @@ from energy_demand.assumptions import assumptions
 def post_install_setup(args):
     """Run initialisation scripts
 
-    Parameters
+    Arguments
     ----------
     args : object
         Arguments defined in ``./cli/__init__.py``
@@ -19,7 +20,7 @@ def post_install_setup(args):
     Only needs to be executed once after the energy_demand
     model has been installed
     """
-    print("... start running initialisation scripts")
+    logging.debug("... start running initialisation scripts")
 
     # Paths
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
@@ -30,7 +31,7 @@ def post_install_setup(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data = data_loader.load_fuels(data)
+    data['fuels'] = data_loader.load_fuels(data)
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
 
@@ -46,12 +47,12 @@ def post_install_setup(args):
     from energy_demand.scripts import s_ss_raw_shapes
     s_ss_raw_shapes.run(data)
 
-    print("... finished post_install_setup")
+    logging.debug("... finished post_install_setup")
 
 def scenario_initalisation(path_data_energy_demand, data=False):
     """Scripts which need to be run for every different scenario
 
-    Parameters
+    Arguments
     ----------
     path_data_energy_demand : str
         Path to the energy demand data folder
@@ -78,7 +79,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
-        data = data_loader.load_fuels(data)
+        data['fuels'] = data_loader.load_fuels(data)
         data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
@@ -103,5 +104,5 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     from energy_demand.scripts import s_disaggregation
     s_disaggregation.run(data)
 
-    print("...  finished scenario_initalisation")
+    logging.debug("...  finished scenario_initalisation")
     return

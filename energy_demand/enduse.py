@@ -7,6 +7,7 @@ where the change in enduse specific energy demand is simulated
 depending on scenaric assumptions.
 """
 import copy
+import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.initalisations import initialisations as init
@@ -29,7 +30,7 @@ class Enduse(object):
     to energy service (short: service) and later on
     converted back to fuel demand.
 
-    Parameters
+    Arguments
     ----------
     region_name : str
         Region name
@@ -154,7 +155,7 @@ class Enduse(object):
                 heating_factor_y,
                 data['assumptions']
                 )
-            #print("Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Change fuel consumption based on smart meter induced general savings
@@ -163,7 +164,7 @@ class Enduse(object):
                 data['assumptions'],
                 data['sim_param']
                 )
-            #print("Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Enduse specific consumption change in %
@@ -172,7 +173,7 @@ class Enduse(object):
                 data['assumptions'],
                 enduse_overall_change_ey,
                 data['sim_param'])
-            #print("Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Calculate new fuel demands after scenario drivers
@@ -362,7 +363,7 @@ class Enduse(object):
         """Defines the load profile stock depending on `enduse`.
         (Get regional or non-regional load profile data)
 
-        Parameters
+        Arguments
         ----------
         non_regional_profile_stock : object
             Non regional dependent load profiles
@@ -377,7 +378,7 @@ class Enduse(object):
         Note
         -----
         Because for some enduses the load profiles depend on the region
-        they are stored in the ´WeatherRegion´ Class. One such example is
+        they are stored in the `WeatherRegion` Class. One such example is
         heating. If the enduse is not dependent on the region, the same
         load profile can be used for all regions
 
@@ -393,7 +394,7 @@ class Enduse(object):
     def get_running_mode(self, mode_constrained, enduse_space_heating):
         """Check which mode needs to be run for an enduse
 
-        Parameters
+        Arguments
         -----------
         mode_constrained : bool
             Criteria of running mode
@@ -419,7 +420,7 @@ class Enduse(object):
     def calc_fuel_tech_y(self, tech_stock, fuel_tech_y, lu_fueltypes, mode_constrained):
         """Calculate yearl fuel per fueltype (no load profile assigned)
 
-        Parameters
+        Arguments
         -----------
         tech_stock : object
             Technology stock
@@ -462,7 +463,7 @@ class Enduse(object):
     def apply_heat_recovery(self, assumptions, service, crit_dict, base_sim_param):
         """Reduce heating demand according to assumption on heat reuse
 
-        Parameters
+        Arguments
         ----------
         assumptions : dict
             Assumptions
@@ -519,7 +520,7 @@ class Enduse(object):
     def fuel_to_service(self, fuel_tech_p_by, tech_stock, lu_fueltypes, load_profiles, mode_constrained):
         """Converts fuel to energy service (1), calcualates contribution service fraction (2)
 
-        Parameters
+        Arguments
         ----------
         fuel_tech_p_by : dict
             Fuel composition of base year for every fueltype for each
@@ -649,7 +650,7 @@ class Enduse(object):
     def convert_service_to_p(cls, tot_service_yh, service_tech_cy):
         """Calculate fraction of service for every technology of total service
 
-        Parameters
+        Arguments
         ----------
         tot_service_yh : array
             Total service yh
@@ -682,7 +683,7 @@ class Enduse(object):
         """Change the fuel share of hybrid technologies for base year
         depending on assumed electricity consumption
 
-        Parameters
+        Arguments
         ----------
         fuel_tech_p_by : dict
             Fuel fraction per technology in base year
@@ -774,7 +775,7 @@ class Enduse(object):
     def get_enduse_tech(cls, fuel_tech_p_by):
         """Get all defined technologies of an enduse
 
-        Parameters
+        Arguments
         ----------
         fuel_tech_p_by : dict
             Percentage of fuel per enduse per technology
@@ -840,7 +841,7 @@ class Enduse(object):
         substracted of the replaced technologies proportionally
         to the base year distribution of these technologies
         """
-        print("... Service switch is implemented "  + str(self.enduse))
+        logging.debug("... Service switch is implemented "  + str(self.enduse))
         service_tech_cy_p = {}
         service_tech_cy = {}
 
@@ -911,7 +912,7 @@ class Enduse(object):
     def get_service_diffusion(self, tech_increased_service, sig_param_tech, curr_yr):
         """Calculate energy service fraction of technologies with increased service
 
-        Parameters
+        Arguments
         ----------
         tech_increased_service : dict
             All technologies per enduse with increased future service share
@@ -941,12 +942,12 @@ class Enduse(object):
     def get_crit_switch(self, fuelswitches, base_parameters, mode_constrained):
         """Test whether there is a switch (service or fuel)
 
-        Parameters
+        Arguments
         ----------
         fuelswitches : dict
             All fuel switches
         base_parameters : float
-            Base Parameters
+            Base Arguments
         mode_constrained : bool
             Mode criteria
 
@@ -966,7 +967,7 @@ class Enduse(object):
     def calc_peak_tech_dh(self, enduse_fuel_tech, tech_stock, load_profile):
         """Calculate peak demand for every fueltype
 
-        Parameters
+        Arguments
         ----------
         assumptions : array
             Assumptions
@@ -997,7 +998,7 @@ class Enduse(object):
         peak_day_nr = self.get_peak_day()
 
         for tech in self.enduse_techs:
-            #print("TECH ENDUSE    {}   {}".format(tech, self.enduse))
+            #logging.debug("TECH ENDUSE    {}   {}".format(tech, self.enduse))
 
             tech_type = tech_stock.get_attribute_tech_stock(tech, self.enduse, 'tech_type')
 
@@ -1044,7 +1045,7 @@ class Enduse(object):
     def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles, lu_fueltypes, mode_constrained):
         """Iterate fuels for each technology and assign shape yd and yh shape
 
-        Parameters
+        Arguments
         ----------
         enduse_fuel_tech : dict
             Fuel per technology in enduse
@@ -1097,7 +1098,7 @@ class Enduse(object):
     def fuel_switch(self, installed_tech, sig_param_tech, tot_service_h_cy, service_tech, service_fueltype_tech_cy_p, service_fueltype_cy_p, fuel_switches, fuel_tech_p_by, curr_yr):
         """Calulation of service after considering fuel switch assumptions
 
-        Parameters
+        Arguments
         ----------
         installed_tech : dict
             Technologies installed
@@ -1125,7 +1126,7 @@ class Enduse(object):
 
           TODO: MORE INFO
         """
-        #print("... fuel_switch is implemented")
+        #logging.debug("... fuel_switch is implemented")
         service_tech_after_switch = copy.copy(service_tech)
 
         # Iterate all technologies which are installed in fuel switches
@@ -1140,12 +1141,12 @@ class Enduse(object):
 
             # Calculate increase in service based on diffusion of installed technology
             # (diff & total service== Todays demand) - already installed service
-            '''print("eeeeeeeeeeeeeeeeee")
-            print(sig_param_tech[self.enduse][tech_installed])
-            print(tech_installed)
-            print(np.sum(service_tech[tech_installed]))
-            print(diffusion_cy)
-            print(np.sum(tot_service_h_cy))
+            '''logging.debug("eeeeeeeeeeeeeeeeee")
+            logging.debug(sig_param_tech[self.enduse][tech_installed])
+            logging.debug(tech_installed)
+            logging.debug(np.sum(service_tech[tech_installed]))
+            logging.debug(diffusion_cy)
+            logging.debug(np.sum(tot_service_h_cy))
             '''
             #OLD
             ##service_tech_installed_cy = (diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]
@@ -1153,16 +1154,16 @@ class Enduse(object):
             #NEW
             service_tech_installed_cy = (diffusion_cy * tot_service_h_cy)
 
-            '''print("-----------Tech_installed:  "  + str(tech_installed))
-            print(" service_tech_installed_cy: {}".format(np.sum(service_tech_installed_cy)))
-            print("diffusion_cy  " + str(diffusion_cy))
-            print(" Tot service before " + str(np.sum(tot_service_h_cy)))
-            print(" Tot service after  " + str(np.sum(service_tech_after_switch[tech_installed])))
-            print("----")
-            print(np.sum(diffusion_cy * tot_service_h_cy))
-            print(np.sum(service_tech[tech_installed]))
-            print(np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]))
-            print("TODAY SHARE (fraciton): " + str(np.sum((1 / np.sum(tot_service_h_cy)) * service_tech[tech_installed])))
+            '''logging.debug("-----------Tech_installed:  "  + str(tech_installed))
+            logging.debug(" service_tech_installed_cy: {}".format(np.sum(service_tech_installed_cy)))
+            logging.debug("diffusion_cy  " + str(diffusion_cy))
+            logging.debug(" Tot service before " + str(np.sum(tot_service_h_cy)))
+            logging.debug(" Tot service after  " + str(np.sum(service_tech_after_switch[tech_installed])))
+            logging.debug("----")
+            logging.debug(np.sum(diffusion_cy * tot_service_h_cy))
+            logging.debug(np.sum(service_tech[tech_installed]))
+            logging.debug(np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]))
+            logging.debug("TODAY SHARE (fraciton): " + str(np.sum((1 / np.sum(tot_service_h_cy)) * service_tech[tech_installed])))
             '''
             # Assert if minus demand
             #assert np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]) >= 0
@@ -1189,8 +1190,8 @@ class Enduse(object):
                         # Share of service demand per fueltype * fraction of fuel switched
                         tot_service_tech_instal_p += service_fueltype_cy_p[fuelswitch['enduse_fueltype_replace']] * fuelswitch['share_fuel_consumption_switched']
 
-            #print("replaced fueltypes: " + str(fueltypes_replaced))
-            #print("Service demand which is switched with this technology: " + str(tot_service_tech_instal_p))
+            #logging.debug("replaced fueltypes: " + str(fueltypes_replaced))
+            #logging.debug("Service demand which is switched with this technology: " + str(tot_service_tech_instal_p))
 
             # Iterate all fueltypes which are affected by the technology installed
             for fueltype_replace in fueltypes_replaced:
@@ -1209,20 +1210,20 @@ class Enduse(object):
                             # share of total service of fueltype * share of replaced fuel
                             service_fueltype_tech_cy_p_rel = np.divide(1.0, tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
 
-                            ##print("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
+                            ##logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
                             reduction_service_fueltype = service_tech_installed_cy * service_fueltype_tech_cy_p_rel
                         break
 
-                ##print("Reduction of additional service of technology in replaced fueltype: " + str(np.sum(reduction_service_fueltype)))
+                ##logging.debug("Reduction of additional service of technology in replaced fueltype: " + str(np.sum(reduction_service_fueltype)))
 
                 # Iterate all technologies in within the fueltype and calculate reduction per technology
                 for technology_replaced in technologies_replaced_fueltype:
-                    ####print(" ")
-                    #print("technology_replaced: " + str(technology_replaced))
+                    ####logging.debug(" ")
+                    #logging.debug("technology_replaced: " + str(technology_replaced))
                     # It needs to be calculated within each region the share how the fuel is distributed...
                     # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
                     service_demand_tech = service_fueltype_tech_cy_p[fueltype_replace][technology_replaced] * reduction_service_fueltype
-                    ##print("service_demand_tech: " + str(np.sum(service_demand_tech)))
+                    ##logging.debug("service_demand_tech: " + str(np.sum(service_demand_tech)))
 
                     # -------
                     # Substract technology specific service
@@ -1230,17 +1231,17 @@ class Enduse(object):
                     # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                     # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
                     if np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech) < 0:
-                        '''print("Warning: blblablab")
-                        print(np.sum(service_tech_after_switch[technology_replaced]))
-                        print(np.sum(service_demand_tech))
-                        print(np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech))
+                        '''logging.debug("Warning: blblablab")
+                        logging.debug(np.sum(service_tech_after_switch[technology_replaced]))
+                        logging.debug(np.sum(service_demand_tech))
+                        logging.debug(np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech))
                         '''
                         #sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
                         service_tech_after_switch[technology_replaced] = 0
                     else:
                         # Substract technology specific servide demand
                         service_tech_after_switch[technology_replaced] -= service_demand_tech
-                        #print("B: " + str(np.sum(service_tech_after_switch[technology_replaced])))
+                        #logging.debug("B: " + str(np.sum(service_tech_after_switch[technology_replaced])))
 
                 # Testing
                 #assert np.testing.assert_almost_equal(np.sum(test_sum), np.sum(reduction_service_fueltype), decimal=4)
@@ -1302,7 +1303,7 @@ class Enduse(object):
         """Calculate fraction of fuel per technology within fueltype
         considering current efficiencies
 
-        Parameters
+        Arguments
         ----------
         service_tech : dict
             Assumptions of share of fuel of base year
@@ -1337,7 +1338,7 @@ class Enduse(object):
     def apply_specific_change(self, assumptions, enduse_overall_change_ey, base_parameters):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
-        Parameters
+        Arguments
         ----------
         assumptions : dict
             assumptions
@@ -1435,7 +1436,7 @@ class Enduse(object):
     def apply_smart_metering(self, assumptions, base_sim_param):
         """Calculate fuel savings depending on smart meter penetration
 
-        Parameters
+        Arguments
         ----------
         assumptions : dict
             assumptions
@@ -1481,7 +1482,7 @@ class Enduse(object):
     def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scenario_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
 
-        Parameters
+        Arguments
         ----------
         dw_stock : object
             Dwelling stock

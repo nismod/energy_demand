@@ -6,12 +6,13 @@ import csv
 from datetime import date
 import collections
 import numpy as np
+import logging
 from energy_demand.read_write import data_loader
 
 def read_weather_data_raw(path_to_csv, placeholder_value=999):
     """Read in raw weather data
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : string
         Path to weather data csv FileExistsError
@@ -71,7 +72,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
 def convert_date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 
-    Parameters
+    Arguments
     ----------
     date_base_yr : int
         Year
@@ -92,7 +93,7 @@ def convert_date_to_yearday(year, month, day):
 def clean_weather_data_raw(temp_stations, placeholder_value=999):
     """Relace missing data measurement points and remove weater stations with no data
 
-    Parameters
+    Arguments
     ----------
     temp_stations : dict
         Raw data of temperature measurements
@@ -237,7 +238,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
 def write_weather_data(path_to_txt, weather_data):
     """Write wheather data to csv file
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Out path
@@ -257,14 +258,14 @@ def write_weather_data(path_to_txt, weather_data):
                           )
 
     file.close()
-    print("...finished write_weather_data")
+    logging.debug("...finished write_weather_data")
 
     return
 
 def write_weather_stations(path_to_txt, weather_station):
     """Write wheather station data to csv file
 
-    Parameters
+    Arguments
     ----------
     path_to_txt : str
         Out path
@@ -282,13 +283,13 @@ def write_weather_stations(path_to_txt, weather_station):
                   )
 
     file.close()
-    print("...finished write_weather_stations")
+    logging.debug("...finished write_weather_stations")
     return
 
 def run(data):
     """Function to run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     # Read in raw temperature data
     temperature_data_raw = read_weather_data_raw(
@@ -312,5 +313,5 @@ def run(data):
         data['local_paths']['path_processed_weather_data'],
         temperature_data)
 
-    print("..finished script {}".format(os.path.basename(__file__)))
+    logging.debug("..finished script {}".format(os.path.basename(__file__)))
     return

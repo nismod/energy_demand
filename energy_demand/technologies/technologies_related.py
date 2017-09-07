@@ -2,11 +2,12 @@
 """
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
+import logging
 
 def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperature difference of base year
 
-    Parameters
+    Arguments
     ----------
     temp_yr : array
         Temperatures for every hour in a year (365, 24)
@@ -41,7 +42,7 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
 def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     """Calculate efficiency of heat pump
 
-    Parameters
+    Arguments
     ----------
     temp_diff: array
         Temperature difference
@@ -80,7 +81,7 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 def const_eff_yh(input_eff):
     """Assing a constant efficiency to every hour in a year
 
-    Parameters
+    Arguments
     ----------
     input_eff : float
         Efficiency of a technology
@@ -94,7 +95,7 @@ def const_eff_yh(input_eff):
 
     return eff_yh
 
-def get_fueltype_str(fueltype, fueltype_nr):
+def get_fueltype_str(fueltype_lu, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
 
     Inputs
@@ -109,8 +110,8 @@ def get_fueltype_str(fueltype, fueltype_nr):
     fueltype_in_string : str
         Fueltype string
     """
-    for fueltype_str in fueltype:
-        if fueltype[fueltype_str] == fueltype_nr:
+    for fueltype_str in fueltype_lu:
+        if fueltype_lu[fueltype_str] == fueltype_nr:
             return fueltype_str
 
 def get_fueltype_int(fueltype, fueltype_string):
@@ -133,7 +134,7 @@ def get_fueltype_int(fueltype, fueltype_string):
 def get_tech_type(tech_name, tech_list):
     """Get technology type of technology
 
-    Parameters
+    Arguments
     ----------
     tech_name : string
         Technology name
@@ -145,7 +146,7 @@ def get_tech_type(tech_name, tech_list):
     ------
     tech_type : string
         Technology type
-    
+
     Note
     -----
     -  Either a technology is a hybrid technology, a heat pump,
@@ -172,7 +173,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
     """Delete all heat_pump from tech dict, define average new heat pump
     technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
 
-    Parameters
+    Arguments
     ----------
     temp_dependent_tech_list : list
         List to store temperature dependent technologies (e.g. heat-pumps)
@@ -219,7 +220,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         # Add average 'av_heat_pumps' to technology dict
         name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype'], fueltype)))
 
-        #print("...create new averaged heat pump technology: " + str(name_av_hp))
+        #logging.debug("...create new averaged heat pump technology: " + str(name_av_hp))
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
@@ -245,7 +246,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_factor, diff_method):
     """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
 
-    Parameters
+    Arguments
     ----------
     eff_by : array
         Efficiency of current year
@@ -307,7 +308,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
     """All hybrid technologies and their charactersitics are defined
 
-    Parameters
+    Arguments
     ----------
     assumptions : dict
         Assumptions
@@ -386,7 +387,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff
     # Add hybrid technologies to technological stock and define other attributes
     for tech_name, tech in hybrid_tech.items():
 
-        #print("Add hybrid technology to technology stock {}".format(tech_name))
+        #logging.debug("Add hybrid technology to technology stock {}".format(tech_name))
         technologies[tech_name] = tech
         technologies[tech_name]['eff_achieved'] = 1
         technologies[tech_name]['diff_method'] = 'linear'
@@ -405,7 +406,7 @@ def get_all_defined_hybrid_technologies(assumptions, technologies, hybrid_cutoff
 def generate_ashp_gshp_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies
 
-    Parameters
+    Arguments
     ----------
     split_factor : float
         Fraction of ASHP to GSHP
@@ -445,7 +446,7 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     """Calculate average efficiency for base year of hybrid technologies for
     overall national energy service calculation
 
-    Parameters
+    Arguments
     ----------
     tech_low_temp : str
         Technology for lower temperatures

@@ -7,7 +7,7 @@ class Region(object):
 
     For every Region, a Region object needs to be generated.
 
-    Parameters
+    Arguments
     ----------
     region_name : str
         Unique identifyer of region_name

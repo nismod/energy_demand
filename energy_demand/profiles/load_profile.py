@@ -7,7 +7,7 @@ import numpy as np
 class LoadProfileStock(object):
     """Collection of load shapes in a list
 
-    Parameters
+    Arguments
     ----------
     stock_name : string
         Load profile stock name
@@ -43,7 +43,7 @@ class LoadProfileStock(object):
             ):
         """Add load profile to stock
 
-        Parameters
+        Arguments
         ----------
         technologies : list
             Technologies for which the profile applies
@@ -89,7 +89,7 @@ class LoadProfileStock(object):
     def generate_dict_with_tuple_keys(self, unique_identifier, enduses, sectors, technologies):
         """Generate look_up keys to position in 'load_profile_dict'
 
-        Parameters
+        Arguments
         ----------
         unique_identifier : string
             Unique identifier of load shape object
@@ -108,7 +108,7 @@ class LoadProfileStock(object):
     def get_load_profile(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
 
-        Parameters
+        Arguments
         ----------
         enduse : str
             Enduse
@@ -146,7 +146,7 @@ class LoadProfileStock(object):
     def get_shape_peak_dh(self, enduse, sector, technology):
         """Get peak dh shape for a certain technology, enduse and sector
 
-        Parameters
+        Arguments
         ----------
         enduse : str
             Enduse
@@ -171,7 +171,7 @@ class LoadProfileStock(object):
 class LoadProfile(object):
     """Load profile container to store different shapes
 
-    Parameters
+    Arguments
     ----------
     unique_identifier : string
         Unique identifer for LoadProfile object
@@ -233,7 +233,7 @@ class LoadProfile(object):
 def abs_to_rel_no_nan(absolute_array):
     """Convert absolute to relative (without correcting the NaN values)
 
-    Parameters
+    Arguments
     ----------
     absolute_array : array
         Input array with absolute numbers
@@ -253,7 +253,7 @@ def abs_to_rel_no_nan(absolute_array):
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 
-    Parameters
+    Arguments
     ----------
     absolute_array : array
         Contains absolute numbers in it
@@ -278,7 +278,7 @@ def abs_to_rel(absolute_array):
 def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day
 
-    Parameters
+    Arguments
     ----------
     fuel_peak_dh : array
         Fuel of peak day
@@ -301,7 +301,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
 
     #TODO: IMPROVE DESCRITPION
 
-    Parameters
+    Arguments
     ----------
     fuel_shape_boilers_y_dh : array
         Fuel shape of low temperature technology (e.g. boiler technology)
@@ -342,7 +342,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
 def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     """Calculate fuel share for every hour
 
-    Parameters
+    Arguments
     ----------
     fueltypes_yh_p_cy : array
         Fuel share per fueltype for every day and hour (7, 365, 24)

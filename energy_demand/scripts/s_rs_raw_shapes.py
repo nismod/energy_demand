@@ -4,6 +4,7 @@ import os
 import csv
 from datetime import date
 import numpy as np
+import logging
 from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
 from energy_demand.read_write import data_loader
@@ -12,7 +13,7 @@ from energy_demand.assumptions import assumptions
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
 
-    Parameters
+    Arguments
     ----------
     path_to_csv : str
         Path to csv file
@@ -44,7 +45,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
 
     Calculate peak day demand
 
-    Parameters
+    Arguments
     ----------
     appliances_hes_matching : dict
         HES appliances are matched witch enduses
@@ -71,7 +72,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     if enduse in appliances_hes_matching:
         hes_app_id = appliances_hes_matching[enduse]
     else:
-        print("...The enduse has not HES ID and thus shape")
+        logging.debug("...The enduse has not HES ID and thus shape")
 
     # Total yearly demand of hes_app_id
     tot_enduse_y = np.sum(year_raw_values[:, :, hes_app_id])
@@ -105,7 +106,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
 def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     """Fill every base year day with correct data
 
-    Parameters
+    Arguments
     ----------
     nr_of_appliances : dict
         Defines how many appliance types are stored (max 10 provided in original hes file)
@@ -149,7 +150,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
     The fuel is provided for every daytype (weekend or working day) for every month
     and every appliance_typ
 
-    Parameters
+    Arguments
     ----------
     paths_hes : string
         Path to HES raw data file
@@ -212,7 +213,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 def run(data):
     """Function to run script
     """
-    print("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script {}".format(os.path.basename(__file__)))
 
     hes_appliances_matching = {
         'rs_cold': 0,
@@ -249,7 +250,7 @@ def run(data):
     # Load shape for all enduses
     for enduse in rs_enduses:
         if enduse not in hes_appliances_matching:
-            print("Warning: The enduse {} is not defined in hes_appliances_matching".format(enduse))
+            logging.debug("Warning: The enduse {} is not defined in hes_appliances_matching".format(enduse))
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
@@ -269,5 +270,5 @@ def run(data):
                 shape_non_peak_yd
                 )
 
-    print("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script {}".format(os.path.basename(__file__)))
     return
