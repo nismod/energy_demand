@@ -5,8 +5,6 @@ import logging
 from energy_demand.read_write.data_loader import dummy_data_generation
 import yaml
 
-
-
 def main():
     """Generate and write out data
     """

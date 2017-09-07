@@ -25,7 +25,7 @@ from energy_demand.basic import date_handling
 
     assert out_value == expected
 '''
-def test_convert_date_to_yearday():
+def test_date_to_yearday():
     """Testing
     """
     in_year = 2015
@@ -34,7 +34,7 @@ def test_convert_date_to_yearday():
     expected = 164 - 1
 
     # call function
-    out_value = date_handling.convert_date_to_yearday(in_year, in_month, in_day)
+    out_value = date_handling.date_to_yearday(in_year, in_month, in_day)
 
     assert out_value == expected
 
@@ -77,4 +77,45 @@ def test_get_weekday_type():
     # call function
     out_value = date_handling.get_weekday_type(date_to_test)
 
+    assert out_value == expected
+
+    date_to_test = date(2017, 9, 7)
+    expected = 'working_day'
+
+    # call function
+    out_value = date_handling.get_weekday_type(date_to_test)
+
+    assert out_value == expected
+
+    date_to_test = date(2017, 9, 9)
+    expected = 'holiday'
+
+    # call function
+    out_value = date_handling.get_weekday_type(date_to_test)
+
+    assert out_value == expected
+
+    # Test year
+    date_to_test = date(2015, 4, 3)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2014, 4, 21)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+    date_to_test = date(2013, 4, 1)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2012, 4, 9)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
+    assert out_value == expected
+
+    date_to_test = date(2011, 1, 2)
+    expected = 'holiday'
+    out_value = date_handling.get_weekday_type(date_to_test)
     assert out_value == expected

@@ -58,7 +58,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
                 air_temp = float(row[35])
 
             # Get yearday
-            yearday = convert_date_to_yearday(year, month, day)
+            yearday = date_to_yearday(year, month, day)
 
             # Add weather station if not already added to dict
             if station_id not in temp_stations:
@@ -69,7 +69,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
 
     return temp_stations
 
-def convert_date_to_yearday(year, month, day):
+def date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 
     Arguments
@@ -204,7 +204,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
     """
     weather_stations = {}
 
-    with open(path_to_csv, 'r') as csvfile: # Read CSV file
+    with open(path_to_csv, 'r') as csvfile:
         _headings = next(csvfile) # Skip first row
         _headings = next(csvfile) # Skip second row
 

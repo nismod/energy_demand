@@ -2,20 +2,20 @@
 """
 import os
 import csv
-import numpy as np
 import logging
+import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
-from energy_demand.plotting import plotting_results
 
 def load_basic_lookups():
-    """
+    """Definition of basic lookups or other related information
+
     Return
     ------
     lookups : dict
-        Basied lookups and other very basic properties
+        Lookup information and other very basic properties
     """
     lookups = {}
 
@@ -119,6 +119,16 @@ def dummy_data_generation(data):
 
 def load_local_paths(path):
     """Create all local paths and folders
+
+    Argument
+    --------
+    path : str
+        Path of local folder with data used for model
+
+    Return
+    -------
+    paths : dict
+        All local paths used in model
     """
     paths = {
         'path_bd_e_load_profiles': os.path.join(
@@ -258,17 +268,16 @@ def load_paths(path):
         # Technologies load shapes
         #'path_hourly_gas_shape_hp': os.path.join(
         # path, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
-        'path_hourly_elec_shape_hp': os.path.join(
-            path, 'data', 'submodel_residential', 'LOVE_elec_shape_dh_hp.csv'),
-
+        'lp_elec_hp_dh': os.path.join(
+            path, 'data', 'submodel_residential', 'lp_elec_hp_LOVE_dh.csv'),
         'path_shape_rs_cooling': os.path.join(
             path, 'data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
             path, 'data', 'submodel_service', 'shape_service_cooling.csv'),
-        'path_shape_rs_space_heating_primary_heating': os.path.join(
-            path, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_primary_heating.csv'),
-        'path_shape_rs_space_heating_secondary_heating': os.path.join(
-            path, 'data', 'submodel_residential', 'HES_base_appliances_eletricity_load_profiles_secondary_heating.csv')
+        'lp_elec_primary_heating': os.path.join(
+            path, 'data', 'submodel_residential', 'lp_HES_elec_primary_heating.csv'),
+        'lp_elec_secondary_heating': os.path.join(
+            path, 'data', 'submodel_residential', 'lp_HES_elec_secondary_heating.csv')
         }
 
     return paths
@@ -294,19 +303,20 @@ def load_data_tech_profiles(tech_load_profiles, paths):
 
     # Heat pump shape from Love et al. (2017)
     tech_load_profiles['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
-        paths['path_hourly_elec_shape_hp'])
+        paths['lp_elec_hp_dh'])
 
     tech_load_profiles['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
     tech_load_profiles['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
+    #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_load_profiles['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
-        paths['path_shape_rs_space_heating_primary_heating'])
+        paths['lp_elec_primary_heating'])
     tech_load_profiles['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
-        paths['path_shape_rs_space_heating_secondary_heating'])
+        paths['lp_elec_secondary_heating'])
 
     '''plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][0] * 45.8)
     plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][1] * 45.8)
@@ -343,7 +353,7 @@ def load_data_profiles(paths, local_paths):
         local_paths['ss_load_profile_txt'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
-    tech_load_profiles['ss_all_tech_shapes_dh'], tech_load_profiles['ss_all_tech_shapes_yd'] = ss_read_out_shapes_enduse_all_tech(
+    tech_load_profiles['ss_all_tech_shapes_dh'], tech_load_profiles['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'])
 
     return tech_load_profiles
@@ -378,13 +388,13 @@ def load_fuels(paths, lookups):
     paths : dict
         Paths container
     lookups : dict
-        Look-ups
-    
+        Lookups
     """
     enduses = {}
     sectors = {}
     fuels = {}
-    # Residential Sector (ECUK Table XY and Table XY) 
+
+    # Residential Sector (ECUK Table XY and Table XY)
     rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_base_data_resid(
         paths['rs_fuel_raw_data_enduses'])
 
@@ -533,7 +543,7 @@ def create_enduse_dict(data, rs_fuel_raw_data_enduses):
 
     return enduses
 
-def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
+def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
     """Iterate carbon trust dataset and read out shapes for enduses
 
     Arguments
@@ -562,31 +572,31 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
             ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
             ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
         break #only iterate first sector as all enduses are the same in all sectors
-    #TODO: IS YD NEEDED?
+
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
 def load_LAC_geocodes_info(path_to_csv):
-    """Import local area unit district codes
+    """FIGURE FUNCTION Import local area unit district codes
 
     Read csv file and create dictionary with 'geo_code'
 
-    PROVIDED IN UNIT?? (KWH I guess)
     Note
     -----
     - no LAD without population must be included
+    - PROVIDED IN UNIT?? (KWH I guess)
     """
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip first row
         data = {}
 
         for row in read_lines:
             values_line = {}
-            for nr, value in enumerate(row[1:], 1):
+            for number, value in enumerate(row[1:], 1):
                 try:
-                    values_line[_headings[nr]] = float(value)
-                except ValueError: #SHARK
-                    values_line[_headings[nr]] = str(value)
+                    values_line[_headings[number]] = float(value)
+                except ValueError:
+                    values_line[_headings[number]] = str(value)
 
             # Add entry with geo_code
             data[row[0]] = values_line

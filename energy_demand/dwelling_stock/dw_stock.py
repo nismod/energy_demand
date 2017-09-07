@@ -3,8 +3,8 @@
 Generates a virtual dwelling stock
 """
 import sys
-import numpy as np
 import logging
+import numpy as np
 from energy_demand.technologies import diffusion_technologies
 
 class Dwelling(object):
@@ -502,7 +502,7 @@ def rs_dw_stock(regions, data):
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(
         data['lookups']['dwtype'],
-        dwtype_floor_area, #data['assumptions']['assump_dwtype_floorarea'],
+        dwtype_floor_area,
         dwtype_distr
         )
 
@@ -526,7 +526,6 @@ def rs_dw_stock(regions, data):
 
             # Calculate new floor area
             tot_floorarea_cy = floorarea_pp_cy * population_cy
-            #logging.debug(" sdf {}  {}  {}".format(tot_floorarea_cy, floorarea_pp_cy, population_cy))
             """
             #If floor_area is read in from model, this would be here
             tot_floorarea_cy = data['rs_floorarea'][curr_yr][region]
@@ -657,7 +656,18 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea, dwtype_distr):
 
     return dw_floorarea_p
 
-def generate_dw_existing(data, region, curr_yr, dw_lu, floorarea_p, floorarea_by, dwtype_age_distr_by, floorarea_pp, tot_floorarea_cy, pop_by):
+def generate_dw_existing(
+        data,
+        region,
+        curr_yr,
+        dw_lu,
+        floorarea_p,
+        floorarea_by,
+        dwtype_age_distr_by,
+        floorarea_pp,
+        tot_floorarea_cy,
+        pop_by
+    ):
     """Generates dwellings according to age, floor area and distribution assumption
 
     Arguments

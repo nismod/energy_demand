@@ -3,47 +3,55 @@
 import os
 import sys
 import csv
-import numpy as np
 import logging
+import numpy as np
 import matplotlib.pyplot as plt
 from energy_demand.basic import date_handling
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
-#from energy_demand.technologies import diffusion_technologies as diffusion
-#from math import factorial
 
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
+
+    Argument
+    --------
+    month_string : str
+        Month given as a string
+    
+    Returns
+    --------
+    month : int
+        Month as an integer (jan = 1, dez = 12)
     """
     if month_string == 'Jan':
-        month_int = 1
+        month = 1
     elif month_string == 'Feb':
-        month_int = 2
+        month = 2
     elif month_string == 'Mar':
-        month_int = 3
+        month = 3
     elif month_string == 'Apr':
-        month_int = 4
+        month = 4
     elif month_string == 'May':
-        month_int = 5
+        month = 5
     elif month_string == 'Jun':
-        month_int = 6
+        month = 6
     elif month_string == 'Jul':
-        month_int = 7
+        month = 7
     elif month_string == 'Aug':
-        month_int = 8
+        month = 8
     elif month_string == 'Sep':
-        month_int = 9
+        month = 9
     elif month_string == 'Oct':
-        month_int = 10
+        month = 10
     elif month_string == 'Nov':
-        month_int = 11
+        month = 11
     elif month_string == 'Dec':
-        month_int = 12
+        month = 12
     else:
         sys.exit("Could not convert string month to int month")
 
-    return int(month_int)
+    return int(month)
 
 def read_raw_elec_2015_data(path_to_csv):
     """Read in national electricity values provided in MW and convert to GWh
@@ -52,7 +60,8 @@ def read_raw_elec_2015_data(path_to_csv):
     -----
     Half hourly measurements are aggregated to hourly values
 
-    Necessary data preparation: On 29 March and 25 Octobre there are 46 and 48 values because of the changing of the clocks
+    Necessary data preparation: On 29 March and 25 Octobre 
+    there are 46 and 48 values because of the changing of the clocks
     The 25 Octobre value is omitted, the 29 March hour interpolated in the csv file
     """
     year = 2015
@@ -60,9 +69,8 @@ def read_raw_elec_2015_data(path_to_csv):
     elec_data_INDO = np.zeros((365, 24))
     elec_data_ITSDO = np.zeros((365, 24))
 
-    # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',') # Read line
+        read_lines = csv.reader(csvfile, delimiter=',') 
         _headings = next(read_lines) # Skip first row
 
         hour = 0
@@ -73,7 +81,7 @@ def read_raw_elec_2015_data(path_to_csv):
             day = int(line[0].split("-")[0])
 
             # Get yearday
-            yearday = date_handling.convert_date_to_yearday(year, month, day)
+            yearday = date_handling.date_to_yearday(year, month, day)
 
             if counter_half_hour == 1:
                 counter_half_hour = 0
@@ -168,7 +176,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     else:
         pass
 
-def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_enduses_fueltype):
+def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
     """
     logging.debug("...compare elec peak results")
@@ -187,9 +195,9 @@ def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_
 
     logging.debug("Max Peak Day:                    " + str(max_day))
     logging.debug("max_h_year (real):               " + str(max_h_year))
-    logging.debug("max_h_year (modelled):           " + str(np.max(peak_all_models_all_enduses_fueltype)))
+    logging.debug("max_h_year (modelled):           " + str(np.max(tot_peak_enduses_fueltype)))
     logging.debug("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
-    logging.debug("Fuel max peak day (modelled):    " + str(np.sum(peak_all_models_all_enduses_fueltype)))
+    logging.debug("Fuel max peak day (modelled):    " + str(np.sum(tot_peak_enduses_fueltype)))
 
     # -------------------------------
     # Compare values
@@ -198,7 +206,7 @@ def compare_peak(name_fig, data, validation_elec_data_2015, peak_all_models_all_
 
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    plt.plot(x, peak_all_models_all_enduses_fueltype, color='red', label='modelled')
+    plt.plot(x, tot_peak_enduses_fueltype, color='red', label='modelled')
     plt.plot(x, validation_elec_data_2015[max_day], color='green', label='real')
 
     # Y-axis ticks

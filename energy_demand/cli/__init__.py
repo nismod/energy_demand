@@ -49,9 +49,7 @@ def run_model(args):
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
-    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
-        data['local_paths'])
-    # SCRAP    data = data_loader.dummy_data_generation(data)
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     # Load data from script calculations
     data = read_data.load_script_data(data)
@@ -63,7 +61,7 @@ def run_model(args):
     _, results = energy_demand_model(data)
 
     logging.debug("... Result section")
-    #results.all_submodels_reg_enduses_fueltype_y[2]
+    #results.reg_enduses_fueltype_y[2]
 
     results_every_year = [results]
 

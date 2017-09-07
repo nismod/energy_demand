@@ -2,7 +2,6 @@
 """
 import sys
 import numpy as np
-# pylint: disable=I0011,C0301,C0103, C0325
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """Test if assigned fuel share add up to 1 within each fuletype

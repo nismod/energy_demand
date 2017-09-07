@@ -33,7 +33,7 @@ def get_dates_week_nr(year, week_nr):
 
     return list_days
 
-def convert_date_to_yearday(year, month, day):
+def date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 
     Arguments

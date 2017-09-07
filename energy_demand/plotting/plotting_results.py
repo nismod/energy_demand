@@ -56,7 +56,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend()
     #plt.show()
 
-def plt_stacked_end_use(fig_name, data, results_objects, enduses_data, attribute_to_get):
+def plt_stacked_enduse(fig_name, data, results_objects, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
     Arguments
