@@ -2,7 +2,7 @@
 """
 import numpy as np
 from energy_demand.initalisations import initialisations as init
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 
 def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
     """Iterate technologies with future less service demand (replaced tech)

@@ -5,7 +5,7 @@ import sys
 import csv
 import numpy as np
 import logging
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
 def load_script_data(data):
@@ -275,7 +275,7 @@ def read_service_switch(path_to_csv, all_specified_tech_enduse_by):
 
     return enduse_tech_ey_p, tech_maxl_by_p, service_switches
 
-def read_assump_fuel_switches(path_to_csv, data):
+def read_fuel_switches(path_to_csv, data):
     """This function reads in from CSV file defined fuel switch assumptions
 
     Arguments
@@ -376,8 +376,7 @@ def read_technologies(path_to_csv, lu_fueltype):
                 fueltype = 'None'
             else:
                 fueltype = lu_fueltype[str(row[1])]
-            #try:
-            if 1 == 1:
+            try:
                 dict_technologies[technology] = {
                     'fuel_type': fueltype,
                     'eff_by': float(row[2]),
@@ -391,8 +390,11 @@ def read_technologies(path_to_csv, lu_fueltype):
                     dict_tech_lists[str.strip(row[7])].append(technology)
                 except KeyError:
                     dict_tech_lists[str.strip(row[7])] = [technology]
-            #except:
-            #    sys.exit("Error in technology loading table. Check if e.g. empty field")
+
+            except Exception as e:
+                logging.error(e)
+                logging.error("Error in technology loading table. Check if e.g. empty field")
+                sys.exit()
 
     return dict_technologies, dict_tech_lists
 
@@ -501,7 +503,7 @@ def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
                 if entry != '':
                     enduse = str(_headings[position])
                     fueltype = _secondline[position]
-                    fueltype_int = technologies_related.get_fueltype_int(lu_fueltypes, fueltype)
+                    fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, fueltype)
                     end_uses_dict[sector][enduse][fueltype_int] += float(row[position])
 
     return end_uses_dict, list(all_sectors), list(all_enduses)

@@ -9,25 +9,25 @@ from energy_demand.profiles import generic_shapes
 class OtherModel(object):
     """Other Model
     """
-    def __init__(self, region_object, enduse):
+    def __init__(self, region_obj, enduse):
         """Constructor
 
         Arguments
         ----------
         data : dict
             Data
-        region_object : dict
+        region_obj : dict
             Object of region
         enduse : string
             Enduse
         sector : string
             Service sector
         """
-        self.region_name = region_object.region_name
+        self.region_name = region_obj.region_name
         self.enduse = enduse
 
         # Transportation + agriculture
-        self.fuels_reg = region_object.ts_fuels # + region_object.ag_fuels
+        self.fuels_reg = region_obj.ts_fuels # + region_obj.ag_fuels
 
         self.enduse_object = self.create_enduse()
 

@@ -46,8 +46,6 @@ class EnergyModel(object):
             data['sectors']
             )
 
-
-
         # --------------------
         # Industry SubModel
         # --------------------
@@ -134,7 +132,7 @@ class EnergyModel(object):
         # Sum across all regions, all enduse and sectors sum_reg
         # ------------------------------------------------------
         self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names)
-    
+
     def fuel_regions_fueltype(self, lookups, region_names):
         """Collect fuels for every fueltype and region (unconstrained mode). The
         regions are stored in an array for every timestep
@@ -175,7 +173,12 @@ class EnergyModel(object):
 
         Arguments
         ----------
-        
+        tech_load_profiles : dict
+            Load profiles
+        assumptions : dict
+            Assumptions
+        sectors : dict
+            Sectors
 
         Returns
         -------
@@ -350,11 +353,11 @@ class EnergyModel(object):
         submodules = []
 
         # Iterate regions, sectors and enduses
-        for region_object in self.regions:
+        for region_obj in self.regions:
 
             # Create submodule
             submodule = ts_model.OtherModel(
-                region_object,
+                region_obj,
                 'generic_transport_enduse'
             )
 
@@ -394,14 +397,14 @@ class EnergyModel(object):
         submodules = []
 
         # Iterate regions, sectors and enduses
-        for region_object in self.regions:
+        for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
 
                     # Create submodule
                     submodule = is_model.IndustryModel(
                         data,
-                        region_object,
+                        region_obj,
                         enduse,
                         sector=sector
                         )
@@ -442,14 +445,14 @@ class EnergyModel(object):
         submodule_list = []
 
         # Iterate regions and enduses
-        for region_object in self.regions:
+        for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
 
                     # Create submodule
                     submodel_object = rs_model.ResidentialModel(
                         data,
-                        region_object,
+                        region_obj,
                         enduse,
                         sector
                         )
@@ -490,14 +493,14 @@ class EnergyModel(object):
         submodule_list = []
 
         # Iterate regions, sectors and enduses
-        for region_object in self.regions:
+        for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
 
                     # Create submodule
                     submodule = ss_model.ServiceModel(
                         data,
-                        region_object,
+                        region_obj,
                         enduse,
                         sector
                         )
@@ -517,20 +520,20 @@ class EnergyModel(object):
     def create_weather_regions(cls, weather_regions, data, model_type):
         """Create all weather regions and calculate
 
-        TODO:
-        -stocks
-        -load profiles
-
         Arguments
         ----------
         weather_region : list
             The name of the Weather Region
+        data : dict
+            Data container
+        model_type : str
+            Name of model ("e.g. rs_ or ss_)
         """
-        weather_region_objects = []
+        weather_region_objs = []
 
         for weather_region_name in weather_regions:
 
-            region_object = WeatherRegion.WeatherRegion(
+            region_obj = WeatherRegion.WeatherRegion(
                 weather_region_name=weather_region_name,
                 sim_param=data['sim_param'],
                 assumptions=data['assumptions'],
@@ -542,10 +545,10 @@ class EnergyModel(object):
                 modeltype=model_type
                 )
 
-            weather_region_objects.append(region_object)
+            weather_region_objs.append(region_obj)
 
-        return weather_region_objects
-
+        return weather_region_objs
+    
     def create_regions(self, region_names, data, submodel_type):
         """Create all regions and add them in a list
 
@@ -560,19 +563,17 @@ class EnergyModel(object):
         """
         regions = []
 
-        # Iterate all regions
         for region_name in region_names:
             logging.debug("... creating region: '{}'  {}".format(region_name, submodel_type))
-            # Generate region object
-            region_object = region.Region(
+
+            region_obj = region.Region(
                 region_name=region_name,
                 data=data,
                 submodel_type=submodel_type,
                 weather_regions=self.weather_regions
                 )
 
-            # Add region to list
-            regions.append(region_object)
+            regions.append(region_obj)
 
         return regions
 

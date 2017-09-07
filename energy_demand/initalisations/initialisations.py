@@ -1,6 +1,5 @@
 """Helper initialising functions
 """
-#pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
     """Helper function to define stocks for all enduse and fueltype

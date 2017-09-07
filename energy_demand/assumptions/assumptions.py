@@ -3,7 +3,7 @@
 import logging
 from datetime import date
 from energy_demand.read_write import read_data
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
@@ -337,12 +337,12 @@ def load_assumptions(data, nismod_mode=True):
     assumptions['efficiency_achieving_factor'] = 1
 
     # --Heat pumps
-    assumptions['installed_heat_pump'] = technologies_related.generate_ashp_gshp_split(
+    assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
         split_hp_ashp_gshp,
         data)
 
     # Add heat pumps to technologies #SHARK
-    assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = technologies_related.generate_heat_pump_from_split(
+    assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         data,
         [],
         assumptions['technologies'],
@@ -350,7 +350,7 @@ def load_assumptions(data, nismod_mode=True):
         )
 
     # --Hybrid technologies
-    assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = technologies_related.get_defined_hybrid_tech(
+    assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = tech_related.get_defined_hybrid_tech(
         assumptions,
         assumptions['technologies'],
         hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
@@ -375,28 +375,37 @@ def load_assumptions(data, nismod_mode=True):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['rs_path_fuel_switches'], data)
-    assumptions['ss_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['ss_path_fuel_switches'], data)
-    assumptions['is_fuel_switches'] = read_data.read_assump_fuel_switches(data['paths']['is_path_fuel_switches'], data)
+    assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(data['paths']['rs_path_fuel_switches'], data)
+    assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(data['paths']['ss_path_fuel_switches'], data)
+    assumptions['is_fuel_switches'] = read_data.read_fuel_switches(data['paths']['is_path_fuel_switches'], data)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(data['paths']['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
-    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(data['paths']['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
-    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(data['paths']['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
+    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(
+        data['paths']['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
+    assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(
+        data['paths']['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
+    assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
+        data['paths']['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
     # ========================================
-    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = technologies_related.insert_dummy_technologies(assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
-    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = technologies_related.insert_dummy_technologies(assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'])
-    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = technologies_related.insert_dummy_technologies(assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
+    assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+        assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
+    assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+        assumptions['technologies'], assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'])
+    assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
+        assumptions['technologies'], assumptions['is_fuel_tech_p_by'], assumptions['is_specified_tech_enduse_by'])
 
     # All enduses with dummy technologies
-    assumptions['rs_dummy_enduses'] = technologies_related.get_enduses_with_dummy_tech(assumptions['rs_fuel_tech_p_by'])
-    assumptions['ss_dummy_enduses'] = technologies_related.get_enduses_with_dummy_tech(assumptions['ss_fuel_tech_p_by'])
-    assumptions['is_dummy_enduses'] = technologies_related.get_enduses_with_dummy_tech(assumptions['is_fuel_tech_p_by'])
+    assumptions['rs_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
+        assumptions['rs_fuel_tech_p_by'])
+    assumptions['ss_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
+        assumptions['ss_fuel_tech_p_by'])
+    assumptions['is_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
+        assumptions['is_fuel_tech_p_by'])
 
 
     # ============================================================

@@ -3,7 +3,7 @@ Fuel share assumptions
 ======================
 All fuel shares of the base year for the different technologies are defined
 """
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 from energy_demand.initalisations import initialisations
 from energy_demand.initalisations import helpers
 
@@ -245,7 +245,7 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
         Shares of total service of this fueltype
     tech_share_tot_service : dict
         Service share of technologies of a fueltype
-        e.g. service_share_tech = {'tech_A': 0.4, 'tech_B': 0.6}¨
+        e.g. service_share_tech = {'tech_A': 0.4, 'tech_B': 0.6}
     tech_stock : object
         Technology stock
     assumptions : dict
@@ -270,7 +270,7 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
     for technology, service_share_tech in tech_share_tot_service.items():
 
         # Get by efficiency
-        tech_type = technologies_related.get_tech_type(
+        tech_type = tech_related.get_tech_type(
             technology,
             assumptions['tech_list']
             )
@@ -278,7 +278,7 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
         if tech_type == 'hybrid_tech':
             eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
         elif tech_type == 'heat_pump':
-            eff_tech_by = technologies_related.eff_heat_pump(
+            eff_tech_by = tech_related.eff_heat_pump(
                 temp_diff=10,
                 efficiency_intersect=tech_stock[technology]['eff_by']
                 )

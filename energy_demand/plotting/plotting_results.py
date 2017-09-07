@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
 def plot_x_days(all_hours_year, region, days):
@@ -186,7 +186,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
+        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         for model_year_object in results_resid:
@@ -238,7 +238,7 @@ def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
+        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
         # Read out fueltype specific max h load
@@ -291,7 +291,7 @@ def plt_fuels_peak_h(results_resid, data, attribute_to_get):
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = technologies_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
+        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
 
         legend_entries.append(fueltype_in_string)
 

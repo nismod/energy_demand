@@ -1,4 +1,5 @@
-from pkg_resources import Requirement, resource_filename
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
 import os
 
 class TestDataPath:
@@ -7,9 +8,9 @@ class TestDataPath:
     """
 
     def test_get_path(self):
-        path_main = resource_filename(Requirement.parse("energy_demand"), 
+        path_main = resource_filename(Requirement.parse("energy_demand"),
                                       "data")
-                   
+
         expected = os.path.join(path_main, 'submodel_residential')
         assert os.path.exists(expected)
 

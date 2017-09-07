@@ -3,7 +3,7 @@
 import sys
 import numpy as np
 import logging
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
 #pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
@@ -99,7 +99,7 @@ class TechStock(object):
         for enduse in enduses:
             for technology_name in technologies[enduse]:
                 #logging.debug("         ...{}   {}".format(sector, technology))
-                tech_type = technologies_related.get_tech_type(technology_name, assumptions['tech_list'])
+                tech_type = tech_related.get_tech_type(technology_name, assumptions['tech_list'])
 
                 if tech_type == 'hybrid_tech':
                     # Create hybrid technology object
@@ -214,14 +214,14 @@ class Technology(object):
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
             if tech_type == 'heat_pump':
-                self.eff_by = technologies_related.get_heatpump_eff(
+                self.eff_by = tech_related.get_heatpump_eff(
                     temp_by,
                     assumptions['technologies'][tech_name]['eff_by'],
                     t_base_heating)
 
-                self.eff_cy = technologies_related.get_heatpump_eff(
+                self.eff_cy = tech_related.get_heatpump_eff(
                     temp_cy,
-                    technologies_related.calc_eff_cy(
+                    tech_related.calc_eff_cy(
                         assumptions['technologies'][tech_name]['eff_by'],
                         tech_name,
                         sim_param,
@@ -232,7 +232,7 @@ class Technology(object):
                     t_base_heating_cy)
             else:
                 self.eff_by = assumptions['technologies'][tech_name]['eff_by']
-                self.eff_cy = technologies_related.calc_eff_cy(
+                self.eff_cy = tech_related.calc_eff_cy(
                     assumptions['technologies'][tech_name]['eff_by'],
                     tech_name,
                     sim_param,
@@ -316,11 +316,11 @@ class HybridTechnology(object):
         self.tech_high_temp_fueltype =assumptions['technologies'][self.tech_high_temp]['fuel_type']
 
         self.eff_tech_low_by = assumptions['technologies'][self.tech_low_temp]['eff_by']
-        self.eff_tech_high_by = technologies_related.get_heatpump_eff(
+        self.eff_tech_high_by = tech_related.get_heatpump_eff(
             temp_by, assumptions['technologies'][self.tech_high_temp]['eff_by'], t_base_heating_by)
 
         # Efficiencies
-        self.eff_tech_low_cy = technologies_related.calc_eff_cy(
+        self.eff_tech_low_cy = tech_related.calc_eff_cy(
             assumptions['technologies'][self.tech_low_temp]['eff_by'],
             self.tech_low_temp,
             sim_param,
@@ -329,7 +329,7 @@ class HybridTechnology(object):
             assumptions['technologies'][self.tech_low_temp]['diff_method']
             )
 
-        eff_tech_high_cy = technologies_related.calc_eff_cy(
+        eff_tech_high_cy = tech_related.calc_eff_cy(
             assumptions['technologies'][self.tech_high_temp]['eff_by'],
             self.tech_high_temp,
             sim_param,
@@ -338,7 +338,7 @@ class HybridTechnology(object):
             assumptions['technologies'][self.tech_high_temp]['diff_method']
             )
 
-        self.eff_tech_high_cy = technologies_related.get_heatpump_eff(
+        self.eff_tech_high_cy = tech_related.get_heatpump_eff(
             temp_cy, eff_tech_high_cy, t_base_heating_cy)
 
         # Get fraction of service for hybrid technologies for every hour

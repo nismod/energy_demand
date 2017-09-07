@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import logging
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 
 def write_service_fueltype_by_p(path_to_txt, data):
     """Write out function
@@ -262,13 +262,13 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
                 #logging.debug("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
-                tech_type = technologies_related.get_tech_type(tech, tech_list)
+                tech_type = tech_related.get_tech_type(tech, tech_list)
 
                 # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
                 if tech_type == 'hybrid_tech':
                     eff_tech = hybrid_technologies[tech]['average_efficiency_national_by']
                 elif tech_type == 'heat_pump':
-                    eff_tech = technologies_related.eff_heat_pump(
+                    eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=tech_stock[tech]['eff_by']
                         )

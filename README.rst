@@ -5,7 +5,18 @@ High Resolution Energy Demand Model
 ====================================
 **HIRE** is written in Python (Python>=3.6).
 
-# Very much work in progress
+HIRE has been developped within the MISTRAL
+project. A previous model has been developped within
+NISMOD by Pranab et al..(MOREINFO)歐HIRE develops this model
+further into a high temporal and spatial model.
+
+
+More information can be found here:
+
+    - Eggimann et al. (2018): Paper blablabla
+
+
+# This is still very much work in progress
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
@@ -17,6 +28,7 @@ High Resolution Energy Demand Model
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
     :target: https://coveralls.io/github/nismod/energy_demand
 
+(click on the 'docs' button to get directed to the full model documentation)
 
 Running the model
 ========================

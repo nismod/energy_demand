@@ -3,7 +3,7 @@
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 
-def insert_dummy_technologies(technologies, tech_p_by, all_specified_tech_enduse_by):
+def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     """Define dummy technologies
 
     Where no specific technologies are assigned for an enduse

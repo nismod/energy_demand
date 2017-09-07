@@ -1,5 +1,5 @@
 import numpy as np
-from energy_demand.technologies import technologies_related
+from energy_demand.technologies import tech_related
 
 def const_eff_yh():
     """Testing function
@@ -8,7 +8,7 @@ def const_eff_yh():
     expected = np.ones((365, 24))
 
     # call function
-    out_value = technologies_related.const_eff_yh(in_value)
+    out_value = tech_related.const_eff_yh(in_value)
 
     assert out_value == expected
 
@@ -20,11 +20,11 @@ def get_fueltype_str():
     expected = 100
 
     # call function
-    out_value = technologies_related.get_fueltype_str(fueltypes_lu, in_value)
+    out_value = tech_related.get_fueltype_str(fueltypes_lu, in_value)
 
     assert out_value == expected
 
-def get_fueltype_str():
+def get_fueltype_int():
     """Testing function
     """
     fueltypes_lu = {'gas': 100}
@@ -32,7 +32,6 @@ def get_fueltype_str():
     expected = 'gas'
 
     # call function
-    out_value = technologies_related.get_fueltype_str(fueltypes_lu, in_value)
+    out_value = tech_related.get_fueltype_int(fueltypes_lu, in_value)
 
     assert out_value == expected
-

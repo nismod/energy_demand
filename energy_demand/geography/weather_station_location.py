@@ -28,14 +28,14 @@ def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
 
     return distance_in_km
 
-def get_closest_station(longitude_reg, latitue_reg, weather_stations):
+def get_closest_station(longitude_reg, latitude_reg, weather_stations):
     """Search ID of closest weater station
 
     Arguments
     ----------
     longitude_reg : float
         Longitute coordinate of Region Object
-    latitue_reg : float
+    latitude_reg : float
         Latitute coordinate of Region Object
     weather_stations : dict
         Weater station data
@@ -47,15 +47,15 @@ def get_closest_station(longitude_reg, latitue_reg, weather_stations):
     """
     closest_dist = 99999999999
 
-    for station_id in weather_stations:
+    for station in weather_stations:
         dist_to_station = calc_distance_two_points(
             longitude_reg,
-            latitue_reg,
-            weather_stations[station_id]['station_latitude'],
-            weather_stations[station_id]['station_longitude']
+            latitude_reg,
+            weather_stations[station]['station_latitude'],
+            weather_stations[station]['station_longitude']
         )
 
         if dist_to_station < closest_dist:
-            closest_dist, closest_id = dist_to_station, station_id
+            closest_dist, closest_id = dist_to_station, station
 
     return closest_id

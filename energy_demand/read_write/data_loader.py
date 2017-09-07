@@ -370,44 +370,47 @@ def load_temp_data(paths):
 
     return weather_stations, temperature_data
 
-def load_fuels(data):
+def load_fuels(paths, lookups):
     """Load in ECUK fuel data
 
     Arguments
     ---------
-    data : dict
-        Data container
+    paths : dict
+        Paths container
+    lookups : dict
+        Look-ups
+    
     """
-    data['enduses'] = {}
-    data['sectors'] = {}
-    data['fuels'] = {}
+    enduses = {}
+    sectors = {}
+    fuels = {}
     # Residential Sector (ECUK Table XY and Table XY) 
-    rs_fuel_raw_data_enduses, data['enduses']['rs_all_enduses'] = read_data.read_csv_base_data_resid(
-        data['paths']['rs_fuel_raw_data_enduses'])
+    rs_fuel_raw_data_enduses, enduses['rs_all_enduses'] = read_data.read_csv_base_data_resid(
+        paths['rs_fuel_raw_data_enduses'])
 
     # Service Sector (ECUK Table XY)
-    ss_fuel_raw_data_enduses, data['sectors']['ss_sectors'], data['enduses']['ss_all_enduses'] = read_data.read_csv_data_service(
-        data['paths']['ss_fuel_raw_data_enduses'],
-        data['lookups']['nr_of_fueltypes'])
+    ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_csv_data_service(
+        paths['ss_fuel_raw_data_enduses'],
+        lookups['nr_of_fueltypes'])
 
     # Industry fuel (ECUK Table 4.04)
-    is_fuel_raw_data_enduses, data['sectors']['is_sectors'], data['enduses']['is_all_enduses'] = read_data.read_csv_base_data_industry(
-        data['paths']['is_fuel_raw_data_enduses'], data['lookups']['nr_of_fueltypes'], data['lookups']['fueltype'])
+    is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
+        paths['is_fuel_raw_data_enduses'], lookups['nr_of_fueltypes'], lookups['fueltype'])
 
     # Convert units
-    data['fuels']['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)
-    data['fuels']['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(ss_fuel_raw_data_enduses)
-    data['fuels']['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(is_fuel_raw_data_enduses)
+    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(ss_fuel_raw_data_enduses)
+    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(is_fuel_raw_data_enduses)
 
     #TODO
-    fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
+    fuel_national_tranport = np.zeros((lookups['nr_of_fueltypes']))
 
     #Elec demand from ECUK for transport sector
     fuel_national_tranport[2] = conversions.convert_ktoe_gwh(385)
 
-    data['fuels']['ts_fuel_raw_data_enduses'] = fuel_national_tranport
+    fuels['ts_fuel_raw_data_enduses'] = fuel_national_tranport
 
-    return data
+    return enduses, sectors, fuels
 
 def rs_collect_shapes_from_txts(txt_path):
     """All pre-processed load shapes are read in from .txt files without accesing raw files
@@ -556,12 +559,9 @@ def ss_read_out_shapes_enduse_all_tech(ss_shapes_dh, ss_shapes_yd):
 
     for sector in ss_shapes_yd:
         for enduse in ss_shapes_yd[sector]:
-
-            # Add shapes
             ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
             ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
-        #only iterate first sector as all enduses are the same in all sectors
-        break
+        break #only iterate first sector as all enduses are the same in all sectors
     #TODO: IS YD NEEDED?
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd
 
@@ -585,7 +585,7 @@ def load_LAC_geocodes_info(path_to_csv):
             for nr, value in enumerate(row[1:], 1):
                 try:
                     values_line[_headings[nr]] = float(value)
-                except:
+                except ValueError: #SHARK
                     values_line[_headings[nr]] = str(value)
 
             # Add entry with geo_code

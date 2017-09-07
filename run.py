@@ -20,7 +20,7 @@ class EDWrapper(SectorModel):
 
     def before_model_run(self):
         """Runs prior to any ``simulate()`` step
-        
+
         Writes scenario data out into the scenario files
 
         Saves useful data into the ``self.user_data`` dictionary for access
@@ -48,11 +48,10 @@ class EDWrapper(SectorModel):
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data['fuels'] = data_loader.load_fuels(ed_data)
+        ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles']['ss_all_tech_shapes_dh'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
-        #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Initialise scenario
         scenario_initalisation(self.user_data['data_path'], ed_data)
@@ -109,6 +108,7 @@ class EDWrapper(SectorModel):
         # Scenario data
         # ---------
         ed_data = {}
+        ed_data['print_criteria'] = False # No plt.show() functions are exectued if False
         ed_data['population'] = data['population']
         ed_data['GVA'] = data['gva']
         ed_data['rs_floorarea'] = data['floor_area']
@@ -118,16 +118,15 @@ class EDWrapper(SectorModel):
         # ---------
         # Replace data in ed_data with data provided from wrapper or before_model_run
         # ---------
-        ed_data['lu_reg'] = self.get_region_names('lad')
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        ed_data['lu_reg'] = self.get_region_names('lad')
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data['fuels'] = data_loader.load_fuels(ed_data)
+        ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
-        #ed_data = data_loader.dummy_data_generation(ed_data)
 
         # Write data from smif to data container from energy demand model
         ed_data['sim_param']['current_year'] = timestep
@@ -151,12 +150,16 @@ class EDWrapper(SectorModel):
         ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
         ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
+        # ---------
         # Run model
+        # ---------
         ed_data = read_data.load_script_data(ed_data)
 
         _, results = energy_demand_model(ed_data)
 
-        # Restuls for ES Form: {'electricity': np.array((region, 8760hourdata))}
+        # ---------
+        # Process results
+        # ---------
         out_to_supply = results.fuel_indiv_regions_yh
 
 

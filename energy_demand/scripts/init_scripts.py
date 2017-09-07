@@ -32,7 +32,7 @@ def post_install_setup(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['fuels'] = data_loader.load_fuels(data)
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups']s)
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
 
@@ -81,7 +81,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
-        data['fuels'] = data_loader.load_fuels(data)
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)

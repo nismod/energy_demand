@@ -2,41 +2,6 @@
 Energy Demand Model
 =================
 
-Contains all calculation steps necessary to run the
-energy demand module.
-
-The model has been developped within the MISTRAL
-project. A previous model has been developped within
-NISMOD by Pranab et al..(MOREINFO) HIRE develops this model
-further into a high temporal and spatial model.abs
-
-Key contributers are:
-    - Sven Eggimann
-    - Nick Eyre
-    -
-
-    note,tip,warning,
-
-More information can be found here:
-
-    - Eggimann et al. (2018): Paper blablabla
-
-build, git, docs, .eggs, .coverage, .cache, hire, scripts, data
-
-pip install autopep8
-autopep8 -i myfile.py # <- the -i flag makes the changes "in-place"
-import time   fdf
-#logging.debug("..TIME A: {}".format(time.time() - start))
-TODO: Make end year more explicit with yearliy number
-TODO: REMOVE HEAT BOILER
-    Quetsiosn for Tom
-    ----------------
-    - Cluster?
-    - scripts in ed?
-    - path rel/abs
-    - nested scripts
-
-Todo: Clan in data / data_scripts and data / model_output
 '''
 import os
 import sys
@@ -123,12 +88,11 @@ if __name__ == "__main__":
 
     # Load data
     data = {}
-    data['print_criteria'] = True #Print criteria = True #Print criteria
-
+    data['print_criteria'] = False #Print criteria = True #Print criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['fuels'] = data_loader.load_fuels(data)
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, False)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
