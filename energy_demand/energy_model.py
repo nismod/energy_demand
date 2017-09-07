@@ -343,8 +343,8 @@ class EnergyModel(object):
             #logger.info("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
 
         del self.regions, self.weather_regions
-        logger = log.create_logger(data['local_paths']['path_logging'])
-        logger.info("... finished other submodel")
+        #logger = log.create_logger(data['local_paths']['path_logging'])
+        #logger.info("... finished other submodel")
         return submodules
 
     def industry_submodel(self, data, enduses, sectors):

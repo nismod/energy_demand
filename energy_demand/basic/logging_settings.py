@@ -1,3 +1,5 @@
+"""Defining the logger configurations
+"""
 import logging
 
 def create_logger(path_log_file):

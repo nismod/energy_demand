@@ -148,9 +148,7 @@ class Enduse(object):
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
-            #print("Fuel train A: " + str(np.sum(self.fuel_new_y)))
-            #testsumme = np.sum(self.fuel_new_y[2])
-            #testsumme2 = self.fuel_new_y
+
             # -------------------------------------------------------------------------------
             # Change fuel consumption based on climate change induced temperature differences
             # -------------------------------------------------------------------------------
@@ -1254,8 +1252,8 @@ class Enduse(object):
     def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, mode_constrained):
         """Convert yearly energy service to yearly fuel demand
 
-        For every technology the service is taken and converted to fuel 
-        based on efficiency of current year
+        For every technology the service is taken and converted
+        to fuel based on efficiency of current year
 
         The attribute 'fuel_new_y' is updated
 
@@ -1276,7 +1274,7 @@ class Enduse(object):
         """
         enduse_fuels = np.zeros((self.fuel_new_y.shape))
 
-        if mode_constrained: # Constrained version
+        if mode_constrained:
             fuel_fueltype_p = np.zeros((self.fuel_new_y.shape))
             fuel_fueltype_p[lu_fueltypes['heat']] = 1.0 #Assign all to heat
 
@@ -1284,7 +1282,7 @@ class Enduse(object):
                 # Multiply with fuel
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
 
-        else: # Unconstrained version
+        else:
             for tech, service in service_tech.items():
 
                 # Convert service to fuel
