@@ -153,8 +153,7 @@ class Enduse(object):
                 heating_factor_y,
                 data['assumptions']
                 )
-            logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
-
+            #logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.apply_smart_metering(
@@ -798,7 +797,7 @@ class Enduse(object):
 
                 if tech == 'dummy_tech':
                     enduse_techs = []
-                    return enduse_techs
+                    return list(enduse_techs)
 
         return list(enduse_techs)
 

@@ -108,7 +108,7 @@ class EDWrapper(SectorModel):
         3. For each timestep, run the model
 
         Data is provided to these methods in the format::
-        
+
             {'parameter_name': value_array}
 
         where ``value_array`` is a regions-by-intervals numpy array.
@@ -133,8 +133,6 @@ class EDWrapper(SectorModel):
         # ---------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         ed_data['lu_reg'] = self.get_region_names('lad')
-
-
 
         #ed_data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
         ed_data['paths'] = data_loader.load_paths(path_main)

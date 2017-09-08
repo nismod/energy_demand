@@ -28,7 +28,7 @@ def test_get_tot_pop():
     dwellings2 = [classobject2, classobject2]
 
     dw_stock_object = dw_stock.DwellingStock('bern', dwellings, ['heating'])
-    dw_stock_object2 = dw_stock.DwellingStock('bern', dwellings, ['heating'])
+    dw_stock_object2 = dw_stock.DwellingStock('bern', dwellings2, ['heating'])
     
     expected = 4.4
     expected2 = None
@@ -38,6 +38,8 @@ def test_get_tot_pop():
     out_value2 = dw_stock_object2.get_tot_pop()
 
     assert out_value == expected
+    print("OUT 2 " + str(out_value2))
+    print("OUT 2 " + str(expected2))
     assert out_value2 == expected2
 
 def test_get_scenario_driver_enduse():

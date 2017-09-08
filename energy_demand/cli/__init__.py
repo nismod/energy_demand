@@ -51,6 +51,10 @@ def run_model(args):
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
+    # =========DUMMY DATA
+    data = data_loader.dummy_data_generation(data)
+    # =========DUMMY DATA
+
     # Load data from script calculations
     data = read_data.load_script_data(data)
 
