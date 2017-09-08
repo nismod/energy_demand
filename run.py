@@ -60,15 +60,23 @@ class EDWrapper(SectorModel):
         # Obtain scenario data
         ed_data = {}
         ed_data['print_criteria'] = True #Print criteria
+
         pop_array = self.get_scenario_data('population')
+        ed_data['population'] = self.array_to_dict(pop_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
+
         gva_array = self.get_scenario_data('gva')
+        ed_data['GVA'] = self.array_to_dict(gva_array)
         self.user_data['GVA'] = self.array_to_dict(gva_array)
-        ed_data['rs_floorarea'] = self.get_scenario_data('floor_area')
+
         floor_array = self.get_scenario_data('floor_area')
-        floor_dict = self.array_to_dict(floor_array)
-        self.user_data['ss_floorarea'] = floor_dict
-        self.user_data['reg_floorarea_resid'] = floor_dict
+        ed_data['rs_floorarea'] = self.array_to_dict(floor_array)
+        ed_data['ss_floorarea'] = self.array_to_dict(floor_array)
+        ed_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
+
+        self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
+        self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
+
         ed_data['lu_reg'] = self.get_region_names('lad')
         #ed_data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
 
@@ -77,16 +85,19 @@ class EDWrapper(SectorModel):
         ed_data['paths'] = data_loader.load_paths(path_main)
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
+
+        #ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
+        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
+        
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
         
-        self.user_data['population_by'] = data['population'][2015]
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        ed_data = data_loader.dummy_data_generation(ed_data)
+        #ed_data = data_loader.dummy_data_generation(ed_data)
+        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # Initialise scenario
@@ -147,13 +158,11 @@ class EDWrapper(SectorModel):
         # ---------
         ed_data = {}
         ed_data['print_criteria'] = False # No plt.show() functions are exectued if False
-        ed_data['population'] = {}
-        ed_data['population'][self.timesteps[0]] = self.user_data['population_by']
         ed_data['population'] = self.user_data['population']
-        ed_data['GVA'] = data['gva']
-        ed_data['rs_floorarea'] = data['floor_area']
-        ed_data['ss_floorarea'] = data['floor_area']
-        ed_data['reg_floorarea_resid'] = data['floor_area']
+        ed_data['GVA'] = self.user_data['GVA']
+        ed_data['rs_floorarea'] = self.user_data['rs_floor_area']
+        ed_data['ss_floorarea'] = self.user_data['ss_floor_area']
+        ed_data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
 
         # ---------
         # Replace data in ed_data with data provided from wrapper or before_model_run
@@ -170,7 +179,9 @@ class EDWrapper(SectorModel):
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
         ed_data['weather_stations'], _ = data_loader.load_temp_data(ed_data['local_paths'])
-        ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
+        
+        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
+        #ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
         ed_data['sim_param']['current_year'] = timestep
         ed_data['sim_param']['end_year'] = 2020
         ed_data['sim_param']['sim_years_intervall'] = 1
@@ -191,7 +202,8 @@ class EDWrapper(SectorModel):
 
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        ed_data = data_loader.dummy_data_generation(ed_data)
+        #ed_data = data_loader.dummy_data_generation(ed_data)
+        #ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # -----------------------

@@ -7,7 +7,7 @@ High Resolution Energy Demand Model
 
 HIRE has been developped within the MISTRAL
 project. A previous model has been developped within
-NISMOD by Pranab et al..(MOREINFO)歐HIRE develops this model
+NISMOD by Pranab et al..(MOREINFO). HIRE develops this model
 further into a high temporal and spatial model.
 
 
@@ -28,7 +28,7 @@ More information can be found here:
 .. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
     :target: https://coveralls.io/github/nismod/energy_demand
 
-(click on the 'docs' button to get directed to the full model documentation)
+*(click on the 'docs' button to get directed to the full model documentation)*
 
 Running the model (local)
 ========================

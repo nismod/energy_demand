@@ -55,7 +55,7 @@ def get_dummy_coordinates_and_regions(local_paths):
         regions[geo_code] = values['label']
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
-    return  coord_dummy, regions
+    return coord_dummy, regions
 
 def dummy_data_generation(data):
     """TODO: REPLACE WITH NEWCASTLE DATA
