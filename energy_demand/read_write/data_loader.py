@@ -42,6 +42,21 @@ def load_basic_lookups():
 
     return lookups
 
+def get_dummy_coordinates_and_regions(local_paths):
+    """create dummy coord and regions
+    """
+    coord_dummy = {}
+    regions = {}
+    # Load dummy LAC and pop
+    dummy_pop_geocodes = load_LAC_geocodes_info(
+        local_paths['path_dummy_regions']
+        )
+    for geo_code, values in dummy_pop_geocodes.items():
+        regions[geo_code] = values['label']
+        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
+
+    return  coord_dummy, regions
+
 def dummy_data_generation(data):
     """TODO: REPLACE WITH NEWCASTLE DATA
     """
@@ -142,7 +157,7 @@ def load_local_paths(path):
         'folder_validation_national_elec_data': os.path.join(
             path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
         'path_dummy_regions': os.path.join(
-            path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved_short.csv'),
+            path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
         'rs_load_profile_txt': os.path.join(

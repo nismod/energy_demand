@@ -59,7 +59,8 @@ class Region(object):
             self.is_heating_factor_y = weather_reg_obj.is_heating_factor_y
             self.is_cooling_factor_y = weather_reg_obj.is_cooling_factor_y
 
-    def get_weather_reg(self, weather_regions, closest_reg):
+    @classmethod
+    def get_weather_reg(cls, weather_regions, closest_reg):
         """Iterate list with weather regions and get weather region object
 
         Arguments
@@ -68,7 +69,7 @@ class Region(object):
             Weather regions
         closest_reg : str
             Station ID
-        
+
         Return
         ------
         weather_region : object

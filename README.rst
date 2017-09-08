@@ -30,7 +30,7 @@ More information can be found here:
 
 (click on the 'docs' button to get directed to the full model documentation)
 
-Running the model
+Running the model (local)
 ========================
 
 In order to run the model, the following steps are necessary. Step 1, 2 and 3
@@ -70,6 +70,10 @@ with different assumptions.
 5. Run the energy demand model from the console with the command
 
    ``energy_demand run -d path/to/energy_data_folder``
+
+Running the model (with smif)
+========================
+
 
 
 A word from our sponsors

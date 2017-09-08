@@ -1,7 +1,7 @@
 Model Documentation
 ===================
 
-## Overview
+## 1. Overview
 
 
 The energy demand model of the ITRC-MISTRAL framework allows 
@@ -21,9 +21,9 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-## Energy demand simulation
+## 2. Energy demand simulation
 
-Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}")) is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
+Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}"))is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 
 ![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D%20%3D%20%5Csum_%7Br%7D%20%5Csum_%7Bs%7D%5Csum_%7Be%7D%5Csum_%7Bt%7D%5Csum_%7Bf%7DED_%7BSD%7D%20&plus;%20ED_%7Beff%7D%20&plus;%20ED_%7Btech%7D%20&plus;%20ED_%7Bclimate%7D%20&plus;%20ED_%7Bbehaviour%7D "ED_{y}^{tot} = \sum_{r} \sum_{s}\sum_{e}\sum_{t}\sum_{f}ED_{SD} + ED_{eff} + ED_{tech} + ED_{climate} + ED_{behaviour}")
@@ -93,24 +93,29 @@ Lorem ipsum...
 ![Two modes](../docs/documentation_images/002-constrained_optimised_modes.png)
 *Figure 3.2: Interaction*
 
-## 4. Dwelling Model
+## 4. Generic Dwelling Stock Model
 
-A generic dwelling model is implemented in HIRE. Instead of modelling every individual building, a abstracted dwelling respresentation of the dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region``:
+A generic dwelling model is implemented in HIRE. Instead of modelling every individual building, a abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
 
-> 1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``).
+1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``).
   The floor area per person can be changed over the simulation period.
->
-> 2. Based on ``floor_area_pp`` and scenario population input, total necessary new and existing floor area is calculated (total         new floor area minus existing floor area).
->
-> 3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is
-     calculated.
->
-> 4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated.
+
+2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated         for the simulation year (by substracting the existing floor area of the total new floor area).
+
+3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is
+   calculated.
+
+4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The
+   heat loss coefficient is calculated for every object.
+
+5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
+   indication of the energy demand and can be used for calculating the scenario drivers.
+
+Note: The generic dwelling model can be replaced by directly defining the the ``dwelling`` objects, if the dwelling stock information is  information is available from another source.
 
 ![Dwelling model](../docs/documentation_images/003-dwelling_model.jpg)
 *Figure 4.1: Modelling steps of the residential dwelling module*
 
-The ``dwelling`` objects can however directly be implemented, if the information is available from another source. 
 
 ## 5.0 Model Parameters
 

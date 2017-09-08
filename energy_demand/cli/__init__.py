@@ -47,7 +47,7 @@ def run_model(args):
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
-    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, nismod_mode=False)
+    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
@@ -104,7 +104,7 @@ def parse_arguments():
     parser_init.add_argument(
         '-d',
         '--data_energy_demand',
-        default='./energy_demand_data',
+        default='./data_energy_demand',
         help='Path to the input data folder'
         )
 

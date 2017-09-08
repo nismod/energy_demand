@@ -33,7 +33,7 @@ def post_install_setup(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, nismod_mode=False)
+    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
     data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
 
     # Read in temperature data from raw files
@@ -68,21 +68,24 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     If no data is provided, dummy data is generated TODO
     """
-    if data:
-        run_locally = False
-    else:
+    if data == False: #keep it ==
         run_locally = True
+        logging.debug("run_locally".format(run_locally))
+    else:
+        run_locally = False
+        logging.debug("run_asf".format(run_locally))
 
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
     if run_locally is True:
+
         data = {}
         data['print_criteria'] = True #Print criteria
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, nismod_mode=False)
+        data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
         data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
     else:
@@ -131,7 +134,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             )
 
         # INDUSTRY
-        fts_cont['fuels_aggregated_across_sectors'] = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
+        fuels_aggregated_across_sectors = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
             data['fuels']['is_fuel_raw_data_enduses'],
             data['enduses']['is_all_enduses'],
             data['lookups']['nr_of_fueltypes'])
@@ -153,12 +156,12 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sgs_cont = {}
 
         # Read in Services
-        rs_service_tech_by_p = fts_cont['rs_service_tech_by_p.csv']
-        ss_service_tech_by_p = fts_cont['ss_service_tech_by_p.csv']
-        is_service_tech_by_p = fts_cont['is_service_tech_by_p.csv']
-        rs_service_fueltype_by_p = fts_cont['rs_service_fueltype_by_p.csv']
-        ss_service_fueltype_by_p = fts_cont['ss_service_fueltype_by_p.csv']
-        is_service_fueltype_by_p = fts_cont['is_service_fueltype_by_p.csv']
+        rs_service_tech_by_p = fts_cont['rs_service_tech_by_p']
+        ss_service_tech_by_p = fts_cont['ss_service_tech_by_p']
+        is_service_tech_by_p = fts_cont['is_service_tech_by_p']
+        rs_service_fueltype_by_p = fts_cont['rs_service_fueltype_by_p']
+        ss_service_fueltype_by_p = fts_cont['ss_service_fueltype_by_p']
+        is_service_fueltype_by_p = fts_cont['is_service_fueltype_by_p']
 
         # Calculate technologies with more, less and constant service based on service switch assumptions
         sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
