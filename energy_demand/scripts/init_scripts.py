@@ -89,7 +89,11 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         pass
 
     from energy_demand.scripts import s_change_temp
-    s_change_temp.run(data['local_paths'], data['assumptions'], data['sim_param'])
+    #s_change_temp.run(data['local_paths'], data['assumptions'], data['sim_param'])
+    # --REPLACED Writing/REading
+    temperature_data = s_change_temp.read_weather_data_script_data(data['local_paths']['path_processed_weather_data'])
+    assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
+    temp_climate_change = s_change_temp.change_temp_climate_change(temperature_data, assumptions_temp_change, data['sim_param'])
 
     if run_locally is True:
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
@@ -107,4 +111,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     s_disaggregation.run(data)
 
     logging.debug("...  finished scenario_initalisation")
-    return
+    if run_locally == False:
+        return temp_climate_change
+    else:
+        return

@@ -275,7 +275,6 @@ class Enduse(object):
                         data['sim_param']['curr_yr']
                         )
 
-                # --------------------------------
                 # Fuel Switches
                 # --------------------------------
                 elif crit_switch_fuel:
@@ -1060,8 +1059,7 @@ class Enduse(object):
 
         if mode_constrained: # Constrained version
             fueltypes_tech_share_yh = np.zeros((self.fuel_new_y.shape))
-            # Assign all to heat
-            fueltypes_tech_share_yh[lu_fueltypes['heat']] = 1
+            fueltypes_tech_share_yh[lu_fueltypes['heat']] = 1 # Assign all to heat
 
             for tech in self.enduse_techs:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(

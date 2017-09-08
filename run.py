@@ -54,7 +54,7 @@ class EDWrapper(SectorModel):
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
 
         # Initialise scenario
-        scenario_initalisation(self.user_data['data_path'], ed_data)
+        self.user_data['temp_data'] = scenario_initalisation(self.user_data['data_path'], ed_data)
 
         # Generate dwelling stocks over whole simulation period 
         self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
@@ -150,10 +150,15 @@ class EDWrapper(SectorModel):
         ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
         ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
+        # -----------------------
+        # Load data from scripts
+        # -----------------------
+        ed_data = read_data.load_script_data(ed_data)
+
         # ---------
         # Run model
         # ---------
-        ed_data = read_data.load_script_data(ed_data)
+        
 
         _, results = energy_demand_model(ed_data)
 

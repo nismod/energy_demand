@@ -34,7 +34,7 @@ def read_weather_data_script_data(path_to_csv):
 
     return temp_data
 
-def read_assumption(path_to_csv):
+'''def read_assumption(path_to_csv):
     """
     Arguments
     ----------
@@ -56,6 +56,7 @@ def read_assumption(path_to_csv):
             assumpt.append(float(row[1]))
 
     return assumpt
+'''
 
 def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending on simple climate change assumptions
