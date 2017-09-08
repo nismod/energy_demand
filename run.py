@@ -13,9 +13,30 @@ from energy_demand.assumptions import assumptions
 from energy_demand.basic import date_handling
 from pkg_resources import Requirement, resource_filename
 
+from collections import defaultdict
+
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
+
+    def array_to_dict(self, input_array):
+        """
+
+        Arguments
+        ---------
+        input_array : numpy.ndarray
+            timesteps, regions, interval 
+
+        Returns
+        -------
+        {}
+
+        """
+        data = defaultdict(dict)
+        for t_idx, timestep in enumerate(self.timesteps):
+            for r_idx, region in enumerate(self.get_region_names('lad')):
+                data[timestep][region] = input_array[t_idx, r_idx, 0]
+        return data
 
     def before_model_run(self):
         """Runs prior to any ``simulate()`` step
@@ -39,11 +60,15 @@ class EDWrapper(SectorModel):
         # Obtain scenario data
         ed_data = {}
         ed_data['print_criteria'] = True #Print criteria
-        ed_data['population'] = self.get_scenario_data('population')
-        ed_data['GVA'] = self.get_scenario_data('gva')
+        pop_array = self.get_scenario_data('population')
+        self.user_data['population'] = self.array_to_dict(pop_array)
+        gva_array = self.get_scenario_data('gva')
+        self.user_data['GVA'] = self.array_to_dict(gva_array)
         ed_data['rs_floorarea'] = self.get_scenario_data('floor_area')
-        ed_data['ss_floorarea'] = self.get_scenario_data('floor_area')
-        ed_data['reg_floorarea_resid'] = self.get_scenario_data('floor_area')
+        floor_array = self.get_scenario_data('floor_area')
+        floor_dict = self.array_to_dict(floor_array)
+        self.user_data['ss_floorarea'] = floor_dict
+        self.user_data['reg_floorarea_resid'] = floor_dict
         ed_data['lu_reg'] = self.get_region_names('lad')
         #ed_data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
 
@@ -58,6 +83,7 @@ class EDWrapper(SectorModel):
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
         
+        self.user_data['population_by'] = data['population'][2015]
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
         ed_data = data_loader.dummy_data_generation(ed_data)
@@ -121,7 +147,9 @@ class EDWrapper(SectorModel):
         # ---------
         ed_data = {}
         ed_data['print_criteria'] = False # No plt.show() functions are exectued if False
-        ed_data['population'] = data['population']
+        ed_data['population'] = {}
+        ed_data['population'][self.timesteps[0]] = self.user_data['population_by']
+        ed_data['population'] = self.user_data['population']
         ed_data['GVA'] = data['gva']
         ed_data['rs_floorarea'] = data['floor_area']
         ed_data['ss_floorarea'] = data['floor_area']
