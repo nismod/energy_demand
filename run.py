@@ -97,7 +97,7 @@ class EDWrapper(SectorModel):
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
         #ed_data = data_loader.dummy_data_generation(ed_data)
-        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
+        #ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # Initialise scenario
