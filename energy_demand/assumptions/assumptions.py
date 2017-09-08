@@ -24,7 +24,7 @@ def load_assumptions(data, nismod_mode=True):
     """
     logging.debug("... load assumptions")
     assumptions = {}
-    if not nismod_mode:
+    if nismod_mode == False:
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
@@ -424,7 +424,10 @@ def load_assumptions(data, nismod_mode=True):
     testing.testing_tech_defined(assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
     testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
 
-    return sim_param, assumptions
+    if nismod_mode == False:
+        return sim_param, assumptions
+    else:
+        return assumptions
 
 def update_assumptions(assumptions):
     """Updates calculations based on assumptions

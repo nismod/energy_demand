@@ -50,11 +50,12 @@ class EDWrapper(SectorModel):
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles']['ss_all_tech_shapes_dh'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
-        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
+        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, nismod_mode=True)
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
 
         # Initialise scenario
-        self.user_data['temp_data'] = scenario_initalisation(self.user_data['data_path'], ed_data)
+        self.user_data['temp_data'], self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
+            self.user_data['data_path'], ed_data)
 
         # Generate dwelling stocks over whole simulation period 
         self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
@@ -125,7 +126,7 @@ class EDWrapper(SectorModel):
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
-        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data)
+        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, nismod_mode=True)
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
 
         # Write data from smif to data container from energy demand model
@@ -141,9 +142,7 @@ class EDWrapper(SectorModel):
         # Update: Necessary updates after external data definition
         ed_data['sim_param']['sim_period'] = range(ed_data['sim_param']['base_yr'], ed_data['sim_param']['end_yr'] + 1, ed_data['sim_param']['sim_years_intervall'])
         ed_data['sim_param']['sim_period_yrs'] = int(ed_data['sim_param']['end_yr'] + 1 - ed_data['sim_param']['base_yr'])
-        ed_data['sim_param']['list_dates'] = date_handling.fullyear_dates(
-            start=date(ed_data['sim_param']['base_yr'], 1, 1),
-            end=date(ed_data['sim_param']['base_yr'], 12, 31))
+        ed_data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(ed_data['sim_param']['base_yr'], 1, 1), end=date(ed_data['sim_param']['base_yr'], 12, 31))
 
         ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
@@ -153,13 +152,46 @@ class EDWrapper(SectorModel):
         # -----------------------
         # Load data from scripts
         # -----------------------
-        ed_data = read_data.load_script_data(ed_data)
+        #ed_data = read_data.load_script_data(ed_data)
+
+        # Replaced
+        ed_data['temp_data'] = self.user_data['temp_data']
+
+        ed_data['assumptions']['rs_service_tech_by_p'] = self.user_data['fts_cont']['rs_service_tech_by_p']
+        ed_data['assumptions']['ss_service_tech_by_p'] = self.user_data['fts_cont']['ss_service_tech_by_p.csv']
+        ed_data['assumptions']['is_service_tech_by_p'] = self.user_data['fts_cont']['is_service_tech_by_p.csv']
+        ed_data['assumptions']['rs_service_fueltype_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_by_p.csv']
+        ed_data['assumptions']['ss_service_fueltype_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_by_p.csv']
+        ed_data['assumptions']['is_service_fueltype_by_p'] = self.user_data['fts_cont']['is_service_fueltype_by_p.csv']
+        ed_data['assumptions']['rs_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_tech_by_p.csv']
+        ed_data['assumptions']['ss_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_tech_by_p.csv']
+        ed_data['assumptions']['is_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['is_service_fueltype_tech_by_p.csv']
+
+        # Read technologies with more, less and constant service based on service switch assumptions (from script data)
+        ed_data['assumptions']['rs_tech_increased_service'] = self.user_data['sgs_cont']['rs_tech_increased_service.csv']
+        ed_data['assumptions']['ss_tech_increased_service'] = self.user_data['sgs_cont']['ss_tech_increased_service.csv']
+        ed_data['assumptions']['is_tech_increased_service'] = self.user_data['sgs_cont']['is_tech_increased_service.csv']
+        ed_data['assumptions']['rs_tech_decreased_share'] = self.user_data['sgs_cont']['rs_tech_decreased_share.csv']
+        ed_data['assumptions']['ss_tech_decreased_share'] = self.user_data['sgs_cont']['ss_tech_decreased_share.csv']
+        ed_data['assumptions']['is_tech_decreased_share'] = self.user_data['sgs_cont']['is_tech_decreased_share.csv']
+        ed_data['assumptions']['rs_tech_constant_share'] = self.user_data['sgs_cont']['rs_tech_constant_share.csv']
+        ed_data['assumptions']['ss_tech_constant_share'] = self.user_data['sgs_cont']['ss_tech_constant_share.csv']
+        ed_data['assumptions']['is_tech_constant_share'] = self.user_data['sgs_cont']['is_tech_constant_share.csv']
+        ed_data['assumptions']['rs_sig_param_tech'] = self.user_data['sgs_cont']['rs_sig_param_tech']
+        ed_data['assumptions']['ss_sig_param_tech'] = self.user_data['sgs_cont']['ss_sig_param_tech']
+        ed_data['assumptions']['is_sig_param_tech'] = self.user_data['sgs_cont']['is_sig_param_tech']
+        ed_data['assumptions']['rs_installed_tech'] = self.user_data['sgs_cont']['rs_installed_tech']
+        ed_data['assumptions']['ss_installed_tech'] = self.user_data['sgs_cont']['ss_installed_tech']
+        ed_data['assumptions']['is_installed_tech'] = self.user_data['sgs_cont']['is_installed_tech']
+
+        ed_data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
+        ed_data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
+        ed_data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
+        ed_data['ts_fuel_disagg'] = self.user_data['sd_cont']['ts_fuel_disagg']
 
         # ---------
         # Run model
         # ---------
-        
-
         _, results = energy_demand_model(ed_data)
 
         # ---------

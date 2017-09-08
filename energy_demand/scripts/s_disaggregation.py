@@ -63,7 +63,7 @@ def disaggregate_base_demand(data):
     data['ts_fuel_disagg'] = scrap_ts_disaggregate(data, data['fuels']['ts_fuel_raw_data_enduses'])
 
     # Check if total fuel is the same before and after aggregation
-    test_sum_before = sum_fuels_before(data['rs_fuel_raw_data_enduses'])
+    test_sum_before = sum_fuels_before(data['fuels']['rs_fuel_raw_data_enduses'])
     test_sum_after = sum_fuels_after(data['rs_fuel_disagg'])
     np.testing.assert_almost_equal(test_sum_before, test_sum_after, decimal=2, err_msg="")
 

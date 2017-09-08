@@ -56,7 +56,7 @@ def load_script_data(data):
     data['temp_data'] = read_weather_data.read_changed_weather_data_script_data(
         os.path.join(data['local_paths']['dir_changed_weather_data'], 'weather_data_changed_climate.csv'),
         data['sim_param']['sim_period'])
-
+    
     # ---------------------------------------
     # Disaggregation: Load disaggregated fuel per enduse and sector
     # ---------------------------------------
