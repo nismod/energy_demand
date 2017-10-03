@@ -42,7 +42,7 @@ with different assumptions.
 
 
 2. Navigate to the folder where the python code is saved. Open a command and type into
-   a command line:
+   a command line (in a virtual environment):
 
    ``setup.py develop``
 

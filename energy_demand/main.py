@@ -75,11 +75,10 @@ if __name__ == "__main__":
     """
     """
 
-    instrument_profiler = True
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = os.path.join(r'Y:\Data_NISMOD', 'data_energy_demand')
+    local_data_path = os.path.join(r'C:\Data_NISMOD', 'data_energy_demand')
 
     # Initialise logger
     log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
@@ -87,9 +86,13 @@ if __name__ == "__main__":
     logging.info("... start local energy demand calculations")
     logging.info(" ")
 
+    # Run settings
+    instrument_profiler = True
+    print_criteria = True
+
     # Load data
     data = {}
-    data['print_criteria'] = False #Print criteria = True #Print criteria
+    data['print_criteria'] = print_criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -102,6 +105,7 @@ if __name__ == "__main__":
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
+    logging.info("Nr of Regions " + str(len(data['lu_reg'])))
 
     # Load data from script calculations
     data = read_data.load_script_data(data)

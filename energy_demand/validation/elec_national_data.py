@@ -10,6 +10,7 @@ from energy_demand.basic import date_handling
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
+from collections import defaultdict
 
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
@@ -234,10 +235,7 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
 
 
     """
-    data_h_full_year = {}
-
-    for i in range(24):
-        data_h_full_year[i] = []
+    data_h_full_year = defaultdict(dict)
 
     for yearday_python in range(365):
         for hour in range(24):

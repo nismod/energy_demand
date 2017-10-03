@@ -1,6 +1,7 @@
 """Conversion of units
 """
 import numpy as np
+from collections import defaultdict
 
 def convert_ktoe_gwh(data_ktoe):
     """Conversion of ktoe to gwh
@@ -121,12 +122,10 @@ def convert_fueltypes_sectors(fuel_dict):
     fuel_converted : array
         Array with converted fuel per fueltype
     """
-    fuel_converted = {}
+    fuel_converted = defaultdict(dict)
 
     for enduse in fuel_dict:
-        fuel_converted[enduse] = {}
         for sector, fuels in fuel_dict[enduse].items():
-
             fuel_converted[enduse][sector] = np.zeros((len(fuels)))
 
             for fueltype, fuel in enumerate(fuels):

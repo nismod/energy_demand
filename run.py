@@ -25,7 +25,7 @@ class EDWrapper(SectorModel):
         Arguments
         ---------
         input_array : numpy.ndarray
-            timesteps, regions, interval 
+            timesteps, regions, interval
 
         Returns
         -------

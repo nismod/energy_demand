@@ -68,7 +68,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     If no data is provided, dummy data is generated TODO
     """
-    if data == False: #keep it ==
+    if data == False:
         run_locally = True
         logging.debug("run_locally".format(run_locally))
     else:

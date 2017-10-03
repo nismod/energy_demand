@@ -9,6 +9,7 @@ import numpy as np
 import logging
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.basic import date_handling
+from collections import defaultdict
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
@@ -34,30 +35,6 @@ def read_weather_data_script_data(path_to_csv):
 
     return temp_data
 
-'''def read_assumption(path_to_csv):
-    """
-    Arguments
-    ----------
-    path_to_csv : str
-        Path
-
-    Return
-    ------
-    assumpt : dict
-        Assumptions
-    """
-    assumpt = []
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(csvfile) # Skip headers
-
-        for row in read_lines:
-            assumpt.append(float(row[1]))
-
-    return assumpt
-'''
-
 def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending on simple climate change assumptions
 
@@ -74,12 +51,11 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
     temp_climate_change : dict
         Adapted temperatures for all weather stations depending on climate change assumptions
     """
-    temp_climate_change = {}
+    temp_climate_change = defaultdict(dict)
 
     # Change weather for all weater stations
     for station_id in temperature_data:
         logging.debug("... change climate for station_id {}".format(station_id))
-        temp_climate_change[station_id] = {}
 
         # Iterate over simulation period
         for curr_yr in sim_param['sim_period']:

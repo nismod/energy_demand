@@ -4,6 +4,7 @@ import os
 import numpy as np
 import logging
 from energy_demand.profiles import hdd_cdd
+from collections import defaultdict
 
 '''
 ============================================
@@ -137,9 +138,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # Disaggregate according to enduse
     # ---------------------------------------
     for region_name in data['lu_reg']:
-        ss_fuel_disagg[region_name] = {}
+        ss_fuel_disagg[region_name] = defaultdict(dict)
         for sector in data['sectors']['ss_sectors']:
-            ss_fuel_disagg[region_name][sector] = {}
             for enduse in data['enduses']['ss_all_enduses']:
 
                 # HDD
@@ -192,7 +192,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
 def scrap_ts_disaggregate(data, fuel_national):
     """Disaggregate transport sector
     """
-    fueldata_disagg = {}
+    fueldata_disagg = defaultdict(dict)
 
     national_floorarea_sector = 0
     for region_name in data['lu_reg']:
@@ -200,7 +200,6 @@ def scrap_ts_disaggregate(data, fuel_national):
 
     # Iterate regions
     for region_name in data['lu_reg']:
-        fueldata_disagg[region_name] = {}
         reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
         reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
 
@@ -224,11 +223,11 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
     # Iterate regions
     for region_name in data['lu_reg']:
-        is_fuel_disagg[region_name] = {}
+        is_fuel_disagg[region_name] = defaultdict(dict)
 
         # Iterate sector
         for sector in data['sectors']['is_sectors']:
-            is_fuel_disagg[region_name][sector] = {}
+            #is_fuel_disagg[region_name][sector] = {}
 
             # Sector specifid info
             reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
@@ -314,10 +313,9 @@ def rs_disaggregate(data, rs_national_fuel):
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
-    rs_fuel_disagg = {}
-    for region_name in data['lu_reg']:
-        rs_fuel_disagg[region_name] = {}
+    rs_fuel_disagg = defaultdict(dict)
 
+    for region_name in data['lu_reg']:s
         reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
         reg_floor_area = data['rs_floorarea'][data['sim_param']['base_yr']][region_name]

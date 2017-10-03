@@ -6,6 +6,7 @@ import sys
 import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies
+from collections import defaultdict
 
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
@@ -390,10 +391,9 @@ def ss_dw_stock(regions, data):
     - Iterate years and change floor area depending on assumption on
       linear change up to ey
     """
-    dwelling_stock = {}
+    dwelling_stock = defaultdict(dict)
 
     for region in regions:
-        dwelling_stock[region] = {}
 
         # Iterate simulation year
         for curr_yr in data['sim_param']['sim_period']:
@@ -478,7 +478,7 @@ def rs_dw_stock(regions, data):
     """
     base_yr = data['sim_param']['base_yr']
 
-    dwelling_stock = {}
+    dwelling_stock = defaultdict(dict)
 
     # Get changes in absolute floor area per dwelling type over time NEW
     dwtype_floor_area = get_dwtype_floor_area(
@@ -518,8 +518,6 @@ def rs_dw_stock(regions, data):
             floorarea_pp_by = floorarea_by / population_by # [m2 / person]
         else:
             floorarea_pp_by = 0
-
-        dwelling_stock[region] = {}
 
         for curr_yr in data['sim_param']['sim_period']:
 
