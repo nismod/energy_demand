@@ -26,7 +26,7 @@ all ITRC models and provides demands to the supply model.
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}"))is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
 
-![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D%20%3D%20%5Csum_%7Br%7D%20%5Csum_%7Bs%7D%5Csum_%7Be%7D%5Csum_%7Bt%7D%5Csum_%7Bf%7DED_%7BSD%7D%20&plus;%20ED_%7Beff%7D%20&plus;%20ED_%7Btech%7D%20&plus;%20ED_%7Bclimate%7D%20&plus;%20ED_%7Bbehaviour%7D "ED_{y}^{tot} = \sum_{r} \sum_{s}\sum_{e}\sum_{t}\sum_{f}ED_{SD} + ED_{eff} + ED_{tech} + ED_{climate} + ED_{behaviour}")
+![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D%20%3D%20%5Csum_%7Br%7D%20%28%5Csum_%7Bs%7D%20%28%5Csum_%7Be%7D%20%28%5Csum_%7Bt%7D%20%28%5Csum_%7Bf%7D%28ED_%7BSD%7D%20&plus;%20ED_%7Beff%7D%20&plus;%20ED_%7Btech%7D%20&plus;%20ED_%7Bclimate%7D%20&plus;%20ED_%7Bbehaviour%7D%29%29%29%29%29"ED_{y}^{tot} = \sum_{r} (\sum_{s} (\sum_{e} (\sum_{t} (\sum_{f}(ED_{SD} + ED_{eff} + ED_{tech} + ED_{climate} + ED_{behaviour})))))")
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![equation](https://latex.codecogs.com/gif.latex?ED_%7BSD%7D "ED_{SD}: "):        Demand change related to change in scenario driver (SD)
 
@@ -241,16 +241,86 @@ The base year energy consumption of the UK (ECUK) in terms of fuels and technolo
 ### 12.2 Household Electricity Servey
 
 The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey) is the most detailed monitoring of electricity use ever carried out in the UK.
-Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011. The load profiles for different residential enduses are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
-
-> **Data preparation**
->
-> Monthly load profiles were taken from a 24 hours preadsheet tool and aggregated on an hourly basis.
-
+Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011. The load profiles for different residential enduses for
+different daytypes (weekend, working day) are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
 
 ### 12.3 Carbon Trust advanced metering trial
 
-Metering trial for electricity and gas use across different sectors for businesses (service sector).
+For the service submodel, data are used from a metering trial where electricity and gas
+use across different business sectors was metered. The sectors in the Carbon Trust trial
+do not fully correspond to the listed ECUK sectors (see Section 12.1). In case a
+sector is missing, the data is aggregated across all sectors and mapped with a sector 
+according to Table 3.
+
+<table align="center">
+  <tr>
+    <th align="left">ECUK Data (Table 5.05)</th>
+    <th align="left">Carbon Trust Dataset</th>
+  </tr>
+  <tr>
+    <td>Community, arts and leisure</td>
+    <td>Community</td>
+  </tr>
+  <tr>
+    <td>Education</td>
+    <td>Education</td>
+  </tr>
+  <tr>
+    <td>Emergency Services</td>
+    <td>Aggregated across all sectors</td>
+  </tr>
+    <tr>
+    <td>Health</td>
+    <td>Health</td>
+  </tr>
+    <tr>
+    <td>Hospitality</td>
+    <td>Aggregated across all sectors</td>
+  </tr>
+    <tr>
+    <td>Military</td>
+    <td>Aggregated across all sectors</td>
+  </tr>
+    <tr>
+    <td>Offices</td>
+    <td>Offices</td>
+  </tr>
+    <tr>
+    <td>Retail</td>
+    <td>Retail</td>
+  </tr>
+    <tr>
+    <td>Storage</td>
+    <td>Aggregated across all sectors</td>
+  </tr>
+</table>
+
+*Table 3: Matching sectors from the ECUK dataset and sectors from the Carbon Trust dataset*
+
+The Carbon Trust data does not allow distinguishing between different end uses
+within each sector and according to the dominant fuel type, either aggregated
+gas or sector specific load shapes are assigned. For water heating, space
+heating and the other_gas_enduse, all gas measurements across all sectors
+are used, because the sample size was too little to distinguish between
+gas use for different sectors. Sector specific electricity load shapes
+are assigned for all other end uses. For the service sector no technology
+specific load shapes are used but energy used for space heating
+is distributed according to gas load shapes of all sectors.
+
+Yearly load profiles are generated based on averaging measurements for
+every month and day type (weekend, working day). In addition,
+average peak daily load profiles and the peak day factor is calculated.
+
+Data preparation of the raw input files was necessary:
+
+•	Half-hourly data was converted into hourly data
+•	Within each sector, only datasets containing at least one full year of monitoring data are used
+•	From each measurement, only one full year is selected
+•	Only datasets having not more than one missing measurement point per day are used
+•	The data was clean from obviously wrong measurement points (containing very large minus values)
+•	missing measurement points are interpolated
+
+Contrasting electricity use from January and July shows that there are differences in electricity consumption in some cases over 20% due to electric heating and lighting. The used carbon trust electricity data therefore contains some electricity for electric heating. Excluding these shares is however not possible and for some sectors (e.g. Community, Office) differences are only minor
 
  - [More information](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)
 
