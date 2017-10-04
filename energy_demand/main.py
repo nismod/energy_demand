@@ -51,8 +51,7 @@ def energy_demand_model(data):
 
     # Total annual fuel of all regions
     fueltot = model_run_object.reg_enduses_fueltype_y
-    print("FUELTOT")
-    print(np.sum(fueltot))
+
     # Fuel per region
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
@@ -140,7 +139,7 @@ if __name__ == "__main__":
         # CLUSTER CALCULATIONS
         # ----------------------
         # Write out result of year (Year_Region.txt)
-        
+
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------
@@ -179,7 +178,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
-        spatial_validation = True
+        spatial_validation = False
         if spatial_validation == True:
             lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
                 data['local_paths']['path_dummy_regions']
@@ -226,7 +225,7 @@ if __name__ == "__main__":
     # ------------------------------
     # Plotting
     # ------------------------------
-    # Plot load factors
+    '''# Plot load factors
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
     # Plot total fuel (y) per fueltype
@@ -242,5 +241,5 @@ if __name__ == "__main__":
 
     # Plot all enduses
     plotting_results.plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
-
+    '''
     logging.debug("... Finished running Energy Demand Model")

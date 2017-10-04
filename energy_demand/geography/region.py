@@ -14,8 +14,9 @@ class Region(object):
 
     Note
     ----
-    - For each region_name, a technology stock is defined with help of regional temperature data technology specific
-    - regional specific fuel shapes are assigned to technologies
+    All fuel is stored in the region class and the closest weather station
+    is calculated and the technology and load profiles imported from
+    this station
     """
     def __init__(self, region_name, data, submodel_type, weather_regions):
         """Constructor

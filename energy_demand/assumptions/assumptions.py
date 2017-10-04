@@ -28,7 +28,7 @@ def load_assumptions(data, write_sim_param):
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
-        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+        sim_param['sim_years_intervall'] = 1 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['curr_yr'] = sim_param['base_yr']
@@ -70,14 +70,14 @@ def load_assumptions(data, write_sim_param):
         'bungalow': 0.088
         }
 
-    # Floor area per dwelling type
+    # Floor area per dwelling type (TODO: SOURCE)
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
         'bungalow': 77
-        } # SOURCE?
+        }
 
     # Floor area per dwelling type #TODO
     assumptions['assump_dwtype_floorarea_ey'] = {
@@ -86,12 +86,11 @@ def load_assumptions(data, write_sim_param):
         'flat': 61,
         'detached': 147,
         'bungalow': 77
-        } # SOURCE?
-
+        } 
 
     # Assumption about age distribution
     assumptions['dwtype_age_distr'] = {
-        2015.0: {
+        2015: {
             '1918':0.21, #Average builing age within age class, fraction
             '1941': 0.36,
             '1977.5': 0.3,
@@ -136,14 +135,14 @@ def load_assumptions(data, write_sim_param):
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
         'is_high_temp_process': ['GVA'],
-        'is_low_temp_process': [],
-        'is_drying_separation': [],
-        'is_motors': [],
-        'is_compressed_air': [],
-        'is_lighting': [],
-        'is_space_heating': [],
-        'is_other': [],
-        'is_refrigeration': []
+        'is_low_temp_process': ['GVA'],
+        'is_drying_separation': ['GVA'],
+        'is_motors': ['GVA'],
+        'is_compressed_air': ['GVA'],
+        'is_lighting': ['GVA'],
+        'is_space_heating': ['GVA'],
+        'is_other': ['GVA'],
+        'is_refrigeration': ['GVA']
     }
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)

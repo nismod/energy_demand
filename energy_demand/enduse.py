@@ -126,7 +126,6 @@ class Enduse(object):
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
             self.fuel_peak_h = 0
         else:
-
             # -----------------------------------------------------------------
             # Get correct parameters depending on model configuration
             # -----------------------------------------------------------------
@@ -146,7 +145,7 @@ class Enduse(object):
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
-
+            #logging.debug("Fuel train A: " + str(np.sum(self.fuel_new_y)))
             # --Change fuel consumption based on climate change induced temperature differences
             self.apply_climate_change(
                 cooling_factor_y,
@@ -179,7 +178,7 @@ class Enduse(object):
                 reg_scenario_drivers,
                 data['sim_param']
                 )
-
+            #logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -218,7 +217,8 @@ class Enduse(object):
 
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
             else:
-
+                """If technologies are defined for an enduse
+                """
                 # ----
                 # Get enduse specific configurations
                 # ----
@@ -226,12 +226,9 @@ class Enduse(object):
                     data['assumptions']['mode_constrained'],
                     data['assumptions']['enduse_space_heating'])
 
-                crit_switch_fuel = self.get_crit_switch(
-                    fuel_switches, data['sim_param'], mode_constrained)
-                crit_switch_service = self.get_crit_switch(
-                    service_switches, data['sim_param'], mode_constrained)
-                testing.testing_switch_criteria(
-                    crit_switch_fuel, crit_switch_service, self.enduse)
+                crit_switch_fuel = self.get_crit_switch(fuel_switches, data['sim_param'], mode_constrained)
+                crit_switch_service = self.get_crit_switch(service_switches, data['sim_param'], mode_constrained)
+                testing.testing_switch_criteria(crit_switch_fuel, crit_switch_service, self.enduse)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -261,9 +258,12 @@ class Enduse(object):
                     data['sim_param']
                     )
 
-                # Energy service switches
+                # --------------------------------
+                # Switches
                 # --------------------------------
                 if crit_switch_service:
+                    #Energy service switches
+                    logging.info("SERVICE SWITCH TRUE")
                     service_tech = self.service_switch(
                         tot_service_h_cy,
                         service_tech_cy_p,
@@ -273,10 +273,9 @@ class Enduse(object):
                         sig_param_tech,
                         data['sim_param']['curr_yr']
                         )
-
-                # Fuel Switches
-                # --------------------------------
                 elif crit_switch_fuel:
+                    #Fuel Switches
+                    logging.info("FUEL SWITCH TRUE")
                     service_tech = self.fuel_switch(
                         installed_tech,
                         sig_param_tech,
@@ -336,7 +335,6 @@ class Enduse(object):
                         )
 
                     # --PEAK
-
                     # Iterate technologies in enduse and assign technology specific profiles
                     self.fuel_peak_dh = self.calc_peak_tech_dh(
                         fuel_tech_y,
@@ -346,9 +344,6 @@ class Enduse(object):
 
                     # Get maximum hour demand per of peak day
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
-
-                    # Testing
-                    ## TESTINGnp.testing.assert_almost_equal(np.sum(self.fuel_yd), np.sum(self.fuel_yh), decimal=2, err_msg='', verbose=True)
 
     def get_lp_stock(self, non_regional_lp_stock, regional_lp_stock):
         """Defines the load profile stock depending on `enduse`.
@@ -838,35 +833,36 @@ class Enduse(object):
 
         # -------------
         # Technology with increaseing service
-        # -------------
         # Calculate diffusion of service for technology with increased service
-        service_tech_increase_cy_p = self.get_service_diffusion(
+        # -------------
+        service_tech_incr_cy_p = self.get_service_diffusion(
             tech_increase_service,
             sig_param_tech,
             curr_yr
             )
 
-        for tech_increase, share_tech in service_tech_increase_cy_p.items():
-            service_tech_cy_p[tech_increase] = share_tech # Add shares
+        # Add shares
+        for tech_increase, share_tech in service_tech_incr_cy_p.items():
+            service_tech_cy_p[tech_increase] = share_tech
 
         # -------------
         # Technology with decreasing service
-        # -------------
         # Calculate proportional share of technologies with decreasing service of base year
+        # -------------
         service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
             tech_decrease_service,
             service_tech_by_p
             )
 
-        # Add shares to output dict
+        # Add shares of base_year to output dict
         for tech_decrease in service_tech_decrease_by_rel:
             service_tech_cy_p[tech_decrease] = service_tech_by_p[tech_decrease]
 
         # Calculated gained service and substract this proportionally of all decreasing technologies
-        for tech_incr in service_tech_increase_cy_p:
+        for tech_incr in service_tech_incr_cy_p:
 
             # Difference in service up to current year
-            diff_service_incr = service_tech_increase_cy_p[tech_incr] - service_tech_by_p[tech_incr]
+            diff_service_incr = service_tech_incr_cy_p[tech_incr] - service_tech_by_p[tech_incr]
 
             # Substract service gain proportionaly to all technologies which are
             # lowered and substract from other technologies
@@ -1239,12 +1235,9 @@ class Enduse(object):
         return service_tech_after_switch
 
     def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, mode_constrained):
-        """Convert yearly energy service to yearly fuel demand
-
-        For every technology the service is taken and converted
+        """Convert yearly energy service to yearly fuel demand. For every
+        technology the service is taken and converted
         to fuel based on efficiency of current year
-
-        The attribute 'fuel_new_y' is updated
 
         Inputs
         ------
@@ -1259,6 +1252,7 @@ class Enduse(object):
 
         Note
         -----
+        - The attribute 'fuel_new_y' is updated
         - Fuel = Energy service / efficiency
         """
         enduse_fuels = np.zeros((self.fuel_new_y.shape))
@@ -1291,7 +1285,7 @@ class Enduse(object):
 
     def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained):
         """Calculate fraction of fuel per technology within fueltype
-        considering current efficiencies
+        considering current efficiencies.
 
         Arguments
         ----------
@@ -1313,7 +1307,7 @@ class Enduse(object):
         """
         fuel_tech = {}
 
-        if mode_constrained: # Constrained version
+        if mode_constrained:
             for tech, service in service_tech.items():
                 fuel_yh = service
                 fuel_tech[tech] = np.sum(service)

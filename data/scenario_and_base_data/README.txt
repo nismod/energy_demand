@@ -1,4 +1,3 @@
 Files
 ----------------------
-base_population		Thie file contains the population for the base year
-HH_population		This file contains the projected population of the scenario
+technology_base_scenario		Thie file contains a list with all technologies for the base year

@@ -65,6 +65,8 @@ class Dwelling(object):
         self.floorarea = floorarea
         self.sector_type = sector_type
         self.gva = gva
+        #self.income = get_income_factor(income)?? #TODO
+        #self.household_size = get_household_factor(household_size)?? #TODO
 
         # FACTORS
         # HOW MUCH MORE ENERGY e.g. certain dwelling type uses

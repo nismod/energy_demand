@@ -224,12 +224,7 @@ Based on ECUK() different technologies are assigned to enduses. Efficiencies are
   </tr>
     <tr>
     <td>Space and Water Heating</td>
-    <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage</td>
-  </tr>
-    <tr>
-    <td>Wet</td>
-    <td>heater, Heat network generation technologies (CHP,...)</td>
-  </tr>
+    <td>Boiler (different fueltypes), Condensing boiler, ASHP, GSHP, Micro-CHP, Fuel cell, Storage heating, Night storage heater, Heat network generation technologies (CHP,...)</td>
 </table>
 
 *Table 2: Technology assignement to enduses*

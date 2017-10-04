@@ -27,13 +27,13 @@ class OtherModel(object):
         self.enduse = enduse
 
         # Transportation + agriculture
-        self.fuels_reg = region_obj.ts_fuels # + region_obj.ag_fuels
+        #self.fuels_reg =  #region_obj.ts_fuels + region_obj.ag_fuels
 
-        self.enduse_object = self.create_enduse()
+        self.enduse_object = self.create_enduse(region_obj)
 
-    def create_enduse(self):
+    def create_enduse(self, region_obj):
         """Create enduse
         """
-        model_object = generic_shapes.GenericFlatEnduse(self.fuels_reg)
+        model_object = generic_shapes.GenericFlatEnduse(region_obj.ts_fuels)
 
         return model_object

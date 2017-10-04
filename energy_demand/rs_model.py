@@ -33,9 +33,6 @@ class ResidentialModel(object):
             data
             )
 
-        #TODO LATER ON: SUMMARY ACROSS AL SECTORS (to save on memory)
-        #self.enduse_object_aggregated_across_all_sectors
-
     def create_enduse(self, region_obj, data):
         """Create enduse objects and add to list
 
@@ -55,8 +52,8 @@ class ResidentialModel(object):
             region_name=self.region_name,
             data=data,
             enduse=self.enduse,
-            sector=self.sector,
-            fuel=region_obj.rs_enduses_fuel[self.enduse],
+            sector=self.sector, 
+            fuel=region_obj.rs_enduses_fuel[self.enduse], #fuel from region object
             tech_stock=region_obj.rs_tech_stock,
             heating_factor_y=region_obj.rs_heating_factor_y,
             cooling_factor_y=region_obj.rs_cooling_factor_y,

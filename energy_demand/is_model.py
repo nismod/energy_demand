@@ -25,8 +25,7 @@ class IndustryModel(object):
         self.region_name = region_obj.region_name
         self.enduse = enduse
         self.sector = sector
-        self.fuels_all_enduses = data['is_fuel_disagg'][self.region_name][self.sector]
-
+        
         self.enduse_object = self.create_enduse(region_obj, data)
 
     def create_enduse(self, region_obj, data):
@@ -37,7 +36,7 @@ class IndustryModel(object):
             data=data,
             enduse=self.enduse,
             sector=self.sector,
-            fuel=self.fuels_all_enduses[self.enduse],
+            fuel=region_obj.is_enduses_sectors_fuels[self.sector][self.enduse],
             tech_stock=region_obj.is_tech_stock,
             heating_factor_y=region_obj.is_heating_factor_y,
             cooling_factor_y=region_obj.is_cooling_factor_y,
