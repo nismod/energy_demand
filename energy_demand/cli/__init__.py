@@ -62,10 +62,9 @@ def run_model(args):
     data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)
     data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data)
 
-    _, results = energy_demand_model(data)
+    results = energy_demand_model(data)
 
     logging.debug("... Result section")
-    #results.reg_enduses_fueltype_y[2]
 
     results_every_year = [results]
 

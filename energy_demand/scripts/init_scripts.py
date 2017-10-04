@@ -231,7 +231,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']
         sd_cont['ts_fuel_disagg'] = data['ts_fuel_disagg']
 
-    logging.debug("...  finished scenario_initalisation")
+    logging.info("... finished scenario_initalisation")
     if run_locally == False:
         return temp_climate_change, fts_cont, sgs_cont, sd_cont
     else:

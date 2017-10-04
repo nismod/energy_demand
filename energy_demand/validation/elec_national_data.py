@@ -232,10 +232,10 @@ def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fue
 def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
     for the full year
-
-
     """
-    data_h_full_year = defaultdict(dict)
+    data_h_full_year = {}
+    for i in range(24):
+        data_h_full_year[i] = []
 
     for yearday_python in range(365):
         for hour in range(24):
@@ -245,8 +245,8 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
 
             # Differenc in % of real value
             diff_percent = (100 / data_real[yearday_python][hour]) * data_calculated[yearday_python][hour]
-            # Add differene to list of specific hour
 
+            # Add differene to list of specific hour
             data_h_full_year[hour].append(diff_percent)
 
     fig = plt.figure()

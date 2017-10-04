@@ -315,7 +315,7 @@ def rs_disaggregate(data, rs_national_fuel):
     # ---------------------------------------
     rs_fuel_disagg = defaultdict(dict)
 
-    for region_name in data['lu_reg']:s
+    for region_name in data['lu_reg']:
         reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
         reg_floor_area = data['rs_floorarea'][data['sim_param']['base_yr']][region_name]

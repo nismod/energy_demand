@@ -59,7 +59,7 @@ class EDWrapper(SectorModel):
 
         # Obtain scenario data
         ed_data = {}
-        ed_data['print_criteria'] = True #Print criteria
+        ed_data['print_criteria'] = False #Print criteria
 
         pop_array = self.get_scenario_data('population')
         ed_data['population'] = self.array_to_dict(pop_array)
@@ -86,7 +86,6 @@ class EDWrapper(SectorModel):
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
 
-        #ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
         ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
         
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
@@ -180,8 +179,7 @@ class EDWrapper(SectorModel):
         ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
         ed_data['weather_stations'], _ = data_loader.load_temp_data(ed_data['local_paths'])
         
-        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths'])
-        #ed_data['reg_coord'], ed_data['lu_reg'] = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
+        ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
         ed_data['sim_param']['current_year'] = timestep
         ed_data['sim_param']['end_year'] = 2020
         ed_data['sim_param']['sim_years_intervall'] = 1
@@ -244,14 +242,14 @@ class EDWrapper(SectorModel):
         # ---------
         # Run model
         # ---------
-        _, results = energy_demand_model(ed_data)
+        results = energy_demand_model(ed_data)
 
         # ---------
         # Process results
         # ---------
         out_to_supply = results.fuel_indiv_regions_yh
 
-        #logging.debug("FINISHED WRAPPER CALCULATIONS")
+        logging.debug("FINISHED WRAPPER CALCULATIONS")
         return results
 
     def extract_obj(self, results):
