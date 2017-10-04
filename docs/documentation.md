@@ -21,7 +21,7 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-## 2. Energy demand simulation
+### 1.1. Energy demand simulation
 
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}"))is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
@@ -74,7 +74,11 @@ For the residential and service sub-model, SD values are calculated based on a d
 
 *Table 1.1: End-use specific scenario drivers for energy demand*
 
+### 1.2 Main working flow
 
+Lorem ipsum...
+![Image of model integration](../docs/documentation_images/004-ULM_main_classes.jpg)
+*Figure 3.1: Interaction*
 
 ## 3. Model integration
 
