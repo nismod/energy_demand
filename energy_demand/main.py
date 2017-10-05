@@ -85,6 +85,7 @@ if __name__ == "__main__":
     instrument_profiler = True
     print_criteria = True
 
+
     # Load data
     data = {}
     data['print_criteria'] = print_criteria
@@ -92,8 +93,8 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+    data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)

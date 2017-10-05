@@ -36,6 +36,23 @@ def load_assumptions(data, write_sim_param):
             start=date(sim_param['base_yr'], 1, 1),
             end=date(sim_param['base_yr'], 12, 31))
 
+    # ============
+    # Date selection for which model is run$
+    # Store in list all dates which are modelled
+    # ============
+    year_to_model = 2015
+    winter_week = list(range(date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 19))) #Jan
+    spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 18))) #May
+    summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 20))) #Jul
+    autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 19))) #Oct
+
+    # Modelled days
+    ##assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
+    assumptions['ed_modelled_dates'] = range(365)
+    
+    # Nr of days to model
+    assumptions['nr_ed_modelled_dates'] = len(assumptions['ed_modelled_dates'])
+
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model

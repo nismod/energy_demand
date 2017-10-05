@@ -204,7 +204,7 @@ class Technology(object):
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'])
+                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'], assumptions['nr_ed_modelled_dates'])
 
             # Calculate shape per fueltype
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
@@ -242,7 +242,7 @@ class Technology(object):
                     )
 
     @staticmethod
-    def set_constant_fueltype(fueltype, len_fueltypes):
+    def set_constant_fueltype(fueltype, len_fueltypes, nr_of_days=365):
         """Create dictionary with constant single fueltype
 
         Arguments
@@ -266,7 +266,7 @@ class Technology(object):
         -------
         array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
         """
-        fueltypes_yh = np.zeros((len_fueltypes, 365, 24))
+        fueltypes_yh = np.zeros((len_fueltypes, nr_of_days, 24))
 
         # Insert for the single fueltype for every hour the share to 1.0
         fueltypes_yh[fueltype] = 1.0

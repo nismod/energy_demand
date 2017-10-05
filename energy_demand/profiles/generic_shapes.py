@@ -3,7 +3,7 @@
 import numpy as np
 from energy_demand.profiles import load_profile
 
-def flat_shape(shape_peak_yd_factor=1/365):
+def flat_shape(shape_peak_yd_factor=1/365, nr_of_days=365):
     """Create completely flat shape for peak and non-peak
 
     Arguments
@@ -26,15 +26,15 @@ def flat_shape(shape_peak_yd_factor=1/365):
     shape_peak_dh = np.full((24), 1/24)
 
     # linear shape_non_peak_y_dh
-    shape_non_peak_y_dh = np.zeros((365, 24))
+    shape_non_peak_y_dh = np.zeros((nr_of_days, 24))
 
     # Flat shape, ever hour same amount
-    shape_non_peak_y_dh = np.full((365, 24), (1.0/24))
+    shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0/24))
 
     # linear shape_non_peak_yd
-    shape_non_peak_yd = np.ones((365)) / 365
+    shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days
 
-    shape_non_peak_yh = np.full((365, 24), 1/8760)
+    shape_non_peak_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24))
 
     return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh
 

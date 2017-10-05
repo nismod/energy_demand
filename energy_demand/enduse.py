@@ -331,7 +331,8 @@ class Enduse(object):
                         tech_stock,
                         load_profiles,
                         data['lookups']['fueltype'],
-                        mode_constrained
+                        mode_constrained,
+                        data['assumptions']['nr_ed_modelled_dates'] 
                         )
 
                     # --PEAK
@@ -523,7 +524,7 @@ class Enduse(object):
         Return
         ------
         tot_service_yh : array
-            Total yh energy service per technology for base year (365, 24)
+            Total yh energy service per technology for base year (nr_of_days, 24)
         service_tech_cy : dict
             Energy service for every fueltype and technology
         service_tech_p : dict
@@ -1024,12 +1025,12 @@ class Enduse(object):
                 self.enduse, tech, 'fueltypes_yh_p_cy')
 
             # Peak day fuel shape * fueltype distribution for peak day
-            # select from (7, 365, 24) only peak day for all fueltypes
+            # select from (7, nr_of_days, 24) only peak day for all fueltypes
             fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
 
         return fuels_peak_dh
 
-    def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles, lu_fueltypes, mode_constrained):
+    def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles, lu_fueltypes, mode_constrained, nr_of_days):
         """Iterate fuels for each technology and assign shape yd and yh shape
 
         Arguments
@@ -1044,13 +1045,15 @@ class Enduse(object):
             Fuel look-up table
         mode_constrained : bool
             Mode criteria
+        nr_of_days : int
+            Number of modelled days
 
         Return
         ------
         fuels_yh : array
-            Fueltype storing hourly fuel for every fueltype (fueltype, 365, 24)
+            Fueltype storing hourly fuel for every fueltype (fueltype, nr_of_days, 24)
         """
-        fuels_yh = np.zeros((self.fuel_new_y.shape[0], 365, 24))
+        fuels_yh = np.zeros((self.fuel_new_y.shape[0], nr_of_days, 24)) #WHALE
 
         if mode_constrained: # Constrained version
             fueltypes_tech_share_yh = np.zeros((self.fuel_new_y.shape))

@@ -289,7 +289,7 @@ class EnergyModel(object):
 
         return region_fuel_yh
 
-    def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get):
+    def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get, nr_of_days=365):
         """Summarise fuel yh for a certain region
 
         Arguments
@@ -307,8 +307,8 @@ class EnergyModel(object):
         ----
         - Summing function
         """
-        tot_fuels_all_enduse_yh = np.zeros((nr_of_fueltypes, 365, 24))
-
+        tot_fuels_all_enduse_yh = np.zeros((nr_of_fueltypes, nr_of_days, 24)) #WHALE #assumptions['nr_ed_modelled_dates'] 
+        
         for sector_model in sector_models:
             sector_model_objects = getattr(self, sector_model)
             for model_object in sector_model_objects:
@@ -581,7 +581,7 @@ class EnergyModel(object):
 
         return enduse_dict
 
-    def fuel_aggr(self, attribute_to_get, nr_of_fueltypes, sector_models, sum_crit, lp_crit, region_name=False):
+    def fuel_aggr(self, attribute_to_get, nr_of_fueltypes, sector_models, sum_crit, lp_crit, region_name=False, nr_of_days=365):
         """Collect hourly data from all regions and sum across all fuel types and enduses
 
         Arguments
@@ -605,7 +605,7 @@ class EnergyModel(object):
         if lp_crit == 'peak_h':
             fuels = np.zeros((nr_of_fueltypes))
         elif lp_crit == 'non_peak':
-            fuels = np.zeros((nr_of_fueltypes, 365, 24))
+            fuels = np.zeros((nr_of_fueltypes, nr_of_days, 24))
         elif lp_crit == 'peak_dh':
             fuels = np.zeros((nr_of_fueltypes, 24))
         else:
@@ -630,7 +630,7 @@ class EnergyModel(object):
         return fuels
 
     @classmethod
-    def get_fuels_yh(cls, model_object, attribute_to_get):
+    def get_fuels_yh(cls, model_object, attribute_to_get, nr_of_days=365):
         """Assign yh shape for enduses with flat load profiles
 
         Arguments
@@ -667,16 +667,16 @@ class EnergyModel(object):
                 fuels = fuels_reg_y * shape_peak_h
 
             elif attribute_to_get == 'shape_non_peak_y_dh':
-                shape_non_peak_y_dh = np.full((365, 24), (1.0/24)) # Flat shape
+                shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0/24)) # Flat shape
                 fuels = fuels_reg_y * shape_non_peak_y_dh
 
             elif attribute_to_get == 'shape_non_peak_yd':
-                shape_non_peak_yd = np.ones((365)) / 365 # Flat shape
+                shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days # Flat shape
                 fuels = fuels_reg_y * shape_non_peak_yd
 
             elif attribute_to_get == 'fuel_yh':
-                shape_non_peak_yh = np.full((365, 24), 1/8760) # Flat shape
-                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.fuel_new_y.shape[0], 365, 24))
+                shape_non_peak_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24)) # Flat shape
+                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24))
 
                 for fueltype, _ in enumerate(fast_shape_non_peak_yh):
                     fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh

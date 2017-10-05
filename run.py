@@ -90,8 +90,9 @@ class EDWrapper(SectorModel):
         
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
-        ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data, write_sim_param=True)
+        ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'], ed_data['assumptions'])
+        
         
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
@@ -175,10 +176,9 @@ class EDWrapper(SectorModel):
         ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
-        ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
         ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data, write_sim_param=True)
+        ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'], ed_data['assumptions'])
         ed_data['weather_stations'], _ = data_loader.load_temp_data(ed_data['local_paths'])
-        
         ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
         ed_data['sim_param']['current_year'] = timestep
         ed_data['sim_param']['end_year'] = 2020
