@@ -5,7 +5,7 @@ import logging
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.read_write import data_loader
-from energy_demand.assumptions import assumptions
+from energy_demand.assumptions import base_assumptions
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -33,8 +33,8 @@ def post_install_setup(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
-    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+    data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
 
     # Read in temperature data from raw files
     from energy_demand.scripts import s_raw_weather_data
@@ -85,8 +85,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
-        data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+        data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
     else:
         pass

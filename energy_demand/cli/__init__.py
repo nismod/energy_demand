@@ -9,7 +9,7 @@ import logging
 import energy_demand
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
-from energy_demand.assumptions import assumptions
+from energy_demand.assumptions import base_assumptions
 from energy_demand.scripts.init_scripts import post_install_setup
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.read_write import read_data
@@ -47,8 +47,8 @@ def run_model(args):
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'])
-    data['sim_param'], data['assumptions'] = assumptions.load_assumptions(data, write_sim_param=True)
-    data['assumptions'] = assumptions.update_assumptions(data['assumptions'])
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+    data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     # =========DUMMY DATA

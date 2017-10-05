@@ -160,13 +160,13 @@ def clean_weather_data_raw(temp_stations, placeholder_value=999):
                     # Interpolate depending on hour
                     for hour, temp in enumerate(day):
                         if temp == placeholder_value:
-                            if hour == 0 or hour == 23:
-                                if hour == 0: #If value of hours hour in day is missing
-                                    # Replace with temperature of next hour
-                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour + 1]
-                                if hour == 23:
-                                    # Replace with temperature of previos hour
-                                    temp_stations_cleaned[station_id][day_nr][hour] = day[hour - 1]
+                            #if hour == 0 or hour == 23:
+                            if hour == 0: #If value of hours hour in day is missing
+                                # Replace with temperature of next hour
+                                temp_stations_cleaned[station_id][day_nr][hour] = day[hour + 1]
+                            elif hour == 23:
+                                # Replace with temperature of previos hour
+                                temp_stations_cleaned[station_id][day_nr][hour] = day[hour - 1]
                             else:
                                 # Interpolate
                                 temp_stations_cleaned[station_id][day_nr][hour] = (day[hour - 1] + day[hour + 1]) / 2

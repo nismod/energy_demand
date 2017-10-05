@@ -9,7 +9,7 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.read_write import read_data
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
-from energy_demand.assumptions import assumptions
+from energy_demand.assumptions import base_assumptions
 from energy_demand.basic import date_handling
 from pkg_resources import Requirement, resource_filename
 
@@ -91,7 +91,7 @@ class EDWrapper(SectorModel):
         ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
-        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
+        ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data, write_sim_param=True)
         
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
@@ -176,7 +176,7 @@ class EDWrapper(SectorModel):
         ed_data['lookups'] = data_loader.load_basic_lookups()
         ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
         ed_data['tech_load_profiles'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'])
-        ed_data['sim_param'], ed_data['assumptions'] = assumptions.load_assumptions(ed_data, write_sim_param=True)
+        ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data, write_sim_param=True)
         ed_data['weather_stations'], _ = data_loader.load_temp_data(ed_data['local_paths'])
         
         ed_data['reg_coord'], _ = data_loader.get_dummy_coordinates_and_regions(ed_data['local_paths']) #REPLACE BY SMIF INPUT
@@ -193,7 +193,7 @@ class EDWrapper(SectorModel):
         ed_data['sim_param']['sim_period'] = range(ed_data['sim_param']['base_yr'], ed_data['sim_param']['end_yr'] + 1, ed_data['sim_param']['sim_years_intervall'])
         ed_data['sim_param']['sim_period_yrs'] = int(ed_data['sim_param']['end_yr'] + 1 - ed_data['sim_param']['base_yr'])
         ed_data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(ed_data['sim_param']['base_yr'], 1, 1), end=date(ed_data['sim_param']['base_yr'], 12, 31))
-        ed_data['assumptions'] = assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
+        ed_data['assumptions'] = base_assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
         ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
         ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']

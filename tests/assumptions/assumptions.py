@@ -1,1 +1,1 @@
-from energy_demand.assumptions import assumptions
+from energy_demand.assumptions import base_assumptions

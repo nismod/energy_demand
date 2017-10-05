@@ -8,7 +8,7 @@ import numpy as np
 import logging
 from energy_demand.read_write import read_data
 from energy_demand.scripts import s_shared_functions
-from energy_demand.assumptions import assumptions
+from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
 from collections import defaultdict
