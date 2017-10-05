@@ -342,7 +342,7 @@ class Enduse(object):
                         load_profiles
                         )
 
-                    # Get maximum hour demand per of peak day
+                    # Get maximum hour demand of peak day
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
     def get_lp_stock(self, non_regional_lp_stock, regional_lp_stock):

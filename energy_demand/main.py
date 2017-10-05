@@ -178,7 +178,7 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
-        spatial_validation = False
+        spatial_validation = True
         if spatial_validation == True:
             lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
                 data['local_paths']['path_dummy_regions']

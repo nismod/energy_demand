@@ -35,7 +35,8 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
         fract_sy = value_start
     else:
         #-1 because in base year no change
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)
+        #fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)
+        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) + value_start # SHARK VERY NEW
 
     return fract_sy
 

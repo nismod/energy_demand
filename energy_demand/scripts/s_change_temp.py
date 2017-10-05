@@ -77,7 +77,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
                 temp_by = 0
                 temp_ey = assumptions_temp_change[month_yearday]
 
-                lin_diff_f = diffusion_technologies.linear_diff(
+                lin_diff_factor = diffusion_technologies.linear_diff(
                     sim_param['base_yr'],
                     curr_yr,
                     temp_by,
@@ -87,7 +87,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
 
                 # Iterate hours of base year
                 for hour, temp_old in enumerate(temperature_data[station_id][yearday]):
-                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_f
+                    temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_factor
 
     return temp_climate_change
 
