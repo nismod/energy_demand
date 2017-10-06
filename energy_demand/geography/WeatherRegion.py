@@ -429,10 +429,7 @@ class WeatherRegion(object):
 
         # Calculate yh fuel shape
         fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
-        #fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd #WHALE TEST (See wheter old version is (8, 365, 24))
-        print("fuel_shape_heating_yd: " + str(fuel_shape_heating_yd.shape))
-        print("fuel_shape_yh: " + str(fuel_shape_hybrid_y_dh.shape))
-        print("fuel_shape_yh: " + str(fuel_shape_yh.shape))
+
         return fuel_shape_yh
 
     @classmethod
@@ -473,7 +470,7 @@ class WeatherRegion(object):
         tech_stock : object
             Technology stock
         rs_hdd_cy : array
-            Heating Degree Days (365, 1)
+            Heating Degree Days (nr_ed_modelled_dates, 1)
         tech : str
             Technology to get profile
 
