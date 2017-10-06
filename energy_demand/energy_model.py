@@ -102,6 +102,24 @@ class EnergyModel(object):
         # Sum across all regions, enduses for peak hour
         self.tot_peak_enduses_fueltype = self.fuel_aggr('fuel_peak_dh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_dh', data['assumptions']['nr_ed_modelled_dates'])
         self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_h', data['assumptions']['nr_ed_modelled_dates'])
+        
+
+        # TESTING WHALE
+        #-------------------
+        print("FUEL FOR FIRST WEEK")
+        _sum_first_week = 0
+        for fueltype, fuels in self.fuel_indiv_regions_yh.items():
+            for region_fuel in fuels:
+                _sum_first_week += np.sum(region_fuel[:7])
+
+        _sum_all = 0
+        for fueltype, fuels in self.fuel_indiv_regions_yh.items():
+            for region_fuel in fuels:
+                _sum_all += np.sum(region_fuel)
+        print("_sum_first_week: " + str(_sum_first_week))
+        print("_sum_all: " + str(_sum_all))
+
+        #-------------------
 
         # ---------------------------
         # Functions for load calculations
@@ -127,11 +145,11 @@ class EnergyModel(object):
 
         Example
         -------
-        {'final_electricity_demand': np.array((regions, 8760)), dtype=float}
+        {'final_electricity_demand': np.array((regions, nr_ed_modelled_dates * 24)), dtype=float}
         """
         fuel_fueltype_regions = {}
         for fueltype, fueltype_nr in lookups['fueltype'].items():
-            fuel_fueltype_regions[fueltype] = np.zeros((len(region_names), 8760), dtype=float)
+            fuel_fueltype_regions[fueltype] = np.zeros((len(region_names), nr_ed_modelled_dates * 24), dtype=float)
 
             for array_region, region_name in enumerate(region_names):
                 fuels = self.fuel_aggr(
@@ -143,8 +161,8 @@ class EnergyModel(object):
                     nr_ed_modelled_dates,
                     region_name
                     )
-                # Reshape 365,24 to 8760
-                fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(8760)
+                # Reshape nr_ed_modelled_dates,24 to 8760
+                fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(nr_ed_modelled_dates * 24) #formerly 8760
 
         return fuel_fueltype_regions
 
@@ -234,9 +252,9 @@ class EnergyModel(object):
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    sectors=[sector],
                     shape_yd=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
                     shape_yh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    sectors=[sector],
                     enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
                     shape_peak_dh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
                     )
@@ -251,9 +269,9 @@ class EnergyModel(object):
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    sectors=[sector],
                     shape_yd=shape_non_peak_yd,
                     shape_yh=shape_non_peak_yh,
+                    sectors=[sector],
                     enduse_peak_yd_factor=shape_peak_yd_factor,
                     shape_peak_dh=shape_peak_dh
                     )
@@ -291,7 +309,7 @@ class EnergyModel(object):
 
         return region_fuel_yh
 
-    '''def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get, nr_of_days=365):
+    '''def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get, nr_of_days):
         """Summarise fuel yh for a certain region
 
         Arguments
@@ -621,8 +639,6 @@ class EnergyModel(object):
                 # Select specific region if defined
                 if region_name:
                     if model_object.region_name == region_name:
-                        print("A: " + str(fuels.shape))
-                        print("B: " + str(self.get_fuels_yh(model_object, attribute_to_get, nr_ed_modelled_dates).shape))
                         fuels += self.get_fuels_yh(model_object, attribute_to_get, nr_ed_modelled_dates)
                 else:
                     fuels += self.get_fuels_yh(model_object, attribute_to_get, nr_ed_modelled_dates)

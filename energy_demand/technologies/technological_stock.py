@@ -440,7 +440,7 @@ class HybridTechnology(object):
         -----
         It is assumed that the temperature operating at higher temperatures is a heat pump
         """
-        # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are 365, 24 arrays)
+        # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are nr_of_days, 24 arrays)
         eff_hybrid_yh = (self.service_distr_hybrid_h_p['high'] * eff_tech_high) + (self.service_distr_hybrid_h_p['low'] * eff_tech_low)
 
         return eff_hybrid_yh

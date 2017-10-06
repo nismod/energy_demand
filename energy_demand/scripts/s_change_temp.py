@@ -65,7 +65,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
             for yearday in range(365):
 
                 # Create datetime object
-                date_object = date_handling.convert_yearday_to_date(
+                date_object = date_handling.yearday_to_date(
                     int(sim_param['base_yr']),
                     int(yearday)
                     )
