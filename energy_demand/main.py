@@ -18,6 +18,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
+from energy_demand.read_write import write_data
 #pylint: disable=W1202
 
 def energy_demand_model(data):
@@ -85,7 +86,6 @@ if __name__ == "__main__":
     instrument_profiler = True
     print_criteria = True
 
-
     # Load data
     data = {}
     data['print_criteria'] = print_criteria
@@ -124,12 +124,13 @@ if __name__ == "__main__":
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        model_run_object = energy_demand_model(data)
+        model_run_object = energy_demand_model(data, )
 
         if instrument_profiler:
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
+            #logging.info(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
 
@@ -138,9 +139,15 @@ if __name__ == "__main__":
         
         # ----------------------
         # CLUSTER CALCULATIONS
-        # ----------------------
         # Write out result of year (Year_Region.txt)
-
+        # Create folder and insert modelyear__region.txt
+        # ----------------------
+        '''write_data.write_model_result_to_txt(
+            sim_yr,
+            data['local_paths']['data_results'],
+            out_to_supply)
+        '''
+        
         # ---------------------------------------------------
         # Validation of national electrictiy demand for base year
         # ---------------------------------------------------

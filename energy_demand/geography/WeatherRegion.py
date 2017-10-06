@@ -145,9 +145,6 @@ class WeatherRegion(object):
             rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
                 sim_param, tech_load_profiles, self.rs_tech_stock, rs_hdd_cy, 'rs_lp_heating_hp_dh', assumptions['ed_modelled_dates'], assumptions['nr_ed_modelled_dates'])
 
-            print("A: " + str(rs_profile_boilers_y_dh.shape))
-            print("B: " + str(rs_fuel_shape_hp_y_dh.shape))
-
             rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
                 self.rs_tech_stock,
                 'rs_space_heating',

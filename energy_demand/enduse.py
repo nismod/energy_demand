@@ -139,8 +139,7 @@ class Enduse(object):
             fuel_tech_p_by = self.adapt_fuel_tech_p_by(
                 fuel_tech_p_by,
                 tech_stock,
-                data['assumptions']['hybrid_technologies']
-                )
+                data['assumptions']['hybrid_technologies'])
 
             # -------------------------------
             # Cascade of calculations on a yearly scale
@@ -150,15 +149,13 @@ class Enduse(object):
             self.apply_climate_change(
                 cooling_factor_y,
                 heating_factor_y,
-                data['assumptions']
-                )
+                data['assumptions'])
             #logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.apply_smart_metering(
                 data['assumptions'],
-                data['sim_param']
-                )
+                data['sim_param'])
             #logging.debug("Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific consumption change in %
@@ -176,8 +173,7 @@ class Enduse(object):
                 region_name,
                 data,
                 reg_scenario_drivers,
-                data['sim_param']
-                )
+                data['sim_param'])
             #logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
@@ -208,8 +204,7 @@ class Enduse(object):
                     peak_day = self.get_peak_day()
 
                     shape_peak_dh = lp.abs_to_rel(
-                        self.fuel_yh[:, peak_day, :]
-                        )
+                        self.fuel_yh[:, peak_day, :])
                     enduse_peak_yd_factor = load_profiles.get_lp(
                         self.enduse, self.sector, 'dummy_tech', 'enduse_peak_yd_factor')
 
@@ -238,8 +233,7 @@ class Enduse(object):
                     tech_stock,
                     data['lookups']['fueltype'],
                     load_profiles,
-                    mode_constrained
-                    )
+                    mode_constrained)
 
                 # ------------------------------------
                 # Reduction of service because of heat recovery (standard sigmoid diffusion)
@@ -248,15 +242,13 @@ class Enduse(object):
                     data['assumptions'],
                     tot_service_h_cy,
                     'tot_service_h_cy',
-                    data['sim_param']
-                    )
+                    data['sim_param'])
 
                 service_tech = self.apply_heat_recovery(
                     data['assumptions'],
                     service_tech,
                     'service_tech',
-                    data['sim_param']
-                    )
+                    data['sim_param'])
 
                 # --------------------------------
                 # Switches
@@ -271,8 +263,7 @@ class Enduse(object):
                         tech_decreased_share[enduse],
                         tech_constant_share[enduse],
                         sig_param_tech,
-                        data['sim_param']['curr_yr']
-                        )
+                        data['sim_param']['curr_yr'])
                 elif crit_switch_fuel:
                     #Fuel Switches
                     #logging.info("FUEL SWITCH TRUE")
@@ -285,8 +276,7 @@ class Enduse(object):
                         service_fueltype_cy_p,
                         fuel_switches,
                         fuel_tech_p_by,
-                        data['sim_param']['curr_yr']
-                        )
+                        data['sim_param']['curr_yr'])
                 else:
                     pass #No switch implemented
 
@@ -297,15 +287,13 @@ class Enduse(object):
                     service_tech,
                     tech_stock,
                     data['lookups']['fueltype'],
-                    mode_constrained
-                    )
+                    mode_constrained)
 
                 # Convert annaul service to fuel per fueltype for each technology
                 fuel_tech_y = self.service_to_fuel_per_tech(
                     service_tech,
                     tech_stock,
-                    mode_constrained
-                    )
+                    mode_constrained)
 
                 # -------------------------------------------------------
                 # Assign load profiles

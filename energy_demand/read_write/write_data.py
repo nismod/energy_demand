@@ -4,6 +4,7 @@ import logging
 import json
 import yaml
 import numpy as np
+import os
 
 def read_txt_shape_peak_dh(file_path):
     """Read to txt. Array with shape: (24,)
@@ -114,4 +115,23 @@ def write_out_sim_param(path_to_txt, temp_assumptions):
                     )
     file.close()
 
+    return
+
+def write_model_result_to_txt(sim_yr, path_result, model_results):
+    """Store yearly model resul to txt
+
+    Store numpy array to txt
+    """
+    
+    # Create folder for model simulation year
+    path_result_yr = os.path.join(path_result, "model_run_results_txt")
+    path_file = os.path.join(path_result_yr, "modelruns_" + str(sim_yr) + ".txt")
+
+    if not os.path.exists(path_result_yr):
+        os.makedirs(path_result_yr)
+    
+    # Write to txt
+    np.savetxt(path_file, model_results, delimiter=',')
+
+    # Read in with loadtxt
     return

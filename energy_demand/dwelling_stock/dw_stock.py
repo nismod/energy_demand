@@ -135,7 +135,7 @@ class Dwelling(object):
         https://www.gov.uk/government/collections/energy-consumption-in-the-uk
         """
         if dw_type is None or age is None:
-            logging.debug("The HLC could not be calculated of a dwelling")
+            #logging.debug("The HLC could not be calculated of a dwelling")
             return None
 
         # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}

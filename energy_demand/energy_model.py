@@ -88,6 +88,7 @@ class EnergyModel(object):
         # ---------------------------------------------------------------------
         # Summarise functions
         # ---------------------------------------------------------------------
+        logging.debug("... start summing")
         all_submodels = [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
@@ -103,7 +104,7 @@ class EnergyModel(object):
         self.tot_peak_enduses_fueltype = self.fuel_aggr('fuel_peak_dh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_dh', data['assumptions']['nr_ed_modelled_dates'])
         self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_h', data['assumptions']['nr_ed_modelled_dates'])
         
-
+        #-------------------
         # TESTING WHALE
         #-------------------
         print("FUEL FOR FIRST WEEK")
@@ -161,7 +162,7 @@ class EnergyModel(object):
                     nr_ed_modelled_dates,
                     region_name
                     )
-                # Reshape nr_ed_modelled_dates,24 to 8760
+                # Reshape nr_ed_modelled_dates*24 to 8760
                 fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(nr_ed_modelled_dates * 24) #formerly 8760
 
         return fuel_fueltype_regions
@@ -394,7 +395,7 @@ class EnergyModel(object):
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
         logging.debug("... industry submodel start")
-        #_scrap_cnt = 0
+        _scrap_cnt = 0
         submodules = []
 
         # Iterate regions, sectors and enduses
@@ -413,8 +414,8 @@ class EnergyModel(object):
                     # Add to list
                     submodules.append(submodule)
 
-                    #_scrap_cnt += 1
-                    #logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    _scrap_cnt += 1
+                    logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         del self.regions, self.weather_regions
 
