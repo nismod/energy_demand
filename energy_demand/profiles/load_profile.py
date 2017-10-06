@@ -211,7 +211,7 @@ class LoadProfile(object):
 
         Note
         ----
-        The output gives the shape for every day in a year (total sum == 365)
+        The output gives the shape for every day in a year (total sum == nr_of_days)
         Within each day, the sum is 1
 
         A RuntimeWarning may be raised if in one day a zero value is found.
@@ -222,7 +222,7 @@ class LoadProfile(object):
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
-        # Multiply (365) + with (365, 24)
+        # Multiply (nr_of_days) + with (nr_of_days, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
         # Replace nan by zero (faster than np.nan_to_num)

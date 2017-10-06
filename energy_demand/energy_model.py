@@ -681,11 +681,11 @@ class EnergyModel(object):
             if attribute_to_get == 'fuel_peak_dh':
                 shape_peak_dh = np.full((24), 1/24) # Flat shape
                 # Because flat shape, the dh_peak is 24/8760
-                fuels_reg_peak = fuels_reg_y * (1 / 365)
+                fuels_reg_peak = fuels_reg_y * (1/365) #TEST
                 fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
 
             elif attribute_to_get == 'fuel_peak_h':
-                shape_peak_h = 1 / 8760 # Flat shape
+                shape_peak_h = 1/8760 # Flat shape
                 fuels = fuels_reg_y * shape_peak_h
 
             elif attribute_to_get == 'shape_non_peak_y_dh':

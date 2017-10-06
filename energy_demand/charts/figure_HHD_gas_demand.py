@@ -55,13 +55,7 @@ t_base_heating = 15.5 # Heating t_base temp
 # HDD
 hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
 logging.debug("shape hdd  " + str(hdd_reg.shape))
-'''
-hdd_reg = np.zeros((365))
-for weaterstaion in temperature_data.keys():
-    logging.debug("Station: " + str(weaterstaion))
-    logging.debug(temperature_data[weaterstaion][:1])
-    hdd_reg += hdd_cdd.calc_hdd(t_base_heating, temperature_data[weaterstaion])
-'''
+
 # Test if correlation with mean temp is better than with HDd
 #hdd_reg = averag_day_temp
 

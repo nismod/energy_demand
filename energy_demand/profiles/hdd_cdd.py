@@ -14,18 +14,18 @@ def calc_hdd(t_base, temp_yh):
     t_base : int
         Base temperature
     temp_yh : array
-        Array containing daily temperatures for each day (shape 365, 24)
+        Array containing daily temperatures for each day (shape nr_of_days, 24)
 
     Returns
     -------
     hdd_d : array
-        An array containing the Heating Degree Days for every day (shape 365, 1)
+        An array containing the Heating Degree Days for every day (shape nr_of_days, 1)
 
     Note
     -----
     This function is optimised for speed. A more intuitive reading is as follows:
 
-        # hdd_d = np.zeros((365))
+        # hdd_d = np.zeros((nr_of_days))
 
         # for day, temp_day in enumerate(temp_yh):
         # hdd = 0
@@ -53,7 +53,7 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     Return
     ------
     cdd_d : array
-        Contains all CDD for every day in a year (365, 1)
+        Contains all CDD for every day in a year (nr_of_days, 1)
 
     Note
     -----
@@ -199,7 +199,7 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
     Return
     ------
     hdd_d : array
-        Heating degree days for every day in a year (365, 1)
+        Heating degree days for every day in a year (nr_of_days, 1)
     shape_hdd_d : array
         Shape for heating TODO
 
@@ -241,7 +241,7 @@ def get_reg_cdd(temperatures, t_base_cooling):
     Return
     ------
     shape_yd : array
-        Fraction of heat for every day. Array-shape: 365, 1
+        Fraction of heat for every day. Array-shape: nr_of_days, 1
 
     Note
     ----

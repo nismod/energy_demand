@@ -88,7 +88,7 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     Arguments
     ----------
     temp_yr : array
-        Temperatures for every hour in a year (365, 24)
+        Temperatures for every hour in a year
     efficiency_intersect : float
         Y-value (Efficiency) at 10 degree difference
     t_base_heating : float
@@ -97,7 +97,7 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     Return
     ------
     eff_hp_yh : array
-        Efficiency for every hour in a year  (365, 24)
+        Efficiency for every hour in a year
 
     Note
     -----
@@ -156,23 +156,6 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
     return efficiency_hp
 
-'''def const_eff_yh(input_eff):
-    """Assing a constant efficiency to every hour in a year
-
-    Arguments
-    ----------
-    input_eff : float
-        Efficiency of a technology
-
-    Return
-    ------
-    eff_yh : array
-        Array with efficency for every hour in a year (365,24)
-    """
-    eff_yh = np.full((365, 24), input_eff)
-
-    return eff_yh
-'''
 def get_fueltype_str(fueltype_lu, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
 

@@ -162,7 +162,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
+def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, nr_ed_modelled_dates):
     """Plots stacked end_use for a region
 
 
@@ -171,13 +171,15 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
     """
 
     # Number of days to plot
-    days_to_plot = range(10, 17)
+    #days_to_plot = range(10, 17)
+    days_to_plot = range(nr_ed_modelled_dates)
 
     # Which year in simulation (2015 = 0)
     year_to_plot = 2
 
     fig, ax = plt.subplots()
-    nr_of_h_to_plot = len(days_to_plot) * 24
+    #nr_of_h_to_plot = len(days_to_plot) * 24
+    nr_of_h_to_plot = nr_ed_modelled_dates * 24
 
     legend_entries = []
 
@@ -195,10 +197,15 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
             tot_fuels = getattr(model_year_object, attribute_to_get)
 
             data_over_day = []
-            for day, daily_values in enumerate(tot_fuels[fueltype]):
+            '''for day, daily_values in enumerate(tot_fuels[fueltype]):
                 if day in days_to_plot:
                     for hour in daily_values:
                         data_over_day.append(hour)
+            '''
+            
+            for day, daily_values in enumerate(tot_fuels[fueltype]):
+                for hour in daily_values:
+                    data_over_day.append(hour)
 
         Y_init[fueltype] = data_over_day
 

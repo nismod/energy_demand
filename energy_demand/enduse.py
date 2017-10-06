@@ -275,7 +275,7 @@ class Enduse(object):
                         )
                 elif crit_switch_fuel:
                     #Fuel Switches
-                    logging.info("FUEL SWITCH TRUE")
+                    #logging.info("FUEL SWITCH TRUE")
                     service_tech = self.fuel_switch(
                         installed_tech,
                         sig_param_tech,

@@ -479,7 +479,7 @@ class WeatherRegion(object):
         hp_shape : array
             Daily shape how yearly fuel can be distributed to hourly
         shape_y_dh : array
-            Shape of fuel shape for every day in a year (total sum = 365)
+            Shape of fuel shape for every day in a year (total sum = nr_of_days)
 
         Note
         ----
@@ -499,9 +499,6 @@ class WeatherRegion(object):
         #WHALE
         shape_yh_hp = np.zeros((nr_ed_modelled_dates, 24))
         shape_y_dh = np.zeros((nr_ed_modelled_dates, 24))
-        '''shape_yh_hp = np.zeros((365, 24))
-        shape_y_dh = np.zeros((365, 24))
-        '''
 
         daily_fuel_profile_holiday = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
         daily_fuel_profile_workday = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
@@ -597,9 +594,8 @@ class WeatherRegion(object):
         shape_boilers_yh : array
             Shape how yearly fuel can be distributed to hourly (yh) (total sum == 1)
         shape_boilers_y_dh : array
-            Shape of distribution of fuel within every day of a year (total sum == 365)
+            Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
         """
-        #shape_yh_generic_tech = np.zeros((365, 24))
         #WHALE
         shape_yh_generic_tech = np.zeros((nr_ed_modelled_dates, 24))
         if enduse not in tech_load_profiles['ss_all_tech_shapes_dh']:
@@ -630,7 +626,7 @@ class WeatherRegion(object):
         shape_boilers_yh : array
             Shape how yearly fuel can be distributed to hourly (yh) (total sum == 1)
         shape_boilers_y_dh : array
-            Shape of distribution of fuel within every day of a year (total sum == 365)
+            Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
 
         Note
         ----
@@ -645,15 +641,6 @@ class WeatherRegion(object):
         *Sansom, R. (2014). Decarbonising low grade heat for low carbon
         future. Dissertation, Imperial College London.*
         """
-        '''shape_boilers_yh = np.zeros((365, 24))
-        shape_boilers_y_dh = np.zeros((365, 24))
-
-        list_dates = date_handling.fullyear_dates(
-            start=date(sim_param['base_yr'], 1, 1),
-            end=date(sim_param['base_yr'], 12, 31)
-            )
-        #for day, date_gasday in enumerate(list_dates):
-        '''
         shape_boilers_yh = np.zeros((nr_ed_modelled_dates, 24))
         shape_boilers_y_dh = np.zeros((nr_ed_modelled_dates, 24))
 
