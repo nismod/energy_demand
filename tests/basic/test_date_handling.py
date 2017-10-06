@@ -38,7 +38,7 @@ def test_date_to_yearday():
 
     assert out_value == expected
 
-def test_convert_yearday_to_date():
+def test_yearday_to_date():
     """Testing
     """
     in_year = 2015
@@ -48,7 +48,7 @@ def test_convert_yearday_to_date():
     expected = date(2015, in_month, in_day)
 
     # call function
-    out_value = date_handling.convert_yearday_to_date(in_year, in_yearday)
+    out_value = date_handling.yearday_to_date(in_year, in_yearday)
 
     assert out_value == expected
 

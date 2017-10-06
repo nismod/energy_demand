@@ -242,7 +242,7 @@ class WeatherRegion(object):
             # --Heating technologies for service sector
             # (the heating shape follows the gas shape of aggregated sectors)
             ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(
-                tech_load_profiles, ss_fuel_shape_heating_yd, 'ss_space_heating')
+                tech_load_profiles, ss_fuel_shape_heating_yd, 'ss_space_heating', assumptions['nr_ed_modelled_dates'])
 
             # Cooling service
             #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
@@ -337,7 +337,7 @@ class WeatherRegion(object):
             # the gas shape of aggregated sectors)
             #Take from service sector
             is_fuel_shape_any_tech, _ = self.ss_get_sector_enduse_shape(
-                tech_load_profiles, is_fuel_shape_heating_yd, 'ss_space_heating')
+                tech_load_profiles, is_fuel_shape_heating_yd, 'ss_space_heating', assumptions['nr_ed_modelled_dates'])
 
             self.is_load_profiles.add_load_profile(
                 unique_identifier=uuid.uuid4(),
@@ -429,10 +429,7 @@ class WeatherRegion(object):
 
         # Calculate yh fuel shape
         fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
-        #fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd #WHALE TEST (See wheter old version is (8, 365, 24))
-        print("fuel_shape_heating_yd: " + str(fuel_shape_heating_yd.shape))
-        print("fuel_shape_yh: " + str(fuel_shape_hybrid_y_dh.shape))
-        print("fuel_shape_yh: " + str(fuel_shape_yh.shape))
+
         return fuel_shape_yh
 
     @classmethod
@@ -473,7 +470,7 @@ class WeatherRegion(object):
         tech_stock : object
             Technology stock
         rs_hdd_cy : array
-            Heating Degree Days (365, 1)
+            Heating Degree Days (nr_ed_modelled_dates, 1)
         tech : str
             Technology to get profile
 
@@ -513,7 +510,7 @@ class WeatherRegion(object):
 
         #WHALE
         for day_array_nr, yearday in enumerate(list_dates):
-            date_gasday = date_handling.convert_yearday_to_date(sim_param['base_yr'], yearday)
+            date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
     
         #for day, date_gasday in enumerate(list_dates):
             # Take respectve daily fuel curve depending on weekday or weekend
@@ -582,7 +579,7 @@ class WeatherRegion(object):
         return shape_yd_cooling_tech
 
     @classmethod
-    def ss_get_sector_enduse_shape(cls, tech_load_profiles, heating_shape, enduse):
+    def ss_get_sector_enduse_shape(cls, tech_load_profiles, heating_shape, enduse, nr_ed_modelled_dates):
         """Read generic shape for all technologies in a service sector enduse
 
         Arguments
@@ -602,8 +599,9 @@ class WeatherRegion(object):
         shape_boilers_y_dh : array
             Shape of distribution of fuel within every day of a year (total sum == 365)
         """
-        shape_yh_generic_tech = np.zeros((365, 24))
-
+        #shape_yh_generic_tech = np.zeros((365, 24))
+        #WHALE
+        shape_yh_generic_tech = np.zeros((nr_ed_modelled_dates, 24))
         if enduse not in tech_load_profiles['ss_all_tech_shapes_dh']:
             pass
         else:
@@ -661,7 +659,7 @@ class WeatherRegion(object):
 
         #WHALE
         for day_array_nr, yearday in enumerate(list_dates): #day_nr: Position in array
-            date_gasday = date_handling.convert_yearday_to_date(sim_param['base_yr'], yearday)
+            date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
 
             # Take respectve daily fuel curve depending on weekday or weekend
             if date_handling.get_weekday_type(date_gasday) == 'holiday': # Wkend Hourly gas shape.

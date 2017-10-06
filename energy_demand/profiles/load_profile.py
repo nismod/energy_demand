@@ -35,9 +35,9 @@ class LoadProfileStock(object):
             unique_identifier,
             technologies,
             enduses,
+            shape_yd,
+            shape_yh,
             sectors=['dummy_sector'],
-            shape_yd=np.zeros((365)),
-            shape_yh=np.zeros((365, 24)),
             enduse_peak_yd_factor=1.0/365,
             shape_peak_dh=np.full((24), 1.0/24)
             ):
@@ -345,7 +345,7 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     Arguments
     ----------
     fueltypes_yh_p_cy : array
-        Fuel share per fueltype for every day and hour (7, 365, 24)
+        Fuel share per fueltype for every day and hour (nr_of_fuels, nr_of_days, 24)
 
     Returns
     -------

@@ -219,7 +219,7 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
     hdd_d = calc_hdd(t_base_heating, temperatures)
 
     # MAKE selection WHALE
-    hdd_d_selection = np.zeros((nr_ed_modelled_dates, 24))
+    hdd_d_selection = np.zeros((nr_ed_modelled_dates))
     for array_nr, day_to_copy in enumerate(ed_modelled_dates):
         hdd_d_selection[array_nr] = hdd_d[day_to_copy]
         

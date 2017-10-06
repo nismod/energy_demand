@@ -54,7 +54,7 @@ def date_to_yearday(year, month, day):
 
     return yearday
 
-def convert_yearday_to_date(year, yearday_python):
+def yearday_to_date(year, yearday_python):
     """Gets the yearday of a year minus one to correct because of python iteration
 
     Arguments
