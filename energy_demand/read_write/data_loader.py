@@ -483,9 +483,9 @@ def rs_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
         shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
     
         #Iterate days which are modelled and only copy those into shorter array
-        for array_nr, day_to_copy in enumerate(ed_modelled_dates):
-            shape_non_peak_y_dh_selection[array_nr] = shape_non_peak_y_dh[day_to_copy]
-            shape_non_peak_yd_selection[array_nr] = shape_non_peak_yd[day_to_copy]
+        for day_array_nr, yearday in enumerate(ed_modelled_dates):
+            shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
+            shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
         # ------
         rs_shapes_dh[enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
         rs_shapes_yd[enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}
@@ -546,9 +546,9 @@ def ss_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
             shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
         
             #Iterate days which are modelled and only copy those into shorter array
-            for array_nr, day_to_copy in enumerate(ed_modelled_dates):
-                shape_non_peak_y_dh_selection[array_nr] = shape_non_peak_y_dh[day_to_copy]
-                shape_non_peak_yd_selection[array_nr] = shape_non_peak_yd[day_to_copy]
+            for day_array_nr, yearday in enumerate(ed_modelled_dates):
+                shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
+                shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
             # ------
             ss_shapes_dh[sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
             ss_shapes_yd[sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}

@@ -220,10 +220,10 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
 
     # MAKE selection WHALE
     hdd_d_selection = np.zeros((nr_ed_modelled_dates))
-    for array_nr, day_to_copy in enumerate(ed_modelled_dates):
-        hdd_d_selection[array_nr] = hdd_d[day_to_copy]
+    for day_array_nr, yearday in enumerate(ed_modelled_dates):
+        hdd_d_selection[day_array_nr] = hdd_d[yearday]
         
-    #shape_hdd_d = load_profile.abs_to_rel(hdd_d) #WHALE
+    #shape_hdd_d = load_profile.abs_to_rel(hdd_d)
     shape_hdd_d = load_profile.abs_to_rel(hdd_d_selection)
 
     return hdd_d, shape_hdd_d

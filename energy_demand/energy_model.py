@@ -108,16 +108,21 @@ class EnergyModel(object):
         # TESTING WHALE
         #-------------------
         print("FUEL FOR FIRST WEEK")
+        hours_modelled = 7 * 24
         _sum_first_week = 0
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
             for region_fuel in fuels:
-                _sum_first_week += np.sum(region_fuel[:7])
+                print("a" + str(region_fuel.shape))
+                _sum_first_week += region_fuel[:hours_modelled]
+        
+        print("_sum_first_week")
+        print(np.sum(_sum_first_week))
 
         _sum_all = 0
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
             for region_fuel in fuels:
                 _sum_all += np.sum(region_fuel)
-        print("_sum_first_week: " + str(_sum_first_week))
+
         print("_sum_all: " + str(_sum_all))
 
         #-------------------

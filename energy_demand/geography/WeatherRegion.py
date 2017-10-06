@@ -455,7 +455,7 @@ class WeatherRegion(object):
         return max_factor_yd
 
     @classmethod
-    def get_fuel_shape_heating_hp_yh(cls, sim_param, tech_load_profiles, tech_stock, rs_hdd_cy, tech, list_dates, nr_ed_modelled_dates):
+    def get_fuel_shape_heating_hp_yh(cls, sim_param, tech_load_profiles, tech_stock, rs_hdd_cy, tech, ed_modelled_dates, nr_ed_modelled_dates):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump TODO
 
         This is for non-peak.
@@ -502,8 +502,8 @@ class WeatherRegion(object):
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        #WHALE
-        for day_array_nr, yearday in enumerate(list_dates):
+        #WHALE 
+        for day_array_nr, yearday in enumerate(ed_modelled_dates):
             date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
     
         #for day, date_gasday in enumerate(list_dates):
@@ -606,7 +606,7 @@ class WeatherRegion(object):
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 
     @classmethod
-    def get_shape_heating_boilers_yh(cls, sim_param, tech_load_profiles, heating_shape, technology, list_dates, nr_ed_modelled_dates):
+    def get_shape_heating_boilers_yh(cls, sim_param, tech_load_profiles, heating_shape, technology, ed_modelled_dates, nr_ed_modelled_dates):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
         Arguments
@@ -642,7 +642,7 @@ class WeatherRegion(object):
         shape_boilers_y_dh = np.zeros((nr_ed_modelled_dates, 24))
 
         #WHALE
-        for day_array_nr, yearday in enumerate(list_dates): #day_nr: Position in array
+        for day_array_nr, yearday in enumerate(ed_modelled_dates): #day_nr: Position in array
             date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
 
             # Take respectve daily fuel curve depending on weekday or weekend

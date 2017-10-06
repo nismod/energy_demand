@@ -53,9 +53,9 @@ def load_assumptions(data, write_sim_param):
 
     # Modelled days
     #assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
-    #assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
+    assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
     #assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 3)))
-    assumptions['ed_modelled_dates'] = range(365)
+    #assumptions['ed_modelled_dates'] = range(365)
     
     #Modelled dates
     assumptions['ed_modelled_dates_date'] = []

@@ -48,9 +48,9 @@ class TechStock(object):
         temp_cy_selection = np.zeros((assumptions['nr_ed_modelled_dates'], 24))
     
         #Iterate days which are modelled and only copy those into shorter array
-        for array_nr, day_to_copy in enumerate(assumptions['ed_modelled_dates']):
-            temp_by_selection[array_nr] = temp_by[day_to_copy]
-            temp_cy_selection[array_nr] = temp_cy[day_to_copy]
+        for day_array_nr, yearday in enumerate(assumptions['ed_modelled_dates']):
+            temp_by_selection[day_array_nr] = temp_by[yearday]
+            temp_cy_selection[day_array_nr] = temp_cy[yearday]
 
         temp_by = temp_by_selection
         temp_cy = temp_cy_selection
