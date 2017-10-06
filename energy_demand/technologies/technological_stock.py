@@ -42,6 +42,20 @@ class TechStock(object):
         """
         self.stock_name = stock_name
 
+        # Reduce temperature that efficiency is only calculated for WHALE
+        # ----------
+        temp_by_selection = np.zeros((assumptions['nr_ed_modelled_dates'], 24))
+        temp_cy_selection = np.zeros((assumptions['nr_ed_modelled_dates'], 24))
+    
+        #Iterate days which are modelled and only copy those into shorter array
+        for array_nr, day_to_copy in enumerate(assumptions['ed_modelled_dates']):
+            temp_by_selection[array_nr] = temp_by[day_to_copy]
+            temp_cy_selection[array_nr] = temp_cy[day_to_copy]
+
+        temp_by = temp_by_selection
+        temp_cy = temp_cy_selection
+        # -------
+
         self.stock_technologies = self.create_tech_stock(
             assumptions, sim_param, lookups,
             temp_by,
@@ -242,7 +256,7 @@ class Technology(object):
                     )
 
     @staticmethod
-    def set_constant_fueltype(fueltype, len_fueltypes, nr_of_days=365):
+    def set_constant_fueltype(fueltype, len_fueltypes, nr_of_days):
         """Create dictionary with constant single fueltype
 
         Arguments
@@ -313,7 +327,7 @@ class HybridTechnology(object):
         self.tech_high_temp = assumptions['technologies'][tech_name]['tech_high_temp']
 
         self.tech_low_temp_fueltype = assumptions['technologies'][self.tech_low_temp]['fuel_type']
-        self.tech_high_temp_fueltype =assumptions['technologies'][self.tech_high_temp]['fuel_type']
+        self.tech_high_temp_fueltype = assumptions['technologies'][self.tech_high_temp]['fuel_type']
 
         self.eff_tech_low_by = assumptions['technologies'][self.tech_low_temp]['eff_by']
         self.eff_tech_high_by = tech_related.get_heatpump_eff(
@@ -349,7 +363,7 @@ class HybridTechnology(object):
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'])
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'], assumptions['nr_ed_modelled_dates'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
             self.fueltypes_yh_p_cy)
@@ -426,12 +440,12 @@ class HybridTechnology(object):
         -----
         It is assumed that the temperature operating at higher temperatures is a heat pump
         """
-        # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are 365,24 arrays)
+        # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are 365, 24 arrays)
         eff_hybrid_yh = (self.service_distr_hybrid_h_p['high'] * eff_tech_high) + (self.service_distr_hybrid_h_p['low'] * eff_tech_low)
 
         return eff_hybrid_yh
 
-    def calc_hybrid_fueltypes_p(self, nr_fueltypes):
+    def calc_hybrid_fueltypes_p(self, nr_fueltypes, nr_ed_modelled_dates):
         """Calculate share of fueltypes for every hour for hybrid technology
 
         Arguments
@@ -464,7 +478,7 @@ class HybridTechnology(object):
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
-        fueltypes_yh = np.zeros((nr_fueltypes, 365, 24))
+        fueltypes_yh = np.zeros((nr_fueltypes, nr_ed_modelled_dates, 24))
         _var = np.divide(1.0, tot_fuel_h)
 
         fueltypes_yh[self.tech_low_temp_fueltype] = _var * fuel_low_h

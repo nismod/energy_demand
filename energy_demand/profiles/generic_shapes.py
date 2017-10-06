@@ -3,7 +3,7 @@
 import numpy as np
 from energy_demand.profiles import load_profile
 
-def flat_shape(shape_peak_yd_factor=1/365, nr_of_days=365):
+def flat_shape(nr_of_days, shape_peak_yd_factor=1/365):
     """Create completely flat shape for peak and non-peak
 
     Arguments
@@ -43,17 +43,17 @@ class GenericFlatEnduse(object):
 
     Generate flat shapes (i.e. same amount of fuel for every hour in a year)
     """
-    def __init__(self, enduse_fuel):
+    def __init__(self, enduse_fuel, nr_ed_modelled_dates):
         self.fuel_new_y = enduse_fuel
 
-        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape()
+        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape(nr_ed_modelled_dates)
 
         # Convert shape_peak_dh into fuel per day (Multiply average daily fuel demand for flat shape * peak factor)
         max_fuel_d = self.fuel_new_y * shape_peak_yd_factor
 
         # Yh fuel shape per fueltype (non-peak)
-        self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], 365, 24))
-        for fueltype, fuel in enumerate(self.fuel_new_y): #range(len(enduse_fuel)):
+        self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], nr_ed_modelled_dates, 24))
+        for fueltype, fuel in enumerate(self.fuel_new_y):
             self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel
 
         # Dh fuel shape per fueltype (peak)  (shape of peak & maximum fuel per fueltype)

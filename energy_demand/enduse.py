@@ -1079,6 +1079,10 @@ class Enduse(object):
                 fueltypes_tech_share_yh = tech_stock.get_tech_attr(
                     self.enduse, tech, 'fueltype_share_yh_all_h')
 
+                print("dd {} {} {}".format(self.enduse, self.sector, tech))
+                print(fuel_tech_yh.shape)
+                print(fueltypes_tech_share_yh.shape)
+
                 # Get distribution of fuel for every day, calculate share of fuel, add to fuels
                 fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
 

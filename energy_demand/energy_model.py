@@ -83,7 +83,7 @@ class EnergyModel(object):
             data['weather_stations'], data, 'ts_submodel')
         self.regions = self.create_regions(
             region_names, data, 'ts_submodel')
-        self.ts_submodel = self.other_submodels()
+        self.ts_submodel = self.other_submodels(data['assumptions']['nr_ed_modelled_dates'])
 
         # ---------------------------------------------------------------------
         # Summarise functions
@@ -241,7 +241,7 @@ class EnergyModel(object):
                     )
 
         # dummy is - Flat load profile
-        shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape()
+        shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['nr_ed_modelled_dates'])
 
         for enduse in assumptions['is_dummy_enduses']:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
@@ -317,7 +317,7 @@ class EnergyModel(object):
 
         return tot_fuels_all_enduse_yh
 
-    def other_submodels(self):
+    def other_submodels(self, nr_ed_modelled_dates):
         """Other submodel
 
         Return
@@ -338,7 +338,8 @@ class EnergyModel(object):
             # Create submodule
             submodule = ts_model.OtherModel(
                 region_obj,
-                'generic_transport_enduse'
+                'generic_transport_enduse',
+                nr_ed_modelled_dates
             )
 
             # Add to list

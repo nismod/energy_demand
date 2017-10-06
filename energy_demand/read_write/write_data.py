@@ -15,7 +15,7 @@ def read_txt_shape_peak_dh(file_path):
     return out_dict
 
 def read_txt_shape_non_peak_yh(file_path):
-    """Read to txt. Array with shape: (365, 24)"""
+    """Read to txt. Array with shape: (nr_ed_modelled_dates, 24)"""
     out_dict = np.zeros((365, 24))
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
@@ -24,13 +24,13 @@ def read_txt_shape_non_peak_yh(file_path):
     return out_dict
 
 def read_txt_shape_peak_yd_factor(file_path):
-    """Read to txt. Array with shape: (365, 24)
+    """Read to txt. Array with shape: (nr_ed_modelled_dates, 24)
     """
     out_dict = json.load(open(file_path))
     return out_dict
 
 def read_txt_shape_non_peak_yd(file_path):
-    """Read to txt. Array with shape: (365, 1)
+    """Read to txt. Array with shape
     """
     out_dict = np.zeros((365))
     read_dict = json.load(open(file_path))

@@ -47,8 +47,13 @@ def load_assumptions(data, write_sim_param):
     autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 19))) #Oct
 
     # Modelled days
-    ##assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
+    #assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
     assumptions['ed_modelled_dates'] = range(365)
+    
+    #Modelled dates
+    assumptions['ed_modelled_dates_date'] = []
+    for yearday in assumptions['ed_modelled_dates']:
+        assumptions['ed_modelled_dates_date'].append(date_handling.convert_yearday_to_date(sim_param['base_yr'], yearday))
     
     # Nr of days to model
     assumptions['nr_ed_modelled_dates'] = len(assumptions['ed_modelled_dates'])

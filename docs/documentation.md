@@ -1,3 +1,12 @@
+Model Code Overview
+===================
+This section provides and overview how the model code is structured
+and storted.
+
+Folder
+assumptions:  Blbablabla
+
+
 Model Documentation
 ===================
 

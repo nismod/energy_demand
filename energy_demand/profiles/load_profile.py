@@ -222,7 +222,7 @@ class LoadProfile(object):
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
-        # Multiply (365,) + with (365, 24)
+        # Multiply (365) + with (365, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
         # Replace nan by zero (faster than np.nan_to_num)
@@ -331,7 +331,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
 
     # (share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
     _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
-
+    
     # Absolute to relative for every row
     fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var) #abs_to_rel_no_nan not possible
     '''plt.plot(fuel_shapes_hybrid_y_dh[1])

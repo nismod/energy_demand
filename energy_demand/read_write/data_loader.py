@@ -477,7 +477,7 @@ def rs_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
         # -----------------------------------------------------------
-        # Select only modelled days (from 365,24 to nr_of_days, 24) WHALE
+        # Select only modelled days (nr_of_days, 24) WHALE
         # -----------------------------------------------------------
         shape_non_peak_y_dh_selection = np.zeros((nr_ed_modelled_dates, 24))
         shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
@@ -540,7 +540,7 @@ def ss_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
                 os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
             # -----------------------------------------------------------
-            # Select only modelled days (from 365,24 to nr_of_days, 24) WHALE
+            # Select only modelled days (nr_of_days, 24) WHALE
             # -----------------------------------------------------------
             shape_non_peak_y_dh_selection = np.zeros((nr_ed_modelled_dates, 24))
             shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
