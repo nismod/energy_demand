@@ -43,16 +43,16 @@ class GenericFlatEnduse(object):
 
     Generate flat shapes (i.e. same amount of fuel for every hour in a year)
     """
-    def __init__(self, enduse_fuel, nr_ed_modelled_dates):
+    def __init__(self, enduse_fuel, model_yeardays_nrs):
         self.fuel_new_y = enduse_fuel
 
-        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape(nr_ed_modelled_dates)
+        shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, _ = flat_shape(model_yeardays_nrs)
 
         # Convert shape_peak_dh into fuel per day (Multiply average daily fuel demand for flat shape * peak factor)
         max_fuel_d = self.fuel_new_y * shape_peak_yd_factor
 
         # Yh fuel shape per fueltype (non-peak)
-        self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], nr_ed_modelled_dates, 24))
+        self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], model_yeardays_nrs, 24))
         for fueltype, fuel in enumerate(self.fuel_new_y):
             self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel
 

@@ -362,10 +362,10 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Load enduse load profiles
     tech_load_profiles['rs_shapes_dh'], tech_load_profiles['rs_shapes_yd'] = rs_collect_shapes_from_txts(
-        local_paths['rs_load_profile_txt'], assumptions['ed_modelled_dates'], assumptions['nr_ed_modelled_dates'])
+        local_paths['rs_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
     tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'] = ss_collect_shapes_from_txts(
-        local_paths['ss_load_profile_txt'], assumptions['ed_modelled_dates'], assumptions['nr_ed_modelled_dates'])
+        local_paths['ss_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_load_profiles['ss_all_tech_shapes_dh'], tech_load_profiles['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
@@ -437,7 +437,7 @@ def load_fuels(paths, lookups):
 
     return enduses, sectors, fuels
 
-def rs_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_dates):
+def rs_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
     """All pre-processed load shapes are read in from .txt files without accesing raw files
 
     This loads HES files for residential sector
@@ -479,11 +479,11 @@ def rs_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
         # -----------------------------------------------------------
         # Select only modelled days (nr_of_days, 24) WHALE
         # -----------------------------------------------------------
-        shape_non_peak_y_dh_selection = np.zeros((nr_ed_modelled_dates, 24))
-        shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
+        shape_non_peak_y_dh_selection = np.zeros((model_yeardays_nrs, 24))
+        shape_non_peak_yd_selection = np.zeros((model_yeardays_nrs))
     
         #Iterate days which are modelled and only copy those into shorter array
-        for day_array_nr, yearday in enumerate(ed_modelled_dates):
+        for day_array_nr, yearday in enumerate(model_yeardays):
             shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
             shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
         # ------
@@ -496,7 +496,7 @@ def rs_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
 
     return rs_shapes_dh, rs_shapes_yd
 
-def ss_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_dates):
+def ss_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
     """Collect service shapes from txt files for every setor and enduse
 
     Arguments
@@ -542,11 +542,11 @@ def ss_collect_shapes_from_txts(txt_path, ed_modelled_dates, nr_ed_modelled_date
             # -----------------------------------------------------------
             # Select only modelled days (nr_of_days, 24) WHALE
             # -----------------------------------------------------------
-            shape_non_peak_y_dh_selection = np.zeros((nr_ed_modelled_dates, 24))
-            shape_non_peak_yd_selection = np.zeros((nr_ed_modelled_dates))
+            shape_non_peak_y_dh_selection = np.zeros((model_yeardays_nrs, 24))
+            shape_non_peak_yd_selection = np.zeros((model_yeardays_nrs))
         
             #Iterate days which are modelled and only copy those into shorter array
-            for day_array_nr, yearday in enumerate(ed_modelled_dates):
+            for day_array_nr, yearday in enumerate(model_yeardays):
                 shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
                 shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
             # ------

@@ -52,18 +52,17 @@ def load_assumptions(data, write_sim_param):
     autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
 
     # Modelled days
-    #assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
-    assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
-    #assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 3)))
-    #assumptions['ed_modelled_dates'] = range(365)
-    
+    #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
+    assumptions['model_yeardays'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
+    assumptions['model_yeardays'] = list(range(1))
+
     #Modelled dates
-    assumptions['ed_modelled_dates_date'] = []
-    for yearday in assumptions['ed_modelled_dates']:
-        assumptions['ed_modelled_dates_date'].append(date_handling.yearday_to_date(sim_param['base_yr'], yearday))
+    assumptions['model_yeardays_date'] = []
+    for yearday in assumptions['model_yeardays']:
+        assumptions['model_yeardays_date'].append(date_handling.yearday_to_date(sim_param['base_yr'], yearday))
     
     # Nr of days to model
-    assumptions['nr_ed_modelled_dates'] = len(assumptions['ed_modelled_dates'])
+    assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
 
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.

@@ -43,6 +43,7 @@ def energy_demand_model(data):
     This function is executed in the wrapper
     """
     fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
+    logging.info("Fuel input:          " + str(fuel_in))
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
     model_run_object = energy_model.EnergyModel(
@@ -124,7 +125,7 @@ if __name__ == "__main__":
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        model_run_object = energy_demand_model(data, )
+        model_run_object = energy_demand_model(data)
 
         if instrument_profiler:
             profiler.stop()
@@ -163,7 +164,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy
         # load with Elexon Data for Base year for different regions
         # ------------------------------
-        temporal_validation = False
+        temporal_validation = True
         if temporal_validation == True:
             validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
                 data['local_paths']['folder_validation_national_elec_data'])
@@ -245,8 +246,8 @@ if __name__ == "__main__":
     plotting_results.plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
 
     # Plot a full week
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['nr_ed_modelled_dates'])
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['nr_ed_modelled_dates'])
+    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
 
     # Plot all enduses
     plotting_results.plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')

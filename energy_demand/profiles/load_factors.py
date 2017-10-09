@@ -45,8 +45,7 @@ def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
 
     return load_factor_h
 
-
-def load_factor_d_non_peak(self, data):
+'''def load_factor_d_non_peak(self, data):
     """Calculate load factor of a day in a year from non-peak data
     self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
     self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -76,6 +75,7 @@ def load_factor_d_non_peak(self, data):
     lf_d = lf_d * 100 # Convert load factor to %
 
     return lf_d
+'''
 
 def load_factor_h_non_peak(self, data):
     """Calculate load factor of a h in a year from non-peak data

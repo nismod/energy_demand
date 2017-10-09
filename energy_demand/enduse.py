@@ -144,7 +144,7 @@ class Enduse(object):
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
-            #logging.debug("Fuel train A: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("Fuel train A {} {}  {}: ".format(self.enduse, self.sector, (np.sum(self.fuel_new_y))))
             # --Change fuel consumption based on climate change induced temperature differences
             self.apply_climate_change(
                 cooling_factor_y,
@@ -174,7 +174,7 @@ class Enduse(object):
                 data,
                 reg_scenario_drivers,
                 data['sim_param'])
-            #logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -293,8 +293,10 @@ class Enduse(object):
                 fuel_tech_y = self.service_to_fuel_per_tech(
                     service_tech,
                     tech_stock,
-                    mode_constrained)
-
+                    mode_constrained,
+                    data['assumptions']['model_yeardays'],
+                    data['assumptions']['model_yeardays_nrs'])
+                logging.debug("SUM ff: " + str(np.sum(fuel_tech_y)))
                 # -------------------------------------------------------
                 # Assign load profiles
                 # -------------------------------------------------------
@@ -320,9 +322,10 @@ class Enduse(object):
                         load_profiles,
                         data['lookups']['fueltype'],
                         mode_constrained,
-                        data['assumptions']['nr_ed_modelled_dates'] 
+                        data['assumptions']['model_yeardays_nrs'] 
                         )
-
+                    logging.debug("SUM gg: " + str(np.sum(self.fuel_yh)))
+                    logging.debug(self.fuel_yh.shape)
                     # --PEAK
                     # Iterate technologies in enduse and assign technology specific profiles
                     self.fuel_peak_dh = self.calc_peak_tech_dh(
@@ -1274,7 +1277,7 @@ class Enduse(object):
 
         self.fuel_new_y = enduse_fuels
 
-    def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained):
+    def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained, model_yeardays, model_yeardays_nrs):
         """Calculate fraction of fuel per technology within fueltype
         considering current efficiencies.
 
@@ -1305,7 +1308,19 @@ class Enduse(object):
         else:
             for tech, service in service_tech.items():
                 # Convert service to fuel
-                fuel_yh = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
+                '''fuel_yh = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
+                fuel_tech[tech] = np.sum(fuel_yh)
+                '''
+                #WHALE
+                eff_full_year = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
+                print("EEEE: " + str(np.shape(eff_full_year)))
+                print(" {}  ".format(tech))
+                eff_yh_selection = np.zeros((model_yeardays_nrs, 24)) #TODO
+
+                for day_array, yearday in enumerate(model_yeardays):
+                    eff_yh_selection[day_array] = eff_full_year[yearday]
+
+                fuel_yh = np.divide(service, eff_yh_selection)
                 fuel_tech[tech] = np.sum(fuel_yh)
 
         return fuel_tech

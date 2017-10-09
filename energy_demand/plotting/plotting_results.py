@@ -162,7 +162,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, nr_ed_modelled_dates):
+def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, model_yeardays_nrs):
     """Plots stacked end_use for a region
 
 
@@ -172,14 +172,14 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, nr_e
 
     # Number of days to plot
     #days_to_plot = range(10, 17)
-    days_to_plot = range(nr_ed_modelled_dates)
+    days_to_plot = range(model_yeardays_nrs)
 
     # Which year in simulation (2015 = 0)
     year_to_plot = 2
 
     fig, ax = plt.subplots()
     #nr_of_h_to_plot = len(days_to_plot) * 24
-    nr_of_h_to_plot = nr_ed_modelled_dates * 24
+    nr_of_h_to_plot = model_yeardays_nrs * 24
 
     legend_entries = []
 

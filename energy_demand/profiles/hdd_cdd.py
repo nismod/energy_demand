@@ -186,7 +186,7 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
 
     return t_base_cy
 
-def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_dates):
+def get_reg_hdd(temperatures, t_base_heating, model_yeardays, model_yeardays_nrs):
     """Calculate HDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -201,7 +201,7 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
     hdd_d : array
         Heating degree days for every day in a year (nr_of_days, 1)
     shape_hdd_d : array
-        Shape for heating TODO
+        Shape for heating days (only selected modelling days) TODO WHALE: 
 
     Note
     -----
@@ -216,19 +216,24 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
 
     - The diffusion is assumed to be sigmoid
     """
+    # Temperatures of full year
     hdd_d = calc_hdd(t_base_heating, temperatures)
 
+    shape_hdd_d = load_profile.abs_to_rel(hdd_d)
+
     # MAKE selection WHALE
-    hdd_d_selection = np.zeros((nr_ed_modelled_dates))
-    for day_array_nr, yearday in enumerate(ed_modelled_dates):
+    shape_hdd_d_selection = np.zeros((model_yeardays_nrs))
+    hdd_d_selection = np.zeros((model_yeardays_nrs))
+    for day_array_nr, yearday in enumerate(model_yeardays):
+        shape_hdd_d_selection[day_array_nr] = shape_hdd_d[yearday]
         hdd_d_selection[day_array_nr] = hdd_d[yearday]
-        
-    #shape_hdd_d = load_profile.abs_to_rel(hdd_d)
-    shape_hdd_d = load_profile.abs_to_rel(hdd_d_selection)
+    
+    print("SUM OF FUEL SHAPE FOR HEATING: " + str(np.sum(shape_hdd_d_selection)))
+    #return hdd_d, shape_hdd
+    #return hdd_d_selection, shape_hdd_d_selection
+    return hdd_d, shape_hdd_d_selection
 
-    return hdd_d, shape_hdd_d
-
-def get_reg_cdd(temperatures, t_base_cooling):
+def get_reg_cdd(temperatures, t_base_cooling, model_yeardays, model_yeardays_nrs):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -255,4 +260,13 @@ def get_reg_cdd(temperatures, t_base_cooling):
     cdd_d = calc_cdd(t_base_cooling, temperatures)
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
-    return cdd_d, shape_cdd_d
+
+    # MAKE selection WHALE
+    shape_cdd_d_selection = np.zeros((model_yeardays_nrs))
+    cdd_d_selection = np.zeros((model_yeardays_nrs))
+    for day_array_nr, yearday in enumerate(model_yeardays):
+        shape_cdd_d_selection[day_array_nr] = shape_cdd_d[yearday]
+        cdd_d_selection[day_array_nr] = cdd_d[yearday]
+    
+    #return cdd_d, shape_cdd_d
+    return cdd_d_selection, shape_cdd_d_selection

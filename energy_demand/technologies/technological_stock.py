@@ -44,22 +44,24 @@ class TechStock(object):
 
         # Reduce temperature that efficiency is only calculated for WHALE
         # ----------
-        temp_by_selection = np.zeros((assumptions['nr_ed_modelled_dates'], 24))
-        temp_cy_selection = np.zeros((assumptions['nr_ed_modelled_dates'], 24))
+        temp_by_selection = np.zeros((assumptions['model_yeardays_nrs'], 24))
+        temp_cy_selection = np.zeros((assumptions['model_yeardays_nrs'], 24))
     
         #Iterate days which are modelled and only copy those into shorter array
-        for day_array_nr, yearday in enumerate(assumptions['ed_modelled_dates']):
+        for day_array_nr, yearday in enumerate(assumptions['model_yeardays']):
             temp_by_selection[day_array_nr] = temp_by[yearday]
             temp_cy_selection[day_array_nr] = temp_cy[yearday]
 
-        temp_by = temp_by_selection
-        temp_cy = temp_cy_selection
+        #temp_by = temp_by_selection
+        #temp_cy = temp_cy_selection
         # -------
 
         self.stock_technologies = self.create_tech_stock(
             assumptions, sim_param, lookups,
             temp_by,
             temp_cy,
+            temp_by_selection,
+            temp_cy_selection,
             t_base_heating_by,
             t_base_heating_cy,
             potential_enduses,
@@ -88,7 +90,7 @@ class TechStock(object):
             return tech_obj.tech_type
 
     @classmethod
-    def create_tech_stock(cls, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
+    def create_tech_stock(cls, assumptions, sim_param, lookups, temp_full_by, temp_full_cy, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
         """Create technologies and add to dict with key_tuple
 
         Arguments
@@ -130,6 +132,7 @@ class TechStock(object):
                     tech_object = Technology(
                         technology_name,
                         assumptions, sim_param, lookups,
+                        temp_full_by, temp_full_cy,
                         temp_by,
                         temp_cy,
                         t_base_heating_by,
@@ -203,7 +206,7 @@ class Technology(object):
     -----
 
     """
-    def __init__(self, tech_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
+    def __init__(self, tech_name, assumptions, sim_param, lookups, temp_full_by, temp_full_cy, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
         """Contructor
         """
         if tech_name == 'dummy_tech':
@@ -218,7 +221,7 @@ class Technology(object):
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'], assumptions['nr_ed_modelled_dates'])
+                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'], assumptions['model_yeardays_nrs'])
 
             # Calculate shape per fueltype
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
@@ -228,6 +231,10 @@ class Technology(object):
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
             if tech_type == 'heat_pump':
+                #WHALE The full year efficiency needs to be calculated
+                temp_by = temp_full_by
+                temp_cy = temp_full_cy
+
                 self.eff_by = tech_related.get_heatpump_eff(
                     temp_by,
                     assumptions['technologies'][tech_name]['eff_by'],
@@ -256,7 +263,7 @@ class Technology(object):
                     )
 
     @staticmethod
-    def set_constant_fueltype(fueltype, len_fueltypes, nr_of_days):
+    def set_constant_fueltype(fueltype, len_fueltypes, model_yeardays_nrs):
         """Create dictionary with constant single fueltype
 
         Arguments
@@ -280,7 +287,7 @@ class Technology(object):
         -------
         array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
         """
-        fueltypes_yh = np.zeros((len_fueltypes, nr_of_days, 24))
+        fueltypes_yh = np.zeros((len_fueltypes, model_yeardays_nrs, 24))
 
         # Insert for the single fueltype for every hour the share to 1.0
         fueltypes_yh[fueltype] = 1.0
@@ -363,7 +370,7 @@ class HybridTechnology(object):
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'], assumptions['nr_ed_modelled_dates'])
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'], assumptions['model_yeardays_nrs'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
             self.fueltypes_yh_p_cy)
@@ -445,7 +452,7 @@ class HybridTechnology(object):
 
         return eff_hybrid_yh
 
-    def calc_hybrid_fueltypes_p(self, nr_fueltypes, nr_ed_modelled_dates):
+    def calc_hybrid_fueltypes_p(self, nr_fueltypes, model_yeardays_nrs):
         """Calculate share of fueltypes for every hour for hybrid technology
 
         Arguments
@@ -478,7 +485,7 @@ class HybridTechnology(object):
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
-        fueltypes_yh = np.zeros((nr_fueltypes, nr_ed_modelled_dates, 24))
+        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24))
         _var = np.divide(1.0, tot_fuel_h)
 
         fueltypes_yh[self.tech_low_temp_fueltype] = _var * fuel_low_h

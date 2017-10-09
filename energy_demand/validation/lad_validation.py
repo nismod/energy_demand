@@ -41,7 +41,7 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
                 #value_gwh = conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
                 result_dict['REAL_electricity_demand'][region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
-                all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode, data['assumptions']['nr_ed_modelled_dates'])
+                all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode, data['assumptions']['model_yeardays_nrs'])
                 result_dict['modelled_electricity_demand'][region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
 
     # -----------------
