@@ -54,7 +54,10 @@ class GenericFlatEnduse(object):
         # Yh fuel shape per fueltype (non-peak)
         self.fuel_yh = np.zeros((self.fuel_new_y.shape[0], model_yeardays_nrs, 24))
         for fueltype, fuel in enumerate(self.fuel_new_y):
-            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel
+            #self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel #ORIG
+
+            #WHALE
+            self.fuel_yh[fueltype] = (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * fuel * ((1/365) * model_yeardays_nrs)#WHALE
 
         # Dh fuel shape per fueltype (peak)  (shape of peak & maximum fuel per fueltype)
         self.fuel_peak_dh = shape_peak_dh * max_fuel_d[:, np.newaxis]
@@ -62,4 +65,4 @@ class GenericFlatEnduse(object):
         # h fuel shape per fueltype (peak)
         self.fuel_peak_h = load_profile.calk_peak_h_dh(self.fuel_peak_dh)
 
-        self.crit_flat_profile = False
+        self.crit_flat_profile = False #WHY?TODO

@@ -117,16 +117,6 @@ class WeatherRegion(object):
             rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
             rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
             rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
-            print("WHALE e...")
-            print(rs_hdd_by.shape)
-            print(rs_fuel_shape_heating_yd[0])
-            print(rs_fuel_shape_heating_yd.shape)
-            print("--")
-            print(rs_hdd_cy[0])
-            print(rs_hdd_cy.shape)
-            print("--")
-            print(rs_cdd_by[0])
-            print(rs_cdd_by.shape) 
 
             # Climate change correction factors
             # (Assumption: Demand for heat correlates directly with fuel)

@@ -55,7 +55,7 @@ class EnergyModel(object):
             region_names, data, 'is_submodel')
         self.is_submodel = self.industry_submodel(
             data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
-
+        '''
         # --------------------
         # Residential SubModel
         # --------------------
@@ -75,7 +75,7 @@ class EnergyModel(object):
             region_names, data, 'ss_submodel')
         self.ss_submodel = self.service_submodel(
             data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
-
+        
         # --------------------
         # Transport SubModel
         # --------------------
@@ -84,15 +84,16 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'ts_submodel')
         self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
-
+        '''
         # ---------------------------------------------------------------------
         # Summarise functions
         # ---------------------------------------------------------------------
         logging.debug("... start summing")
-        all_submodels = [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel]
+        #all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, ]
+        all_submodels = [self.is_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
-        self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'])
+        self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'], all_submodels)
         
         # Sum across all regions, all enduse and sectors
         self.reg_enduses_fueltype_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
@@ -141,7 +142,7 @@ class EnergyModel(object):
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         
-    def fuel_regions_fueltype(self, lookups, region_names, model_yeardays_nrs):
+    def fuel_regions_fueltype(self, lookups, region_names, model_yeardays_nrs, all_submodels):
         """Collect fuels for every fueltype and region (unconstrained mode). The
         regions are stored in an array for every timestep
 
@@ -164,7 +165,7 @@ class EnergyModel(object):
                 fuels = self.fuel_aggr(
                     'fuel_yh',
                     lookups['nr_of_fueltypes'],
-                    [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
+                    all_submodels, #[self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
                     'no_sum',
                     'non_peak',
                     model_yeardays_nrs,

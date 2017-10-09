@@ -34,6 +34,8 @@ class OtherModel(object):
     def create_enduse(self, region_obj, model_yeardays_nrs):
         """Create enduse
         """
-        model_object = generic_shapes.GenericFlatEnduse(region_obj.ts_fuels, model_yeardays_nrs)
+        model_object = generic_shapes.GenericFlatEnduse(
+            region_obj.ts_fuels,
+            model_yeardays_nrs)
 
         return model_object
