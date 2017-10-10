@@ -273,29 +273,48 @@ class EnergyModel(object):
         # dummy is - Flat load profile
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['model_yeardays_nrs'])
         
-        '''
+        #'''
         shape_peak_dh_all_sectors_and_enduses = defaultdict(dict) #WHALE
         all_enduses_including_heating = assumptions['is_dummy_enduses']
         all_enduses_including_heating.append("is_space_heating")
-        for enduse in all_enduses_including_heating:
-            for sector in sectors['is_sectors']:
-                shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
+        for sector in sectors['is_sectors']:
+            for enduse in all_enduses_including_heating:
+                if enduse == "is_space_heating":
+                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+                else:
+                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
         print("....")
-        '''
+        #'''
         for enduse in assumptions['is_dummy_enduses']:
-            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
-            for sector in sectors['is_sectors']:
-                non_regional_lp_stock.add_load_profile(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=shape_non_peak_yd,
-                    shape_yh=shape_non_peak_yh,
-                    sectors=[sector],
-                    enduse_peak_yd_factor=shape_peak_yd_factor,
-                    shape_peak_dh=shape_peak_dh #ORIG
-                    #shape_peak_dh=shape_peak_dh_all_sectors_and_enduses #WHALE
-                    )
+            
+            # NEW: Add load profile for space heating of ss sector
+            if enduse == "is_space_heating":
+                tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+                for sector in sectors['is_sectors']:
+                    non_regional_lp_stock.add_load_profile(
+                        unique_identifier=uuid.uuid4(),
+                        technologies=tech_list,
+                        enduses=[enduse],
+                        shape_yd=tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
+                        shape_yh=tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
+                        sectors=[sector],
+                        enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
+                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
+                        )
+            else: #WHALE NEW
+                tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+                for sector in sectors['is_sectors']:
+                    non_regional_lp_stock.add_load_profile(
+                        unique_identifier=uuid.uuid4(),
+                        technologies=tech_list,
+                        enduses=[enduse],
+                        shape_yd=shape_non_peak_yd,
+                        shape_yh=shape_non_peak_yh,
+                        sectors=[sector],
+                        enduse_peak_yd_factor=shape_peak_yd_factor,
+                        #shape_peak_dh=shape_peak_dh #ORIG
+                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses #WHALE
+                        )
 
         return non_regional_lp_stock
 
@@ -424,7 +443,7 @@ class EnergyModel(object):
                 for enduse in enduses:
                     
                     if enduse == "is_space_heating":
-                        crit_flat_profile = True #eigentlich false
+                        crit_flat_profile = False #eigentlich false
                     else:
                         crit_flat_profile = True #CC 
 

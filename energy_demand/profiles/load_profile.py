@@ -157,19 +157,17 @@ class LoadProfileStock(object):
         """
         position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
         load_profile_obj = self.load_profile_dict[position_in_dict]
-
+        print("wh")
         # Test if dummy sector and thus shape_peak not provided for different sectors
         if sector == 'dummy_sector':
             shape_peak_dh = load_profile_obj.shape_peak_dh
-
             return shape_peak_dh
         else:
             shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
-
             return shape_peak_dh
 
 class LoadProfile(object):
-    """Load profile container to store different shapes
+    """Load profile container to store differengt shapes
 
     Arguments
     ----------
