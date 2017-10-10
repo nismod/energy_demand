@@ -113,9 +113,9 @@ class WeatherRegion(object):
             self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
             # --------HDD/CDD
-            rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
             rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
-            rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
             rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
             # Climate change correction factors
@@ -129,7 +129,7 @@ class WeatherRegion(object):
                 self.rs_heating_factor_y = 1
                 self.rs_cooling_factor_y = 1
 
-            # yd peak factors for heating and cooling (WHALE: NEEds full year necessary of temp data to calc peak days)
+            # yd peak factors for heating and cooling (Needss full year necessary of temp data to calc peak days)
             rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
             #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
@@ -155,17 +155,6 @@ class WeatherRegion(object):
                 rs_fuel_shape_heating_yd,
                 'hybrid_gas_electricity'
                 )
-
-            print("aff  " + str(np.sum(rs_peak_yd_heating_factor)))
-            print("aff: " + str(np.sum(rs_fuel_shape_hp_y_dh)))
-            print("aff: " + str(np.sum(rs_profile_boilers_y_dh)))
-            print("Aff: " + str(np.sum(rs_profile_storage_heater_yh[0])))
-            print("Aff: " + str(np.sum(rs_profile_elec_heater_yh[0])))
-            print("Aff: " + str(np.sum(rs_profile_boilers_yh[0])))
-            print("Aff: " + str(np.sum(rs_fuel_shape_hp_yh[0])))
-            print("Aff: " + str(np.sum(rs_fuel_shape_hybrid_tech_yh[0])))
-            print("..")          
-            print("ok")
 
             # Cooling residential
             #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
@@ -231,10 +220,10 @@ class WeatherRegion(object):
             self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
             # --------HDD/CDD
-            ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
             ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
             ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
             try:
@@ -326,11 +315,11 @@ class WeatherRegion(object):
             self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
             # --------HDD/CDD
-            is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
             is_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
             # Take same base temperature as for service sector
-            is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'])
             is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
             try:
@@ -506,27 +495,21 @@ class WeatherRegion(object):
         *Sansom, R. (2014). Decarbonising low grade heat for low carbon future.
         Dissertation, Imperial College London.*
         """
-        #WHALE
-        ##shape_yh_hp = np.zeros((model_yeardays_nrs, 24))
-        ##shape_y_dh = np.zeros((model_yeardays_nrs, 24))
         shape_yh_hp = np.zeros((365, 24))
         shape_y_dh = np.zeros((365, 24))
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        list_dates = date_handling.fullyear_dates(start=date(sim_param['base_yr'], 1, 1), end=date(sim_param['base_yr'], 12, 31))
-        #print("model_yeardays: " + str(model_yeardays))
-        #WHALE 
-        ##for day_array_nr, yearday in enumerate(model_yeardays):
-        ##    date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
+        list_dates = date_handling.fullyear_dates(
+            start=date(sim_param['base_yr'], 1, 1),
+            end=date(sim_param['base_yr'], 12, 31))
+
         for day_array_nr, date_gasday in enumerate(list_dates):
             # Take respectve daily fuel curve depending on weekday or weekend
             # from Robert Sansom for heat pumps
             if date_handling.get_weekday_type(date_gasday) == 'holiday':
-                #daily_fuel_profile_holiday
                 daily_fuel_profile = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
             else:
-                #daily_fuel_profile_workday
                 daily_fuel_profile = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
 
             #TODO: IMRPVOE SPEED with array calculation
@@ -548,23 +531,14 @@ class WeatherRegion(object):
             # Add normalised daily fuel curve
             shape_y_dh[day_array_nr] = load_profile.abs_to_rel_no_nan(fuel_shape_d)
 
-        print("DDD: " + str(np.sum(shape_yh_hp)))
-
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = load_profile.abs_to_rel(shape_yh_hp)
 
-        # WHALE: Copy only those selected days
-        shape_yh_selection = np.zeros((model_yeardays_nrs, 24))
-        shape_y_dh_selection = np.zeros((model_yeardays_nrs, 24))
-        
-        #Whale
-        for day_array_nr, yearday in enumerate(model_yeardays):
-            shape_yh_selection[day_array_nr] = shape_yh[yearday]
-            shape_y_dh_selection[day_array_nr] = shape_y_dh[yearday]
-        
+        # Select only modelled days
+        shape_yh_selection = shape_yh[[model_yeardays]] 
+        shape_y_dh_selection = shape_y_dh[[model_yeardays]]
+
         return shape_yh_selection, shape_y_dh_selection
-        
-        #return shape_yh, shape_y_dh
 
     @classmethod
     def get_shape_cooling_yh(cls, data, cooling_shape, tech):
@@ -622,7 +596,6 @@ class WeatherRegion(object):
         shape_boilers_y_dh : array
             Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
         """
-        #WHALE
         shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24))
         if enduse not in tech_load_profiles['ss_all_tech_shapes_dh']:
             pass
@@ -670,8 +643,7 @@ class WeatherRegion(object):
         shape_boilers_yh = np.zeros((model_yeardays_nrs, 24))
         shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24))
 
-        #WHALE
-        for day_array_nr, yearday in enumerate(model_yeardays): #day_nr: Position in array
+        for day_array_nr, yearday in enumerate(model_yeardays):
             date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
 
             # Take respectve daily fuel curve depending on weekday or weekend

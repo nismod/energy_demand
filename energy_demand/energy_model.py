@@ -107,7 +107,7 @@ class EnergyModel(object):
         self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
         
         #-------------------
-        # TESTING WHALE
+        # TESTING
         #-------------------
         print("FUEL FOR FIRST WEEK")
         modelled_days = 1
@@ -128,7 +128,7 @@ class EnergyModel(object):
             for region_fuel in fuels:
                 _sum_all += np.sum(region_fuel)
 
-        print("_sum_all: " + str(_sum_all))
+        #prnt("_sum_all: " + str(_sum_all))
         #prnt(":")
         #-------------------
 
@@ -274,8 +274,7 @@ class EnergyModel(object):
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['model_yeardays_nrs'])
         
         # If space heating, add load shapes for service sector
-        #'''
-        shape_peak_dh_all_sectors_and_enduses = defaultdict(dict) #WHALE
+        shape_peak_dh_all_sectors_and_enduses = defaultdict(dict)
         all_enduses_including_heating = assumptions['is_dummy_enduses']
         all_enduses_including_heating.append("is_space_heating")
         for sector in sectors['is_sectors']:
@@ -284,10 +283,10 @@ class EnergyModel(object):
                     shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
                 else:
                     shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
-        #'''
+
         for enduse in assumptions['is_dummy_enduses']:
             
-            # NEW: Add load profile for space heating of ss sector
+            # Add load profile for space heating of ss sector
             if enduse == "is_space_heating":
                 tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
                 for sector in sectors['is_sectors']:
@@ -301,7 +300,7 @@ class EnergyModel(object):
                         enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
                         shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
                         )
-            else: #WHALE NEW
+            else:
                 tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
                 for sector in sectors['is_sectors']:
                     non_regional_lp_stock.add_load_profile(
@@ -312,8 +311,7 @@ class EnergyModel(object):
                         shape_yh=shape_non_peak_yh,
                         sectors=[sector],
                         enduse_peak_yd_factor=shape_peak_yd_factor,
-                        #shape_peak_dh=shape_peak_dh #ORIG
-                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses #WHALE
+                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
                         )
 
         return non_regional_lp_stock
@@ -348,35 +346,6 @@ class EnergyModel(object):
             )
 
         return region_fuel_yh
-
-    '''def get_fuel_region_all_models_yh(self, nr_of_fueltypes, region_name_to_get, sector_models, attribute_to_get, nr_of_days):
-        """Summarise fuel yh for a certain region
-
-        Arguments
-        ----------
-        nr_of_fueltypes : int
-            Number of fueltypes
-        region_name_to_get : str
-            Name of region to read out
-        sector_models : list
-            Objectos of submodel runs
-        attribute_to_get : str
-            Attribute to get
-
-        Note
-        ----
-        - Summing function
-        """
-        tot_fuels_all_enduse_yh = np.zeros((nr_of_fueltypes, nr_of_days, 24)) #WHALE #assumptions['model_yeardays_nrs'] 
-        
-        for sector_model in sector_models:
-            sector_model_objects = getattr(self, sector_model)
-            for model_object in sector_model_objects:
-                if model_object.region_name == region_name_to_get:
-                    tot_fuels_all_enduse_yh += self.get_fuels_yh(model_object, attribute_to_get)
-
-        return tot_fuels_all_enduse_yh
-    '''
 
     def other_submodels(self, model_yeardays_nrs):
         """Other submodel

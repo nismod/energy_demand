@@ -186,7 +186,7 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
 
     return t_base_cy
 
-def get_reg_hdd(temperatures, t_base_heating, model_yeardays, model_yeardays_nrs):
+def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
     """Calculate HDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -201,7 +201,7 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays, model_yeardays_nrs
     hdd_d : array
         Heating degree days for every day in a year (nr_of_days, 1)
     shape_hdd_d : array
-        Shape for heating days (only selected modelling days) TODO WHALE: 
+        Shape for heating days (only selected modelling days)
 
     Note
     -----
@@ -221,16 +221,10 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays, model_yeardays_nrs
 
     shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
-    # MAKE selection WHALE
-    shape_hdd_d_selection = np.zeros((model_yeardays_nrs))
-    hdd_d_selection = np.zeros((model_yeardays_nrs))
-    for day_array_nr, yearday in enumerate(model_yeardays):
-        shape_hdd_d_selection[day_array_nr] = shape_hdd_d[yearday]
-        hdd_d_selection[day_array_nr] = hdd_d[yearday]
-    
-    print("SUM OF FUEL SHAPE FOR HEATING: " + str(np.sum(shape_hdd_d_selection)))
-    #return hdd_d, shape_hdd
-    #return hdd_d_selection, shape_hdd_d_selection
+    # Select only modelled yeardays
+    shape_hdd_d_selection = shape_hdd_d[[model_yeardays]]
+    hdd_d_selection = hdd_d[[model_yeardays]]
+
     return hdd_d, shape_hdd_d_selection
 
 def get_reg_cdd(temperatures, t_base_cooling, model_yeardays, model_yeardays_nrs):
@@ -261,12 +255,8 @@ def get_reg_cdd(temperatures, t_base_cooling, model_yeardays, model_yeardays_nrs
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
 
-    # MAKE selection WHALE
-    shape_cdd_d_selection = np.zeros((model_yeardays_nrs))
-    cdd_d_selection = np.zeros((model_yeardays_nrs))
-    for day_array_nr, yearday in enumerate(model_yeardays):
-        shape_cdd_d_selection[day_array_nr] = shape_cdd_d[yearday]
-        cdd_d_selection[day_array_nr] = cdd_d[yearday]
-    
-    #return cdd_d, shape_cdd_d
+    # Select only modelled yeardays
+    shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
+    cdd_d_selection = cdd_d[[model_yeardays]]
+
     return cdd_d_selection, shape_cdd_d_selection

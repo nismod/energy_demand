@@ -157,7 +157,7 @@ class LoadProfileStock(object):
         """
         position_in_dict = self.dict_with_tuple_keys[(enduse, sector, technology)]
         load_profile_obj = self.load_profile_dict[position_in_dict]
-        print("wh")
+
         # Test if dummy sector and thus shape_peak not provided for different sectors
         if sector == 'dummy_sector':
             shape_peak_dh = load_profile_obj.shape_peak_dh
@@ -354,8 +354,7 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
     ----
     Sum of output must be 1.0
     """
-    #average_share_in_a_year = (1.0 / 8760)
-    average_share_in_a_year = 1.0 / (model_yeardays_nrs * 24) #WHALE
+    average_share_in_a_year = 1.0 / (model_yeardays_nrs * 24)
     
     # Sum across rows (share of fuel per hour per fueltype) (7, 24)
     fueltypes_tech_share_yh_24 = np.sum(fueltypes_yh_p_cy, axis=1)

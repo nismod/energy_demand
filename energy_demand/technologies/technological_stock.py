@@ -42,26 +42,16 @@ class TechStock(object):
         """
         self.stock_name = stock_name
 
-        # Reduce temperature that efficiency is only calculated for WHALE
-        # ----------
-        temp_by_selection = np.zeros((assumptions['model_yeardays_nrs'], 24))
-        temp_cy_selection = np.zeros((assumptions['model_yeardays_nrs'], 24))
-    
-        #Iterate days which are modelled and only copy those into shorter array
-        for day_array_nr, yearday in enumerate(assumptions['model_yeardays']):
-            temp_by_selection[day_array_nr] = temp_by[yearday]
-            temp_cy_selection[day_array_nr] = temp_cy[yearday]
-
-        #temp_by = temp_by_selection
-        #temp_cy = temp_cy_selection
-        # -------
+        # Select only modelled yeardays
+        temp_by_selection = temp_by[[assumptions['model_yeardays']]]
+        temp_cy_selection = temp_cy[[assumptions['model_yeardays']]]
 
         self.stock_technologies = self.create_tech_stock(
             assumptions, sim_param, lookups,
             temp_by,
             temp_cy,
-            temp_by_selection,
-            temp_cy_selection,
+            temp_by, #temp_by_selection,
+            temp_cy, #temp_cy_selection, WHALE
             t_base_heating_by,
             t_base_heating_cy,
             potential_enduses,
@@ -227,13 +217,10 @@ class Technology(object):
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
                 self.fueltypes_yh_p_cy, assumptions['model_yeardays_nrs'])
             
-            #print("MUSSEINSSEIN: ")
-            #print(np.sum(self.fueltype_share_yh_all_h))
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
             if tech_type == 'heat_pump':
-                #WHALE The full year efficiency needs to be calculated
                 temp_by = temp_full_by
                 temp_cy = temp_full_cy
 
@@ -331,6 +318,10 @@ class HybridTechnology(object):
         self.enduse = enduse
         self.tech_name = tech_name
         self.tech_type = 'hybrid'
+
+        #WHALE add selection
+        temp_by = temp_by[[assumptions['model_yeardays']]]
+        temp_cy = temp_cy[[assumptions['model_yeardays']]]
 
         self.tech_low_temp = assumptions['technologies'][tech_name]['tech_low_temp']
         self.tech_high_temp = assumptions['technologies'][tech_name]['tech_high_temp']
@@ -487,7 +478,8 @@ class HybridTechnology(object):
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
-        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24))
+        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24)) #WHALE
+        ##fueltypes_yh = np.zeros((nr_fueltypes, 365, 24)) #Full year
         _var = np.divide(1.0, tot_fuel_h)
 
         fueltypes_yh[self.tech_low_temp_fueltype] = _var * fuel_low_h

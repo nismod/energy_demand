@@ -476,23 +476,12 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
         shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        # -----------------------------------------------------------
-        # Select only modelled days (nr_of_days, 24) WHALE
-        # -----------------------------------------------------------
-        shape_non_peak_y_dh_selection = np.zeros((model_yeardays_nrs, 24))
-        shape_non_peak_yd_selection = np.zeros((model_yeardays_nrs))
-    
-        #Iterate days which are modelled and only copy those into shorter array
-        for day_array_nr, yearday in enumerate(model_yeardays):
-            shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
-            shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
-        # ------
+        # Select only modelled days (nr_of_days, 24) 
+        shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
+        shape_non_peak_yd_selection= shape_non_peak_yd[[model_yeardays]]
+
         rs_shapes_dh[enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
         rs_shapes_yd[enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}
-        '''
-        rs_shapes_dh[enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh} #WHALE
-        rs_shapes_yd[enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
-        '''
 
     return rs_shapes_dh, rs_shapes_yd
 
@@ -540,22 +529,14 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
                 os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
             # -----------------------------------------------------------
-            # Select only modelled days (nr_of_days, 24) WHALE
+            # Select only modelled days (nr_of_days, 24)
             # -----------------------------------------------------------
-            shape_non_peak_y_dh_selection = np.zeros((model_yeardays_nrs, 24))
-            shape_non_peak_yd_selection = np.zeros((model_yeardays_nrs))
-        
-            #Iterate days which are modelled and only copy those into shorter array
-            for day_array_nr, yearday in enumerate(model_yeardays):
-                shape_non_peak_y_dh_selection[day_array_nr] = shape_non_peak_y_dh[yearday]
-                shape_non_peak_yd_selection[day_array_nr] = shape_non_peak_yd[yearday]
-            # ------
+            shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
+            shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
+
             ss_shapes_dh[sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
             ss_shapes_yd[sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}
-            '''
-            ss_shapes_dh[sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh}
-            ss_shapes_yd[sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd}
-            '''
+
     return ss_shapes_dh, ss_shapes_yd
 
 def create_enduse_dict(data, rs_fuel_raw_data_enduses):

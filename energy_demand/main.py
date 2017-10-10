@@ -173,14 +173,22 @@ if __name__ == "__main__":
             logging.debug("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
             logging.debug("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[2])))
             logging.debug("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[1])))
-            diff_factor_TD_ECUK_Input = (1.0 / np.sum(validation_elec_data_2015_INDO)) * np.sum(model_run_object.reg_enduses_fueltype_y[2]) # 1.021627962194478
+            diff_factor_TD_ECUK_Input = (1.0 / np.sum(validation_elec_data_2015_INDO)) * np.sum(model_run_object.reg_enduses_fueltype_y[2])
             logging.debug("FACTOR: " + str(diff_factor_TD_ECUK_Input))
 
             INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
             logging.debug("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
             # Compare different models
-            elec_national_data.compare_results('plot_figure_01.pdf', data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.reg_enduses_fueltype_y[2], 'all_submodels', days_to_plot_full_year)
+            elec_national_data.compare_results(
+                'plot_figure_01.pdf',
+                data, 
+                validation_elec_data_2015_INDO,
+                validation_elec_data_2015_ITSDO,
+                INDO_factoreddata,
+                model_run_object.reg_enduses_fueltype_y[2],
+                'all_submodels',
+                data['assumptions']['model_yeardays']) #days_to_plot_full_year)
 
             logging.debug("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.reg_enduses_fueltype_y[2])))
             logging.debug("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.reg_enduses_fueltype_y[2])/11.63))
