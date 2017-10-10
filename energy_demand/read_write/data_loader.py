@@ -172,6 +172,8 @@ def load_local_paths(path):
             path, '_processed_data', 'disaggregated'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'data_results_model_runs': os.path.join(
+            path, '_result_data', "model_run_results_txt"),
         'dir_changed_weather_data': os.path.join(
             path, '_processed_data', 'weather_data'),
         'path_processed_weather_data': os.path.join(

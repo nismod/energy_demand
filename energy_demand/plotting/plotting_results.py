@@ -8,6 +8,27 @@ import matplotlib as mpl
 from energy_demand.technologies import tech_related
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
+def run_all_plot_functions(results_every_year):
+    """Function summarising all functions to plot
+    """
+    ##pf.plot_load_curves_fueltype(results_every_year, data)
+
+    # Plot total fuel (y) per fueltype
+    plt_fuels_enduses_y("fig_tot_all_enduse01.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
+    plt_fuels_enduses_y("fig_tot_all_enduse02.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
+
+    # Plot peak demand (h) per fueltype
+    plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
+
+    # Plot a full week
+    plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+    plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+
+    # Plot all enduses
+    plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
+    
+    return
+
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load"""
 

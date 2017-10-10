@@ -141,41 +141,32 @@ if __name__ == "__main__":
         # Write out result of year (Year_Region.txt)
         # Create folder and insert modelyear__region.txt
         # ----------------------
-        '''write_data.write_model_result_to_txt(
+        write_data.write_model_result_to_txt(
             sim_yr,
-            data['local_paths']['data_results'],
-            out_to_supply)'''
+            data['local_paths']['data_results_model_runs'],
+            out_to_supply)
+        
     
         # ---------------------------------------------------
-        # Validation of national electrictiy demand for base year
-        # Compare total gas and electrictiy
-        # load with Elexon Data for Base year for different regions
+        # Houlry temporal validation
         # ---------------------------------------------------
-        lad_validation.temporal_validation(data, model_run_object)
+        ##lad_validation.temporal_validation(data, model_run_object)
 
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
-        lad_validation.spatial_validation(data, model_run_object)
-           
+        ##lad_validation.spatial_validation(data, model_run_object)
+
+    # -------------------------------------------------------
+    # Reading in results from different model runs
+    # -------------------------------------------------------
+    results_every_year = read_data.read_model_result_from_txt(
+        data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
+        data['local_paths']['data_results_model_runs'])
 
     # ------------------------------
     # Plotting
     # ------------------------------
-    ##pf.plot_load_curves_fueltype(results_every_year, data)
-
-    # Plot total fuel (y) per fueltype
-    plotting_results.plt_fuels_enduses_y("fig_tot_all_enduse01.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plt_fuels_enduses_y("fig_tot_all_enduse02.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-
-    # Plot peak demand (h) per fueltype
-    plotting_results.plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
-
-    # Plot a full week
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
-
-    # Plot all enduses
-    plotting_results.plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
+    plotting_results.run_all_plot_functions(results_every_year)
     
     logging.debug("... Finished running Energy Demand Model")

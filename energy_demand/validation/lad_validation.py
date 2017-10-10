@@ -16,6 +16,9 @@ import logging
 
 def temporal_validation(data, model_run_object):
     """
+            # Validation of national electrictiy demand for base year
+        # Compare total gas and electrictiy
+        # load with Elexon Data for Base year for different regions
     """
             
     # Yeardays to plot
@@ -72,6 +75,10 @@ def spatial_validation(data, model_run_object):
         data['lu_reg']
         )
 
+
+    val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
+        data['local_paths']['folder_validation_national_elec_data'])
+        
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------

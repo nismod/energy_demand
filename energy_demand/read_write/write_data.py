@@ -124,14 +124,16 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     """
     
     # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result, "model_run_results_txt")
-    path_file = os.path.join(path_result_yr, "modelruns_" + str(sim_yr) + ".txt")
+    path_result_yr = os.path.join(path_result)
+    
 
     if not os.path.exists(path_result_yr):
         os.makedirs(path_result_yr)
     
     # Write to txt
-    np.savetxt(path_file, model_results, delimiter=',')
+    for fueltype, fuel in model_results.items():
+        path_file = os.path.join(path_result_yr, "modelruns_{}_{}{}".format(sim_yr, fueltype, ".txt"))
+        np.savetxt(path_file, fuel, delimiter=',')
 
     # Read in with loadtxt
     return
