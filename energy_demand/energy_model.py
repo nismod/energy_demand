@@ -56,7 +56,7 @@ class EnergyModel(object):
             region_names, data, 'is_submodel')
         self.is_submodel = self.industry_submodel(
             data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
-        '''
+        #'''
         # --------------------
         # Residential SubModel
         # --------------------
@@ -85,13 +85,13 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'ts_submodel')
         self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
-        '''
+        #'''
         # ---------------------------------------------------------------------
         # Summarise functions
         # ---------------------------------------------------------------------
         logging.debug("... start summing")
-        #all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, self.is_submodel]
-        all_submodels = [self.is_submodel]
+        all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, self.is_submodel]
+        #all_submodels = [self.is_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
         self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'], all_submodels)
@@ -273,13 +273,15 @@ class EnergyModel(object):
         # dummy is - Flat load profile
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['model_yeardays_nrs'])
         
-        '''shape_peak_dh_all_sectors_and_enduses = defaultdict(dict) #WHALE
+        '''
+        shape_peak_dh_all_sectors_and_enduses = defaultdict(dict) #WHALE
         all_enduses_including_heating = assumptions['is_dummy_enduses']
         all_enduses_including_heating.append("is_space_heating")
         for enduse in all_enduses_including_heating:
             for sector in sectors['is_sectors']:
                 shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
-        print("....")'''
+        print("....")
+        '''
         for enduse in assumptions['is_dummy_enduses']:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
