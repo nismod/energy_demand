@@ -129,7 +129,7 @@ class EnergyModel(object):
                 _sum_all += np.sum(region_fuel)
 
         print("_sum_all: " + str(_sum_all))
-        prnt(":")
+        #prnt(":")
         #-------------------
 
         # ---------------------------
@@ -273,6 +273,7 @@ class EnergyModel(object):
         # dummy is - Flat load profile
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['model_yeardays_nrs'])
         
+        # If space heating, add load shapes for service sector
         #'''
         shape_peak_dh_all_sectors_and_enduses = defaultdict(dict) #WHALE
         all_enduses_including_heating = assumptions['is_dummy_enduses']
@@ -283,7 +284,6 @@ class EnergyModel(object):
                     shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
                 else:
                     shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
-        print("....")
         #'''
         for enduse in assumptions['is_dummy_enduses']:
             
@@ -443,7 +443,7 @@ class EnergyModel(object):
                 for enduse in enduses:
                     
                     if enduse == "is_space_heating":
-                        crit_flat_profile = False #eigentlich false
+                        crit_flat_profile = True #eigentlich false
                     else:
                         crit_flat_profile = True #CC 
 
