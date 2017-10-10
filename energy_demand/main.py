@@ -1,6 +1,7 @@
 '''
 Energy Demand Model
 =================
+The industry heating is identical to service heating
 '''
 import os
 import sys

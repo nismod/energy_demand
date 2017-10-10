@@ -225,8 +225,10 @@ class Technology(object):
 
             # Calculate shape per fueltype
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
-                self.fueltypes_yh_p_cy)
-
+                self.fueltypes_yh_p_cy, assumptions['model_yeardays_nrs'])
+            
+            #print("MUSSEINSSEIN: ")
+            #print(np.sum(self.fueltype_share_yh_all_h))
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
@@ -373,7 +375,7 @@ class HybridTechnology(object):
         self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'], assumptions['model_yeardays_nrs'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
-            self.fueltypes_yh_p_cy)
+            self.fueltypes_yh_p_cy,  assumptions['model_yeardays_nrs'])
 
         self.eff_by = self.calc_hybrid_eff(
             self.eff_tech_low_by, self.eff_tech_high_by)
