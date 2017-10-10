@@ -164,7 +164,7 @@ if __name__ == "__main__":
         # Compare total gas and electrictiy
         # load with Elexon Data for Base year for different regions
         # ------------------------------
-        temporal_validation = True
+        temporal_validation = False
         if temporal_validation == True:
             validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
                 data['local_paths']['folder_validation_national_elec_data'])

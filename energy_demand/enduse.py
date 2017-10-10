@@ -282,7 +282,7 @@ class Enduse(object):
                         data['sim_param']['curr_yr'])
                 elif crit_switch_fuel:
                     #Fuel Switches
-                    #logging.info("FUEL SWITCH TRUE")
+                    logging.debug("FUEL SWITCH TRUE")
                     service_tech = self.fuel_switch(
                         installed_tech,
                         sig_param_tech,
@@ -295,7 +295,6 @@ class Enduse(object):
                         data['sim_param']['curr_yr'])
                 else:
                     pass #No switch implemented
-
                 # -------------------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------------------
@@ -334,7 +333,7 @@ class Enduse(object):
                         data['assumptions']['model_yeardays_nrs'])
                 else:
                     self.crit_flat_profile = False
-                    prnt("why")
+                    #prnt("why") WHALEFISH
                     #---NON-PEAK
                     self.fuel_yh = self.calc_fuel_tech_yh(
                         fuel_tech_y,
@@ -627,7 +626,8 @@ class Enduse(object):
 
                     #WHALE LEAVE EVEN IF REMOVE WHALE
                     if isinstance(tech_eff, np.ndarray):
-                        service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff[[model_yeardays]]
+                        #service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff[[model_yeardays]]
+                        service_tech = np.sum(self.fuel_new_y[fueltype] * fuel_share * tech_eff[[model_yeardays]]) #WHALE
                     else:
                         # Calculate fuel share and convert fuel to service
                         service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
@@ -647,7 +647,7 @@ class Enduse(object):
         # --------------------------------------------------
         # Sum service accross all technologies
         tot_service_yh = sum(service_tech_cy.values())
-
+        logging.debug("KKKKKK: " + str(tot_service_yh))
         # Convert service of every technology to fraction of total service
         service_tech_p = self.convert_service_to_p(
             tot_service_yh, service_tech_cy)
@@ -1263,7 +1263,8 @@ class Enduse(object):
                         logging.debug(np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech))
                         '''
                         #sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
-                        service_tech_after_switch[technology_replaced] = 0
+                        #service_tech_after_switch[technology_replaced] = 0
+                        service_tech_after_switch[technology_replaced] = service_tech_after_switch[technology_replaced] *0 #WHALE NEW
                     else:
                         # Substract technology specific servide demand
                         service_tech_after_switch[technology_replaced] -= service_demand_tech
@@ -1388,7 +1389,7 @@ class Enduse(object):
                 '''
                 service_selection = np.zeros((model_yeardays_nrs, 24))
                 for day_array, yearday in enumerate(model_yeardays):
-                        service_selection[day_array] = service[yearday]
+                    service_selection[day_array] = service[yearday]
 
                 #WHALE
                 eff_full_year = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')

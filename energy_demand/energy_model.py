@@ -55,7 +55,7 @@ class EnergyModel(object):
             region_names, data, 'is_submodel')
         self.is_submodel = self.industry_submodel(
             data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
-        '''
+        #'''
         # --------------------
         # Residential SubModel
         # --------------------
@@ -84,13 +84,13 @@ class EnergyModel(object):
         self.regions = self.create_regions(
             region_names, data, 'ts_submodel')
         self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
-        '''
+        #'''
         # ---------------------------------------------------------------------
         # Summarise functions
         # ---------------------------------------------------------------------
         logging.debug("... start summing")
-        #all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, ]
-        all_submodels = [self.is_submodel]
+        all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, self.is_submodel]
+        #all_submodels = [self.is_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
         self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'], all_submodels)
