@@ -121,18 +121,6 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     RMSE fit criteria : Lower values of RMSE indicate better fit
     https://stackoverflow.com/questions/17197492/root-mean-square-error-in-python
     """
-
-    select_specific_weeks = True
-    if select_specific_weeks:
-        year_to_model = 2015
-        winter_week = list(range(date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
-        spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
-        summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
-        autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
-
-        # Modelled days
-        days_to_plot = winter_week + spring_week + summer_week + autumn_week
-
     logging.debug("...compare elec results")
     nr_of_h_to_plot = len(days_to_plot) * 24
 
@@ -143,8 +131,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     y_real_INDO_factored = []
     y_calculated = []
 
-   #for day in range(len(days_to_plot)): #WHALE
-    for day in (days_to_plot): #WHALE
+    for day in (days_to_plot):
         for hour in range(24):
             y_real_INDO.append(y_real_array_INDO[day][hour])
             y_real_ITSDO.append(y_real_array_ITSDO[day][hour])

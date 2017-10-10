@@ -9,10 +9,7 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
-
-#TODO: Write function which insersts zeros if a fueltype is not provided
-#TODO: Make that HLC can be improved
-# Assumption share of existing dwelling stock which is assigned new HLC coefficients
+#TODO: Make that HLC can be improved, ssumption share of existing dwelling stock which is assigned new HLC coefficients
 
 def load_assumptions(data, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
@@ -114,7 +111,7 @@ def load_assumptions(data, write_sim_param):
         'flat': 61,
         'detached': 147,
         'bungalow': 77
-        } 
+        }
 
     # Assumption about age distribution
     assumptions['dwtype_age_distr'] = {
