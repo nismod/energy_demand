@@ -60,7 +60,7 @@ def load_assumptions(data, write_sim_param):
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
     # False: heat is delievered
-    assumptions['mode_constrained'] = False 
+    assumptions['mode_constrained'] = False #False proides technologies 
 
     # ============================================================
     # Residential dwelling stock assumptions

@@ -122,18 +122,46 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
 
     Store numpy array to txt
     """
-    
     # Create folder for model simulation year
     path_result_yr = os.path.join(path_result)
-    
 
     if not os.path.exists(path_result_yr):
         os.makedirs(path_result_yr)
-    
+
     # Write to txt
     for fueltype, fuel in model_results.items():
-        path_file = os.path.join(path_result_yr, "modelruns_{}_{}{}".format(sim_yr, fueltype, ".txt"))
+        path_file = os.path.join(
+            path_result_yr,
+            "modelruns__{}__{}{}".format(sim_yr, fueltype, ".txt")
+            )
         np.savetxt(path_file, fuel, delimiter=',')
+
+    # Read in with loadtxt
+    return
+
+def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
+    """Store yearly model resul to txt
+
+    Store numpy array to txt
+    """
+    # Create folder for model simulation year
+    path_result_yr = os.path.join(path_result)
+    if not os.path.exists(path_result_yr):
+        os.makedirs(path_result_yr)
+
+    #Create Subolder
+    path_result_subolder = os.path.join(path_result, "enduse_specific_results")
+    if not os.path.exists(path_result_subolder):
+        os.makedirs(path_result_subolder)
+
+    # Write to txt
+    for enduse, fuel in model_results.items():
+        for fueltype_nr, fuel_fueltype in enumerate(fuel):
+            path_file = os.path.join(
+                path_result_subolder,
+                "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
+                )
+            np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
     # Read in with loadtxt
     return

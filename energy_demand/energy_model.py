@@ -99,7 +99,7 @@ class EnergyModel(object):
         # Sum across all regions, all enduse and sectors
         self.reg_enduses_fueltype_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
         
-        # Sum across all regions for enduse
+        # Sum across all regions and provide specific enduse
         self.tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', all_submodels, data['assumptions']['model_yeardays_nrs'])
 
         # Sum across all regions, enduses for peak hour

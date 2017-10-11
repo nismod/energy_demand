@@ -2,7 +2,7 @@
 Energy Demand Model
 =================
 The industry heating is identical to service heating
-'''
+5'''
 import os
 import sys
 import logging
@@ -135,18 +135,22 @@ if __name__ == "__main__":
 
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh
+        out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         
         # ----------------------
-        # CLUSTER CALCULATIONS
-        # Write out result of year (Year_Region.txt)
-        # Create folder and insert modelyear__region.txt
+        # Store annual results to txt files
         # ----------------------
         write_data.write_model_result_to_txt(
             sim_yr,
             data['local_paths']['data_results_model_runs'],
             out_to_supply)
         
-    
+        #Write fuel per enduse (for all regions)
+        write_data.write_model_result_to_txt_enduse(
+            sim_yr,
+            data['local_paths']['data_results_model_runs'],
+            out_enduse_specific)
+
         # ---------------------------------------------------
         # Houlry temporal validation
         # ---------------------------------------------------
@@ -163,10 +167,15 @@ if __name__ == "__main__":
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
         data['local_paths']['data_results_model_runs'])
+    print("....")
+    results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
+        data['lookups']['fueltype'],  data['lookups']['nr_of_fueltypes'],
+        data['local_paths']['data_results_model_runs'])
+    logging.debug("... Reading in results finished")
 
     # ------------------------------
     # Plotting
     # ------------------------------
-    plotting_results.run_all_plot_functions(results_every_year)
+    plotting_results.run_all_plot_functions(results_every_year, results_enduse_every_year, data)
     
     logging.debug("... Finished running Energy Demand Model")
