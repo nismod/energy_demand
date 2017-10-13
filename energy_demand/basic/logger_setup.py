@@ -1,6 +1,7 @@
 """Setting up the logger
 """
 import logging
+import os
 
 def set_up_logger(path_log_file):
     """Create logger
@@ -21,6 +22,10 @@ def set_up_logger(path_log_file):
     logger.error('error message')
     logger.critical('critical message')
     """
+    # Create logging file if not existing
+    if not os.path.isfile(path_log_file):
+        open(path_log_file, 'w').close()
+
     # Set logger level
     logging.basicConfig(
         filename=path_log_file,

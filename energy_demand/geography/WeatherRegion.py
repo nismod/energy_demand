@@ -503,14 +503,17 @@ class WeatherRegion(object):
         list_dates = date_handling.fullyear_dates(
             start=date(sim_param['base_yr'], 1, 1),
             end=date(sim_param['base_yr'], 12, 31))
+        
+        daily_fuel_profile_holiday = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
+        daily_fuel_profile_workday = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
 
         for day_array_nr, date_gasday in enumerate(list_dates):
             # Take respectve daily fuel curve depending on weekday or weekend
             # from Robert Sansom for heat pumps
             if date_handling.get_weekday_type(date_gasday) == 'holiday':
-                daily_fuel_profile = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
+                daily_fuel_profile = daily_fuel_profile_holiday
             else:
-                daily_fuel_profile = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
+                daily_fuel_profile = daily_fuel_profile_workday
 
             #TODO: IMRPVOE SPEED with array calculation
             # Calculate weighted average daily efficiency of heat pump

@@ -14,7 +14,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.basic import date_handling
 import logging
 
-def temporal_validation(data, model_run_object):
+def temporal_validation(data, reg_enduses_fueltype_y):
     """
             # Validation of national electrictiy demand for base year
         # Compare total gas and electrictiy
@@ -32,14 +32,14 @@ def temporal_validation(data, model_run_object):
     val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
         data['local_paths']['folder_validation_national_elec_data'])
 
-    diff_factor_TD_ECUK_Input = (1.0 / np.sum(val_elec_data_2015_INDO)) * np.sum(model_run_object.reg_enduses_fueltype_y[2])
+    diff_factor_TD_ECUK_Input = (1.0 / np.sum(val_elec_data_2015_INDO)) * np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])
             
     INDO_factoreddata = diff_factor_TD_ECUK_Input * val_elec_data_2015_INDO
 
     logging.debug("FACTOR: " + str(diff_factor_TD_ECUK_Input))
     logging.debug("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO)))
-    logging.debug("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[2])))
-    logging.debug("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[1])))
+    logging.debug("--ECUK Elec_demand  {} ".format(np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
+    logging.debug("--ECUK Gas Demand   {} ".format(np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['gas']])))
     logging.debug("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
 
     # Compare different models
@@ -49,7 +49,7 @@ def temporal_validation(data, model_run_object):
         val_elec_data_2015_INDO,
         val_elec_data_2015_ITSDO,
         INDO_factoreddata,
-        model_run_object.reg_enduses_fueltype_y[2],
+        reg_enduses_fueltype_y[2],
         'all_submodels',
         days_to_plot)
 
@@ -61,20 +61,17 @@ def temporal_validation(data, model_run_object):
 def spatial_validation(data, model_run_object):
     """
     """
-    logging.info("Spatial Validation")
-    lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
-        data['local_paths']['path_dummy_regions']
-        )
+    logging.info("Spatial Validation of electrictiy demand")
+
     compare_lad_regions(
         'compare_lad_regions.pdf',
         data,
-        lad_infos_shapefile,
+        data['reg_coord'], #lad_infos_shapefile,
         model_run_object,
         data['lookups']['nr_of_fueltypes'],
         data['lookups']['fueltype'],
         data['lu_reg']
         )
-
 
     val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
         data['local_paths']['folder_validation_national_elec_data'])
@@ -108,9 +105,13 @@ def spatial_validation(data, model_run_object):
         val_elec_data_2015_INDO,
         model_run_object.reg_enduses_fueltype_y[2])
     
+
+    # TODO: VALIDATE GAS DEMAND
+
+    
     return
 
-def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
+def compare_lad_regions(fig_name, data, reg_coord, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
 
     Arguments
@@ -133,12 +134,12 @@ def compare_lad_regions(fig_name, data, lad_infos_shapefile, model_run_object, n
     for region_name in lu_reg:
 
         # Iterate loaded data
-        for reg_csv_geocode in lad_infos_shapefile:
+        for reg_csv_geocode in reg_coord:
             if reg_csv_geocode == region_name:
 
                 # --Sub Regional Electricity
                 #value_gwh = conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
-                result_dict['REAL_electricity_demand'][region_name] = lad_infos_shapefile[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
+                result_dict['REAL_electricity_demand'][region_name] = reg_coord[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
                 all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode, data['assumptions']['model_yeardays_nrs'])
                 result_dict['modelled_electricity_demand'][region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])

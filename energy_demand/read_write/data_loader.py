@@ -219,7 +219,7 @@ def load_local_paths(path):
     return paths
 
 def load_paths(path):
-    """Load all paths and create folders
+    """Load all paths
 
     Arguments
     ----------
@@ -234,7 +234,6 @@ def load_paths(path):
     paths = {
 
         'path_main': path,
-
 
         # Path for dwelling stock assumptions
         'path_dwtype': os.path.join(
@@ -428,14 +427,6 @@ def load_fuels(paths, lookups):
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(ss_fuel_raw_data_enduses)
     fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(is_fuel_raw_data_enduses)
-
-    #TODO
-    fuel_national_tranport = np.zeros((lookups['nr_of_fueltypes']))
-
-    #Elec demand from ECUK for transport sector
-    fuel_national_tranport[2] = conversions.convert_ktoe_gwh(385)
-
-    fuels['ts_fuel_raw_data_enduses'] = fuel_national_tranport
 
     return enduses, sectors, fuels
 

@@ -12,7 +12,7 @@ from energy_demand.geography import WeatherRegion
 import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
-import energy_demand.ts_model as ts_model
+
 from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
@@ -47,16 +47,8 @@ class EnergyModel(object):
             data['sectors']
             )
 
-        # --------------------
-        # Industry SubModel
-        # --------------------
-        self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data, 'is_submodel')
-        self.regions = self.create_regions(
-            region_names, data, 'is_submodel')
-        self.is_submodel = self.industry_submodel(
-            data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
-        #'''
+
+
         # --------------------
         # Residential SubModel
         # --------------------
@@ -78,20 +70,25 @@ class EnergyModel(object):
             data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
 
         # --------------------
-        # Transport SubModel
+        # Industry SubModel
         # --------------------
         self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data, 'ts_submodel')
+            data['weather_stations'], data, 'is_submodel')
         self.regions = self.create_regions(
-            region_names, data, 'ts_submodel')
-        self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
-        #'''
+            region_names, data, 'is_submodel')
+        self.is_submodel = self.industry_submodel(
+            data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
+
+        # --------------------
+        # Other Submodels
+        # --------------------
+        #self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
+
         # ---------------------------------------------------------------------
         # Summarise functions
         # ---------------------------------------------------------------------
         logging.debug("... start summing")
-        all_submodels = [self.ss_submodel, self.rs_submodel, self.ts_submodel, self.is_submodel]
-        #all_submodels = [self.is_submodel]
+        all_submodels = [self.ss_submodel, self.rs_submodel, self.is_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
         self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'], all_submodels)
@@ -127,10 +124,7 @@ class EnergyModel(object):
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
             for region_fuel in fuels:
                 _sum_all += np.sum(region_fuel)
-
-        #prnt("_sum_all: " + str(_sum_all))
-        #prnt(":")
-        #-------------------
+        print("_sum_all: " + str(_sum_all))
 
         # ---------------------------
         # Functions for load calculations
@@ -359,27 +353,7 @@ class EnergyModel(object):
         ----
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
-        logging.debug("..other submodel start")
-        submodules = []
-
-        # Iterate regions, sectors and enduses
-        for region_obj in self.regions:
-
-            # Create submodule
-            submodule = ts_model.OtherModel(
-                region_obj,
-                'generic_transport_enduse',
-                model_yeardays_nrs
-            )
-
-            # Add to list
-            submodules.append(submodule)
-
-            #logging.debug("   ...running other submodel {}   of total: {}".format(_scrap_cnt, len(self.regions)))
-
-        del self.regions, self.weather_regions
-        logging.debug("... finished other submodel")
-        return submodules
+        pass
 
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model

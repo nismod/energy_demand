@@ -237,7 +237,6 @@ class EDWrapper(SectorModel):
         ed_data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
         ed_data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         ed_data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
-        ed_data['ts_fuel_disagg'] = self.user_data['sd_cont']['ts_fuel_disagg']
 
         # ---------
         # Run model

@@ -124,9 +124,7 @@ def load_script_data(data):
         os.path.join(data['local_paths']['dir_changed_weather_data'], 'weather_data_changed_climate.csv'),
         data['sim_param']['sim_period'])
     
-    # ---------------------------------------
     # Disaggregation: Load disaggregated fuel per enduse and sector
-    # ---------------------------------------
     data['rs_fuel_disagg'] = read_disaggregated_fuel(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'rs_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
@@ -135,9 +133,6 @@ def load_script_data(data):
         data['lookups']['nr_of_fueltypes'])
     data['is_fuel_disagg'] = read_disaggregated_fuel_sector(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'is_fuel_disagg.csv'),
-        data['lookups']['nr_of_fueltypes'])
-    data['ts_fuel_disagg'] = read_disaggregated_ts(
-        os.path.join(data['local_paths']['data_processed_disaggregated'], 'ts_fuel_disagg.csv'),
         data['lookups']['nr_of_fueltypes'])
 
     return data
@@ -761,28 +756,7 @@ def read_disaggregated_fuel(path_to_csv, nr_of_fueltypes):
 
     return fuel_sector_enduse
 
-def read_disaggregated_ts(path_to_csv, nr_of_fueltypes):
-    """Read disaggregated fuel
-    """
-    fuel_sector_enduse = {}
 
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
-
-        for row in read_lines:
-            region = str.strip(row[0])
-            fueltype = int(row[1])
-            fuel = float(row[2])
-
-            try:
-                fuel_sector_enduse[region]
-            except KeyError:
-                fuel_sector_enduse[region] = np.zeros((nr_of_fueltypes))
-
-            fuel_sector_enduse[region][fueltype] = fuel
-
-    return fuel_sector_enduse
 
 def read_disaggregated_fuel_sector(path_to_csv, nr_of_fueltypes):
     """Read disaggregated fuel

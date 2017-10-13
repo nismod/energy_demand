@@ -27,7 +27,6 @@ class Region(object):
         self.rs_enduses_fuel = data['rs_fuel_disagg'][region_name]
         self.ss_enduses_sectors_fuels = data['ss_fuel_disagg'][region_name]
         self.is_enduses_sectors_fuels = data['is_fuel_disagg'][region_name]
-        self.ts_fuels = data['ts_fuel_disagg'][region_name]
 
         # Get closest weather station to `Region`
         closest_reg = wl.get_closest_station(

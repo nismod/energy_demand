@@ -9,7 +9,6 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
-
 from energy_demand.scripts import s_change_temp
 from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
@@ -230,7 +229,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sd_cont['rs_fuel_disagg'] = data['rs_fuel_disagg']
         sd_cont['ss_fuel_disagg'] = data['ss_fuel_disagg']
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']
-        sd_cont['ts_fuel_disagg'] = data['ts_fuel_disagg']
 
     logging.info("... finished scenario_initalisation")
     if run_locally == False:

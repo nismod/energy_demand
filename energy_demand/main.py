@@ -2,7 +2,7 @@
 Energy Demand Model
 =================
 The industry heating is identical to service heating
-5'''
+'''
 import os
 import sys
 import logging
@@ -15,6 +15,8 @@ from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import date_handling
+from energy_demand.basic import conversions
+from energy_demand.profiles import generic_shapes
 from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
@@ -63,8 +65,8 @@ def energy_demand_model(data):
     logging.info("Fuel output:         " + str(np.sum(fueltot)))
     logging.info("FUEL DIFFERENCE:     " + str(round((np.sum(fueltot) - fuel_in), 4)))
     logging.info("elec fuel in:        " + str(fuel_in_elec))
-    logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[2])))
-    logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[2]), 4)))
+    logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
+    logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
     logging.info("================================================")
     logging.debug("...finished energy demand model simulation")
     return model_run_object
@@ -75,7 +77,7 @@ if __name__ == "__main__":
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = os.path.join(r'C:\Data_NISMOD', 'data_energy_demand')
+    local_data_path = os.path.join(r'C:\DATA_NISMODII', 'data_energy_demand')
 
     # Initialise logger
     log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
@@ -152,14 +154,19 @@ if __name__ == "__main__":
             out_enduse_specific)
 
         # ---------------------------------------------------
-        # Houlry temporal validation
+        # Validation base year: Hourly temporal validation
         # ---------------------------------------------------
-        ##lad_validation.temporal_validation(data, model_run_object)
+        fuel_electricity_year_validation = 385
+        fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
+        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.convert_ktoe_gwh(fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
+        model_object_transport = generic_shapes.GenericFlatEnduse(fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
+        
+        ##lad_validation.temporal_validation(data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
         # ---------------------------------------------------
-        # Validation of spatial disaggregation
+        # Validation base year: Spatial disaggregation
         # ---------------------------------------------------
-        ##lad_validation.spatial_validation(data, model_run_object)
+        ##lad_validation.spatial_validation(data, model_run_object + model_object_transport.fuel_yh)
 
     # -------------------------------------------------------
     # Reading in results from different model runs
@@ -167,7 +174,7 @@ if __name__ == "__main__":
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
         data['local_paths']['data_results_model_runs'])
-    print("....")
+
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'],  data['lookups']['nr_of_fueltypes'],
         data['local_paths']['data_results_model_runs'])

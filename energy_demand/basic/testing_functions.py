@@ -2,6 +2,7 @@
 """
 import sys
 import numpy as np
+from energy_demand.basic import conversions
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """Test if assigned fuel share add up to 1 within each fuletype
@@ -95,26 +96,23 @@ def test_function_fuel_sum(data):
     for region in data['rs_fuel_disagg']:
         for enduse in data['rs_fuel_disagg'][region]:
             fuel_in += np.sum(data['rs_fuel_disagg'][region][enduse])
-            fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][2])
+            fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltype']['electricity']])
 
     for region in data['ss_fuel_disagg']:
         for sector in data['ss_fuel_disagg'][region]:
             for enduse in data['ss_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['ss_fuel_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][2])
+                fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
 
     for region in data['is_fuel_disagg']:
         for sector in data['is_fuel_disagg'][region]:
             for enduse in data['is_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['is_fuel_disagg'][region][sector][enduse])
-                fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][2])
+                fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
 
-    fuel_elec_transport = 0
-    for region in data['ts_fuel_disagg']:
-        fuel_in += np.sum(data['ts_fuel_disagg'][region])
-        fuel_elec_transport += np.sum(data['ts_fuel_disagg'][region])
-        fuel_in_elec += np.sum(data['ts_fuel_disagg'][region][2])
-
+    fuel_in_elec += conversions.convert_ktoe_gwh(385) #Elec demand from ECUK for transport sector
+    fuel_in += conversions.convert_ktoe_gwh(385) #Elec demand from ECUK for transport sector
+    fuel_elec_transport = conversions.convert_ktoe_gwh(385) #Elec demand from ECUK for transport sector
     '''fuel_elec_transport = 0
     for region in data['ag_fueldata_disagg']:
         fuel_in += np.sum(data['ag_fueldata_disagg'][region])

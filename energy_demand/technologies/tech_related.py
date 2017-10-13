@@ -175,7 +175,7 @@ def get_fueltype_str(fueltype_lu, fueltype_nr):
         if fueltype_lu[fueltype_str] == fueltype_nr:
             return fueltype_str
 
-def get_fueltype_int(fueltype, fueltype_string):
+def get_fueltype_int(fueltypes, fueltype_string):
     """Read from dict the fueltype string based on fueltype KeyError
 
     Inputs
@@ -190,7 +190,7 @@ def get_fueltype_int(fueltype, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    return fueltype[fueltype_string]
+    return fueltypes[fueltype_string]
 
 def get_tech_type(tech_name, tech_list):
     """Get technology type of technology
