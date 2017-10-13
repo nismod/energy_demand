@@ -8,6 +8,28 @@ import matplotlib as mpl
 from energy_demand.technologies import tech_related
 # pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
+def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
+    """Function summarising all functions to plot 
+    """
+    ##pf.plot_load_curves_fueltype(results_every_year, data)
+
+    # Plot total fuel (y) per fueltype
+    plt_fuels_enduses_y("fig_tot_all_enduse01.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
+    plt_fuels_enduses_y("fig_tot_all_enduse02.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
+
+    # Plot a full week
+    plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+    plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+
+    # Plot all enduses
+    #plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
+    plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_enduse_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
+
+
+    # Plot peak demand (h) per fueltype
+    plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
+    return
+
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load"""
 
@@ -56,7 +78,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend()
     #plt.show()
 
-def plt_stacked_enduse(fig_name, data, results_objects, enduses_data, attribute_to_get):
+def plt_stacked_enduse(fig_name, data, results_enduse_every_year, enduses_data, attribute_to_get):
     """Plots stacked end_use for a region
 
     Arguments
@@ -87,11 +109,15 @@ def plt_stacked_enduse(fig_name, data, results_objects, enduses_data, attribute_
     for k, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
 
-        for year, model_year_object in enumerate(results_objects):
+        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
+            y_data[k][model_year] = np.sum(data_model_run[enduse])
+
+        '''for year, model_year_object in enumerate(results_objects):
             country_enduse_y = getattr(model_year_object, attribute_to_get)
 
             # Sum all fueltypes
             y_data[k][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
+        '''
 
     fig, ax = plt.subplots()
     sp = ax.stackplot(x_data, y_data)
@@ -162,7 +188,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
+def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, model_yeardays_nrs):
     """Plots stacked end_use for a region
 
 
@@ -171,13 +197,15 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
     """
 
     # Number of days to plot
-    days_to_plot = range(10, 17)
+    #days_to_plot = range(10, 17)
+    days_to_plot = range(model_yeardays_nrs)
 
     # Which year in simulation (2015 = 0)
     year_to_plot = 2
 
     fig, ax = plt.subplots()
-    nr_of_h_to_plot = len(days_to_plot) * 24
+    #nr_of_h_to_plot = len(days_to_plot) * 24
+    nr_of_h_to_plot = model_yeardays_nrs * 24
 
     legend_entries = []
 
@@ -189,16 +217,20 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
         fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
-        for model_year_object in results_resid:
+        for model_year, data_model_run in results_resid.items():
+            data_over_day = data_model_run[fueltype]
+
+        '''for model_year_object in results_resid:
 
             # Read out fueltype specific max h load
             tot_fuels = getattr(model_year_object, attribute_to_get)
 
             data_over_day = []
+
             for day, daily_values in enumerate(tot_fuels[fueltype]):
-                if day in days_to_plot:
-                    for hour in daily_values:
-                        data_over_day.append(hour)
+                for hour in daily_values:
+                    data_over_day.append(hour)
+        '''
 
         Y_init[fueltype] = data_over_day
 
@@ -219,7 +251,11 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get):
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
-    #plt.show()
+    
+    if data['print_criteria']:
+        plt.show()
+    else:
+        pass
 
 def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     """Plots stacked end_use for a region
@@ -243,13 +279,17 @@ def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
 
         # Read out fueltype specific max h load
         data_over_years = []
-        for model_year_object in results_resid:
+        for model_year, data_model_run in results_resid.items():
+            tot_fuel_fueltype_y = np.sum(data_model_run[fueltype])
+            data_over_years.append(tot_fuel_fueltype_y)
 
+        '''for model_year_object in results_resid:
             tot_fuels = getattr(model_year_object, attribute_to_get)
 
             #for every hour is summed to have yearl fuel
             tot_fuel_fueltype_y = np.sum(tot_fuels[fueltype])
             data_over_years.append(tot_fuel_fueltype_y)
+        '''
 
         Y_init[fueltype] = data_over_years
 
@@ -264,6 +304,7 @@ def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Total yearly fuels of all enduses per fueltype")
+    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
 
     if data['print_criteria']:
         plt.show()

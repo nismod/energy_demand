@@ -26,7 +26,7 @@ def create_txt_shapes(
             json.dump(np_dict, outfile)
 
     def jason_shape_non_peak_y_dh(input_array, outfile_path):
-        """Wrte to txt. Array with shape: (nr_ed_modelled_dates, 24)
+        """Wrte to txt. Array with shape: (model_yeardays_nrs, 24)
         """
         out_dict = {}
         for k, row in enumerate(input_array):
@@ -41,7 +41,7 @@ def create_txt_shapes(
             json.dump(input_array, outfile)
 
     def jason_shape_non_peak_yd(input_array, outfile_path):
-        """Wrte to txt. Array with shape: (nr_ed_modelled_dates)"""
+        """Wrte to txt. Array with shape: (model_yeardays_nrs)"""
         out_dict = {}
         for k, row in enumerate(input_array):
             out_dict[k] = row

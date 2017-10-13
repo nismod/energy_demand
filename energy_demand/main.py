@@ -1,7 +1,8 @@
 '''
 Energy Demand Model
 =================
-'''
+The industry heating is identical to service heating
+5'''
 import os
 import sys
 import logging
@@ -18,6 +19,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
+from energy_demand.read_write import write_data
 #pylint: disable=W1202
 
 def energy_demand_model(data):
@@ -42,6 +44,7 @@ def energy_demand_model(data):
     This function is executed in the wrapper
     """
     fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
+    logging.info("Fuel input:          " + str(fuel_in))
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
     model_run_object = energy_model.EnergyModel(
@@ -63,9 +66,6 @@ def energy_demand_model(data):
     logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[2])))
     logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[2]), 4)))
     logging.info("================================================")
-    for fff in range(8):
-        logging.debug("FF: " + str(np.sum(model_run_object.reg_enduses_fueltype_y[fff])))
-
     logging.debug("...finished energy demand model simulation")
     return model_run_object
 
@@ -84,7 +84,6 @@ if __name__ == "__main__":
     # Run settings
     instrument_profiler = True
     print_criteria = True
-
 
     # Load data
     data = {}
@@ -130,117 +129,53 @@ if __name__ == "__main__":
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
+            #logging.info(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
 
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh
+        out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         
         # ----------------------
-        # CLUSTER CALCULATIONS
+        # Store annual results to txt files
         # ----------------------
-        # Write out result of year (Year_Region.txt)
+        write_data.write_model_result_to_txt(
+            sim_yr,
+            data['local_paths']['data_results_model_runs'],
+            out_to_supply)
+        
+        #Write fuel per enduse (for all regions)
+        write_data.write_model_result_to_txt_enduse(
+            sim_yr,
+            data['local_paths']['data_results_model_runs'],
+            out_enduse_specific)
 
         # ---------------------------------------------------
-        # Validation of national electrictiy demand for base year
+        # Houlry temporal validation
         # ---------------------------------------------------
-        winter_week = list(range(date_handling.date_to_yearday(2015, 1, 12), date_handling.date_to_yearday(2015, 1, 19))) #Jan
-        spring_week = list(range(date_handling.date_to_yearday(2015, 5, 11), date_handling.date_to_yearday(2015, 5, 18))) #May
-        summer_week = list(range(date_handling.date_to_yearday(2015, 7, 13), date_handling.date_to_yearday(2015, 7, 20))) #Jul
-        autumn_week = list(range(date_handling.date_to_yearday(2015, 10, 12), date_handling.date_to_yearday(2015, 10, 19))) #Oct
-
-        days_to_plot = winter_week + spring_week + summer_week + autumn_week
-        days_to_plot_full_year = list(range(0, 365))
-
-        # ------------------------------
-        # Compare total gas and electrictiy
-        # load with Elexon Data for Base year for different regions
-        # ------------------------------
-        temporal_validation = True
-        if temporal_validation == True:
-            validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
-                data['local_paths']['folder_validation_national_elec_data'])
-
-            logging.debug("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO)))
-            logging.debug("--ECUK Elec_demand  {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[2])))
-            logging.debug("--ECUK Gas Demand   {} ".format(np.sum(model_run_object.reg_enduses_fueltype_y[1])))
-            diff_factor_TD_ECUK_Input = (1.0 / np.sum(validation_elec_data_2015_INDO)) * np.sum(model_run_object.reg_enduses_fueltype_y[2]) # 1.021627962194478
-            logging.debug("FACTOR: " + str(diff_factor_TD_ECUK_Input))
-
-            INDO_factoreddata = diff_factor_TD_ECUK_Input * validation_elec_data_2015_INDO
-            logging.debug("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
-
-            # Compare different models
-            elec_national_data.compare_results('plot_figure_01.pdf', data, validation_elec_data_2015_INDO, validation_elec_data_2015_ITSDO, INDO_factoreddata, model_run_object.reg_enduses_fueltype_y[2], 'all_submodels', days_to_plot_full_year)
-
-            logging.debug("FUEL gwh TOTAL  validation_elec_data_2015_INDO:  {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO), np.sum(validation_elec_data_2015_ITSDO), np.sum(model_run_object.reg_enduses_fueltype_y[2])))
-            logging.debug("FUEL ktoe TOTAL  validation_elec_data_2015_INDO: {} validation_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(validation_elec_data_2015_INDO)/11.63, np.sum(validation_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.reg_enduses_fueltype_y[2])/11.63))
+        ##lad_validation.temporal_validation(data, model_run_object)
 
         # ---------------------------------------------------
         # Validation of spatial disaggregation
         # ---------------------------------------------------
-        spatial_validation = False
-        if spatial_validation == True:
-            lad_infos_shapefile = data_loader.load_LAC_geocodes_info(
-                data['local_paths']['path_dummy_regions']
-            )
-            lad_validation.compare_lad_regions(
-                'compare_lad_regions.pdf',
-                data,
-                lad_infos_shapefile,
-                model_run_object,
-                data['lookups']['nr_of_fueltypes'],
-                data['lookups']['fueltype'],
-                data['lu_reg']
-                )
+        ##lad_validation.spatial_validation(data, model_run_object)
 
-            # ---------------------------------------------------
-            # Validation of national electrictiy demand for peak
-            # ---------------------------------------------------
-            logging.debug("...compare peak from data")
-            peak_month = 2 #Feb
-            peak_day = 18 #Day
-            elec_national_data.compare_peak(
-                "peak_comparison_01.pdf",
-                data,
-                validation_elec_data_2015_INDO,
-                model_run_object.reg_enduses_fueltype_y[peak_month][peak_day]
-                )
-
-            logging.debug("...compare peak from max peak factors")
-            elec_national_data.compare_peak(
-                "peak_comparison_02.pdf",
-                data,
-                validation_elec_data_2015_INDO,
-                model_run_object.tot_peak_enduses_fueltype[2])
-
-            # ---------------------------------------------------
-            # Validate boxplots for every hour
-            # ---------------------------------------------------
-            elec_national_data.compare_results_hour_boxplots(
-                "hourly_boxplots_01.pdf",
-                data,
-                validation_elec_data_2015_INDO,
-                model_run_object.reg_enduses_fueltype_y[2])
+    # -------------------------------------------------------
+    # Reading in results from different model runs
+    # -------------------------------------------------------
+    results_every_year = read_data.read_model_result_from_txt(
+        data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
+        data['local_paths']['data_results_model_runs'])
+    print("....")
+    results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
+        data['lookups']['fueltype'],  data['lookups']['nr_of_fueltypes'],
+        data['local_paths']['data_results_model_runs'])
+    logging.debug("... Reading in results finished")
 
     # ------------------------------
     # Plotting
     # ------------------------------
-    '''# Plot load factors
-    ##pf.plot_load_curves_fueltype(results_every_year, data)
-
-    # Plot total fuel (y) per fueltype
-    plotting_results.plt_fuels_enduses_y("fig_tot_all_enduse01.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plt_fuels_enduses_y("fig_tot_all_enduse02.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-
-    # Plot peak demand (h) per fueltype
-    plotting_results.plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
-
-    # Plot a full week
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-    plotting_results.plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-
-    # Plot all enduses
-    plotting_results.plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
-    '''
+    plotting_results.run_all_plot_functions(results_every_year, results_enduse_every_year, data)
+    
     logging.debug("... Finished running Energy Demand Model")

@@ -9,10 +9,7 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
-
-#TODO: Write function which insersts zeros if a fueltype is not provided
-#TODO: Make that HLC can be improved
-# Assumption share of existing dwelling stock which is assigned new HLC coefficients
+#TODO: Make that HLC can be improved, ssumption share of existing dwelling stock which is assigned new HLC coefficients
 
 def load_assumptions(data, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
@@ -28,7 +25,7 @@ def load_assumptions(data, write_sim_param):
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
-        sim_param['sim_years_intervall'] = 1 # Make calculation only every X year
+        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['curr_yr'] = sim_param['base_yr']
@@ -41,33 +38,29 @@ def load_assumptions(data, write_sim_param):
     # Store in list all dates which are modelled
     # ============
     year_to_model = 2015
-    winter_week = list(range(date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 19))) #Jan
-    spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 18))) #May
-    summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 20))) #Jul
-    autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 19))) #Oct
+    winter_week = list(range(date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
+    spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
+    summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
+    autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
 
     # Modelled days
-    assumptions['ed_modelled_dates'] = winter_week + spring_week + summer_week + autumn_week
-    assumptions['ed_modelled_dates'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
-    assumptions['ed_modelled_dates'] = range(365)
-    
+    assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
+    #assumptions['model_yeardays'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
+    assumptions['model_yeardays'] = list(range(365))
+
     #Modelled dates
-    assumptions['ed_modelled_dates_date'] = []
-    for yearday in assumptions['ed_modelled_dates']:
-        assumptions['ed_modelled_dates_date'].append(date_handling.yearday_to_date(sim_param['base_yr'], yearday))
+    assumptions['model_yeardays_date'] = []
+    for yearday in assumptions['model_yeardays']:
+        assumptions['model_yeardays_date'].append(date_handling.yearday_to_date(sim_param['base_yr'], yearday))
     
     # Nr of days to model
-    assumptions['nr_ed_modelled_dates'] = len(assumptions['ed_modelled_dates'])
-    print("Assumptions on modelled days")
-    print(assumptions['ed_modelled_dates'])
-    print(assumptions['ed_modelled_dates_date'])
-    print(assumptions['nr_ed_modelled_dates'])
-    print("---")
+    assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
+
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
     # False: heat is delievered
-    assumptions['mode_constrained'] = False 
+    assumptions['mode_constrained'] = False #False proides technologies 
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -113,7 +106,7 @@ def load_assumptions(data, write_sim_param):
         'flat': 61,
         'detached': 147,
         'bungalow': 77
-        } 
+        }
 
     # Assumption about age distribution
     assumptions['dwtype_age_distr'] = {
@@ -432,7 +425,6 @@ def load_assumptions(data, write_sim_param):
         assumptions['ss_fuel_tech_p_by'])
     assumptions['is_dummy_enduses'] = tech_related.get_enduses_with_dummy_tech(
         assumptions['is_fuel_tech_p_by'])
-
 
     # ============================================================
     # Helper functions

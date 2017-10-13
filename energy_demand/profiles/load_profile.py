@@ -161,15 +161,13 @@ class LoadProfileStock(object):
         # Test if dummy sector and thus shape_peak not provided for different sectors
         if sector == 'dummy_sector':
             shape_peak_dh = load_profile_obj.shape_peak_dh
-
             return shape_peak_dh
         else:
             shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
-
             return shape_peak_dh
 
 class LoadProfile(object):
-    """Load profile container to store different shapes
+    """Load profile container to store differengt shapes
 
     Arguments
     ----------
@@ -211,7 +209,7 @@ class LoadProfile(object):
 
         Note
         ----
-        The output gives the shape for every day in a year (total sum == 365)
+        The output gives the shape for every day in a year (total sum == nr_of_days)
         Within each day, the sum is 1
 
         A RuntimeWarning may be raised if in one day a zero value is found.
@@ -222,7 +220,7 @@ class LoadProfile(object):
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
-        # Multiply (365) + with (365, 24)
+        # Multiply (nr_of_days) + with (nr_of_days, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
 
         # Replace nan by zero (faster than np.nan_to_num)
@@ -339,7 +337,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     '''
     return fuel_shapes_hybrid_y_dh
 
-def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
+def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
     """Calculate fuel share for every hour
 
     Arguments
@@ -351,9 +349,13 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy):
     -------
     fueltype_share_yh_all_h : array (7)
         Sum of fuel share for every hour
+    
+    Info
+    ----
+    Sum of output must be 1.0
     """
-    average_share_in_a_year = (1.0 / 8760)
-
+    average_share_in_a_year = 1.0 / (model_yeardays_nrs * 24)
+    
     # Sum across rows (share of fuel per hour per fueltype) (7, 24)
     fueltypes_tech_share_yh_24 = np.sum(fueltypes_yh_p_cy, axis=1)
 

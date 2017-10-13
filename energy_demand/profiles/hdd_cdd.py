@@ -14,18 +14,18 @@ def calc_hdd(t_base, temp_yh):
     t_base : int
         Base temperature
     temp_yh : array
-        Array containing daily temperatures for each day (shape 365, 24)
+        Array containing daily temperatures for each day (shape nr_of_days, 24)
 
     Returns
     -------
     hdd_d : array
-        An array containing the Heating Degree Days for every day (shape 365, 1)
+        An array containing the Heating Degree Days for every day (shape nr_of_days, 1)
 
     Note
     -----
     This function is optimised for speed. A more intuitive reading is as follows:
 
-        # hdd_d = np.zeros((365))
+        # hdd_d = np.zeros((nr_of_days))
 
         # for day, temp_day in enumerate(temp_yh):
         # hdd = 0
@@ -53,7 +53,7 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     Return
     ------
     cdd_d : array
-        Contains all CDD for every day in a year (365, 1)
+        Contains all CDD for every day in a year (nr_of_days, 1)
 
     Note
     -----
@@ -186,7 +186,7 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
 
     return t_base_cy
 
-def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_dates):
+def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
     """Calculate HDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -199,9 +199,9 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
     Return
     ------
     hdd_d : array
-        Heating degree days for every day in a year (365, 1)
+        Heating degree days for every day in a year (nr_of_days, 1)
     shape_hdd_d : array
-        Shape for heating TODO
+        Shape for heating days (only selected modelling days)
 
     Note
     -----
@@ -216,19 +216,18 @@ def get_reg_hdd(temperatures, t_base_heating, ed_modelled_dates, nr_ed_modelled_
 
     - The diffusion is assumed to be sigmoid
     """
+    # Temperatures of full year
     hdd_d = calc_hdd(t_base_heating, temperatures)
 
-    # MAKE selection WHALE
-    hdd_d_selection = np.zeros((nr_ed_modelled_dates))
-    for array_nr, day_to_copy in enumerate(ed_modelled_dates):
-        hdd_d_selection[array_nr] = hdd_d[day_to_copy]
-        
-    #shape_hdd_d = load_profile.abs_to_rel(hdd_d) #WHALE
-    shape_hdd_d = load_profile.abs_to_rel(hdd_d_selection)
+    shape_hdd_d = load_profile.abs_to_rel(hdd_d)
 
-    return hdd_d, shape_hdd_d
+    # Select only modelled yeardays
+    shape_hdd_d_selection = shape_hdd_d[[model_yeardays]]
+    hdd_d_selection = hdd_d[[model_yeardays]]
 
-def get_reg_cdd(temperatures, t_base_cooling):
+    return hdd_d, shape_hdd_d_selection
+
+def get_reg_cdd(temperatures, t_base_cooling, model_yeardays, model_yeardays_nrs):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
     Arguments
@@ -241,7 +240,7 @@ def get_reg_cdd(temperatures, t_base_cooling):
     Return
     ------
     shape_yd : array
-        Fraction of heat for every day. Array-shape: 365, 1
+        Fraction of heat for every day. Array-shape: nr_of_days, 1
 
     Note
     ----
@@ -255,4 +254,9 @@ def get_reg_cdd(temperatures, t_base_cooling):
     cdd_d = calc_cdd(t_base_cooling, temperatures)
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
-    return cdd_d, shape_cdd_d
+
+    # Select only modelled yeardays
+    shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
+    cdd_d_selection = cdd_d[[model_yeardays]]
+
+    return cdd_d_selection, shape_cdd_d_selection

@@ -131,7 +131,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     y_real_INDO_factored = []
     y_calculated = []
 
-    for day in days_to_plot:
+    for day in (days_to_plot):
         for hour in range(24):
             y_real_INDO.append(y_real_array_INDO[day][hour])
             y_real_ITSDO.append(y_real_array_ITSDO[day][hour])

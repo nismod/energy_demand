@@ -17,7 +17,6 @@ def set_up_logger(path_log_file):
     Note
     ----
     logger.debug('debug message')
-    print('info message')
     logger.warn('warn message')
     logger.error('error message')
     logger.critical('critical message')
@@ -32,3 +31,6 @@ def set_up_logger(path_log_file):
 
     # Necessary to add loggers in visual studio console
     logging.getLogger().addHandler(logging.StreamHandler())
+
+    # Turn on/off logger
+    logging.disable = False #True
