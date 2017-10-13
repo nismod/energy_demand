@@ -102,10 +102,9 @@ def convert_fueltypes(fuel_dict):
     fuel_converted = {}
 
     for enduse, fuels in fuel_dict.items():
-        fuel_converted[enduse] = np.zeros((len(fuels)))
 
-        for fueltype, fuel in enumerate(fuels):
-            fuel_converted[enduse][fueltype] = convert_ktoe_gwh(fuel)
+        # apply converting function along row
+        fuel_converted[enduse] = np.apply_along_axis(func1d=convert_ktoe_gwh, axis=0, arr=fuels)
 
     return fuel_converted
 
@@ -126,9 +125,6 @@ def convert_fueltypes_sectors(fuel_dict):
 
     for enduse in fuel_dict:
         for sector, fuels in fuel_dict[enduse].items():
-            fuel_converted[enduse][sector] = np.zeros((len(fuels)))
-
-            for fueltype, fuel in enumerate(fuels):
-                fuel_converted[enduse][sector][fueltype] = convert_ktoe_gwh(fuel)
+            fuel_converted[enduse][sector] = np.apply_along_axis(func1d=convert_ktoe_gwh, axis=0, arr=fuels)
 
     return fuel_converted

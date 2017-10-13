@@ -1,5 +1,4 @@
 """Residential model"""
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 from energy_demand.geography import weather_station_location as wl
 
 class Region(object):

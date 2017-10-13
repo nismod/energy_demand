@@ -1,9 +1,7 @@
 """Funtions related to the diffusion of technologies
 """
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import math
 import numpy as np
-from scipy.optimize import curve_fit
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """This function assumes a linear diffusion
@@ -35,8 +33,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
         fract_sy = value_start
     else:
         #-1 because in base year no change
-        #fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr)
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) + value_start # SHARK VERY NEW
+        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) + value_start
 
     return fract_sy
 

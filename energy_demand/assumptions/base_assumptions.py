@@ -360,7 +360,7 @@ def load_assumptions(data, write_sim_param):
         split_hp_ashp_gshp,
         data)
 
-    # Add heat pumps to technologies #SHARK
+    # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         data,
         [],
@@ -437,10 +437,17 @@ def load_assumptions(data, write_sim_param):
     testing.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
     testing.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
 
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
-    testing.testing_tech_defined(assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
-    testing.testing_switch_technologies(assumptions['hybrid_technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_share_service_tech_ey_p'], assumptions['technologies'])
+    testing.testing_tech_defined(
+        assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
+    testing.testing_tech_defined(
+        assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
+    testing.testing_tech_defined(
+        assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
+    testing.testing_switch_technologies(
+        assumptions['hybrid_technologies'],
+        assumptions['rs_fuel_tech_p_by'],
+        assumptions['rs_share_service_tech_ey_p'],
+        assumptions['technologies'])
 
     if write_sim_param == True:
         return sim_param, assumptions

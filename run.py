@@ -125,7 +125,7 @@ class EDWrapper(SectorModel):
             A dictionary containing all parameters and model inputs defined in
             the smif configuration by name
 
-        Notes 
+        Notes
         -----
         1. Get scenario data
 

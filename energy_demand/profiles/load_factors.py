@@ -28,7 +28,7 @@ def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
     load_factor_h = np.zeros((data['lookups']['nr_of_fueltypes']))
 
     # Iterate fueltypes to calculate load factors for each fueltype
-    for fueltype, fuels in enumerate(fuels_tot_enduses_h):
+    for fueltype, fuels in enumerate(fuels_tot_enduses_h): #TOOD MAKE FASTER
 
         # Maximum fuel of an hour of the peak day
         maximum_h_of_day = rs_fuels_peak_h[fueltype]

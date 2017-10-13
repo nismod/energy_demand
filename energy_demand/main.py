@@ -20,7 +20,6 @@ from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
 from energy_demand.read_write import write_data
-#pylint: disable=W1202
 
 def energy_demand_model(data):
     """Main function of energy demand model to calculate yearly demand
@@ -43,10 +42,6 @@ def energy_demand_model(data):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
-    logging.info("Fuel input:          " + str(fuel_in))
-
-    # Add all region instances as an attribute (region name) into the class `EnergyModel`
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data
@@ -55,7 +50,9 @@ def energy_demand_model(data):
     # Total annual fuel of all regions
     fueltot = model_run_object.reg_enduses_fueltype_y
 
-    # Fuel per region
+    # Print out calculations
+    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+    logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
     logging.info("Number of regions    " + str(len(data['lu_reg'])))

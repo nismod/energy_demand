@@ -16,7 +16,6 @@ from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
-#pylint: disable=W1202
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -39,22 +38,21 @@ class EnergyModel(object):
         logging.debug("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
-        # --------------------------
+
         # Create non regional dependent load profiles
-        # --------------------------
         data['non_regional_lp_stock'] = self.create_load_profile_stock(
             data['tech_load_profiles'],
             data['assumptions'],
             data['sectors'])
-        
+
         # Weather Regions
         self.weather_regions = self.create_weather_regions(
             data['weather_stations'], data)
-        
+
         # Regions
         self.regions = self.create_regions(
             region_names, data)
-            
+
         # --------------------
         # Residential SubModel
         # --------------------
@@ -80,17 +78,42 @@ class EnergyModel(object):
         all_submodels = [self.ss_submodel, self.rs_submodel, self.is_submodel]
 
         # Sum across all regions, all enduse and sectors sum_reg
-        self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(data['lookups'], region_names, data['assumptions']['model_yeardays_nrs'], all_submodels)
-        
+        self.fuel_indiv_regions_yh = self.fuel_regions_fueltype(
+            data['lookups'],
+            region_names,
+            data['assumptions']['model_yeardays_nrs'],
+            all_submodels)
+
         # Sum across all regions, all enduse and sectors
-        self.reg_enduses_fueltype_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
-        
+        self.reg_enduses_fueltype_y = self.fuel_aggr(
+            'fuel_yh', data['lookups']['nr_of_fueltypes'],
+            all_submodels,
+            'no_sum',
+            'non_peak',
+            data['assumptions']['model_yeardays_nrs'])
+
         # Sum across all regions and provide specific enduse
-        self.tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions('fuel_yh', all_submodels, data['assumptions']['model_yeardays_nrs'])
+        self.tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions(
+            'fuel_yh',
+            all_submodels,
+            data['assumptions']['model_yeardays_nrs'])
 
         # Sum across all regions, enduses for peak hour
-        self.tot_peak_enduses_fueltype = self.fuel_aggr('fuel_peak_dh', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_dh', data['assumptions']['model_yeardays_nrs'])
-        self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], all_submodels, 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
+        self.tot_peak_enduses_fueltype = self.fuel_aggr(
+            'fuel_peak_dh',
+            data['lookups']['nr_of_fueltypes'],
+            all_submodels,
+            'no_sum',
+            'peak_dh',
+            data['assumptions']['model_yeardays_nrs'])
+
+        self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr(
+            'fuel_peak_h',
+            data['lookups']['nr_of_fueltypes'],
+            all_submodels,
+            'no_sum',
+            'peak_h',
+            data['assumptions']['model_yeardays_nrs'])
         
         #-------------------
         # TESTING
@@ -155,8 +178,8 @@ class EnergyModel(object):
                     model_yeardays_nrs,
                     region_name
                     )
-                # Reshape model_yeardays_nrs*24 to 8760
-                fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(model_yeardays_nrs * 24) #formerly 8760
+                # Reshape
+                fuel_fueltype_regions[fueltype][array_region] = fuels[fueltype_nr].reshape(model_yeardays_nrs * 24)
 
         return fuel_fueltype_regions
 

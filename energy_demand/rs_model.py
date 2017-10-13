@@ -1,5 +1,4 @@
 """
-
 Residential Submodel
 ====================
 
@@ -53,7 +52,7 @@ class ResidentialModel(object):
             data=data,
             enduse=self.enduse,
             sector=self.sector, 
-            fuel=region_obj.rs_enduses_fuel[self.enduse], #fuel from region object
+            fuel=region_obj.rs_enduses_fuel[self.enduse],
             tech_stock=region_obj.rs_tech_stock,
             heating_factor_y=region_obj.rs_heating_factor_y,
             cooling_factor_y=region_obj.rs_cooling_factor_y,

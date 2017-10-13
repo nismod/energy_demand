@@ -191,7 +191,7 @@ class Enduse(object):
                     '''If flat shape, do not store flat shape explicitly for all hours
                     '''
                     # Calculate fraction if flat shape of selected days to model
-                    self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs'] / 365.0
+                    self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs']/365.0
                 else:
                     self.fuel_yh = load_profiles.get_lp(
                         self.enduse,
@@ -221,8 +221,10 @@ class Enduse(object):
                     data['assumptions']['mode_constrained'],
                     data['assumptions']['enduse_space_heating'])
 
-                crit_switch_fuel = self.get_crit_switch(fuel_switches, data['sim_param'], mode_constrained)
-                crit_switch_service = self.get_crit_switch(service_switches, data['sim_param'], mode_constrained)
+                crit_switch_fuel = self.get_crit_switch(
+                    fuel_switches, data['sim_param'], mode_constrained)
+                crit_switch_service = self.get_crit_switch(
+                    service_switches, data['sim_param'], mode_constrained)
                 testing.testing_switch_criteria(crit_switch_fuel, crit_switch_service, self.enduse)
 
                 # ------------------------------------
@@ -235,8 +237,7 @@ class Enduse(object):
                     load_profiles,
                     mode_constrained,
                     data['assumptions']['model_yeardays'],
-                    data['assumptions']['model_yeardays_nrs'],
-                    crit_flat_profile
+                    data['assumptions']['model_yeardays_nrs']
                     )
 
                 # ------------------------------------
@@ -258,7 +259,6 @@ class Enduse(object):
                 # Switches
                 # --------------------------------
                 if crit_switch_service:
-                    #Energy service switches
                     logging.info("SERVICE SWITCH TRUE")
                     service_tech = self.service_switch(
                         tot_service_h_cy,
@@ -269,7 +269,6 @@ class Enduse(object):
                         sig_param_tech,
                         data['sim_param']['curr_yr'])
                 elif crit_switch_fuel:
-                    #Fuel Switches
                     logging.debug("FUEL SWITCH TRUE")
                     service_tech = self.fuel_switch(
                         installed_tech,
@@ -283,6 +282,7 @@ class Enduse(object):
                         data['sim_param']['curr_yr'])
                 else:
                     pass #No switch implemented
+
                 # -------------------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------------------
@@ -497,7 +497,7 @@ class Enduse(object):
         else:
             return service
 
-    def fuel_to_service(self, fuel_tech_p_by, tech_stock, lu_fueltypes, load_profiles, mode_constrained, model_yeardays, model_yeardays_nrs, crit_flat_profile):
+    def fuel_to_service(self, fuel_tech_p_by, tech_stock, lu_fueltypes, load_profiles, mode_constrained, model_yeardays, model_yeardays_nrs,):
         """Converts fuel to energy service (1), calcualates contribution service fraction (2)
 
         Arguments
@@ -568,14 +568,14 @@ class Enduse(object):
 
                     fuel_tech = self.fuel_new_y[fueltype] * fuel_share
 
-                    _service= fuel_tech * tech_load_profile
+                    _service = fuel_tech * tech_load_profile
                     service_selection = _service[[model_yeardays]]
                     service_tech_cy[tech] += service_selection
 
                     # Assign all service to fueltype 'heat_fueltype'
                     try:
                         service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
-                    except KeyError:# Because technology not assigned yet
+                    except KeyError:
                         service_fueltype_tech_p[lu_fueltypes['heat']][tech] = 0
                         service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
         else:
@@ -607,7 +607,7 @@ class Enduse(object):
                         service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
 
                     # Calculate fuel share and convert fuel to service
-                    if crit_flat_profile:
+                    if self.crit_flat_profile:
                         _service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
                         service = _service * (service_tech * (model_yeardays_nrs/365))
                     else:
@@ -1288,18 +1288,21 @@ class Enduse(object):
                         eff_yh_selection = eff_full_year[[model_yeardays]]
                     else:
                         eff_yh_selection = eff_full_year
-                    fuel_tech = np.divide(service, eff_yh_selection)
+                    ##fuel_tech = np.divide(service, eff_yh_selection)
+                    fuel_tech = service / eff_yh_selection
                 else:
-                    fuel_tech = np.divide(service, eff_full_year)
+                    ##fuel_tech = np.divide(service, eff_full_year)
+                    fuel_tech = service / eff_full_year
 
                 fueltype_share_yh_all_h = tech_stock.get_tech_attr(
                     self.enduse, tech, 'fueltype_share_yh_all_h')
-
+                #print("tech: {}  {}".format(tech, np.sum(fueltype_share_yh_all_h)))
                 # Calculate share of fuel per fueltype
-                fuel_fueltype_p = lp.abs_to_rel(fueltype_share_yh_all_h)
+                ##fuel_fueltype_p = lp.abs_to_rel(fueltype_share_yh_all_h)
 
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
-                enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
+                ##enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
+                enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
 
         self.fuel_new_y = enduse_fuels
         return
@@ -1453,6 +1456,8 @@ class Enduse(object):
         elif self.enduse in assumptions['enduse_space_cooling']:
             self.fuel_new_y = self.fuel_new_y * cooling_factor_y
 
+        return
+
     def apply_smart_metering(self, assumptions, base_sim_param):
         """Calculate fuel savings depending on smart meter penetration
 
@@ -1477,7 +1482,6 @@ class Enduse(object):
           generally fuel savings for each enduse can be defined.
         """
         if self.enduse in assumptions['savings_smart_meter']:
-            new_fuels = np.zeros((self.fuel_new_y.shape[0]))
 
             # Sigmoid diffusion up to current year
             sigm_factor = diffusion_technologies.sigmoid_diffusion(
@@ -1493,11 +1497,11 @@ class Enduse(object):
             penetration_cy = assumptions['smart_meter_p_by'] + (
                 sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
 
-            for fueltype, fuel in enumerate(self.fuel_new_y):
-                saved_fuel = fuel * (penetration_by - penetration_cy) * assumptions['savings_smart_meter'][self.enduse]
-                new_fuels[fueltype] = fuel - saved_fuel
+            savings = assumptions['savings_smart_meter'][self.enduse]
+            saved_fuel = self.fuel_new_y * (penetration_by - penetration_cy) * savings
+            self.fuel_new_y = self.fuel_new_y - saved_fuel
 
-            self.fuel_new_y = new_fuels
+            return
 
     def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scen_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
@@ -1556,7 +1560,6 @@ class Enduse(object):
                 # Multiply drivers
                 by_driver *= by_driver_data
                 cy_driver *= cy_driver_data
-
             try:
                 factor_driver = cy_driver / by_driver # FROZEN (as in chapter 3.1.2 EQ E-2)
             except ZeroDivisionError:

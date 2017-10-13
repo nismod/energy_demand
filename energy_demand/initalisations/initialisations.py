@@ -24,7 +24,8 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
     return fuel_tech_p_by
 
 def dict_zero(first_level_keys):
-    """Initialise a dictionary with one level
+    """Initialise a dictionary with one level and
+    set zero as the value
 
     Arguments
     ----------
@@ -36,7 +37,7 @@ def dict_zero(first_level_keys):
     one_level_dict : dict
          dictionary
     """
-    one_level_dict = dict.fromkeys(first_level_keys, 0) # set zero as argument
+    one_level_dict = dict.fromkeys(first_level_keys, 0)
 
     return one_level_dict
 

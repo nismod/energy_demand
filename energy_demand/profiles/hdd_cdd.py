@@ -24,15 +24,6 @@ def calc_hdd(t_base, temp_yh):
     Note
     -----
     This function is optimised for speed. A more intuitive reading is as follows:
-
-        # hdd_d = np.zeros((nr_of_days))
-
-        # for day, temp_day in enumerate(temp_yh):
-        # hdd = 0
-        # for temp_h in temp_day:
-        #    diff = t_base - temp_h
-        #    if diff > 0:
-        #        hdd += diff
     """
     temp_diff = (t_base - temp_yh) / 24
     temp_diff[temp_diff < 0] = 0
@@ -59,14 +50,6 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     -----
     - For more info see Formual 2.1: Degree-days: theory and application
       https://www.designingbuildings.co.uk/wiki/Cooling_degree_days
-
-    ```#cdd_d = np.zeros((365))
-    # for day_nr, day_temp in enumerate(temperatures):
-        #ccd_d = 0
-        #for temp_h in day_temp:
-        #    diff_t = temp_h - rs_t_base_cooling
-        #    if diff_t > 0: # Only if cooling is necessary
-        #        ccd_d += diff_t```
     """
     temp_diff = (temperatures - rs_t_base_cooling) / 24
     temp_diff[temp_diff < 0] = 0
