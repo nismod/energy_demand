@@ -17,7 +17,6 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.validation import lad_validation
-from energy_demand.validation import elec_national_data
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
 from energy_demand.read_write import write_data

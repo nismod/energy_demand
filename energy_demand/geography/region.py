@@ -18,7 +18,7 @@ class Region(object):
     is calculated and the technology and load profiles imported from
     this station
     """
-    def __init__(self, region_name, data, submodel_type, weather_regions):
+    def __init__(self, region_name, data, weather_regions):
         """Constructor
         """
         self.region_name = region_name
@@ -38,26 +38,27 @@ class Region(object):
             weather_regions, closest_reg)
 
         # Get tech stocks and load profiles
-        if submodel_type == 'rs_submodel':
-            self.rs_tech_stock = weather_reg_obj.rs_tech_stock
-            self.rs_load_profiles = weather_reg_obj.rs_load_profiles
 
-            self.rs_heating_factor_y = weather_reg_obj.rs_heating_factor_y
-            self.rs_cooling_factor_y = weather_reg_obj.rs_cooling_factor_y
+        #Residential submodel
+        self.rs_tech_stock = weather_reg_obj.rs_tech_stock
+        self.rs_load_profiles = weather_reg_obj.rs_load_profiles
 
-        elif submodel_type == 'ss_submodel':
-            self.ss_tech_stock = weather_reg_obj.ss_tech_stock
-            self.ss_load_profiles = weather_reg_obj.ss_load_profiles
+        self.rs_heating_factor_y = weather_reg_obj.rs_heating_factor_y
+        self.rs_cooling_factor_y = weather_reg_obj.rs_cooling_factor_y
 
-            self.ss_heating_factor_y = weather_reg_obj.ss_heating_factor_y
-            self.ss_cooling_factor_y = weather_reg_obj.ss_cooling_factor_y
+        #Service submodel
+        self.ss_tech_stock = weather_reg_obj.ss_tech_stock
+        self.ss_load_profiles = weather_reg_obj.ss_load_profiles
 
-        elif submodel_type == 'is_submodel':
-            self.is_tech_stock = weather_reg_obj.is_tech_stock
-            self.is_load_profiles = weather_reg_obj.is_load_profiles
+        self.ss_heating_factor_y = weather_reg_obj.ss_heating_factor_y
+        self.ss_cooling_factor_y = weather_reg_obj.ss_cooling_factor_y
 
-            self.is_heating_factor_y = weather_reg_obj.is_heating_factor_y
-            self.is_cooling_factor_y = weather_reg_obj.is_cooling_factor_y
+        #Industry submodel
+        self.is_tech_stock = weather_reg_obj.is_tech_stock
+        self.is_load_profiles = weather_reg_obj.is_load_profiles
+
+        self.is_heating_factor_y = weather_reg_obj.is_heating_factor_y
+        self.is_cooling_factor_y = weather_reg_obj.is_cooling_factor_y
 
     @classmethod
     def get_weather_reg(cls, weather_regions, closest_reg):

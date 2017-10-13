@@ -39,8 +39,7 @@ class WeatherRegion(object):
             all_enduses,
             temperature_data,
             tech_load_profiles,
-            sectors,
-            modeltype
+            sectors
         ):
         """Constructor of weather region
         """
@@ -70,337 +69,334 @@ class WeatherRegion(object):
         # -------------------
         # Technology stock
         # -------------------
-        if modeltype == 'is_submodel':
-            self.is_tech_stock = technological_stock.TechStock(
-                'is_tech_stock',
-                assumptions,
-                sim_param,
-                lookups,
-                temp_by,
-                temp_cy,
-                assumptions['ss_t_base_heating']['base_yr'],
-                all_enduses['is_all_enduses'],
-                ss_t_base_heating_cy,
-                assumptions['is_specified_tech_enduse_by']
-                )
-        elif modeltype == 'rs_submodel':
-            self.rs_tech_stock = technological_stock.TechStock(
-                'rs_tech_stock',
-                assumptions,
-                sim_param,
-                lookups,
-                temp_by,
-                temp_cy,
-                assumptions['rs_t_base_heating']['base_yr'],
-                all_enduses['rs_all_enduses'],
-                rs_t_base_heating_cy,
-                assumptions['rs_specified_tech_enduse_by']
-                )
-        elif modeltype == 'ss_submodel':
-            self.ss_tech_stock = technological_stock.TechStock(
-                'ss_tech_stock',
-                assumptions,
-                sim_param,
-                lookups,
-                temp_by,
-                temp_cy,
-                assumptions['ss_t_base_heating']['base_yr'],
-                all_enduses['ss_all_enduses'],
-                ss_t_base_heating_cy,
-                assumptions['ss_specified_tech_enduse_by']
-                )
+        self.is_tech_stock = technological_stock.TechStock(
+            'is_tech_stock',
+            assumptions,
+            sim_param,
+            lookups,
+            temp_by,
+            temp_cy,
+            assumptions['ss_t_base_heating']['base_yr'],
+            all_enduses['is_all_enduses'],
+            ss_t_base_heating_cy,
+            assumptions['is_specified_tech_enduse_by']
+            )
+
+        self.rs_tech_stock = technological_stock.TechStock(
+            'rs_tech_stock',
+            assumptions,
+            sim_param,
+            lookups,
+            temp_by,
+            temp_cy,
+            assumptions['rs_t_base_heating']['base_yr'],
+            all_enduses['rs_all_enduses'],
+            rs_t_base_heating_cy,
+            assumptions['rs_specified_tech_enduse_by']
+            )
+
+        self.ss_tech_stock = technological_stock.TechStock(
+            'ss_tech_stock',
+            assumptions,
+            sim_param,
+            lookups,
+            temp_by,
+            temp_cy,
+            assumptions['ss_t_base_heating']['base_yr'],
+            all_enduses['ss_all_enduses'],
+            ss_t_base_heating_cy,
+            assumptions['ss_specified_tech_enduse_by']
+            )
 
         # -------------------
         # Load profiles
-        # -------------------
-        if modeltype == 'rs_submodel':
+        # ------------------
+        self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
-            self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
+        # --------HDD/CDD
+        rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
+        rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
+        rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            # --------HDD/CDD
-            rs_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
-            rs_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
-            rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-            rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # Climate change correction factors
+        try:
+            self.rs_heating_factor_y = np.nan_to_num(
+                1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
+            self.rs_cooling_factor_y = np.nan_to_num(
+                1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
+        except ZeroDivisionError:
+            self.rs_heating_factor_y = 1
+            self.rs_cooling_factor_y = 1
 
-            # Climate change correction factors
-            try:
-                self.rs_heating_factor_y = np.nan_to_num(
-                    1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
-                self.rs_cooling_factor_y = np.nan_to_num(
-                    1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
-            except ZeroDivisionError:
-                self.rs_heating_factor_y = 1
-                self.rs_cooling_factor_y = 1
+        # yd peak factors for heating and cooling 
+        # (Needss full year necessary of temp data to calc peak days)
+        rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
+        #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
-            # yd peak factors for heating and cooling 
-            # (Needss full year necessary of temp data to calc peak days)
-            rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
-            #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
+        # --Specific heating technologies for residential sector
+        rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
+            sim_param,
+            tech_load_profiles,
+            rs_fuel_shape_heating_yd,
+            'rs_lp_storage_heating_dh',
+            assumptions['model_yeardays'],
+            assumptions['model_yeardays_nrs'])
 
-            # --Specific heating technologies for residential sector
-            rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                sim_param,
-                tech_load_profiles,
-                rs_fuel_shape_heating_yd,
-                'rs_lp_storage_heating_dh',
-                assumptions['model_yeardays'],
-                assumptions['model_yeardays_nrs'])
+        rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
+            sim_param,
+            tech_load_profiles,
+            rs_fuel_shape_heating_yd,
+            'rs_lp_second_heating_dh',
+            assumptions['model_yeardays'],
+            assumptions['model_yeardays_nrs']
+            )
 
-            rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                sim_param,
-                tech_load_profiles,
-                rs_fuel_shape_heating_yd,
-                'rs_lp_second_heating_dh',
-                assumptions['model_yeardays'],
-                assumptions['model_yeardays_nrs']
-                )
-
-            # boiler, non-peak
-            rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
-                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_heating_boilers_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # boiler, non-peak
+        rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
+            sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_heating_boilers_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
             
-            # heat pumps, non-peak
-            rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
-                sim_param, tech_load_profiles, self.rs_tech_stock, rs_hdd_cy, 'rs_lp_heating_hp_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # heat pumps, non-peak
+        rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
+            sim_param, tech_load_profiles, self.rs_tech_stock, rs_hdd_cy, 'rs_lp_heating_hp_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
-                self.rs_tech_stock,
-                'rs_space_heating',
-                rs_profile_boilers_y_dh,
-                rs_fuel_shape_hp_y_dh,
-                rs_fuel_shape_heating_yd,
-                'hybrid_gas_electricity'
-                )
+        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
+            self.rs_tech_stock,
+            'rs_space_heating',
+            rs_profile_boilers_y_dh,
+            rs_fuel_shape_hp_y_dh,
+            rs_fuel_shape_heating_yd,
+            'hybrid_gas_electricity'
+            )
 
-            # Cooling residential
-            #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
-            # data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
+        # Cooling residential
+        #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
+        # data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
-            # Heating boiler
-            self.rs_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_const'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_yd=rs_fuel_shape_heating_yd,
-                shape_yh=rs_profile_boilers_yh,
-                enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['rs_lp_heating_boilers_dh']['peakday']
-                )
+        # Heating boiler
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_const'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_boilers_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['rs_lp_heating_boilers_dh']['peakday']
+            )
 
-            # Electric heating, primary...(storage)
-            self.rs_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['primary_heating_electricity'],
-                enduses=['rs_space_heating'],
-                shape_yd=rs_fuel_shape_heating_yd,
-                shape_yh=rs_profile_storage_heater_yh,
-                enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
-                )
+        # Electric heating, primary...(storage)
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['primary_heating_electricity'],
+            enduses=['rs_space_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_storage_heater_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
+            )
 
-            # Electric heating, secondary...
-            self.rs_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['secondary_heating_electricity'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_yd=rs_fuel_shape_heating_yd,
-                shape_yh=rs_profile_elec_heater_yh,
-                enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['rs_lp_second_heating_dh']['peakday']
-                )
+        # Electric heating, secondary...
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_elec_heater_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['rs_lp_second_heating_dh']['peakday']
+            )
 
-            # Hybrid heating
-            self.rs_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_hybrid'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_yd=rs_fuel_shape_heating_yd,
-                shape_yh=rs_fuel_shape_hybrid_tech_yh,
-                enduse_peak_yd_factor=rs_peak_yd_heating_factor
-                )
+        # Hybrid heating
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_hybrid'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_hybrid_tech_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor
+            )
 
-            # Heat pump heating
-            self.rs_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                shape_yd=rs_fuel_shape_heating_yd,
-                shape_yh=rs_fuel_shape_hp_yh,
-                enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['rs_lp_heating_hp_dh']['peakday']
-                )
+        # Heat pump heating
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_temp_dep'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_fuel_shape_hp_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['rs_lp_heating_hp_dh']['peakday']
+            )
 
-        elif modeltype == 'ss_submodel':
+        #Service submodel
 
-            self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
+        self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
-            # --------HDD/CDD
-            ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-            ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # --------HDD/CDD
+        ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
+        ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-            ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
+        ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            try:
-                self.ss_heating_factor_y = np.nan_to_num(
-                    1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
-                self.ss_cooling_factor_y = np.nan_to_num(
-                    1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
-            except ZeroDivisionError:
-                self.ss_heating_factor_y = 1
-                self.ss_cooling_factor_y = 1
+        try:
+            self.ss_heating_factor_y = np.nan_to_num(
+                1.0 / float(np.sum(ss_hdd_by))) * np.sum(ss_hdd_cy)
+            self.ss_cooling_factor_y = np.nan_to_num(
+                1.0 / float(np.sum(ss_cdd_by))) * np.sum(ss_cdd_cy)
+        except ZeroDivisionError:
+            self.ss_heating_factor_y = 1
+            self.ss_cooling_factor_y = 1
 
-            ss_peak_yd_heating_factor = self.get_shape_peak_yd_factor(ss_hdd_cy)
-            #ss_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(ss_cdd_cy)
+        ss_peak_yd_heating_factor = self.get_shape_peak_yd_factor(ss_hdd_cy)
+        #ss_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(ss_cdd_cy)
 
-            # --Heating technologies for service sector
-            # (the heating shape follows the gas shape of aggregated sectors)
-            ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(
+        # --Heating technologies for service sector
+        # (the heating shape follows the gas shape of aggregated sectors)
+        ss_fuel_shape_any_tech, ss_fuel_shape = self.ss_get_sector_enduse_shape(
                 tech_load_profiles, ss_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
 
-            # Cooling service
-            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
-            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
-            #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
+        # Cooling service
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_cooling_yd, 'ss_shapes_cooling_dh') # Service cooling
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, ss_fuel_shape_heating_yd, 'ss_shapes_cooling_dh') # Service cooling #USE HEAT YD BUT COOLING SHAPE
+        #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
-            # Hybrid
-            ss_profile_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(
-                self.ss_tech_stock,
-                'ss_space_heating',
-                ss_fuel_shape,
-                ss_fuel_shape,
-                ss_fuel_shape_heating_yd,
-                'hybrid_gas_electricity')
+        # Hybrid
+        ss_profile_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(
+            self.ss_tech_stock,
+            'ss_space_heating',
+            ss_fuel_shape,
+            ss_fuel_shape,
+            ss_fuel_shape_heating_yd,
+            'hybrid_gas_electricity')
 
-            self.ss_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_const'],
-                enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=sectors['ss_sectors'],
-                shape_yd=ss_fuel_shape_heating_yd,
-                shape_yh=ss_fuel_shape_any_tech,
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['ss_shapes_dh']
-                )
+        self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_const'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['ss_shapes_dh']
+            )
 
-            self.ss_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['primary_heating_electricity'],
-                enduses=['ss_space_heating'],
-                sectors=sectors['ss_sectors'],
-                shape_yd=ss_fuel_shape_heating_yd,
-                shape_yh=ss_fuel_shape_any_tech,
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
-                )
+        self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['primary_heating_electricity'],
+            enduses=['ss_space_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            shape_peak_dh=tech_load_profiles['rs_lp_storage_heating_dh']['peakday']
+            )
 
-            self.ss_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['secondary_heating_electricity'],
-                enduses=['rs_space_heating', 'rs_water_heating'],
-                sectors=sectors['ss_sectors'],
-                shape_yd=ss_fuel_shape_heating_yd,
-                shape_yh=ss_fuel_shape_any_tech,
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor
-                )
+        self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['secondary_heating_electricity'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor
+            )
 
-            self.ss_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_hybrid'],
-                enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=sectors['ss_sectors'],
-                shape_yd=ss_fuel_shape_heating_yd,
-                shape_yh=ss_profile_hybrid_gas_elec_yh,
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-                )
+        self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_hybrid'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_profile_hybrid_gas_elec_yh,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor,
+            )
 
-            self.ss_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
-                enduses=['ss_space_heating', 'ss_water_heating'],
-                sectors=sectors['ss_sectors'],
-                shape_yd=ss_fuel_shape_heating_yd,
-                shape_yh=ss_fuel_shape_any_tech,
-                enduse_peak_yd_factor=ss_peak_yd_heating_factor
-                )
+        self.ss_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_temp_dep'],
+            enduses=['ss_space_heating', 'ss_water_heating'],
+            sectors=sectors['ss_sectors'],
+            shape_yd=ss_fuel_shape_heating_yd,
+            shape_yh=ss_fuel_shape_any_tech,
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor
+            )
 
-        elif modeltype == 'is_submodel':
-            self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
+        # Industry submodel
+        self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
-            # --------HDD/CDD
-            is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-            is_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # --------HDD/CDD
+        is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
+        is_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            # Take same base temperature as for service sector
-            is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'])
-            is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        # Take same base temperature as for service sector
+        is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'])
+        is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-            try:
-                self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
-                self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
-            except ZeroDivisionError:
-                self.is_heating_factor_y = 1
-                self.is_cooling_factor_y = 1
+        try:
+            self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
+            self.is_cooling_factor_y = np.nan_to_num(1.0 / float(np.sum(is_cdd_by))) * np.sum(is_cdd_cy)
+        except ZeroDivisionError:
+            self.is_heating_factor_y = 1
+            self.is_cooling_factor_y = 1
 
-            is_peak_yd_heating_factor = self.get_shape_peak_yd_factor(is_hdd_cy)
-            #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
+        is_peak_yd_heating_factor = self.get_shape_peak_yd_factor(is_hdd_cy)
+        #is_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(is_cdd_cy)
 
-            # --Heating technologies for service sector (the heating shape follows
-            # the gas shape of aggregated sectors)
-            #Take from service sector
-            is_fuel_shape_any_tech, _ = self.ss_get_sector_enduse_shape(
-                tech_load_profiles, is_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
+        # --Heating technologies for service sector (the heating shape follows
+        # the gas shape of aggregated sectors)
+        #Take from service sector
+        is_fuel_shape_any_tech, _ = self.ss_get_sector_enduse_shape(
+            tech_load_profiles, is_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
 
-            self.is_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_const'],
-                enduses=['is_space_heating'],
-                sectors=sectors['is_sectors'],
-                shape_yd=is_fuel_shape_heating_yd,
-                shape_yh=is_fuel_shape_any_tech,
-                enduse_peak_yd_factor=is_peak_yd_heating_factor
-                )
+        self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_const'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            shape_yh=is_fuel_shape_any_tech,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor
+            )
 
-            self.is_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['primary_heating_electricity'],
-                enduses=['is_space_heating'],
-                sectors=sectors['is_sectors'],
-                shape_yd=is_fuel_shape_heating_yd,
-                enduse_peak_yd_factor=is_peak_yd_heating_factor,
-                shape_yh=is_fuel_shape_any_tech
-                )
+        self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['primary_heating_electricity'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor,
+            shape_yh=is_fuel_shape_any_tech
+            )
 
-            self.is_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['secondary_heating_electricity'],
-                enduses=['is_space_heating'],
-                sectors=sectors['is_sectors'],
-                shape_yd=is_fuel_shape_heating_yd,
-                shape_yh=is_fuel_shape_any_tech,
-                enduse_peak_yd_factor=is_peak_yd_heating_factor,
-                )
+        self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['secondary_heating_electricity'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            shape_yh=is_fuel_shape_any_tech,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor,
+            )
 
-            self.is_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_hybrid'],
-                enduses=['is_space_heating'],
-                sectors=sectors['is_sectors'],
-                shape_yd=is_fuel_shape_heating_yd,
-                shape_yh=is_fuel_shape_any_tech,
-                enduse_peak_yd_factor=is_peak_yd_heating_factor,
-                )
+        self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_hybrid'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            shape_yh=is_fuel_shape_any_tech,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor,
+            )
 
-            self.is_load_profiles.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=assumptions['tech_list']['tech_heating_temp_dep'],
-                enduses=['is_space_heating'],
-                sectors=sectors['is_sectors'],
-                shape_yd=is_fuel_shape_heating_yd,
-                shape_yh=is_fuel_shape_any_tech,
-                enduse_peak_yd_factor=is_peak_yd_heating_factor
-                )
+        self.is_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_temp_dep'],
+            enduses=['is_space_heating'],
+            sectors=sectors['is_sectors'],
+            shape_yd=is_fuel_shape_heating_yd,
+            shape_yh=is_fuel_shape_any_tech,
+            enduse_peak_yd_factor=is_peak_yd_heating_factor
+            )
 
     @classmethod
     def get_shape_heating_hybrid_yh(cls, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech):

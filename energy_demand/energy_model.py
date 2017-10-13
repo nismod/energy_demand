@@ -46,37 +46,32 @@ class EnergyModel(object):
             data['tech_load_profiles'],
             data['assumptions'],
             data['sectors'])
-
+        
+        # Weather Regions
+        self.weather_regions = self.create_weather_regions(
+            data['weather_stations'], data)
+        
+        # Regions
+        self.regions = self.create_regions(
+            region_names, data)
+            
         # --------------------
         # Residential SubModel
         # --------------------
-        self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data, 'rs_submodel')
-        self.regions = self.create_regions(
-            region_names, data, 'rs_submodel')
         self.rs_submodel = self.residential_submodel(
             data, data['enduses']['rs_all_enduses'])
 
         # --------------------
         # Service SubModel
         # --------------------
-        self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data, 'ss_submodel')
-        self.regions = self.create_regions(
-            region_names, data, 'ss_submodel')
         self.ss_submodel = self.service_submodel(
             data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
 
         # --------------------
         # Industry SubModel
         # --------------------
-        self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data, 'is_submodel')
-        self.regions = self.create_regions(
-            region_names, data, 'is_submodel')
         self.is_submodel = self.industry_submodel(
             data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
-
 
         # ---------------------------------------------------------------------
         # Summarise functions
@@ -386,7 +381,7 @@ class EnergyModel(object):
                     _scrap_cnt += 1
                     logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
-        del self.regions, self.weather_regions
+        #del self.regions #, self.weather_regions
 
         return submodules
 
@@ -430,7 +425,7 @@ class EnergyModel(object):
 
                     submodule_list.append(submodel_object)
 
-        del self.regions, self.weather_regions # To save on memory
+        #del self.regions #, self.weather_regions # To save on memory
 
         return submodule_list
 
@@ -479,12 +474,12 @@ class EnergyModel(object):
                     logging.debug("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         # To save on memory
-        del self.regions, self.weather_regions
+        #del self.regions#, self.weather_regions
 
         return submodule_list
 
     @classmethod
-    def create_weather_regions(cls, weather_regions, data, model_type):
+    def create_weather_regions(cls, weather_regions, data):
         """Create all weather regions and calculate
 
         Arguments
@@ -493,8 +488,6 @@ class EnergyModel(object):
             The name of the Weather Region
         data : dict
             Data container
-        model_type : str
-            Name of model ("e.g. rs_ or ss_)
         """
         weather_region_objs = []
 
@@ -508,15 +501,14 @@ class EnergyModel(object):
                 all_enduses=data['enduses'],
                 temperature_data=data['temp_data'],
                 tech_load_profiles=data['tech_load_profiles'],
-                sectors=data['sectors'],
-                modeltype=model_type
+                sectors=data['sectors']
                 )
 
             weather_region_objs.append(region_obj)
 
         return weather_region_objs
 
-    def create_regions(self, region_names, data, submodel_type):
+    def create_regions(self, region_names, data):
         """Create all regions and add them in a list
 
         Arguments
@@ -525,18 +517,15 @@ class EnergyModel(object):
             Regions
         data : dict
             Data container
-        submodel_type : str
-            Type of submodel [rs_submodel, ss_submodel, ...]
         """
         regions = []
 
         for region_name in region_names:
-            logging.debug("... creating region: '{}'  {}".format(region_name, submodel_type))
+            logging.debug("... creating region: '{}'".format(region_name))
 
             region_obj = region.Region(
                 region_name=region_name,
                 data=data,
-                submodel_type=submodel_type,
                 weather_regions=self.weather_regions
                 )
 

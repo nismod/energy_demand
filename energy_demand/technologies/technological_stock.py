@@ -332,7 +332,6 @@ class HybridTechnology(object):
         self.tech_name = tech_name
         self.tech_type = 'hybrid'
 
-        #WHALE add selection
         temp_by = temp_by[[assumptions['model_yeardays']]]
         temp_cy = temp_cy[[assumptions['model_yeardays']]]
 

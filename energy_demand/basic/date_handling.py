@@ -100,7 +100,7 @@ def get_weekday_type(date_to_test):
         tm_isdst
     """
     weekday = date_to_test.timetuple().tm_wday
-    
+
     if weekday == 5 or weekday == 6:
         return 'holiday'
     else:

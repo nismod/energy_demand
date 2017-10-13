@@ -126,7 +126,7 @@ class Enduse(object):
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
             self.fuel_peak_h = 0
         else:
-            #self.crit_flat_profile = crit_flat_profile
+            self.crit_flat_profile = crit_flat_profile
             # -----------------------------------------------------------------
             # Get correct parameters depending on model configuration
             # -----------------------------------------------------------------
@@ -185,18 +185,14 @@ class Enduse(object):
                 No switches can be implemented and only overall change of enduse.
 
                 Note: for heating, technologies need to be assigned. Otherwise,
-                here there will be problems TODO: CHECK
+                here there will be problems
                 """
-                if crit_flat_profile:
+                if self.crit_flat_profile:
                     '''If flat shape, do not store flat shape explicitly for all hours
                     '''
-                    self.crit_flat_profile = True
-
                     # Calculate fraction if flat shape of selected days to model
-                    fraction_selected_if_flat = data['assumptions']['model_yeardays_nrs'] / 365.0
-                    self.fuel_y = self.fuel_new_y * fraction_selected_if_flat
+                    self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs'] / 365.0
                 else:
-                    self.crit_flat_profile = False
                     self.fuel_yh = load_profiles.get_lp(
                         self.enduse,
                         self.sector,
@@ -307,13 +303,11 @@ class Enduse(object):
                 # ------------------------------------------------------
                 # Assign load profiles
                 # -------------------------------------------------------
-                if crit_flat_profile:
+                if self.crit_flat_profile:
                     '''If a flat load profile is assigned (crit_flat_profile)
                     do not store whole 8760 profile. This is only done in
                     the summing step to save on memory
                     '''
-                    self.crit_flat_profile = True
-
                     self.fuel_y = self.calc_fuel_tech_y(
                         tech_stock,
                         fuel_tech_y,
@@ -321,7 +315,6 @@ class Enduse(object):
                         mode_constrained)
 
                 else:
-                    self.crit_flat_profile = False
 
                     #---NON-PEAK
                     self.fuel_yh = self.calc_fuel_tech_yh(
