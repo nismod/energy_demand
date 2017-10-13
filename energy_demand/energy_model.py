@@ -259,7 +259,8 @@ class EnergyModel(object):
                     )
 
         # dummy is - Flat load profile
-        shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(assumptions['model_yeardays_nrs'])
+        shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+            assumptions['model_yeardays_nrs'], )
         
         # If space heating, add load shapes for service sector
         shape_peak_dh_all_sectors_and_enduses = defaultdict(dict)

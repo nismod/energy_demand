@@ -70,7 +70,7 @@ class Enduse(object):
         Load profile stock
     dw_stock : object,default=False
         Dwelling stock
-    reg_scenario_drivers : bool,default=None
+    reg_scen_drivers : bool,default=None
         Scenario drivers per enduse
     crit_flat_profile : bool,default=False
         Criteria of enduse has a flat shape or not
@@ -109,7 +109,7 @@ class Enduse(object):
             enduse_overall_change_ey,
             regional_lp_stock,
             dw_stock=False,
-            reg_scenario_drivers=None,
+            reg_scen_drivers=None,
             crit_flat_profile=False
         ):
         """Enduse class constructor
@@ -144,7 +144,7 @@ class Enduse(object):
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
-            logging.debug("Fuel train A {} {}  {}: ".format(self.enduse, self.sector, (np.sum(self.fuel_new_y))))
+            #logging.debug("Fuel train A {} {}  {}: ".format(self.enduse, self.sector, (np.sum(self.fuel_new_y))))
             # --Change fuel consumption based on climate change induced temperature differences
             self.apply_climate_change(
                 cooling_factor_y,
@@ -172,7 +172,7 @@ class Enduse(object):
                 dw_stock,
                 region_name,
                 data,
-                reg_scenario_drivers,
+                reg_scen_drivers,
                 data['sim_param'])
             logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
@@ -194,7 +194,6 @@ class Enduse(object):
                     # Calculate fraction if flat shape of selected days to model
                     fraction_selected_if_flat = data['assumptions']['model_yeardays_nrs'] / 365.0
                     self.fuel_y = self.fuel_new_y * fraction_selected_if_flat
-                    
                 else:
                     self.crit_flat_profile = False
                     self.fuel_yh = load_profiles.get_lp(
@@ -202,7 +201,7 @@ class Enduse(object):
                         self.sector,
                         'dummy_tech',
                         'shape_yh') * self.fuel_new_y[:, np.newaxis, np.newaxis]
-    
+
                     # Read dh profile from peak day
                     peak_day = self.get_peak_day()
 
@@ -238,7 +237,7 @@ class Enduse(object):
                     data['lookups']['fueltype'],
                     load_profiles,
                     mode_constrained,
-                    data['assumptions']['model_yeardays'], 
+                    data['assumptions']['model_yeardays'],
                     data['assumptions']['model_yeardays_nrs'],
                     crit_flat_profile
                     )
@@ -257,7 +256,7 @@ class Enduse(object):
                     service_tech,
                     'service_tech',
                     data['sim_param'])
-                
+
                 # --------------------------------
                 # Switches
                 # --------------------------------
@@ -295,16 +294,14 @@ class Enduse(object):
                     tech_stock,
                     data['lookups']['fueltype'],
                     mode_constrained,
-                    data['assumptions']['model_yeardays'],
-                    data['assumptions']['model_yeardays_nrs'])
+                    data['assumptions']['model_yeardays'])
 
                 # Convert annaul service to fuel per fueltype for each technology
                 fuel_tech_y = self.service_to_fuel_per_tech(
                     service_tech,
                     tech_stock,
                     mode_constrained,
-                    data['assumptions']['model_yeardays'],
-                    data['assumptions']['model_yeardays_nrs'])
+                    data['assumptions']['model_yeardays'])
 
                 # ------------------------------------------------------
                 # Assign load profiles
@@ -320,8 +317,7 @@ class Enduse(object):
                         tech_stock,
                         fuel_tech_y,
                         data['lookups']['fueltype'],
-                        mode_constrained,
-                        data['assumptions']['model_yeardays_nrs'])
+                        mode_constrained)
 
                 else:
                     self.crit_flat_profile = False
@@ -333,7 +329,7 @@ class Enduse(object):
                         load_profiles,
                         data['lookups']['fueltype'],
                         mode_constrained,
-                        data['assumptions']['model_yeardays_nrs'] 
+                        data['assumptions']['model_yeardays_nrs']
                         )
 
                     # --PEAK
@@ -405,7 +401,7 @@ class Enduse(object):
         else:
             return False
 
-    def calc_fuel_tech_y(self, tech_stock, fuel_tech_y, lu_fueltypes, mode_constrained, model_yeardays_nrs):
+    def calc_fuel_tech_y(self, tech_stock, fuel_tech_y, lu_fueltypes, mode_constrained):
         """Calculate yearly fuel per fueltype (no load profile assigned)
 
         Arguments
@@ -607,17 +603,15 @@ class Enduse(object):
 
                     # Calculate fuel share and convert fuel to service
                     if isinstance(tech_eff, np.ndarray):
-                        # Because heat pumps are needed, a selection needs to be made: WHALE
+                        # Because heat pumps are needed, a selection needs to be made:
                         if tech_eff.shape[0] == 365:
                             tech_eff = tech_eff[[model_yeardays]]
                         else:
                             pass
-                        print("d: {}  {}".format(tech_eff.shape, tech))
                         service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
-                        ##service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff[[model_yeardays]] #WHALE
                     else:
                         service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
-                        
+
                     # Calculate fuel share and convert fuel to service
                     if crit_flat_profile:
                         _service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
@@ -1258,7 +1252,7 @@ class Enduse(object):
 
         return service_tech_after_switch
 
-    def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, mode_constrained, model_yeardays, model_yeardays_nrs):
+    def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, mode_constrained, model_yeardays):
         """Convert yearly energy service to yearly fuel demand. For every
         technology the service is taken and converted
         to fuel based on efficiency of current year
@@ -1296,7 +1290,7 @@ class Enduse(object):
                 
                 # If array anre more than one eff
                 if isinstance(eff_full_year, np.ndarray):
-                    if eff_full_year.shape[0] == 365: #WHALE
+                    if eff_full_year.shape[0] == 365:
                         eff_yh_selection = eff_full_year[[model_yeardays]]
                     else:
                         eff_yh_selection = eff_full_year
@@ -1312,25 +1306,11 @@ class Enduse(object):
 
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
-                
-                
-                '''ORIG# Convert service to fuel
-                fuel_tech = np.divide(service, tech_stock.get_tech_attr(
-                    self.enduse, tech, 'eff_cy'))
-
-                fueltype_share_yh_all_h = tech_stock.get_tech_attr(
-                    self.enduse, tech, 'fueltype_share_yh_all_h')
-
-                # Calculate share of fuel per fueltype
-                fuel_fueltype_p = lp.abs_to_rel(fueltype_share_yh_all_h)
-
-                # Multiply fuel of technology per fueltype with shape of yearl distrbution
-                enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
-                '''
 
         self.fuel_new_y = enduse_fuels
+        return
 
-    def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained, model_yeardays, model_yeardays_nrs):
+    def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained, model_yeardays):
         """Calculate fraction of fuel per technology within fueltype
         considering current efficiencies.
 
@@ -1356,9 +1336,7 @@ class Enduse(object):
 
         if mode_constrained:
             for tech, service in service_tech.items():
-                service_selection = service[[model_yeardays]]
-                #fuel_yh = service
-                fuel_yh = service_selection
+                fuel_yh = service[[model_yeardays]]
                 fuel_tech[tech] = np.sum(service)
         else:
             for tech, service in service_tech.items():
@@ -1366,12 +1344,12 @@ class Enduse(object):
                 '''fuel_yh = np.divide(service, tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy'))
                 fuel_tech[tech] = np.sum(fuel_yh)
                 '''
-                service_selection = service #[[model_yeardays]]
+                service_selection = service
                 eff_full_year = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
 
                 # If array anre more than one eff
-                if isinstance(eff_full_year, np.ndarray):
-                    if eff_full_year.shape[0] == 365: #WHALE
+                if isinstance(eff_full_year, np.ndarray): # efficiency is provided for full year
+                    if eff_full_year.shape[0] == 365:
                         eff_yh_selection = eff_full_year[[model_yeardays]]
                     else:
                         eff_yh_selection = eff_full_year
@@ -1512,7 +1490,7 @@ class Enduse(object):
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
                 base_sim_param['end_yr'],
-                assumptions['smart_meter_diff_params']['sig_midpoint'], 
+                assumptions['smart_meter_diff_params']['sig_midpoint'],
                 assumptions['smart_meter_diff_params']['sig_steeppness']
                 )
 
@@ -1527,7 +1505,7 @@ class Enduse(object):
 
             self.fuel_new_y = new_fuels
 
-    def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scenario_drivers, base_sim_param):
+    def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scen_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
 
         Arguments
@@ -1538,7 +1516,7 @@ class Enduse(object):
             Region name
         data : dict
             Data container
-        reg_scenario_drivers : dict
+        reg_scen_drivers : dict
             Scenario drivers per enduse
         base_sim_param : dict
             Base simulation parameters
@@ -1554,8 +1532,8 @@ class Enduse(object):
 
           TODO
         """
-        if reg_scenario_drivers is None:
-            reg_scenario_drivers = {}
+        if reg_scen_drivers is None:
+            reg_scen_drivers = {}
 
         base_yr = base_sim_param['base_yr']
         curr_yr = base_sim_param['curr_yr']
@@ -1566,7 +1544,7 @@ class Enduse(object):
             """Calculate non-dwelling related scenario drivers, if no dwelling stock
             Info: No dwelling stock is defined for this submodel
             """
-            scenario_drivers = reg_scenario_drivers[self.enduse]
+            scenario_drivers = reg_scen_drivers[self.enduse]
 
             by_driver, cy_driver = 1, 1 #not 0
 

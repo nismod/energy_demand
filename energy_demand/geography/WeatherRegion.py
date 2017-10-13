@@ -42,7 +42,7 @@ class WeatherRegion(object):
             sectors,
             modeltype
         ):
-        """Constructor
+        """Constructor of weather region
         """
         self.weather_region_name = weather_region_name
 
@@ -124,7 +124,6 @@ class WeatherRegion(object):
             rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
             # Climate change correction factors
-            # (Assumption: Demand for heat correlates directly with fuel)
             try:
                 self.rs_heating_factor_y = np.nan_to_num(
                     1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
@@ -134,15 +133,28 @@ class WeatherRegion(object):
                 self.rs_heating_factor_y = 1
                 self.rs_cooling_factor_y = 1
 
-            # yd peak factors for heating and cooling (Needss full year necessary of temp data to calc peak days)
+            # yd peak factors for heating and cooling 
+            # (Needss full year necessary of temp data to calc peak days)
             rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
             #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
             # --Specific heating technologies for residential sector
             rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_storage_heating_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+                sim_param,
+                tech_load_profiles,
+                rs_fuel_shape_heating_yd,
+                'rs_lp_storage_heating_dh',
+                assumptions['model_yeardays'],
+                assumptions['model_yeardays_nrs'])
+
             rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
-                sim_param, tech_load_profiles, rs_fuel_shape_heating_yd, 'rs_lp_second_heating_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+                sim_param,
+                tech_load_profiles,
+                rs_fuel_shape_heating_yd,
+                'rs_lp_second_heating_dh',
+                assumptions['model_yeardays'],
+                assumptions['model_yeardays_nrs']
+                )
 
             # boiler, non-peak
             rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
@@ -506,23 +518,20 @@ class WeatherRegion(object):
             start=date(sim_param['base_yr'], 1, 1),
             end=date(sim_param['base_yr'], 12, 31))
         
+        # from Robert Sansom for heat pumps
         daily_fuel_profile_holiday = tech_load_profiles[tech]['holiday'] / np.sum(tech_load_profiles[tech]['holiday'])
         daily_fuel_profile_workday = tech_load_profiles[tech]['workday'] / np.sum(tech_load_profiles[tech]['workday'])
 
         for day_array_nr, date_gasday in enumerate(list_dates):
             # Take respectve daily fuel curve depending on weekday or weekend
-            # from Robert Sansom for heat pumps
             if date_handling.get_weekday_type(date_gasday) == 'holiday':
                 daily_fuel_profile = daily_fuel_profile_holiday
             else:
                 daily_fuel_profile = daily_fuel_profile_workday
 
-            #TODO: IMRPVOE SPEED with array calculation
             # Calculate weighted average daily efficiency of heat pump
-            average_eff_d = 0
-            for hour, heat_share_h in enumerate(daily_fuel_profile):
-                # Hourly heat demand * heat pump efficiency
-                average_eff_d += heat_share_h * tech_eff[day_array_nr][hour]
+            # (Hourly heat demand * heat pump efficiency)
+            average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
 
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = rs_hdd_cy[day_array_nr] / average_eff_d

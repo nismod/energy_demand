@@ -216,15 +216,16 @@ class Technology(object):
                 assumptions['model_yeardays_nrs'])
 
             # Calculate shape per fueltype
-            '''self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
+            
+            self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
                 lookups['nr_of_fueltypes'],
                 assumptions['technologies'][tech_name]['fuel_type'],
                 self.fueltypes_yh_p_cy,
-                assumptions['model_yeardays_nrs'])'''
-
+                assumptions['model_yeardays_nrs'])
+            '''
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
                self.fueltypes_yh_p_cy, assumptions['model_yeardays_nrs'])
-
+            '''
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
