@@ -126,6 +126,7 @@ class Enduse(object):
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
             self.fuel_peak_h = 0
         else:
+            #self.crit_flat_profile = crit_flat_profile
             # -----------------------------------------------------------------
             # Get correct parameters depending on model configuration
             # -----------------------------------------------------------------
@@ -189,7 +190,7 @@ class Enduse(object):
                 if crit_flat_profile:
                     '''If flat shape, do not store flat shape explicitly for all hours
                     '''
-                    self.crit_flat_profile = True #NOT NEEDED TODO ??
+                    self.crit_flat_profile = True
 
                     # Calculate fraction if flat shape of selected days to model
                     fraction_selected_if_flat = data['assumptions']['model_yeardays_nrs'] / 365.0
@@ -1348,8 +1349,8 @@ class Enduse(object):
                 eff_full_year = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
 
                 # If array anre more than one eff
-                if isinstance(eff_full_year, np.ndarray): # efficiency is provided for full year
-                    if eff_full_year.shape[0] == 365:
+                if isinstance(eff_full_year, np.ndarray):
+                    if eff_full_year.shape[0] == 365: # efficiency is provided for full year
                         eff_yh_selection = eff_full_year[[model_yeardays]]
                     else:
                         eff_yh_selection = eff_full_year

@@ -642,43 +642,37 @@ class EnergyModel(object):
         -   For enduses where 'crit_flat_profile' in Enduse Class is True
             a flat load profile is generated. Otherwise, the yh as calculated
             for each enduse is used
+        -   Flat shape
         """
         if model_object.enduse_object.crit_flat_profile:
 
-            # Yearly fuel (selection)
+            # Yearly fuel
             fuels_reg_y = model_object.enduse_object.fuel_y
 
             if attribute_to_get == 'fuel_peak_dh':
-                shape_peak_dh = np.full((24), 1/24) # Flat shape
-                # Because flat shape, the dh_peak is 24/8760
-                fuels_reg_peak = fuels_reg_y * (1/365) #TEST
+                shape_peak_dh = np.full((24), 1/24)
+                fuels_reg_peak = fuels_reg_y * (1/365)
                 fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
 
             elif attribute_to_get == 'fuel_peak_h':
-                shape_peak_h = 1/8760 # Flat shape
+                shape_peak_h = 1/8760
                 fuels = fuels_reg_y * shape_peak_h
 
             elif attribute_to_get == 'shape_non_peak_y_dh':
-                shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0/24)) # Flat shape
+                shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0/24))
                 fuels = fuels_reg_y * shape_non_peak_y_dh
 
             elif attribute_to_get == 'shape_non_peak_yd':
-                shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days # Flat shape
+                shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days
                 fuels = fuels_reg_y * shape_non_peak_yd
 
             elif attribute_to_get == 'fuel_yh':
-                #TODO: COULD BE WRITTEN FASTER
-                shape_non_peak_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24)) # Flat shape
-                fast_shape_non_peak_yh = np.zeros((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24))
-
-                for fueltype, _ in enumerate(fast_shape_non_peak_yh):
-                    fast_shape_non_peak_yh[fueltype] = shape_non_peak_yh
+                shape_non_peak_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24))
+                fast_shape_non_peak_yh = np.ones((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24))
+                fast_shape_non_peak_yh = fast_shape_non_peak_yh[:,] * shape_non_peak_yh
                 fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh
         else:
             # If not flat shape, use yh load profile of enduse
-            #fuels = getattr(model_object.enduse_object, attribute_to_get)
-
-            #SHARK: MAYBE FASTER
             if attribute_to_get == 'fuel_peak_dh':
                 fuels = model_object.enduse_object.fuel_peak_dh
             elif attribute_to_get == 'fuel_peak_h':
