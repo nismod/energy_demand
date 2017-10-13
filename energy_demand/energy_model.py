@@ -12,7 +12,6 @@ from energy_demand.geography import WeatherRegion
 import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
-
 from energy_demand.profiles import load_factors as load_factors
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
@@ -40,14 +39,13 @@ class EnergyModel(object):
         logging.debug("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
-        # Non regional load profiles
+        # --------------------------
+        # Create non regional dependent load profiles
+        # --------------------------
         data['non_regional_lp_stock'] = self.create_load_profile_stock(
             data['tech_load_profiles'],
             data['assumptions'],
-            data['sectors']
-            )
-
-
+            data['sectors'])
 
         # --------------------
         # Residential SubModel
@@ -79,10 +77,6 @@ class EnergyModel(object):
         self.is_submodel = self.industry_submodel(
             data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
 
-        # --------------------
-        # Other Submodels
-        # --------------------
-        #self.ts_submodel = self.other_submodels(data['assumptions']['model_yeardays_nrs'])
 
         # ---------------------------------------------------------------------
         # Summarise functions
@@ -340,20 +334,6 @@ class EnergyModel(object):
             )
 
         return region_fuel_yh
-
-    def other_submodels(self, model_yeardays_nrs):
-        """Other submodel
-
-        Return
-        ------
-        submodules : list
-            Submodule objects
-
-        Note
-        ----
-        - The ``regions`` and ``weather_regions`` gets deleted to save memory
-        """
-        pass
 
     def industry_submodel(self, data, enduses, sectors):
         """Industry subsector model

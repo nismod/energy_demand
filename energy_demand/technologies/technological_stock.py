@@ -5,7 +5,7 @@ import numpy as np
 import logging
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
-#pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
+###pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class TechStock(object):
     """Class of a technological stock of a year of the residential model
@@ -211,12 +211,20 @@ class Technology(object):
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                assumptions['technologies'][tech_name]['fuel_type'], lookups['nr_of_fueltypes'], assumptions['model_yeardays_nrs'])
+                assumptions['technologies'][tech_name]['fuel_type'],
+                lookups['nr_of_fueltypes'],
+                assumptions['model_yeardays_nrs'])
 
             # Calculate shape per fueltype
+            '''self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
+                lookups['nr_of_fueltypes'],
+                assumptions['technologies'][tech_name]['fuel_type'],
+                self.fueltypes_yh_p_cy,
+                assumptions['model_yeardays_nrs'])'''
+
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
-                self.fueltypes_yh_p_cy, assumptions['model_yeardays_nrs'])
-            
+               self.fueltypes_yh_p_cy, assumptions['model_yeardays_nrs'])
+
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
@@ -282,6 +290,10 @@ class Technology(object):
         fueltypes_yh[fueltype] = 1.0
 
         return fueltypes_yh
+        #FASTER
+        #fueltypes_yh_sum = np.zeros((len_fueltypes))
+        #fueltypes_yh_sum[fueltype] = model_yeardays_nrs * 24 #factor if
+        #return fueltypes_yh_sum
 
 class HybridTechnology(object):
     """Hybrid technology which consist of two different technologies
@@ -363,7 +375,9 @@ class HybridTechnology(object):
             )
 
         # Shares of fueltype for every hour for multiple fueltypes
-        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(lookups['nr_of_fueltypes'], assumptions['model_yeardays_nrs'])
+        self.fueltypes_yh_p_cy = self.calc_hybrid_fueltypes_p(
+            lookups['nr_of_fueltypes'],
+            assumptions['model_yeardays_nrs'])
 
         self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h(
             self.fueltypes_yh_p_cy,  assumptions['model_yeardays_nrs'])
@@ -474,15 +488,22 @@ class HybridTechnology(object):
         # Calculate fuel fractions
         fuel_low_h = self.service_distr_hybrid_h_p['low'] / hybrid_eff_yh
         fuel_high_h = self.service_distr_hybrid_h_p['high'] / hybrid_eff_yh
-
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
-        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24)) #WHALE
-        ##fueltypes_yh = np.zeros((nr_fueltypes, 365, 24)) #Full year
+        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24))
         _var = np.divide(1.0, tot_fuel_h)
 
         fueltypes_yh[self.tech_low_temp_fueltype] = _var * fuel_low_h
         fueltypes_yh[self.tech_high_temp_fueltype] = _var * fuel_high_h
 
         return fueltypes_yh
+        '''
+        #SHARK
+        fueltypes_yh_sum = np.zeros((nr_fueltypes))
+        _var = np.sum(tot_fuel_h)
+        fueltypes_yh_sum[self.tech_low_temp_fueltype] = np.sum(fuel_low_h) / _var
+        fueltypes_yh_sum[self.tech_high_temp_fueltype] = np.sum(fuel_high_h) / _var
+
+        return fueltypes_yh_sum
+        '''

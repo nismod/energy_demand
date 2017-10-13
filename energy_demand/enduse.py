@@ -120,7 +120,7 @@ class Enduse(object):
 
         # If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
-            self.crit_flat_profile = True #SHARK CHANGED TO TRUE
+            self.crit_flat_profile = True
             self.fuel_y = np.zeros((fuel.shape[0]))
             self.fuel_yh = 0
             self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))

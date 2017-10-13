@@ -73,7 +73,9 @@ class WeatherRegion(object):
         if modeltype == 'is_submodel':
             self.is_tech_stock = technological_stock.TechStock(
                 'is_tech_stock',
-                assumptions, sim_param, lookups,
+                assumptions,
+                sim_param,
+                lookups,
                 temp_by,
                 temp_cy,
                 assumptions['ss_t_base_heating']['base_yr'],
@@ -84,7 +86,9 @@ class WeatherRegion(object):
         elif modeltype == 'rs_submodel':
             self.rs_tech_stock = technological_stock.TechStock(
                 'rs_tech_stock',
-                assumptions, sim_param, lookups,
+                assumptions,
+                sim_param,
+                lookups,
                 temp_by,
                 temp_cy,
                 assumptions['rs_t_base_heating']['base_yr'],
@@ -95,7 +99,9 @@ class WeatherRegion(object):
         elif modeltype == 'ss_submodel':
             self.ss_tech_stock = technological_stock.TechStock(
                 'ss_tech_stock',
-                assumptions, sim_param, lookups,
+                assumptions,
+                sim_param,
+                lookups,
                 temp_by,
                 temp_cy,
                 assumptions['ss_t_base_heating']['base_yr'],
@@ -109,7 +115,6 @@ class WeatherRegion(object):
         # -------------------
         if modeltype == 'rs_submodel':
 
-            # --------Profiles
             self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
             # --------HDD/CDD
@@ -216,7 +221,6 @@ class WeatherRegion(object):
 
         elif modeltype == 'ss_submodel':
 
-            # --------Profiles
             self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
             # --------HDD/CDD
@@ -310,8 +314,6 @@ class WeatherRegion(object):
                 )
 
         elif modeltype == 'is_submodel':
-
-            # --------Profiles
             self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
             # --------HDD/CDD

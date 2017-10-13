@@ -14,7 +14,6 @@ from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
-from energy_demand.basic import date_handling
 from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.validation import lad_validation
@@ -45,7 +44,7 @@ def energy_demand_model(data):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec, _ = testing.test_function_fuel_sum(data)
+    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
     logging.info("Fuel input:          " + str(fuel_in))
 
     # Add all region instances as an attribute (region name) into the class `EnergyModel`
@@ -74,7 +73,6 @@ def energy_demand_model(data):
 if __name__ == "__main__":
     """
     """
-
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     local_data_path = os.path.join(r'C:\DATA_NISMODII', 'data_energy_demand')
@@ -131,7 +129,7 @@ if __name__ == "__main__":
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
-            #logging.info(profiler.output_text(unicode=True, color=True))
+            logging.info(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
 
@@ -140,7 +138,7 @@ if __name__ == "__main__":
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         
         # ----------------------
-        # Store annual results to txt files
+        # Write annual results to txt files
         # ----------------------
         write_data.write_model_result_to_txt(
             sim_yr,
@@ -158,8 +156,10 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         fuel_electricity_year_validation = 385
         fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
-        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.convert_ktoe_gwh(fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
-        model_object_transport = generic_shapes.GenericFlatEnduse(fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
+        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.convert_ktoe_gwh(
+            fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
+        model_object_transport = generic_shapes.GenericFlatEnduse(
+            fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
         
         ##lad_validation.temporal_validation(data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 

@@ -100,221 +100,221 @@ def get_weekday_type(date_to_test):
         tm_isdst
     """
     weekday = date_to_test.timetuple().tm_wday
-    year = date_to_test.timetuple().tm_year
-
-    if year == 2015:
-        bank_holidays = [
-            date(2015, 1, 1),
-            date(2015, 4, 3),
-            date(2015, 4, 6),
-            date(2015, 5, 4),
-            date(2015, 5, 25),
-            date(2015, 8, 31),
-            date(2015, 12, 25),
-            date(2015, 12, 28),
-            date(2015, 12, 29),
-            date(2015, 12, 30),
-            date(2015, 12, 31)]
-    elif year == 2014:
-        bank_holidays = [
-            date(2014, 1, 1),
-            date(2014, 4, 18),
-            date(2014, 4, 21),
-            date(2014, 5, 5),
-            date(2014, 5, 26),
-            date(2014, 8, 25),
-            date(2014, 12, 25),
-            date(2014, 12, 26),
-            date(2014, 12, 27),
-            date(2014, 12, 28),
-            date(2014, 12, 29),
-            date(2014, 12, 30),
-            date(2014, 12, 31)]
-    elif year == 2013:
-        bank_holidays = [
-            date(2013, 1, 1),
-            date(2013, 4, 29),
-            date(2013, 4, 1),
-            date(2013, 5, 6),
-            date(2013, 5, 27),
-            date(2013, 8, 26),
-            date(2013, 12, 25),
-            date(2013, 12, 26),
-            date(2013, 12, 27),
-            date(2013, 12, 28),
-            date(2013, 12, 29),
-            date(2013, 12, 30),
-            date(2013, 12, 31)]
-    elif year == 2012:
-        bank_holidays = [
-            date(2012, 1, 1),
-            date(2012, 1, 2),
-            date(2012, 4, 6),
-            date(2012, 4, 9),
-            date(2012, 5, 7),
-            date(2012, 6, 4),
-            date(2012, 6, 7),
-            date(2012, 8, 27),
-            date(2012, 12, 25),
-            date(2012, 12, 26),
-            date(2012, 12, 27),
-            date(2012, 12, 28),
-            date(2012, 12, 29),
-            date(2012, 12, 30),
-            date(2012, 12, 31)]
-    elif year == 2011:
-        bank_holidays = [
-            date(2011, 1, 1),
-            date(2011, 1, 2),
-            date(2011, 1, 3),
-            date(2011, 4, 22),
-            date(2011, 4, 25),
-            date(2011, 4, 29),
-            date(2011, 5, 2),
-            date(2011, 5, 30),
-            date(2011, 8, 29),
-            date(2011, 12, 25),
-            date(2011, 12, 26),
-            date(2011, 12, 27),
-            date(2011, 12, 28),
-            date(2011, 12, 29),
-            date(2011, 12, 30),
-            date(2011, 12, 31)]
-    elif year == 2010:
-        bank_holidays = [
-            date(2010, 1, 1),
-            date(2010, 4, 2),
-            date(2010, 4, 5),
-            date(2010, 5, 3),
-            date(2010, 5, 31),
-            date(2010, 8, 30),
-            date(2010, 12, 25),
-            date(2010, 12, 26),
-            date(2010, 12, 27),
-            date(2010, 12, 28),
-            date(2010, 12, 29),
-            date(2010, 12, 30),
-            date(2010, 12, 31)]
-    elif year == 2009:
-        bank_holidays = [
-            date(2009, 1, 1),
-            date(2009, 4, 10),
-            date(2009, 4, 13),
-            date(2009, 5, 4),
-            date(2009, 5, 25),
-            date(2009, 8, 31),
-            date(2009, 12, 25),
-            date(2009, 12, 26),
-            date(2009, 12, 27),
-            date(2009, 12, 28),
-            date(2009, 12, 29),
-            date(2009, 12, 30)]
-    elif year == 2008:
-        bank_holidays = [
-            date(2008, 1, 1),
-            date(2008, 4, 21),
-            date(2008, 4, 24),
-            date(2008, 5, 5),
-            date(2008, 5, 26),
-            date(2008, 8, 25),
-            date(2008, 12, 25),
-            date(2008, 12, 26),
-            date(2008, 12, 27),
-            date(2008, 12, 28),
-            date(2008, 12, 29),
-            date(2008, 12, 30)]
-    elif year == 2007:
-        bank_holidays = [
-            date(2007, 1, 1),
-            date(2007, 4, 6),
-            date(2007, 4, 9),
-            date(2007, 5, 7),
-            date(2007, 5, 28),
-            date(2007, 8, 27),
-            date(2007, 12, 25),
-            date(2007, 12, 26),
-            date(2007, 12, 27),
-            date(2007, 12, 28),
-            date(2007, 12, 29),
-            date(2007, 12, 30)]
-    elif year == 2006:
-        bank_holidays = [
-            date(2006, 1, 2),
-            date(2006, 4, 14),
-            date(2006, 4, 17),
-            date(2006, 5, 1),
-            date(2006, 5, 29),
-            date(2006, 8, 28),
-            date(2006, 12, 25),
-            date(2006, 12, 26),
-            date(2006, 12, 27),
-            date(2006, 12, 28),
-            date(2006, 12, 29),
-            date(2006, 12, 30)]
-    elif year == 2005:
-        bank_holidays = [
-            date(2005, 1, 1),
-            date(2005, 1, 2),
-            date(2005, 1, 3),
-            date(2005, 3, 25),
-            date(2005, 3, 28),
-            date(2005, 5, 2),
-            date(2005, 5, 30),
-            date(2005, 8, 29),
-            date(2005, 12, 25),
-            date(2005, 12, 26),
-            date(2005, 12, 27),
-            date(2005, 12, 28),
-            date(2005, 12, 29),
-            date(2005, 12, 30)]
-    elif year == 2004:
-        bank_holidays = [
-            date(2004, 1, 1),
-            date(2004, 4, 9),
-            date(2004, 4, 12),
-            date(2004, 4, 25),
-            date(2004, 5, 3),
-            date(2004, 5, 31),
-            date(2004, 8, 30),
-            date(2004, 12, 25),
-            date(2004, 12, 26),
-            date(2004, 12, 27),
-            date(2004, 12, 28),
-            date(2004, 12, 29),
-            date(2004, 12, 30)]
-    elif year == 2003:
-        bank_holidays = [
-            date(2003, 1, 1),
-            date(2003, 4, 21),
-            date(2003, 5, 5),
-            date(2003, 5, 26),
-            date(2003, 8, 25),
-            date(2003, 12, 25),
-            date(2003, 12, 26),
-            date(2003, 12, 27),
-            date(2003, 12, 28),
-            date(2003, 12, 29),
-            date(2003, 12, 30)]
-    elif year == 2002:
-        bank_holidays = [
-            date(2002, 1, 1),
-            date(2002, 4, 1),
-            date(2002, 5, 6),
-            date(2002, 6, 3),
-            date(2002, 6, 4),
-            date(2002, 8, 26),
-            date(2002, 12, 25),
-            date(2002, 12, 26),
-            date(2002, 12, 27),
-            date(2002, 12, 28),
-            date(2002, 12, 29),
-            date(2002, 12, 30)]
-    else:
-        bank_holidays = []
-
+    
     if weekday == 5 or weekday == 6:
         return 'holiday'
     else:
+        year = date_to_test.timetuple().tm_year
+        if year == 2015:
+            bank_holidays = [
+                date(2015, 1, 1),
+                date(2015, 4, 3),
+                date(2015, 4, 6),
+                date(2015, 5, 4),
+                date(2015, 5, 25),
+                date(2015, 8, 31),
+                date(2015, 12, 25),
+                date(2015, 12, 28),
+                date(2015, 12, 29),
+                date(2015, 12, 30),
+                date(2015, 12, 31)]
+        elif year == 2014:
+            bank_holidays = [
+                date(2014, 1, 1),
+                date(2014, 4, 18),
+                date(2014, 4, 21),
+                date(2014, 5, 5),
+                date(2014, 5, 26),
+                date(2014, 8, 25),
+                date(2014, 12, 25),
+                date(2014, 12, 26),
+                date(2014, 12, 27),
+                date(2014, 12, 28),
+                date(2014, 12, 29),
+                date(2014, 12, 30),
+                date(2014, 12, 31)]
+        elif year == 2013:
+            bank_holidays = [
+                date(2013, 1, 1),
+                date(2013, 4, 29),
+                date(2013, 4, 1),
+                date(2013, 5, 6),
+                date(2013, 5, 27),
+                date(2013, 8, 26),
+                date(2013, 12, 25),
+                date(2013, 12, 26),
+                date(2013, 12, 27),
+                date(2013, 12, 28),
+                date(2013, 12, 29),
+                date(2013, 12, 30),
+                date(2013, 12, 31)]
+        elif year == 2012:
+            bank_holidays = [
+                date(2012, 1, 1),
+                date(2012, 1, 2),
+                date(2012, 4, 6),
+                date(2012, 4, 9),
+                date(2012, 5, 7),
+                date(2012, 6, 4),
+                date(2012, 6, 7),
+                date(2012, 8, 27),
+                date(2012, 12, 25),
+                date(2012, 12, 26),
+                date(2012, 12, 27),
+                date(2012, 12, 28),
+                date(2012, 12, 29),
+                date(2012, 12, 30),
+                date(2012, 12, 31)]
+        elif year == 2011:
+            bank_holidays = [
+                date(2011, 1, 1),
+                date(2011, 1, 2),
+                date(2011, 1, 3),
+                date(2011, 4, 22),
+                date(2011, 4, 25),
+                date(2011, 4, 29),
+                date(2011, 5, 2),
+                date(2011, 5, 30),
+                date(2011, 8, 29),
+                date(2011, 12, 25),
+                date(2011, 12, 26),
+                date(2011, 12, 27),
+                date(2011, 12, 28),
+                date(2011, 12, 29),
+                date(2011, 12, 30),
+                date(2011, 12, 31)]
+        elif year == 2010:
+            bank_holidays = [
+                date(2010, 1, 1),
+                date(2010, 4, 2),
+                date(2010, 4, 5),
+                date(2010, 5, 3),
+                date(2010, 5, 31),
+                date(2010, 8, 30),
+                date(2010, 12, 25),
+                date(2010, 12, 26),
+                date(2010, 12, 27),
+                date(2010, 12, 28),
+                date(2010, 12, 29),
+                date(2010, 12, 30),
+                date(2010, 12, 31)]
+        elif year == 2009:
+            bank_holidays = [
+                date(2009, 1, 1),
+                date(2009, 4, 10),
+                date(2009, 4, 13),
+                date(2009, 5, 4),
+                date(2009, 5, 25),
+                date(2009, 8, 31),
+                date(2009, 12, 25),
+                date(2009, 12, 26),
+                date(2009, 12, 27),
+                date(2009, 12, 28),
+                date(2009, 12, 29),
+                date(2009, 12, 30)]
+        elif year == 2008:
+            bank_holidays = [
+                date(2008, 1, 1),
+                date(2008, 4, 21),
+                date(2008, 4, 24),
+                date(2008, 5, 5),
+                date(2008, 5, 26),
+                date(2008, 8, 25),
+                date(2008, 12, 25),
+                date(2008, 12, 26),
+                date(2008, 12, 27),
+                date(2008, 12, 28),
+                date(2008, 12, 29),
+                date(2008, 12, 30)]
+        elif year == 2007:
+            bank_holidays = [
+                date(2007, 1, 1),
+                date(2007, 4, 6),
+                date(2007, 4, 9),
+                date(2007, 5, 7),
+                date(2007, 5, 28),
+                date(2007, 8, 27),
+                date(2007, 12, 25),
+                date(2007, 12, 26),
+                date(2007, 12, 27),
+                date(2007, 12, 28),
+                date(2007, 12, 29),
+                date(2007, 12, 30)]
+        elif year == 2006:
+            bank_holidays = [
+                date(2006, 1, 2),
+                date(2006, 4, 14),
+                date(2006, 4, 17),
+                date(2006, 5, 1),
+                date(2006, 5, 29),
+                date(2006, 8, 28),
+                date(2006, 12, 25),
+                date(2006, 12, 26),
+                date(2006, 12, 27),
+                date(2006, 12, 28),
+                date(2006, 12, 29),
+                date(2006, 12, 30)]
+        elif year == 2005:
+            bank_holidays = [
+                date(2005, 1, 1),
+                date(2005, 1, 2),
+                date(2005, 1, 3),
+                date(2005, 3, 25),
+                date(2005, 3, 28),
+                date(2005, 5, 2),
+                date(2005, 5, 30),
+                date(2005, 8, 29),
+                date(2005, 12, 25),
+                date(2005, 12, 26),
+                date(2005, 12, 27),
+                date(2005, 12, 28),
+                date(2005, 12, 29),
+                date(2005, 12, 30)]
+        elif year == 2004:
+            bank_holidays = [
+                date(2004, 1, 1),
+                date(2004, 4, 9),
+                date(2004, 4, 12),
+                date(2004, 4, 25),
+                date(2004, 5, 3),
+                date(2004, 5, 31),
+                date(2004, 8, 30),
+                date(2004, 12, 25),
+                date(2004, 12, 26),
+                date(2004, 12, 27),
+                date(2004, 12, 28),
+                date(2004, 12, 29),
+                date(2004, 12, 30)]
+        elif year == 2003:
+            bank_holidays = [
+                date(2003, 1, 1),
+                date(2003, 4, 21),
+                date(2003, 5, 5),
+                date(2003, 5, 26),
+                date(2003, 8, 25),
+                date(2003, 12, 25),
+                date(2003, 12, 26),
+                date(2003, 12, 27),
+                date(2003, 12, 28),
+                date(2003, 12, 29),
+                date(2003, 12, 30)]
+        elif year == 2002:
+            bank_holidays = [
+                date(2002, 1, 1),
+                date(2002, 4, 1),
+                date(2002, 5, 6),
+                date(2002, 6, 3),
+                date(2002, 6, 4),
+                date(2002, 8, 26),
+                date(2002, 12, 25),
+                date(2002, 12, 26),
+                date(2002, 12, 27),
+                date(2002, 12, 28),
+                date(2002, 12, 29),
+                date(2002, 12, 30)]
+        else:
+            bank_holidays = []
+
         if date_to_test in bank_holidays:
             return 'holiday'
         else:
