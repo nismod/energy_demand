@@ -145,7 +145,6 @@ class Enduse(object):
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
-            #logging.debug("Fuel train A {} {}  {}: ".format(self.enduse, self.sector, (np.sum(self.fuel_new_y))))
             # --Change fuel consumption based on climate change induced temperature differences
             self.apply_climate_change(
                 cooling_factor_y,

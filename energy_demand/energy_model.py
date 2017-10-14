@@ -5,10 +5,10 @@ The main function executing all the submodels of the energy demand model
 """
 import uuid
 import logging
-import numpy as np
 from collections import defaultdict
+import numpy as np
 from energy_demand.geography import region
-from energy_demand.geography import WeatherRegion
+from energy_demand.geography import weather_region
 import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
@@ -114,7 +114,7 @@ class EnergyModel(object):
             'no_sum',
             'peak_h',
             data['assumptions']['model_yeardays_nrs'])
-        
+
         #-------------------
         # TESTING
         #-------------------
@@ -124,18 +124,16 @@ class EnergyModel(object):
         hours_modelled = modelled_days * 24
         _sum_day_selection = 0
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
-            print("info {} nr of regio: {} ".format(fueltype, len(fuels)))
             for region_fuel in fuels:
-                print(region_fuel.shape)
                 _sum_day_selection += np.sum(region_fuel[:hours_modelled])
-        
-        print("_sum_day_selection")
-        print(_sum_day_selection)
 
         _sum_all = 0
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
             for region_fuel in fuels:
                 _sum_all += np.sum(region_fuel)
+        
+        print("_sum_day_selection")
+        print(_sum_day_selection)
         print("_sum_all: " + str(_sum_all))
 
         # ---------------------------
@@ -148,7 +146,7 @@ class EnergyModel(object):
         ss_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
-        
+
     def fuel_regions_fueltype(self, lookups, region_names, model_yeardays_nrs, all_submodels):
         """Collect fuels for every fueltype and region (unconstrained mode). The
         regions are stored in an array for every timestep
@@ -345,7 +343,7 @@ class EnergyModel(object):
         region_fuel_yh = self.fuel_aggr(
             'fuel_yh',
             nr_of_fueltypes,
-            [self.ss_submodel, self.rs_submodel, self.is_submodel, self.ts_submodel],
+            [self.ss_submodel, self.rs_submodel, self.is_submodel],
             'no_sum',
             'non_peak',
             model_yeardays_nrs,
@@ -516,7 +514,7 @@ class EnergyModel(object):
 
         for weather_region_name in weather_regions:
 
-            region_obj = WeatherRegion.WeatherRegion(
+            region_obj = weather_region.WeatherRegion(
                 weather_region_name=weather_region_name,
                 sim_param=data['sim_param'],
                 assumptions=data['assumptions'],
