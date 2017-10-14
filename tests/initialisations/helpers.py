@@ -23,3 +23,15 @@ def test_get_nested_dict_key():
     expected = ["c", "d", "e"]
 
     assert keys == expected
+
+def test_helper_set_same_eff_all_tech():
+    """Test
+    """
+    eff_to_assign = 0.5
+    techs = {"tech_a": {'eff_achieved': 0}}
+    techs_eff = helpers.helper_set_same_eff_all_tech(techs)
+
+    expected = {"tech_a": {'eff_achieved': eff_to_assign}}
+
+    assert techs_eff == expected
+    
