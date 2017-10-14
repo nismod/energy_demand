@@ -12,10 +12,12 @@ def test_calc_sigmoid_parameters():
     ydata = np.array([0.1, 0.9]) #[point_y_by, point_y_projected]
 
     # fit parameters
-    fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters("testech", l_value, xdata, ydata)
-
-    # TRIAL
-    #fit_parameter[0] += 2000
+    fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydata,
+        fit_crit_a=200,
+        fit_crit_b=0.001)
 
     print("Plot graph: " + str(fit_parameter))
     plotting_program.plotout_sigmoid_tech_diff(

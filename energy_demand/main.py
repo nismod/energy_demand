@@ -172,7 +172,7 @@ if __name__ == "__main__":
         data['local_paths']['data_results_model_runs'])
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
-        data['lookups']['fueltype'],  data['lookups']['nr_of_fueltypes'],
+        data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
         data['local_paths']['data_results_model_runs'])
     logging.debug("... Reading in results finished")
 
