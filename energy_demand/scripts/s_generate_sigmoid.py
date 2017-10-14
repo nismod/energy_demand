@@ -2,7 +2,7 @@
 
 This script calculates the three parameters of a sigmoid diffusion
 for every technology which is diffused and has a larger service
-fraction at the model end year 
+fraction at the model end year
 """
 import os
 import sys
@@ -17,8 +17,22 @@ from energy_demand.plotting import plotting_program
 def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.001):
     """Calculate sigmoid parameters
 
-    I
-    TODO
+    Arguments
+    ----------
+    l_value : float
+
+    xdata : array
+
+    ydata : array
+
+    fit_crit_a : float
+
+    fit_crit_b : float
+
+    Returns
+    ------
+    fit_parameter : array
+        Parameters (first position: midpoint, second position: slope)
     """
 
     # Generate possible starting parameters for fit
@@ -42,22 +56,23 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                         fit_parameter[1] < 0) or (
                             fit_parameter[0] == start_parameters[0]) or (
                                 fit_parameter[1] == start_parameters[1]):
-                                # or(round(fit_parameter[0], 2) == round(fit_parameter[1], 2)): #NEW RULE                successfull = False
+                                # or(round(fit_parameter[0], 2) == round(fit_parameter[1], 2)): #NEW RULE
+                                # successfull = False
                 cnt += 1
                 if cnt >= len(start_param_list):
                     sys.exit("Error2: CURVE FITTING DID NOT WORK")
             else:
                 successfull = True
-                logging.debug("Fit successful {} for  with fitting parameters: {} ".format(successfull, fit_parameter))
-        except:
-            #logging.debug("Tried unsuccessfully to do the fit with the following parameters: " + str(start_parameters[1]))
+
+        except RuntimeError:
+            logging.debug("Unsuccessful fit" + str(start_parameters[1]))
             cnt += 1
 
             if cnt >= len(start_param_list):
-                sys.exit("Error: CURVE FITTING DID NOT WORK. Try changing fit_crit_a and fit_crit_b")
+                sys.exit("Sigmoid fit error: Try changing fit_crit_a and fit_crit_b")
+
     return fit_parameter
 
-#OLD VERSION
 def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
     """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
 
@@ -154,7 +169,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             # ----------------
             fit_parameter = calc_sigmoid_parameters(l_value, xdata, ydata)
             logging.debug(" ... Result fit: Midpoint:{}   steepness: {}".format(fit_parameter[0], fit_parameter[1]))
-            
+
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
             sigmoid_parameters[tech]['steepness'] = fit_parameter[1] #Steepnes (k)
@@ -281,13 +296,12 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
 
         return y_value
 
-    # Define parameter bound
     popt, _ = curve_fit(
         sigmoid_fitting_function,
         x_data,
         y_data,
-        p0=start_parameters
-        #maxfev=10000 #Numer of iterations
+        p0=start_parameters,
+        maxfev=10000 # Numer of iterations
         ) #bounds=([-np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf]))
 
     return popt
@@ -319,7 +333,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
             #logging.debug("No technologies to calculate sigmoid  {}".format(enduse))
             pass
         else:
-            logging.debug("Technologes it calculate sigmoid  {}  {}".format(enduse, installed_tech[enduse]))
+            logging.debug("Technologes it calculate sigmoid {}  {}".format(enduse, installed_tech[enduse]))
 
             # Iterite list with enduses where fuel switches are defined
             for technology in installed_tech[enduse]:
@@ -553,13 +567,11 @@ def write_installed_tech(path_to_txt, data):
     for enduse, technologies in data.items():
         if str(technologies) == "[]":
             file.write("{}, {}".format(
-                str.strip(enduse), str(technologies) + '\n')
-                    )
+                str.strip(enduse), str(technologies) + '\n'))
         else:
             for technology in technologies:
                 file.write("{}, {}".format(
-                    str.strip(enduse), str.strip(technology) + '\n')
-                        )
+                    str.strip(enduse), str.strip(technology) + '\n'))
     file.close()
 
     return
@@ -610,7 +622,7 @@ def write_tech_increased_service(path_to_txt, data):
     file.close()
 
     return
- 
+
 def run(data):
     """Function run script
     """
