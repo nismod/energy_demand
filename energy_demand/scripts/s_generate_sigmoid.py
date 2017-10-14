@@ -13,6 +13,7 @@ from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
 from collections import defaultdict
 from energy_demand.plotting import plotting_program
+from energy_demand.initalisations import helpers
 
 def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.001):
     """Calculate sigmoid parameters
@@ -188,26 +189,6 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
     return sigmoid_parameters
 
-def init_dict_brackets(first_level_keys):
-    """Initialise a  dictionary with one level
-
-    Arguments
-    ----------
-    first_level_keys : list
-        First level data
-
-    Returns
-    -------
-    one_level_dict : dict
-         dictionary
-    """
-    one_level_dict = {}
-
-    for first_key in first_level_keys:
-        one_level_dict[first_key] = {}
-
-    return one_level_dict
-
 def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     """Get all those technologies with increased service in future
 
@@ -325,7 +306,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
     -----
     Gets second sigmoid point
     """
-    l_values_sig = init_dict_brackets(enduses)
+    l_values_sig = helpers.init_dict_brackets(enduses)
 
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched

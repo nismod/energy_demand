@@ -4,6 +4,7 @@ import os
 import logging
 import numpy as np
 from energy_demand.technologies import tech_related
+from energy_demand.initalisations import helpers
 
 def write_service_fueltype_by_p(path_to_txt, data):
     """Write out function
@@ -132,26 +133,6 @@ def init_nested_dict_zero(first_level_keys, second_level_keys):
 
     return nested_dict
 
-def init_dict_brackets(first_level_keys):
-    """Initialise a  dictionary with one level
-
-    Arguments
-    ----------
-    first_level_keys : list
-        First level data
-
-    Returns
-    -------
-    one_level_dict : dict
-         dictionary
-    """
-    one_level_dict = {}
-
-    for first_key in first_level_keys:
-        one_level_dict[first_key] = {}
-
-    return one_level_dict
-
 def sum_2_level_dict(two_level_dict):
     """Sum all entries in a two level dict
 
@@ -239,7 +220,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
     service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
 
      # Percentage of total energy service per technology for base year
-    service_tech_by_p = init_dict_brackets(fuels)
+    service_tech_by_p = helpers.init_dict_brackets(fuels)
 
     # Percentage of service per technologies within the fueltypes
     service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values())

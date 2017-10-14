@@ -1,9 +1,10 @@
 """
+Testing s_generate_sigmoid
 """
-from energy_demand.scripts import s_generate_sigmoid
 import numpy as np
-from energy_demand.plotting import plotting_program
+from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
+#from energy_demand.plotting import plotting_program
 
 def test_calc_sigmoid_parameters():
     """Testing
@@ -20,7 +21,7 @@ def test_calc_sigmoid_parameters():
         fit_crit_a=200,
         fit_crit_b=0.001)
 
-    print("Plot graph: " + str(fit_parameter))
+    #print("Plot graph: " + str(fit_parameter))
     '''plotting_program.plotout_sigmoid_tech_diff(
         l_value,
         "testtech",
@@ -31,7 +32,6 @@ def test_calc_sigmoid_parameters():
         False # Close windows
         )
     '''
-
     x_to_test = xdata[1]
     y_calculated = diffusion_technologies.sigmoid_function(x_to_test, l_value, *fit_parameter)
 

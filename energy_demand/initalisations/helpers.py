@@ -1,6 +1,26 @@
 """Short diverse helper functions
 """
 
+def init_dict_brackets(first_level_keys):
+    """Initialise a  dictionary with one level
+
+    Arguments
+    ----------
+    first_level_keys : list
+        First level data
+
+    Returns
+    -------
+    one_level_dict : dict
+         dictionary
+    """
+    one_level_dict = {}
+
+    for first_key in first_level_keys:
+        one_level_dict[first_key] = {}
+
+    return one_level_dict
+
 def add_undef_techs(heat_pumps, all_specified_tech_enduse, enduse):
     """Add technology to dict
 
