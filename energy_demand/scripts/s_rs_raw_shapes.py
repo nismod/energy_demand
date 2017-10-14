@@ -5,10 +5,12 @@ import csv
 from datetime import date
 import numpy as np
 import logging
+from energy_demand.basic import date_handling
 from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
 from energy_demand.read_write import data_loader
 from energy_demand.assumptions import base_assumptions
+from energy_demand.profiles import load_profile as lp
 
 def read_csv(path_to_csv):
     """This function reads in CSV files and skips header row.
@@ -83,7 +85,7 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     peak_h_values = hes_y_peak[:, hes_app_id]
 
     # Shape of peak day (hourly values of peak day) #1.0/tot_peak_demand_d * peak_h_values
-    shape_peak_dh = s_shared_functions.abs_to_rel(peak_h_values)
+    shape_peak_dh = lp.abs_to_rel(peak_h_values)
 
     # Maximum daily demand
     tot_peak_demand_d = np.sum(peak_h_values)
@@ -123,7 +125,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
 
     # Create list with all dates of a whole year
-    list_dates = s_shared_functions.fullyear_dates(
+    list_dates = date_handling.fullyear_dates(
         start=date(base_yr, 1, 1),
         end=date(base_yr, 12, 31)
         )
@@ -132,7 +134,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = s_shared_functions.get_weekday_type(yearday)
+        daytype = date_handling.get_weekday_type(yearday)
 
         if daytype == 'holiday':
             daytype = 1

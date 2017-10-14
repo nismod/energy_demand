@@ -3,15 +3,17 @@
 import os
 import sys
 import csv
+from collections import defaultdict
 from datetime import date
 import numpy as np
 import logging
 from energy_demand.read_write import read_data
+from energy_demand.basic import date_handling
 from energy_demand.scripts import s_shared_functions
 from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
-from collections import defaultdict
+from energy_demand.profiles import load_profile
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -122,7 +124,7 @@ def read_raw_carbon_trust_data(folder_path):
                             continue #skip leap day
 
                     date_row = date(year, month, day)
-                    daytype = s_shared_functions.get_weekday_type(date_row)
+                    daytype = date_handling.get_weekday_type(date_row)
 
                     if daytype == 'holiday':
                         daytype = 1
@@ -215,7 +217,7 @@ def read_raw_carbon_trust_data(folder_path):
     # Create load_shape_dh
     load_shape_dh = np.zeros((365, 24))
     for day, dh_values in enumerate(year_data):
-        load_shape_dh[day] = s_shared_functions.abs_to_rel(dh_values) # daily shape
+        load_shape_dh[day] = load_profile.abs_to_rel(dh_values) # daily shape
 
     np.testing.assert_almost_equal(np.sum(load_shape_dh), 365, decimal=2, err_msg="")
 
@@ -246,13 +248,13 @@ def assign_data_to_year(carbon_trust_data, base_yr):
     shape_non_peak_y_dh = np.zeros((365, 24))
 
     # Create list with all dates of a whole year
-    list_dates = s_shared_functions.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = s_shared_functions.get_weekday_type(yearday)
+        daytype = date_handling.get_weekday_type(yearday)
         if daytype == 'holiday':
             daytype = 1
         else:
@@ -272,7 +274,7 @@ def run(data):
     logging.debug("... start script {}".format(os.path.basename(__file__)))
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
         data['paths']['ss_fuel_raw_data_enduses'],
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
 
     # Iterate sectors and read in shape
     for sector in ss_sectors:

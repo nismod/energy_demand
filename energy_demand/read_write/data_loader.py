@@ -38,7 +38,7 @@ def load_basic_lookups():
         'heat': 7
         }
 
-    lookups['nr_of_fueltypes'] = int(len(lookups['fueltype']))
+    lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
 
     return lookups
 
@@ -298,7 +298,7 @@ def load_paths(path):
 
     return paths
 
-def load_data_tech_profiles(tech_load_profiles, paths):
+def load_data_tech_profiles(tech_lp, paths):
     """Load technology specific load profiles
 
     Arguments
@@ -311,37 +311,37 @@ def load_data_tech_profiles(tech_load_profiles, paths):
     data : dict
         Data container containing new load profiles
     """
-    tech_load_profiles = {}
+    tech_lp = {}
 
     # Boiler shape from Robert Sansom
-    tech_load_profiles['rs_lp_heating_boilers_dh'] = read_data.read_load_shapes_tech(
+    tech_lp['rs_lp_heating_boilers_dh'] = read_data.read_load_shapes_tech(
         paths['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
 
     # Heat pump shape from Love et al. (2017)
-    tech_load_profiles['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
+    tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
-    tech_load_profiles['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
-    tech_load_profiles['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
+    tech_lp['rs_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_rs_cooling']) # ??
+    tech_lp['ss_shapes_cooling_dh'] = read_data.read_csv_float(paths['path_shape_ss_cooling']) # ??
     #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][2] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
-    tech_load_profiles['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
+    tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_primary_heating'])
-    tech_load_profiles['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
+    tech_lp['rs_lp_second_heating_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_secondary_heating'])
 
-    '''plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_storage_heating_dh'][2] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][0] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][1] * 45.8)
-    plotting_results.plot_load_profile_dh(data['tech_load_profiles']['rs_lp_second_heating_dh'][2] * 45.8)
+    '''plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_storage_heating_dh'][2] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][0] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][1] * 45.8)
+    plotting_results.plot_load_profile_dh(data['tech_lp']['rs_lp_second_heating_dh'][2] * 45.8)
     '''
-    return tech_load_profiles
+    return tech_lp
 
 def load_data_profiles(paths, local_paths, assumptions):
     """Collect load profiles from txt files
@@ -353,26 +353,26 @@ def load_data_profiles(paths, local_paths, assumptions):
     """
     logging.debug("... read in load shapes from txt files")
 
-    tech_load_profiles = {}
+    tech_lp = {}
 
     # Load technology specific load profiles
-    tech_load_profiles = load_data_tech_profiles(
-        tech_load_profiles,
+    tech_lp = load_data_tech_profiles(
+        tech_lp,
         paths
         )
 
     # Load enduse load profiles
-    tech_load_profiles['rs_shapes_dh'], tech_load_profiles['rs_shapes_yd'] = rs_collect_shapes_from_txts(
+    tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
         local_paths['rs_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
-    tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'] = ss_collect_shapes_from_txts(
+    tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
         local_paths['ss_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
-    tech_load_profiles['ss_all_tech_shapes_dh'], tech_load_profiles['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
-        tech_load_profiles['ss_shapes_dh'], tech_load_profiles['ss_shapes_yd'])
+    tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
+        tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])
 
-    return tech_load_profiles
+    return tech_lp
 
 def load_temp_data(paths):
     """Read in cleaned temperature and weather station data
@@ -417,11 +417,11 @@ def load_fuels(paths, lookups):
     # Service Sector (ECUK Table XY)
     ss_fuel_raw_data_enduses, sectors['ss_sectors'], enduses['ss_all_enduses'] = read_data.read_csv_data_service(
         paths['ss_fuel_raw_data_enduses'],
-        lookups['nr_of_fueltypes'])
+        lookups['fueltypes_nr'])
 
     # Industry fuel (ECUK Table 4.04)
     is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
-        paths['is_fuel_raw_data_enduses'], lookups['nr_of_fueltypes'], lookups['fueltype'])
+        paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
 
     # Convert units
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)

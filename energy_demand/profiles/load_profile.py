@@ -336,10 +336,10 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     '''
     return fuel_shapes_hybrid_y_dh
 
-def calc_fueltype_share_yh_all_h_no_hybrid(nr_of_fueltypes, fueltype, fueltypes_yh_p_cy, model_yeardays_nrs):
+def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy, model_yeardays_nrs):
     """
     """
-    fueltypes_yh_p_cy = np.zeros((nr_of_fueltypes))
+    fueltypes_yh_p_cy = np.zeros((fueltypes_nr))
     fueltypes_yh_p_cy[fueltype] = 1.0 #all fuel of fueltype
 
     return fueltypes_yh_p_cy

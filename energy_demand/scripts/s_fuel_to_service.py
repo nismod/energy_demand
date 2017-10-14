@@ -321,7 +321,7 @@ def run(data):
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
         data['fuels']['ss_fuel_raw_data_enduses'],
         data['enduses']['ss_all_enduses'],
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
 
     ss_service_tech_by_p, ss_service_fueltype_tech_by_p, ss_service_fueltype_by_p = get_service_fueltype_tech(
         data['assumptions']['tech_list'],
@@ -336,7 +336,7 @@ def run(data):
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
         data['fuels']['is_fuel_raw_data_enduses'],
         data['enduses']['is_all_enduses'],
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
 
     is_service_tech_by_p, is_service_fueltype_tech_by_p, is_service_fueltype_by_p = get_service_fueltype_tech(
         data['assumptions']['tech_list'],

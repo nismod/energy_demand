@@ -124,7 +124,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         fuels_aggregated_across_sectors = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
             data['fuels']['ss_fuel_raw_data_enduses'],
             data['enduses']['ss_all_enduses'],
-            data['lookups']['nr_of_fueltypes'])
+            data['lookups']['fueltypes_nr'])
 
         fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
@@ -139,7 +139,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         fuels_aggregated_across_sectors = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
             data['fuels']['is_fuel_raw_data_enduses'],
             data['enduses']['is_all_enduses'],
-            data['lookups']['nr_of_fueltypes'])
+            data['lookups']['fueltypes_nr'])
 
         fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],

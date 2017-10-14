@@ -9,7 +9,7 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from collections import defaultdict
 
-def read_model_result_from_txt(fueltypes_lu, nr_of_fueltypes, path_to_folder):
+def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_to_folder):
     """
     """
     results = {}
@@ -32,7 +32,7 @@ def read_model_result_from_txt(fueltypes_lu, nr_of_fueltypes, path_to_folder):
             try:
                 results[year]
             except KeyError:
-                results[year] = np.zeros((nr_of_fueltypes, 8760))
+                results[year] = np.zeros((fueltypes_nr, 8760))
 
             # Add year if not already exists
             results[year][fueltype_array_position] = txt_data
@@ -42,7 +42,7 @@ def read_model_result_from_txt(fueltypes_lu, nr_of_fueltypes, path_to_folder):
     
     return results
 
-def read_enduse_specific_model_result_from_txt(fueltypes_lu, nr_of_fueltypes, path_to_folder):
+def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_to_folder):
     """
     """
     results = {}
@@ -68,7 +68,7 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, nr_of_fueltypes, pa
         try:
             results[year][enduse]
         except:
-            results[year][enduse] = np.zeros((nr_of_fueltypes, 365, 24))
+            results[year][enduse] = np.zeros((fueltypes_nr, 365, 24))
 
         # Add year if not already exists
         results[year][enduse][fueltype_array_position] = txt_data
@@ -127,24 +127,24 @@ def load_script_data(data):
     # Disaggregation: Load disaggregated fuel per enduse and sector
     data['rs_fuel_disagg'] = read_disaggregated_fuel(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'rs_fuel_disagg.csv'),
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
     data['ss_fuel_disagg'] = read_disaggregated_fuel_sector(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'ss_fuel_disagg.csv'),
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
     data['is_fuel_disagg'] = read_disaggregated_fuel_sector(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'is_fuel_disagg.csv'),
-        data['lookups']['nr_of_fueltypes'])
+        data['lookups']['fueltypes_nr'])
 
     return data
 
-def read_csv_data_service(path_to_csv, nr_of_fueltypes):
+def read_csv_data_service(path_to_csv, fueltypes_nr):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
     ----------
     path_to_csv : str
         Path to csv file
-    nr_of_fueltypes : str
+    fueltypes_nr : str
         Nr of fueltypes
 
     Returns
@@ -179,7 +179,7 @@ def read_csv_data_service(path_to_csv, nr_of_fueltypes):
         for sector in all_sectors:
             end_uses_dict[sector] = {}
             for enduse in all_enduses:
-                end_uses_dict[sector][enduse] = np.zeros((nr_of_fueltypes))
+                end_uses_dict[sector][enduse] = np.zeros((fueltypes_nr))
 
         for row in read_lines:
             lines.append(row)
@@ -519,7 +519,7 @@ def read_base_data_resid(path_to_csv):
 
     return end_uses_dict, all_enduses
 
-def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
+def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
     """This function reads in base_data_CSV all fuel types
 
     Arguments
@@ -563,7 +563,7 @@ def read_csv_base_data_industry(path_to_csv, nr_of_fueltypes, lu_fueltypes):
         for sector in all_sectors:
             end_uses_dict[sector] = {}
             for enduse in all_enduses:
-                end_uses_dict[str(sector)][str(enduse)] = np.zeros((nr_of_fueltypes))
+                end_uses_dict[str(sector)][str(enduse)] = np.zeros((fueltypes_nr))
 
         for row in lines:
             sector = row[0]
@@ -729,7 +729,7 @@ def read_service_tech_by_p(path_to_csv):
 
     return service_tech_by_p
 
-def read_disaggregated_fuel(path_to_csv, nr_of_fueltypes):
+def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
     """
     fuel_sector_enduse = {}
@@ -750,7 +750,7 @@ def read_disaggregated_fuel(path_to_csv, nr_of_fueltypes):
             try:
                 fuel_sector_enduse[region][enduse]
             except KeyError:
-                fuel_sector_enduse[region][enduse] = np.zeros((nr_of_fueltypes))
+                fuel_sector_enduse[region][enduse] = np.zeros((fueltypes_nr))
 
             fuel_sector_enduse[region][enduse][fueltype] = fuel
 
@@ -758,7 +758,7 @@ def read_disaggregated_fuel(path_to_csv, nr_of_fueltypes):
 
 
 
-def read_disaggregated_fuel_sector(path_to_csv, nr_of_fueltypes):
+def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
     """
     fuel_sector_enduse = {}
@@ -784,7 +784,7 @@ def read_disaggregated_fuel_sector(path_to_csv, nr_of_fueltypes):
             try:
                 fuel_sector_enduse[region][sector][enduse]
             except KeyError:
-                fuel_sector_enduse[region][sector][enduse] = np.zeros((nr_of_fueltypes))
+                fuel_sector_enduse[region][sector][enduse] = np.zeros((fueltypes_nr))
 
             fuel_sector_enduse[region][sector][enduse][fueltype] = fuel
 

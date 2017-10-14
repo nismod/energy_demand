@@ -1,14 +1,14 @@
 """Helper initialising functions
 """
 
-def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
+def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """Helper function to define stocks for all enduse and fueltype
 
     Arguments
     ----------
     all_enduses_with_fuels : dict
         Provided fuels
-    nr_of_fueltypes : int
+    fueltypes_nr : int
         Nr of fueltypes
 
     Returns
@@ -19,7 +19,7 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, nr_of_fueltypes):
     fuel_tech_p_by = {}
 
     for enduse in all_enduses_with_fuels:
-        fuel_tech_p_by[enduse] = dict.fromkeys(range(nr_of_fueltypes), {})
+        fuel_tech_p_by[enduse] = dict.fromkeys(range(fueltypes_nr), {})
 
     return fuel_tech_p_by
 

@@ -68,7 +68,7 @@ def spatial_validation(data, model_run_object):
         data,
         data['reg_coord'], #lad_infos_shapefile,
         model_run_object,
-        data['lookups']['nr_of_fueltypes'],
+        data['lookups']['fueltypes_nr'],
         data['lookups']['fueltype'],
         data['lu_reg']
         )
@@ -111,7 +111,7 @@ def spatial_validation(data, model_run_object):
     
     return
 
-def compare_lad_regions(fig_name, data, reg_coord, model_run_object, nr_of_fueltypes, lu_fueltypes, lu_reg):
+def compare_lad_regions(fig_name, data, reg_coord, model_run_object, fueltypes_nr, lu_fueltypes, lu_reg):
     """Compare gas/elec demand for LADs
 
     Arguments
@@ -141,7 +141,7 @@ def compare_lad_regions(fig_name, data, reg_coord, model_run_object, nr_of_fuelt
                 #value_gwh = conversions.convert_ktoe_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
                 result_dict['REAL_electricity_demand'][region_name] = reg_coord[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
 
-                all_fueltypes_reg_demand = model_run_object.get_regional_yh(nr_of_fueltypes, reg_csv_geocode, data['assumptions']['model_yeardays_nrs'])
+                all_fueltypes_reg_demand = model_run_object.get_regional_yh(fueltypes_nr, reg_csv_geocode, data['assumptions']['model_yeardays_nrs'])
                 result_dict['modelled_electricity_demand'][region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
 
     # -----------------

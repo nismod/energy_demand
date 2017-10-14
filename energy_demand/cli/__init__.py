@@ -48,7 +48,7 @@ def run_model(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-    data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     # =========DUMMY DATA

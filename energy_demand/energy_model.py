@@ -41,7 +41,7 @@ class EnergyModel(object):
 
         # Create non regional dependent load profiles
         data['non_regional_lp_stock'] = self.create_load_profile_stock(
-            data['tech_load_profiles'],
+            data['tech_lp'],
             data['assumptions'],
             data['sectors'])
 
@@ -86,7 +86,7 @@ class EnergyModel(object):
 
         # Sum across all regions, all enduse and sectors
         self.reg_enduses_fueltype_y = self.fuel_aggr(
-            'fuel_yh', data['lookups']['nr_of_fueltypes'],
+            'fuel_yh', data['lookups']['fueltypes_nr'],
             all_submodels,
             'no_sum',
             'non_peak',
@@ -101,7 +101,7 @@ class EnergyModel(object):
         # Sum across all regions, enduses for peak hour
         self.tot_peak_enduses_fueltype = self.fuel_aggr(
             'fuel_peak_dh',
-            data['lookups']['nr_of_fueltypes'],
+            data['lookups']['fueltypes_nr'],
             all_submodels,
             'no_sum',
             'peak_dh',
@@ -109,7 +109,7 @@ class EnergyModel(object):
 
         self.tot_fuel_y_max_allenduse_fueltyp = self.fuel_aggr(
             'fuel_peak_h',
-            data['lookups']['nr_of_fueltypes'],
+            data['lookups']['fueltypes_nr'],
             all_submodels,
             'no_sum',
             'peak_h',
@@ -131,7 +131,6 @@ class EnergyModel(object):
         for fueltype, fuels in self.fuel_indiv_regions_yh.items():
             for region_fuel in fuels:
                 _sum_all += np.sum(region_fuel)
-        
         print("_sum_day_selection")
         print(_sum_day_selection)
         print("_sum_all: " + str(_sum_all))
@@ -140,10 +139,10 @@ class EnergyModel(object):
         # Functions for load calculations
         # Across all enduses calc_load_factor_h
         # ---------------------------
-        rs_fuels_peak_h = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
-        ss_fuels_peak_h = self.fuel_aggr('fuel_peak_h', data['lookups']['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
-        self.rs_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], [self.rs_submodel], 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
-        ss_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', data['lookups']['nr_of_fueltypes'], [self.ss_submodel], 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
+        rs_fuels_peak_h = self.fuel_aggr('fuel_peak_h', data['lookups']['fueltypes_nr'], [self.rs_submodel], 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
+        ss_fuels_peak_h = self.fuel_aggr('fuel_peak_h', data['lookups']['fueltypes_nr'], [self.ss_submodel], 'no_sum', 'peak_h', data['assumptions']['model_yeardays_nrs'])
+        self.rs_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', data['lookups']['fueltypes_nr'], [self.rs_submodel], 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
+        ss_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', data['lookups']['fueltypes_nr'], [self.ss_submodel], 'no_sum', 'non_peak', data['assumptions']['model_yeardays_nrs'])
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
 
@@ -169,7 +168,7 @@ class EnergyModel(object):
             for array_region, region_name in enumerate(region_names):
                 fuels = self.fuel_aggr(
                     'fuel_yh',
-                    lookups['nr_of_fueltypes'],
+                    lookups['fueltypes_nr'],
                     all_submodels,
                     'no_sum',
                     'non_peak',
@@ -182,13 +181,13 @@ class EnergyModel(object):
         return fuel_fueltype_regions
 
     @classmethod
-    def create_load_profile_stock(cls, tech_load_profiles, assumptions, sectors):
+    def create_load_profile_stock(cls, tech_lp, assumptions, sectors):
         """Assign load profiles which are the same for all regions
         ``non_regional_load_profiles``
 
         Arguments
         ----------
-        tech_load_profiles : dict
+        tech_lp : dict
             Load profiles
         assumptions : dict
             Assumptions
@@ -207,10 +206,10 @@ class EnergyModel(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_lighting'],
             enduses=['rs_lighting'],
-            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
-            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
+            shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
             )
 
         # rs_cold (residential refrigeration)
@@ -218,10 +217,10 @@ class EnergyModel(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_cold'],
             enduses=['rs_cold'],
-            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_cold']['shape_peak_dh']
+            shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh']
             )
 
         # rs_cooking
@@ -229,10 +228,10 @@ class EnergyModel(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_cooking'],
             enduses=['rs_cooking'],
-            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
-            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
+            shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
             )
 
         # rs_wet
@@ -240,10 +239,10 @@ class EnergyModel(object):
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['rs_wet'],
             enduses=['rs_wet'],
-            shape_yd=tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-            shape_yh=tech_load_profiles['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
-            shape_peak_dh=tech_load_profiles['rs_shapes_dh']['rs_wet']['shape_peak_dh']
+            shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh']
             )
 
         # -- dummy rs technologies (apply enduse sepcific shape)
@@ -253,10 +252,10 @@ class EnergyModel(object):
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
-                shape_yd=tech_load_profiles['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-                shape_yh=tech_load_profiles['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_load_profiles['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                enduse_peak_yd_factor=tech_load_profiles['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=tech_load_profiles['rs_shapes_dh'][enduse]['shape_peak_dh']
+                shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+                shape_yh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
+                shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh']
                 )
 
         # - dummy ss technologies
@@ -267,11 +266,11 @@ class EnergyModel(object):
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
-                    shape_yd=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                    shape_yh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                    shape_yd=tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                    shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                     sectors=[sector],
-                    enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                    shape_peak_dh=tech_load_profiles['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
+                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
+                    shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
                     )
 
         # dummy is - Flat load profile
@@ -285,7 +284,7 @@ class EnergyModel(object):
         for sector in sectors['is_sectors']:
             for enduse in all_enduses_including_heating:
                 if enduse == "is_space_heating":
-                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
                 else:
                     shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
 
@@ -299,10 +298,10 @@ class EnergyModel(object):
                         unique_identifier=uuid.uuid4(),
                         technologies=tech_list,
                         enduses=[enduse],
-                        shape_yd=tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
-                        shape_yh=tech_load_profiles['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
+                        shape_yd=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
+                        shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
                         sectors=[sector],
-                        enduse_peak_yd_factor=tech_load_profiles['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
+                        enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
                         shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
                         )
             else:
@@ -321,14 +320,14 @@ class EnergyModel(object):
 
         return non_regional_lp_stock
 
-    def get_regional_yh(self, nr_of_fueltypes, region_name, model_yeardays_nrs):
+    def get_regional_yh(self, fueltypes_nr, region_name, model_yeardays_nrs):
         """Get yh fuel for all fueltype for a specific region of all submodels
 
         Arguments
         ----------
         region_name : str
             Name of region to get attributes
-        nr_of_fueltypes : int
+        fueltypes_nr : int
             Number of fueltypes
 
         Return
@@ -342,7 +341,7 @@ class EnergyModel(object):
         """
         region_fuel_yh = self.fuel_aggr(
             'fuel_yh',
-            nr_of_fueltypes,
+            fueltypes_nr,
             [self.ss_submodel, self.rs_submodel, self.is_submodel],
             'no_sum',
             'non_peak',
@@ -521,7 +520,7 @@ class EnergyModel(object):
                 lookups=data['lookups'],
                 all_enduses=data['enduses'],
                 temperature_data=data['temp_data'],
-                tech_load_profiles=data['tech_load_profiles'],
+                tech_lp=data['tech_lp'],
                 sectors=data['sectors']
                 )
 
@@ -583,14 +582,14 @@ class EnergyModel(object):
 
         return enduse_dict
 
-    def fuel_aggr(self, attribute_to_get, nr_of_fueltypes, sector_models, sum_crit, lp_crit, model_yeardays_nrs, region_name=False):
+    def fuel_aggr(self, attribute_to_get, fueltypes_nr, sector_models, sum_crit, lp_crit, model_yeardays_nrs, region_name=False):
         """Collect hourly data from all regions and sum across all fuel types and enduses
 
         Arguments
         ----------
         attribute_to_get : str
             Attribue to summarise
-        nr_of_fueltypes : int
+        fueltypes_nr : int
             Number of fueltypes
         sector_models : list
             Sector models to summarise
@@ -605,11 +604,11 @@ class EnergyModel(object):
             Summarised fuels
         """
         if lp_crit == 'peak_h':
-            fuels = np.zeros((nr_of_fueltypes))
+            fuels = np.zeros((fueltypes_nr))
         elif lp_crit == 'non_peak':
-            fuels = np.zeros((nr_of_fueltypes, model_yeardays_nrs, 24))
+            fuels = np.zeros((fueltypes_nr, model_yeardays_nrs, 24))
         elif lp_crit == 'peak_dh':
-            fuels = np.zeros((nr_of_fueltypes, 24))
+            fuels = np.zeros((fueltypes_nr, 24))
         else:
             logging.error("Cannot properly sum, wrongly defined lp_crit : {}".format(lp_crit))
 

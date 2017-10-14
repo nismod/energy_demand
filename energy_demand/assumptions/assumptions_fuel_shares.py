@@ -32,11 +32,11 @@ def assign_by_fuel_tech_p(assumptions, data):
       assigned with technologies or none. No mixing possible
     """
     rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['rs_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['rs_all_enduses'], data['lookups']['fueltypes_nr'])
     ss_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['ss_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['ss_all_enduses'], data['lookups']['fueltypes_nr'])
     is_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['is_all_enduses'], data['lookups']['nr_of_fueltypes'])
+        data['enduses']['is_all_enduses'], data['lookups']['fueltypes_nr'])
 
     fuel_nr_oil = data['lookups']['fueltype']['oil']
     fuel_nr_elec = data['lookups']['fueltype']['electricity']

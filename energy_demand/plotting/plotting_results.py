@@ -153,7 +153,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
@@ -210,7 +210,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, mode
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_of_h_to_plot))
+    Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_of_h_to_plot))
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
         # Legend
@@ -269,7 +269,7 @@ def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
@@ -327,7 +327,7 @@ def plt_fuels_peak_h(results_resid, data, attribute_to_get):
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    Y_init = np.zeros((data['lookups']['nr_of_fueltypes'], nr_y_to_plot))
+    Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 

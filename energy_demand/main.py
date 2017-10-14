@@ -89,7 +89,7 @@ if __name__ == "__main__":
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
-    data['tech_load_profiles'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         # Validation base year: Hourly temporal validation
         # ---------------------------------------------------
         fuel_electricity_year_validation = 385
-        fuel_national_tranport = np.zeros((data['lookups']['nr_of_fueltypes']))
+        fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']))
         fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.convert_ktoe_gwh(
             fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
         model_object_transport = generic_shapes.GenericFlatEnduse(
@@ -168,11 +168,11 @@ if __name__ == "__main__":
     # Reading in results from different model runs
     # -------------------------------------------------------
     results_every_year = read_data.read_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
+        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['nr_of_fueltypes'],
+        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
     logging.debug("... Reading in results finished")
 
