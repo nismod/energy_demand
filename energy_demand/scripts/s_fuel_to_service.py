@@ -1,8 +1,8 @@
 """Script to convert fuel to energy service
 """
 import os
-import numpy as np
 import logging
+import numpy as np
 from energy_demand.technologies import tech_related
 
 def write_service_fueltype_by_p(path_to_txt, data):
@@ -245,7 +245,9 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
     service_fueltype_tech_by_p = init_nested_dict_brackets(fuels, lu_fueltypes.values())
 
     # Percentage of service per fueltype
-    service_fueltype_by_p = init_nested_dict_zero(service_tech_by_p.keys(), range(len(lu_fueltypes)))
+    service_fueltype_by_p = init_nested_dict_zero(
+        service_tech_by_p.keys(),
+        range(len(lu_fueltypes)))
 
     for enduse, fuel in fuels.items():
         for fueltype, fuel_fueltype in enumerate(fuel):
@@ -254,24 +256,25 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
             for tech in fuel_p_tech_by[enduse][fueltype]:
                 service[enduse][fueltype][tech] = 0
 
-            # Iterate technologies to calculate share of energy service depending on fuel and efficiencies
+            # Iterate technologies to calculate share of energy
+            # service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
 
-                # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
+                # Fuel share based on defined fuel shares within fueltype
+                # (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
                 #logging.debug("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
                 tech_type = tech_related.get_tech_type(tech, tech_list)
 
-                # Get efficiency depending whether hybrid or regular technology or heat pumps for base year
+                # Get efficiency for base year
                 if tech_type == 'hybrid_tech':
                     eff_tech = hybrid_technologies[tech]['average_efficiency_national_by']
                 elif tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
-                        efficiency_intersect=tech_stock[tech]['eff_by']
-                        )
+                        efficiency_intersect=tech_stock[tech]['eff_by'])
                 elif tech_type == 'dummy_tech':
                     eff_tech = 1
                 else:
@@ -279,7 +282,8 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
-                ###logging.debug("SERVICE NATIONA LCALCUATION: {} {} {}  {}  {}".format(enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
+                ###logging.debug("SERVICE NATIONA LCALCUATION: {} {} {}  {} {}".format(
+                # enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
 
                 # Add energy service demand
                 service[enduse][fueltype][tech] += service_fueltype_tech
@@ -293,7 +297,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
                     service_fueltype_tech_by_p[enduse][fueltype][tech] = 0
                     service_fueltype_by_p[enduse][fueltype] += 0
                 else:
-                    service_fueltype_tech_by_p[enduse][fueltype][tech] = (1 / tot_service_fueltype) * service[enduse][fueltype][tech]
+                    service_fueltype_tech_by_p[enduse][fueltype][tech] = service[enduse][fueltype][tech] / tot_service_fueltype
                     service_fueltype_by_p[enduse][fueltype] += service[enduse][fueltype][tech]
 
         # Calculate percentage of service of all technologies
@@ -303,19 +307,18 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
                 service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
-                #logging.debug("Technology_enduse: " + str(technology) + str("  ") + str(service_tech))
 
-        ###logging.debug("Total Service base year for enduse {}  :  {}".format(enduse, total_service))
+        ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
             service_fueltype_by_p[enduse][fueltype] = (1.0 / total_service) * service_fueltype_by_p[enduse][fueltype]
 
-    '''# Assert does not work for endues with no defined technologies
+    # Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
-    '''
+
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
 def run(data):
@@ -375,7 +378,7 @@ def run(data):
         os.path.join(data['local_paths']['dir_services'], 'is_service_tech_by_p.csv'),
         is_service_tech_by_p)
     write_service_fueltype_tech_by_p(
-        os.path.join(data['local_paths']['dir_services'], 'rs_service_fueltype_tech_by_p.csv'), 
+        os.path.join(data['local_paths']['dir_services'], 'rs_service_fueltype_tech_by_p.csv'),
         rs_service_fueltype_tech_by_p)
     write_service_fueltype_tech_by_p(
         os.path.join(data['local_paths']['dir_services'], 'ss_service_fueltype_tech_by_p.csv'),

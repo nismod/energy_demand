@@ -25,7 +25,6 @@ class IndustryModel(object):
         self.region_name = region_obj.region_name
         self.enduse = enduse
         self.sector = sector
-
         self.enduse_object = self.create_enduse(region_obj, data, crit_flat_profile)
 
     def create_enduse(self, region_obj, data, crit_flat_profile):

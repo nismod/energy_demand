@@ -1,3 +1,3 @@
 """
 """
-from energy_demand.assumptions import base_assumptions_fuel_shares
+from energy_demand.assumptions import assumptions_fuel_shares

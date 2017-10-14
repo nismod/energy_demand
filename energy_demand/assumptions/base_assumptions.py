@@ -51,8 +51,9 @@ def load_assumptions(data, write_sim_param):
     #Modelled dates
     assumptions['model_yeardays_date'] = []
     for yearday in assumptions['model_yeardays']:
-        assumptions['model_yeardays_date'].append(date_handling.yearday_to_date(sim_param['base_yr'], yearday))
-    
+        assumptions['model_yeardays_date'].append(
+            date_handling.yearday_to_date(sim_param['base_yr'], yearday))
+
     # Nr of days to model
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
 
@@ -60,7 +61,7 @@ def load_assumptions(data, write_sim_param):
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
     # False: heat is delievered
-    assumptions['mode_constrained'] = False #False proides technologies 
+    assumptions['mode_constrained'] = False #False proides technologies
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -181,10 +182,10 @@ def load_assumptions(data, write_sim_param):
         'other': 1
         }
 
-    # ========================================================================================================================
+    # =======================================
     # Climate Change assumptions
     # Temperature changes for every month until end year for every month
-    # ========================================================================================================================
+    # =======================================
     assumptions['climate_change_temp_diff_month'] = [
         0, # January (can be plus or minus)
         0, # February

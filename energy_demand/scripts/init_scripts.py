@@ -101,9 +101,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
             data['local_paths'])
     else:
-        temperature_data = s_change_temp.read_weather_data_script_data(data['local_paths']['path_processed_weather_data'])
+        temp_data = s_change_temp.read_weather_data_script_data(data['local_paths']['path_processed_weather_data'])
         assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
-        temp_climate_change = s_change_temp.change_temp_climate_change(temperature_data, assumptions_temp_change, data['sim_param'])
+        temp_climate_change = s_change_temp.change_temp_climate_change(temp_data, assumptions_temp_change, data['sim_param'])
 
     # s_fuel_to_service----------------------------------------------
     if run_locally is True:
@@ -150,7 +150,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['assumptions']['technologies']
             )
 
-    # s_generate_sigmoid----------------------------------------------
+    # s_generate_sigmoid
     if run_locally is True:
         s_generate_sigmoid.run(data)
     else:
@@ -219,7 +219,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['assumptions']['is_fuel_tech_p_by']
             )
 
-    # from energy_demand.scripts import s_disaggregation----------------------------------------------
+    # from energy_demand.scripts import s_disaggregation
     if run_locally is True:
         s_disaggregation.run(data)
     else:
