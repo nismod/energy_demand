@@ -1,6 +1,7 @@
 """All assumptions are either loaded in this file or definied here
 """
 import logging
+import numpy as np
 from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
@@ -56,6 +57,23 @@ def load_assumptions(data, write_sim_param):
 
     # Nr of days to model
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
+
+    # --------------------------------------
+    # Calculate for all yeardays the daytype
+    # --------------------------------------
+    list_dates = date_handling.fullyear_dates(
+        start=date(sim_param['base_yr'], 1, 1),
+        end=date(sim_param['base_yr'], 12, 31))
+
+    model_yeardays_daytype = np.chararray(365, itemsize=7)
+    model_yeardays_daytype[:] = 'workday'
+
+    for array_day, date_yearday in enumerate(list_dates):
+        # Take respectve daily fuel curve depending on weekday or weekend
+        if date_handling.get_weekday_type(date_yearday) == 'holiday':
+            model_yeardays_daytype[array_day] = 'holiday'
+
+    assumptions['model_yeardays_daytype'] = model_yeardays_daytype
 
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.

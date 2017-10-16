@@ -141,7 +141,8 @@ class WeatherRegion(object):
             rs_fuel_shape_heating_yd,
             'rs_lp_storage_heating_dh',
             assumptions['model_yeardays'],
-            assumptions['model_yeardays_nrs'])
+            assumptions['model_yeardays_nrs'],
+            assumptions['model_yeardays_daytype'])
 
         rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
             sim_param,
@@ -149,16 +150,28 @@ class WeatherRegion(object):
             rs_fuel_shape_heating_yd,
             'rs_lp_second_heating_dh',
             assumptions['model_yeardays'],
-            assumptions['model_yeardays_nrs']
+            assumptions['model_yeardays_nrs'],
+            assumptions['model_yeardays_daytype']
             )
 
         # boiler, non-peak
         rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
-            sim_param, tech_lp, rs_fuel_shape_heating_yd, 'rs_lp_heating_boilers_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            sim_param,
+            tech_lp,
+            rs_fuel_shape_heating_yd,
+            'rs_lp_heating_boilers_dh',
+            assumptions['model_yeardays'],
+            assumptions['model_yeardays_nrs'],
+            assumptions['model_yeardays_daytype']
+            )
             
         # heat pumps, non-peak
         rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
-            sim_param, tech_lp, self.rs_tech_stock, rs_hdd_cy, 'rs_lp_heating_hp_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            sim_param,
+            tech_lp,
+            self.rs_tech_stock,
+            rs_hdd_cy,
+            'rs_lp_heating_hp_dh', assumptions['model_yeardays'], assumptions['model_yeardays_nrs'], assumptions['model_yeardays_daytype'])
 
         rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
             self.rs_tech_stock,
@@ -467,7 +480,7 @@ class WeatherRegion(object):
         return max_factor_yd
 
     @classmethod
-    def get_fuel_shape_heating_hp_yh(cls, sim_param, tech_lp, tech_stock, rs_hdd_cy, tech, model_yeardays, model_yeardays_nrs):
+    def get_fuel_shape_heating_hp_yh(cls, sim_param, tech_lp, tech_stock, rs_hdd_cy, tech, model_yeardays, model_yeardays_nrs, model_yeardays_daytype):
         """Convert daily shapes to houly based on robert sansom daily load for heatpump TODO
 
         This is for non-peak.
@@ -510,17 +523,19 @@ class WeatherRegion(object):
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        list_dates = date_handling.fullyear_dates(
+        '''list_dates = date_handling.fullyear_dates(
             start=date(sim_param['base_yr'], 1, 1),
-            end=date(sim_param['base_yr'], 12, 31))
+            end=date(sim_param['base_yr'], 12, 31))'''
         
         # from Robert Sansom for heat pumps
         daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
         daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
 
-        for day_array_nr, date_gasday in enumerate(list_dates):
+        #for day_array_nr, date_gasday in enumerate(list_dates):
             # Take respectve daily fuel curve depending on weekday or weekend
-            if date_handling.get_weekday_type(date_gasday) == 'holiday':
+            #if date_handling.get_weekday_type(date_gasday) == 'holiday':
+        for day_array_nr, yearday in enumerate(range(365)):
+            if model_yeardays_daytype[yearday] == 'holiday':
                 daily_fuel_profile = daily_fuel_profile_holiday
             else:
                 daily_fuel_profile = daily_fuel_profile_workday
@@ -618,7 +633,7 @@ class WeatherRegion(object):
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 
     @classmethod
-    def get_shape_heating_boilers_yh(cls, sim_param, tech_lp, heating_shape, technology, model_yeardays, model_yeardays_nrs):
+    def get_shape_heating_boilers_yh(cls, sim_param, tech_lp, heating_shape, technology, model_yeardays, model_yeardays_nrs, model_yeardays_daytype):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
         Arguments
@@ -653,11 +668,13 @@ class WeatherRegion(object):
         shape_boilers_yh = np.zeros((model_yeardays_nrs, 24))
         shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24))
 
+        #for day_array_nr, yearday in enumerate(model_yeardays):
+        #    date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
         for day_array_nr, yearday in enumerate(model_yeardays):
-            date_gasday = date_handling.yearday_to_date(sim_param['base_yr'], yearday)
 
             # Take respectve daily fuel curve depending on weekday or weekend
-            if date_handling.get_weekday_type(date_gasday) == 'holiday': # Wkend Hourly gas shape.
+            #if date_handling.get_weekday_type(date_gasday) == 'holiday': # Wkend Hourly gas shape.
+            if model_yeardays_daytype[yearday] == 'holiday':
                 shape_boilers_yh[day_array_nr] = heating_shape[day_array_nr] * tech_lp[technology]['holiday']
                 shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['holiday']
             else: # Wkday Hourly gas shape.
