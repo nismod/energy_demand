@@ -1,9 +1,9 @@
 """Conversion of units
 """
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
-def convert_ktoe_gwh(data_ktoe):
+def ktoe_to_gwh(data_ktoe):
     """Conversion of ktoe to gwh
 
     Arguments
@@ -24,7 +24,7 @@ def convert_ktoe_gwh(data_ktoe):
 
     return data_gwh
 
-def convert_kwh_gwh(kwh):
+def kwh_to_gwh(kwh):
     """"Conversion of MW to GWh
 
     Input
@@ -41,7 +41,7 @@ def convert_kwh_gwh(kwh):
 
     return gwh
 
-def convert_mw_gwh(megawatt, number_of_hours):
+def mw_to_gwh(megawatt, number_of_hours):
     """"Conversion of MW to GWh
 
     Input
@@ -65,7 +65,7 @@ def convert_mw_gwh(megawatt, number_of_hours):
 
     return gigawatthour
 
-def convert_ktoe_twh(data_ktoe):
+def ktoe_to_twh(data_ktoe):
     """Conversion of ktoe to TWh
 
     Arguments
@@ -104,7 +104,7 @@ def convert_fueltypes(fuel_dict):
     for enduse, fuels in fuel_dict.items():
 
         # apply converting function along row
-        fuel_converted[enduse] = np.apply_along_axis(func1d=convert_ktoe_gwh, axis=0, arr=fuels)
+        fuel_converted[enduse] = np.apply_along_axis(func1d=ktoe_to_gwh, axis=0, arr=fuels)
 
     return fuel_converted
 
@@ -125,6 +125,7 @@ def convert_fueltypes_sectors(fuel_dict):
 
     for enduse in fuel_dict:
         for sector, fuels in fuel_dict[enduse].items():
-            fuel_converted[enduse][sector] = np.apply_along_axis(func1d=convert_ktoe_gwh, axis=0, arr=fuels)
+            fuel_converted[enduse][sector] = np.apply_along_axis(
+                func1d=ktoe_to_gwh, axis=0, arr=fuels)
 
     return fuel_converted

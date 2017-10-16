@@ -53,7 +53,6 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_
     for file_path in all_txt_files_in_folder:
         path_file_to_read = path_enduse_specific_results + "\\" + file_path
         file_path_split = file_path.split("__")
-        print(file_path_split)
         enduse = file_path_split[1]
         year = int(file_path_split[2])
         fueltype_array_position = int(file_path_split[3])
