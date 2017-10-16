@@ -237,12 +237,12 @@ def abs_to_rel_no_nan(absolute_array):
 
     Returns
     -------
-    absolute_array : array
+    relative_array : array
         Array with relative numbers
     """
     try:
-        relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
-        return relative_array
+        #relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
+        return absolute_array / float(np.sum(absolute_array))
     except ZeroDivisionError:
         # If the total sum is zero, return same array
         return absolute_array
@@ -265,12 +265,11 @@ def abs_to_rel(absolute_array):
     - If the total sum is zero, return an array with zeros
     """
     try:
-        relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
+        relative_array = absolute_array / float(np.sum(absolute_array))
         relative_array[np.isnan(relative_array)] = 0
+        return relative_array
     except ZeroDivisionError:
-        relative_array = absolute_array
-
-    return relative_array
+        return absolute_array
 
 def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day

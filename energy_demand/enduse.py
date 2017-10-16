@@ -719,8 +719,10 @@ class Enduse(object):
 
                     total_fuels = fuel_share_tech_low + fuel_share_tech_high
 
-                    share_fuel_low_temp_tech = (1 / total_fuels) * fuel_share_tech_low
-                    share_fuel_high_temp_tech = (1 / total_fuels) * fuel_share_tech_high
+                    #share_fuel_low_temp_tech = (1 / total_fuels) * fuel_share_tech_low
+                    #share_fuel_high_temp_tech = (1 / total_fuels) * fuel_share_tech_high
+                    share_fuel_low_temp_tech = fuel_share_tech_low / total_fuels 
+                    share_fuel_high_temp_tech = fuel_share_tech_high / total_fuels
 
                     # Calculate fuel with given fuel of hp and share of hp/other fuel
                     fuel_low_tech = fuel_high_tech * (share_fuel_low_temp_tech / share_fuel_high_temp_tech)

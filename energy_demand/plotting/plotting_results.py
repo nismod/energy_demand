@@ -14,16 +14,39 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
     # Plot total fuel (y) per fueltype
-    plt_fuels_enduses_y("fig_tot_all_enduse01.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
-    plt_fuels_enduses_y("fig_tot_all_enduse02.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y')
+    plt_fuels_enduses_y(
+        "fig_tot_all_enduse01.pdf",
+        results_every_year,
+        data,
+        'rs_tot_fuels_all_enduses_y')
+
+    plt_fuels_enduses_y(
+        "fig_tot_all_enduse02.pdf",
+        results_every_year,
+        data,
+        'rs_tot_fuels_all_enduses_y')
 
     # Plot a full week
-    plt_fuels_enduses_week("fig_tot_all_enduse03.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
-    plt_fuels_enduses_week("fig_tot_all_enduse04.pdf", results_every_year, data, 'rs_tot_fuels_all_enduses_y', data['assumptions']['model_yeardays_nrs'])
+    plt_fuels_enduses_week(
+        "fig_tot_all_enduse03.pdf",
+        results_every_year,
+        data,
+        data['assumptions']['model_yeardays_nrs'])
+
+    plt_fuels_enduses_week(
+        "fig_tot_all_enduse04.pdf",
+        results_every_year,
+        data,
+        data['assumptions']['model_yeardays_nrs'])
 
     # Plot all enduses
     #plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
-    plt_stacked_enduse("figure_stacked_country_final.pdf", data, results_enduse_every_year, data['enduses']['rs_all_enduses'], 'tot_fuel_y_enduse_specific_h')
+    plt_stacked_enduse(
+        "figure_stacked_country_final.pdf",
+        data,
+        results_enduse_every_year,
+        data['enduses']['rs_all_enduses'],
+        'tot_fuel_y_enduse_specific_h')
 
 
     # Plot peak demand (h) per fueltype
@@ -187,11 +210,15 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     plt.title("Load factor of maximum hour across all enduses")
 
     #plt.show()
+    
+def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, year_to_plot=0):
+    """Plots stacked end_use for all regions
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, model_yeardays_nrs):
-    """Plots stacked end_use for a region
-
-
+    Input
+    -----
+    year_to_plot : int
+        2015 --> 0
+    
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
@@ -200,11 +227,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, mode
     #days_to_plot = range(10, 17)
     days_to_plot = range(model_yeardays_nrs)
 
-    # Which year in simulation (2015 = 0)
-    year_to_plot = 2
-
     fig, ax = plt.subplots()
-    #nr_of_h_to_plot = len(days_to_plot) * 24
     nr_of_h_to_plot = model_yeardays_nrs * 24
 
     legend_entries = []
@@ -213,24 +236,18 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, attribute_to_get, mode
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_of_h_to_plot))
 
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
+
         # Legend
         fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_in_string)
 
-        for model_year, data_model_run in results_resid.items():
-            data_over_day = data_model_run[fueltype]
+        # Select year to plot
+        for data_model_run in results_resid[year_to_plot]:
 
-        '''for model_year_object in results_resid:
-
-            # Read out fueltype specific max h load
-            tot_fuels = getattr(model_year_object, attribute_to_get)
-
-            data_over_day = []
-
-            for day, daily_values in enumerate(tot_fuels[fueltype]):
-                for hour in daily_values:
-                    data_over_day.append(hour)
-        '''
+            #Summarise over all regions
+            data_over_day = np.zeros((365*24))
+            for region_data in data_model_run[fueltype]:
+                data_over_day += region_data #FASTER with numpy TODO
 
         Y_init[fueltype] = data_over_day
 

@@ -106,7 +106,6 @@ if __name__ == "__main__":
     data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)
     data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data)
 
-    results_every_year = []
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
 
@@ -125,8 +124,6 @@ if __name__ == "__main__":
             profiler.stop()
             logging.debug("Profiler Results")
             logging.info(profiler.output_text(unicode=True, color=True))
-
-        results_every_year.append(model_run_object)
 
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh
@@ -168,16 +165,20 @@ if __name__ == "__main__":
     # -------------------------------------------------------
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
+        len(data['lu_reg']),
         data['local_paths']['data_results_model_runs'])
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
-    logging.debug("... Reading in results finished")
 
+    logging.debug("... Reading in results finished")
     # ------------------------------
     # Plotting
     # ------------------------------
-    plotting_results.run_all_plot_functions(results_every_year, results_enduse_every_year, data)
+    plotting_results.run_all_plot_functions(
+        results_every_year,
+        results_enduse_every_year,
+        data)
 
     logging.debug("... Finished running Energy Demand Model")

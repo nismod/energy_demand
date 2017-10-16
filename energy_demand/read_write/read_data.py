@@ -9,10 +9,11 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from collections import defaultdict
 
-def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_to_folder):
+def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_to_folder):
     """
     """
-    results = {}
+    results = defaultdict(dict)
+    #results = {}
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
@@ -24,20 +25,19 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_to_folder):
             year = int(file_path_split[1])
             fueltype_str = str(file_path_split[2])
 
-            fueltype_array_position = fueltypes_lu[fueltype_str[:-4]]
+            fueltype_array_position = int(fueltypes_lu[fueltype_str[:-4]])
 
             txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
-            # Create year if not existing
             try:
                 results[year]
             except KeyError:
-                results[year] = np.zeros((fueltypes_nr, 8760))
+                results[year] = np.zeros((fueltypes_nr, nr_of_regions, 8760))
 
             # Add year if not already exists
             results[year][fueltype_array_position] = txt_data
         except:
-            #path is a folder anot a file
+            #path is a folder and not a file
             pass
     
     return results
