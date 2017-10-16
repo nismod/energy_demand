@@ -37,6 +37,9 @@ In order to run the model, the following steps are necessary. Step 1, 2 and 3
 only needs to be execute once. Step 4 and 5 every time the model is run
 with different assumptions.
 
+Model Set-Up
+-------------
+
 1. Add the data into a local directory as ``path/to/energy_data_folder`` and
    download the energy_demand python code.
 
@@ -45,7 +48,6 @@ with different assumptions.
    a command line (in a virtual environment):
 
    ``setup.py develop``
-
 
 3. Install the energy demand model from the console with the command
 
@@ -57,6 +59,8 @@ with different assumptions.
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
 
+Scenario Set-up 
+----------------
 
 4. For every scenario run, the energy demand module needs to be
    initialised from the command line as follows:
@@ -73,7 +77,7 @@ with different assumptions.
 
 Running the model (with smif)
 ========================
-
+This needs to be written TODO
 
 
 A word from our sponsors

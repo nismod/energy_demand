@@ -160,7 +160,9 @@ if __name__ == "__main__":
         model_object_transport = generic_shapes.GenericFlatEnduse(
             fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
 
-        ##lad_validation.temporal_validation(data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
+        #lad_validation.temporal_validation(
+        # data,
+        # model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
         # ---------------------------------------------------
         # Validation base year: Spatial disaggregation

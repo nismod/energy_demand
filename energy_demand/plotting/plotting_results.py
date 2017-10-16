@@ -17,14 +17,12 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
     plt_fuels_enduses_y(
         "fig_tot_all_enduse01.pdf",
         results_every_year,
-        data,
-        'rs_tot_fuels_all_enduses_y')
+        data)
 
     plt_fuels_enduses_y(
         "fig_tot_all_enduse02.pdf",
         results_every_year,
-        data,
-        'rs_tot_fuels_all_enduses_y')
+        data)
 
     # Plot a full week
     plt_fuels_enduses_week(
@@ -183,8 +181,8 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
         # Legend
         for fueltype_str in data['lookups']['fueltype']:
             if data['lookups']['fueltype'][fueltype_str] == fueltype:
-                fueltype_in_string = fueltype_str
-        legend_entries.append(fueltype_in_string)
+                fueltype_str = fueltype_str
+        legend_entries.append(fueltype_str)
 
         # REad out fueltype specific max h load
         data_over_years = []
@@ -210,15 +208,15 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     plt.title("Load factor of maximum hour across all enduses")
 
     #plt.show()
-    
-def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, year_to_plot=0):
+
+def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, year_to_plot=2015):
     """Plots stacked end_use for all regions
 
     Input
     -----
     year_to_plot : int
         2015 --> 0
-    
+
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
@@ -235,21 +233,19 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, ye
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_of_h_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype']):
+    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
 
-        # Legend
-        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
-        legend_entries.append(fueltype_in_string)
+        legend_entries.append(fueltype_str) #Legend
 
+        print("A: " + str(results_resid[year_to_plot][fueltype_int].shape))
         # Select year to plot
-        for data_model_run in results_resid[year_to_plot]:
+        fuel_all_regions = results_resid[year_to_plot][fueltype_int]
 
-            #Summarise over all regions
-            data_over_day = np.zeros((365*24))
-            for region_data in data_model_run[fueltype]:
-                data_over_day += region_data #FASTER with numpy TODO
+        data_over_day = np.zeros((8760))
+        for region_data in fuel_all_regions:
+            data_over_day += region_data #FASTER with numpy TODO
 
-        Y_init[fueltype] = data_over_day
+        Y_init[fueltype_int] = data_over_day
 
     # Plot lines
     for line, _ in enumerate(Y_init):
@@ -274,7 +270,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, ye
     else:
         pass
 
-def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
+def plt_fuels_enduses_y(fig_name, results_resid, data):
     """Plots stacked end_use for a region
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
@@ -291,8 +287,8 @@ def plt_fuels_enduses_y(fig_name, results_resid, data, attribute_to_get):
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
-        legend_entries.append(fueltype_in_string)
+        fueltype_str = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
+        legend_entries.append(fueltype_str)
 
         # Read out fueltype specific max h load
         data_over_years = []
@@ -349,9 +345,9 @@ def plt_fuels_peak_h(results_resid, data, attribute_to_get):
     for fueltype, _ in enumerate(data['lookups']['fueltype']):
 
         # Legend
-        fueltype_in_string = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
+        fueltype_str = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
 
-        legend_entries.append(fueltype_in_string)
+        legend_entries.append(fueltype_str)
 
         # REad out fueltype specific max h load
         data_over_years = []

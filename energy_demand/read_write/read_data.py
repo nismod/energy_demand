@@ -13,7 +13,6 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
     """
     """
     results = defaultdict(dict)
-    #results = {}
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
@@ -37,8 +36,7 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             # Add year if not already exists
             results[year][fueltype_array_position] = txt_data
         except:
-            #path is a folder and not a file
-            pass
+            pass #path is a folder and not a file
     
     return results
 
