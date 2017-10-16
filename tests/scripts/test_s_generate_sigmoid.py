@@ -9,7 +9,7 @@ from energy_demand.technologies import diffusion_technologies
 def test_calc_sigmoid_parameters():
     """Testing
     """
-    l_value = 1.0
+    l_value = 0.5
     xdata = np.array([2020.0, 2050.0]) #[point_x_by, point_x_projected]
     ydata = np.array([0.1, 0.2]) #[point_y_by, point_y_projected]
 
@@ -22,7 +22,8 @@ def test_calc_sigmoid_parameters():
         fit_crit_b=0.001)
 
     #print("Plot graph: " + str(fit_parameter))
-    '''plotting_program.plotout_sigmoid_tech_diff(
+    '''
+    plotting_program.plotout_sigmoid_tech_diff(
         l_value,
         "testtech",
         "test_enduse",
@@ -46,3 +47,4 @@ def test_calc_sigmoid_parameters():
     assert out_midpoint == out_midpoint
     assert expected_slope == out_slope
     '''
+#test_calc_sigmoid_parameters()

@@ -8,33 +8,33 @@ def test_conversion_ktoe_gwh():
     expected = in_value * 11.6300000
 
     # call function
-    out_value = conversions.convert_ktoe_gwh(in_value)
+    out_value = conversions.ktoe_to_gwh(in_value)
 
     assert out_value == expected
 
-def test_convert_kwh_gwh():
+def test_kwh_to_gwh():
     """Testing function
     """
     in_value = 10
     expected = in_value *  0.000001
 
     # call function
-    out_value = conversions.convert_kwh_gwh(in_value)
+    out_value = conversions.kwh_to_gwh(in_value)
 
     assert out_value == expected
 
-def test_convert_ktoe_twh():
+def test_ktoe_to_twh():
     """Testing function
     """
     in_value = 10
     expected = in_value *  0.01163
 
     # call function
-    out_value = conversions.convert_ktoe_twh(in_value)
+    out_value = conversions.ktoe_to_twh(in_value)
 
     assert out_value == expected
 
-def test_convert_mw_gwhh():
+def test_mw_to_gwhh():
     """Testing function
     """
     megawatt_hour = 100
@@ -43,7 +43,7 @@ def test_convert_mw_gwhh():
     expected = (megawatt_hour * number_of_hours) / 1000.0
 
     # call function
-    out_value = conversions.convert_mw_gwh(megawatt_hour, number_of_hours)
+    out_value = conversions.mw_to_gwh(megawatt_hour, number_of_hours)
 
     assert out_value == expected
 

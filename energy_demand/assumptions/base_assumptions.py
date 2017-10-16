@@ -430,8 +430,8 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     # Helper functions
     # ============================================================
-    ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing.testing_correct_service_switch_entered(assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
+    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
+    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
 
     # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])

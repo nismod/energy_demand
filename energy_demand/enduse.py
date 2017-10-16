@@ -258,7 +258,7 @@ class Enduse(object):
                 # Switches
                 # --------------------------------
                 if crit_switch_service:
-                    logging.info("SERVICE SWITCH TRUE")
+                    logging.info("... Service switch is implemented")
                     service_tech = self.service_switch(
                         tot_service_h_cy,
                         service_tech_cy_p,
@@ -268,7 +268,7 @@ class Enduse(object):
                         sig_param_tech,
                         data['sim_param']['curr_yr'])
                 elif crit_switch_fuel:
-                    logging.debug("FUEL SWITCH TRUE")
+                    logging.debug("... Fuel switch is implemented")
                     service_tech = self.fuel_switch(
                         installed_tech,
                         sig_param_tech,
@@ -288,7 +288,7 @@ class Enduse(object):
                 self.service_to_fuel(
                     service_tech,
                     tech_stock,
-                    data['lookups']['fueltype'],
+                    data['lookups'],
                     mode_constrained,
                     data['assumptions']['model_yeardays'])
 
@@ -310,7 +310,7 @@ class Enduse(object):
                     self.fuel_y = self.calc_fuel_tech_y(
                         tech_stock,
                         fuel_tech_y,
-                        data['lookups']['fueltype'],
+                        data['lookups'],
                         mode_constrained)
 
                 else:
@@ -320,7 +320,7 @@ class Enduse(object):
                         fuel_tech_y,
                         tech_stock,
                         load_profiles,
-                        data['lookups']['fueltype'],
+                        data['lookups'],
                         mode_constrained,
                         data['assumptions']['model_yeardays_nrs']
                         )
@@ -394,7 +394,7 @@ class Enduse(object):
         else:
             return False
 
-    def calc_fuel_tech_y(self, tech_stock, fuel_tech_y, lu_fueltypes, mode_constrained):
+    def calc_fuel_tech_y(self, tech_stock, fuel_tech_y, lookups, mode_constrained):
         """Calculate yearly fuel per fueltype (no load profile assigned)
 
         Arguments
@@ -403,8 +403,8 @@ class Enduse(object):
             Technology stock
         fuel_tech_y : dict
             Fuel per technology per year
-        lu_fueltypes : dict
-            Fueltype look-up
+        lookups : dict
+            look-up
         mode_constrained : bool
             Running mode
 
@@ -421,8 +421,8 @@ class Enduse(object):
 
         if mode_constrained: #Constrained mode
             # Assign all to heat fueltype
-            fueltypes_tech_share_yh = np.zeros((self.fuel_new_y.shape))
-            fueltypes_tech_share_yh[lu_fueltypes['heat']] = 1
+            fueltypes_tech_share_yh = np.zeros((lookups['fueltype']['fueltypes_nr']))
+            fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech, fuel_tech_y in fuel_tech_y.items():
                 fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
@@ -1034,7 +1034,7 @@ class Enduse(object):
 
         return fuels_peak_dh
 
-    def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles, lu_fueltypes, mode_constrained, nr_of_days):
+    def calc_fuel_tech_yh(self, enduse_fuel_tech, tech_stock, load_profiles, lookups, mode_constrained, nr_of_days):
         """Iterate fuels for each technology and assign shape yd and yh shape
 
         Arguments
@@ -1045,7 +1045,7 @@ class Enduse(object):
             Technologies
         load_profiles : object
             Load profiles
-        lu_fueltypes : dict
+        lookups : dict
             Fuel look-up table
         mode_constrained : bool
             Mode criteria
@@ -1057,11 +1057,13 @@ class Enduse(object):
         fuels_yh : array
             Fueltype storing hourly fuel for every fueltype (fueltype, nr_of_days, 24)
         """
-        fuels_yh = np.zeros((self.fuel_new_y.shape[0], nr_of_days, 24))
+        fuels_yh = np.zeros((lookups['fueltypes_nr'], nr_of_days, 24))
 
         if mode_constrained: # Constrained version
-            fueltypes_tech_share_yh = np.zeros((self.fuel_new_y.shape))
-            fueltypes_tech_share_yh[lu_fueltypes['heat']] = 1 # Assign all to heat
+            fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']))
+
+            # Assign full share to heat
+            fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech in self.enduse_techs:
                 fuel_tech_yh = enduse_fuel_tech[tech] * lp.abs_to_rel(load_profiles.get_lp(
@@ -1133,30 +1135,11 @@ class Enduse(object):
 
             # Calculate increase in service based on diffusion of installed technology
             # (diff & total service== Todays demand) - already installed service
-            '''logging.debug("eeeeeeeeeeeeeeeeee")
-            logging.debug(sig_param_tech[self.enduse][tech_installed])
-            logging.debug(tech_installed)
-            logging.debug(np.sum(service_tech[tech_installed]))
-            logging.debug(diffusion_cy)
-            logging.debug(np.sum(tot_service_h_cy))
-            '''
+
             #OLD
             ##service_tech_installed_cy = (diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]
-
-            #NEW
             service_tech_installed_cy = (diffusion_cy * tot_service_h_cy)
 
-            '''logging.debug("-----------Tech_installed:  "  + str(tech_installed))
-            logging.debug(" service_tech_installed_cy: {}".format(np.sum(service_tech_installed_cy)))
-            logging.debug("diffusion_cy  " + str(diffusion_cy))
-            logging.debug(" Tot service before " + str(np.sum(tot_service_h_cy)))
-            logging.debug(" Tot service after  " + str(np.sum(service_tech_after_switch[tech_installed])))
-            logging.debug("----")
-            logging.debug(np.sum(diffusion_cy * tot_service_h_cy))
-            logging.debug(np.sum(service_tech[tech_installed]))
-            logging.debug(np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]))
-            logging.debug("TODAY SHARE (fraciton): " + str(np.sum((1 / np.sum(tot_service_h_cy)) * service_tech[tech_installed])))
-            '''
             # Assert if minus demand
             #assert np.sum((diffusion_cy * tot_service_h_cy) - service_tech[tech_installed]) >= 0
 
@@ -1195,7 +1178,8 @@ class Enduse(object):
                 for fuelswitch in fuel_switches:
                     if fuelswitch['enduse'] == self.enduse and fuelswitch['technology_install'] == tech_installed and fuelswitch['enduse_fueltype_replace'] == fueltype_replace:
 
-                        # Service reduced for this fueltype (service technology cy sigmoid diff *  % of heat demand within fueltype)
+                        # Service reduced for this fueltype
+                        # (service technology cy sigmoid diff *  % of heat demand within fueltype)
                         if tot_service_tech_instal_p == 0:
                             reduction_service_fueltype = 0
                         else:
@@ -1223,11 +1207,7 @@ class Enduse(object):
                     # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                     # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
                     if np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech) < 0:
-                        '''logging.debug("Warning: blblablab")
-                        logging.debug(np.sum(service_tech_after_switch[technology_replaced]))
-                        logging.debug(np.sum(service_demand_tech))
-                        logging.debug(np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech))
-                        '''
+
                         #sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
                         service_tech_after_switch[technology_replaced] = service_tech_after_switch[technology_replaced] * 0
                     else:
@@ -1240,7 +1220,7 @@ class Enduse(object):
 
         return service_tech_after_switch
 
-    def service_to_fuel(self, service_tech, tech_stock, lu_fueltypes, mode_constrained, model_yeardays):
+    def service_to_fuel(self, service_tech, tech_stock, lookups, mode_constrained, model_yeardays):
         """Convert yearly energy service to yearly fuel demand. For every
         technology the service is taken and converted
         to fuel based on efficiency of current year
@@ -1251,8 +1231,8 @@ class Enduse(object):
             Service per fueltype and technology
         tech_stock : object
             Technological stock
-        lu_fueltypes : dict
-            Fueltype look-up
+        lookups : dict
+            look-up
         mode_constrained : bool
             Mode running criteria
 
@@ -1261,20 +1241,21 @@ class Enduse(object):
         - The attribute 'fuel_new_y' is updated
         - Fuel = Energy service / efficiency
         """
-        enduse_fuels = np.zeros((self.fuel_new_y.shape))
+        enduse_fuels = np.zeros((lookups['fueltypes_nr']))
 
         if mode_constrained:
-            fuel_fueltype_p = np.zeros((self.fuel_new_y.shape))
-            fuel_fueltype_p[lu_fueltypes['heat']] = 1.0 #Assign all to heat
+            fuel_fueltype_p = np.zeros((lookups['fueltypes_nr']))
+            # Assign all to heat
+            fuel_fueltype_p[lookups['fueltype']['heat']] = 1.0
 
             for tech, fuel_tech in service_tech.items():
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
 
         else:
             for tech, service in service_tech.items():
-                
-                eff_full_year = tech_stock.get_tech_attr(self.enduse, tech, 'eff_cy')
-                
+                eff_full_year = tech_stock.get_tech_attr(
+                    self.enduse, tech, 'eff_cy')
+
                 # If array anre more than one eff
                 if isinstance(eff_full_year, np.ndarray):
                     if eff_full_year.shape[0] == 365:

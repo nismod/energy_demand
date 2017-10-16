@@ -2,7 +2,6 @@
 """
 import sys
 import numpy as np
-from energy_demand.basic import conversions
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """Test if assigned fuel share add up to 1 within each fuletype
@@ -16,7 +15,7 @@ def testing_fuel_tech_shares(fuel_tech_fueltype_p):
         for fueltype in fuel_tech_fueltype_p[enduse]:
             if fuel_tech_fueltype_p[enduse][fueltype] != {}:
                 if round(sum(fuel_tech_fueltype_p[enduse][fueltype].values()), 3) != 1.0:
-                    sys.exit("Error: The fuel shares assumptions are wrong for enduse  {}  and fueltype {}  SUM: {}".format(enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
+                    sys.exit("Error: The fuel shares assumptions are wrong for enduse {} and fueltype {} SUM: {}".format(enduse, fueltype, sum(fuel_tech_fueltype_p[enduse][fueltype].values())))
 
 def testing_tech_defined(technologies, all_tech_enduse):
     """Test if all technologies are defined for assigned fuels
@@ -34,7 +33,9 @@ def testing_tech_defined(technologies, all_tech_enduse):
                 sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
 
 def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_service_tech_ey_p, technologies):
-    """Test if end_year service switch technology is not assigned in base year and test if fuel share of hybrid tech is assigned
+    """Test if end_year service switch technology is
+    not assigned in base year and test if fuel share
+    of hybrid tech is assigned
 
     Arguments
     ----------
@@ -63,7 +64,7 @@ def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_servi
                 if technology not in fuel_tech_p_by[enduse][fueltype_tech].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
 
-def testing_correct_service_switch_entered(tech_stock_definition, switches):
+def testing_service_switch_insert(tech_stock_definition, switches):
     """Test switches
     """
     for enduse in tech_stock_definition:

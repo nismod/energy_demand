@@ -93,8 +93,8 @@ def read_raw_elec_2015_data(path_to_csv):
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)
-                hour_elec_demand_gwh_INDO = conversions.convert_mw_gwh(hour_elec_demand_INDO, 0.5)
-                hour_elec_demand_gwh_ITSDO = conversions.convert_mw_gwh(hour_elec_demand_ITSDO, 0.5)
+                hour_elec_demand_gwh_INDO = conversions.mw_to_gwh(hour_elec_demand_INDO, 0.5)
+                hour_elec_demand_gwh_ITSDO = conversions.mw_to_gwh(hour_elec_demand_ITSDO, 0.5)
 
                 # Add to array
                 #logging.debug(" sdf  {}  {}  {}  ".format(yearday, hour, hour_elec_demand_gwh))

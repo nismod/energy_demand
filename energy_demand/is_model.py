@@ -25,7 +25,10 @@ class IndustryModel(object):
         self.region_name = region_obj.region_name
         self.enduse = enduse
         self.sector = sector
-        self.enduse_object = self.create_enduse(region_obj, data, crit_flat_profile)
+        self.enduse_object = self.create_enduse(
+            region_obj,
+            data,
+            crit_flat_profile)
 
     def create_enduse(self, region_obj, data, crit_flat_profile):
         """Create enduse for industry sector
@@ -50,7 +53,7 @@ class IndustryModel(object):
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
             regional_lp_stock=region_obj.is_load_profiles,
             reg_scen_drivers=data['assumptions']['scenario_drivers']['is_submodule'],
-            crit_flat_profile=crit_flat_profile #True
+            crit_flat_profile=crit_flat_profile
         )
 
         return industry_object

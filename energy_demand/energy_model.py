@@ -115,7 +115,7 @@ class EnergyModel(object):
             'peak_h',
             data['assumptions']['model_yeardays_nrs'])
 
-        #-------------------
+        '''#-------------------
         # TESTING
         #-------------------
         print("FUEL FOR FIRST WEEK")
@@ -133,7 +133,7 @@ class EnergyModel(object):
                 _sum_all += np.sum(region_fuel)
         print("_sum_day_selection")
         print(_sum_day_selection)
-        print("_sum_all: " + str(_sum_all))
+        print("_sum_all: " + str(_sum_all))'''
 
         # ---------------------------
         # Functions for load calculations
@@ -276,17 +276,19 @@ class EnergyModel(object):
         # dummy is - Flat load profile
         shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
             assumptions['model_yeardays_nrs'], )
-        
+
         # If space heating, add load shapes for service sector
-        shape_peak_dh_all_sectors_and_enduses = defaultdict(dict)
+        shape_peak_dh_sectors_enduses = defaultdict(dict)
         all_enduses_including_heating = assumptions['is_dummy_enduses']
         all_enduses_including_heating.append("is_space_heating")
         for sector in sectors['is_sectors']:
             for enduse in all_enduses_including_heating:
                 if enduse == "is_space_heating":
-                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+                    shape_peak_dh_sectors_enduses[sector][enduse] = {
+                        'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
                 else:
-                    shape_peak_dh_all_sectors_and_enduses[sector][enduse] = {'shape_peak_dh': shape_peak_dh}
+                    shape_peak_dh_sectors_enduses[sector][enduse] = {
+                        'shape_peak_dh': shape_peak_dh}
 
         for enduse in assumptions['is_dummy_enduses']:
             
@@ -302,7 +304,7 @@ class EnergyModel(object):
                         shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
                         sectors=[sector],
                         enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
-                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
+                        shape_peak_dh=shape_peak_dh_sectors_enduses
                         )
             else:
                 tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
@@ -315,7 +317,7 @@ class EnergyModel(object):
                         shape_yh=shape_non_peak_yh,
                         sectors=[sector],
                         enduse_peak_yd_factor=shape_peak_yd_factor,
-                        shape_peak_dh=shape_peak_dh_all_sectors_and_enduses
+                        shape_peak_dh=shape_peak_dh_sectors_enduses
                         )
 
         return non_regional_lp_stock
@@ -380,11 +382,13 @@ class EnergyModel(object):
         for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
-                    
+
+                    # Take load profile for is space heating
+                    # from service sector space heating
                     if enduse == "is_space_heating":
-                        crit_flat_profile = True #eigentlich false
+                        crit_flat_profile = False
                     else:
-                        crit_flat_profile = True #CC 
+                        crit_flat_profile = True
 
                     # Create submodule
                     submodule = is_model.IndustryModel(
@@ -400,8 +404,6 @@ class EnergyModel(object):
 
                     _scrap_cnt += 1
                     logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
-
-        #del self.regions #, self.weather_regions
 
         return submodules
 
@@ -430,7 +432,6 @@ class EnergyModel(object):
 
         submodule_list = []
 
-        # Iterate regions and enduses
         for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
@@ -444,8 +445,6 @@ class EnergyModel(object):
                         )
 
                     submodule_list.append(submodel_object)
-
-        #del self.regions #, self.weather_regions # To save on memory
 
         return submodule_list
 
@@ -474,7 +473,6 @@ class EnergyModel(object):
         _scrap_cnt = 0
         submodule_list = []
 
-        # Iterate regions, sectors and enduses
         for region_obj in self.regions:
             for sector in sectors:
                 for enduse in enduses:
@@ -491,10 +489,7 @@ class EnergyModel(object):
                     submodule_list.append(submodule)
 
                     _scrap_cnt += 1
-                    logging.debug("   ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
-
-        # To save on memory
-        #del self.regions#, self.weather_regions
+                    logging.debug(" ...running service model {}  {}".format(data['sim_param']['curr_yr'], 100.0 / (len(self.regions) * len(sectors) * len(enduses)) * _scrap_cnt))
 
         return submodule_list
 
@@ -618,9 +613,15 @@ class EnergyModel(object):
                 # Select specific region if defined
                 if region_name:
                     if model_object.region_name == region_name:
-                        fuels += self.get_fuels_yh(model_object, attribute_to_get, model_yeardays_nrs)
+                        fuels += self.get_fuels_yh(
+                            model_object,
+                            attribute_to_get,
+                            model_yeardays_nrs)
                 else:
-                    fuels += self.get_fuels_yh(model_object, attribute_to_get, model_yeardays_nrs)
+                    fuels += self.get_fuels_yh(
+                        model_object,
+                        attribute_to_get,
+                        model_yeardays_nrs)
 
         # Criteria if fuel is summed or not
         if sum_crit == 'no_sum':

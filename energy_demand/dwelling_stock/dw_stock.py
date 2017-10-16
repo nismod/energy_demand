@@ -4,9 +4,9 @@ Generates a virtual dwelling stock
 """
 import sys
 import logging
+from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import diffusion_technologies
-from collections import defaultdict
 
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
@@ -97,15 +97,14 @@ class Dwelling(object):
                 Dwelling.__setattr__(self, enduse, scenario_driver_value)
             else:
                 scenario_drivers = driver_assumptions[enduse]
-                
-                #NEW
+
                 try:
                     # Iterate scenario driver and get attriute to multiply values
                     for scenario_driver in scenario_drivers:
                         scenario_driver_value *= getattr(self, scenario_driver) #: sum drivers
                 except TypeError:
-                    logging.warning("Driver Assumption is None and scenario driver calculation is not possible")
-                # Set attribute
+                    logging.warning("Driver Assumption is None, scenario driver calculation not possible")
+
                 Dwelling.__setattr__(
                     self,
                     enduse,
@@ -482,7 +481,7 @@ def rs_dw_stock(regions, data):
 
     dwelling_stock = defaultdict(dict)
 
-    # Get changes in absolute floor area per dwelling type over time NEW
+    # Get changes in absolute floor area per dwelling type over time
     dwtype_floor_area = get_dwtype_floor_area(
         data['assumptions']['assump_dwtype_floorarea_by'],
         data['assumptions']['assump_dwtype_floorarea_ey'],

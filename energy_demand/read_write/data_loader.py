@@ -3,7 +3,6 @@
 import os
 import csv
 import logging
-import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
@@ -42,7 +41,7 @@ def load_basic_lookups():
 
     return lookups
 
-def get_dummy_coordinates_and_regions(local_paths):
+def get_dummy_coord_region(local_paths):
     """create dummy coord and regions
     """
     coord_dummy = {}
@@ -58,7 +57,7 @@ def get_dummy_coordinates_and_regions(local_paths):
     return coord_dummy, regions
 
 def dummy_data_generation(data):
-    """TODO: REPLACE WITH NEWCASTLE DATA
+    """REPLACE WITH NEWCASTLE DATA
     """
     data['all_sectors'] = [
         'community_arts_leisure',
@@ -363,10 +362,10 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
-        local_paths['rs_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        local_paths['rs_load_profile_txt'], assumptions['model_yeardays'])
 
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
-        local_paths['ss_load_profile_txt'], assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        local_paths['ss_load_profile_txt'], assumptions['model_yeardays'])
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
@@ -430,7 +429,7 @@ def load_fuels(paths, lookups):
 
     return enduses, sectors, fuels
 
-def rs_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
+def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files without accesing raw files
 
     This loads HES files for residential sector
@@ -478,7 +477,7 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
 
     return rs_shapes_dh, rs_shapes_yd
 
-def ss_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
+def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     """Collect service shapes from txt files for every setor and enduse
 
     Arguments
@@ -513,13 +512,21 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays, model_yeardays_nrs):
         for enduse in enduses:
             joint_string_name = str(sector) + "__" + str(enduse)
             shape_peak_dh = write_data.read_txt_shape_peak_dh(
-                os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
+                os.path.join(
+                    txt_path,
+                    str(joint_string_name) + str("__") + str('shape_peak_dh') + str('.txt')))
             shape_non_peak_y_dh = write_data.read_txt_shape_non_peak_yh(
-                os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
+                os.path.join(
+                    txt_path,
+                    str(joint_string_name) + str("__") + str('shape_non_peak_y_dh') + str('.txt')))
             shape_peak_yd_factor = write_data.read_txt_shape_peak_yd_factor(
-                os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
+                os.path.join(
+                    txt_path,
+                    str(joint_string_name) + str("__") + str('shape_peak_yd_factor') + str('.txt')))
             shape_non_peak_yd = write_data.read_txt_shape_non_peak_yd(
-                os.path.join(txt_path, str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
+                os.path.join(
+                    txt_path,
+                    str(joint_string_name) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
             # -----------------------------------------------------------
             # Select only modelled days (nr_of_days, 24)

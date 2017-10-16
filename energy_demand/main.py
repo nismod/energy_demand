@@ -124,7 +124,6 @@ if __name__ == "__main__":
         if instrument_profiler:
             profiler.stop()
             logging.debug("Profiler Results")
-            print(profiler.output_text(unicode=True, color=True))
             logging.info(profiler.output_text(unicode=True, color=True))
 
         results_every_year.append(model_run_object)
@@ -132,7 +131,7 @@ if __name__ == "__main__":
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
-        
+
         # ----------------------
         # Write annual results to txt files
         # ----------------------
@@ -140,7 +139,7 @@ if __name__ == "__main__":
             sim_yr,
             data['local_paths']['data_results_model_runs'],
             out_to_supply)
-        
+
         #Write fuel per enduse (for all regions)
         write_data.write_model_result_to_txt_enduse(
             sim_yr,
@@ -152,11 +151,11 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         fuel_electricity_year_validation = 385
         fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']))
-        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.convert_ktoe_gwh(
+        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.ktoe_to_gwh(
             fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
         model_object_transport = generic_shapes.GenericFlatEnduse(
             fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
-        
+
         ##lad_validation.temporal_validation(data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
         # ---------------------------------------------------
@@ -180,5 +179,5 @@ if __name__ == "__main__":
     # Plotting
     # ------------------------------
     plotting_results.run_all_plot_functions(results_every_year, results_enduse_every_year, data)
-    
+
     logging.debug("... Finished running Energy Demand Model")

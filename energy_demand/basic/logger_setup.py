@@ -14,7 +14,7 @@ def set_up_logger(path_log_file):
     Info
     -----
     The logging level can be changed depending on mode
-    
+
     Note
     ----
     logger.debug('debug message')
@@ -38,4 +38,4 @@ def set_up_logger(path_log_file):
     logging.getLogger().addHandler(logging.StreamHandler())
 
     # Turn on/off logger
-    logging.disable = False #True
+    logging.disable = False
