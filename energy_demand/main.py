@@ -69,9 +69,15 @@ def energy_demand_model(data):
 if __name__ == "__main__":
     """
     """
+    if len(sys.argv) != 2:
+        exit("""
+Please provide a local data path:
+    python main.py ../energy_demand_data
+""")
+
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = os.path.join(r'C:\DATA_NISMODII', 'data_energy_demand')
+    local_data_path = sys.argv[1]
 
     # Initialise logger
     log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
