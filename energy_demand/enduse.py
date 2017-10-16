@@ -795,16 +795,15 @@ class Enduse(object):
         For every enduse technologes must either be defined
         for no fueltype or for all fueltypes
         """
-        enduse_techs = set([])
-        for _, tech_fueltype in fuel_tech_p_by.items():
+        enduse_techs = []
+        for tech_fueltype in fuel_tech_p_by.values():
             for tech in tech_fueltype.keys():
-                enduse_techs.add(tech)
+                enduse_techs.append(tech)
 
                 if tech == 'dummy_tech':
-                    enduse_techs = []
-                    return list(enduse_techs)
+                    return []
 
-        return list(enduse_techs)
+        return list(set(enduse_techs))
 
     def service_switch(self, tot_service_h_cy, service_tech_by_p, tech_increase_service, tech_decrease_service, tech_constant_service, sig_param_tech, curr_yr):
         """Apply change in service depending on defined service switches
