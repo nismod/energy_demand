@@ -403,7 +403,7 @@ class EnergyModel(object):
                     submodules.append(submodule)
 
                     _scrap_cnt += 1
-                    logging.debug("   ...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
+                    logging.debug("...running industry model {} in % {} ".format(data['sim_param']['curr_yr'], 100 / (len(self.regions) * len(sectors) * len(enduses)) *_scrap_cnt))
 
         return submodules
 

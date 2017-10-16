@@ -59,7 +59,7 @@ def load_assumptions(data, write_sim_param):
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
 
     # --------------------------------------
-    # Calculate for all yeardays the daytype
+    # Calculate for all yeardays the daytype of base year
     # --------------------------------------
     list_dates = date_handling.fullyear_dates(
         start=date(sim_param['base_yr'], 1, 1),
@@ -299,18 +299,21 @@ def load_assumptions(data, write_sim_param):
         'is_space_heating': 0.0
     }
 
-    # ---------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses
-    # ---------------------------------------------------------------------------------------------------------------------
-    #   With these assumptions, general efficiency gain (across all fueltypes) can be defined
-    #   for specific enduses. This may be e.g. due to general efficiency gains or anticipated increases in demand.
+    # ---------------------------------------------------------
+    #   With these assumptions, general efficiency gain (across all fueltypes)
+    #   can be defined
+    #   for specific enduses. This may be e.g. due to general efficiency gains 
+    #   or anticipated increases in demand.
     #   NTH: Specific hanges per fueltype (not across al fueltesp)
     #
     #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
-    # ---------------------------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
-        # Lighting: E.g. how much floor area / % (social change - how much floor area is lighted (smart monitoring)) (smart-lighting)
+        # Lighting: E.g. how much floor area / % (social change - how much
+        # floor area is lighted (smart monitoring)) (smart-lighting)
         # Submodel Residential
         'rs_model': {
             'rs_space_heating': 1,
@@ -413,9 +416,12 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
-    assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(data['paths']['rs_path_fuel_switches'], data['enduses'], data['lookups'])
-    assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(data['paths']['ss_path_fuel_switches'], data['enduses'], data['lookups'])
-    assumptions['is_fuel_switches'] = read_data.read_fuel_switches(data['paths']['is_path_fuel_switches'], data['enduses'], data['lookups'])
+    assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
+        data['paths']['rs_path_fuel_switches'], data['enduses'], data['lookups'])
+    assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
+        data['paths']['ss_path_fuel_switches'], data['enduses'], data['lookups'])
+    assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
+        data['paths']['is_path_fuel_switches'], data['enduses'], data['lookups'])
 
     # ============================================================
     # Scenaric SERVICE switches

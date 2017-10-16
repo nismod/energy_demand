@@ -1058,7 +1058,7 @@ class Enduse(object):
         """
         fuels_yh = np.zeros((lookups['fueltypes_nr'], nr_of_days, 24))
 
-        if mode_constrained: # Constrained version
+        if mode_constrained == True: # Constrained version
             fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']))
 
             # Assign full share to heat
@@ -1077,9 +1077,8 @@ class Enduse(object):
 
                 # Fuel distribution
                 fuel_tech_yh = enduse_fuel_tech[tech] * lp.abs_to_rel(load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh'))
-                #logging.debug("TECHN: {}   {}   {}".format(tech,np.sum(fuel_tech_yh), fuel_tech_yh.shape))
 
-                # FAST: Get distribution per fueltype
+                # Get distribution per fueltype
                 fueltypes_tech_share_yh = tech_stock.get_tech_attr(
                     self.enduse, tech, 'fueltype_share_yh_all_h')
 
