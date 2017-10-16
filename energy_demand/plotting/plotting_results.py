@@ -48,7 +48,7 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
 
 
     # Plot peak demand (h) per fueltype
-    plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
+    #plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_allenduse_fueltyp')
     return
 
 def plot_x_days(all_hours_year, region, days):
@@ -176,12 +176,9 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype']):
+    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
 
         # Legend
-        for fueltype_str in data['lookups']['fueltype']:
-            if data['lookups']['fueltype'][fueltype_str] == fueltype:
-                fueltype_str = fueltype_str
         legend_entries.append(fueltype_str)
 
         # REad out fueltype specific max h load
@@ -190,9 +187,9 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
             # Max hourly load curve of fueltype
             fueltype_load_max_h = model_year_object.tot_country_fuel_load_max_h
 
-            data_over_years.append(fueltype_load_max_h[fueltype][0])
+            data_over_years.append(fueltype_load_max_h[fueltype_int][0])
 
-        Y_init[fueltype] = data_over_years
+        Y_init[fueltype_int] = data_over_years
 
     # Plot lines
     for line, _ in enumerate(Y_init):
@@ -236,8 +233,6 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, ye
     for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
 
         legend_entries.append(fueltype_str) #Legend
-
-        print("A: " + str(results_resid[year_to_plot][fueltype_int].shape))
         # Select year to plot
         fuel_all_regions = results_resid[year_to_plot][fueltype_int]
 

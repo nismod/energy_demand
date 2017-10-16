@@ -38,7 +38,6 @@ class EnergyModel(object):
         logging.debug("... start main energy demand function")
         self.curr_yr = data['sim_param']['curr_yr']
 
-
         # Create non regional dependent load profiles
         data['non_regional_lp_stock'] = self.create_load_profile_stock(
             data['tech_lp'],

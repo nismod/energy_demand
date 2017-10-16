@@ -280,10 +280,6 @@ class Technology(object):
         fueltypes_yh[fueltype] = 1.0
 
         return fueltypes_yh
-        #FASTER
-        #fueltypes_yh_sum = np.zeros((len_fueltypes))
-        #fueltypes_yh_sum[fueltype] = model_yeardays_nrs * 24 #factor if
-        #return fueltypes_yh_sum
 
 class HybridTechnology(object):
     """Hybrid technology which consist of two different technologies
