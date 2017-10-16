@@ -70,14 +70,15 @@ if __name__ == "__main__":
     """
     """
     if len(sys.argv) != 2:
-        exit("""
-Please provide a local data path:
-    python main.py ../energy_demand_data
-""")
+        print("Please provide a local data path:")
+        print("    python main.py ../energy_demand_data\n")
+        print("Defaulting to 'C:\DATA_NISMODII\data_energy_demand'\n")
+        local_data_path = r'C:\DATA_NISMODII\data_energy_demand'
+    else:
+        local_data_path = sys.argv[1]
 
     # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    local_data_path = sys.argv[1]
 
     # Initialise logger
     log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
