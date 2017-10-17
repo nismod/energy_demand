@@ -4,7 +4,6 @@ import sys
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.profiles import load_profile
-###pylint: disable=I0011, C0321, C0301, C0103, C0325, R0902, R0913, no-member, E0213
 
 class TechStock(object):
     """Class of a technological stock of a year of the residential model
@@ -101,7 +100,7 @@ class TechStock(object):
                 #logging.debug("         ...{}   {}".format(sector, technology))
                 tech_type = tech_related.get_tech_type(technology_name, assumptions['tech_list'])
 
-                if tech_type == 'hybrid_tech':
+                '''if tech_type == 'hybrid_tech':
                     # Create hybrid technology object
                     tech_obj = HybridTechnology(
                         enduse,
@@ -113,15 +112,16 @@ class TechStock(object):
                         t_base_heating_cy
                         )
                 else:
-                    tech_obj = Technology(
-                        technology_name,
-                        assumptions, sim_param, lookups,
-                        temp_by,
-                        temp_cy,
-                        t_base_heating_by,
-                        t_base_heating_cy,
-                        tech_type
-                    )
+                '''
+                tech_obj = Technology(
+                    technology_name,
+                    assumptions, sim_param, lookups,
+                    temp_by,
+                    temp_cy,
+                    t_base_heating_by,
+                    t_base_heating_cy,
+                    tech_type
+                )
 
                 stock_technologies[(technology_name, enduse)] = tech_obj
 
@@ -146,8 +146,10 @@ class TechStock(object):
         """
         tech_object = self.stock_technologies[(tech_name, enduse)]
 
-        if attribute_to_get == 'service_distr_hybrid_h_p':
-            attribute_value = tech_object.service_distr_hybrid_h_p
+        #if attribute_to_get == 'service_distr_hybrid_h_p':
+        #    attribute_value = tech_object.service_distr_hybrid_h_p
+        if attribute_to_get == 'tech_fueltype':
+            attribute_value = tech_object.tech_fueltype
         elif attribute_to_get == 'eff_cy':
             attribute_value = tech_object.eff_cy
         elif attribute_to_get == 'eff_by':
@@ -163,7 +165,7 @@ class TechStock(object):
         elif attribute_to_get == 'fueltype_share_yh_all_h':
             attribute_value = tech_object.fueltype_share_yh_all_h
         else:
-            sys.exit("Error: Attribute not found")
+            sys.exit("Error: Attribute not found {}".format(attribute_to_get))
 
         return attribute_value
 
@@ -200,22 +202,27 @@ class Technology(object):
         else:
             self.tech_name = tech_name
             self.tech_type = tech_type
+            self.tech_fueltype = assumptions['technologies'][tech_name]['fuel_type'] #BELUGA
             self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.eff_achieved_factor = assumptions['technologies'][self.tech_name]['eff_achieved']
             self.diff_method = assumptions['technologies'][self.tech_name]['diff_method']
 
             # Shares of fueltype for every hour for single fueltype
+            #TODO: MYBE REMOVE ALL EMPTY FUEL BUT ONLY SINGLE FUELTYPE
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
-                assumptions['technologies'][tech_name]['fuel_type'],
+                lookups['fueltype'][self.tech_fueltype],
                 lookups['fueltypes_nr'],
                 assumptions['model_yeardays_nrs'])
 
             # Calculate shape per fueltype
-            self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
+            '''self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
                 lookups['fueltypes_nr'],
                 assumptions['technologies'][tech_name]['fuel_type'],
-                self.fueltypes_yh_p_cy)
+                self.fueltypes_yh_p_cy)'''
 
+            # BELUGA
+            self.fueltype_share_yh_all_h = np.zeros((lookups['fueltypes_nr'])) #BELUGA
+            self.fueltype_share_yh_all_h[lookups['fueltype'][self.tech_fueltype]] = 1
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
@@ -279,7 +286,7 @@ class Technology(object):
 
         return fueltypes_yh
 
-class HybridTechnology(object):
+'''class HybridTechnology(object):
     """Hybrid technology which consist of two different technologies
 
     Arguments
@@ -486,3 +493,4 @@ class HybridTechnology(object):
         fueltypes_yh[self.tech_high_temp_fueltype] = _var * fuel_high_h
 
         return fueltypes_yh
+'''

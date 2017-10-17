@@ -384,18 +384,17 @@ def load_assumptions(data, write_sim_param):
 
     # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
-        data,
         [],
         assumptions['technologies'],
         assumptions['installed_heat_pump']
         )
 
     # --Hybrid technologies
-    assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = tech_related.get_defined_hybrid_tech(
+    '''assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = tech_related.get_defined_hybrid_tech(
         assumptions,
         assumptions['technologies'],
         hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
-        hybrid_cutoff_temp_high=7)
+        hybrid_cutoff_temp_high=7)'''
 
     # ----------
     # Enduse definition list
@@ -468,11 +467,11 @@ def load_assumptions(data, write_sim_param):
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
-    testing.testing_switch_technologies(
+    '''testing.testing_switch_technologies(
         assumptions['hybrid_technologies'],
         assumptions['rs_fuel_tech_p_by'],
         assumptions['rs_share_service_tech_ey_p'],
-        assumptions['technologies'])
+        assumptions['technologies'])'''
 
     if write_sim_param == True:
         return sim_param, assumptions

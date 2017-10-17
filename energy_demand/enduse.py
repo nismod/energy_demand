@@ -122,9 +122,9 @@ class Enduse(object):
         # If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.crit_flat_profile = True
-            self.fuel_y = np.zeros((fuel.shape[0]))
+            self.fuel_y = np.zeros((fuel.shape[0]), dtype=float)
             self.fuel_yh = 0
-            self.fuel_peak_dh = np.zeros((fuel.shape[0], 24))
+            self.fuel_peak_dh = np.zeros((fuel.shape[0], 24), dtype=float)
             self.fuel_peak_h = 0
         else:
             # -----------------------------------------------------------------
@@ -138,10 +138,10 @@ class Enduse(object):
                 fuel_tech_p_by)
 
             # Calculate fuel for hybrid technologies
-            fuel_tech_p_by = self.adapt_fuel_tech_p_by(
+            '''fuel_tech_p_by = self.adapt_fuel_tech_p_by(
                 fuel_tech_p_by,
                 tech_stock,
-                data['assumptions']['hybrid_technologies'])
+                data['assumptions']['hybrid_technologies'])'''
 
             # -------------------------------
             # Cascade of calculations on a yearly scale
@@ -452,11 +452,11 @@ class Enduse(object):
         ----
         This function can be run in two different modes
         """
-        fuel_y = np.zeros((self.fuel_new_y.shape[0]))
+        fuel_y = np.zeros((self.fuel_new_y.shape[0]), dtype=float)
 
         if mode_constrained: #Constrained mode
             # Assign all to heat fueltype
-            fueltypes_tech_share_yh = np.zeros((lookups['fueltype']['fueltypes_nr']))
+            fueltypes_tech_share_yh = np.zeros((lookups['fueltype']['fueltypes_nr']), dtype=float)
             fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech, fuel_tech_y in fuel_tech_y.items():
@@ -707,7 +707,7 @@ class Enduse(object):
 
         return service_tech_p
 
-    def adapt_fuel_tech_p_by(self, fuel_tech_p_by, tech_stock, hybrid_technologies):
+    '''def adapt_fuel_tech_p_by(self, fuel_tech_p_by, tech_stock, hybrid_technologies):
         """Change the fuel share of hybrid technologies for base year
         depending on assumed electricity consumption
 
@@ -778,6 +778,7 @@ class Enduse(object):
                     fuel_tech_p_by[fueltype][tech] = (1.0 / sum(fuel_tech_p_by[fueltype].values())) * fuel_tech_p_by[fueltype][tech]
 
         return fuel_tech_p_by
+    '''
 
     def get_peak_day(self):
         """Iterate yh and get day with highes fuel (across all fueltypes)
@@ -1117,10 +1118,18 @@ class Enduse(object):
                     'shape_yh') #SHARK NEW
 
                 # Get distribution per fueltype
-                fueltypes_tech_share_yh = tech_stock.get_tech_attr(
+                '''fueltypes_tech_share_yh = tech_stock.get_tech_attr(
                     self.enduse,
                     tech,
                     'fueltype_share_yh_all_h')
+                '''
+                tech_fueltype = tech_stock.get_tech_attr(
+                    self.enduse,
+                    tech,
+                    'tech_fueltype'
+                    ) #beluga
+                fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr'])) #BELUGA
+                fueltypes_tech_share_yh[lookups['fueltype'][tech_fueltype]] = 1
 
                 # Get distribution of fuel for every day, calculate share of fuel, add to fuels
                 fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
@@ -1307,7 +1316,7 @@ class Enduse(object):
 
                 fueltype_share_yh_all_h = tech_stock.get_tech_attr(
                     self.enduse, tech, 'fueltype_share_yh_all_h')
-
+    
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
 

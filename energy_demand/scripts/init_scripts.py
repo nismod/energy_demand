@@ -111,7 +111,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         # RESIDENTIAL: Convert base year fuel input assumptions to energy service
         fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
+            #data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['rs_fuel_tech_p_by'],
             data['fuels']['rs_fuel_raw_data_enduses'],
@@ -126,7 +126,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
         fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
+            #data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['ss_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
@@ -141,7 +141,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
         fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
+            #data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['is_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
@@ -229,6 +229,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']
 
     logging.info("... finished scenario_initalisation")
+    print("... finished scenario_initalisation")
     if run_locally == False:
         return temp_climate_change, fts_cont, sgs_cont, sd_cont
     else:

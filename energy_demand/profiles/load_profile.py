@@ -289,7 +289,7 @@ def calk_peak_h_dh(fuel_peak_dh):
 
     return peak_fueltype_h
 
-def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
+'''def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
     """Calculate  fuel shapes for hybrid technologies for every day in a year (y_dh)
 
     Depending on the share of service each hybrid technology in every hour,
@@ -330,20 +330,19 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     
     # Absolute to relative for every row
     fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var)
-    '''plt.plot(fuel_shapes_hybrid_y_dh[1])
-    plt.show()
-    '''
+    #plt.plot(fuel_shapes_hybrid_y_dh[1])
+    #plt.show()
     return fuel_shapes_hybrid_y_dh
-
-def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
+'''
+'''def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
     """
     """
     fueltypes_yh_p_cy = np.zeros((fueltypes_nr))
     fueltypes_yh_p_cy[fueltype] = 1.0 #all fuel of fueltype
 
-    return fueltypes_yh_p_cy
+    return fueltypes_yh_p_cy'''
 
-def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
+'''def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
     """Calculate fuel share for every hour
 
     Arguments
@@ -368,3 +367,4 @@ def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
     fueltype_share_yh_all_h *= 1.0 / (model_yeardays_nrs * 24)
 
     return fueltype_share_yh_all_h
+'''

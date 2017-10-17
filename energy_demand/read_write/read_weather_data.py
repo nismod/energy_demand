@@ -5,7 +5,6 @@ import csv
 import numpy as np
 import logging
 from energy_demand.basic import date_handling
-# pylint: disable=I0011,C0321,C0301,C0103, C0325
 
 def read_weather_station_script_data(path_to_csv):
     """Read in weather stations from script data
@@ -64,7 +63,7 @@ def read_changed_weather_data_script_data(path_to_csv, sim_period):
     """Read in weather data from script data
     """
     logging.debug("... read changed weather data")
-    temp_data = {}
+    temp_data = {} #TODO: IMPLEMENT ITERDICT
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')

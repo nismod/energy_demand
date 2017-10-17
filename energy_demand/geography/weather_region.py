@@ -173,14 +173,14 @@ class WeatherRegion(object):
             assumptions['model_yeardays'],
             assumptions['model_yeardays_daytype'])
 
-        rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
+        '''rs_fuel_shape_hybrid_tech_yh = self.get_shape_heating_hybrid_yh(
             self.rs_tech_stock,
             'rs_space_heating',
             rs_profile_boilers_y_dh,
             rs_fuel_shape_hp_y_dh,
             rs_fuel_shape_heating_yd,
             'hybrid_gas_electricity'
-            )
+            )'''
 
         # Cooling residential
         #rs_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
@@ -220,14 +220,14 @@ class WeatherRegion(object):
             )
 
         # Hybrid heating
-        self.rs_load_profiles.add_load_profile(
+        '''self.rs_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_hybrid'],
             enduses=['rs_space_heating', 'rs_water_heating'],
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hybrid_tech_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor
-            )
+            )'''
 
         # Heat pump heating
         self.rs_load_profiles.add_load_profile(
@@ -273,13 +273,13 @@ class WeatherRegion(object):
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
         # Hybrid
-        ss_profile_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(
+        '''ss_profile_hybrid_gas_elec_yh = self.get_shape_heating_hybrid_yh(
             self.ss_tech_stock,
             'ss_space_heating',
             ss_fuel_shape,
             ss_fuel_shape,
             ss_fuel_shape_heating_yd,
-            'hybrid_gas_electricity')
+            'hybrid_gas_electricity')'''
 
         self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -313,7 +313,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=ss_peak_yd_heating_factor
             )
 
-        self.ss_load_profiles.add_load_profile(
+        '''self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_hybrid'],
             enduses=['ss_space_heating', 'ss_water_heating'],
@@ -321,7 +321,7 @@ class WeatherRegion(object):
             shape_yd=ss_fuel_shape_heating_yd,
             shape_yh=ss_profile_hybrid_gas_elec_yh,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-            )
+            )'''
 
         self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -390,7 +390,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=is_peak_yd_heating_factor,
             )
 
-        self.is_load_profiles.add_load_profile(
+        '''self.is_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_hybrid'],
             enduses=['is_space_heating'],
@@ -398,7 +398,7 @@ class WeatherRegion(object):
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech,
             enduse_peak_yd_factor=is_peak_yd_heating_factor,
-            )
+            )'''
 
         self.is_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -410,7 +410,7 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=is_peak_yd_heating_factor
             )
 
-    @classmethod
+    '''@classmethod
     def get_shape_heating_hybrid_yh(cls, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech):
         """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
 
@@ -452,6 +452,7 @@ class WeatherRegion(object):
         fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
 
         return fuel_shape_yh
+    '''
 
     @classmethod
     def get_shape_peak_yd_factor(cls, demand_yd):

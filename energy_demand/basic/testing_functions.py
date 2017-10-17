@@ -82,9 +82,9 @@ def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_servi
                 if technology not in fuel_tech_p_by[enduse][fueltype_tech_high].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
             else:
-                fueltype_tech = technologies[technology]['fuel_type']
+                tech_fueltype = technologies[technology]['fuel_type']
 
-                if technology not in fuel_tech_p_by[enduse][fueltype_tech].keys():
+                if technology not in fuel_tech_p_by[enduse][tech_fueltype].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
 
 def testing_service_switch_insert(tech_stock_definition, switches):

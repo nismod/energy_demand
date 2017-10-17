@@ -437,13 +437,13 @@ def read_technologies(path_to_csv, lu_fueltype):
             technology = row[0]
 
             # Because for hybrid technologies, none needs to be defined
-            if row[1] == 'hybrid':
-                fueltype = 'None'
-            else:
-                fueltype = lu_fueltype[str(row[1])]
+            #if row[1] == 'hybrid':
+            #    fueltype = 'None'
+            #:
+            #fueltype = lu_fueltype[str(row[1])]
             try:
                 dict_technologies[technology] = {
-                    'fuel_type': fueltype,
+                    'fuel_type': str(row[1]), #fueltype,
                     'eff_by': float(row[2]),
                     'eff_ey': float(row[3]),
                     'eff_achieved': float(row[4]),

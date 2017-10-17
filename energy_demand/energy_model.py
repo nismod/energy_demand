@@ -56,8 +56,6 @@ class EnergyModel(object):
         # ---------------
         # Create Loop and iterate over year
         # ---------------
-
-        #Initialise
         fuel_indiv_regions_yh = {}
         for fueltype_str in data['lookups']['fueltype'].keys():
             fuel_indiv_regions_yh[fueltype_str] = np.zeros(

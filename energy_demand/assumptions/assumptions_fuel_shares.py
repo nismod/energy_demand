@@ -90,8 +90,8 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_gas': 1.0
         }
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
-        'heat_pumps_electricity': 0.02, # 0.02 Hannon (2015)
-        'hybrid_gas_electricity': 0.02,
+        'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
+        #'hybrid_gas_electricity': 0.02,
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56
         }  # heat-pump share in uk #According to OFGEM 1.7 out of 4
@@ -119,8 +119,8 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_gas': 1.0
         }
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_elec] = {
-        'hybrid_gas_electricity': 0.02,
-        'boiler_electricity': 0.98
+        #'hybrid_gas_electricity': 0.02,
+        'boiler_electricity': 1.0
         }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0
@@ -172,8 +172,8 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_gas': 1.0
         }
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_elec] = {
-        'boiler_electricity': 0.98,
-        'hybrid_gas_electricity': 0.02
+        'boiler_electricity': 1.0,
+        #'hybrid_gas_electricity': 0.02
         }
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0
@@ -230,9 +230,9 @@ def assign_by_fuel_tech_p(assumptions, data):
     assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
     assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
 
-    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
-    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
-    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
+    #assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
+    #assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
+    #assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
 
     return assumptions
 
@@ -275,9 +275,9 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
             assumptions['tech_list']
             )
 
-        if tech_type == 'hybrid_tech':
-            eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
-        elif tech_type == 'heat_pump':
+        #if tech_type == 'hybrid_tech':
+        #    eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
+        if tech_type == 'heat_pump':
             eff_tech_by = tech_related.eff_heat_pump(
                 temp_diff=10,
                 efficiency_intersect=tech_stock[technology]['eff_by']
