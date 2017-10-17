@@ -19,7 +19,7 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
     # Iterate files
     for file_path in all_txt_files_in_folder:
         try:
-            path_file_to_read = path_to_folder + "\\" + file_path
+            path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
             year = int(file_path_split[1])
             fueltype_str = str(file_path_split[2])
@@ -49,7 +49,7 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
-        path_file_to_read = path_enduse_specific_results + "\\" + file_path
+        path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
         file_path_split = file_path.split("__")
         enduse = file_path_split[1]
         year = int(file_path_split[2])
