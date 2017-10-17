@@ -236,15 +236,15 @@ def load_paths(path):
 
         # Path for dwelling stock assumptions
         'path_dwtype': os.path.join(
-            path, 'data', 'submodel_residential', 'lookup_dwelling_type.csv'),
+            path, 'config_data', 'submodel_residential', 'lookup_dwelling_type.csv'),
         'path_hourly_gas_shape_resid': os.path.join(
-            path, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
+            path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
         'path_dwtype_age': os.path.join(
-            path, 'data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),
+            path, 'config_data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),
         'path_dwtype_floorarea_dw_type': os.path.join(
-            path, 'data', 'submodel_residential', 'data_submodel_residential_dwtype_floorarea.csv'),
+            path, 'config_data', 'submodel_residential', 'data_submodel_residential_dwtype_floorarea.csv'),
         'path_reg_floorarea_resid': os.path.join(
-            path, 'data', 'submodel_residential', 'data_submodel_residential_floorarea.csv'),
+            path, 'config_data', 'submodel_residential', 'data_submodel_residential_floorarea.csv'),
 
         # Path for model outputs
         'path_txt_service_tech_by_p': os.path.join(
@@ -254,45 +254,45 @@ def load_paths(path):
 
         # Path to all technologies
         'path_technologies': os.path.join(
-            path, 'data', 'scenario_and_base_data', 'technology_base_scenario.csv'),
+            path, 'config_data', 'scenario_and_base_data', 'technology_base_scenario.csv'),
 
         # Fuel switches
         'rs_path_fuel_switches': os.path.join(
-            path, 'data', 'submodel_residential', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_fuel_scenaric.csv'),
         'ss_path_fuel_switches': os.path.join(
-            path, 'data', 'submodel_service', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_fuel_scenaric.csv'),
         'is_path_fuel_switches': os.path.join(
-            path, 'data', 'submodel_industry', 'switches_fuel_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_fuel_scenaric.csv'),
 
         # Path to service switches
         'rs_path_service_switch': os.path.join(
-            path, 'data', 'submodel_residential', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_residential', 'switches_service_scenaric.csv'),
         'ss_path_service_switch': os.path.join(
-            path, 'data', 'submodel_service', 'switches_service_scenaric.csv'),
+            path, 'config_data', 'submodel_service', 'switches_service_scenaric.csv'),
         'is_path_industry_switch': os.path.join(
-            path, 'data', 'submodel_industry', 'switches_industry_scenaric.csv'),
+            path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
-            path, 'data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv'),
         'ss_fuel_raw_data_enduses': os.path.join(
-            path, 'data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
-            path, 'data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
 
         # Technologies load shapes
         #'path_hourly_gas_shape_hp': os.path.join(
-        # path, 'data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
+        # path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
         'lp_elec_hp_dh': os.path.join(
-            path, 'data', 'submodel_residential', 'lp_elec_hp_LOVE_dh.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_elec_hp_LOVE_dh.csv'),
         'path_shape_rs_cooling': os.path.join(
-            path, 'data', 'submodel_residential', 'shape_residential_cooling.csv'),
+            path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
-            path, 'data', 'submodel_service', 'shape_service_cooling.csv'),
+            path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_primary_heating': os.path.join(
-            path, 'data', 'submodel_residential', 'lp_HES_elec_primary_heating.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_HES_elec_primary_heating.csv'),
         'lp_elec_secondary_heating': os.path.join(
-            path, 'data', 'submodel_residential', 'lp_HES_elec_secondary_heating.csv')
+            path, 'config_data', 'submodel_residential', 'lp_HES_elec_secondary_heating.csv')
         }
 
     return paths
