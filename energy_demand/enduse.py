@@ -1103,38 +1103,31 @@ class Enduse(object):
             fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech in self.enduse_techs:
-                #TODO: SCRAP: TEST IF really is not already 1
-                print("A: ---")
-                print(np.sum(load_profiles.get_lp(
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
                     self.enduse,
                     self.sector,
                     tech,
                     'shape_yh'
-                    )))
-                fuel_tech_yh = enduse_fuel_tech[tech] * lp.abs_to_rel(load_profiles.get_lp(
-                    self.enduse,
-                    self.sector,
-                    tech,
-                    'shape_yh'
-                    ))
-                fuels_yh += lp.abs_to_rel(fueltypes_tech_share_yh[:, np.newaxis, np.newaxis]) * fuel_tech_yh
+                    )
+                fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh #SHARK
         else:
             for tech in self.enduse_techs:
-                # SCRAP
-                '''if float(np.sum(load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh'))) != 1:
-                    print(np.sum(load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh')))
-                    #fuel_tech_yh = enduse_fuel_tech[tech] * lp.abs_to_rel(load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh'))
-                    sys.exit("ERROR NEEDS")'''
-                # Fuel distribution #NEW
-                fuel_tech_yh = enduse_fuel_tech[tech] * lp.abs_to_rel(load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh'))
-                #fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(self.enduse, self.sector, tech, 'shape_yh')
+
+                # Fuel distribution
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
+                    self.enduse,
+                    self.sector,
+                    tech,
+                    'shape_yh') #SHARK NEW
 
                 # Get distribution per fueltype
                 fueltypes_tech_share_yh = tech_stock.get_tech_attr(
-                    self.enduse, tech, 'fueltype_share_yh_all_h')
+                    self.enduse,
+                    tech,
+                    'fueltype_share_yh_all_h')
 
-                # Get distribution of fuel for every day, calculate share of fuel, add to fuels TODO: REALLY NEEDED ABS_TO_REL
-                fuels_yh += lp.abs_to_rel(fueltypes_tech_share_yh[:, np.newaxis, np.newaxis]) * fuel_tech_yh
+                # Get distribution of fuel for every day, calculate share of fuel, add to fuels
+                fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
 
         return fuels_yh
 
