@@ -31,7 +31,7 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             try:
                 results[year]
             except KeyError:
-                results[year] = np.zeros((fueltypes_nr, nr_of_regions, 8760))
+                results[year] = np.zeros((fueltypes_nr, nr_of_regions, 8760), dtype=float)
 
             # Add year if not already exists
             results[year][fueltype_array_position] = txt_data
@@ -65,7 +65,7 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_
         try:
             results[year][enduse]
         except:
-            results[year][enduse] = np.zeros((fueltypes_nr, 365, 24))
+            results[year][enduse] = np.zeros((fueltypes_nr, 365, 24), dtype=float)
 
         # Add year if not already exists
         results[year][enduse][fueltype_array_position] = txt_data
@@ -176,7 +176,7 @@ def read_csv_data_service(path_to_csv, fueltypes_nr):
         for sector in all_sectors:
             end_uses_dict[sector] = {}
             for enduse in all_enduses:
-                end_uses_dict[sector][enduse] = np.zeros((fueltypes_nr))
+                end_uses_dict[sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in read_lines:
             lines.append(row)
@@ -559,7 +559,7 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
         for sector in all_sectors:
             end_uses_dict[sector] = {}
             for enduse in all_enduses:
-                end_uses_dict[str(sector)][str(enduse)] = np.zeros((fueltypes_nr))
+                end_uses_dict[str(sector)][str(enduse)] = np.zeros((fueltypes_nr), dtype=float)
 
         for row in lines:
             sector = row[0]
@@ -746,7 +746,7 @@ def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
             try:
                 fuel_sector_enduse[region][enduse]
             except KeyError:
-                fuel_sector_enduse[region][enduse] = np.zeros((fueltypes_nr))
+                fuel_sector_enduse[region][enduse] = np.zeros((fueltypes_nr), dtype=float)
 
             fuel_sector_enduse[region][enduse][fueltype] = fuel
 
@@ -780,7 +780,7 @@ def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
             try:
                 fuel_sector_enduse[region][sector][enduse]
             except KeyError:
-                fuel_sector_enduse[region][sector][enduse] = np.zeros((fueltypes_nr))
+                fuel_sector_enduse[region][sector][enduse] = np.zeros((fueltypes_nr), dtype=float)
 
             fuel_sector_enduse[region][sector][enduse][fueltype] = fuel
 

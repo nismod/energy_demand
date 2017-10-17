@@ -164,7 +164,7 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
     aggregated_fuel_enduse = {}
 
     for enduse in ss_enduses:
-        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
+        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes), dtype=float)
 
     # Iterate and sum fuel per enduse
     for fuels_sector in ss_fuel_raw_data_enduses.values():

@@ -63,9 +63,9 @@ class EnergyModel(object):
                  data['assumptions']['model_yeardays_nrs'] * 24),
                  dtype=float)
 
-        reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24))
-        tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24))
-        tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']))
+        reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
+        tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
+        tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
 
         for array_nr_region, region_obj in enumerate(self.regions):
@@ -176,7 +176,7 @@ class EnergyModel(object):
         {'final_electricity_demand': np.array((regions, model_yeardays_nrs * 24)), dtype=float}
         """
         fuels = self.fuel_aggr(
-            np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24)),
+            np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float),
             'fuel_yh',
             all_submodels,
             'no_sum',

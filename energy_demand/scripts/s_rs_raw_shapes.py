@@ -94,8 +94,8 @@ def get_hes_load_shapes(appliances_hes_matching, year_raw_values, hes_y_peak, en
     shape_peak_yd_factor = (1.0 / tot_enduse_y) * tot_peak_demand_d
 
     # ---Calculate non-peak shapes
-    shape_non_peak_yd = np.zeros((365))
-    shape_non_peak_y_dh = np.zeros((365, 24))
+    shape_non_peak_yd = np.zeros((365), dtype=float)
+    shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
 
     for day in range(365):
         day_values = year_raw_values[day, :, hes_app_id]
@@ -185,8 +185,8 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 
     hes_data = np.zeros((len(day_type_lu), 12, 24, nr_app_type_lu), dtype=float)
 
-    hes_y_coldest = np.zeros((24, nr_app_type_lu))
-    hes_y_warmest = np.zeros((24, nr_app_type_lu))
+    hes_y_coldest = np.zeros((24, nr_app_type_lu), dtype=float)
+    hes_y_warmest = np.zeros((24, nr_app_type_lu), dtype=float)
 
     # Read in raw HES data from CSV
     raw_elec_data = read_csv(paths_hes)

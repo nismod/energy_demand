@@ -67,8 +67,8 @@ def read_raw_elec_2015_data(path_to_csv):
     """
     year = 2015
 
-    elec_data_INDO = np.zeros((365, 24))
-    elec_data_ITSDO = np.zeros((365, 24))
+    elec_data_INDO = np.zeros((365, 24), dtype=float)
+    elec_data_ITSDO = np.zeros((365, 24), dtype=float)
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',') 

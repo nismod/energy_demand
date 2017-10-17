@@ -518,8 +518,8 @@ class WeatherRegion(object):
         *Sansom, R. (2014). Decarbonising low grade heat for low carbon future.
         Dissertation, Imperial College London.*
         """
-        shape_yh_hp = np.zeros((365, 24))
-        shape_y_dh = np.zeros((365, 24))
+        shape_yh_hp = np.zeros((365, 24), dtype=float)
+        shape_y_dh = np.zeros((365, 24), dtype=float)
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
@@ -615,7 +615,7 @@ class WeatherRegion(object):
         shape_boilers_y_dh : array
             Shape of distribution of fuel within every day of a year (total sum == nr_of_days)
         """
-        shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24))
+        shape_yh_generic_tech = np.zeros((model_yeardays_nrs, 24), dtype=float)
         if enduse not in tech_lp['ss_all_tech_shapes_dh']:
             pass
         else:
@@ -659,8 +659,8 @@ class WeatherRegion(object):
         *Sansom, R. (2014). Decarbonising low grade heat for low carbon
         future. Dissertation, Imperial College London.*
         """
-        shape_boilers_yh = np.zeros((model_yeardays_nrs, 24))
-        shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24))
+        shape_boilers_yh = np.zeros((model_yeardays_nrs, 24), dtype=float)
+        shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24), dtype=float)
 
         for day_array_nr, yearday in enumerate(model_yeardays):
             if model_yeardays_daytype[yearday] == 'holiday':

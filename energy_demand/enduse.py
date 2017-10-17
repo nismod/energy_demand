@@ -1018,7 +1018,7 @@ class Enduse(object):
           the dh peak day profile is not read in from technology
           stock but from shape_yh of peak day (hybrid technologies).
         """
-        fuels_peak_dh = np.zeros((self.fuel_new_y.shape[0], 24))
+        fuels_peak_dh = np.zeros((self.fuel_new_y.shape[0], 24), dtype=float)
 
         # Get day with most fuel across all fueltypes
         peak_day_nr = self.get_peak_day()
@@ -1091,10 +1091,10 @@ class Enduse(object):
         fuels_yh : array
             Fueltype storing hourly fuel for every fueltype (fueltype, nr_of_days, 24)
         """
-        fuels_yh = np.zeros((lookups['fueltypes_nr'], nr_of_days, 24))
+        fuels_yh = np.zeros((lookups['fueltypes_nr'], nr_of_days, 24), dtype=float)
 
         if mode_constrained == True:
-            fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']))
+            fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
             # Assign full share to heat
             fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
@@ -1128,7 +1128,7 @@ class Enduse(object):
                     tech,
                     'tech_fueltype'
                     ) #beluga
-                fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr'])) #BELUGA
+                fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
                 fueltypes_tech_share_yh[lookups['fueltype'][tech_fueltype]] = 1
 
                 # Get distribution of fuel for every day, calculate share of fuel, add to fuels
@@ -1288,10 +1288,10 @@ class Enduse(object):
         - The attribute 'fuel_new_y' is updated
         - Fuel = Energy service / efficiency
         """
-        enduse_fuels = np.zeros((lookups['fueltypes_nr']))
+        enduse_fuels = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
         if mode_constrained:
-            fuel_fueltype_p = np.zeros((lookups['fueltypes_nr']))
+            fuel_fueltype_p = np.zeros((lookups['fueltypes_nr']), dtype=float)
             # Assign all to heat
             fuel_fueltype_p[lookups['fueltype']['heat']] = 1.0
 
@@ -1410,7 +1410,7 @@ class Enduse(object):
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method']
 
         if diff_fuel_consump != 0: # If change in fuel consumption
-            new_fuels = np.zeros((self.fuel_new_y.shape[0]))
+            new_fuels = np.zeros((self.fuel_new_y.shape[0]), dtype=float)
 
             # Lineare diffusion up to cy
             if diffusion_choice == 'linear':

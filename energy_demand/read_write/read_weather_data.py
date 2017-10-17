@@ -53,7 +53,7 @@ def read_weather_data_script_data(path_to_csv):
             try:
                 temp_data[station_id][year]
             except KeyError:
-                temp_data[station_id][year] = np.zeros((365, 24))
+                temp_data[station_id][year] = np.zeros((365, 24), dtype=float)
 
             temp_data[station_id][year][day][hour] = temperature
 
@@ -90,7 +90,7 @@ def read_changed_weather_data_script_data(path_to_csv, sim_period):
                     try:
                         temp_data[station_id][year]
                     except KeyError:
-                        temp_data[station_id][year] = np.zeros((365, 24))
+                        temp_data[station_id][year] = np.zeros((365, 24), dtype=float)
 
                     temp_data[station_id][year][int(day)][int(hour)] = temperature
 

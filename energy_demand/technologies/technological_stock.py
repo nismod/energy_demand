@@ -221,7 +221,7 @@ class Technology(object):
                 self.fueltypes_yh_p_cy)'''
 
             # BELUGA
-            self.fueltype_share_yh_all_h = np.zeros((lookups['fueltypes_nr'])) #BELUGA
+            self.fueltype_share_yh_all_h = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
             self.fueltype_share_yh_all_h[lookups['fueltype'][self.tech_fueltype]] = 1
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
@@ -279,7 +279,7 @@ class Technology(object):
         -------
         array[fueltype_input][day][hour] = 1.0 # This specific hour is served with fueltype_input by 100%
         """
-        fueltypes_yh = np.zeros((len_fueltypes, model_yeardays_nrs, 24))
+        fueltypes_yh = np.zeros((len_fueltypes, model_yeardays_nrs, 24), dtype=float)
 
         # Insert for the single fueltype for every hour the share to 1.0
         fueltypes_yh[fueltype] = 1.0
@@ -486,7 +486,7 @@ class Technology(object):
         tot_fuel_h = fuel_low_h + fuel_high_h
 
         # Assign share of total fuel for respective fueltypes
-        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24))
+        fueltypes_yh = np.zeros((nr_fueltypes, model_yeardays_nrs, 24), dtype=float)
         _var = np.divide(1.0, tot_fuel_h)
 
         fueltypes_yh[self.tech_low_temp_fueltype] = _var * fuel_low_h

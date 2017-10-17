@@ -17,7 +17,7 @@ def read_txt_shape_peak_dh(file_path):
 
 def read_txt_shape_non_peak_yh(file_path):
     """Read to txt. Array with shape: (model_yeardays_nrs, 24)"""
-    out_dict = np.zeros((365, 24))
+    out_dict = np.zeros((365, 24), dtype=float)
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     for day, row in enumerate(read_dict_list):

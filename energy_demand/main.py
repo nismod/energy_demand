@@ -157,7 +157,7 @@ if __name__ == "__main__":
         # Validation base year: Hourly temporal validation
         # ---------------------------------------------------
         fuel_electricity_year_validation = 385
-        fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']))
+        fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
         fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.ktoe_to_gwh(
             fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
         model_object_transport = generic_shapes.GenericFlatEnduse(
