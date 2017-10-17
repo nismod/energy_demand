@@ -241,7 +241,6 @@ class WeatherRegion(object):
             )
 
         #Service submodel
-
         self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
         # --------HDD/CDD
@@ -535,8 +534,9 @@ class WeatherRegion(object):
 
             # Calculate weighted average daily efficiency of heat pump
             # (Hourly heat demand * heat pump efficiency)
-            average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
-
+            #average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
+            average_eff_d = tech_eff #BELUG
+    
             # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
             hp_daily_fuel = rs_hdd_cy[day_array_nr] / average_eff_d
 

@@ -241,7 +241,8 @@ def abs_to_rel_no_nan(absolute_array):
         Array with relative numbers
     """
     try:
-        return absolute_array / float(np.sum(absolute_array))
+        relative_array = absolute_array / float(np.sum(absolute_array))
+        return relative_array
     except ZeroDivisionError:
         # If the total sum is zero, return same array
         return absolute_array

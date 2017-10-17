@@ -118,7 +118,7 @@ class Enduse(object):
         self.sector = sector
         self.fuel_new_y = np.copy(fuel)
         self.crit_flat_profile = crit_flat_profile
-    
+
         # If enduse has no fuel return empty shapes
         if np.sum(fuel) == 0:
             self.crit_flat_profile = True
@@ -151,7 +151,7 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 data['assumptions'])
-            #logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.apply_smart_metering(
@@ -164,7 +164,7 @@ class Enduse(object):
                 data['assumptions'],
                 enduse_overall_change_ey,
                 data['sim_param'])
-            #logging.debug("Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Calculate new fuel demands after scenario drivers
@@ -175,7 +175,7 @@ class Enduse(object):
                 data,
                 reg_scen_drivers,
                 data['sim_param'])
-            #logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -632,14 +632,10 @@ class Enduse(object):
 
                     # Calculate fuel share and convert fuel to service
                     if isinstance(tech_eff, np.ndarray):
-                        # Because heat pumps are needed, a selection needs to be made:
-                        if tech_eff.shape[0] == 365:
-                            tech_eff = tech_eff[[model_yeardays]]
-                        else:
-                            pass
-                        service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
-                    else:
-                        service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
+                        print("Error " + str(tech))
+                        sys.exit("print: eff still over full year")
+
+                    service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
 
                     # Calculate fuel share and convert fuel to service
                     if self.crit_flat_profile:
@@ -1031,7 +1027,7 @@ class Enduse(object):
 
             tech_type = tech_stock.get_attribute_tech_stock(tech, self.enduse, 'tech_type')
 
-            if tech_type == 'hybrid' or tech_type == 'heat_pump': #Maybe add ventilation TODO
+            if tech_type == 'hybrid':# or tech_type == 'heat_pump': #Maybe add ventilation TODO
                 """Read fuel from peak day
                 """
                 # Calculate absolute fuel values for yd (multiply fuel with yd_shape)

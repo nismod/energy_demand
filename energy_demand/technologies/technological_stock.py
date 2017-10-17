@@ -220,7 +220,6 @@ class Technology(object):
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
             if tech_type == 'heat_pump':
-
                 self.eff_by = tech_related.get_heatpump_eff(
                     temp_by,
                     assumptions['technologies'][tech_name]['eff_by'],
@@ -431,7 +430,7 @@ class HybridTechnology(object):
 
         Return
         ------
-        eff_hybrid_yh : array
+        eff_hybrid_yh : float
             Efficiency of hybrid technology
 
         Note
@@ -439,7 +438,10 @@ class HybridTechnology(object):
         It is assumed that the temperature operating at higher temperatures is a heat pump
         """
         # (Service fraction high tech * efficiency) + (Service fraction low tech * efficiency) (all are nr_of_days, 24 arrays)
-        eff_hybrid_yh = (self.service_distr_hybrid_h_p['high'] * eff_tech_high) + (self.service_distr_hybrid_h_p['low'] * eff_tech_low)
+        service_low = np.sum(self.service_distr_hybrid_h_p['low'])
+        service_high = np.sum(self.service_distr_hybrid_h_p['high'])
+        tot_service = service_low + service_high
+        eff_hybrid_yh = service_high / tot_service * eff_tech_high + service_low / tot_service * eff_tech_low
 
         return eff_hybrid_yh
 
@@ -467,7 +469,9 @@ class HybridTechnology(object):
         -   Fueltypes of both technologies must be different
         """
         # Calculate hybrid efficiency
-        hybrid_eff_yh = self.calc_hybrid_eff(self.eff_tech_low_by, self.eff_tech_high_by)
+        hybrid_eff_yh = self.calc_hybrid_eff(
+            self.eff_tech_low_by,
+            self.eff_tech_high_by)
 
         # Calculate fuel fractions
         fuel_low_h = self.service_distr_hybrid_h_p['low'] / hybrid_eff_yh

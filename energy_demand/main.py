@@ -64,6 +64,7 @@ def energy_demand_model(data):
     logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
     logging.info("================================================")
     logging.debug("...finished energy demand model simulation")
+
     return model_run_object
 
 if __name__ == "__main__":
@@ -131,6 +132,8 @@ if __name__ == "__main__":
             profiler.stop()
             logging.debug("Profiler Results")
             logging.info(profiler.output_text(unicode=True, color=True))
+        
+        prnt(":")
 
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh

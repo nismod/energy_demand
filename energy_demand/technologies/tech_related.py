@@ -108,12 +108,11 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
-
     # Calculate temperature difference to t_base_heating
     temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
 
-    # Calculate efficiency
-    eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
+    # Calculate average efficiency of heat pumps over full year
+    eff_hp_yh = float(eff_heat_pump(temp_difference_temp_yr, efficiency_intersect))
 
     return eff_hp_yh
 
@@ -154,7 +153,9 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     #FAST
     #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
-    return efficiency_hp
+    efficiency_hp_mean = np.mean(efficiency_hp) #BELUGA: CALCULATE AVERAGE EFFICIENCY OVER WHOLE YEAR
+
+    return efficiency_hp_mean
 
 def get_fueltype_str(fueltype_lu, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
