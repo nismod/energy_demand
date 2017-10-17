@@ -644,8 +644,7 @@ def get_floorarea_dwtype_p(dw_lookup, dw_floorarea, dwtype_distr):
         area_dw_type = {}
 
         # Calculate share of dwelling area based on absolute size and distribution
-        for _, dw_type in dw_lookup.items():
-
+        for dw_type in dw_lookup.values():
             # Get absolut size of dw_type
             area_dw_type[dw_type] = type_distr_p[dw_type] * dw_floorarea[curr_yr][dw_type]
 
@@ -703,7 +702,7 @@ def generate_dw_existing(
     dw_stock_by, control_pop, control_floorarea = [], 0, 0
 
     # Iterate dwelling types
-    for _, dw_type_name in dw_lu.items():
+    for dw_type_name in dw_lu.values():
 
         # Calculate floor area per dwelling type
         dw_type_floorarea = floorarea_p[dw_type_name] * floorarea_by
@@ -788,7 +787,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
     control_pop, control_floorarea = 0, 0
 
     # Iterate dwelling types
-    for _, dw_type_name in data['lookups']['dwtype'].items():
+    for dw_type_name in data['lookups']['dwtype'].values():
 
         # Calculate new floor area per dewlling type
         dw_type_new_floorarea = floorarea_p_by[dw_type_name] * new_floorarea_cy

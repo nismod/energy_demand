@@ -19,7 +19,7 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
     # Iterate files
     for file_path in all_txt_files_in_folder:
         try:
-            path_file_to_read = path_to_folder + "\\" + file_path
+            path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
             year = int(file_path_split[1])
             fueltype_str = str(file_path_split[2])
@@ -49,7 +49,7 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
-        path_file_to_read = path_enduse_specific_results + "\\" + file_path
+        path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
         file_path_split = file_path.split("__")
         enduse = file_path_split[1]
         year = int(file_path_split[2])
@@ -397,7 +397,6 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                 tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
 
         if tot_share_fueltype_switched > 1.0:
-            logging.debug("SHARE: " + str(tot_share_fueltype_switched))
             sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
     # Test whether defined enduse exist
@@ -602,7 +601,7 @@ def read_installed_tech(path_to_csv):
 def read_sig_param_tech(path_to_csv):
     """Read 
     """
-    logging.debug("... read in sig parameters: " + str(path_to_csv))
+    logging.debug("... read in sig parameters: %s", path_to_csv)
     sig_param_tech = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -673,7 +672,7 @@ def read_service_fueltype_tech_by_p(path_to_csv):
 def read_service_fueltype_by_p(path_to_csv):
     """Read 
     """
-    logging.debug("... read in service data: " + str(path_to_csv))
+    logging.debug("... read in service data: %s", path_to_csv)
     service_fueltype_by_p = {}
 
     with open(path_to_csv, 'r') as csvfile:
@@ -701,7 +700,7 @@ def read_service_fueltype_by_p(path_to_csv):
 def read_service_tech_by_p(path_to_csv):
     """Read 
     """
-    logging.debug("... read in service data: " + str(path_to_csv))
+    logging.debug("... read in service data: %s", path_to_csv)
     service_tech_by_p = {}
 
     with open(path_to_csv, 'r') as csvfile:

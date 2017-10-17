@@ -215,7 +215,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     hes_appliances_matching = {
         'rs_cold': 0,
@@ -252,7 +252,7 @@ def run(data):
     # Load shape for all enduses
     for enduse in rs_enduses:
         if enduse not in hes_appliances_matching:
-            logging.debug("Warning: The enduse {} is not defined in hes_appliances_matching".format(enduse))
+            logging.debug("Warning: The enduse %s is not defined in hes_appliances_matching", enduse)
         else:
             # Generate HES load shapes
             shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd = get_hes_load_shapes(
@@ -272,5 +272,5 @@ def run(data):
                 shape_non_peak_yd
                 )
 
-    logging.debug("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script %s", os.path.basename(__file__))
     return

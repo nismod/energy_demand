@@ -3,6 +3,29 @@
 import sys
 import numpy as np
 
+def test_region_selection(fuel_indiv_regions_yh):
+    """function to see whether if only some days are selected
+    the sum makes sense
+    """
+    
+    print("FUEL FOR FIRST WEEK")
+    modelled_days = 1
+    hours_modelled = modelled_days * 24
+    _sum_day_selection = 0
+    for fueltype, fuels in fuel_indiv_regions_yh.items():
+        for region_fuel in fuels:
+            _sum_day_selection += np.sum(region_fuel[:hours_modelled])
+
+    _sum_all = 0
+    for fueltype, fuels in fuel_indiv_regions_yh.items():
+        for region_fuel in fuels:
+            _sum_all += np.sum(region_fuel)
+    print("_sum_day_selection")
+    print(_sum_day_selection)
+    print("_sum_all: " + str(_sum_all))
+    
+    return
+
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):
     """Test if assigned fuel share add up to 1 within each fuletype
 

@@ -215,7 +215,7 @@ class LoadProfile(object):
         The resulting inf are replaced however and thus this warning
         can be ignored
         """
-        # Calculate even if flat shape is assigned
+        # Calculate even if flat shape is assigned #ASK TOM
         sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
@@ -241,7 +241,6 @@ def abs_to_rel_no_nan(absolute_array):
         Array with relative numbers
     """
     try:
-        #relative_array = (1 / float(np.sum(absolute_array))) * absolute_array
         return absolute_array / float(np.sum(absolute_array))
     except ZeroDivisionError:
         # If the total sum is zero, return same array
@@ -326,16 +325,16 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     """
 
     # (share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
-    _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
+    _var = tech_low_high_p['low'] * fuel_shape_boilers_y_dh + tech_low_high_p['high'] * fuel_shape_hp_y_dh
     
     # Absolute to relative for every row
-    fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var) #abs_to_rel_no_nan not possible
+    fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var)
     '''plt.plot(fuel_shapes_hybrid_y_dh[1])
     plt.show()
     '''
     return fuel_shapes_hybrid_y_dh
 
-def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy, model_yeardays_nrs):
+def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
     """
     """
     fueltypes_yh_p_cy = np.zeros((fueltypes_nr))

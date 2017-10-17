@@ -214,8 +214,7 @@ class Technology(object):
             self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
                 lookups['fueltypes_nr'],
                 assumptions['technologies'][tech_name]['fuel_type'],
-                self.fueltypes_yh_p_cy,
-                assumptions['model_yeardays_nrs'])
+                self.fueltypes_yh_p_cy)
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type

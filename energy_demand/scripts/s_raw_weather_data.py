@@ -289,7 +289,7 @@ def write_weather_stations(path_to_txt, weather_station):
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     # Read in raw temperature data
     temperature_data_raw = read_weather_data_raw(
@@ -313,5 +313,5 @@ def run(data):
         data['local_paths']['path_processed_weather_data'],
         temperature_data)
 
-    logging.debug("..finished script {}".format(os.path.basename(__file__)))
+    logging.debug("..finished script %s", os.path.basename(__file__))
     return

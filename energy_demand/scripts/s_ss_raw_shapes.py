@@ -271,7 +271,7 @@ def assign_data_to_year(carbon_trust_data, base_yr):
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
         data['paths']['ss_fuel_raw_data_enduses'],
         data['lookups']['fueltypes_nr'])
@@ -314,7 +314,7 @@ def run(data):
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
         for enduse in ss_enduses:
-            logging.debug("Enduse service: {}  in sector '{}'".format(enduse, sector))
+            logging.debug("Enduse service: %s in sector %s", enduse, sector)
 
             # Select shape depending on enduse
             if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #TODO
@@ -352,7 +352,7 @@ def run(data):
     # ---------------------
     #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
 
-    logging.debug("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script %s", os.path.basename(__file__))
     return
 
 '''

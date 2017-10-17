@@ -152,7 +152,7 @@ def sum_2_level_dict(two_level_dict):
             tot_sum += two_level_dict[i][j]
     '''
     tot_sum = 0
-    for _, j in two_level_dict.items():
+    for  j in two_level_dict.values():
         tot_sum += sum(j.values())
 
     return tot_sum
@@ -167,7 +167,7 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
         aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
 
     # Iterate and sum fuel per enduse
-    for _, fuels_sector in ss_fuel_raw_data_enduses.items():
+    for fuels_sector in ss_fuel_raw_data_enduses.values():
         for enduse, fuels_enduse in fuels_sector.items():
             aggregated_fuel_enduse[enduse] += fuels_enduse
 
@@ -305,7 +305,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(

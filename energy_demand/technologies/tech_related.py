@@ -281,7 +281,7 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
         # Add average 'av_heat_pumps' to technology dict
         name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype'], fueltype)))
 
-        #logging.debug("...create new averaged heat pump technology: " + str(name_av_hp))
+        #logging.debug("...create new averaged heat pump technology: %s", name_av_hp)
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
@@ -447,8 +447,6 @@ def get_defined_hybrid_tech(assumptions, technologies, hybrid_cutoff_temp_low, h
 
     # Add hybrid technologies to technological stock and define other attributes
     for tech_name, tech in hybrid_tech.items():
-
-        #logging.debug("Add hybrid technology to technology stock {}".format(tech_name))
         technologies[tech_name] = tech
         technologies[tech_name]['eff_achieved'] = 1
         technologies[tech_name]['diff_method'] = 'linear'
