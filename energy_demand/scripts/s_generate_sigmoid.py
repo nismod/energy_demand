@@ -66,7 +66,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 successfull = True
 
         except RuntimeError:
-            logging.debug("Unsuccessful fit" + str(start_parameters[1]))
+            logging.debug("Unsuccessful fit %s", start_parameters[1])
             cnt += 1
 
             if cnt >= len(start_param_list):
@@ -118,10 +118,10 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     if installed_tech[enduse] == []:
-        logging.debug("NO TECHNOLOGY...{}  {}".format(enduse, installed_tech[enduse]))
+        logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech[enduse])
     else:
         for tech in installed_tech[enduse]:
-            logging.debug("... create sigmoid difufsion parameters {}  {}".format(enduse, tech))
+            logging.debug("... create sigmoid difufsion parameters %s %s", enduse, tech)
 
             l_value = l_values[enduse][tech]
 
@@ -163,13 +163,13 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
 
-            logging.debug("DATA TO FIT:   {}   {}".format(xdata, ydata))
+            logging.debug("DATA TO FIT: %s %s ", xdata, ydata)
 
             # ----------------
             # Parameter fitting
             # ----------------
             fit_parameter = calc_sigmoid_parameters(l_value, xdata, ydata)
-            logging.debug(" ... Result fit: Midpoint:{}   steepness: {}".format(fit_parameter[0], fit_parameter[1]))
+            logging.debug(" ... Result fit: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
 
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
@@ -311,14 +311,13 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
     for enduse in enduses:
         # Check wheter there are technologies in this enduse which are switched
         if installed_tech[enduse] == []:
-            #logging.debug("No technologies to calculate sigmoid  {}".format(enduse))
             pass
         else:
-            logging.debug("Technologes it calculate sigmoid {}  {}".format(enduse, installed_tech[enduse]))
+            logging.debug("Technologes it calculate sigmoid %s %s", enduse, installed_tech[enduse])
 
             # Iterite list with enduses where fuel switches are defined
             for technology in installed_tech[enduse]:
-                logging.debug("Technology: {} Enduse:  {}".format(technology, enduse))
+                logging.debug("Technology: %s Enduse:  %s", technology, enduse)
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     enduses,
@@ -607,7 +606,7 @@ def write_tech_increased_service(path_to_txt, data):
 def run(data):
     """Function run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     # Read in Services
     rs_service_tech_by_p = read_data.read_service_tech_by_p(os.path.join(
@@ -725,5 +724,5 @@ def run(data):
         data['local_paths']['data_processed'], 'is_tech_constant_share.csv'),
                          is_tech_constant_share)
 
-    logging.debug("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script %s", os.path.basename(__file__))
     return

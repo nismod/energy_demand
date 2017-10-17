@@ -305,7 +305,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(

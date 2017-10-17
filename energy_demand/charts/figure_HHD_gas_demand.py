@@ -54,7 +54,7 @@ t_base_heating = 15.5 # Heating t_base temp
 
 # HDD
 hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
-logging.debug("shape hdd  " + str(hdd_reg.shape))
+logging.debug("shape hdd  %s", hdd_reg.shape)
 
 # Test if correlation with mean temp is better than with HDd
 #hdd_reg = averag_day_temp
@@ -441,11 +441,11 @@ def lin_func(x, slope, intercept):
 logging.debug("...regression")
 slope, intercept, r_value, p_value, std_err = stats.linregress(gas_demand_NDM_2015_2016, hdd_reg)
 
-logging.debug("Slope:         " + str(slope))
-logging.debug("intercept:     " + str(intercept))
-logging.debug("r_value:       " + str(r_value))
-logging.debug("p_value:       " + str(p_value))
-logging.debug("std_err:       " + str(std_err))
+logging.debug("Slope:         %s", str(slope))
+logging.debug("intercept:     %s", str(intercept))
+logging.debug("r_value:       %s", str(r_value))
+logging.debug("p_value:       %s", str(p_value))
+logging.debug("std_err:       %s", str(std_err))
 
 # Set figure size in cm
 plt.figure(figsize=plotting_program.cm2inch(8, 8))

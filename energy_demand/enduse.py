@@ -174,7 +174,7 @@ class Enduse(object):
                 data,
                 reg_scen_drivers,
                 data['sim_param'])
-            logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -610,7 +610,7 @@ class Enduse(object):
                         _service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
                         service = _service * (service_tech * (model_yeardays_nrs/365))
                     else:
-                        service = service_tech * tech_load_profile #[[model_yeardays]] #NEW
+                        service = service_tech * tech_load_profile
 
                     # Distribute y to yh profile and selection
                     service_tech_cy[tech] += service

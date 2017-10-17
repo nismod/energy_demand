@@ -326,7 +326,7 @@ def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tec
     """
 
     # (share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
-    _var = (tech_low_high_p['low'] * fuel_shape_boilers_y_dh) + (tech_low_high_p['high'] * fuel_shape_hp_y_dh)
+    _var = tech_low_high_p['low'] * fuel_shape_boilers_y_dh + tech_low_high_p['high'] * fuel_shape_hp_y_dh
     
     # Absolute to relative for every row
     fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var) #abs_to_rel_no_nan not possible

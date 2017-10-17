@@ -36,16 +36,16 @@ def temporal_validation(data, reg_enduses_fueltype_y):
             
     INDO_factoreddata = diff_factor_TD_ECUK_Input * val_elec_data_2015_INDO
 
-    logging.debug("FACTOR: " + str(diff_factor_TD_ECUK_Input))
-    logging.debug("Loaded validation data elec demand. ND:  {}   TSD: {}".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO)))
-    logging.debug("--ECUK Elec_demand  {} ".format(np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
-    logging.debug("--ECUK Gas Demand   {} ".format(np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['gas']])))
-    logging.debug("CORRECTED DEMAND:  {} ".format(np.sum(INDO_factoreddata)))
+    logging.debug("FACTOR: %s", diff_factor_TD_ECUK_Input)
+    logging.debug("Loaded validation data elec demand. ND:  %s  TSD: %s", np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO))
+    logging.debug("--ECUK Elec_demand  %s ", np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]))
+    logging.debug("--ECUK Gas Demand   %s", np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['gas']]))
+    logging.debug("CORRECTED DEMAND:  %s", np.sum(INDO_factoreddata))
 
     # Compare different models
     elec_national_data.compare_results(
         'plot_figure_01.pdf',
-        data, 
+        data,
         val_elec_data_2015_INDO,
         val_elec_data_2015_ITSDO,
         INDO_factoreddata,
@@ -55,11 +55,11 @@ def temporal_validation(data, reg_enduses_fueltype_y):
 
     logging.debug("FUEL gwh TOTAL  val_elec_data_2015_INDO:  {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO), np.sum(model_run_object.reg_enduses_fueltype_y[2])))
     logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_INDO: {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO)/11.63, np.sum(val_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.reg_enduses_fueltype_y[2])/11.63))
-    
+
     return
 
 def spatial_validation(data, model_run_object):
-    """
+    """Validate national demand
     """
     logging.info("Spatial Validation of electrictiy demand")
 

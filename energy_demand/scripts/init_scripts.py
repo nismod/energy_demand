@@ -74,10 +74,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     """
     if data == False:
         run_locally = True
-        logging.debug("run_locally".format(run_locally))
     else:
         run_locally = False
-        logging.debug("run_asf".format(run_locally))
 
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 

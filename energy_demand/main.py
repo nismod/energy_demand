@@ -69,15 +69,15 @@ def energy_demand_model(data):
 if __name__ == "__main__":
     """
     """
+    # Paths
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
         print("    python main.py ../energy_demand_data\n")
-        print("Defaulting to 'C:\DATA_NISMODII\data_energy_demand'\n")
+        print("Defaulting to r'C:\DATA_NISMODII\data_energy_demand'\n")
         local_data_path = r'C:\DATA_NISMODII\data_energy_demand'
     else:
         local_data_path = sys.argv[1]
 
-    # Paths
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")
-    data = read_data.load_script_data(data) 
+    data = read_data.load_script_data(data)
 
     logging.info("... Generate dwelling stocks over whole simulation period")
     data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)

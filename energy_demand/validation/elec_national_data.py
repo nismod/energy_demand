@@ -194,11 +194,11 @@ def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fue
             max_h_year = max_h_day
             max_day = day
 
-    logging.debug("Max Peak Day:                    " + str(max_day))
-    logging.debug("max_h_year (real):               " + str(max_h_year))
-    logging.debug("max_h_year (modelled):           " + str(np.max(tot_peak_enduses_fueltype)))
-    logging.debug("Fuel max peak day (real):        " + str(np.sum(validation_elec_data_2015[max_day])))
-    logging.debug("Fuel max peak day (modelled):    " + str(np.sum(tot_peak_enduses_fueltype)))
+    logging.debug("Max Peak Day:                    %s", max_day)
+    logging.debug("max_h_year (real):               %s", max_h_year)
+    logging.debug("max_h_year (modelled):           %s", np.max(tot_peak_enduses_fueltype))
+    logging.debug("Fuel max peak day (real):        %s", np.sum(validation_elec_data_2015[max_day]))
+    logging.debug("Fuel max peak day (modelled):    %s", np.sum(tot_peak_enduses_fueltype))
 
     # -------------------------------
     # Compare values

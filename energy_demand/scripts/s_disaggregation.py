@@ -233,7 +233,6 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in data['enduses']['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
 
-                #logging.debug("national_fuel_sector_by: " + str(national_fuel_sector_by))
                 # ----------------------
                 # Disaggregating factors
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
@@ -428,7 +427,7 @@ def write_disagg_fuel_sector(path_to_txt, data):
 def run(data):
     """Function run script
     """
-    logging.debug("... start script {}".format(os.path.basename(__file__)))
+    logging.debug("... start script %s", os.path.basename(__file__))
 
     # Disaggregation
     data = disaggregate_base_demand(data)
@@ -444,5 +443,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_disattregated'], 'is_fuel_disagg.csv'),
         data['is_fuel_disagg'])
 
-    logging.debug("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script %s", os.path.basename(__file__))
     return
