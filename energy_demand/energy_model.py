@@ -675,12 +675,12 @@ class EnergyModel(object):
                 fuels = fuels_reg_y * shape_non_peak_y_dh
 
             elif attribute_to_get == 'shape_non_peak_yd':
-                shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days
+                shape_non_peak_yd = np.ones((nr_of_days), dtype=float) / nr_of_days
                 fuels = fuels_reg_y * shape_non_peak_yd
 
             elif attribute_to_get == 'fuel_yh':
                 shape_non_peak_yh = np.full((nr_of_days, 24), 1 / (nr_of_days * 24))
-                fast_shape_non_peak_yh = np.ones((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24))
+                fast_shape_non_peak_yh = np.ones((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24), dtype=float)
                 fast_shape_non_peak_yh = fast_shape_non_peak_yh[:,] * shape_non_peak_yh
                 fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh
         else:

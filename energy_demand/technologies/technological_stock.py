@@ -208,7 +208,7 @@ class Technology(object):
             self.diff_method = assumptions['technologies'][self.tech_name]['diff_method']
 
             # Shares of fueltype for every hour for single fueltype
-            #TODO: MYBE REMOVE ALL EMPTY FUEL BUT ONLY SINGLE FUELTYPE
+            #TODO: MYBE REMOVE ALL EMPTY FUEL BUT ONLY SINGLE FUELTYPE #TODO FASTER
             self.fueltypes_yh_p_cy = self.set_constant_fueltype(
                 lookups['fueltype'][self.tech_fueltype],
                 lookups['fueltypes_nr'],

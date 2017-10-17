@@ -133,7 +133,7 @@ if __name__ == "__main__":
             logging.debug("Profiler Results")
             logging.info(profiler.output_text(unicode=True, color=True))
         
-        prnt(":")
+        ##prnt(":")
 
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh

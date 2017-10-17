@@ -34,7 +34,7 @@ def flat_shape(nr_of_days):
     shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0/24), dtype=float)
 
     # linear shape_non_peak_yd
-    shape_non_peak_yd = np.ones((nr_of_days)) / nr_of_days
+    shape_non_peak_yd = np.ones((nr_of_days), dtype=float) / nr_of_days
 
     shape_non_peak_yh = np.full((nr_of_days, 24), 1/(nr_of_days * 24), dtype=float)
 
