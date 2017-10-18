@@ -259,19 +259,19 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                self.service_to_fuel(
+                fuel_tech_y = self.service_to_fuel(
                     service_tech,
                     tech_stock,
                     data['lookups'],
                     mode_constrained,
                     data['assumptions']['model_yeardays'])
 
-                # Convert annaul service to fuel per fueltype for each technology
+                '''# Convert annaul service to fuel per fueltype for each technology
                 fuel_tech_y = self.service_to_fuel_per_tech(
                     service_tech,
                     tech_stock,
                     mode_constrained,
-                    data['assumptions']['model_yeardays'])
+                    data['assumptions']['model_yeardays'])'''
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -1311,6 +1311,7 @@ class Enduse(object):
         - The attribute 'fuel_new_y' is updated
         - Fuel = Energy service / efficiency
         """
+        fuel_per_tech = {}
         enduse_fuels = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
         if mode_constrained:
@@ -1321,6 +1322,9 @@ class Enduse(object):
             for tech, fuel_tech in service_tech.items():
                 enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
 
+                #new
+                fuel_tech[tech] = np.sum(fuel_tech)
+            
         else:
             for tech, service in service_tech.items():
                 eff_full_year = tech_stock.get_tech_attr(
@@ -1333,9 +1337,12 @@ class Enduse(object):
                     else:
                         eff_yh_selection = eff_full_year
 
-                    fuel_tech = service / eff_yh_selection
+                    fuel_tech = np.divide(service, eff_yh_selection)
                 else:
                     fuel_tech = service / eff_full_year
+
+                _sum = np.sum(fuel_tech)
+                fuel_per_tech[tech] = _sum #NEW JOIN
 
                 #fueltype_share_yh_all_h = tech_stock.get_tech_attr(
                 #    self.enduse, tech, 'fueltype_share_yh_all_h')
@@ -1346,11 +1353,11 @@ class Enduse(object):
                                     )
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 #enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
-                enduse_fuels[tech_fuel_type_int] += np.sum(fuel_tech) #BEO
+                enduse_fuels[tech_fuel_type_int] += _sum #BEO
 
         self.fuel_new_y = enduse_fuels
 
-        return
+        return fuel_per_tech
 
     def service_to_fuel_per_tech(self, service_tech, tech_stock, mode_constrained, model_yeardays):
         """Calculate fraction of fuel per technology within fueltype
