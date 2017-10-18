@@ -346,7 +346,6 @@ class Enduse(object):
                 fuel_tech_y,
                 data['lookups'],
                 mode_constrained)
-
         else:
 
             #---NON-PEAK
@@ -458,13 +457,21 @@ class Enduse(object):
 
         if mode_constrained: #Constrained mode
             # Assign all to heat fueltype
-            fueltypes_tech_share_yh = np.zeros((lookups['fueltype']['fueltypes_nr']), dtype=float)
-            fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
+            #fueltypes_tech_share_yh = np.zeros((lookups['fueltype']['fueltypes_nr']), dtype=float)
+            #fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech, fuel_tech_y in fuel_tech_y.items():
-                fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
+                
+                tech_fuel_type_int = tech_stock.get_tech_attr(
+                    self.enduse,
+                    tech,
+                    'tech_fueltype_int'
+                    )
 
-        else: #Unconstrained mode
+                #fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
+                fuel_y[lookups['fueltype']['heat']] += np.sum(fuel_tech_y) #* fueltypes_tech_share_yh
+
+        else:
             for tech, fuel_tech_y in fuel_tech_y.items():
                 #fueltypes_tech_share_yh = tech_stock.get_tech_attr(
                 #    self.enduse,
@@ -681,7 +688,7 @@ class Enduse(object):
             for tech, service_fueltype_tech in service_fueltype.items():
                 try:
                     #service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / sum(service_fueltype.values())
-                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / service_fueltype_p[fueltype]
+                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
                 except ZeroDivisionError:
                     service_fueltype_tech_p[fueltype][tech] = 0
 
@@ -1347,10 +1354,10 @@ class Enduse(object):
                 #fueltype_share_yh_all_h = tech_stock.get_tech_attr(
                 #    self.enduse, tech, 'fueltype_share_yh_all_h')
                 tech_fuel_type_int = tech_stock.get_tech_attr(
-                                    self.enduse,
-                                    tech,
-                                    'tech_fueltype_int'
-                                    )
+                    self.enduse,
+                    tech,
+                    'tech_fueltype_int'
+                    )
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
                 #enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
                 enduse_fuels[tech_fuel_type_int] += _sum #BEO

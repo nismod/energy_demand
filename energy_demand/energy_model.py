@@ -604,34 +604,35 @@ class EnergyModel(object):
 
         Returns
         -------
-        fuels : array
-            Summarised fuels
+        input_array : array
+            Summarised array
         """
-        fuels = input_array
+        #input_array = input_array
+        #for sector_model in sector_models:
+        #    for model_object in sector_model:
 
-        for sector_model in sector_models:
-            for model_object in sector_model:
-
-                # Select specific region if defined
-                if region_name:
+        # Select specific region if defined
+        if region_name:
+            for sector_model in sector_models:
+                for model_object in sector_model:
                     if model_object.region_name == region_name:
-                        fuels += self.get_fuels_yh(
+                        input_array += self.get_fuels_yh(
                             model_object,
                             attribute_to_get,
                             model_yeardays_nrs)
-                else:
-                    fuels += self.get_fuels_yh(
+        else:
+            for sector_model in sector_models:
+                for model_object in sector_model:
+                    input_array += self.get_fuels_yh(
                         model_object,
                         attribute_to_get,
                         model_yeardays_nrs)
 
         # Criteria if fuel is summed or not
         if sum_crit == 'no_sum':
-            fuels = fuels
+            return input_array
         elif sum_crit == 'sum':
-            fuels = np.sum(fuels)
-
-        return fuels
+            return np.sum(input_array)
 
     @classmethod
     def get_fuels_yh(cls, model_object, attribute_to_get, nr_of_days):

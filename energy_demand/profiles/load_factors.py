@@ -106,7 +106,7 @@ def load_factor_h_non_peak(self, data):
         '''
         maximum_h_of_day_in_year = self.rs_fuels_peak_h[fueltype]
 
-        average_demand_h = np.sum(fueldata) / (365 * 24) # Averae load = yearly demand / nr of days
+        average_demand_h = np.sum(fueldata) / (8760) # Averae load = yearly demand / nr of days
 
         # If there is a maximum day hour
         if maximum_h_of_day_in_year != 0:
