@@ -631,16 +631,12 @@ class Enduse(object):
                         self.enduse, self.sector, tech, 'shape_yh')
 
                     # Calculate fuel share and convert fuel to service
-                    if isinstance(tech_eff, np.ndarray):
-                        print("Error " + str(tech))
-                        sys.exit("print: eff still over full year")
-
                     service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
 
                     # Calculate fuel share and convert fuel to service
                     if self.crit_flat_profile:
                         _service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
-                        service = _service * (service_tech * (model_yeardays_nrs/365))
+                        service = _service * service_tech * (model_yeardays_nrs / 365)
                     else:
                         service = service_tech * tech_load_profile
 

@@ -218,7 +218,8 @@ class LoadProfile(object):
         # Calculate even if flat shape is assigned
         # Info: nansum does not through an ErrorTimeWarning
         # Some rowy may be zeros, i.e. division by zero results in inf values
-        sum_every_day_p = 1 / np.nansum(self.shape_yh, axis=1)
+        #sum_every_day_p = 1 / np.nansum(self.shape_yh, axis=1)
+        sum_every_day_p = np.divide(1, np.sum(self.shape_yh, axis=1))
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
         # Multiply (nr_of_days) + with (nr_of_days, 24)
@@ -247,8 +248,7 @@ def abs_to_rel_no_nan(absolute_array):
 
     if np.sum(absolute_array) != 0:
         #relative_array = absolute_array / sum_array
-        relative_array = np.divide(absolute_array, sum_array)
-        return relative_array
+        return np.divide(absolute_array, sum_array)
     else:
         return absolute_array
 
