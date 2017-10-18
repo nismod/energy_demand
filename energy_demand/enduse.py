@@ -472,10 +472,10 @@ class Enduse(object):
                 #    'fueltype_share_yh_all_h'
                 #    )
                 tech_fuel_type_int = tech_stock.get_tech_attr(
-                                    self.enduse,
-                                    tech,
-                                    'tech_fueltype_int'
-                                    )
+                    self.enduse,
+                    tech,
+                    'tech_fueltype_int'
+                    )
                 #fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
                 fuel_y[tech_fuel_type_int] += np.sum(fuel_tech_y) #* fueltypes_tech_share_yh #BEO
 
@@ -1103,7 +1103,8 @@ class Enduse(object):
             fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
             # Assign full share to heat
-            fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
+            #fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1 BEO
+            fueltypes_tech_share_yh['heat'] = 1
 
             for tech in self.enduse_techs:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
@@ -1115,6 +1116,11 @@ class Enduse(object):
                 fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh #SHARK
         else:
             for tech in self.enduse_techs:
+                
+                tech_fueltype = tech_stock.get_tech_attr(
+                    self.enduse,
+                    tech,
+                    'tech_fueltype')
 
                 # Fuel distribution
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
@@ -1129,11 +1135,6 @@ class Enduse(object):
                     tech,
                     'fueltype_share_yh_all_h')
                 '''
-                tech_fueltype = tech_stock.get_tech_attr(
-                    self.enduse,
-                    tech,
-                    'tech_fueltype'
-                    ) #beluga
                 fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
                 fueltypes_tech_share_yh[lookups['fueltype'][tech_fueltype]] = 1
 

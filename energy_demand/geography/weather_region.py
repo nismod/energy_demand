@@ -137,44 +137,12 @@ class WeatherRegion(object):
         #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
         # --Specific heating technologies for residential sector
-        '''
-        rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
-            tech_lp,
-            rs_fuel_shape_heating_yd,
-            'rs_lp_storage_heating_dh',
-            assumptions['model_yeardays'],
-            assumptions['model_yeardays_nrs'],
-            assumptions['model_yeardays_daytype'])
-        '''
         rs_profile_storage_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_yh']
-        #rs_profile_storage_heater_yh = tech_lp['rs_lp_storage_heating_dh']
 
-        '''
-        rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
-            tech_lp,
-            rs_fuel_shape_heating_yd,
-            'rs_lp_second_heating_dh',
-            assumptions['model_yeardays'],
-            assumptions['model_yeardays_nrs'],
-            assumptions['model_yeardays_daytype']
-            )
-        '''
         rs_profile_elec_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_yh']
-        #rs_profile_elec_heater_yh = tech_lp['rs_profile_elec_heater_yh']
 
         # boiler, non-peak
-        '''
-        rs_profile_boilers_yh, _ = self.get_shape_heating_boilers_yh(
-            tech_lp,
-            rs_fuel_shape_heating_yd,
-            'rs_lp_heating_boilers_dh',
-            assumptions['model_yeardays'],
-            assumptions['model_yeardays_nrs'],
-            assumptions['model_yeardays_daytype']
-            )
-        '''
         rs_profile_boilers_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_yh']
-        #rs_profile_boilers_yh = tech_lp['rs_profile_boilers_yh']
 
         # heat pumps, non-peak
         rs_fuel_shape_hp_yh, _ = self.get_fuel_shape_heating_hp_yh(
