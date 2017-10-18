@@ -610,9 +610,8 @@ class Enduse(object):
 
                     fuel_tech = self.fuel_new_y[fueltype] * fuel_share
 
-                    _service = fuel_tech * tech_load_profile
-                    service_selection = _service[[model_yeardays]]
-                    service_tech_cy[tech] += service_selection
+                    service = fuel_tech * tech_load_profile
+                    service_tech_cy[tech] += service[[model_yeardays]]
 
                     # Assign all service to fueltype 'heat_fueltype'
                     try:
@@ -651,7 +650,8 @@ class Enduse(object):
                     service_tech_cy[tech] += service
 
                     # Add fuel for each technology (float() is necessary to avoid inf error)
-                    service_fueltype_tech_p[fueltype][tech] += float(np.sum(service_tech * tech_load_profile))
+                    #service_fueltype_tech_p[fueltype][tech] += float(np.sum(service_tech * tech_load_profile))
+                    service_fueltype_tech_p[fueltype][tech] += float(np.sum(service_tech)) #BEO
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
@@ -667,8 +667,8 @@ class Enduse(object):
         for fueltype, service_fueltype in service_fueltype_tech_p.items():
             for tech, service_fueltype_tech in service_fueltype.items():
                 try:
-                    service_fueltype_tech_p[fueltype][tech] = (
-                        1 / sum(service_fueltype.values())) * service_fueltype_tech
+                    #service_fueltype_tech_p[fueltype][tech] = (1 / sum(service_fueltype.values())) * service_fueltype_tech
+                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / sum(service_fueltype.values())
                 except ZeroDivisionError:
                     service_fueltype_tech_p[fueltype][tech] = 0
 
