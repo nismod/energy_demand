@@ -632,7 +632,6 @@ class Enduse(object):
             # Calulate share of energy service per tech depending on fuel and efficiencies
             for fueltype, tech_list in fuel_tech_p_by.items():
                 service_fueltype_p[fueltype] = 0 #NEW
-
                 for tech, fuel_share in tech_list.items():
 
                     # Base year eff must be used
@@ -643,42 +642,37 @@ class Enduse(object):
                         self.enduse, self.sector, tech, 'shape_yh')
 
                     # Calculate fuel share and convert fuel to service
-                    service_tech = self.fuel_new_y[fueltype] * fuel_share * tech_eff
+                    service_tech_y = self.fuel_new_y[fueltype] * fuel_share * tech_eff
 
                     # Calculate fuel share and convert fuel to service
                     if self.crit_flat_profile:
                         #_service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
-                        #service =  service_tech * _service * (model_yeardays_nrs / 365)
-                        _service2 = np.full((model_yeardays_nrs, 24), 1 / (24)) #FASTER
-                        service2 =  service_tech * _service2 * (1 / 365)
+                        #service =  service_tech_y * _service * (model_yeardays_nrs / 365)
+                        _service = np.full((model_yeardays_nrs, 24), 1 / (24)) #FASTER
+                        service =  service_tech_y * _service * (1 / 365)
                     else:
-                        service = service_tech * tech_load_profile
+                        service = service_tech_y * tech_load_profile
 
                     # Distribute y to yh profile and selection
                     service_tech_cy[tech] += service
 
                     # Add fuel for each technology (float() is necessary to avoid inf error)
-                    _sum = float(np.sum(service_tech))
-                    service_fueltype_tech_p[fueltype][tech] += _sum
+                    #_sum = float(np.sum(service_tech))
+                    #service_fueltype_tech_p[fueltype][tech] += _sum
+                    service_fueltype_tech_p[fueltype][tech] += service_tech_y
 
-                    service_fueltype_p[fueltype] += _sum
+                    # Calculate service fraction per fueltype and total service
+                    #service_fueltype_p[fueltype] += _sum
+                    service_fueltype_p[fueltype] += service_tech_y
+
+                    # Sum service accross all technologies (365, 24)
                     tot_service_yh += service #NEW
-                    tot_service_y += _sum
+                    #tot_service_y += _sum
+                    tot_service_y += service_tech_y
 
         # --------------------------------------------------
         # Convert or aggregate service to other formats
         # --------------------------------------------------
-        # --Calculate service fraction per fueltype and total service
-        #service_fueltype_p = {}
-        #tot_service_y = 0
-        #for fueltype, service_fueltype in service_fueltype_tech_p.items():
-        #    sum_fueltype = sum(service_fueltype.values())
-            #tot_service_y += sum_fueltype
-        #    service_fueltype_p[fueltype] = sum_fueltype
-
-        # Sum service accross all technologies (365, 24)
-        #tot_service_yh = sum(service_tech_cy.values())
-
         # Convert service of every technology to fraction of total service
         service_tech_p = self.convert_service_to_p(service_tech_cy, tot_service_y)
 
@@ -686,7 +680,8 @@ class Enduse(object):
         for fueltype, service_fueltype in service_fueltype_tech_p.items():
             for tech, service_fueltype_tech in service_fueltype.items():
                 try:
-                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / sum(service_fueltype.values())
+                    #service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / sum(service_fueltype.values())
+                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / service_fueltype_p[fueltype]
                 except ZeroDivisionError:
                     service_fueltype_tech_p[fueltype][tech] = 0
 
