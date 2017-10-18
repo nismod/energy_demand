@@ -377,7 +377,7 @@ def load_data_profiles(paths, local_paths, assumptions):
     # ---------------
     # TODO: MAKE FASTER AND MOVE OUTSIDE WEATHER REGION INTO INITIALISATION
     # from Robert Sansom for heat pump
-    tech = 'rs_lp_heating_hp_dh'
+    '''tech = 'rs_lp_heating_hp_dh'
     daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
     daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
     # TODO: MAKE FASTER AND MOVE OUTSIDE WEATHER REGION INTO INITIALISATION
@@ -388,9 +388,59 @@ def load_data_profiles(paths, local_paths, assumptions):
         else:
             daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_workday
     tech_lp['daily_fuel_profile_y'] = daily_fuel_profile_y
+    '''
+    tech_lp['daily_fuel_profile_y'] = get_shape_every_day('rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
+    
+    # -- load profile
+    '''tech = 'rs_lp_storage_heating_dh'
+    shape_boilers_yh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    shape_boilers_y_dh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    #TODO :MOVE OUTSIDE INTO ASSUMPTIONS LOAD PROFILE
+    for day_array_nr, day_type in enumerate(assumptions['model_yeardays_daytype']):
+        if day_type == 'holiday':
+            shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['holiday']
+        else: # Wkday Hourly gas shape.
+            shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['workday'] #dh
+    tech_lp['rs_profile_storage_heater_yh'] = shape_boilers_y_dh'''
+    tech_lp['rs_profile_storage_heater_yh'] = get_shape_every_day('rs_lp_storage_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
+    #tech = 'rs_lp_second_heating_dh'
+    ###shape_boilers_yh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    ####shape_boilers_y_dh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    #####TODO :MOVE OUTSIDE INTO ASSUMPTIONS LOAD PROFILE
+    ####for day_array_nr, day_type in enumerate(assumptions['model_yeardays_daytype']):
+    ###    if day_type == 'holiday':
+    ##        shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['holiday']
+    ##    else: # Wkday Hourly gas shape.
+    ##        shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['workday'] #dh
+    #tech_lp['rs_profile_elec_heater_yh'] = shape_boilers_y_dh
+    tech_lp['rs_profile_elec_heater_yh'] = get_shape_every_day('rs_lp_second_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
+
+    #tech = 'rs_lp_heating_boilers_dh'
+    #shape_boilers_yh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    #shape_boilers_y_dh = np.zeros((assumptions['model_yeardays_nrs'], 24), dtype=float)
+    ##TODO :MOVE OUTSIDE INTO ASSUMPTIONS LOAD PROFILE
+    #for day_array_nr, day_type in enumerate(assumptions['model_yeardays_daytype']):
+    #    if day_type == 'holiday':
+    #        shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['holiday']
+    #    else: # Wkday Hourly gas shape.
+    #        shape_boilers_y_dh[day_array_nr] = tech_lp[tech]['workday'] #dh
+    #tech_lp['rs_profile_boilers_yh'] = shape_boilers_y_dh
+    tech_lp['rs_profile_boilers_yh'] = get_shape_every_day('rs_lp_heating_boilers_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     return tech_lp
+
+def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
+
+    daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
+    daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
+    daily_fuel_profile_y = np.zeros((365, 24))
+    for day_array_nr, day_type in enumerate(model_yeardays_daytype):
+        if day_type == 'holiday':
+            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_holiday
+        else:
+            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_workday
+    return daily_fuel_profile_y
 
 def load_temp_data(paths):
     """Read in cleaned temperature and weather station data

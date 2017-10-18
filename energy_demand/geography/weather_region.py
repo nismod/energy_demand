@@ -137,6 +137,7 @@ class WeatherRegion(object):
         #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
         # --Specific heating technologies for residential sector
+        '''
         rs_profile_storage_heater_yh, _ = self.get_shape_heating_boilers_yh(
             tech_lp,
             rs_fuel_shape_heating_yd,
@@ -144,7 +145,11 @@ class WeatherRegion(object):
             assumptions['model_yeardays'],
             assumptions['model_yeardays_nrs'],
             assumptions['model_yeardays_daytype'])
+        '''
+        rs_profile_storage_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_yh']
+        #rs_profile_storage_heater_yh = tech_lp['rs_lp_storage_heating_dh']
 
+        '''
         rs_profile_elec_heater_yh, _ = self.get_shape_heating_boilers_yh(
             tech_lp,
             rs_fuel_shape_heating_yd,
@@ -153,9 +158,13 @@ class WeatherRegion(object):
             assumptions['model_yeardays_nrs'],
             assumptions['model_yeardays_daytype']
             )
+        '''
+        rs_profile_elec_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_yh']
+        #rs_profile_elec_heater_yh = tech_lp['rs_profile_elec_heater_yh']
 
         # boiler, non-peak
-        rs_profile_boilers_yh, rs_profile_boilers_y_dh = self.get_shape_heating_boilers_yh(
+        '''
+        rs_profile_boilers_yh, _ = self.get_shape_heating_boilers_yh(
             tech_lp,
             rs_fuel_shape_heating_yd,
             'rs_lp_heating_boilers_dh',
@@ -163,9 +172,12 @@ class WeatherRegion(object):
             assumptions['model_yeardays_nrs'],
             assumptions['model_yeardays_daytype']
             )
+        '''
+        rs_profile_boilers_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_yh']
+        #rs_profile_boilers_yh = tech_lp['rs_profile_boilers_yh']
 
         # heat pumps, non-peak
-        rs_fuel_shape_hp_yh, rs_fuel_shape_hp_y_dh = self.get_fuel_shape_heating_hp_yh(
+        rs_fuel_shape_hp_yh, _ = self.get_fuel_shape_heating_hp_yh(
             tech_lp,
             self.rs_tech_stock,
             rs_hdd_cy,
@@ -666,14 +678,14 @@ class WeatherRegion(object):
         future. Dissertation, Imperial College London.*
         """
         shape_boilers_yh = np.zeros((model_yeardays_nrs, 24), dtype=float)
-        shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24), dtype=float)
+        #shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24), dtype=float)
         #TODO :MOVE OUTSIDE INTO ASSUMPTIONS LOAD PROFILE
         for day_array_nr, day_type in enumerate(model_yeardays_daytype):
             if day_type == 'holiday':
                 shape_boilers_yh[day_array_nr] = heating_shape[day_array_nr] * tech_lp[technology]['holiday']
-                shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['holiday']
+                #shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['holiday']
             else: # Wkday Hourly gas shape.
                 shape_boilers_yh[day_array_nr] = heating_shape[day_array_nr] * tech_lp[technology]['workday'] #yd
-                shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['workday'] #dh
+                #shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['workday'] #dh
 
-        return shape_boilers_yh, shape_boilers_y_dh
+        return shape_boilers_yh, "TODO" #shape_boilers_y_dh

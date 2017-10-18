@@ -131,7 +131,7 @@ if __name__ == "__main__":
         if instrument_profiler:
             profiler.stop()
             logging.debug("Profiler Results")
-            logging.info(profiler.output_text(unicode=True, color=True))
+            print(profiler.output_text(unicode=True, color=True))
         
         ##prnt(":")
 
