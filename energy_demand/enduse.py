@@ -1060,9 +1060,9 @@ class Enduse(object):
             fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
 
             # Get fueltypes (distribution) of tech for peak day
-            fueltypes_tech_share_yd = tech_stock.get_tech_attr(
-                self.enduse, tech, 'fueltypes_yh_p_cy')
-
+            ##fueltypes_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
+            
+            fueltypes_tech_share_yd = 1
             # BEO
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 self.enduse, tech, 'tech_fueltype_int')
@@ -1070,7 +1070,8 @@ class Enduse(object):
             # Peak day fuel shape * fueltype distribution for peak day
             # select from (7, nr_of_days, 24) only peak day for all fueltypes
             #fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
-            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd[peak_day_nr, :] #BEO
+            ##fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd[peak_day_nr, :] #BEO
+            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd #BEO
 
         return fuels_peak_dh
 
@@ -1117,17 +1118,13 @@ class Enduse(object):
         else:
             for tech in self.enduse_techs:
                 
-                tech_fueltype = tech_stock.get_tech_attr(
-                    self.enduse,
-                    tech,
-                    'tech_fueltype')
+                # Get fueltype of technology
+                tech_fueltype_int = tech_stock.get_tech_attr(
+                    self.enduse, tech, 'tech_fueltype_int')
 
                 # Fuel distribution
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
-                    self.enduse,
-                    self.sector,
-                    tech,
-                    'shape_yh') #SHARK NEW
+                    self.enduse, self.sector, tech, 'shape_yh') #SHARK NEW
 
                 # Get distribution per fueltype
                 '''fueltypes_tech_share_yh = tech_stock.get_tech_attr(
@@ -1135,11 +1132,13 @@ class Enduse(object):
                     tech,
                     'fueltype_share_yh_all_h')
                 '''
-                fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
-                fueltypes_tech_share_yh[lookups['fueltype'][tech_fueltype]] = 1
+                ##fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
+                ##fueltypes_tech_share_yh[tech_fueltype_int] = 1
+                #fueltypes_tech_share_yh = 1
 
                 # Get distribution of fuel for every day, calculate share of fuel, add to fuels
-                fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
+                ##fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh
+                fuels_yh[tech_fueltype_int] += fuel_tech_yh #* fueltypes_tech_share_yh
 
         return fuels_yh
 
