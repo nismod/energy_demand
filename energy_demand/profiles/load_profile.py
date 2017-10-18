@@ -244,13 +244,19 @@ def abs_to_rel_no_nan(absolute_array):
     relative_array : array
         Array with relative numbers
     """
+    #ALTERNATIVE APPROACH
+    #absolute_array_sum_along_rows = np.sum(shape_yh_hp, axis=1)
+    #absolute_array_sum_along_rows[np.isnan(absolute_array_sum_along_rows)] = 0
+    #relative_array = absolute_array / absolute_array_sum_along_rows[:, np.newaxis]
+    
+    #return relative_array
     sum_array = float(np.sum(absolute_array))
 
-    if np.sum(absolute_array) != 0:
-        #relative_array = absolute_array / sum_array
+    if sum_array != 0:
         return np.divide(absolute_array, sum_array)
     else:
         return absolute_array
+
 
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
@@ -271,12 +277,12 @@ def abs_to_rel(absolute_array):
     """
     sum_array = float(np.sum(absolute_array))
     if sum_array != 0:
-        #relative_array = absolute_array / sum_array
         relative_array = np.divide(absolute_array, sum_array)
         relative_array[np.isnan(relative_array)] = 0
         return relative_array
     else:
         return absolute_array
+
 
 def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day
@@ -295,8 +301,8 @@ def calk_peak_h_dh(fuel_peak_dh):
     peak_fueltype_h = np.max(fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
-
-'''def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
+'''
+def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
     """Calculate  fuel shapes for hybrid technologies for every day in a year (y_dh)
 
     Depending on the share of service each hybrid technology in every hour,
@@ -340,16 +346,16 @@ def calk_peak_h_dh(fuel_peak_dh):
     #plt.plot(fuel_shapes_hybrid_y_dh[1])
     #plt.show()
     return fuel_shapes_hybrid_y_dh
-'''
-'''def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
+
+def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
     """
     """
     fueltypes_yh_p_cy = np.zeros((fueltypes_nr))
     fueltypes_yh_p_cy[fueltype] = 1.0 #all fuel of fueltype
 
-    return fueltypes_yh_p_cy'''
+    return fueltypes_yh_p_cy
 
-'''def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
+def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
     """Calculate fuel share for every hour
 
     Arguments

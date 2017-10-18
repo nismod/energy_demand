@@ -3,6 +3,7 @@
 import os
 import csv
 import logging
+import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
@@ -370,6 +371,24 @@ def load_data_profiles(paths, local_paths, assumptions):
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])
+
+    # ---------------
+    # Calculate load profile for HEATPUMP TODO: PUT IN SEPARATE FUNCTION
+    # ---------------
+    # TODO: MAKE FASTER AND MOVE OUTSIDE WEATHER REGION INTO INITIALISATION
+    # from Robert Sansom for heat pump
+    tech = 'rs_lp_heating_hp_dh'
+    daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
+    daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
+    # TODO: MAKE FASTER AND MOVE OUTSIDE WEATHER REGION INTO INITIALISATION
+    daily_fuel_profile_y = np.zeros((365, 24))
+    for day_array_nr, day_type in enumerate(assumptions['model_yeardays_daytype']):
+        if day_type == 'holiday':
+            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_holiday
+        else:
+            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_workday
+    tech_lp['daily_fuel_profile_y'] = daily_fuel_profile_y
+
 
     return tech_lp
 

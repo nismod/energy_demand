@@ -523,36 +523,42 @@ class WeatherRegion(object):
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        # from Robert Sansom for heat pump
-        daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
-        daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
+        #daily_fuel_profile_y = daily_fuel_profile_y
+        # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
+        # HDD are used as the heat demand --> possible because only shape is of interest
+        hp_daily_fuel = rs_hdd_cy[:, np.newaxis] / tech_eff
 
-        for day_array_nr, yearday in enumerate(range(365)):
-            if model_yeardays_daytype[yearday] == 'holiday':
-                daily_fuel_profile = daily_fuel_profile_holiday
-            else:
-                daily_fuel_profile = daily_fuel_profile_workday
+        # Distribute fuel of day according to fuel load curve
+        shape_yh_hp = hp_daily_fuel * tech_lp['daily_fuel_profile_y']
 
-            # Calculate weighted average daily efficiency of heat pump
-            # (Hourly heat demand * heat pump efficiency)
-            #average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
-            average_eff_d = tech_eff #BELUGA
-    
-            # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
-            hp_daily_fuel = rs_hdd_cy[day_array_nr] / average_eff_d
+        # Calculate weighted average daily efficiency of heat pump
+        # (Hourly heat demand * heat pump efficiency)
+        #average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
 
-            # Fuel distribution within day
-            fuel_shape_d = hp_daily_fuel * daily_fuel_profile
+        # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
+        #hp_daily_fuel = rs_hdd_cy[day_array_nr] / tech_eff
 
-            # Distribute fuel of day according to fuel load curve
-            shape_yh_hp[day_array_nr] = fuel_shape_d
+        # Fuel distribution within day
+        #fuel_shape_d = hp_daily_fuel * daily_fuel_profile
 
-            # Add normalised daily fuel curve
-            shape_y_dh[day_array_nr] = load_profile.abs_to_rel_no_nan(fuel_shape_d)
+        # Distribute fuel of day according to fuel load curve
+        #shape_yh_hp[day_array_nr] = fuel_shape_d
+
+        # Add normalised daily fuel curve BEO
+        #shape_y_dh[day_array_nr] = load_profile.abs_to_rel_no_nan(fuel_shape_d)
+        #shape_y_dh[day_array_nr] = fuel_shape_d
 
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = load_profile.abs_to_rel(shape_yh_hp)
-
+        
+        '''# Convert for every day the shape to absolute shape (tot array sum for a full year == 365)
+        shape_y_dh = np.apply_along_axis(func1d=load_profile.abs_to_rel_no_nan, axis=1, arr=shape_yh_hp)
+        '''
+        # ALTERNATIVE APPROACH BEO FASTER
+        _shape_y_dh_sum_rows = np.sum(shape_yh_hp, axis=1)
+        shape_y_dh = shape_yh_hp / _shape_y_dh_sum_rows[:, np.newaxis]
+        shape_y_dh[np.isnan(shape_y_dh)] = 0
+        
         # Select only modelled days
         shape_yh_selection = shape_yh[[model_yeardays]]
         shape_y_dh_selection = shape_y_dh[[model_yeardays]]
@@ -661,9 +667,9 @@ class WeatherRegion(object):
         """
         shape_boilers_yh = np.zeros((model_yeardays_nrs, 24), dtype=float)
         shape_boilers_y_dh = np.zeros((model_yeardays_nrs, 24), dtype=float)
-
-        for day_array_nr, yearday in enumerate(model_yeardays):
-            if model_yeardays_daytype[yearday] == 'holiday':
+        #TODO :MOVE OUTSIDE INTO ASSUMPTIONS LOAD PROFILE
+        for day_array_nr, day_type in enumerate(model_yeardays_daytype):
+            if day_type == 'holiday':
                 shape_boilers_yh[day_array_nr] = heating_shape[day_array_nr] * tech_lp[technology]['holiday']
                 shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['holiday']
             else: # Wkday Hourly gas shape.

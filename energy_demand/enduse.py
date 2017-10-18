@@ -163,7 +163,8 @@ class Enduse(object):
             self.apply_specific_change(
                 data['assumptions'],
                 enduse_overall_change_ey,
-                data['sim_param'])
+                data['sim_param'],
+                data['lookups'])
             logging.debug("Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
@@ -363,7 +364,8 @@ class Enduse(object):
             self.fuel_peak_dh = self.calc_peak_tech_dh(
                 fuel_tech_y,
                 tech_stock,
-                load_profiles
+                load_profiles,
+                data['lookups']
                 )
 
             # Get maximum hour demand of peak day
@@ -452,7 +454,7 @@ class Enduse(object):
         ----
         This function can be run in two different modes
         """
-        fuel_y = np.zeros((self.fuel_new_y.shape[0]), dtype=float)
+        fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
         if mode_constrained: #Constrained mode
             # Assign all to heat fueltype
@@ -464,13 +466,18 @@ class Enduse(object):
 
         else: #Unconstrained mode
             for tech, fuel_tech_y in fuel_tech_y.items():
-                fueltypes_tech_share_yh = tech_stock.get_tech_attr(
-                    self.enduse,
-                    tech,
-                    'fueltype_share_yh_all_h'
-                    )
-
-                fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
+                #fueltypes_tech_share_yh = tech_stock.get_tech_attr(
+                #    self.enduse,
+                #    tech,
+                #    'fueltype_share_yh_all_h'
+                #    )
+                tech_fuel_type_int = tech_stock.get_tech_attr(
+                                    self.enduse,
+                                    tech,
+                                    'tech_fueltype_int'
+                                    )
+                #fuel_y += np.sum(fuel_tech_y) * fueltypes_tech_share_yh
+                fuel_y[tech_fuel_type_int] += np.sum(fuel_tech_y) #* fueltypes_tech_share_yh #BEO
 
         return fuel_y
 
@@ -984,7 +991,7 @@ class Enduse(object):
 
             return False
 
-    def calc_peak_tech_dh(self, enduse_fuel_tech, tech_stock, load_profile):
+    def calc_peak_tech_dh(self, enduse_fuel_tech, tech_stock, load_profile, lookups):
         """Calculate peak demand for every fueltype
 
         Arguments
@@ -1012,7 +1019,7 @@ class Enduse(object):
           the dh peak day profile is not read in from technology
           stock but from shape_yh of peak day (hybrid technologies).
         """
-        fuels_peak_dh = np.zeros((self.fuel_new_y.shape[0], 24), dtype=float)
+        fuels_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
 
         # Get day with most fuel across all fueltypes
         peak_day_nr = self.get_peak_day()
@@ -1056,9 +1063,14 @@ class Enduse(object):
             fueltypes_tech_share_yd = tech_stock.get_tech_attr(
                 self.enduse, tech, 'fueltypes_yh_p_cy')
 
+            # BEO
+            tech_fuel_type_int = tech_stock.get_tech_attr(
+                self.enduse, tech, 'tech_fueltype_int')
+
             # Peak day fuel shape * fueltype distribution for peak day
             # select from (7, nr_of_days, 24) only peak day for all fueltypes
-            fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
+            #fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
+            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd[peak_day_nr, :] #BEO
 
         return fuels_peak_dh
 
@@ -1308,11 +1320,16 @@ class Enduse(object):
                 else:
                     fuel_tech = service / eff_full_year
 
-                fueltype_share_yh_all_h = tech_stock.get_tech_attr(
-                    self.enduse, tech, 'fueltype_share_yh_all_h')
-    
+                #fueltype_share_yh_all_h = tech_stock.get_tech_attr(
+                #    self.enduse, tech, 'fueltype_share_yh_all_h')
+                tech_fuel_type_int = tech_stock.get_tech_attr(
+                                    self.enduse,
+                                    tech,
+                                    'tech_fueltype_int'
+                                    )
                 # Multiply fuel of technology per fueltype with shape of yearl distrbution
-                enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
+                #enduse_fuels += fueltype_share_yh_all_h * np.sum(fuel_tech)
+                enduse_fuels[tech_fuel_type_int] += np.sum(fuel_tech) #BEO
 
         self.fuel_new_y = enduse_fuels
 
@@ -1365,7 +1382,7 @@ class Enduse(object):
 
         return fuel_tech
 
-    def apply_specific_change(self, assumptions, enduse_overall_change_ey, base_parameters):
+    def apply_specific_change(self, assumptions, enduse_overall_change_ey, base_parameters, lookups):
         """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
         Arguments
@@ -1404,7 +1421,7 @@ class Enduse(object):
         diffusion_choice = assumptions['other_enduse_mode_info']['diff_method']
 
         if diff_fuel_consump != 0: # If change in fuel consumption
-            new_fuels = np.zeros((self.fuel_new_y.shape[0]), dtype=float)
+            new_fuels = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
             # Lineare diffusion up to cy
             if diffusion_choice == 'linear':

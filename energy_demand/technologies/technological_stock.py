@@ -150,6 +150,8 @@ class TechStock(object):
         #    attribute_value = tech_object.service_distr_hybrid_h_p
         if attribute_to_get == 'tech_fueltype':
             attribute_value = tech_object.tech_fueltype
+        elif attribute_to_get == 'tech_fueltype_int':
+                attribute_value = tech_object.tech_fueltype_int
         elif attribute_to_get == 'eff_cy':
             attribute_value = tech_object.eff_cy
         elif attribute_to_get == 'eff_by':
@@ -203,26 +205,32 @@ class Technology(object):
             self.tech_name = tech_name
             self.tech_type = tech_type
             self.tech_fueltype = assumptions['technologies'][tech_name]['fuel_type'] #BELUGA
+            self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype) #BELUGA
             self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.eff_achieved_factor = assumptions['technologies'][self.tech_name]['eff_achieved']
             self.diff_method = assumptions['technologies'][self.tech_name]['diff_method']
 
             # Shares of fueltype for every hour for single fueltype
             #TODO: MYBE REMOVE ALL EMPTY FUEL BUT ONLY SINGLE FUELTYPE #TODO FASTER
-            self.fueltypes_yh_p_cy = self.set_constant_fueltype(
+            '''self.fueltypes_yh_p_cy = self.set_constant_fueltype(
                 lookups['fueltype'][self.tech_fueltype],
                 lookups['fueltypes_nr'],
-                assumptions['model_yeardays_nrs'])
+                assumptions['model_yeardays_nrs'])'''
+            
+            # NEW FAST
+            self.fueltypes_yh_p_cy = np.full((assumptions['model_yeardays_nrs'], 24), 1, dtype=float)
 
             # Calculate shape per fueltype
-            '''self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
-                lookups['fueltypes_nr'],
-                assumptions['technologies'][tech_name]['fuel_type'],
-                self.fueltypes_yh_p_cy)'''
+            #self.fueltype_share_yh_all_h = load_profile.calc_fueltype_share_yh_all_h_no_hybrid(
+            #    lookups['fueltypes_nr'],
+            #    assumptions['technologies'][tech_name]['fuel_type'],
+            #    self.fueltypes_yh_p_cy)
 
             # BELUGA
-            self.fueltype_share_yh_all_h = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
-            self.fueltype_share_yh_all_h[lookups['fueltype'][self.tech_fueltype]] = 1
+            '''self.fueltype_share_yh_all_h = np.zeros((lookups['fueltypes_nr']), dtype=float) #BELUGA
+            self.fueltype_share_yh_all_h[lookups['fueltype'][self.tech_fueltype]] = 1'''
+            #self.fueltype_share_yh_all_h = np.full((1), 1)
+            
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
