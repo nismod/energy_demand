@@ -138,7 +138,7 @@ if __name__ == "__main__":
         # FUEL PER REGION
         out_to_supply = model_run_object.fuel_indiv_regions_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
-
+        tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         # ----------------------
         # Write annual results to txt files
         # ----------------------
@@ -152,6 +152,12 @@ if __name__ == "__main__":
             sim_yr,
             data['local_paths']['data_results_model_runs'],
             out_enduse_specific)
+
+        #TODO: WRITE OUT plt_fuels_peak_h() prequisits tot_fuel_y_max_enduses
+        write_data.write_model_result_to_txt_maxresults(
+            sim_yr,
+            data['local_paths']['data_results_model_runs'],
+            tot_fuel_y_max_enduses)
 
         # ---------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -183,6 +189,12 @@ if __name__ == "__main__":
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
+
+    '''tot_fuel_y_max_enduses = read_data.read_enduse_specific_model_result_from_txt(
+        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
+        data['local_paths']['tot_fuel_max'])'''
+
+    
 
     logging.debug("... Reading in results finished")
     # ------------------------------

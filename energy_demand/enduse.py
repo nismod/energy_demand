@@ -309,7 +309,7 @@ class Enduse(object):
         if self.crit_flat_profile:
 
             # Calculate fraction if flat shape of selected days to model
-            self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs']/365.0
+            self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs'] / 365.0
         else:
             self.fuel_yh = load_profiles.get_lp(
                 self.enduse,
@@ -320,8 +320,8 @@ class Enduse(object):
             # Read dh profile from peak day
             peak_day = self.get_peak_day()
 
-            shape_peak_dh = lp.abs_to_rel(
-                self.fuel_yh[:, peak_day, :])
+            shape_peak_dh = lp.abs_to_rel(self.fuel_yh[:, peak_day, :])
+
             enduse_peak_yd_factor = load_profiles.get_lp(
                 self.enduse, self.sector, 'dummy_tech', 'enduse_peak_yd_factor')
 
@@ -1045,17 +1045,18 @@ class Enduse(object):
         """
         fuels_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
 
-        # Get day with most fuel across all fueltypes
-        peak_day_nr = self.get_peak_day()
-
         for tech in self.enduse_techs:
             #logging.debug("TECH ENDUSE    {}   {}".format(tech, self.enduse))
 
             tech_type = tech_stock.get_attribute_tech_stock(tech, self.enduse, 'tech_type')
 
-            if tech_type == 'hybrid':# or tech_type == 'heat_pump': #Maybe add ventilation TODO
+            #if tech_type == 'hybrid':# or tech_type == 'heat_pump': #Maybe add ventilation TODO
+            if tech_type == 'heat_pump':# or tech_type == 'heat_pump': #Maybe add ventilation TODO
                 """Read fuel from peak day
                 """
+                # Get day with most fuel across all fueltypes
+                peak_day_nr = self.get_peak_day()
+
                 # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
                 fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
                     self.enduse, self.sector, tech, 'shape_yd')
@@ -1072,9 +1073,11 @@ class Enduse(object):
             else:
                 """Calculate fuel with peak factor
                 """
-                # Calculate fuel for peak day
-                fuel_tech_peak_d = np.sum(enduse_fuel_tech[tech]) * load_profile.get_lp(
+                enduse_peak_yd_factor = load_profile.get_lp(
                     self.enduse, self.sector, tech, 'enduse_peak_yd_factor')
+                # Calculate fuel for peak day
+                #fuel_tech_peak_d = np.sum(enduse_fuel_tech[tech]) * enduse_peak_yd_factor
+                fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
 
                 # Assign Peak shape of a peak day of a technology
                 tech_peak_dh = load_profile.get_shape_peak_dh(
@@ -1085,8 +1088,8 @@ class Enduse(object):
 
             # Get fueltypes (distribution) of tech for peak day
             ##fueltypes_tech_share_yd = tech_stock.get_tech_attr(self.enduse, tech, 'fueltypes_yh_p_cy')
-            
-            fueltypes_tech_share_yd = 1
+
+            #fueltypes_tech_share_yd = 1
             # BEO
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 self.enduse, tech, 'tech_fueltype_int')
@@ -1095,7 +1098,7 @@ class Enduse(object):
             # select from (7, nr_of_days, 24) only peak day for all fueltypes
             #fuels_peak_dh += fuel_tech_peak_dh * fueltypes_tech_share_yd[:, peak_day_nr, :]
             ##fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd[peak_day_nr, :] #BEO
-            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh * fueltypes_tech_share_yd #BEO
+            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh #* fueltypes_tech_share_yd #BEO
 
         return fuels_peak_dh
 
@@ -1129,7 +1132,7 @@ class Enduse(object):
 
             # Assign full share to heat
             #fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1 BEO
-            fueltypes_tech_share_yh['heat'] = 1
+            #fueltypes_tech_share_yh['heat'] = 1
 
             for tech in self.enduse_techs:
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
@@ -1138,7 +1141,8 @@ class Enduse(object):
                     tech,
                     'shape_yh'
                     )
-                fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh #SHARK
+                #fuels_yh += fueltypes_tech_share_yh[:, np.newaxis, np.newaxis] * fuel_tech_yh #SHARK
+                fuels_yh[lookups['fueltype']['heat']] += fuel_tech_yh #+ # BEO
         else:
             for tech in self.enduse_techs:
 

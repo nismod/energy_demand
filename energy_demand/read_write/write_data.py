@@ -140,6 +140,31 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     return
 
 def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
+    """Store
+
+    Store numpy array to txt
+    """
+    # Create folder for model simulation year
+    path_result_yr = os.path.join(path_result)
+    if not os.path.exists(path_result_yr):
+        os.makedirs(path_result_yr)
+
+    #Create Subolder
+    path_result_subolder = os.path.join(path_result, "tot_fuel_max")
+    if not os.path.exists(path_result_subolder):
+        os.makedirs(path_result_subolder)
+
+    # Write to txt
+    path_file = os.path.join(
+        path_result_subolder,
+        "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
+        )
+    np.savetxt(path_file, model_results, delimiter=',')
+
+    # Read in with loadtxt
+    return
+
+def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
     """Store yearly model resul to txt
 
     Store numpy array to txt
@@ -150,18 +175,16 @@ def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
         os.makedirs(path_result_yr)
 
     #Create Subolder
-    path_result_subolder = os.path.join(path_result, "enduse_specific_results")
+    path_result_subolder = os.path.join(path_result, "tot_fuel_max")
     if not os.path.exists(path_result_subolder):
         os.makedirs(path_result_subolder)
 
     # Write to txt
-    for enduse, fuel in model_results.items():
-        for fueltype_nr, fuel_fueltype in enumerate(fuel):
-            path_file = os.path.join(
-                path_result_subolder,
-                "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
-                )
-            np.savetxt(path_file, fuel_fueltype, delimiter=',')
+    path_file = os.path.join(
+        path_result_subolder,
+        "modelruns__{}{}".format(sim_yr, ".txt")
+        )
+    np.savetxt(path_file, model_results, delimiter=',')
 
-    # Read in with loadtxt
     return
+

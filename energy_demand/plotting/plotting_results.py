@@ -53,7 +53,7 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
         'tot_fuel_y_enduse_specific_h')
 
     # Plot peak demand (h) per fueltype
-    #plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_enduses')
+    plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_enduses')
     return
 
 def plot_x_days(all_hours_year, region, days):
