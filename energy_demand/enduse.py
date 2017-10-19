@@ -14,6 +14,7 @@ from energy_demand.initalisations import initialisations as init
 from energy_demand.profiles import load_profile as lp
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.basic import testing_functions as testing
+from collections import defaultdict
 
 class Enduse(object):
     """Enduse Class (Residential, Service and Industry)
@@ -258,8 +259,7 @@ class Enduse(object):
                     service_tech,
                     tech_stock,
                     data['lookups'],
-                    mode_constrained,
-                    data['assumptions']['model_yeardays'])
+                    mode_constrained)
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -585,17 +585,17 @@ class Enduse(object):
           However, the self.fuel_new_y is taken because the actual
           service was reduced e.g. due to smart meters or temperatur changes
         """
+        service_tech_cy = init.dict_zero(self.enduse_techs)
+        tot_service_y = 0
+        service_fueltype_p = {}
+        tot_service_yh = np.zeros((model_yeardays_nrs, 24))
+
         if mode_constrained:
             """
             Constrained version
             no efficiencies are considered, because not technology specific service calculation
             """
-            service_tech_cy = init.dict_zero(self.enduse_techs)
             service_fueltype_tech_p = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
-            tot_service_y = 0
-            service_fueltype_p = {}
-            tot_service_yh = np.zeros((model_yeardays_nrs, 24))
-    
             # Calculate share of service
             for fueltype, tech_list in fuel_tech_p_by.items():
                 service_fueltype_p[fueltype] = 0
@@ -628,13 +628,8 @@ class Enduse(object):
         else:
             """Unconstrained version
             """
-            service_tech_cy = init.dict_zero(self.enduse_techs)
-            service_fueltype_tech_p = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
-
-            tot_service_yh = np.zeros((model_yeardays_nrs, 24))
-            tot_service_y = 0
-            service_fueltype_p = {}
-
+            service_fueltype_tech = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
+    
             # Calulate share of energy service per tech depending on fuel and efficiencies
             for fueltype, tech_list in fuel_tech_p_by.items():
                 service_fueltype_p[fueltype] = 0
@@ -666,12 +661,12 @@ class Enduse(object):
                     service_tech_cy[tech] += service_tech_yh
 
                     # Add fuel for each technology (float() is necessary to avoid inf error)
-                    service_fueltype_tech_p[fueltype][tech] += _sum_selection #NEW BELUGA
+                    service_fueltype_tech[fueltype][tech] += _sum_selection #NEW BELUGA
 
                     # Calculate service fraction per fueltype and total service
                     service_fueltype_p[fueltype] += _sum_selection
 
-                    # Sum total yearly service 
+                    # Sum total yearly service
                     tot_service_yh += service_tech_yh #(yh)
                     tot_service_y += _sum_selection #(y)
 
@@ -679,17 +674,37 @@ class Enduse(object):
         # Convert or aggregate service to other formats
         # --------------------------------------------------
         # Convert service of every technology to fraction of total service
-        service_tech_p = self.convert_service_to_p(service_tech_cy, tot_service_y)
+        service_tech_p = self.convert_service_to_p(
+            service_tech_cy, tot_service_y)
 
         # Convert service per fueltype of technology
-        for fueltype, service_fueltype in service_fueltype_tech_p.items():
-            for tech, service_fueltype_tech in service_fueltype.items():
-                try:
-                    service_fueltype_tech_p[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
-                except ZeroDivisionError:
-                    service_fueltype_tech_p[fueltype][tech] = 0
+        service_fueltype_tech_p = self.convert_service_tech_to_p(
+            service_fueltype_tech, service_fueltype_p)
 
         return tot_service_yh, service_tech_cy, service_tech_p, service_fueltype_tech_p, service_fueltype_p
+
+    @classmethod
+    def convert_service_tech_to_p(cls, service_fueltype_tech_p, service_fueltype_p):
+        """ TODO: DESCRIBE: ALSO Preven that going in
+        """
+        out_dict = defaultdict(dict)
+
+        for fueltype, service_fueltype in service_fueltype_tech_p.items():
+            for tech, service_fueltype_tech in service_fueltype.items():
+                if float(service_fueltype_tech) == 0:
+                    out_dict[fueltype][tech] = 0
+                elif float(service_fueltype_p[fueltype]) == 0:
+                    out_dict[fueltype][tech] = 0
+                else:
+                    out_dict[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
+                '''try:
+                    print("a: " + str(float(service_fueltype_p[fueltype])))
+                    print(service_fueltype_tech)
+                    out_dict[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
+                except ZeroDivisionError:
+                    out_dict[fueltype][tech] = 0'''
+
+        return out_dict
 
     @classmethod
     def convert_service_to_p(cls, service_tech_cy, tot_service_y):
@@ -1072,7 +1087,7 @@ class Enduse(object):
 
                 # Fuel distribution
                 # Only needed if modelled days is not 365 because the
-                # service in fuel_to_service() was already reduced 
+                # service in fuel_to_service() was already reduced
                 # to selected modelled days
                 if model_yeardays_nrs != 365:
                     load_profile = lp.abs_to_rel(load_profile)
@@ -1215,7 +1230,7 @@ class Enduse(object):
 
         return service_tech_after_switch
 
-    def service_to_fuel(self, service_tech, tech_stock, lookups, mode_constrained, model_yeardays):
+    def service_to_fuel(self, service_tech, tech_stock, lookups, mode_constrained):
         """Convert yearly energy service to yearly fuel demand. For every
         technology the service is taken and convertedto fuel based on efficiency of current year.abs
 
