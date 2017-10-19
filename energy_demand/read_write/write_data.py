@@ -154,12 +154,14 @@ def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
     if not os.path.exists(path_result_subolder):
         os.makedirs(path_result_subolder)
 
-    # Write to txt
-    path_file = os.path.join(
-        path_result_subolder,
-        "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
-        )
-    np.savetxt(path_file, model_results, delimiter=',')
+     # Write to txt
+    for enduse, fuel in model_results.items():
+        for fueltype_nr, fuel_fueltype in enumerate(fuel):
+            path_file = os.path.join(
+                path_result_subolder,
+                "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
+                )
+            np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
     # Read in with loadtxt
     return
@@ -187,4 +189,3 @@ def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
     np.savetxt(path_file, model_results, delimiter=',')
 
     return
-

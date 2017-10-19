@@ -356,7 +356,7 @@ class EnergyModel(object):
             fueltypes_nr,
             [self.ss_submodel, self.rs_submodel, self.is_submodel],
             'no_sum',
-            'non_peak',
+            #'non_peak',
             model_yeardays_nrs,
             region_name,
             )
@@ -457,7 +457,7 @@ class EnergyModel(object):
                 submodule_list.append(submodel_object)
 
         return submodule_list
-    
+
     @classmethod
     def service_submodel(cls, region_obj, data, enduses, sectors):
         """Create the service submodules per enduse, sector and region and add to list

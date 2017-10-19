@@ -21,7 +21,7 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
 from energy_demand.read_write import write_data
 
-def energy_demand_model(data):
+def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
 
     Arguments
@@ -51,7 +51,7 @@ def energy_demand_model(data):
     fueltot = model_run_object.reg_enduses_fueltype_y
 
     # Print out calculations
-    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+    #fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
@@ -121,12 +121,14 @@ if __name__ == "__main__":
         logging.debug("SIM RUN:  " + str(sim_yr))
         logging.debug("-------------------------- ")
 
+        fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+
         #-------------PROFILER
         if instrument_profiler:
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        model_run_object = energy_demand_model(data)
+        model_run_object = energy_demand_model(data, fuel_in, fuel_in_elec)
 
         if instrument_profiler:
             profiler.stop()
@@ -193,8 +195,6 @@ if __name__ == "__main__":
     '''tot_fuel_y_max_enduses = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['tot_fuel_max'])'''
-
-    
 
     logging.debug("... Reading in results finished")
     # ------------------------------

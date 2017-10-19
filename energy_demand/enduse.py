@@ -301,7 +301,7 @@ class Enduse(object):
             crit_switch_service,
             self.enduse)
 
-        return mode_constrained, crit_switch_fuel, crit_switch_service 
+        return mode_constrained, crit_switch_fuel, crit_switch_service
 
     def assign_load_profiles_no_techs(self, data, load_profiles):
         """TODO
@@ -461,7 +461,7 @@ class Enduse(object):
             #fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1
 
             for tech, fuel_tech_y in fuel_tech_y.items():
-                
+
                 tech_fuel_type_int = tech_stock.get_tech_attr(
                     self.enduse,
                     tech,
@@ -656,7 +656,7 @@ class Enduse(object):
                         #_service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
                         #service =  service_tech_y * _service * (model_yeardays_nrs / 365)
                         _service = np.full((model_yeardays_nrs, 24), 1 / (24)) #FASTER
-                        service =  service_tech_y * _service * (1 / 365)
+                        service = service_tech_y * _service * (1 / 365)
                     else:
                         service = service_tech_y * tech_load_profile
 
@@ -726,7 +726,7 @@ class Enduse(object):
             _total_service = 0
         else:
             _total_service = 1 / tot_service_y
-            
+
         # Apply calculation over all values of a dict
         service_tech_p = {
             technology: np.sum(service_tech) * _total_service for technology, service_tech in service_tech_cy.items()
@@ -1128,7 +1128,7 @@ class Enduse(object):
         fuels_yh = np.zeros((lookups['fueltypes_nr'], nr_of_days, 24), dtype=float)
 
         if mode_constrained == True:
-            fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float)
+            #fueltypes_tech_share_yh = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
             # Assign full share to heat
             #fueltypes_tech_share_yh[lookups['fueltype']['heat']] = 1 BEO
@@ -1264,7 +1264,7 @@ class Enduse(object):
                         if tot_service_tech_instal_p == 0:
                             reduction_service_fueltype = 0
                         else:
-                            # share of total service of fueltype * share of replaced fuel
+                            # share of total service of fueltype * share of replaced fuel #TODO FASTER
                             service_fueltype_tech_cy_p_rel = np.divide(1.0, tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
 
                             ##logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
@@ -1331,11 +1331,11 @@ class Enduse(object):
             fuel_fueltype_p[lookups['fueltype']['heat']] = 1.0
 
             for tech, fuel_tech in service_tech.items():
-                enduse_fuels += fuel_fueltype_p * np.sum(fuel_tech)
+                sum_fuel = np.sum(fuel_tech)
+                enduse_fuels += fuel_fueltype_p * sum_fuel
 
                 #new
-                fuel_tech[tech] = np.sum(fuel_tech)
-            
+                fuel_tech[tech] = sum_fuel
         else:
             for tech, service in service_tech.items():
                 eff_full_year = tech_stock.get_tech_attr(
@@ -1411,8 +1411,7 @@ class Enduse(object):
                         eff_yh_selection = eff_full_year
                     fuel_yh = np.divide(service, eff_yh_selection)
                 else:
-                    #No array
-                    fuel_yh = service / eff_full_year
+                    fuel_yh = service / eff_full_year #No array
                 fuel_tech[tech] = np.sum(fuel_yh)
 
         return fuel_tech
