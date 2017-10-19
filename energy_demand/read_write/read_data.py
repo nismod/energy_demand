@@ -4,10 +4,10 @@ import os
 import sys
 import csv
 import logging
+from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
-from collections import defaultdict
 
 def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_to_folder):
     """
@@ -24,7 +24,7 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             year = int(file_path_split[1])
             fueltype_str = str(file_path_split[2])
 
-            fueltype_array_position = int(fueltypes_lu[fueltype_str[:-4]])
+            fueltype_array_position = int(fueltypes_lu[fueltype_str])
 
             txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
@@ -33,19 +33,38 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             except KeyError:
                 results[year] = np.zeros((fueltypes_nr, nr_of_regions, 8760), dtype=float)
 
-            # Add year if not already exists
             results[year][fueltype_array_position] = txt_data
-        except:
+        except IndexError:
             pass #path is a folder and not a file
+
+    return results
+
+def read_max_results(path_to_folder):
+    """
+    """
+    results = {}
+    path_enduse_specific_results = os.path.join(path_to_folder, "tot_fuel_max")
+    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
+
+    # Iterate files
+    for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
+        file_path_split = file_path.split("__")
+        year = int(file_path_split[1])
+
+        txt_data = np.loadtxt(path_file_to_read, delimiter=',')
+
+        # Add year if not already exists
+        results[year] = txt_data
     
     return results
 
-def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_to_folder):
+def read_enduse_specific_model_result_from_txt(fueltypes_nr, path_to_folder):
     """
     """
     results = {}
     path_enduse_specific_results = os.path.join(path_to_folder, "enduse_specific_results")
-    all_txt_files_in_folder = os.listdir(path_enduse_specific_results) 
+    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
 
     # Iterate files
     for file_path in all_txt_files_in_folder:
@@ -69,7 +88,7 @@ def read_enduse_specific_model_result_from_txt(fueltypes_lu, fueltypes_nr, path_
 
         # Add year if not already exists
         results[year][enduse][fueltype_array_position] = txt_data
-    
+
     return results
 
 def load_script_data(data):
@@ -120,7 +139,7 @@ def load_script_data(data):
     data['temp_data'] = read_weather_data.read_changed_weather_data_script_data(
         os.path.join(data['local_paths']['dir_changed_weather_data'], 'weather_data_changed_climate.csv'),
         data['sim_param']['sim_period'])
-    
+
     # Disaggregation: Load disaggregated fuel per enduse and sector
     data['rs_fuel_disagg'] = read_disaggregated_fuel(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'rs_fuel_disagg.csv'),
@@ -259,7 +278,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     service_switches : dict
         Service switches
 
-, 
     Notes
     -----
     The base year service shares are generated from technology stock definition
@@ -408,15 +426,13 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
 
     return service_switches
 
-def read_technologies(path_to_csv, lu_fueltype):
+def read_technologies(path_to_csv):
     """Read in technology definition csv file
 
     Arguments
     ----------
     path_to_csv : str
         Path to csv file
-    lu_fueltype : dict
-        Fueltype look-up
 
     Returns
     -------
@@ -424,11 +440,11 @@ def read_technologies(path_to_csv, lu_fueltype):
         All technologies and their assumptions provided as input
     dict_tech_lists : dict
         List with technologies. The technology type
-        is defined in the technology input file 
+        is defined in the technology input file
     """
     dict_technologies = {}
     dict_tech_lists = {}
-    
+
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip first row
@@ -665,7 +681,7 @@ def read_service_fueltype_tech_by_p(path_to_csv):
     return service_fueltype_tech_by_p
 
 def read_service_fueltype_by_p(path_to_csv):
-    """Read 
+    """Read
     """
     logging.debug("... read in service data: %s", path_to_csv)
     service_fueltype_by_p = {}
@@ -693,7 +709,7 @@ def read_service_fueltype_by_p(path_to_csv):
     return service_fueltype_by_p
 
 def read_service_tech_by_p(path_to_csv):
-    """Read 
+    """Read
     """
     logging.debug("... read in service data: %s", path_to_csv)
     service_tech_by_p = {}

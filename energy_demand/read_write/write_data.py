@@ -5,6 +5,7 @@ import json
 import yaml
 import numpy as np
 import os
+from energy_demand.basic import basic_functions
 
 def read_txt_shape_peak_dh(file_path):
     """Read to txt. Array with shape: (24,)
@@ -16,7 +17,8 @@ def read_txt_shape_peak_dh(file_path):
     return out_dict
 
 def read_txt_shape_non_peak_yh(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)"""
+    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
+    """
     out_dict = np.zeros((365, 24), dtype=float)
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
@@ -123,16 +125,13 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     Store numpy array to txt
     """
     # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result)
-
-    if not os.path.exists(path_result_yr):
-        os.makedirs(path_result_yr)
+    basic_functions.create_folder(path_result)
 
     # Write to txt
     for fueltype, fuel in model_results.items():
         path_file = os.path.join(
-            path_result_yr,
-            "modelruns__{}__{}{}".format(sim_yr, fueltype, ".txt")
+            path_result,
+            "modelruns__{}__{}__{}".format(sim_yr, fueltype, ".txt")
             )
         np.savetxt(path_file, fuel, delimiter=',')
 
@@ -145,20 +144,14 @@ def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
     Store numpy array to txt
     """
     # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result)
-    if not os.path.exists(path_result_yr):
-        os.makedirs(path_result_yr)
-
-    #Create Subolder
-    path_result_subolder = os.path.join(path_result, "tot_fuel_max")
-    if not os.path.exists(path_result_subolder):
-        os.makedirs(path_result_subolder)
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "enduse_specific_results")
 
      # Write to txt
     for enduse, fuel in model_results.items():
         for fueltype_nr, fuel_fueltype in enumerate(fuel):
             path_file = os.path.join(
-                path_result_subolder,
+                os.path.join(path_result, "enduse_specific_results"),
                 "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
                 )
             np.savetxt(path_file, fuel_fueltype, delimiter=',')
@@ -171,20 +164,14 @@ def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
 
     Store numpy array to txt
     """
-    # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result)
-    if not os.path.exists(path_result_yr):
-        os.makedirs(path_result_yr)
-
-    #Create Subolder
-    path_result_subolder = os.path.join(path_result, "tot_fuel_max")
-    if not os.path.exists(path_result_subolder):
-        os.makedirs(path_result_subolder)
+    # Create folder and subolder
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "tot_fuel_max")
 
     # Write to txt
     path_file = os.path.join(
-        path_result_subolder,
-        "modelruns__{}{}".format(sim_yr, ".txt")
+        os.path.join(path_result, "tot_fuel_max"),
+        "peakfuels__{}__{}".format(sim_yr, ".txt")
         )
     np.savetxt(path_file, model_results, delimiter=',')
 

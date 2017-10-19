@@ -697,12 +697,7 @@ class Enduse(object):
                     out_dict[fueltype][tech] = 0
                 else:
                     out_dict[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
-                '''try:
-                    print("a: " + str(float(service_fueltype_p[fueltype])))
-                    print(service_fueltype_tech)
-                    out_dict[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
-                except ZeroDivisionError:
-                    out_dict[fueltype][tech] = 0'''
+
 
         return out_dict
 

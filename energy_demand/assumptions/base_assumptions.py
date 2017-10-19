@@ -1,8 +1,8 @@
 """All assumptions are either loaded in this file or definied here
 """
 import logging
-import numpy as np
 from datetime import date
+import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions as testing
@@ -10,7 +10,8 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
-#TODO: Make that HLC can be improved, ssumption share of existing dwelling stock which is assigned new HLC coefficients
+#TODO: Make that HLC can be improved, ssumption share of existing
+#  dwelling stock which is assigned new HLC coefficients
 
 def load_assumptions(data, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
@@ -22,7 +23,7 @@ def load_assumptions(data, write_sim_param):
     """
     logging.debug("... load assumptions")
     assumptions = {}
-    if write_sim_param == True:
+    if write_sim_param: # == True:
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
@@ -369,8 +370,7 @@ def load_assumptions(data, write_sim_param):
 
     # Load all technologies
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
-        data['paths']['path_technologies'],
-        data['lookups']['fueltype'])
+        data['paths']['path_technologies'])
 
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_hp_ashp_gshp = 0.5
@@ -380,8 +380,7 @@ def load_assumptions(data, write_sim_param):
 
     # --Heat pumps
     assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
-        split_hp_ashp_gshp,
-        data)
+        split_hp_ashp_gshp)
 
     # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(

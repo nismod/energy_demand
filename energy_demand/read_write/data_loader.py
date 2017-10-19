@@ -8,6 +8,7 @@ from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
+from energy_demand.basic import basic_functions
 
 def load_basic_lookups():
     """Definition of basic lookups or other related information
@@ -197,24 +198,15 @@ def load_local_paths(path):
         }
 
     # Create folders is they do not exist yet
-    if not os.path.exists(paths['data_processed']):
-        os.makedirs(paths['data_processed'])
-    if not os.path.exists(paths['data_results']):
-        os.makedirs(paths['data_results'])
-    if not os.path.exists(paths['data_results_PDF']):
-        os.makedirs(paths['data_results_PDF'])
-    if not os.path.exists(paths['load_profiles']):
-        os.makedirs(paths['load_profiles'])
-    if not os.path.exists(paths['rs_load_profiles']):
-        os.makedirs(paths['rs_load_profiles'])
-    if not os.path.exists(paths['ss_load_profiles']):
-        os.makedirs(paths['ss_load_profiles'])
-    if not os.path.exists(paths['dir_disattregated']):
-        os.makedirs(paths['dir_disattregated'])
-    if not os.path.exists(paths['dir_services']):
-        os.makedirs(paths['dir_services'])
-    if not os.path.exists(paths['dir_changed_weather_data']):
-        os.makedirs(paths['dir_changed_weather_data'])
+    basic_functions.create_folder(paths['data_processed'])
+    basic_functions.create_folder(paths['data_results'])
+    basic_functions.create_folder(paths['data_results_PDF'])
+    basic_functions.create_folder(paths['load_profiles'])
+    basic_functions.create_folder(paths['rs_load_profiles'])
+    basic_functions.create_folder(paths['ss_load_profiles'])
+    basic_functions.create_folder(paths['dir_disattregated'])
+    basic_functions.create_folder(paths['dir_services'])
+    basic_functions.create_folder(paths['dir_changed_weather_data'])
 
     return paths
 

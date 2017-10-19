@@ -135,10 +135,12 @@ if __name__ == "__main__":
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
 
-        # FUEL PER REGION
+        # Take attributes from model object run
         out_to_supply = model_run_object.fuel_indiv_regions_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
+        tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
+
         # ----------------------
         # Write annual results to txt files
         # ----------------------
@@ -157,7 +159,7 @@ if __name__ == "__main__":
         write_data.write_model_result_to_txt_maxresults(
             sim_yr,
             data['local_paths']['data_results_model_runs'],
-            tot_fuel_y_max_enduses)
+            tot_peak_enduses_fueltype)
 
         # ---------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -182,17 +184,17 @@ if __name__ == "__main__":
     # Reading in results from different model runs
     # -------------------------------------------------------
     results_every_year = read_data.read_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
+        data['lookups']['fueltype'],
+        data['lookups']['fueltypes_nr'],
         len(data['lu_reg']),
         data['local_paths']['data_results_model_runs'])
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
+        data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
-    #READ RESULTS
-    '''tot_fuel_y_max_enduses = read_data.read_enduse_specific_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
-        data['local_paths']['tot_fuel_max'])'''
+
+    tot_fuel_y_max = read_data.read_max_results(
+        data['local_paths']['data_results_model_runs'])
 
     logging.debug("... Reading in results finished")
     # ------------------------------
@@ -201,6 +203,7 @@ if __name__ == "__main__":
     plotting_results.run_all_plot_functions(
         results_every_year,
         results_enduse_every_year,
+        tot_fuel_y_max,
         data)
 
     logging.debug("... Finished running Energy Demand Model")

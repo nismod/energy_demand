@@ -115,11 +115,11 @@ class WeatherRegion(object):
         rs_hdd_by, _ = hdd_cdd.get_reg_hdd(
             temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
         rs_cdd_by, _ = hdd_cdd.get_reg_cdd(
-            temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'])
         rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
         rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(
-            temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+            temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'])
 
         # Climate change correction factors
         try:
@@ -216,10 +216,10 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         ss_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-        ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        ss_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'])
 
         ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-        ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'])
 
         try:
             self.ss_heating_factor_y = np.nan_to_num(
@@ -309,11 +309,11 @@ class WeatherRegion(object):
 
         # --------HDD/CDD
         is_hdd_by, _ = hdd_cdd.get_reg_hdd(temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-        is_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        is_cdd_by, _ = hdd_cdd.get_reg_cdd(temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'])
 
         # Take same base temperature as for service sector
         is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'])
-        is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'], assumptions['model_yeardays_nrs'])
+        is_cdd_cy, _ = hdd_cdd.get_reg_cdd(temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'])
 
         try:
             self.is_heating_factor_y = np.nan_to_num(1.0 / float(np.sum(is_hdd_by))) * np.sum(is_hdd_cy)
@@ -381,50 +381,6 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=is_peak_yd_heating_factor
             )
 
-    '''@classmethod
-    def get_shape_heating_hybrid_yh(cls, tech_stock, enduse, fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, fuel_shape_heating_yd, hybrid_tech):
-        """Use yd shapes and dh shapes of hybrid technologies to generate yh shape
-
-        Arguments
-        ----------
-        tech_stock : TODO
-        enduse :
-        fuel_shape_boilers_y_dh : array
-            Fuel shape of boilers (dh) for evey day in a year
-        fuel_shape_hp_y_dh : array
-            Fuel shape of heat pumps (dh) for every day in a year
-        fuel_shape_heating_yd : array
-            Fuel shape for assign demand to day in a year (yd)
-        tech_low_temp : string
-            Low temperature technology
-        tech_high_temp : string
-            High temperature technology
-
-        Return
-        -------
-        fuel_shape_yh : array
-            Share of yearly fuel for hybrid technology
-
-        Note
-        -----
-        This is for hybrid_gas_elec technology
-
-        The shapes are the same for any hybrid technology with boiler and heat pump
-        """
-        # Create dh shapes for every day from relative dh shape of hybrid technologies
-        fuel_shape_hybrid_y_dh = load_profile.get_hybrid_fuel_shapes_y_dh(
-            fuel_shape_boilers_y_dh=fuel_shape_boilers_y_dh,
-            fuel_shape_hp_y_dh=fuel_shape_hp_y_dh,
-            tech_low_high_p=tech_stock.get_tech_attr(
-                enduse, hybrid_tech, 'service_distr_hybrid_h_p')
-            )
-
-        # Calculate yh fuel shape
-        fuel_shape_yh = fuel_shape_hybrid_y_dh * fuel_shape_heating_yd[:, np.newaxis]
-
-        return fuel_shape_yh
-    '''
-
     @classmethod
     def get_shape_peak_yd_factor(cls, demand_yd):
         """From yd shape calculate maximum relative yearly service demand which is provided in a day
@@ -444,9 +400,13 @@ class WeatherRegion(object):
         If the shape is taken from heat and cooling demand the assumption is made that
         HDD and CDD are directly proportional to fuel usage
         """
-        tot_demand_y = np.sum(demand_yd) # Total yearly demand
-        max_demand_d = np.max(demand_yd) # Maximum daily demand
-        max_factor_yd = (1.0 / tot_demand_y) * max_demand_d
+        # Total yearly demand
+        tot_demand_y = np.sum(demand_yd)
+
+        # Maximum daily demand
+        max_demand_d = np.max(demand_yd)
+
+        max_factor_yd = max_demand_d / tot_demand_y
 
         return max_factor_yd
 
@@ -494,14 +454,13 @@ class WeatherRegion(object):
 
         tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy')
 
-        #daily_fuel_profile_y = daily_fuel_profile_y
         # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
         # HDD are used as the heat demand --> possible because only shape is of interest
         hp_daily_fuel = rs_hdd_cy[:, np.newaxis] / tech_eff
 
         # Distribute fuel of day according to fuel load curve
         shape_yh_hp = hp_daily_fuel * tech_lp['daily_fuel_profile_y']
-
+        #TODO VERS MUCH
         # Calculate weighted average daily efficiency of heat pump
         # (Hourly heat demand * heat pump efficiency)
         #average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
@@ -522,19 +481,13 @@ class WeatherRegion(object):
         # Convert absolute hourly fuel demand to relative fuel demand within a year
         shape_yh = load_profile.abs_to_rel(shape_yh_hp)
         
-        '''# Convert for every day the shape to absolute shape (tot array sum for a full year == 365)
-        shape_y_dh = np.apply_along_axis(func1d=load_profile.abs_to_rel_no_nan, axis=1, arr=shape_yh_hp)
-        '''
-        # ALTERNATIVE APPROACH BEO FASTER
+        # Convert for every day the shape to absolute shape (tot array sum for a full year == 365)
         _shape_y_dh_sum_rows = np.sum(shape_yh_hp, axis=1)
         shape_y_dh = shape_yh_hp / _shape_y_dh_sum_rows[:, np.newaxis]
         shape_y_dh[np.isnan(shape_y_dh)] = 0
         
         # Select only modelled days
-        shape_yh_selection = shape_yh[[model_yeardays]]
-        shape_y_dh_selection = shape_y_dh[[model_yeardays]]
-
-        return shape_yh_selection, shape_y_dh_selection
+        return shape_yh[[model_yeardays]], shape_y_dh[[model_yeardays]]
 
     @classmethod
     def get_shape_cooling_yh(cls, data, cooling_shape, tech):
@@ -596,14 +549,13 @@ class WeatherRegion(object):
         if enduse not in tech_lp['ss_all_tech_shapes_dh']:
             pass
         else:
-            shape_non_peak_y_dh = tech_lp['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_y_dh']
+            shape_y_dh_generic_tech = tech_lp['ss_all_tech_shapes_dh'][enduse]['shape_non_peak_y_dh']
 
-            shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_non_peak_y_dh
-            shape_y_dh_generic_tech = shape_non_peak_y_dh
+            shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_y_dh_generic_tech
 
         return shape_yh_generic_tech, shape_y_dh_generic_tech
 
-    @classmethod
+    '''@classmethod
     def get_shape_heating_boilers_yh(cls, tech_lp, heating_shape, technology, model_yeardays, model_yeardays_nrs, model_yeardays_daytype):
         """Convert daily fuel shape to hourly based on robert sansom daily load for boilers
 
@@ -648,3 +600,4 @@ class WeatherRegion(object):
                 #shape_boilers_y_dh[day_array_nr] = tech_lp[technology]['workday'] #dh
 
         return shape_boilers_yh, "TODO" #shape_boilers_y_dh
+    '''

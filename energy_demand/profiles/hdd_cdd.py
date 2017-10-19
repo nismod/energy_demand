@@ -4,7 +4,6 @@ import numpy as np
 from energy_demand.geography import weather_station_location as weather_station
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.profiles import load_profile
-# pylint: disable=I0011,C0321,C0301,C0103,C0325
 
 def calc_hdd(t_base, temp_yh):
     """Heating Degree Days for every day in a year
@@ -206,11 +205,10 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
 
     # Select only modelled yeardays
     shape_hdd_d_selection = shape_hdd_d[[model_yeardays]]
-    hdd_d_selection = hdd_d[[model_yeardays]]
 
     return hdd_d, shape_hdd_d_selection
 
-def get_reg_cdd(temperatures, t_base_cooling, model_yeardays, model_yeardays_nrs):
+def get_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
     Arguments

@@ -6,25 +6,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from energy_demand.technologies import tech_related
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 
-def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
+def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fuel_y_max, data):
     """Function summarising all functions to plot 
     """
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
-    # Plot total fuel (y) per fueltype
+    # Plot peak demand (h) per fueltype
+    plt_fuels_peak_h(tot_fuel_y_max, data)
+
+    logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
         "fig_tot_all_enduse01.pdf",
         results_every_year,
         data)
 
+    logging.debug("... plot other figure")
     plt_fuels_enduses_y(
         "fig_tot_all_enduse02.pdf",
         results_every_year,
         data)
 
-    # Plot a full week
+    logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         "fig_tot_all_enduse03.pdf",
         results_every_year,
@@ -32,6 +35,7 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
         data['assumptions']['model_yearhours_nrs'],
         data['assumptions']['model_yeardays_nrs'])
 
+    logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         "fig_tot_all_enduse04.pdf",
         results_every_year,
@@ -54,16 +58,14 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
         data['enduses']['rs_all_enduses'],
         'tot_fuel_y_enduse_specific_h')
 
-    # Plot peak demand (h) per fueltype
-    plt_fuels_peak_h(results_every_year, data, 'tot_fuel_y_max_enduses')
     return
 
 def plot_x_days(all_hours_year, region, days):
-    """With input 2 dim array plot daily load"""
+    """With input 2 dim array plot daily load
+    """
 
     x_values = range(days * 24)
     y_values = []
-    #y_values = all_hours_year[region].values()
 
     for day, daily_values in enumerate(all_hours_year[region].values()):
 
@@ -213,7 +215,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, model_yearhours_nrs, year_to_plot=2015):
+def plt_fuels_enduses_week(fig_name, results_resid, data, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot=2015):
     """Plots stacked end_use for all regions
 
     Input
@@ -230,22 +232,22 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, mo
     days_to_plot = range(model_yeardays_nrs)
 
     fig, ax = plt.subplots()
-    nr_of_h_to_plot = model_yearhours_nrs
-
+   
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_of_h_to_plot))
 
     for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+        legend_entries.append(fueltype_str)
 
-        legend_entries.append(fueltype_str) #Legend
         # Select year to plot
         fuel_all_regions = results_resid[year_to_plot][fueltype_int]
 
         data_over_day = np.zeros((8760))
         for region_data in fuel_all_regions:
-            data_over_day += region_data #FASTER with numpy TODO
+            data_over_day += region_data
+        #_a = np.sum(data_over_day, axis=0)  #FASTER with numpy TODO
 
         Y_init[fueltype_int] = data_over_day
 
@@ -256,7 +258,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, mo
     ax.legend(legend_entries)
 
     x_tick_pos = []
-    for day in range(len(days_to_plot)):
+    for day in range(model_yeardays_nrs):
         x_tick_pos.append(day * 24)
     plt.xticks(x_tick_pos, days_to_plot, color='black')
     plt.axis('tight')
@@ -328,7 +330,7 @@ def plt_fuels_enduses_y(fig_name, results_resid, data):
 
     return
 
-def plt_fuels_peak_h(results_resid, data, attribute_to_get):
+def plt_fuels_peak_h(tot_fuel_y_max, data):
     """Plots stacked end_use for a region
 
 
@@ -337,7 +339,7 @@ def plt_fuels_peak_h(results_resid, data, attribute_to_get):
     """
 
     fig, ax = plt.subplots() #fig is needed
-    nr_y_to_plot = len(results_resid) #number of simluated years
+    nr_y_to_plot = len(tot_fuel_y_max) #number of simluated years
     x = range(nr_y_to_plot)
     legend_entries = []
 
@@ -353,9 +355,8 @@ def plt_fuels_peak_h(results_resid, data, attribute_to_get):
 
         # REad out fueltype specific max h load
         data_over_years = []
-        for model_year_object in results_resid:
-            fueltype_load_max_h = getattr(model_year_object, attribute_to_get)
-            data_over_years.append(fueltype_load_max_h[fueltype])
+        for model_year_object in tot_fuel_y_max:
+            data_over_years.append(model_year_object[fueltype])
 
         Y_init[fueltype] = data_over_years
 

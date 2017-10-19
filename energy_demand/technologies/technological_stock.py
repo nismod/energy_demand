@@ -3,7 +3,6 @@
 import sys
 import numpy as np
 from energy_demand.technologies import tech_related
-from energy_demand.profiles import load_profile
 
 class TechStock(object):
     """Class of a technological stock of a year of the residential model
@@ -102,7 +101,9 @@ class TechStock(object):
 
                 tech_obj = Technology(
                     technology_name,
-                    assumptions, sim_param, lookups,
+                    assumptions,
+                    sim_param,
+                    lookups,
                     temp_by,
                     temp_cy,
                     t_base_heating_by,

@@ -35,7 +35,8 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:
 
-            # TODO write explicit in assumptions: Test if any fueltype is specified with a technology.
+            # TODO write explicit in assumptions: Test if any fueltype
+            # is specified with a technology.
             # If yes, do not insert dummy technologies
             # because in the fuel definition all technologies of all endueses need to be defined
             crit_tech_defined_in_enduse = False
@@ -73,15 +74,15 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
     dummy_enduses : list
         List with all endueses with dummy technologies
     """
-    dummy_enduses = set([])
-    for enduse in enduse_tech_p_by:
-        for fueltype in enduse_tech_p_by[enduse]:
-            for tech in enduse_tech_p_by[enduse][fueltype]:
+    dummy_enduses = []
+    for enduse, fueltype_techs in enduse_tech_p_by.items():
+        for techs in fueltype_techs.values():
+            for tech in techs:
                 if tech == 'dummy_tech':
-                    dummy_enduses.add(enduse)
+                    dummy_enduses.append(enduse)
                     continue
 
-    return list(dummy_enduses)
+    return list(set(dummy_enduses))
 
 def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperature difference of base year
@@ -113,9 +114,9 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
 
     # Calculate average efficiency of heat pumps over full year
-    eff_hp_yh = float(eff_heat_pump(temp_difference_temp_yr, efficiency_intersect))
+    eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
 
-    return eff_hp_yh
+    return float(eff_hp_yh)
 
 def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     """Calculate efficiency of heat pump
@@ -366,7 +367,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 
         return eff_cy
 
-def generate_ashp_gshp_split(split_factor, data):
+def generate_ashp_gshp_split(split_factor):
     """Assing split for each fueltype of heat pump technologies
 
     Arguments

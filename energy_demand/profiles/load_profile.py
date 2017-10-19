@@ -14,12 +14,12 @@ class LoadProfileStock(object):
     def __init__(self, stock_name):
         self.stock_name = stock_name
         self.load_profile_dict = {}
-        self.dict_with_tuple_keys = {} # dict_with_tuple_keys
-
+        self.dict_with_tuple_keys = {}
         self.enduses_in_stock = set([])
 
     def get_all_enduses_in_stock(self):
-        """Update the list of the object with all enduses for which load profies are provided
+        """Update the list of the object with all
+        enduses for which load profies are provided
         """
         all_enduses = set([])
 
