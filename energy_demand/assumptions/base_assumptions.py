@@ -57,6 +57,7 @@ def load_assumptions(data, write_sim_param):
 
     # Nr of days to model
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
+    assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24 #TODO
 
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
@@ -446,8 +447,10 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     # Helper functions
     # ============================================================
-    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
+    ##testing.testing_service_switch_insert(
+    # assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
+    ##testing.testing_service_switch_insert(
+    # assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
 
     # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])

@@ -171,6 +171,7 @@ class Enduse(object):
                 reg_scen_drivers,
                 data['sim_param'])
             logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
+
             # ----------------------------------
             # Hourly Disaggregation
             # ----------------------------------
@@ -202,7 +203,7 @@ class Enduse(object):
                     data['lookups']['fueltype'],
                     load_profiles,
                     mode_constrained,
-                    data['assumptions']['model_yeardays'],
+                    data['assumptions']['model_yearhours_nrs'],
                     data['assumptions']['model_yeardays_nrs']
                     )
 
@@ -533,7 +534,7 @@ class Enduse(object):
         else:
             return service
 
-    def fuel_to_service(self, fuel_tech_p_by, tech_stock, lu_fueltypes, load_profiles, mode_constrained, model_yeardays, model_yeardays_nrs):
+    def fuel_to_service(self, fuel_tech_p_by, tech_stock, lu_fueltypes, load_profiles, mode_constrained, model_yearhours_nrs, model_yeardays_nrs):
         """Converts fuel to energy service (1),
         calcualates contribution service fraction (2)
 
@@ -607,14 +608,14 @@ class Enduse(object):
 
                     #TODO
                     if self.crit_flat_profile:
-                        fuel_tech = _fuel_tech * np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
+                        fuel_tech = _fuel_tech * np.full((model_yeardays_nrs, 24), 1 / model_yearhours_nrs)
                     else:
                         fuel_tech = _fuel_tech * tech_load_profile
                     _sum_selection = np.sum(fuel_tech)
 
                     #TODO: TEST
                     tot_service_y += _sum_selection #fuel_tech
-                    service = _sum_selection #fuel_tech #* tech_load_profile
+                    #service = _sum_selection #fuel_tech #* tech_load_profile
                     service_tech_cy[tech] += _sum_selection# service
                     tot_service_yh += fuel_tech #service
                     service_fueltype_p[fueltype] += _sum_selection #fuel_tech
@@ -653,21 +654,11 @@ class Enduse(object):
                     # Calculate fuel share and convert fuel to service
                     #print()
                     if self.crit_flat_profile:
-                        #_service = np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
-                        #service_tech_yh = _service * (service_tech_y * (model_yeardays_nrs/365))
-                        service_tech_yh = service_tech_y * np.full((model_yeardays_nrs, 24), 1 / (model_yeardays_nrs * 24))
-                        print(np.sum(service_tech_y))
-                        print(np.sum(service_tech_yh))
-                        prnt("")
+                        service_tech_yh = service_tech_y * np.full(
+                            (model_yeardays_nrs, 24),
+                            1 / model_yearhours_nrs)
                     else:
                         service_tech_yh = service_tech_y * tech_load_profile
-                        #print(np.sum(service_tech_y))
-                        #print(np.sum(service_tech_yh))
-                        #print(np.sum(tech_load_profile))
-                        '''if round(float(np.sum(service_tech_yh)), 3) != round(float(np.sum(service_tech_y)), 3):
-                            print(np.sum(service_tech_yh))
-                            print(np.sum(service_tech_y))
-                            print("Error: ")'''
 
                     _sum_selection = np.sum(service_tech_yh)
 
@@ -675,16 +666,13 @@ class Enduse(object):
                     service_tech_cy[tech] += service_tech_yh
 
                     # Add fuel for each technology (float() is necessary to avoid inf error)
-                    #service_fueltype_tech_p[fueltype][tech] += service_tech_y
                     service_fueltype_tech_p[fueltype][tech] += _sum_selection #NEW BELUGA
 
                     # Calculate service fraction per fueltype and total service
-                    #service_fueltype_p[fueltype] += service_tech_y #N ERROR takse np.sum(service_tech_yh)
                     service_fueltype_p[fueltype] += _sum_selection
 
                     # Sum total yearly service 
                     tot_service_yh += service_tech_yh #(yh)
-                    #tot_service_y += service_tech_y #(y)
                     tot_service_y += _sum_selection #(y)
 
         # --------------------------------------------------
@@ -1063,8 +1051,13 @@ class Enduse(object):
 
         if mode_constrained:
             for tech in self.enduse_techs:
-                fuel_tech_yh = enduse_fuel_tech[tech] * load_profiles.get_lp(
+                load_profile = load_profiles.get_lp(
                     self.enduse, self.sector, tech, 'shape_yh')
+
+                if model_yeardays_nrs != 365:
+                    load_profile = lp.abs_to_rel(load_profile)
+
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
                 fuels_yh[lookups['fueltype']['heat']] += fuel_tech_yh
         else:
@@ -1078,11 +1071,12 @@ class Enduse(object):
                     self.enduse, self.sector, tech, 'shape_yh')
 
                 # Fuel distribution
+                # Only needed if modelled days is not 365 because the
+                # service in fuel_to_service() was already reduced 
+                # to selected modelled days
                 if model_yeardays_nrs != 365:
-                    print("A: " + str(np.sum(load_profile))) #BELUGA NEW
-                    # Only needed if modelled days is not 365
-                    load_profile = lp.abs_to_rel(load_profile) #BELUGA NEW
-    
+                    load_profile = lp.abs_to_rel(load_profile)
+
                 fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
                 # Get distribution per fueltype
@@ -1185,7 +1179,7 @@ class Enduse(object):
                             reduction_service_fueltype = 0
                         else:
                             # share of total service of fueltype * share of replaced fuel #TODO FASTER
-                            service_fueltype_tech_cy_p_rel = np.divide(1.0, tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
+                            service_fueltype_tech_cy_p_rel = (1.0 / tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
 
                             ##logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
                             reduction_service_fueltype = service_tech_installed_cy * service_fueltype_tech_cy_p_rel

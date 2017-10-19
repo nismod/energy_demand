@@ -29,12 +29,14 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, data):
         "fig_tot_all_enduse03.pdf",
         results_every_year,
         data,
+        data['assumptions']['model_yearhours_nrs'],
         data['assumptions']['model_yeardays_nrs'])
 
     plt_fuels_enduses_week(
         "fig_tot_all_enduse04.pdf",
         results_every_year,
         data,
+        data['assumptions']['model_yearhours_nrs'],
         data['assumptions']['model_yeardays_nrs'])
 
     # Plot all enduses
@@ -211,7 +213,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
 
     #plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, year_to_plot=2015):
+def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, model_yearhours_nrs, year_to_plot=2015):
     """Plots stacked end_use for all regions
 
     Input
@@ -228,7 +230,7 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, model_yeardays_nrs, ye
     days_to_plot = range(model_yeardays_nrs)
 
     fig, ax = plt.subplots()
-    nr_of_h_to_plot = model_yeardays_nrs * 24
+    nr_of_h_to_plot = model_yearhours_nrs
 
     legend_entries = []
 

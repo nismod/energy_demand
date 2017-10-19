@@ -59,9 +59,7 @@ class EnergyModel(object):
         fuel_indiv_regions_yh = {}
         for fueltype_str in data['lookups']['fueltype'].keys():
             fuel_indiv_regions_yh[fueltype_str] = np.zeros(
-                (len(region_names),
-                 data['assumptions']['model_yeardays_nrs'] * 24),
-                 dtype=float)
+                (len(region_names), data['assumptions']['model_yeardays_nrs'] * 24), dtype=float)
 
         reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
         tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
@@ -104,6 +102,7 @@ class EnergyModel(object):
                 data['lookups'],
                 region_obj.region_name,
                 array_nr_region,
+                data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 all_submodels)
 
@@ -113,6 +112,7 @@ class EnergyModel(object):
                 'fuel_yh',
                 all_submodels,
                 'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
             # Sum across all regions, enduses for peak hour
@@ -121,6 +121,7 @@ class EnergyModel(object):
                 'fuel_peak_dh',
                 all_submodels,
                 'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
             tot_fuel_y_max_enduses = self.fuel_aggr(
@@ -128,6 +129,7 @@ class EnergyModel(object):
                 'fuel_peak_h',
                 all_submodels,
                 'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
             # Sum across all regions and provide specific enduse
@@ -135,6 +137,7 @@ class EnergyModel(object):
                 tot_fuel_y_enduse_specific_h,
                 'fuel_yh',
                 all_submodels,
+                data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
         self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
@@ -152,15 +155,15 @@ class EnergyModel(object):
         # Functions for load calculations
         # Across all enduses calc_load_factor_h
         # ---------------------------
-        '''rs_fuels_peak_h = self.fuel_aggr('fuel_peak_h', [self.rs_submodel], 'no_sum', data['assumptions']['model_yeardays_nrs'])
-        ss_fuels_peak_h = self.fuel_aggr('fuel_peak_h', [self.ss_submodel], 'no_sum',  data['assumptions']['model_yeardays_nrs'])
-        self.rs_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', [self.rs_submodel], 'no_sum',  data['assumptions']['model_yeardays_nrs'])
-        ss_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yeardays_nrs'])
+        '''rs_fuels_peak_h = self.fuel_aggr('fuel_peak_h', [self.rs_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
+        ss_fuels_peak_h = self.fuel_aggr('fuel_peak_h', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
+        self.rs_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', [self.rs_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
+        ss_tot_fuels_all_enduses_y = self.fuel_aggr('fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
         self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(data, self.rs_tot_fuels_all_enduses_y, rs_fuels_peak_h)
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         '''
 
-    def fuel_regions_fueltype(self, fuel_fueltype_regions, lookups, region_name, array_region, model_yeardays_nrs, all_submodels):
+    def fuel_regions_fueltype(self, fuel_fueltype_regions, lookups, region_name, array_region, model_yearhours_nrs, model_yeardays_nrs, all_submodels):
         """Collect fuels for every fueltype and region (unconstrained mode). The
         regions are stored in an array for every timestep
 
@@ -173,20 +176,21 @@ class EnergyModel(object):
 
         Example
         -------
-        {'final_electricity_demand': np.array((regions, model_yeardays_nrs * 24)), dtype=float}
+        {'final_electricity_demand': np.array((regions, model_yearhours_nrs)), dtype=float}
         """
         fuels = self.fuel_aggr(
             np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float),
             'fuel_yh',
             all_submodels,
             'no_sum',
+            model_yearhours_nrs,
             model_yeardays_nrs,
             region_name
             )
 
         # Reshape
         for fueltype_str, fueltype_nr in lookups['fueltype'].items():
-            fuel_fueltype_regions[fueltype_str][array_region] += fuels[fueltype_nr].reshape(model_yeardays_nrs * 24)
+            fuel_fueltype_regions[fueltype_str][array_region] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
         return fuel_fueltype_regions
 
@@ -558,7 +562,7 @@ class EnergyModel(object):
 
         return regions
 
-    def sum_enduse_all_regions(self, input_dict, attribute_to_get, sector_models, model_yeardays_nrs):
+    def sum_enduse_all_regions(self, input_dict, attribute_to_get, sector_models, model_yearhours_nrs, model_yeardays_nrs):
         """Summarise an enduse attribute across all regions
 
         Arguments
@@ -584,11 +588,11 @@ class EnergyModel(object):
 
                 # Add fuel with flat load shape
                 enduse_dict[model_object.enduse] += self.get_fuels_yh(
-                    model_object, attribute_to_get, model_yeardays_nrs)
+                    model_object, attribute_to_get, model_yearhours_nrs, model_yeardays_nrs)
 
         return enduse_dict
 
-    def fuel_aggr(self, input_array, attribute_to_get, sector_models, sum_crit, model_yeardays_nrs, region_name=False):
+    def fuel_aggr(self, input_array, attribute_to_get, sector_models, sum_crit, model_yearhours_nrs, model_yeardays_nrs, region_name=False):
         """Collect hourly data from all regions and sum across all fuel types and enduses
 
         Arguments
@@ -619,6 +623,7 @@ class EnergyModel(object):
                         input_array += self.get_fuels_yh(
                             model_object,
                             attribute_to_get,
+                            model_yearhours_nrs,
                             model_yeardays_nrs)
         else:
             for sector_model in sector_models:
@@ -626,6 +631,7 @@ class EnergyModel(object):
                     input_array += self.get_fuels_yh(
                         model_object,
                         attribute_to_get,
+                        model_yearhours_nrs,
                         model_yeardays_nrs)
 
         # Criteria if fuel is summed or not
@@ -635,7 +641,7 @@ class EnergyModel(object):
             return np.sum(input_array)
 
     @classmethod
-    def get_fuels_yh(cls, model_object, attribute_to_get, nr_of_days):
+    def get_fuels_yh(cls, model_object, attribute_to_get, model_yearhours_nrs, model_yeardays_nrs):
         """Assign yh shape for enduses with flat load profiles
 
         Arguments
@@ -663,8 +669,11 @@ class EnergyModel(object):
             fuels_reg_y = model_object.enduse_object.fuel_y
 
             if attribute_to_get == 'fuel_peak_dh':
-                shape_peak_dh = np.full((24), 1/24)
+                '''shape_peak_dh = np.full((24), 1/24)
                 fuels_reg_peak = fuels_reg_y / 365
+                fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh'''
+                shape_peak_dh = np.full((24), 1 / 8760)
+                fuels_reg_peak = fuels_reg_y #/ 365
                 fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
 
             elif attribute_to_get == 'fuel_peak_h':
@@ -672,18 +681,27 @@ class EnergyModel(object):
                 fuels = fuels_reg_y * shape_peak_h
 
             elif attribute_to_get == 'shape_non_peak_y_dh':
-                shape_non_peak_y_dh = np.full((nr_of_days, 24), (1.0 / 24))
+                shape_non_peak_y_dh = np.full((model_yeardays_nrs, 24), (1.0 / 24))
                 fuels = fuels_reg_y * shape_non_peak_y_dh
 
             elif attribute_to_get == 'shape_non_peak_yd':
-                shape_non_peak_yd = np.ones((nr_of_days), dtype=float) / nr_of_days
+                shape_non_peak_yd = np.ones((model_yeardays_nrs), dtype=float) / model_yeardays_nrs
                 fuels = fuels_reg_y * shape_non_peak_yd
+                #FAST TODO:_a = np.full((model_yeardays_nrs), (fuels_reg_y / model_yeardays_nrs), dtype=float)
 
             elif attribute_to_get == 'fuel_yh':
-                shape_non_peak_yh = np.full((nr_of_days, 24), 1 / (nr_of_days * 24))
-                fast_shape_non_peak_yh = np.ones((model_object.enduse_object.fuel_new_y.shape[0], nr_of_days, 24), dtype=float)
+                nr_modelled_hours_factor = 1 / model_yearhours_nrs
+                '''shape_non_peak_yh = np.full((model_yeardays_nrs, 24), nr_modelled_hours_factor)
+                fast_shape_non_peak_yh = np.ones((model_object.enduse_object.fuel_new_y.shape[0], model_yeardays_nrs, 24), dtype=float)
                 fast_shape_non_peak_yh = fast_shape_non_peak_yh[:,] * shape_non_peak_yh
-                fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh
+                fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape_non_peak_yh'''
+                #FAST
+                fast_shape = np.full(
+                    (model_object.enduse_object.fuel_new_y.shape[0], model_yeardays_nrs, 24),
+                    nr_modelled_hours_factor, dtype=float)
+
+                fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
+
         else:
             # If not flat shape, use yh load profile of enduse
             if attribute_to_get == 'fuel_peak_dh':

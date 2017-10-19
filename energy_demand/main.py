@@ -191,7 +191,7 @@ if __name__ == "__main__":
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['data_results_model_runs'])
-
+    #READ RESULTS
     '''tot_fuel_y_max_enduses = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltype'], data['lookups']['fueltypes_nr'],
         data['local_paths']['tot_fuel_max'])'''
