@@ -244,19 +244,12 @@ def abs_to_rel_no_nan(absolute_array):
     relative_array : array
         Array with relative numbers
     """
-    #ALTERNATIVE APPROACH
-    #absolute_array_sum_along_rows = np.sum(shape_yh_hp, axis=1)
-    #absolute_array_sum_along_rows[np.isnan(absolute_array_sum_along_rows)] = 0
-    #relative_array = absolute_array / absolute_array_sum_along_rows[:, np.newaxis]
-    
-    #return relative_array
     sum_array = float(np.sum(absolute_array))
 
     if sum_array != 0:
         return np.divide(absolute_array, sum_array)
     else:
         return absolute_array
-
 
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
@@ -283,7 +276,6 @@ def abs_to_rel(absolute_array):
     else:
         return absolute_array
 
-
 def calk_peak_h_dh(fuel_peak_dh):
     """Ger peak hour in peak day
 
@@ -301,83 +293,3 @@ def calk_peak_h_dh(fuel_peak_dh):
     peak_fueltype_h = np.max(fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
-'''
-def get_hybrid_fuel_shapes_y_dh(fuel_shape_boilers_y_dh, fuel_shape_hp_y_dh, tech_low_high_p):
-    """Calculate  fuel shapes for hybrid technologies for every day in a year (y_dh)
-
-    Depending on the share of service each hybrid technology in every hour,
-    the daily fuelshapes of each technology are taken for every hour respectively
-
-    #TODO: IMPROVE DESCRITPION
-
-    Arguments
-    ----------
-    fuel_shape_boilers_y_dh : array
-        Fuel shape of low temperature technology (e.g. boiler technology)
-    fuel_shape_hp_y_dh : array
-        Fuel shape of high temp technology (y_dh) (heat pump technology)
-    tech_low_high_p : array
-        Share of service of technology in every hour (heat pump technology)
-
-    Return
-    ------
-    fuel_shapes_hybrid_y_dh : array
-        Fuel shape (y_dh) for hybrid technology
-
-    Example
-    --------
-    E.g. 0-12, 16-24:   TechA
-         12-16          TechA 50%, TechB 50%
-
-    The daily shape is taken for TechA for 0-12 and weighted according to efficency
-    Between 12 and Tech A and TechB are taken with 50% shares and weighted with either efficiency
-
-    Note
-    ----
-    In case no fuel is provided for a day 'fuel_shapes_hybrid_y_dh' for this day is zero. Therfore
-    the total sum of 'fuel_shapes_hybrid_y_dh not necessarily 365.
-    """
-
-    # (share of fuel boiler * fuel shape boiler) + (share of fuel heat pump * shape of heat pump)
-    _var = tech_low_high_p['low'] * fuel_shape_boilers_y_dh + tech_low_high_p['high'] * fuel_shape_hp_y_dh
-    
-    # Absolute to relative for every row
-    fuel_shapes_hybrid_y_dh = np.apply_along_axis(abs_to_rel, 1, _var)
-    #plt.plot(fuel_shapes_hybrid_y_dh[1])
-    #plt.show()
-    return fuel_shapes_hybrid_y_dh
-
-def calc_fueltype_share_yh_all_h_no_hybrid(fueltypes_nr, fueltype, fueltypes_yh_p_cy):
-    """
-    """
-    fueltypes_yh_p_cy = np.zeros((fueltypes_nr))
-    fueltypes_yh_p_cy[fueltype] = 1.0 #all fuel of fueltype
-
-    return fueltypes_yh_p_cy
-
-def calc_fueltype_share_yh_all_h(fueltypes_yh_p_cy, model_yeardays_nrs):
-    """Calculate fuel share for every hour
-
-    Arguments
-    ----------
-    fueltypes_yh_p_cy : array
-        Fuel share per fueltype for every day and hour (nr_of_fuels, nr_of_days, 24)
-
-    Returns
-    -------
-    fueltype_share_yh_all_h : array (7)
-        Sum of fuel share for every hour
-    
-    Info
-    ----
-    Sum of output must be 1.0
-    """
-    # Sum across rows (share of fuel per hour per fueltype) (7, 24)
-    fueltypes_tech_share_yh_24 = np.sum(fueltypes_yh_p_cy, axis=1)
-
-    # Sum across rows (overall share of fuel per fueltype) (7,)
-    fueltype_share_yh_all_h = np.sum(fueltypes_tech_share_yh_24, axis=1)
-    fueltype_share_yh_all_h *= 1.0 / (model_yeardays_nrs * 24)
-
-    return fueltype_share_yh_all_h
-'''

@@ -154,7 +154,8 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     #FAST
     #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
-    efficiency_hp_mean = np.mean(efficiency_hp) #BELUGA: CALCULATE AVERAGE EFFICIENCY OVER WHOLE YEAR
+    # Calculate average efficiency over whole year
+    efficiency_hp_mean = np.mean(efficiency_hp)
 
     return efficiency_hp_mean
 
@@ -365,102 +366,6 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 
         return eff_cy
 
-'''def get_defined_hybrid_tech(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
-    """All hybrid technologies and their charactersitics are defined
-
-    Arguments
-    ----------
-    assumptions : dict
-        Assumptions
-    technologies : dict
-        Technologies
-    hybrid_cutoff_temp_low : float
-        Temperature below which 100% of service is provided by
-        low temperature technology (typically heat pump)
-    hybrid_cutoff_temp_high : float
-        Temperature above which 100% of service is provided by high
-        temperature technology (typically boiler)
-
-    Return
-    ------
-    technologies : dict
-        Technologies
-    hybrid_technologies : list
-        Name of hybrid technologies
-    hybrid_tech : dict
-        Definition of hybrid technologies
-
-    Note
-    ----
-    - The low and high temperature technology is defined, whereby the high temperature technology
-      must be a heatpump.
-
-    - Cut off temperatures can be defined to change the share of service for each
-      technology at a given temperature (see doumentation for more information)
-
-    - So far, the standard heat pump is only electricity. Can be changed however
-
-    #TODO: DEFINE WITH REAL VALUES
-    """
-    hybrid_tech = {
-        'hybrid_gas_electricity': {
-            "tech_low_temp": 'boiler_gas',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_gas',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-        'hybrid_hydrogen_electricity': {
-            "tech_low_temp": 'boiler_hydrogen',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_hydrogen',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-        'hybrid_biomass_electricity': {
-            "tech_low_temp": 'boiler_biomass',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_biomass',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-    }
-
-    # Hybrid technologies
-    hybrid_technologies = hybrid_tech.keys()
-
-    # Add hybrid technologies to technological stock and define other attributes
-    for tech_name, tech in hybrid_tech.items():
-        technologies[tech_name] = tech
-        technologies[tech_name]['eff_achieved'] = 1
-        technologies[tech_name]['diff_method'] = 'linear'
-
-        # Select market entry of later appearing technology
-        entry_tech_low = assumptions['technologies'][tech['tech_low_temp']]['market_entry']
-        entry_tech_high = assumptions['technologies'][tech['tech_high_temp']]['market_entry']
-
-        if entry_tech_low < entry_tech_high:
-            technologies[tech_name]['market_entry'] = entry_tech_high
-        else:
-            technologies[tech_name]['market_entry'] = entry_tech_low
-
-    return technologies, list(hybrid_technologies), hybrid_tech
-'''
 def generate_ashp_gshp_split(split_factor, data):
     """Assing split for each fueltype of heat pump technologies
 

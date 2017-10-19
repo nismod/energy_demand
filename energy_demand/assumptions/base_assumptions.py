@@ -35,7 +35,7 @@ def load_assumptions(data, write_sim_param):
             end=date(sim_param['base_yr'], 12, 31))
 
     # ============
-    # Date selection for which model is run$
+    # Date selection for which model is run
     # Store in list all dates which are modelled
     # ============
     year_to_model = 2015
@@ -47,7 +47,7 @@ def load_assumptions(data, write_sim_param):
     # Modelled days
     assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     #assumptions['model_yeardays'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
-    assumptions['model_yeardays'] = list(range(365))
+    assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
     #Modelled dates
     assumptions['model_yeardays_date'] = []
@@ -79,7 +79,7 @@ def load_assumptions(data, write_sim_param):
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
     # False: heat is delievered
-    assumptions['mode_constrained'] = False #False proides technologies
+    assumptions['mode_constrained'] = False #False provides technologies
 
     # ============================================================
     # Residential dwelling stock assumptions
@@ -389,13 +389,6 @@ def load_assumptions(data, write_sim_param):
         assumptions['installed_heat_pump']
         )
 
-    # --Hybrid technologies
-    '''assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = tech_related.get_defined_hybrid_tech(
-        assumptions,
-        assumptions['technologies'],
-        hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
-        hybrid_cutoff_temp_high=7)'''
-
     # ----------
     # Enduse definition list
     # ----------
@@ -467,11 +460,6 @@ def load_assumptions(data, write_sim_param):
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
-    '''testing.testing_switch_technologies(
-        assumptions['hybrid_technologies'],
-        assumptions['rs_fuel_tech_p_by'],
-        assumptions['rs_share_service_tech_ey_p'],
-        assumptions['technologies'])'''
 
     if write_sim_param == True:
         return sim_param, assumptions
