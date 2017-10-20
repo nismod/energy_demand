@@ -74,7 +74,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Please provide a local data path:")
         print("    python main.py ../energy_demand_data\n")
-        print("Defaulting to r'C:\DATA_NISMODII\data_energy_demand'\n")
+        print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = r'C:\DATA_NISMODII\data_energy_demand'
     else:
         local_data_path = sys.argv[1]
@@ -95,6 +95,7 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
+    
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
@@ -140,26 +141,17 @@ if __name__ == "__main__":
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
+        reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
 
         # ----------------------
         # Write annual results to txt files
         # ----------------------
         write_data.write_model_result_to_txt(
-            sim_yr,
-            data['local_paths']['data_results_model_runs'],
-            out_to_supply)
-
-        #Write fuel per enduse (for all regions)
+            sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
         write_data.write_model_result_to_txt_enduse(
-            sim_yr,
-            data['local_paths']['data_results_model_runs'],
-            out_enduse_specific)
-
-        #TODO: WRITE OUT plt_fuels_peak_h() prequisits tot_fuel_y_max_enduses
+            sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific)
         write_data.write_model_result_to_txt_maxresults(
-            sim_yr,
-            data['local_paths']['data_results_model_runs'],
-            tot_peak_enduses_fueltype)
+            sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
 
         # ---------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -176,9 +168,11 @@ if __name__ == "__main__":
         # model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
         # ---------------------------------------------------
-        # Validation base year: Spatial disaggregation
+        # Validation base year: Spatial disaggregation 
         # ---------------------------------------------------
-        ##lad_validation.spatial_validation(data, model_run_object + model_object_transport.fuel_yh)
+        lad_validation.spatial_validation(
+            data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
+            model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
 
     # -------------------------------------------------------
     # Reading in results from different model runs
@@ -196,7 +190,8 @@ if __name__ == "__main__":
     tot_fuel_y_max = read_data.read_max_results(
         data['local_paths']['data_results_model_runs'])
 
-    logging.debug("... Reading in results finished")
+    logging.info("... Reading in results finished")
+
     # ------------------------------
     # Plotting
     # ------------------------------
@@ -206,4 +201,4 @@ if __name__ == "__main__":
         tot_fuel_y_max,
         data)
 
-    logging.debug("... Finished running Energy Demand Model")
+    logging.info("... Finished running Energy Demand Model")

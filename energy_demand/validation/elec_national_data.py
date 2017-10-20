@@ -179,6 +179,8 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
 
 def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
+
+    TODO: IMPROVE:
     """
     logging.debug("...compare elec peak results")
     # -------------------------------
