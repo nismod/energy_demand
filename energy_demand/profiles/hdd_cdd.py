@@ -235,7 +235,6 @@ def get_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     cdd_d = calc_cdd(t_base_cooling, temperatures)
     shape_cdd_d = load_profile.abs_to_rel(cdd_d)
 
-
     # Select only modelled yeardays
     shape_cdd_d_selection = shape_cdd_d[[model_yeardays]]
     cdd_d_selection = cdd_d[[model_yeardays]]

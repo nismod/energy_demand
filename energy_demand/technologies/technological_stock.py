@@ -50,26 +50,49 @@ class TechStock(object):
             enduse_technologies
             )
 
-    def get_attribute_tech_stock(self, technology, enduse, attribute_to_get):
-        """Get attribuet from technology stock
+    def get_tech_attr(self, enduse, tech_name, attribute_to_get):
+        """Get a technology attribute from a technology object stored in a list
 
         Arguments
         ----------
-        technology : str
-            Technology
-        enduse : str
-            Enduse
-        attribute_to_get : str
-            Attribute to read out
+        enduse : string
+            Enduse to read technology specified for this enduse
+        tech_name : string
+            List with stored technologies
+        attribute_to_get : string
+            Attribute of technology to get
 
         Return
-        ------
-        tech_obj.tech_type : object
+        -----
+        tech_attribute : attribute
+            Technology attribute
         """
-        tech_obj = self.stock_technologies[(technology, enduse)]
+        tech_object = self.stock_technologies[(tech_name, enduse)]
 
-        if attribute_to_get == 'tech_type':
-            return tech_obj.tech_type
+        if attribute_to_get == 'tech_fueltype':
+            attribute_value = tech_object.tech_fueltype
+        elif attribute_to_get == 'tech_type':
+            attribute_value = tech_object.tech_type
+        elif attribute_to_get == 'tech_fueltype_int':
+            attribute_value = tech_object.tech_fueltype_int
+        elif attribute_to_get == 'eff_cy':
+            attribute_value = tech_object.eff_cy
+        elif attribute_to_get == 'eff_by':
+            attribute_value = tech_object.eff_by
+        elif attribute_to_get == 'tech_low_temp':
+            attribute_value = tech_object.tech_low_temp
+        elif attribute_to_get == 'tech_low_temp_fueltype':
+            attribute_value = tech_object.tech_low_temp_fueltype
+        elif attribute_to_get == 'tech_high_temp_fueltype':
+            attribute_value = tech_object.tech_high_temp_fueltype
+        elif attribute_to_get == 'fueltypes_yh_p_cy':
+            attribute_value = tech_object.fueltypes_yh_p_cy
+        elif attribute_to_get == 'fueltype_share_yh_all_h':
+            attribute_value = tech_object.fueltype_share_yh_all_h
+        else:
+            sys.exit("Error: Attribute not found {}".format(attribute_to_get))
+
+        return attribute_value
 
     @classmethod
     def create_tech_stock(cls, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
@@ -114,48 +137,6 @@ class TechStock(object):
                 stock_technologies[(technology_name, enduse)] = tech_obj
 
         return stock_technologies
-
-    def get_tech_attr(self, enduse, tech_name, attribute_to_get):
-        """Get a technology attribute from a technology object stored in a list
-
-        Arguments
-        ----------
-        enduse : string
-            Enduse to read technology specified for this enduse
-        tech_name : string
-            List with stored technologies
-        attribute_to_get : string
-            Attribute of technology to get
-
-        Return
-        -----
-        tech_attribute : attribute
-            Technology attribute
-        """
-        tech_object = self.stock_technologies[(tech_name, enduse)]
-
-        if attribute_to_get == 'tech_fueltype':
-            attribute_value = tech_object.tech_fueltype
-        elif attribute_to_get == 'tech_fueltype_int':
-            attribute_value = tech_object.tech_fueltype_int
-        elif attribute_to_get == 'eff_cy':
-            attribute_value = tech_object.eff_cy
-        elif attribute_to_get == 'eff_by':
-            attribute_value = tech_object.eff_by
-        elif attribute_to_get == 'tech_low_temp':
-            attribute_value = tech_object.tech_low_temp
-        elif attribute_to_get == 'tech_low_temp_fueltype':
-            attribute_value = tech_object.tech_low_temp_fueltype
-        elif attribute_to_get == 'tech_high_temp_fueltype':
-            attribute_value = tech_object.tech_high_temp_fueltype
-        elif attribute_to_get == 'fueltypes_yh_p_cy':
-            attribute_value = tech_object.fueltypes_yh_p_cy
-        elif attribute_to_get == 'fueltype_share_yh_all_h':
-            attribute_value = tech_object.fueltype_share_yh_all_h
-        else:
-            sys.exit("Error: Attribute not found {}".format(attribute_to_get))
-
-        return attribute_value
 
 class Technology(object):
     """Technology Class

@@ -4,7 +4,6 @@ Fuel share assumptions
 All fuel shares of the base year for the different technologies are defined
 """
 from energy_demand.technologies import tech_related
-from energy_demand.initalisations import initialisations
 from energy_demand.initalisations import helpers
 
 def assign_by_fuel_tech_p(assumptions, data):
@@ -31,11 +30,11 @@ def assign_by_fuel_tech_p(assumptions, data):
     - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
     """
-    rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
+    rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         data['enduses']['rs_all_enduses'], data['lookups']['fueltypes_nr'])
-    ss_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
+    ss_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         data['enduses']['ss_all_enduses'], data['lookups']['fueltypes_nr'])
-    is_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
+    is_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
         data['enduses']['is_all_enduses'], data['lookups']['fueltypes_nr'])
 
     fuel_nr_oil = data['lookups']['fueltype']['oil']

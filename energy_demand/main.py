@@ -47,18 +47,14 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
         data=data
         )
 
-    # Total annual fuel of all regions
-    fueltot = model_run_object.reg_enduses_fueltype_y
 
-    # Print out calculations
-    #fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
     logging.info("Number of regions    " + str(len(data['lu_reg'])))
     logging.info("Fuel input:          " + str(fuel_in))
-    logging.info("Fuel output:         " + str(np.sum(fueltot)))
-    logging.info("FUEL DIFFERENCE:     " + str(round((np.sum(fueltot) - fuel_in), 4)))
+    logging.info("Fuel output:         " + str(np.sum(model_run_object.reg_enduses_fueltype_y)))
+    logging.info("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.reg_enduses_fueltype_y) - fuel_in), 4)))
     logging.info("elec fuel in:        " + str(fuel_in_elec))
     logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
     logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
@@ -88,6 +84,7 @@ if __name__ == "__main__":
     # Run settings
     instrument_profiler = True
     print_criteria = True
+    validation_criteria = False
 
     # Load data
     data = {}
@@ -156,23 +153,26 @@ if __name__ == "__main__":
         # ---------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ---------------------------------------------------
-        fuel_electricity_year_validation = 385
-        fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
-        fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.ktoe_to_gwh(
-            fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
-        model_object_transport = generic_shapes.GenericFlatEnduse(
-            fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
+        if validation_criteria == True:
+            
+            # Add electricity for transportation sector
+            fuel_electricity_year_validation = 385
+            fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
+            fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.ktoe_to_gwh(
+                fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
+            model_object_transport = generic_shapes.GenericFlatEnduse(
+                fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
 
-        #lad_validation.temporal_validation(
-        # data,
-        # model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
+            lad_validation.temporal_validation(
+             data,
+             model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
-        # ---------------------------------------------------
-        # Validation base year: Spatial disaggregation 
-        # ---------------------------------------------------
-        lad_validation.spatial_validation(
-            data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
-            model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
+            # ---------------------------------------------------
+            # Validation base year: Spatial disaggregation 
+            # ---------------------------------------------------
+            lad_validation.spatial_validation(
+                data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
+                model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
 
     # -------------------------------------------------------
     # Reading in results from different model runs

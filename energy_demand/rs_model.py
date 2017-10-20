@@ -5,7 +5,7 @@ Residential Submodel
 The residential submodule models energy demand
 for the residential sector.
 """
-import energy_demand.enduse as endusefunctions
+import energy_demand.enduse_func as endusefunctions
 
 class ResidentialModel(object):
     """Residential Submodel

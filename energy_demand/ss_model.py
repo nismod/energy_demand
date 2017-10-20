@@ -3,7 +3,7 @@ Service Submodel
 ====================
 
 """
-import energy_demand.enduse as endusefunctions
+import energy_demand.enduse_func as endusefunctions
 
 class ServiceModel(object):
     """Service Submodel

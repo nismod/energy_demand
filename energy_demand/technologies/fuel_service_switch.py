@@ -1,9 +1,8 @@
 """Function related to service or fuel switch
 """
-
 def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
-    """Iterate technologies with future less service demand (replaced tech)
-    and get relative share of service in base year
+    """Iterate technologies with future reduced service demand (replaced tech)
+    and calculate their relative share of service in the base year
 
     Arguments
     ----------
@@ -23,7 +22,7 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
     sum_service_tech_decrease_p = sum(
         [service_tech_by_p[tech] for tech in tech_decreased_share])
 
-    # Relative of each diminishing tech
+    # Relative of each diminishing tech (convert abs in dict to rel in dict)
     for tech in tech_decreased_share:
         try:
             rel_share_service_tech_decr_by[tech] = service_tech_by_p[tech] / float(sum_service_tech_decrease_p)

@@ -12,9 +12,6 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
     """
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
-    # Plot peak demand (h) per fueltype
-    plt_fuels_peak_h(tot_fuel_y_max, data)
-
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
         "fig_tot_all_enduse01.pdf",
@@ -43,13 +40,6 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
         data['assumptions']['model_yearhours_nrs'],
         data['assumptions']['model_yeardays_nrs'])
 
-    # Plot all enduses
-    #plt_stacked_enduse(
-    # "figure_stacked_country_final.pdf",
-    # data,
-    # results_every_year,
-    # data['enduses']['rs_all_enduses'],
-    # 'tot_fuel_y_enduse_specific_h')
 
     plt_stacked_enduse(
         "figure_stacked_country_final.pdf",
@@ -58,6 +48,16 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
         data['enduses']['rs_all_enduses'],
         'tot_fuel_y_enduse_specific_h')
 
+    # Plot all enduses
+    #plt_stacked_enduse(
+    # "figure_stacked_country_final.pdf",
+    # data,
+    # results_every_year,
+    # data['enduses']['rs_all_enduses'],
+    # 'tot_fuel_y_enduse_specific_h')
+
+    #logging.debug('Plot peak demand (h) per fueltype')
+    #plt_fuels_peak_h(tot_fuel_y_max, data)
     return
 
 def plot_x_days(all_hours_year, region, days):
@@ -288,10 +288,9 @@ def plt_fuels_enduses_y(fig_name, results_resid, data):
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype']):
+    for fueltype_str, fueltype in data['lookups']['fueltype'].items():
 
         # Legend
-        fueltype_str = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
         legend_entries.append(fueltype_str)
 
         # Read out fueltype specific max h load
@@ -340,22 +339,22 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
 
     fig, ax = plt.subplots() #fig is needed
     nr_y_to_plot = len(tot_fuel_y_max) #number of simluated years
-    x = range(nr_y_to_plot)
+
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
     Y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_y_to_plot))
 
-    for fueltype, _ in enumerate(data['lookups']['fueltype']):
+    for fueltype_str, fueltype in data['lookups']['fueltype'].items():
 
         # Legend
-        fueltype_str = tech_related.get_fueltype_str(data['lookups']['fueltype'], fueltype)
-
         legend_entries.append(fueltype_str)
 
         # REad out fueltype specific max h load
         data_over_years = []
-        for model_year_object in tot_fuel_y_max:
+        for model_year_object in tot_fuel_y_max.values():
+            print("model_year_object: "  + str(model_year_object))
+            print(fueltype)
             data_over_years.append(model_year_object[fueltype])
 
         Y_init[fueltype] = data_over_years

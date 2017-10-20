@@ -39,7 +39,7 @@ class LoadProfileStock(object):
             sectors=['dummy_sector'],
             enduse_peak_yd_factor=1.0/365,
             shape_peak_dh=np.full((24), 1.0/24)
-            ):
+        ):
         """Add load profile to stock
 
         Arguments
@@ -182,10 +182,17 @@ class LoadProfile(object):
     shape_peak_dh : array
         Shape (dh), shape of a day for every hour
     """
-    def __init__(self, enduses, unique_identifier, shape_yd, shape_yh, enduse_peak_yd_factor, shape_peak_dh):
+    def __init__(
+            self,
+            enduses,
+            unique_identifier,
+            shape_yd,
+            shape_yh,
+            enduse_peak_yd_factor,
+            shape_peak_dh
+        ):
         """Constructor
         """
-
         self.unique_identifier = unique_identifier
         self.enduses = enduses
 
