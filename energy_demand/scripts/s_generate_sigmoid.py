@@ -37,11 +37,11 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     """
 
     # Generate possible starting parameters for fit
-    start_param_list = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
+    start_param_list = [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]
     for start in [x * 0.05 for x in range(0, 100)]:
-        start_param_list.append(start)
+        start_param_list.append(float(start))
     for start in range(1, 59):
-        start_param_list.append(start)
+        start_param_list.append(float(start))
 
     cnt = 0
     successfull = False

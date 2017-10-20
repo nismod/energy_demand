@@ -276,7 +276,7 @@ def abs_to_rel(absolute_array):
     - If the total sum is zero, return an array with zeros
     """
     sum_array = float(np.sum(absolute_array))
-    if sum_array != 0:
+    if sum_array != 0.0:
         relative_array = np.divide(absolute_array, sum_array)
         relative_array[np.isnan(relative_array)] = 0
         return relative_array

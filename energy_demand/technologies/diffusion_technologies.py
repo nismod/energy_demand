@@ -58,10 +58,14 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
 
     Notes
     -----
-    This function is used for fitting and plotting
+    This function is used for fitting and plotting.
+    
+    Warning
+    -------
+    Because 2000 is substracted, the start year canno't be before 2001.
 
     """
-    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000) - midpoint)))
+    y_value = float(l_value) / (1 + np.exp(float(-steepness) * ((float(x_value) - 2000.0) - float(midpoint))))
 
     return y_value
 
