@@ -273,8 +273,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
         """
-        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
-
+        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
         return y_value
 
     popt, _ = curve_fit(

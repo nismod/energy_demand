@@ -130,7 +130,7 @@ def test_service_switch():
 
 
     '''# --------------------------------------------
-    
+
     l_value = 1.0
     share_boilerA_by = 0.0
     share_boilerA_cy = 1.0
@@ -181,11 +181,10 @@ def test_service_switch():
         sig_param_tech,
         curr_yr)
 
-    half_time_factor = 1
     expected_service_tech_cy_p = {
         "boilerA": 365*24*0.5,
         "boilerB": 365*24*0.5}
-    print(1/2)
+
     print(round(expected_service_tech_cy_p["boilerA"], 3))
     print(round(np.sum(result["boilerA"]), 3))
     print(round(expected_service_tech_cy_p["boilerB"], 3) )
