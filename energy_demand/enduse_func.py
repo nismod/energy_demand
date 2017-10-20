@@ -226,7 +226,7 @@ class Enduse(object):
                 # --------------------------------
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented "  + str(self.enduse))
-                    service_tech = self.service_switch(
+                    service_tech = service_switch(
                         self.enduse,
                         tot_service_yh_cy,
                         service_tech_cy_p,
@@ -794,168 +794,6 @@ class Enduse(object):
 
         return list(set(enduse_techs))
 
-    @classmethod
-    def service_switch(
-            cls,
-            enduse,
-            tot_service_yh_cy,
-            service_tech_by_p,
-            tech_increase_service,
-            tech_decrease_service,
-            tech_constant_service,
-            sig_param_tech,
-            curr_yr
-        ):
-        """Apply change in service depending on defined service switches
-
-        Paramters
-        ---------
-        tot_service_yh_cy : array
-            Hourly service of all technologies
-        service_tech_by_p : dict
-            Fraction of service per technology
-        tech_increase_service : dict
-            Technologies with increased service
-        tech_decrease_service : dict
-            Technologies with decreased service
-        tech_constant_service : dict
-            Technologies with constant service
-        sig_param_tech : dict
-            Sigmoid diffusion parameters
-        curr_yr : int
-            Current year
-
-        Returns
-        -------
-        service_tech_yh_cy : dict
-            Service per technology in current year after switch
-            for every hour in a year
-
-        Note
-        ----
-        The service which is fulfilled by new technologies is
-        substracted of the replaced technologies proportionally
-        to the base year distribution of these technologies
-        """
-        #def get_service_diffusion(self, tech_increased_service, sig_param_tech, curr_yr):
-        def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_yr):
-            """Calculate energy service fraction of technologies with increased service
-            for current year based on sigmoid diffusion
-
-            Arguments
-            ----------
-            tech_increased_service : dict
-                All technologies per enduse with increased future service share
-            sig_param_tech : dict
-                Sigmoid diffusion parameters
-            curr_yr : dict
-                Current year
-
-            Returns
-            -------
-            service_tech : dict
-                Share of service per technology of current year
-            """
-            service_tech = {}
-
-            for tech in tech_increased_service:
-                service_tech[tech] = diffusion_technologies.sigmoid_function(
-                    curr_yr,
-                    sig_param_tech[enduse][tech]['l_parameter'],
-                    sig_param_tech[enduse][tech]['midpoint'],
-                    sig_param_tech[enduse][tech]['steepness'])
-
-            return service_tech
-
-        # Result dict with cy service for every technology
-        service_tech_cy_p = {} 
-
-        # ------------
-        # Update all technologies with constant service
-        # ------------
-        service_tech_cy_p.update(tech_constant_service)
-
-        # ------------
-        # Calculate service for technology with increased service
-        # ------------
-        service_tech_incr_cy_p = get_service_diffusion(
-            enduse,
-            tech_increase_service,
-            sig_param_tech,
-            curr_yr)
-        service_tech_cy_p.update(service_tech_incr_cy_p)
-
-        # ------------
-        # Calculate service for technologies with decreasing service
-        # ------------
-        tot_fuel_cy_y = np.sum(tot_service_yh_cy)
-
-        # Add base year of decreasing to result dict (to allow substraction later on)
-        service_tech_cy_p.update(service_tech_by_p)
-
-        service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
-            tech_decrease_service,
-            service_tech_by_p)
-
-        # Calculated gained service and substract this proportionally
-        # along all decreasing technologies
-        for tech_incr, service_tech_incr_cy in service_tech_incr_cy_p.items():
-
-            # Difference in service up to current year per technology
-            diff_service_incr = service_tech_incr_cy - service_tech_by_p[tech_incr]
-
-            # Substract service gain proportionaly to all technologies which are
-            # lowered and substract from other technologies
-            for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
-                service_to_substract = service_tech_decr_by * diff_service_incr
-
-                # Convert service to rel share in cy to substract share in cy
-                service_to_substract_p_cy = service_to_substract / tot_fuel_cy_y
-                #TEST IF NEEDED
-                if service_tech_cy_p[tech_decr] - service_to_substract_p_cy < 0:
-                    service_tech_cy_p[tech_decr] = 0 # Set to zero service
-                    sys.exit("ERROR TESTI:::")
-                else:
-                    service_tech_cy_p[tech_decr] -= service_to_substract_p_cy
-
-        # Assign total service share to service share of technologies
-        service_tech_yh_cy = {}
-        for tech, enduse_share in service_tech_cy_p.items():
-            service_tech_yh_cy[tech] = tot_service_yh_cy * enduse_share
-
-        return service_tech_yh_cy
-
-    '''def get_service_diffusion(self, tech_increased_service, sig_param_tech, curr_yr):
-        """Calculate energy service fraction of technologies with increased service
-
-        Arguments
-        ----------
-        tech_increased_service : dict
-            All technologies per enduse with increased future service share
-        sig_param_tech : dict
-            Sigmoid diffusion parameters
-        curr_yr : dict
-            Current year
-
-        Returns
-        -------
-        service_tech_cy_p : dict
-            Share of service per technology of current year
-        """
-        service_tech_cy_p = {}
-
-        # Calculate service for every technology
-        # for current year based on sigmoid diffusion
-        for tech in tech_increased_service:
-            service_tech_cy_p[tech] = diffusion_technologies.sigmoid_function(
-                curr_yr,
-                sig_param_tech[self.enduse][tech]['l_parameter'],
-                sig_param_tech[self.enduse][tech]['midpoint'],
-                sig_param_tech[self.enduse][tech]['steepness']
-            )
-
-        return service_tech_cy_p'''
-
     def get_crit_switch(self, fuelswitches, base_parameters, mode_constrained):
         """Test whether there is a switch (service or fuel)
 
@@ -1014,7 +852,7 @@ class Enduse(object):
         for tech in self.enduse_techs:
 
             tech_type = tech_stock.get_tech_attr(
-                tech, self.enduse, 'tech_type')
+                 self.enduse, tech, 'tech_type')
 
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 self.enduse, tech, 'tech_fueltype_int')
@@ -1536,3 +1374,138 @@ class Enduse(object):
                 self.fuel_new_y = new_fuels
             else:
                 pass #enduse not define with scenario drivers
+
+
+
+
+def service_switch(
+    enduse,
+    tot_service_yh_cy,
+    service_tech_by_p,
+    tech_increase_service,
+    tech_decrease_service,
+    tech_constant_service,
+    sig_param_tech,
+    curr_yr
+    ):
+    """Apply change in service depending on defined service switches
+
+    Paramters
+    ---------
+    tot_service_yh_cy : array
+        Hourly service of all technologies
+    service_tech_by_p : dict
+        Fraction of service per technology
+    tech_increase_service : dict
+        Technologies with increased service
+    tech_decrease_service : dict
+        Technologies with decreased service
+    tech_constant_service : dict
+        Technologies with constant service
+    sig_param_tech : dict
+        Sigmoid diffusion parameters
+    curr_yr : int
+        Current year
+
+    Returns
+    -------
+    service_tech_yh_cy : dict
+        Service per technology in current year after switch
+        for every hour in a year
+
+    Note
+    ----
+    The service which is fulfilled by new technologies is
+    substracted of the replaced technologies proportionally
+    to the base year distribution of these technologies
+    """
+
+    # Result dict with cy service for every technology
+    service_tech_cy_p = {} 
+
+    # ------------
+    # Update all technologies with constant service
+    # ------------
+    service_tech_cy_p.update(tech_constant_service)
+
+    # ------------
+    # Calculate service for technology with increased service
+    # ------------
+    service_tech_incr_cy_p = get_service_diffusion(
+        enduse,
+        tech_increase_service,
+        sig_param_tech,
+        curr_yr)
+    service_tech_cy_p.update(service_tech_incr_cy_p)
+
+    # ------------
+    # Calculate service for technologies with decreasing service
+    # ------------
+    tot_fuel_cy_y = np.sum(tot_service_yh_cy)
+
+    # Add base year of decreasing technologies to substract from that later on
+    for tech in tech_decrease_service:
+        service_tech_cy_p[tech] = service_tech_by_p[tech]
+
+    # Calculate service share to assing for substracted fuel
+    service_tech_decrease_by_rel = fuel_service_switch.get_service_rel_tech_decr_by(
+        tech_decrease_service,
+        service_tech_by_p)
+
+    # Calculated gained service and substract this proportionally
+    # along all decreasing technologies
+    for tech_incr, service_tech_incr_cy in service_tech_incr_cy_p.items():
+
+        # Difference in service up to current year per technology
+        diff_service_incr = service_tech_incr_cy - service_tech_by_p[tech_incr]
+
+        # Substract service gain proportionaly to all technologies which are
+        # lowered and substract from other technologies
+        for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
+            service_to_substract = service_tech_decr_by * diff_service_incr
+
+            # Convert service to rel share in cy to substract share in cy
+            #service_to_substract_p_cy = service_to_substract / tot_fuel_cy_y
+            service_to_substract_p_cy = service_to_substract
+            #TEST IF NEEDED
+            if service_tech_cy_p[tech_decr] - service_to_substract_p_cy < 0:
+                service_tech_cy_p[tech_decr] = 0 # Set to zero service
+                sys.exit("ERROR TESTI:::")
+            else:
+                service_tech_cy_p[tech_decr] -= service_to_substract_p_cy
+
+    # Assign total service share to service share of technologies
+    service_tech_yh_cy = {}
+    for tech, enduse_share in service_tech_cy_p.items():
+        service_tech_yh_cy[tech] = tot_service_yh_cy * enduse_share
+
+    return service_tech_yh_cy
+
+def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_yr):
+    """Calculate energy service fraction of technologies with increased service
+    for current year based on sigmoid diffusion
+
+    Arguments
+    ----------
+    tech_increased_service : dict
+        All technologies per enduse with increased future service share
+    sig_param_tech : dict
+        Sigmoid diffusion parameters
+    curr_yr : dict
+        Current year
+
+    Returns
+    -------
+    service_tech : dict
+        Share of service per technology of current year
+    """
+    service_tech = {}
+
+    for tech in tech_increased_service:
+        service_tech[tech] = diffusion_technologies.sigmoid_function(
+            curr_yr,
+            sig_param_tech[enduse][tech]['l_parameter'],
+            sig_param_tech[enduse][tech]['midpoint'],
+            sig_param_tech[enduse][tech]['steepness'])
+
+    return service_tech
