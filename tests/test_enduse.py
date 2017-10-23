@@ -20,7 +20,7 @@ def test_service_switch():
     end_yr = 2060
 
     # ----- Calculate sigmoids
-    
+
     xdata = np.array([base_yr, end_yr])
     ydata = np.array([share_boilerA_by, share_boilerA_cy])
     assert l_value >= share_boilerA_cy
@@ -192,4 +192,17 @@ def test_service_switch():
     assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
     assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
+def test_Enduse():
+    """
+    """
+    pass
+
+def test_fuel_switch():
+    """
+    """
+    pass
+
+
 test_service_switch()
+
+

@@ -50,8 +50,8 @@ class EnergyModel(object):
             data['weather_stations'], data)
 
         # Regions
-        self.regions = self.create_regions(
-            region_names, data)
+        #self.regions = self.create_regions(
+        #    region_names, data)
 
         # ---------------
         # Initialise and iterate over years
@@ -62,8 +62,10 @@ class EnergyModel(object):
         tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
 
-        for array_nr_region, region_obj in enumerate(self.regions):
-            logging.debug("Running model for region %s", region_obj.region_name)
+        for array_nr_region, region_name in enumerate(region_names):
+            logging.info("Running model for region %s", region_name)
+
+            region_obj = self.create_regions(region_name, data)
 
             # --------------------
             # Residential SubModel
@@ -557,30 +559,30 @@ class EnergyModel(object):
 
         return weather_region_objs
 
-    def create_regions(self, region_names, data):
+    def create_regions(self, region_name, data):
         """Create all regions and add them in a list
 
         Arguments
         ----------
-        region_names : list
-            Regions
+        region_name : list
+            Region name
         data : dict
             Data container
         """
         regions = []
 
-        for region_name in region_names:
-            logging.debug("... creating region: '%s'", region_name)
+        #for region_name in region_names:
+        logging.debug("... creating region: '%s'", region_name)
 
-            region_obj = region.Region(
-                region_name=region_name,
-                data=data,
-                weather_regions=self.weather_regions
-                )
+        region_obj = region.Region(
+            region_name=region_name,
+            data=data,
+            weather_regions=self.weather_regions
+            )
 
-            regions.append(region_obj)
+        #regions.append(region_obj)
 
-        return regions
+        return region_obj
 
     def sum_enduse_all_regions(self, input_dict, attribute_to_get, sector_models, model_yearhours_nrs, model_yeardays_nrs):
         """Summarise an enduse attribute across all regions
