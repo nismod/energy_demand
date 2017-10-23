@@ -84,58 +84,52 @@ class EnergyModel(object):
         tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [
-                executor.submit(simulate_region, array_nr_region, region_name, data, weather_regions)
-                for array_nr_region, region_name in enumerate(region_names)
-            ]
+        for array_nr_region, region_name in enumerate(region_names):
+            array_nr_region, region, region_submodels = simulate_region(array_nr_region, region_name, data, weather_regions)
 
-            for future in concurrent.futures.as_completed(futures):
-                array_nr_region, region, region_submodels = future.result()
+            # Sum across all regions, all enduse and sectors sum_reg
+            fuel_indiv_regions_yh = self.fuel_regions_fueltype(
+                fuel_indiv_regions_yh,
+                data['lookups'],
+                region.region_name,
+                array_nr_region,
+                data['assumptions']['model_yearhours_nrs'],
+                data['assumptions']['model_yeardays_nrs'],
+                region_submodels)
 
-                # Sum across all regions, all enduse and sectors sum_reg
-                fuel_indiv_regions_yh = self.fuel_regions_fueltype(
-                    fuel_indiv_regions_yh,
-                    data['lookups'],
-                    region.region_name,
-                    array_nr_region,
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs'],
-                    region_submodels)
+            # Sum across all regions, all enduse and sectors
+            reg_enduses_fueltype_y = fuel_aggr(
+                reg_enduses_fueltype_y,
+                'fuel_yh',
+                region_submodels,
+                'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
+                data['assumptions']['model_yeardays_nrs'])
 
-                # Sum across all regions, all enduse and sectors
-                reg_enduses_fueltype_y = fuel_aggr(
-                    reg_enduses_fueltype_y,
-                    'fuel_yh',
-                    region_submodels,
-                    'no_sum',
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs'])
+            # Sum across all regions, enduses for peak hour
+            tot_peak_enduses_fueltype = fuel_aggr(
+                tot_peak_enduses_fueltype,
+                'fuel_peak_dh',
+                region_submodels,
+                'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
+                data['assumptions']['model_yeardays_nrs'])
 
-                # Sum across all regions, enduses for peak hour
-                tot_peak_enduses_fueltype = fuel_aggr(
-                    tot_peak_enduses_fueltype,
-                    'fuel_peak_dh',
-                    region_submodels,
-                    'no_sum',
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs'])
+            tot_fuel_y_max_enduses = fuel_aggr(
+                tot_fuel_y_max_enduses,
+                'fuel_peak_h',
+                region_submodels,
+                'no_sum',
+                data['assumptions']['model_yearhours_nrs'],
+                data['assumptions']['model_yeardays_nrs'])
 
-                tot_fuel_y_max_enduses = fuel_aggr(
-                    tot_fuel_y_max_enduses,
-                    'fuel_peak_h',
-                    region_submodels,
-                    'no_sum',
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs'])
-
-                # Sum across all regions and provide specific enduse
-                tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions(
-                    tot_fuel_y_enduse_specific_h,
-                    'fuel_yh',
-                    region_submodels,
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs'])
+            # Sum across all regions and provide specific enduse
+            tot_fuel_y_enduse_specific_h = self.sum_enduse_all_regions(
+                tot_fuel_y_enduse_specific_h,
+                'fuel_yh',
+                region_submodels,
+                data['assumptions']['model_yearhours_nrs'],
+                data['assumptions']['model_yeardays_nrs'])
 
         self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
         self.reg_enduses_fueltype_y = reg_enduses_fueltype_y
