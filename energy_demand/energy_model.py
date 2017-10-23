@@ -6,17 +6,20 @@ The main function executing all the submodels of the energy demand model
 import uuid
 import logging
 from collections import defaultdict
+
 import numpy as np
+
+import energy_demand.enduse_func as endusefunctions
+
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
-import energy_demand.enduse_func as endusefunctions
+from energy_demand.geography.weather_station_location import get_closest_station
 #from energy_demand.profiles import load_factors as load_factors
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
-from energy_demand.geography import weather_station_location as wl
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -46,8 +49,19 @@ class EnergyModel(object):
             data['sectors'])
 
         # Weather Regions
-        self.weather_regions = self.create_weather_regions(
-            data['weather_stations'], data)
+        self.weather_regions = {
+            weather_region_name: WeatherRegion(
+                weather_region_name=weather_region_name,
+                sim_param=data['sim_param'],
+                assumptions=data['assumptions'],
+                lookups=data['lookups'],
+                all_enduses=data['enduses'],
+                temperature_data=data['temp_data'],
+                tech_lp=data['tech_lp'],
+                sectors=data['sectors']
+            )
+            for weather_region_name in data['weather_stations']
+        }
 
         logging.debug("... Generate dwelling stock for base year")
         data['rs_dw_stock'] = defaultdict(dict)
@@ -66,14 +80,27 @@ class EnergyModel(object):
         tot_fuel_y_enduse_specific_h = {}
 
         for array_nr_region, region_name in enumerate(region_names):
-            logging.info("Running model for region %s", region_name)
+            logging.debug("Running model for region %s", region_name)
 
-            # Create Region
-            region = self.create_region(region_name, data)
+            # Get closest weather station to `Region`
+            closest_weather_region_name = get_closest_station(
+                data['reg_coord'][region_name]['longitude'],
+                data['reg_coord'][region_name]['latitude'],
+                data['weather_stations']
+            )
+
+            closest_weather_region = self.weather_regions[closest_weather_region_name]
 
             # Create dwelling stock
             data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
             data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
+
+            # Create Region
+            region = Region(
+                region_name=region_name,
+                data=data,
+                weather_region=closest_weather_region
+            )
 
             # --------------------
             # Residential SubModel
@@ -393,65 +420,6 @@ class EnergyModel(object):
 
         return region_fuel_yh
 
-    @classmethod
-    def create_weather_regions(cls, weather_region_names, data):
-        """Create all weather regions and calculate
-
-        Arguments
-        ----------
-        weather_region : list
-            The name of the Weather Region
-        data : dict
-            Data container
-        """
-        weather_regions = []
-
-        for weather_region_name in weather_region_names:
-
-            weather_region = WeatherRegion(
-                weather_region_name=weather_region_name,
-                sim_param=data['sim_param'],
-                assumptions=data['assumptions'],
-                lookups=data['lookups'],
-                all_enduses=data['enduses'],
-                temperature_data=data['temp_data'],
-                tech_lp=data['tech_lp'],
-                sectors=data['sectors']
-            )
-
-            weather_regions.append(weather_region)
-
-        return weather_regions
-
-    def create_region(self, region_name, data):
-        """Create all regions and add them in a list
-
-        Arguments
-        ----------
-        region_name : list
-            Region name
-        data : dict
-            Data container
-        """
-        logging.debug("... creating region: '%s'", region_name)
-
-        # Get closest weather station to `Region`
-        closest_reg = wl.get_closest_station(
-            data['reg_coord'][region_name]['longitude'],
-            data['reg_coord'][region_name]['latitude'],
-            data['weather_stations']
-        )
-
-        weather_region = get_weather_reg(self.weather_regions, closest_reg)
-
-        region = Region(
-            region_name=region_name,
-            data=data,
-            weather_reg_obj=weather_region
-        )
-
-        return region
-
     def sum_enduse_all_regions(self, input_dict, attribute_to_get, sector_models, model_yearhours_nrs, model_yeardays_nrs):
         """Summarise an enduse attribute across all regions
 
@@ -600,26 +568,6 @@ class EnergyModel(object):
                 fuels = enduse_object.fuel_yh
 
         return fuels
-
-
-def get_weather_reg(weather_regions, closest_reg):
-    """Iterate list with weather regions and get weather region object
-
-    Arguments
-    ---------
-    weather_regions : dict
-        Weather regions
-    closest_reg : str
-        Station ID
-
-    Return
-    ------
-    weather_region : object
-        Weather region
-    """
-    for weather_region in weather_regions:
-        if weather_region.weather_region_name == closest_reg:
-            return weather_region
 
 
 def industry_submodel(region, data, enduse_names, sector_names):
