@@ -7,7 +7,7 @@ from energy_demand.scripts import s_generate_sigmoid
 def test_service_switch():
     """Test
     """
-    '''# Increase boilerA to 100%
+    # Increase boilerA to 100%
     l_value = 0.9
     share_boilerA_by = 0.1
     share_boilerA_cy = 0.2 #1
@@ -128,15 +128,14 @@ def test_service_switch():
     assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
     assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
 
-
-    '''# --------------------------------------------
+    # --------------------------------------------
 
     l_value = 1.0
-    share_boilerA_by = 0.0
-    share_boilerA_cy = 1.0
+    share_boilerA_by = 0.0001
+    share_boilerB_by = 0.9999
 
-    share_boilerB_by = 1.0
-    share_boilerB_cy = 0.0
+    share_boilerA_cy = 0.9999
+    share_boilerB_cy = 0.0000
 
     base_yr = 2020.0
     curr_yr = 2040.0
@@ -154,6 +153,10 @@ def test_service_switch():
         ydata,
         fit_crit_a=200,
         fit_crit_b=0.001)
+
+    #plot sigmoid curve
+    #from energy_demand.plotting import plotting_program
+    #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
@@ -185,12 +188,8 @@ def test_service_switch():
         "boilerA": 365*24*0.5,
         "boilerB": 365*24*0.5}
 
-    print(round(expected_service_tech_cy_p["boilerA"], 3))
-    print(round(np.sum(result["boilerA"]), 3))
-    print(round(expected_service_tech_cy_p["boilerB"], 3) )
-    print(round(np.sum(result["boilerB"]), 3))
-    assert round(expected_service_tech_cy_p["boilerA"], 3) == round(np.sum(result["boilerA"]), 3)
-    assert round(expected_service_tech_cy_p["boilerB"], 3) == round(np.sum(result["boilerB"]), 3)
+    assert round(expected_service_tech_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
+    assert round(expected_service_tech_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
 
 def test_Enduse():
     """
@@ -201,8 +200,3 @@ def test_fuel_switch():
     """
     """
     pass
-
-
-test_service_switch()
-
-

@@ -587,8 +587,6 @@ class EnergyModel(object):
             weather_reg_obj=weather_reg_obj
             )
 
-        #regions.append(region_obj)
-
         return region_obj
 
     def sum_enduse_all_regions(self, input_dict, attribute_to_get, sector_models, model_yearhours_nrs, model_yeardays_nrs):

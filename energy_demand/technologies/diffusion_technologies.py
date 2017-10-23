@@ -65,7 +65,8 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     Because 2000 is substracted, the start year canno't be before 2001.
 
     """
-    y_value = float(l_value) / (1 + np.exp(float(-steepness) * ((float(x_value) - 2000.0) - float(midpoint))))
+    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
+    #y_value = l_value / (1 + math.exp(-steepness * ((x_value - 2000.0) - midpoint)))
 
     return y_value
 
