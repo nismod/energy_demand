@@ -115,7 +115,8 @@ class EnergyModel(object):
             # --------------------
             ss_submodel = service_submodel(
                 region,
-                data, data['enduses']['ss_all_enduses'],
+                data,
+                data['enduses']['ss_all_enduses'],
                 data['sectors']['ss_sectors'])
 
             # --------------------
@@ -123,7 +124,8 @@ class EnergyModel(object):
             # --------------------
             is_submodel = industry_submodel(
                 region,
-                data, data['enduses']['is_all_enduses'],
+                data,
+                data['enduses']['is_all_enduses'],
                 data['sectors']['is_sectors'])
 
             # ----------------------
@@ -465,8 +467,8 @@ class EnergyModel(object):
         ----------
         attribute_to_get : str
             Attribue to summarise
-        sector_models : list
-            Sector models to summarise
+        sector_models : list of list of Enduse
+            Enduse objects to summarise
         lp_crit, sum_crit : str
             Criteria
         region_name : str
@@ -480,18 +482,18 @@ class EnergyModel(object):
         # Select specific region if defined
         if region_name:
             for sector_model in sector_models:
-                for model_object in sector_model:
-                    if model_object.region_name == region_name:
+                for enduse in sector_model:
+                    if enduse.region_name == region_name:
                         input_array += self.get_fuels_yh(
-                            model_object,
+                            enduse,
                             attribute_to_get,
                             model_yearhours_nrs,
                             model_yeardays_nrs)
         else:
             for sector_model in sector_models:
-                for model_object in sector_model:
+                for enduse in sector_model:
                     input_array += self.get_fuels_yh(
-                        model_object,
+                        enduse,
                         attribute_to_get,
                         model_yearhours_nrs,
                         model_yeardays_nrs)
