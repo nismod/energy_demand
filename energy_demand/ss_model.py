@@ -59,7 +59,7 @@ class ServiceModel(object):
             tech_increased_service=data['assumptions']['ss_tech_increased_service'],
             tech_decreased_share=data['assumptions']['ss_tech_decreased_share'],
             tech_constant_share=data['assumptions']['ss_tech_constant_share'],
-            installed_tech=data['assumptions']['ss_installed_tech'],
+            installed_tech=data['assumptions']['ss_installed_tech'][self.enduse],
             sig_param_tech=data['assumptions']['ss_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['ss_model'],
             regional_lp_stock=region_obj.ss_load_profiles,

@@ -47,7 +47,7 @@ class IndustryModel(object):
             tech_increased_service=data['assumptions']['is_tech_increased_service'],
             tech_decreased_share=data['assumptions']['is_tech_decreased_share'],
             tech_constant_share=data['assumptions']['is_tech_constant_share'],
-            installed_tech=data['assumptions']['is_installed_tech'],
+            installed_tech=data['assumptions']['is_installed_tech'][self.enduse],
             sig_param_tech=data['assumptions']['is_sig_param_tech'],
             enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['is_model'],
             regional_lp_stock=region_obj.is_load_profiles,

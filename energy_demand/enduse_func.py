@@ -62,7 +62,7 @@ class Enduse(object):
     tech_constant_share : dict
         Technologies per enduse with constat service
     installed_tech : dict
-        Installed technologes per enduse
+        Installed technologes for this enduse
     sig_param_tech : dict
         Sigmoid parameters
     enduse_overall_change_ey : dict
@@ -117,7 +117,8 @@ class Enduse(object):
         """
         self.enduse = enduse
         self.sector = sector
-        self.fuel_new_y = np.copy(fuel)
+        #self.fuel_new_y = np.copy(fuel) #TODO: MUST HIS BE COOPY?
+        self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
@@ -130,7 +131,7 @@ class Enduse(object):
 
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
-                self.enduse,
+                enduse,
                 data['non_regional_lp_stock'],
                 regional_lp_stock)
 
@@ -141,7 +142,7 @@ class Enduse(object):
             # --------------------------------
             # --Change fuel consumption based on climate change induced temperature differences
             self.fuel_new_y = apply_climate_change(
-                self.enduse,
+                enduse,
                 self.fuel_new_y,
                 cooling_factor_y,
                 heating_factor_y,
@@ -150,7 +151,7 @@ class Enduse(object):
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
-                self.enduse,
+                enduse,
                 self.fuel_new_y,
                 data['assumptions'],
                 data['sim_param'])
@@ -158,7 +159,7 @@ class Enduse(object):
 
             # --Enduse specific consumption change in %
             self.fuel_new_y = apply_specific_change(
-                self.enduse,
+                enduse,
                 self.fuel_new_y,
                 data['assumptions'],
                 enduse_overall_change_ey,
@@ -170,7 +171,7 @@ class Enduse(object):
             # Calculate new fuel demands after scenario drivers
             # -------------------------------------------------------------------------------
             self.fuel_new_y = apply_scenario_drivers(
-                self.enduse,
+                enduse,
                 self.fuel_new_y,
                 dw_stock,
                 region_name,
@@ -204,7 +205,7 @@ class Enduse(object):
                 # Calculate regional energy service
                 # ------------------------------------
                 tot_service_yh_cy, service_tech, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = fuel_to_service(
-                    self.enduse,
+                    enduse,
                     self.sector,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -223,7 +224,7 @@ class Enduse(object):
                 # (standard sigmoid diffusion)
                 # ------------------------------------
                 tot_service_yh_cy = apply_heat_recovery(
-                    self.enduse,
+                    enduse,
                     data['assumptions'],
                     tot_service_yh_cy,
                     'tot_service_yh_cy',
@@ -242,7 +243,7 @@ class Enduse(object):
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented "  + str(self.enduse))
                     service_tech = service_switch(
-                        self.enduse,
+                        enduse,
                         tot_service_yh_cy,
                         service_tech_cy_p,
                         tech_increased_service[enduse],
@@ -252,7 +253,7 @@ class Enduse(object):
                         data['sim_param']['curr_yr'])
                 elif crit_switch_fuel:
                     service_tech = fuel_switch(
-                        self.enduse,
+                        enduse,
                         installed_tech,
                         sig_param_tech,
                         tot_service_yh_cy,
@@ -269,7 +270,7 @@ class Enduse(object):
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
-                    self.enduse,
+                    enduse,
                     service_tech,
                     tech_stock,
                     data['lookups'],
@@ -722,8 +723,9 @@ def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
     return fuel_y
 
 def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained):
-    """Convert yearly energy service to yearly fuel demand. For every
-    technology the service is taken and convertedto fuel based on efficiency of current year.abs
+    """Convert yearly energy service to yearly fuel demand.
+    For every technology the service is taken and converted
+    to fuel based on efficiency of current year
 
     Inputs
     ------
@@ -758,15 +760,14 @@ def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained)
         for tech, service in service_tech.items():
             tech_eff = tech_stock.get_tech_attr(
                 enduse, tech, 'eff_cy')
-
-            fuel_tech = service / tech_eff
-
-            _sum = np.sum(fuel_tech)
-
-            fuel_per_tech[tech] = _sum
-
+            
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_fueltype_int')
+
+            # Convert to fuel
+            _sum = np.sum(service / tech_eff)
+
+            fuel_per_tech[tech] = _sum
 
             # Multiply fuel of technology per fueltype with shape of yearl distrbution
             fuel_new_y[tech_fuel_type_int] += _sum
@@ -1353,11 +1354,11 @@ def fuel_switch(
     service_fueltype_tech_cy_p : dict
         Fraction of service per fueltype, technology for current year
     service_fueltype_cy_p : dict
-        Fraction of service per fuyltpe in current year
+        Fraction of service per fueltype in current year
 
     Returns
     -------
-    service_tech_after_switch : dict
+    service_tech_switched : dict
         Containing all service for each technology on a hourly basis
 
     Note
@@ -1369,10 +1370,11 @@ def fuel_switch(
         TODO: MORE INFO
     """
     logging.debug("... fuel_switch is implemented")
-    service_tech_after_switch = copy.copy(service_tech)
+    #service_tech_switched = copy.copy(service_tech) #TODO: REally copy?
+    service_tech_switched = service_tech
 
     # Iterate all technologies which are installed in fuel switches
-    for tech_installed in installed_tech[enduse]:
+    for tech_installed in installed_tech:
 
         # Calculaty sigmoid diffusion of service of this technology for cy
         diffusion_cy = diffusion_technologies.sigmoid_function(
@@ -1392,11 +1394,11 @@ def fuel_switch(
         #assert np.sum((diffusion_cy * tot_service_yh_cy) - service_tech[tech_installed]) >= 0
 
         # Get service for current year for technologies
-        #service_tech_after_switch[tech_installed] += service_tech_installed_cy
-        service_tech_after_switch[tech_installed] = service_tech_installed_cy #NEW
+        service_tech_switched[tech_installed] = service_tech_installed_cy
 
         # ------------
-        # Remove fuel of replaced energy service demand proportinally to fuel shares in base year (of national country)
+        # Remove fuel of replaced energy service demand proportinally
+        # to fuel shares in base year (of national country)
         # ------------
         tot_service_tech_instal_p = 0 # Total replaced service across different fueltypes
         fueltypes_replaced = [] # List with fueltypes where fuel is replaced
@@ -1404,7 +1406,6 @@ def fuel_switch(
         # Iterate fuelswitches and read out the shares of fuel which is switched with the installed technology
         for fuelswitch in fuel_switches:
             if fuelswitch['enduse'] == enduse and fuelswitch['technology_install']:
-                #if fuelswitch['technology_install'] == tech_installed:
 
                     # Add replaced fueltype
                     fueltypes_replaced.append(fuelswitch['enduse_fueltype_replace'])
@@ -1431,7 +1432,7 @@ def fuel_switch(
                         reduction_service_fueltype = 0
                     else:
                         # share of total service of fueltype * share of replaced fuel #TODO FASTER
-                        service_fueltype_tech_cy_p_rel = (1.0 / tot_service_tech_instal_p) * (service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'])
+                        service_fueltype_tech_cy_p_rel = (1.0 / tot_service_tech_instal_p) * service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched']
 
                         ##logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
                         reduction_service_fueltype = service_tech_installed_cy * service_fueltype_tech_cy_p_rel
@@ -1439,9 +1440,9 @@ def fuel_switch(
 
             ##logging.debug("Reduction of additional service of technology in replaced fueltype: " + str(np.sum(reduction_service_fueltype)))
 
-            # Iterate all technologies in within the fueltype and calculate reduction per technology
+            # Iterate all technologies in within the fueltype
+            # and calculate reduction per technology
             for technology_replaced in technologies_replaced_fueltype:
-                ####logging.debug(" ")
                 #logging.debug("technology_replaced: " + str(technology_replaced))
                 # It needs to be calculated within each region the share how the fuel is distributed...
                 # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
@@ -1453,34 +1454,45 @@ def fuel_switch(
                 # -------
                 # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                 # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
-                if np.sum(service_tech_after_switch[technology_replaced] - service_demand_tech) < 0:
+                if np.sum(service_tech_switched[technology_replaced] - service_demand_tech) < 0:
 
                     #sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
-                    service_tech_after_switch[technology_replaced] = service_tech_after_switch[technology_replaced] * 0
+                    service_tech_switched[technology_replaced] = service_tech_switched[technology_replaced] * 0
                 else:
                     # Substract technology specific servide demand
-                    service_tech_after_switch[technology_replaced] -= service_demand_tech
-                    #logging.debug("B: " + str(np.sum(service_tech_after_switch[technology_replaced])))
+                    service_tech_switched[technology_replaced] -= service_demand_tech
+                    #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))
 
             # Testing
             #assert np.testing.assert_almost_equal(
             # np.sum(test_sum), np.sum(reduction_service_fueltype), decimal=4)
 
-    return service_tech_after_switch
+    return service_tech_switched
 
-def convert_service_tech_to_p(service_fueltype_tech_p, service_fueltype_p):
-    """ TODO: DESCRIBE: ALSO Preven that going in
+def convert_service_tech_to_p(service, service_fueltype_p):
+    """Convert value provided in dict to share of
+    sum of all values in dict
+
+    Arguments
+    ---------
+    service_A : dict
+        Service per fueltype and technology
+
+    service_fueltype_p : dict
+        Share of service per fueltype
     """
     out_dict = defaultdict(dict)
 
-    for fueltype, service_fueltype in service_fueltype_tech_p.items():
+    for fueltype, service_fueltype in service.items():
         for tech, service_fueltype_tech in service_fueltype.items():
+
+            tot_service_per_fueltype = float(service_fueltype_p[fueltype])
             if float(service_fueltype_tech) == 0:
                 out_dict[fueltype][tech] = 0
-            elif float(service_fueltype_p[fueltype]) == 0:
+            elif tot_service_per_fueltype == 0:
                 out_dict[fueltype][tech] = 0
             else:
-                out_dict[fueltype][tech] = service_fueltype_tech / float(service_fueltype_p[fueltype])
+                out_dict[fueltype][tech] = float(service_fueltype_tech) / tot_service_per_fueltype
 
     return out_dict
 
