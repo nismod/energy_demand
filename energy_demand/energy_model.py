@@ -17,6 +17,7 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import generic_shapes
+from energy_demand.geography import weather_station_location as wl
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -49,10 +50,6 @@ class EnergyModel(object):
         self.weather_regions = self.create_weather_regions(
             data['weather_stations'], data)
 
-        # Regions
-        #self.regions = self.create_regions(
-        #    region_names, data)
-
         # ---------------
         # Initialise and iterate over years
         # ---------------
@@ -65,6 +62,7 @@ class EnergyModel(object):
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("Running model for region %s", region_name)
 
+            # Create Region
             region_obj = self.create_regions(region_name, data)
 
             # --------------------
@@ -574,10 +572,19 @@ class EnergyModel(object):
         #for region_name in region_names:
         logging.debug("... creating region: '%s'", region_name)
 
+        # Get closest weather station to `Region`
+        closest_reg = wl.get_closest_station(
+            data['reg_coord'][region_name]['longitude'],
+            data['reg_coord'][region_name]['latitude'],
+            data['weather_stations']
+            )
+        weather_reg_obj = get_weather_reg(
+            self.weather_regions, closest_reg)
+
         region_obj = region.Region(
             region_name=region_name,
             data=data,
-            weather_regions=self.weather_regions
+            weather_reg_obj=weather_reg_obj
             )
 
         #regions.append(region_obj)
@@ -732,3 +739,24 @@ class EnergyModel(object):
                 fuels = model_object.enduse_object.fuel_yh
 
         return fuels
+
+def get_weather_reg(weather_regions, closest_reg):
+    """Iterate list with weather regions and get weather region object
+
+    Arguments
+    ---------
+    weather_regions : dict
+        Weather regions
+    closest_reg : str
+        Station ID
+
+    Return
+    ------
+    weather_region : object
+        Weather region
+    """
+    for weather_region in weather_regions:
+        if weather_region.weather_region_name == closest_reg:
+            
+            return weather_region
+        
