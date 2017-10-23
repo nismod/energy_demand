@@ -434,7 +434,7 @@ class EnergyModel(object):
         return submodules
 
     @classmethod
-    def residential_submodel(cls, region_obj, data, enduses, sectors=['dummy_sector']):
+    def residential_submodel(cls, region_obj, data, enduses, sectors=False):
         """Create the residential submodules (per enduse and region) and add them to list
 
         Arguments
@@ -443,7 +443,7 @@ class EnergyModel(object):
             Data container
         enduses : list
             All residential enduses
-        sectors : dict, default=['dummy_sector']
+        sectors : dict, default=False
             Sectors
 
         Returns
@@ -456,6 +456,11 @@ class EnergyModel(object):
         - The ``regions`` and ``weather_regions`` gets deleted to save memory
         """
         logging.debug("... residential submodel start")
+
+        if not sectors:
+            sectors=['dummy_sector']
+        else:
+            pass
 
         submodule_list = []
 

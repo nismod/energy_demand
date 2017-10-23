@@ -4,7 +4,6 @@ Testing s_generate_sigmoid
 import numpy as np
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
-#from energy_demand.plotting import plotting_program
 
 def test_calc_sigmoid_parameters():
     """Testing
@@ -23,6 +22,7 @@ def test_calc_sigmoid_parameters():
 
     #print("Plot graph: " + str(fit_parameter))
     '''
+    #from energy_demand.plotting import plotting_program
     plotting_program.plotout_sigmoid_tech_diff(
         l_value,
         "testtech",
@@ -36,22 +36,12 @@ def test_calc_sigmoid_parameters():
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
-    '''expected_midpoint = 4.4
-    expected_slope = None
 
-    # call function
-    out_midpoint = fit_parameter[0]
-    out_slope = fit_parameter[1]
-
-    assert out_midpoint == out_midpoint
-    assert expected_slope == out_slope
-    '''
-
-'''def test_calc_sigmoid_parameters2():
+def test_calc_sigmoid_parameters2():
     """Testing
     """
     l_value = 1.0
-    xdata = np.array([2020.0, 2050.0])
+    xdata = np.array([2020.0, 2060.0])
     ydata = np.array([0, 1])
 
     # fit parameters
@@ -64,5 +54,6 @@ def test_calc_sigmoid_parameters():
 
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
-    assert round(y_calculated, 3) == round(ydata[1], 3)'''
+    assert round(y_calculated, 3) == round(ydata[1], 3)
 
+test_calc_sigmoid_parameters2()

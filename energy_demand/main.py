@@ -47,7 +47,6 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
         data=data
         )
 
-
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))

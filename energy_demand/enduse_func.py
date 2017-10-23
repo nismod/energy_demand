@@ -147,7 +147,9 @@ class Enduse(object):
             logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
-            self.apply_smart_metering(
+            self.fuel_new_y = apply_smart_metering(
+                self.enduse,
+                self.fuel_new_y,
                 data['assumptions'],
                 data['sim_param'])
             #logging.debug("Fuel train C: " + str(np.sum(self.fuel_new_y)))
@@ -1245,51 +1247,6 @@ class Enduse(object):
 
         return
 
-    def apply_smart_metering(self, assumptions, base_sim_param):
-        """Calculate fuel savings depending on smart meter penetration
-
-        Arguments
-        ----------
-        assumptions : dict
-            assumptions
-        base_sim_param : dict
-            Base simulation parameters
-
-        Returns
-        -------
-        self.fuel_new_y - array
-            Set attribute ``fuel_new_y``. Fuels which are
-            adapted according to smart meter penetration
-
-        Note
-        -----
-        - The smart meter penetration is assumed with a sigmoid diffusion.
-
-        - In the assumptions the maximum penetration and also the
-          generally fuel savings for each enduse can be defined.
-        """
-        if self.enduse in assumptions['savings_smart_meter']:
-
-            # Sigmoid diffusion up to current year
-            sigm_factor = diffusion_technologies.sigmoid_diffusion(
-                base_sim_param['base_yr'],
-                base_sim_param['curr_yr'],
-                base_sim_param['end_yr'],
-                assumptions['smart_meter_diff_params']['sig_midpoint'],
-                assumptions['smart_meter_diff_params']['sig_steeppness']
-                )
-
-            # Smart Meter penetration (percentage of people having smart meters)
-            penetration_by = assumptions['smart_meter_p_by']
-            penetration_cy = assumptions['smart_meter_p_by'] + (
-                sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
-
-            savings = assumptions['savings_smart_meter'][self.enduse]
-            saved_fuel = self.fuel_new_y * (penetration_by - penetration_cy) * savings
-            self.fuel_new_y = self.fuel_new_y - saved_fuel
-
-            return
-
     def apply_scenario_drivers(self, dw_stock, region_name, data, reg_scen_drivers, base_sim_param):
         """The fuel data for every end use are multiplied with respective scenario driver
 
@@ -1509,3 +1466,49 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
             sig_param_tech[enduse][tech]['steepness'])
 
     return service_tech
+
+
+def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
+    """Calculate fuel savings depending on smart meter penetration
+
+    Arguments
+    ----------
+    assumptions : dict
+        assumptions
+    base_sim_param : dict
+        Base simulation parameters
+
+    Returns
+    -------
+    fuel_new_y - array
+        Set attribute ``fuel_new_y``. Fuels which are
+        adapted according to smart meter penetration
+
+    Note
+    -----
+    - The smart meter penetration is assumed with a sigmoid diffusion.
+
+    - In the assumptions the maximum penetration and also the
+        generally fuel savings for each enduse can be defined.
+    """
+    if enduse in assumptions['savings_smart_meter']:
+
+        # Sigmoid diffusion up to current year
+        sigm_factor = diffusion_technologies.sigmoid_diffusion(
+            base_sim_param['base_yr'],
+            base_sim_param['curr_yr'],
+            base_sim_param['end_yr'],
+            assumptions['smart_meter_diff_params']['sig_midpoint'],
+            assumptions['smart_meter_diff_params']['sig_steeppness']
+            )
+
+        # Smart Meter penetration (percentage of people having smart meters)
+        penetration_by = assumptions['smart_meter_p_by']
+        penetration_cy = assumptions['smart_meter_p_by'] + (
+            sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
+
+        savings = assumptions['savings_smart_meter'][enduse]
+        saved_fuel = fuel_new_y * (penetration_by - penetration_cy) * savings
+        fuel_new_y = fuel_new_y - saved_fuel
+
+        return fuel_new_y
