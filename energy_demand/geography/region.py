@@ -8,8 +8,12 @@ class Region(object):
     ---------
     region_name : str
         Unique identifyer of region_name
-    data : dict
-        Dictionary containing data
+    rs_fuel_disagg : dict
+        Nested dict by region, enduse => np.array, single dimension for fuel type
+    ss_fuel_disagg : dict
+        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
+    is_fuel_disagg : dict
+        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
     weather_region : obj
         weather_reg_obj weather region of Region
 
@@ -19,15 +23,15 @@ class Region(object):
     is calculated and the technology and load profiles imported from
     this station
     """
-    def __init__(self, region_name, data, weather_region):
+    def __init__(self, region_name, rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg, weather_region):
         """Constructor
         """
         self.region_name = region_name
 
         # Fuels
-        self.rs_enduses_fuel = data['rs_fuel_disagg'][region_name]
-        self.ss_enduses_sectors_fuels = data['ss_fuel_disagg'][region_name]
-        self.is_enduses_sectors_fuels = data['is_fuel_disagg'][region_name]
+        self.rs_enduses_fuel = rs_fuel_disagg
+        self.ss_enduses_sectors_fuels = ss_fuel_disagg
+        self.is_enduses_sectors_fuels = is_fuel_disagg
 
         # Get tech stocks and load profiles
 

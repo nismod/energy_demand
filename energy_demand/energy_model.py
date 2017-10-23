@@ -98,7 +98,9 @@ class EnergyModel(object):
             # Create Region
             region = Region(
                 region_name=region_name,
-                data=data,
+                rs_fuel_disagg=data['rs_fuel_disagg'][region_name],
+                ss_fuel_disagg=data['ss_fuel_disagg'][region_name],
+                is_fuel_disagg=data['is_fuel_disagg'][region_name],
                 weather_region=closest_weather_region
             )
 
