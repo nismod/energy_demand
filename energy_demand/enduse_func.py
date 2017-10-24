@@ -300,9 +300,8 @@ class Enduse(object):
                     print("tt")
                 else:'''
 
-                self.fuel_y = self.fuel_new_y #NEW SHARK
+                self.fuel_y = self.fuel_new_y
                 fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
-                    #fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
                     enduse,
                     sector,
                     self.enduse_techs,
@@ -318,29 +317,52 @@ class Enduse(object):
                 # ------------------------
                 daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(fuel_yh)
 
-                # Calculate load factor cy
-                lf_improvement = 0.1 # improvement (+) in % 50%#TODO: DIFFUSION; plus take assumpiton from enduse
-                daily_lf_cy_improved = daily_lf_cy + lf_improvement
-                #TODO: Max 1.0
-                
-                #'''
-                if enduse == 'rs_space_heating':
-                    print("..")
-                self.fuel_yh = load_factors.peak_shaving_max_min(
-                    daily_lf_cy_improved,
-                    average_fuel_yd,
-                    fuel_yh)
-                print("----")
+                lf_cy_improved_d = calculate_lf_improvement(
+                    enduse,
+                    sim_param, 
+                    daily_lf_cy,
+                    assumptions['demand_management'])
+                if lf_cy_improved_d == 'None':
+                    self.fuel_yh = fuel_yh
+                else:
+                    self.fuel_yh = load_factors.peak_shaving_max_min(
+                        lf_cy_improved_d,
+                        average_fuel_yd,
+                        fuel_yh)
 
-                for i in range(7):
-                    print(np.sum(fuel_yh[i]))
-                    print(np.sum(self.fuel_yh[i]))                   
-                    if float(round(np.sum(fuel_yh[i]), 5)) != float(round(np.sum(self.fuel_yh[i]), 5)):
-                        print("tot")
-                        print(np.sum(fuel_yh))
-                        print(np.sum(self.fuel_yh))
-                        #prnt("..")
-                #'''
+def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
+    """Calculate lf improvement depending on linear diffusion
+
+    Test if lager than zero --> replace by one
+
+    """
+    try:
+        lf_improvement_ey = demand_management[enduse]
+
+        # Calculate linear diffusion of improvement of load management
+        lin_diff_factor = diffusion_technologies.linear_diff(
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
+            0,
+            1,
+            sim_param['sim_period_yrs']
+            )
+
+        # Current year load factor improvement
+        lf_improvement_cy = lf_improvement_ey * lin_diff_factor
+
+        # Improve load factor
+        lf_cy_improved_d = daily_lf_cy + lf_improvement_cy
+
+        # If lager than zero, set to 1
+        lf_cy_improved_d[lf_cy_improved_d > 1] = 1
+
+        return lf_cy_improved_d
+
+    except KeyError:
+        logging.debug("... no load management was defined for this enduse")
+        lf_improvement_ey = 0
+        return 'None'
 
 def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
     '''If a flat load profile is assigned (crit_flat_profile)

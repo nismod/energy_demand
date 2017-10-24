@@ -145,6 +145,31 @@ def load_assumptions(data, write_sim_param):
     # Which then again influences HLC
 
     # ============================================================
+    #  Demand management assumptions (daily demand shape)
+    #  An improvement in load factor improvement can be assigned
+    #  for every enduse
+    # 
+    #  Example: 0.2 --> Improvement in load factor until ey
+    # ============================================================
+    assumptions['demand_management'] = {}
+
+    # --Residential SubModel
+    assumptions['demand_management'] = {
+
+        # Residential submodule
+        'rs_space_heating': 0.2,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0
+
+        # TODO
+    }
+
+    # ============================================================
     #  Scenario drivers
     # ============================================================
     assumptions['scenario_drivers'] = {}
