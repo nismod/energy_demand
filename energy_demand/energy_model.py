@@ -729,7 +729,7 @@ class EnergyModel(object):
             elif attribute_to_get == 'fuel_yh':
                 nr_modelled_hours_factor = 1 / model_yearhours_nrs
                 fast_shape = np.full(
-                    (model_object.enduse_object.fuel_new_y.shape[0], model_yeardays_nrs, 24),
+                    (model_object.enduse_object.fuel_y.shape[0], model_yeardays_nrs, 24),
                     nr_modelled_hours_factor, dtype=float)
                 fuels = fuels_reg_y[:, np.newaxis, np.newaxis] * fast_shape
 

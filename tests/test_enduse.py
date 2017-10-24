@@ -407,4 +407,26 @@ def testconvert_service_tech_to_p():
 def test_Enduse():
     """
     """
+    '''enduse_funct.Enduse(
+        region_name="testregion",
+        data,
+        enduse,
+        sector,
+        fuel,
+        tech_stock,
+        heating_factor_y,
+        cooling_factor_y,
+        fuel_switches,
+        service_switches,
+        fuel_tech_p_by,
+        tech_increased_service,
+        tech_decreased_share,
+        tech_constant_share,
+        installed_tech,
+        sig_param_tech,
+        enduse_overall_change_ey,
+        regional_lp_stock,
+        dw_stock=False,
+        reg_scen_drivers=None,
+        crit_flat_profile=False)'''
     pass

@@ -121,9 +121,9 @@ class Enduse(object):
         print("crit_flat_profile: {} {} {}".format(crit_flat_profile, enduse, sector))
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.crit_flat_profile = True
-            self.fuel_y = np.zeros((fuel.shape[0]), dtype=float)
+            self.fuel_y = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
             self.fuel_yh = 0
-            self.fuel_peak_dh = np.zeros((fuel.shape[0], 24), dtype=float)
+            self.fuel_peak_dh = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
             self.fuel_peak_h = 0
         else:
 
@@ -172,7 +172,8 @@ class Enduse(object):
                 self.fuel_new_y,
                 dw_stock,
                 region_name,
-                data,
+                data['GVA'],
+                data['Population'],
                 reg_scen_drivers,
                 data['sim_param'])
             logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
@@ -204,7 +205,7 @@ class Enduse(object):
                 # Get enduse specific configurations
                 # ----
                 mode_constrained, crit_switch_fuel, crit_switch_service = get_enduse_configuration(
-                    enduse, data, fuel_switches, service_switches)
+                    enduse, data['assumptions'], data['sim_param'], fuel_switches, service_switches)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -274,7 +275,6 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                #TODO: WHY is fuel_new_y not idential to self.fuel_y?
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
                     service_tech_cy,
@@ -453,7 +453,7 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     else:
         return False
 
-def get_enduse_configuration(enduse, data, fuel_switches, service_switches):
+def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, service_switches):
     """Get enduse specific configuration
 
     Arguments
@@ -462,19 +462,19 @@ def get_enduse_configuration(enduse, data, fuel_switches, service_switches):
     """
     mode_constrained = get_running_mode(
         enduse,
-        data['assumptions']['mode_constrained'],
-        data['assumptions']['enduse_space_heating'])
+        assumptions['mode_constrained'],
+        assumptions['enduse_space_heating'])
 
     crit_switch_fuel = get_crit_switch(
         enduse,
         fuel_switches,
-        data['sim_param'],
+        sim_param,
         mode_constrained)
 
     crit_switch_service = get_crit_switch(
         enduse,
         service_switches,
-        data['sim_param'],
+        sim_param,
         mode_constrained)
 
     testing.testing_switch_criteria(
@@ -1021,7 +1021,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
     else:
         return service
 
-def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, data, reg_scen_drivers, base_sim_param):
+def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, population, reg_scen_drivers, base_sim_param):
     """The fuel data for every end use are multiplied with respective scenario driver
 
     Arguments
@@ -1069,11 +1069,11 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, data, reg_
 
             # Get correct data depending on driver
             if scenario_driver == 'GVA':
-                by_driver_data = data['GVA'][base_yr][region_name]
-                cy_driver_data = data['GVA'][curr_yr][region_name]
+                by_driver_data = gva[base_yr][region_name]
+                cy_driver_data = gva[curr_yr][region_name]
             elif scenario_driver == 'population':
-                by_driver_data = data['population'][base_yr][region_name]
-                cy_driver_data = data['population'][curr_yr][region_name]
+                by_driver_data = population[base_yr][region_name]
+                cy_driver_data = population[curr_yr][region_name]
             #TODO :ADD OTHER ENDSES
 
             # Multiply drivers
