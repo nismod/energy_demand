@@ -4,7 +4,9 @@ import math
 import numpy as np
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
-    """This function assumes a linear diffusion
+    """Calculate a linear diffusion for a current year. If
+    the current year is identical to the base year, the 
+    start value is returned
 
     Arguments
     ----------
@@ -21,21 +23,16 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
 
     Returns
     -------
-    fract_sy : float
+    fract_cy : float
         The fraction in the simulation year
-
-    Note
-    ----
-    - returns ``value_start`` if no change or ``curr_yr`` == ``base_yr``
     """
-    # If current year is base year, return zero
     if curr_yr == base_yr or sim_years == 0 or value_end == value_start:
-        fract_sy = value_start
+        fract_cy = value_start
     else:
         #-1 because in base year no change
-        fract_sy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) + value_start
+        fract_cy = ((value_end - value_start) / (sim_years - 1)) * (curr_yr - base_yr) + value_start
 
-    return fract_sy
+    return fract_cy
 
 def sigmoid_function(x_value, l_value, midpoint, steepness):
     """Sigmoid function
@@ -65,10 +62,7 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
     Because 2000 is substracted, the start year canno't be before 2001.
 
     """
-    y_value = l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
-    #y_value = l_value / (1 + math.exp(-steepness * ((x_value - 2000.0) - midpoint)))
-
-    return y_value
+    return l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
 
 def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     """Calculates a sigmoid diffusion path of a lower to a higher value with

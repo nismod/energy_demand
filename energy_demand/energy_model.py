@@ -58,9 +58,9 @@ class EnergyModel(object):
             data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(region_name, data, data['sim_param']['base_yr'])
             data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(region_name, data, data['sim_param']['base_yr'])
 
-        # ---------------
+        # ---------------------------------------------
         # Initialise and iterate over years
-        # ---------------
+        # ---------------------------------------------
         fuel_indiv_regions_yh = helpers.init_loop_dicts(data)
         reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
         tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
@@ -71,7 +71,7 @@ class EnergyModel(object):
             logging.info("Running model for region %s", region_name)
 
             # Create Region
-            region_obj = self.create_regions(region_name, data)
+            region_obj = self.create_region(region_name, data)
 
             # Create dwelling stock
             data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
@@ -569,7 +569,7 @@ class EnergyModel(object):
 
         return weather_region_objs
 
-    def create_regions(self, region_name, data):
+    def create_region(self, region_name, data):
         """Create all regions and add them in a list
 
         Arguments
@@ -579,9 +579,6 @@ class EnergyModel(object):
         data : dict
             Data container
         """
-        regions = []
-
-        #for region_name in region_names:
         logging.debug("... creating region: '%s'", region_name)
 
         # Get closest weather station to `Region`
@@ -767,6 +764,5 @@ def get_weather_reg(weather_regions, closest_reg):
     """
     for weather_region in weather_regions:
         if weather_region.weather_region_name == closest_reg:
-            
             return weather_region
         

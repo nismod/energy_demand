@@ -375,12 +375,36 @@ def test_fuel_switch():
     assert round(boilerB_cy, 0) == 8760 * 0.75
 
 def test_convert_service_tech_to_p():
+    """Testing
+    """
+    tot_service_y = 8760
+    service_tech_cy = {
+        'techA': np.ones((8760)) * 0.5,
+        'techB': np.ones((8760)) * 0.5
+        }
 
-    pass
+    expected = enduse_func.convert_service_to_p(service_tech_cy, tot_service_y)
 
+    assert expected['techA'] == 0.5
+    assert expected['techB'] == 0.5
+
+def testconvert_service_tech_to_p():
+    """testing
+    """
+    service_fueltype_tot = {0: 100, 1: 200}
+
+    service = {
+        0: {'techA': 50, 'techB': 50},
+        1: {'techC': 50, 'techD': 150}}
+
+    expected = enduse_func.convert_service_tech_to_p(service, service_fueltype_tot)
+    print(expected)
+    assert expected[0]['techA'] == 50.0 / 100
+    assert expected[0]['techB'] == 50.0 / 100
+    assert expected[1]['techC'] == 50.0 / 200
+    assert expected[1]['techD'] == 150.0 / 200
+    
 def test_Enduse():
     """
     """
     pass
-
-test_fuel_switch()
