@@ -121,7 +121,7 @@ class Enduse(object):
         """
         self.enduse = enduse
         self.sector = sector
-        #self.fuel_new_y = np.copy(fuel) #copy
+        #self.fuel_new_y = np.copy(fuel)
         self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
@@ -1080,7 +1080,7 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
     curr_yr = base_sim_param['curr_yr']
 
     #new_fuels = np.copy(fuel_new_y)
-    new_fuels = fuel_new_y
+    #new_fuels = fuel_new_y
 
     if not dw_stock:
         """Calculate non-dwelling related scenario drivers, if no dwelling stock
@@ -1109,9 +1109,9 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
         except ZeroDivisionError:
             factor_driver = 1
 
-        new_fuels *= factor_driver
+        #new_fuels *= factor_driver
 
-        fuel_new_y = new_fuels
+        fuel_new_y = fuel_new_y * factor_driver
     else:
         # Test if enduse has a dwelling related scenario driver
         if hasattr(dw_stock[region_name][base_yr], enduse) and curr_yr != base_yr:
@@ -1126,9 +1126,9 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
             except ZeroDivisionError:
                 factor_driver = 1
 
-            new_fuels *= factor_driver
+            #new_fuels *= factor_driver
 
-            fuel_new_y = new_fuels
+            fuel_new_y = fuel_new_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
 
@@ -1428,14 +1428,14 @@ def fuel_switch(
         TODO: MORE INFO
     """
     logging.debug("... fuel_switch is implemented")
-
-    service_tech_switched = service_tech # copy.copy(service_tech) #np.copy?
-    #service_tech_switched = np.copy(service_tech) #np.copy?
+    service_tech_switched = {}
+    #service_tech_switched = service_tech # copy.copy(service_tech)
+    #service_tech_switched = np.copy(service_tech)
 
     # Iterate all technologies which are installed in fuel switches
     for tech_installed in installed_tech:
         logging.debug("Installed_tech: " + str(tech_installed))
-        logging.debug(np.sum(service_tech_switched[tech_installed]))
+        logging.debug(np.sum(service_tech[tech_installed]))
         # --------------------------------------------------------
         # Calculate service for current year for installed technologies
         # --------------------------------------------------------
@@ -1519,16 +1519,17 @@ def fuel_switch(
                 # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                 # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
                 if np.sum(service_tech_switched[technology_replaced] - service_demand_tech) < 0:
-                    logging.debug("service_tech_switched[technology_replaced]; " + str(np.sum(service_tech_switched[technology_replaced])))
-                    logging.debug(np.sum(service_tech_switched[technology_replaced] - service_demand_tech))
+                    #logging.debug("service_tech_switched[technology_replaced]; " + str(np.sum(service_tech_switched[technology_replaced])))
+                    #logging.debug(np.sum(service_tech_switched[technology_replaced] - service_demand_tech))
                     sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
-                    logging.debug("ERROR")
-                    service_tech_switched[technology_replaced] = service_tech_switched[technology_replaced] * 0
+                    #logging.debug("ERROR")
+                    #service_tech_switched[technology_replaced] = service_tech_switched[technology_replaced] * 0
                 else:
                     # Substract technology specific servide demand
-                    logging.debug("A: " + str(np.sum(service_tech_switched[technology_replaced])))
-                    service_tech_switched[technology_replaced] -= service_demand_tech
-                    logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))
+                    #logging.debug("A: " + str(np.sum(service_tech_switched[technology_replaced])))
+                    #service_tech_switched[technology_replaced] -= service_demand_tech
+                    service_tech_switched[technology_replaced] = service_tech[technology_replaced] - service_demand_tech
+                    #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))
 
     return service_tech_switched
 
