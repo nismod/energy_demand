@@ -14,7 +14,6 @@ import energy_demand.energy_model as energy_model
 from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
-from energy_demand.dwelling_stock import dw_stock
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes

@@ -395,8 +395,8 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     Implement changes in heat demand (all technolgies within
     a fueltypes are replaced proportionally)
     """
+    #service_tech_switched_p = defaultdict(dict)
     service_tech_switched_p = copy.deepcopy(service_tech_by_p)
-    #service_tech_switched_p = copy.copy(service_tech_by_p)
 
     for enduse in enduses:
         for fuel_switch in fuel_switches:
@@ -421,6 +421,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
                     # ---Service addition
                     service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
+                    #service_tech_switched_p[enduse][tech_install] = service_tech_switched_p[enduse][tech_install] + change_service_fueltype_p
 
                     # Get all technologies which are replaced related to this fueltype
                     replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
@@ -428,6 +429,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
                     # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
                         service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
+                        #service_tech_switched_p[enduse][tech] = service_tech_switched_p[enduse][tech] - (change_service_fueltype_p * service_tech_by_p[enduse][tech])
 
     return service_tech_switched_p
 

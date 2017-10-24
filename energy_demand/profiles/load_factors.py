@@ -35,32 +35,34 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
 
     II. Calculate maximum value if
     """
-    shifted_fuel_yh = copy.deepcopy(fuel_yh) #copy
-
     # ------------------------------------------
     # Calculate new maximum demand for every day
-    # with help of newly adaped load factor
+    # and fueltype with help of newly adaped load factor
     # ------------------------------------------
     max_daily_demand_allowed = average_yd / daily_lf_cy_improved
 
     # ------------------------------------------
     # Calculate difference to daily mean for every hour
+    # for every fueltype (hourly value - daily mean)
     # ------------------------------------------
     diff_to_mean = fuel_yh - average_yd[:, :, np.newaxis]
 
     # ------------------------
-    # Calculate areas of shape for every day
+    # Calculate areas of lp below average for every day
     # ------------------------
-    #tot_area_above_mean = np.sum(diff_to_mean[diff_to_mean > 0])
-    tot_area_below_mean = np.sum(diff_to_mean[diff_to_mean < 0])
+    #all lp higher than average are set to zero
+    diff_to_mean[diff_to_mean > 0] = 0 
+    ##tot_area_above_mean = np.sum(diff_to_mean[diff_to_mean > 0])
+    ##tot_area_below_mean = np.sum(diff_to_mean[diff_to_mean < 0])
+    # Sum along all fueltpes the total fuels which are lp below average
+    tot_area_below_mean = abs(np.sum(diff_to_mean, axis=2))
 
-    # Calculate percentage of total shiftable from above to
-    # below for all hours which can take on fuel
-    diff_to_mean[diff_to_mean > 0] = 0
+    # Calculate percentage of total shiftable from above average to
+    # below average for all hours which can take on fuel
     diff_to_mean = np.abs(diff_to_mean)
 
-    area_below_mean_p = diff_to_mean / abs(tot_area_below_mean)
-
+    area_below_mean_p = diff_to_mean / tot_area_below_mean[:, :, np.newaxis]
+    area_below_mean_p[np.isnan(area_below_mean_p)] = 0
     # ------------------------------------------
     # Calculate diff to newmax for every hour
     # ------------------------------------------
@@ -71,13 +73,14 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
     # Start with largest deviation to mean and shift to all hours, below average
     # -----------------------------------------
     # Calculate total demand which is to be shifted
-    tot_demand_to_shift = np.sum(diff_to_new_daily_max)
+    tot_demand_to_shift = np.sum(diff_to_new_daily_max, axis=2)
 
     # Distribute this shifted demand to all those hours which are below average
-    shifted_fuel_yh += area_below_mean_p * tot_demand_to_shift
+    #shifted_fuel_yh += area_below_mean_p * tot_demand_to_shift
+    shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, :, np.newaxis])
 
     # Set all fuel hours whih are above max to max (substract diff)
-    shifted_fuel_yh -= diff_to_new_daily_max
+    shifted_fuel_yh = shifted_fuel_yh - diff_to_new_daily_max
 
     # Plotting - compare lp
     #plotting_results.plot_load_profile_dh(fuel_yh[2][0])
@@ -105,15 +108,13 @@ def daily_load_factors(fuel_yh_input):
     average_fuel_yd : array
         Average fuel for every day
     """
-    fuel_yh = copy.copy(fuel_yh_input)
     # Calculate average load for every day
-    #average_fuel_yd = np.mean(fuel_yh, axis=1)
-    average_fuel_yd = np.mean(fuel_yh, axis=2) #Sum across rows in (8, 365, 24)
+    average_fuel_yd = np.mean(fuel_yh_input, axis=2)
 
     # Get maximum hours in every day
-    max_load_yd = np.max(fuel_yh, axis=2)
+    max_load_yd = np.max(fuel_yh_input, axis=2)
 
-    daily_lf = np.divide(average_fuel_yd, max_load_yd)
+    daily_lf = average_fuel_yd / max_load_yd
 
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0

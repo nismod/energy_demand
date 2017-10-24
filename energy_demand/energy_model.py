@@ -13,7 +13,6 @@ import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
 from energy_demand.dwelling_stock import dw_stock
-#from energy_demand.profiles import load_factors as load_factors
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
@@ -122,7 +121,7 @@ class EnergyModel(object):
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
-
+            print("EGON: " + str(np.sum(reg_enduses_fueltype_y)))
             # Sum across all regions, enduses for peak hour
             tot_peak_enduses_fueltype = self.fuel_aggr(
                 tot_peak_enduses_fueltype,

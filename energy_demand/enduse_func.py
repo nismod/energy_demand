@@ -121,8 +121,7 @@ class Enduse(object):
         """
         self.enduse = enduse
         self.sector = sector
-        #self.fuel_new_y = np.copy(fuel)
-        self.fuel_new_y = fuel
+        self.fuel_new_y = fuel #copy needed?
         self.crit_flat_profile = crit_flat_profile
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
@@ -300,9 +299,10 @@ class Enduse(object):
                         mode_constrained)
                     print("tt")
                 else:'''
-                #if 1 == 1:
+
                 self.fuel_y = self.fuel_new_y #NEW SHARK
-                self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
+                fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
+                    #fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
                     enduse,
                     sector,
                     self.enduse_techs,
@@ -312,27 +312,35 @@ class Enduse(object):
                     assumptions['model_yeardays_nrs'],
                     mode_constrained,
                     load_profiles)
-
+                # TODO: self.fuel_peak_dh and self.fuel_peak_h
                 # ------------------------
                 # Demand Management Implementation
                 # ------------------------
-                '''
-                _a = np.sum(self.fuel_yh)
+                daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(fuel_yh)
 
-                daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(self.fuel_yh)
-                print(daily_lf_cy)
                 # Calculate load factor cy
                 lf_improvement = 0.1 # improvement (+) in % 50%#TODO: DIFFUSION; plus take assumpiton from enduse
                 daily_lf_cy_improved = daily_lf_cy + lf_improvement
+                #TODO: Max 1.0
                 
+                #'''
+                if enduse == 'rs_space_heating':
+                    print("..")
                 self.fuel_yh = load_factors.peak_shaving_max_min(
                     daily_lf_cy_improved,
                     average_fuel_yd,
-                    self.fuel_yh)
-                _b = np.sum(self.fuel_yh)
-                if float(round(_a, 5)) != float(round(_b, 5)):
-                    print("..")
-                '''
+                    fuel_yh)
+                print("----")
+
+                for i in range(7):
+                    print(np.sum(fuel_yh[i]))
+                    print(np.sum(self.fuel_yh[i]))                   
+                    if float(round(np.sum(fuel_yh[i]), 5)) != float(round(np.sum(self.fuel_yh[i]), 5)):
+                        print("tot")
+                        print(np.sum(fuel_yh))
+                        print(np.sum(self.fuel_yh))
+                        #prnt("..")
+                #'''
 
 def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
     '''If a flat load profile is assigned (crit_flat_profile)
@@ -1079,9 +1087,6 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
     base_yr = base_sim_param['base_yr']
     curr_yr = base_sim_param['curr_yr']
 
-    #new_fuels = np.copy(fuel_new_y)
-    #new_fuels = fuel_new_y
-
     if not dw_stock:
         """Calculate non-dwelling related scenario drivers, if no dwelling stock
         Info: No dwelling stock is defined for this submodel
@@ -1109,8 +1114,6 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
         except ZeroDivisionError:
             factor_driver = 1
 
-        #new_fuels *= factor_driver
-
         fuel_new_y = fuel_new_y * factor_driver
     else:
         # Test if enduse has a dwelling related scenario driver
@@ -1125,8 +1128,6 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
                 factor_driver = cy_driver / by_driver # FROZEN
             except ZeroDivisionError:
                 factor_driver = 1
-
-            #new_fuels *= factor_driver
 
             fuel_new_y = fuel_new_y * factor_driver
         else:
@@ -1276,7 +1277,6 @@ def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
         saved_fuel = fuel_new_y * (penetration_by - penetration_cy) * savings
         fuel_new_y = fuel_new_y - saved_fuel
 
-    #self.fuel_new_y = fuel_new_y
     return fuel_new_y
 
 def service_switch(
@@ -1320,7 +1320,6 @@ def service_switch(
     substracted of the replaced technologies proportionally
     to the base year distribution of these technologies
     """
-
     # Result dict with cy service for every technology
     service_tech_cy_p = {}
 
@@ -1342,8 +1341,6 @@ def service_switch(
     # ------------
     # Calculate service for technologies with decreasing service
     # ------------
-    #tot_fuel_cy_y = np.sum(tot_service_yh_cy)
-
     # Add base year of decreasing technologies to substract from that later on
     for tech in tech_decrease_service:
         service_tech_cy_p[tech] = service_tech_by_p[tech]
@@ -1428,9 +1425,9 @@ def fuel_switch(
         TODO: MORE INFO
     """
     logging.debug("... fuel_switch is implemented")
-    service_tech_switched = {}
-    #service_tech_switched = service_tech # copy.copy(service_tech)
-    #service_tech_switched = np.copy(service_tech)
+    #service_tech_switched = {}
+    # Must be like this, otherwise error 
+    service_tech_switched = service_tech # copy.copy(service_tech)
 
     # Iterate all technologies which are installed in fuel switches
     for tech_installed in installed_tech:
@@ -1448,10 +1445,10 @@ def fuel_switch(
         # Calculate increase in service based on diffusion of installed technology
         # (Current year demand = diffusion & total service)
         service_tech_installed_cy = diffusion_cy * tot_service_yh_cy
-        additional_service_tech_installed = service_tech_installed_cy - service_tech[tech_installed]
+        additional_service_tech_inst = service_tech_installed_cy - service_tech[tech_installed]
 
         service_tech_switched[tech_installed] = service_tech_installed_cy
-        logging.debug("instL: " + str(np.sum(service_tech_installed_cy)))
+        #logging.debug("instL: " + str(np.sum(service_tech_installed_cy)))
         # ------------------------------------------------------------
         # Substrat replaced service demand proportinally to fuel shares in base year
         # ------------------------------------------------------------
@@ -1468,8 +1465,8 @@ def fuel_switch(
                 # Share of service demand per fueltype * fraction of fuel switched
                 tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * fuelswitch['share_fuel_consumption_switched']
 
-        logging.debug("Replaced fueltypes:                                      " + str(fueltypes_replaced))
-        logging.debug("Service demand which is switched with this technology:   " + str(tot_service_tech_instal_p))
+        #logging.debug("Replaced fueltypes:                                      " + str(fueltypes_replaced))
+        #logging.debug("Service demand which is switched with this technology:   " + str(tot_service_tech_instal_p))
 
         # Iterate all fueltypes which are affected by the technology installed
         for fueltype_replace in fueltypes_replaced:
@@ -1496,8 +1493,7 @@ def fuel_switch(
                         logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
                         logging.debug(np.sum(service_tech_installed_cy))
 
-                        #reduction_service_fueltype = service_tech_installed_cy * service_fueltype_tech_cy_p_rel
-                        reduction_service_fueltype = additional_service_tech_installed * service_fueltype_tech_cy_p_rel #SHARK VERY NEW
+                        reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break
 
             logging.debug("Reduction of additional service of technology in replaced fueltype: " + str(np.sum(reduction_service_fueltype)))
@@ -1512,23 +1508,23 @@ def fuel_switch(
                 service_demand_tech = service_fueltype_tech_cy_p[fueltype_replace][technology_replaced] * reduction_service_fueltype
                 logging.debug("service_demand_tech: " + str(np.sum(service_demand_tech)))
                 logging.debug("A: " + str(service_fueltype_tech_cy_p[fueltype_replace][technology_replaced]))
-                logging.debug(np.sum(service_tech_switched[technology_replaced]))
+
                 # -------
                 # Substract technology specific service
                 # -------
                 # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                 # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
-                if np.sum(service_tech_switched[technology_replaced] - service_demand_tech) < 0:
-                    #logging.debug("service_tech_switched[technology_replaced]; " + str(np.sum(service_tech_switched[technology_replaced])))
-                    #logging.debug(np.sum(service_tech_switched[technology_replaced] - service_demand_tech))
+                if np.sum(service_tech[technology_replaced] - service_demand_tech) < 0:
+                    #logging.debug("service_tech[technology_replaced]; " + str(np.sum(service_tech[technology_replaced])))
+                    #logging.debug(np.sum(service_tech[technology_replaced] - service_demand_tech))
                     sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
                     #logging.debug("ERROR")
                     #service_tech_switched[technology_replaced] = service_tech_switched[technology_replaced] * 0
                 else:
                     # Substract technology specific servide demand
                     #logging.debug("A: " + str(np.sum(service_tech_switched[technology_replaced])))
-                    #service_tech_switched[technology_replaced] -= service_demand_tech
-                    service_tech_switched[technology_replaced] = service_tech[technology_replaced] - service_demand_tech
+                    service_tech_switched[technology_replaced] -= service_demand_tech
+                    #service_tech_switched[technology_replaced] = service_tech[technology_replaced] - service_demand_tech
                     #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))
 
     return service_tech_switched
