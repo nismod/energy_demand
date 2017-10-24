@@ -22,21 +22,19 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
     -------
     shifted_fuel_yh : array
         Shifted fuel
-    
+
     Info
     ----
     shift_max_to_min() algorithmus
     I. Calculate peak factor
         - Calculate average and assign each hours whether it is above or below average
     II. Calculate new peak factor of cy (with help of assumed peak factor reduction)
-    III: sort all hours according to value: 
+    III: sort all hours according to value:
         - calculate difference between new peak value
         --> Shift this energy demand to lowest value
 
     II. Calculate maximum value if
     """
-    shifted_fuel_yh = copy.deepcopy(fuel_yh) #copy
-
     # ------------------------------------------
     # Calculate new maximum demand for every day
     # with help of newly adaped load factor
@@ -74,7 +72,7 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
     tot_demand_to_shift = np.sum(diff_to_new_daily_max)
 
     # Distribute this shifted demand to all those hours which are below average
-    shifted_fuel_yh += area_below_mean_p * tot_demand_to_shift
+    shifted_fuel_yh = fuel_yh + area_below_mean_p * tot_demand_to_shift
 
     # Set all fuel hours whih are above max to max (substract diff)
     shifted_fuel_yh -= diff_to_new_daily_max
@@ -267,4 +265,3 @@ def load_factor_d(self, data):
     lf_d = lf_d * 100 # Convert load factor to %
 
     return lf_d
-        
