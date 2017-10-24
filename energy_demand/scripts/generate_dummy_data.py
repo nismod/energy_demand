@@ -20,7 +20,7 @@ def main():
 
     # gva : year x region
     gva = []
-    for year, region_value in data['GVA'].items():
+    for year, region_value in data['gva'].items():
         for region, value in region_value.items():
             gva.append({
                 'interval': 1,

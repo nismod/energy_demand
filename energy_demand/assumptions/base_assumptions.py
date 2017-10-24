@@ -175,15 +175,15 @@ def load_assumptions(data, write_sim_param):
 
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
-        'is_high_temp_process': ['GVA'],
-        'is_low_temp_process': ['GVA'],
-        'is_drying_separation': ['GVA'],
-        'is_motors': ['GVA'],
-        'is_compressed_air': ['GVA'],
-        'is_lighting': ['GVA'],
-        'is_space_heating': ['GVA'],
-        'is_other': ['GVA'],
-        'is_refrigeration': ['GVA']
+        'is_high_temp_process': ['gva'],
+        'is_low_temp_process': ['gva'],
+        'is_drying_separation': ['gva'],
+        'is_motors': ['gva'],
+        'is_compressed_air': ['gva'],
+        'is_lighting': ['gva'],
+        'is_space_heating': ['gva'],
+        'is_other': ['gva'],
+        'is_refrigeration': ['gva']
     }
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)

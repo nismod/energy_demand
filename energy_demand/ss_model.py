@@ -46,7 +46,11 @@ class ServiceModel(object):
         # Add enduse to ServiceSector
         enduse_object = endusefunctions.Enduse(
             region_name=self.region_name,
-            data=data,
+            scenario_data={'gva': data['gva'], 'population': data['population']},
+            lookups=data['lookups'],
+            assumptions=data['assumptions'],
+            non_regional_lp_stock=data['non_regional_lp_stock'],
+            sim_param=data['sim_param'],
             enduse=self.enduse,
             sector=self.sector,
             fuel=region_obj.ss_enduses_sectors_fuels[self.sector][self.enduse],

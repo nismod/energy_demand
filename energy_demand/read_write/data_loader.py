@@ -137,7 +137,7 @@ def dummy_data_generation(data):
     for region_name in pop_dummy[data['sim_param']['base_yr']]:
         data['reg_floorarea_resid'][region_name] = 100000
 
-    data['GVA'] = gva_data
+    data['gva'] = gva_data
     data['input_regions'] = regions
     data['population'] = pop_dummy
     data['reg_coord'] = coord_dummy

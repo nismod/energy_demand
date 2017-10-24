@@ -386,4 +386,5 @@ def plot_load_profile_dh(array_dh):
 
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
     
-    #plt.show()
+    plt.show()
+    

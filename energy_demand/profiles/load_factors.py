@@ -4,9 +4,126 @@
 
 """
 import numpy as np
+import copy
+from energy_demand.plotting import plotting_results
+
+def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
+    """Reduce peak per enduse
+    #TODO: MAYBE SHIFT SERVICE AND NOT FUEL
+
+    Arguments
+    ----------
+    daily_lf_cy_improved : array
+        Improved shifted daily load fuel
+    fuel_yh : array
+        Fuel for every hour
+
+    Returns
+    -------
+    shifted_fuel_yh : array
+        Shifted fuel
+    
+    Info
+    ----
+    shift_max_to_min() algorithmus
+    I. Calculate peak factor
+        - Calculate average and assign each hours whether it is above or below average
+    II. Calculate new peak factor of cy (with help of assumed peak factor reduction)
+    III: sort all hours according to value: 
+        - calculate difference between new peak value
+        --> Shift this energy demand to lowest value
+
+    II. Calculate maximum value if
+    """
+    shifted_fuel_yh = copy.deepcopy(fuel_yh) #copy
+
+    # ------------------------------------------
+    # Calculate new maximum demand for every day
+    # with help of newly adaped load factor
+    # ------------------------------------------
+    max_daily_demand_allowed = average_yd / daily_lf_cy_improved
+
+    # ------------------------------------------
+    # Calculate difference to daily mean for every hour
+    # ------------------------------------------
+    diff_to_mean = fuel_yh - average_yd[:, :, np.newaxis]
+
+    # ------------------------
+    # Calculate areas of shape for every day
+    # ------------------------
+    #tot_area_above_mean = np.sum(diff_to_mean[diff_to_mean > 0])
+    tot_area_below_mean = np.sum(diff_to_mean[diff_to_mean < 0])
+
+    # Calculate percentage of total shiftable from above to
+    # below for all hours which can take on fuel
+    diff_to_mean[diff_to_mean > 0] = 0
+    diff_to_mean = np.abs(diff_to_mean)
+
+    area_below_mean_p = diff_to_mean / abs(tot_area_below_mean)
+
+    # ------------------------------------------
+    # Calculate diff to newmax for every hour
+    # ------------------------------------------
+    diff_to_new_daily_max = fuel_yh - max_daily_demand_allowed[:, :, np.newaxis]
+    diff_to_new_daily_max[diff_to_new_daily_max < 0] = 0
+
+    # -----------------------------------------
+    # Start with largest deviation to mean and shift to all hours, below average
+    # -----------------------------------------
+    # Calculate total demand which is to be shifted
+    tot_demand_to_shift = np.sum(diff_to_new_daily_max)
+
+    # Distribute this shifted demand to all those hours which are below average
+    shifted_fuel_yh += area_below_mean_p * tot_demand_to_shift
+
+    # Set all fuel hours whih are above max to max (substract diff)
+    shifted_fuel_yh -= diff_to_new_daily_max
+
+    # Plotting - compare lp
+    #plotting_results.plot_load_profile_dh(fuel_yh[2][0])
+    #plotting_results.plot_load_profile_dh(shifted_fuel_yh[2][0])
+    #print("----")
+    #print(np.sum(shifted_fuel_yh))
+    #print(np.sum(fuel_yh))
+    assert round(np.sum(shifted_fuel_yh), 3) == round(np.sum(fuel_yh), 3)
+
+    return shifted_fuel_yh
+
+def daily_load_factors(fuel_yh_input):
+    """Calculate the daily load factor for
+    every day in a year
+
+    Arguments
+    ---------
+    fuel_yh : array
+        Fuel for every hour in a year
+
+    Returns
+    -------
+    daily_lf : array
+        Laod factor calculated for every modelled day
+    average_fuel_yd : array
+        Average fuel for every day
+    """
+    fuel_yh = copy.copy(fuel_yh_input)
+    # Calculate average load for every day
+    #average_fuel_yd = np.mean(fuel_yh, axis=1)
+    average_fuel_yd = np.mean(fuel_yh, axis=2) #Sum across rows in (8, 365, 24)
+
+    # Get maximum hours in every day
+    max_load_yd = np.max(fuel_yh, axis=2)
+
+    daily_lf = np.divide(average_fuel_yd, max_load_yd)
+
+    # Replace
+    daily_lf[np.isinf(daily_lf)] = 0
+    daily_lf[np.isnan(daily_lf)] = 0
+
+    return daily_lf, average_fuel_yd
 
 def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
-    """Calculate load factor of a h in a year from peak data (peak hour compared to all hours in a year)
+    """Calculate load factor of a h in a year
+    from peak data (peak hour compared to all hours in a year)
 
     Arguments
     ------------
@@ -77,7 +194,7 @@ def calc_load_factor_h(data, fuels_tot_enduses_h, rs_fuels_peak_h):
     return lf_d
 '''
 
-def load_factor_h_non_peak(self, data):
+def load_factor_h_non_peak(data, fueltypes_nr, fuels_tot_enduses_h, rs_fuels_peak_h): #data['lookups']['fueltypes_nr'
     """Calculate load factor of a h in a year from non-peak data
 
     self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -93,10 +210,10 @@ def load_factor_h_non_peak(self, data):
 
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
-    load_factor_h = np.zeros((data['lookups']['fueltypes_nr'], 1), dtype=float) # Initialise array to store fuel
+    load_factor_h = np.zeros((fueltypes_nr), dtype=float) # Initialise array to store fuel
 
     # Iterate fueltypes to calculate load factors for each fueltype
-    for fueltype, fueldata in enumerate(self.fuels_tot_enduses_h):
+    for fueltype, fueldata in enumerate(fuels_tot_enduses_h):
 
         '''all_hours = []
         for day_hours in self.fuels_tot_enduses_h[fueltype]:
@@ -104,9 +221,9 @@ def load_factor_h_non_peak(self, data):
                     all_hours.append(h)
         maximum_h_of_day_in_year = max(all_hours)
         '''
-        maximum_h_of_day_in_year = self.rs_fuels_peak_h[fueltype]
+        maximum_h_of_day_in_year = rs_fuels_peak_h[fueltype]
 
-        average_demand_h = np.sum(fueldata) / (8760) # Averae load = yearly demand / nr of days
+        average_demand_h = np.sum(fueldata) / 8760 # Averae load = yearly demand / nr of days
 
         # If there is a maximum day hour
         if maximum_h_of_day_in_year != 0:

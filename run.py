@@ -66,8 +66,8 @@ class EDWrapper(SectorModel):
         self.user_data['population'] = self.array_to_dict(pop_array)
 
         gva_array = self.get_scenario_data('gva')
-        ed_data['GVA'] = self.array_to_dict(gva_array)
-        self.user_data['GVA'] = self.array_to_dict(gva_array)
+        ed_data['gva'] = self.array_to_dict(gva_array)
+        self.user_data['gva'] = self.array_to_dict(gva_array)
 
         floor_array = self.get_scenario_data('floor_area')
         ed_data['rs_floorarea'] = self.array_to_dict(floor_array)
@@ -159,7 +159,7 @@ class EDWrapper(SectorModel):
         ed_data = {}
         ed_data['print_criteria'] = False # No plt.show() functions are exectued if False
         ed_data['population'] = self.user_data['population']
-        ed_data['GVA'] = self.user_data['GVA']
+        ed_data['gva'] = self.user_data['gva']
         ed_data['rs_floorarea'] = self.user_data['rs_floor_area']
         ed_data['ss_floorarea'] = self.user_data['ss_floor_area']
         ed_data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']

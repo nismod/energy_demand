@@ -423,7 +423,7 @@ def ss_dw_stock(region, data, curr_yr):
                 enduses=data['enduses']['ss_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
                 sector_type=sector,
-                gva=data['GVA'][curr_yr][region]))
+                gva=data['gva'][curr_yr][region]))
 
     # Add regional base year dwelling to dwelling stock
     dwelling_stock = DwellingStock(
@@ -703,7 +703,7 @@ def generate_dw_existing(
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age_id),
                     dwtype=dw_type_name,
-                    gva=data['GVA'][curr_yr][region]
+                    gva=data['gva'][curr_yr][region]
                     )
                 )
 
@@ -779,7 +779,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
                 dwtype=dw_type_name,
-                gva=data['GVA'][curr_yr][region]
+                gva=data['gva'][curr_yr][region]
                 )
             )
 

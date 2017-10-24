@@ -4,7 +4,7 @@ Energy Demand Model
 The industry heating is identical to service heating
 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
-'''
+''' 
 import os
 import sys
 import logging

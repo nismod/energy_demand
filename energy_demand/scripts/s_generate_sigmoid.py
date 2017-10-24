@@ -396,6 +396,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     a fueltypes are replaced proportionally)
     """
     service_tech_switched_p = copy.deepcopy(service_tech_by_p)
+    #service_tech_switched_p = copy.copy(service_tech_by_p)
 
     for enduse in enduses:
         for fuel_switch in fuel_switches:

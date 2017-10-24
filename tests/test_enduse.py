@@ -3,6 +3,7 @@
 import numpy as np
 from energy_demand import enduse_func
 from energy_demand.scripts import s_generate_sigmoid
+from energy_demand.plotting import plotting_program
 
 def test_service_switch():
     """Test
@@ -155,7 +156,6 @@ def test_service_switch():
         fit_crit_b=0.001)
 
     #plot sigmoid curve
-    #from energy_demand.plotting import plotting_program
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
@@ -261,8 +261,7 @@ def test_fuel_switch():
         }
     }
     #plot sigmoid curve
-    from energy_demand.plotting import plotting_program
-    plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
+    #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
     expected = enduse_func.fuel_switch(
         'heating',
@@ -353,7 +352,6 @@ def test_fuel_switch():
         }
     }
     #plot sigmoid curve
-    #from energy_demand.plotting import plotting_program
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
 
     expected = enduse_func.fuel_switch(

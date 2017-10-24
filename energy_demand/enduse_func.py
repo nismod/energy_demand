@@ -12,6 +12,7 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.initalisations import helpers as init
 from energy_demand.profiles import load_profile as lp
+from energy_demand.profiles import load_factors
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.basic import testing_functions as testing
 
@@ -34,7 +35,7 @@ class Enduse(object):
     ----------
     region_name : str
         Region name
-    data : dict
+    data : dict TODO
         Data container
     enduse : str
         Enduse name
@@ -91,7 +92,11 @@ class Enduse(object):
     def __init__(
             self,
             region_name,
-            data,
+            scenario_data,
+            lookups,
+            assumptions,
+            non_regional_lp_stock,
+            sim_param,
             enduse,
             sector,
             fuel,
@@ -110,27 +115,27 @@ class Enduse(object):
             regional_lp_stock,
             dw_stock=False,
             reg_scen_drivers=None,
-            crit_flat_profile=False
+            crit_flat_profile=False,
         ):
         """Enduse class constructor
         """
         self.enduse = enduse
         self.sector = sector
-        self.fuel_new_y = fuel #copy
+        #self.fuel_new_y = np.copy(fuel) #copy
+        self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
-        print("crit_flat_profile: {} {} {}".format(crit_flat_profile, enduse, sector))
+
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.crit_flat_profile = True
-            self.fuel_y = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
+            self.fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
             self.fuel_yh = 0
-            self.fuel_peak_dh = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
+            self.fuel_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
             self.fuel_peak_h = 0
         else:
-
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
                 enduse,
-                data['non_regional_lp_stock'],
+                non_regional_lp_stock,
                 regional_lp_stock)
 
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
@@ -144,24 +149,24 @@ class Enduse(object):
                 self.fuel_new_y,
                 cooling_factor_y,
                 heating_factor_y,
-                data['assumptions'])
+                assumptions)
             logging.debug("Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
                 enduse,
                 self.fuel_new_y,
-                data['assumptions'],
-                data['sim_param'])
+                assumptions,
+                sim_param)
             logging.debug("Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific consumption change in %
             self.fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_new_y,
-                data['assumptions'],
+                assumptions,
                 enduse_overall_change_ey,
-                data['sim_param'])
+                sim_param)
             logging.debug("Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
@@ -172,10 +177,10 @@ class Enduse(object):
                 self.fuel_new_y,
                 dw_stock,
                 region_name,
-                data['GVA'],
-                data['Population'],
+                scenario_data['gva'],
+                scenario_data['population'],
                 reg_scen_drivers,
-                data['sim_param'])
+                sim_param)
             logging.debug("Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # ----------------------------------
@@ -189,9 +194,8 @@ class Enduse(object):
                 Note: for heating, technologies need to be assigned. Otherwise,
                 here there will be problems
                 """
-                print("EEE")
                 if crit_flat_profile:
-                    self.fuel_y = self.fuel_new_y * data['assumptions']['model_yeardays_nrs'] / 365.0
+                    self.fuel_y = self.fuel_new_y * assumptions['model_yeardays_nrs'] / 365.0
                 else:
                     self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_no_techs(
                         enduse,
@@ -205,7 +209,7 @@ class Enduse(object):
                 # Get enduse specific configurations
                 # ----
                 mode_constrained, crit_switch_fuel, crit_switch_service = get_enduse_configuration(
-                    enduse, data['assumptions'], data['sim_param'], fuel_switches, service_switches)
+                    enduse, assumptions, sim_param, fuel_switches, service_switches)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -218,30 +222,30 @@ class Enduse(object):
                     self.crit_flat_profile,
                     fuel_tech_p_by,
                     tech_stock,
-                    data['lookups']['fueltype'],
+                    lookups['fueltype'],
                     load_profiles,
                     mode_constrained,
-                    data['assumptions']['model_yearhours_nrs'],
-                    data['assumptions']['model_yeardays_nrs']
+                    assumptions['model_yearhours_nrs'],
+                    assumptions['model_yeardays_nrs']
                     )
-                print("service_fueltype_tech_cy_p: " + str(service_fueltype_tech_cy_p))
+
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # (standard sigmoid diffusion)
                 # ------------------------------------
                 tot_service_yh_cy = apply_heat_recovery(
                     enduse,
-                    data['assumptions'],
+                    assumptions,
                     tot_service_yh_cy,
                     'tot_service_yh_cy',
-                    data['sim_param'])
+                    sim_param)
                 #TODO: MAKE THAT service_Tech is not passed through
                 service_tech_cy = apply_heat_recovery(
                     enduse,
-                    data['assumptions'],
+                    assumptions,
                     service_tech_cy,
                     'service_tech',
-                    data['sim_param'])
+                    sim_param)
 
                 # --------------------------------
                 # Switches (service or fuel)
@@ -256,7 +260,7 @@ class Enduse(object):
                         tech_decreased_share,
                         tech_constant_share,
                         sig_param_tech,
-                        data['sim_param']['curr_yr'])
+                        sim_param['curr_yr'])
                 elif crit_switch_fuel:
                     service_tech_cy = fuel_switch(
                         enduse,
@@ -268,7 +272,7 @@ class Enduse(object):
                         service_fueltype_cy_p,
                         fuel_switches,
                         fuel_tech_p_by,
-                        data['sim_param']['curr_yr'])
+                        sim_param['curr_yr'])
                 else:
                     pass #No switch implemented
 
@@ -279,7 +283,7 @@ class Enduse(object):
                     enduse,
                     service_tech_cy,
                     tech_stock,
-                    data['lookups'],
+                    lookups,
                     mode_constrained)
 
                 # ------------------------------------------
@@ -292,22 +296,43 @@ class Enduse(object):
                         enduse,
                         tech_stock,
                         fuel_tech_y,
-                        data['lookups'],
+                        lookups,
                         mode_constrained)
                     print("tt")
                 else:'''
-                if 1 == 1:
-                    self.fuel_y = self.fuel_new_y #NEW SHARK
-                    self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
-                        enduse,
-                        sector,
-                        self.enduse_techs,
-                        tech_stock,
-                        fuel_tech_y,
-                        data['lookups'],
-                        data['assumptions']['model_yeardays_nrs'],
-                        mode_constrained,
-                        load_profiles)
+                #if 1 == 1:
+                self.fuel_y = self.fuel_new_y #NEW SHARK
+                self.fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
+                    enduse,
+                    sector,
+                    self.enduse_techs,
+                    tech_stock,
+                    fuel_tech_y,
+                    lookups,
+                    assumptions['model_yeardays_nrs'],
+                    mode_constrained,
+                    load_profiles)
+
+                # ------------------------
+                # Demand Management Implementation
+                # ------------------------
+                '''
+                _a = np.sum(self.fuel_yh)
+
+                daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(self.fuel_yh)
+                print(daily_lf_cy)
+                # Calculate load factor cy
+                lf_improvement = 0.1 # improvement (+) in % 50%#TODO: DIFFUSION; plus take assumpiton from enduse
+                daily_lf_cy_improved = daily_lf_cy + lf_improvement
+                
+                self.fuel_yh = load_factors.peak_shaving_max_min(
+                    daily_lf_cy_improved,
+                    average_fuel_yd,
+                    self.fuel_yh)
+                _b = np.sum(self.fuel_yh)
+                if float(round(_a, 5)) != float(round(_b, 5)):
+                    print("..")
+                '''
 
 def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
     '''If a flat load profile is assigned (crit_flat_profile)
@@ -1068,7 +1093,7 @@ def apply_scenario_drivers(enduse, fuel_new_y, dw_stock, region_name, gva, popul
         for scenario_driver in scenario_drivers:
 
             # Get correct data depending on driver
-            if scenario_driver == 'GVA':
+            if scenario_driver == 'gva':
                 by_driver_data = gva[base_yr][region_name]
                 cy_driver_data = gva[curr_yr][region_name]
             elif scenario_driver == 'population':
@@ -1405,6 +1430,7 @@ def fuel_switch(
     logging.debug("... fuel_switch is implemented")
 
     service_tech_switched = service_tech # copy.copy(service_tech) #np.copy?
+    #service_tech_switched = np.copy(service_tech) #np.copy?
 
     # Iterate all technologies which are installed in fuel switches
     for tech_installed in installed_tech:
