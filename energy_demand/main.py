@@ -2,6 +2,8 @@
 Energy Demand Model
 ===================
 The industry heating is identical to service heating
+
+TODO: REplace 1 and zero by fueltypes test_fuel_switch
 '''
 import os
 import sys
@@ -107,10 +109,6 @@ if __name__ == "__main__":
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
-    logging.info("... Generate dwelling stocks over whole simulation period")
-    data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)
-    data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data)
-
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
 
@@ -139,9 +137,9 @@ if __name__ == "__main__":
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
 
-        # ----------------------
+        # -------------------------------------------
         # Write annual results to txt files
-        # ----------------------
+        # -------------------------------------------
         write_data.write_model_result_to_txt(
             sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
         write_data.write_model_result_to_txt_enduse(
@@ -149,11 +147,11 @@ if __name__ == "__main__":
         write_data.write_model_result_to_txt_maxresults(
             sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
 
-        # ---------------------------------------------------
+        # ------------------------------------------------
         # Validation base year: Hourly temporal validation
-        # ---------------------------------------------------
+        # ------------------------------------------------
         if validation_criteria == True:
-            
+
             # Add electricity for transportation sector
             fuel_electricity_year_validation = 385
             fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
@@ -166,16 +164,16 @@ if __name__ == "__main__":
              data,
              model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
 
-            # ---------------------------------------------------
-            # Validation base year: Spatial disaggregation 
-            # ---------------------------------------------------
+            # --------------------------------------------
+            # Validation base year: Spatial disaggregation
+            # --------------------------------------------
             lad_validation.spatial_validation(
                 data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
                 model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
 
-    # -------------------------------------------------------
+    # --------------------------------------------
     # Reading in results from different model runs
-    # -------------------------------------------------------
+    # --------------------------------------------
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'],
         data['lookups']['fueltypes_nr'],

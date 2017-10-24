@@ -12,6 +12,7 @@ from energy_demand.geography import weather_region
 import energy_demand.rs_model as rs_model
 import energy_demand.ss_model as ss_model
 import energy_demand.is_model as is_model
+from energy_demand.dwelling_stock import dw_stock
 #from energy_demand.profiles import load_factors as load_factors
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
@@ -50,6 +51,13 @@ class EnergyModel(object):
         self.weather_regions = self.create_weather_regions(
             data['weather_stations'], data)
 
+        logging.debug("... Generate dwelling stock for base year")
+        data['rs_dw_stock'] = defaultdict(dict)
+        data['ss_dw_stock'] = defaultdict(dict)
+        for region_name in region_names:
+            data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(region_name, data, data['sim_param']['base_yr'])
+            data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(region_name, data, data['sim_param']['base_yr'])
+
         # ---------------
         # Initialise and iterate over years
         # ---------------
@@ -64,6 +72,10 @@ class EnergyModel(object):
 
             # Create Region
             region_obj = self.create_regions(region_name, data)
+
+            # Create dwelling stock
+            data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
+            data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
 
             # --------------------
             # Residential SubModel

@@ -763,8 +763,6 @@ def read_disaggregated_fuel(path_to_csv, fueltypes_nr):
 
     return fuel_sector_enduse
 
-
-
 def read_disaggregated_fuel_sector(path_to_csv, fueltypes_nr):
     """Read disaggregated fuel
     """
