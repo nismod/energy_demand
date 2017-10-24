@@ -1,10 +1,10 @@
-"""
+"""Tests for enduse functions
 """
 import numpy as np
 from energy_demand import enduse_func
 from energy_demand.scripts import s_generate_sigmoid
 
-'''def test_service_switch():
+def test_service_switch():
     """Test
     """
     # Install technology B and replace 50% of fueltype 0
@@ -190,12 +190,11 @@ from energy_demand.scripts import s_generate_sigmoid
 
     assert round(expected_service_tech_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
     assert round(expected_service_tech_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
-'''
+
 def test_fuel_switch():
     """
     """
     # Example: Replace fueltype 1 by 50% with boilerB
-
     base_yr = 2020.0
     curr_yr = 2040.0 # 2060
     end_yr = 2060.0
@@ -252,7 +251,7 @@ def test_fuel_switch():
         ydata,
         fit_crit_a=200,
         fit_crit_b=0.001)
-    
+
     sig_param_tech = {
         'heating' :{
             "boilerB": {
@@ -277,21 +276,103 @@ def test_fuel_switch():
         fuel_tech_p_by,
         curr_yr
         )
-
-    print("EXPECTED")
+    # for 20204: 0.0134 because of fit (which is not as good as 0.625)
     boilerA_cy = np.sum(expected["boilerA"])
     boilerB_cy = np.sum(expected["boilerB"])
-    print(boilerA_cy)
-    print(8760 * (0.5 - 0.125)) #(0.25/2.0)))
+    '''print(boilerA_cy)
+    print(8760 * (1 - (0.5 + (0.134))))
     print(boilerB_cy)
-    print(8760 * (0.5 + 0.125)) #(0.25/2.0)))
-    #assert round(boilerA_cy, 3) == 8760 * 0.25
-    #assert round(boilerB_cy, 3) == 8760 * 0.75
-    print(1/2)
-    assert round(boilerA_cy, 3) == 8760 * (0.5 - (0.25/2))
-    assert round(boilerB_cy, 3) == 8760 * (0.5 + (0.25/2))
-    # --------
+    print(8760 * (0.5 + (0.134)))'''
+    assert round(boilerA_cy, 0) == round(8760 * (1 - (0.5 + (0.134))), 0)
+    assert round(boilerB_cy, 0) == round(8760 * (0.5 + (0.134)), 0)
 
+    # --------------------------------------------------------
+    base_yr = 2020.0
+    curr_yr = 2060.0 # 2060
+    end_yr = 2060.0
+
+    share_boilerA_by = 0.5
+    share_boilerB_by = 1 - share_boilerA_by
+    
+    fueltype_boilerA = 0
+    fueltype_boilerB = 1
+    share_fuel_consumption_switched = 0.5
+    l_value = 1.0
+
+    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * share_fuel_consumption_switched)
+    share_boilerB_ey = 1 - share_boilerA_ey
+
+    installed_tech = ['boilerB']
+
+    tot_service_yh_cy = np.ones((365, 24)) # Absolute total yh energy service per technology and fueltype
+
+    # Service distribution by
+    service_tech = {
+        'boilerA': np.ones((365, 24)) * share_boilerA_by,
+        'boilerB': np.ones((365, 24)) * share_boilerB_by}
+
+    # Fraction of energy service per fueltype and technology (within every fueltype sums up to one)
+    service_fueltype_tech_cy_p = {
+        fueltype_boilerA: {'boilerA': 1.0}, 
+        fueltype_boilerB: {'boilerB': 1.0}}
+
+    # Fraction of service per fueltype (within every fueltype sums up to one)
+    service_fueltype_cy_p = {
+        fueltype_boilerA: 1.0,
+        fueltype_boilerB: 1.0} #share of fuels
+
+    fuel_switches = [{
+        'enduse' : 'heating',
+        'enduse_fueltype_replace' : fueltype_boilerA,
+        'technology_install': 'boilerB',
+        'year_fuel_consumption_switched': end_yr,
+        'share_fuel_consumption_switched': share_fuel_consumption_switched,
+        'max_theoretical_switch' : l_value}]
+
+    fuel_tech_p_by = {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}} #share of fuels
+
+    # ----- Calculate sigmoids
+    xdata = np.array([base_yr, end_yr])
+    ydata = np.array([share_boilerB_by, share_boilerB_ey])
+    assert l_value >= share_boilerB_ey
+
+    # fit parameters
+    fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
+        l_value,
+        xdata,
+        ydata,
+        fit_crit_a=200,
+        fit_crit_b=0.001)
+
+    sig_param_tech = {
+        'heating' :{
+            "boilerB": {
+                'midpoint': fit_parameter[0],
+                'steepness': fit_parameter[1],
+                'l_parameter': l_value}
+        }
+    }
+    #plot sigmoid curve
+    #from energy_demand.plotting import plotting_program
+    #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
+
+    expected = enduse_func.fuel_switch(
+        'heating',
+        installed_tech,
+        sig_param_tech,
+        tot_service_yh_cy,
+        service_tech,
+        service_fueltype_tech_cy_p,
+        service_fueltype_cy_p,
+        fuel_switches,
+        fuel_tech_p_by,
+        curr_yr
+        )
+    #
+    boilerA_cy = np.sum(expected["boilerA"])
+    boilerB_cy = np.sum(expected["boilerB"])
+    assert round(boilerA_cy, 0) == 8760 * 0.25
+    assert round(boilerB_cy, 0) == 8760 * 0.75
 
 def test_convert_service_tech_to_p():
 
