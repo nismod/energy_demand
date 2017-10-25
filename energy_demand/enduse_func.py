@@ -8,9 +8,7 @@ depending on scenaric assumptions.
 """
 import logging
 from collections import defaultdict
-
 import numpy as np
-
 from energy_demand.basic import testing_functions as testing
 from energy_demand.initalisations import helpers as init
 from energy_demand.profiles import load_profile as lp
@@ -247,7 +245,6 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
-
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(self.enduse))
                     service_tech_y_cy = service_switch(
@@ -467,7 +464,6 @@ def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mo
 
     return fuel_yh, fuel_peak_dh, fuel_peak_h
 '''
-
 def assign_load_profiles_no_techs(enduse, sector, load_profiles, fuel_new_y):
     """Assign load profiles for an enduse which has not
     technologies defined.
@@ -1520,8 +1516,8 @@ def fuel_switch(
                     if tot_service_tech_instal_p == 0:
                         reduction_service_fueltype = 0
                     else:
-                        # share of total service of fueltype * share of replaced fuel #TODO FASTER
-                        service_fueltype_tech_cy_p_rel = (1.0 / tot_service_tech_instal_p) * service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched']
+                        # share of total service of fueltype * share of replaced fuel
+                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched'] / tot_service_tech_instal_p
 
                         reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break
@@ -1545,19 +1541,7 @@ def fuel_switch(
                 # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                 # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
                 service_tech_switched[technology_replaced] -= service_demand_tech
-                '''if np.sum(service_tech[technology_replaced] - service_demand_tech) < 0:
-                    #logging.debug("service_tech[technology_replaced]; " + str(np.sum(service_tech[technology_replaced])))
-                    #logging.debug(np.sum(service_tech[technology_replaced] - service_demand_tech))
-                    print(np.sum(service_tech[technology_replaced] - service_demand_tech))
-                    sys.exit("ERROR: Service cant be minus") #TODO TODO TODO TODO
-                    #logging.debug("ERROR")
-                    #service_tech_switched[technology_replaced] = service_tech_switched[technology_replaced] * 0
-                else:
-                    # Substract technology specific servide demand
-                    #logging.debug("A: " + str(np.sum(service_tech_switched[technology_replaced])))
-                    service_tech_switched[technology_replaced] -= service_demand_tech
-                    #service_tech_switched[technology_replaced] = service_tech[technology_replaced] - service_demand_tech
-                    #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))'''
+                #assert np.sum(service_tech[technology_replaced] - service_demand_tech) >= 0 #must be larger than zero
 
     return service_tech_switched
 

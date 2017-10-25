@@ -194,6 +194,7 @@ if __name__ == "__main__":
     tot_fuel_y_max = read_data.read_max_results(
         data['local_paths']['data_results_model_runs'])
     logging.info("... Reading in results finished")
+
     # ------------------------------
     # Plotting
     # ------------------------------
