@@ -216,38 +216,31 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                #TODO get rid of tot_service_yh_cy, convert service_tech_cyt ot service_tech_y_cy
-                tot_service_y_cy, tot_service_yh_cy, service_tech_cy, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = fuel_to_service(
+                tot_service_y_cy, service_tech_y_cy, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = fuel_to_service(
                     enduse,
-                    sector,
                     self.fuel_new_y,
                     self.enduse_techs,
-                    self.crit_flat_profile,
                     fuel_tech_p_by,
                     tech_stock,
                     lookups['fueltype'],
-                    load_profiles,
-                    mode_constrained,
-                    assumptions['model_yearhours_nrs'],
-                    assumptions['model_yeardays_nrs']
+                    mode_constrained
                     )
 
                 # ------------------------------------
                 # Reduction of service because of heat recovery
                 # (standard sigmoid diffusion)
                 # ------------------------------------
-                #tot_service_yh_cy = apply_heat_recovery(
-                tot_service_y_cy = apply_heat_recovery( #SHARK
+                tot_service_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions,
-                    tot_service_y_cy, #SHARK tot_service_yh_cy, #SHARK 
-                    'tot_service_yh_cy', #SHARK TODO: RENAME to tot_service_y_cy in func
+                    tot_service_y_cy,
+                    'tot_service_y_cy',
                     sim_param)
 
-                service_tech_cy = apply_heat_recovery(
+                service_tech_y_cy = apply_heat_recovery(
                     enduse,
                     assumptions,
-                    service_tech_cy,
+                    service_tech_y_cy,
                     'service_tech',
                     sim_param)
 
@@ -257,7 +250,7 @@ class Enduse(object):
                 #TODO: WHY IS service_tech_cy Not used in both??
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(self.enduse))
-                    service_tech_cy = service_switch(
+                    service_tech_y_cy = service_switch(
                         enduse,
                         tot_service_y_cy, # tot_service_yh_cy, #SHARK
                         service_tech_cy_p,
@@ -268,12 +261,12 @@ class Enduse(object):
                         sim_param['curr_yr'])
                 elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(self.enduse))
-                    service_tech_cy = fuel_switch(
+                    service_tech_y_cy = fuel_switch(
                         enduse,
                         installed_tech,
                         sig_param_tech,
                         tot_service_y_cy, #tot_service_yh_cy, #sHARK
-                        service_tech_cy, #REPL
+                        service_tech_y_cy, #REPL
                         service_fueltype_tech_cy_p,
                         service_fueltype_cy_p,
                         fuel_switches,
@@ -285,10 +278,9 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
-                #print("MAJOR SPEED UP: " + str("t"))
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
-                    service_tech_cy, #Could also be calculated for total year because the same for every hour
+                    service_tech_y_cy,
                     tech_stock,
                     lookups,
                     mode_constrained)
@@ -309,7 +301,7 @@ class Enduse(object):
                 else:'''
 
                 self.fuel_y = self.fuel_new_y
-                
+
                 '''fuel_yh, self.fuel_peak_dh, self.fuel_peak_h = assign_load_profiles_techs(
                     enduse,
                     sector,
@@ -891,9 +883,9 @@ def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained)
 
     if mode_constrained:
         for tech, fuel_tech in service_tech.items():
-            _sum = np.sum(fuel_tech)
-            fuel_new_y[lookups['fueltype']['heat']] += _sum
-            fuel_per_tech[tech] = _sum
+            fuel = fuel_tech
+            fuel_new_y[lookups['fueltype']['heat']] += fuel
+            fuel_per_tech[tech] = fuel
     else:
         for tech, service in service_tech.items():
             tech_eff = tech_stock.get_tech_attr(
@@ -903,28 +895,23 @@ def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained)
                 enduse, tech, 'tech_fueltype_int')
 
             # Convert to fuel
-            _sum = np.sum(service / tech_eff)
+            fuel = service / tech_eff
 
-            fuel_per_tech[tech] = _sum
+            fuel_per_tech[tech] = fuel
 
             # Multiply fuel of technology per fueltype with shape of yearl distrbution
-            fuel_new_y[tech_fuel_type_int] += _sum
+            fuel_new_y[tech_fuel_type_int] += fuel
 
     return fuel_new_y, fuel_per_tech
 
 def fuel_to_service(
         enduse,
-        sector,
         fuel_new_y,
         enduse_techs,
-        crit_flat_profile,
         fuel_tech_p_by,
         tech_stock,
         lu_fueltypes,
-        load_profiles,
         mode_constrained,
-        model_yearhours_nrs,
-        model_yeardays_nrs
     ):
     """Converts fuel to energy service (1),
     calcualates contribution service fraction (2)
@@ -981,7 +968,6 @@ def fuel_to_service(
     """
     service_tech = dict.fromkeys(enduse_techs, 0)
     tot_service_y = 0
-    ##tot_service_yh = np.zeros((model_yeardays_nrs, 24))
 
     if mode_constrained:
         """
@@ -994,33 +980,17 @@ def fuel_to_service(
 
             for tech, fuel_share in tech_list.items():
 
-                tech_load_profile = load_profiles.get_lp(
-                    enduse, sector, tech, 'shape_yh')
+                fuel_tech = fuel_new_y[fueltype] * fuel_share
 
-                _fuel_tech = fuel_new_y[fueltype] * fuel_share
+                tot_service_y += fuel_tech
+                service_tech[tech] += fuel_tech
 
-                '''#TODO
-                if crit_flat_profile:
-                    fuel_tech = _fuel_tech * np.full((model_yeardays_nrs, 24), 1 / model_yearhours_nrs)
-                else:
-                    fuel_tech = _fuel_tech * tech_load_profile
-                _sum_selection = np.sum(fuel_tech)'''
-                _sum_selection = _fuel_tech
-
-                #TODO: TEST
-                tot_service_y += _sum_selection #fuel_tech
-                #service = _sum_selection #fuel_tech #* tech_load_profile
-                ##service_tech[tech] += _sum_selection# service
-                
-                # SHARK NEW
-                service_tech[tech] += _fuel_tech
-        
                 # Assign all service to fueltype 'heat_fueltype'
                 try:
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(_fuel_tech))
+                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
                 except KeyError:
                     service_fueltype_tech_p[lu_fueltypes['heat']][tech] = 0
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(_fuel_tech))
+                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
     else:
         """Unconstrained version
         """
@@ -1031,33 +1001,17 @@ def fuel_to_service(
 
             for tech, fuel_share in tech_list.items():
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
-                tech_load_profile = load_profiles.get_lp(
-                    enduse, sector, tech, 'shape_yh')
 
                 # Calculate fuel share and convert fuel to service
                 service_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
 
-                # Calculate fuel share and convert fuel to service
-                '''if crit_flat_profile:
-                    service_tech_yh = service_tech_y * np.full(
-                        (model_yeardays_nrs, 24),
-                        1 / model_yearhours_nrs)
-                else:
-                    service_tech_yh = service_tech_y * tech_load_profile
-                _sum_selection = np.sum(service_tech_yh)'''
-                _sum_selection = service_tech_y
+                service_tech[tech] += service_tech_y
 
-                # Distribute y to yh profile and selection
-                ##service_tech[tech] += service_tech_yh # IS THIS REALLY NEEDED BECAUSE SAME EFFICIENCY?
-                #SHARK NEW
-                service_tech[tech] += service_tech_y # TESTIS THIS REALLY NEEDED BECAUSE SAME EFFICIENCY?
-    
                 # Add fuel for each technology (float() is necessary to avoid inf error)
-                service_fueltype_tech[fueltype][tech] += _sum_selection
+                service_fueltype_tech[fueltype][tech] += service_tech_y
 
                 # Sum total yearly service
-                ##tot_service_yh += service_tech_yh #(yh)
-                tot_service_y += _sum_selection #(y)
+                tot_service_y += service_tech_y #(y)
 
     # Convert service of every technology to fraction of total service
     service_tech_p = convert_service_to_p(tot_service_y, service_fueltype_tech)
@@ -1070,8 +1024,7 @@ def fuel_to_service(
     service_fueltype_p = {
         fueltype: sum(service_fueltype.values()) for fueltype, service_fueltype in service_fueltype_tech_p.items()}
 
-    tot_service_yh = 'SCRAP'
-    return tot_service_y, tot_service_yh, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p
+    return tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p
 
 def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param):
     """Reduce heating demand according to assumption on heat reuse
@@ -1122,7 +1075,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
                     service_reduced[tech] = service_tech * (1.0 - heat_recovered_p_cy)
 
             # Apply to array
-            elif crit_dict == 'tot_service_yh_cy':
+            elif crit_dict == 'tot_service_y_cy':
                 service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced
@@ -1557,12 +1510,6 @@ def fuel_switch(
                     else:
                         # share of total service of fueltype * share of replaced fuel #TODO FASTER
                         service_fueltype_tech_cy_p_rel = (1.0 / tot_service_tech_instal_p) * service_fueltype_cy_p[fueltype_replace] * fuelswitch['share_fuel_consumption_switched']
-
-                        logging.debug(fuelswitch['share_fuel_consumption_switched'])
-                        logging.debug(service_fueltype_cy_p[fueltype_replace])
-                        logging.debug(tot_service_tech_instal_p)
-                        logging.debug("service_fueltype_tech_cy_p_rel -- : " + str(service_fueltype_tech_cy_p_rel))
-                        logging.debug(np.sum(service_tech_installed_cy))
 
                         reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break
