@@ -423,8 +423,6 @@ def test_Enduse():
         installed_tech,
         sig_param_tech,
         enduse_overall_change_ey,
-        regional_lp_stock,
-        dw_stock=False,
-        reg_scen_drivers=None,
-        crit_flat_profile=False)'''
+        regional_lp_stock
+        )'''
     pass

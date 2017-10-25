@@ -316,19 +316,24 @@ class Enduse(object):
                 # Demand Management Implementation
                 # ------------------------
                 daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(fuel_yh)
-
-                lf_cy_improved_d = calculate_lf_improvement(
+                if sim_param['curr_yr'] == 2020 and enduse == 'rs_space_heating':
+                    print("..")
+                lf_cy_improved_d, peak_shifting = calculate_lf_improvement(
                     enduse,
                     sim_param, 
                     daily_lf_cy,
                     assumptions['demand_management'])
-                if lf_cy_improved_d == 'None':
+                print("lf_cy_improved_d" + str(lf_cy_improved_d))
+                if not peak_shifting:
                     self.fuel_yh = fuel_yh
                 else:
+                    print(np.sum(fuel_yh))
                     self.fuel_yh = load_factors.peak_shaving_max_min(
                         lf_cy_improved_d,
                         average_fuel_yd,
                         fuel_yh)
+                    print(np.sum(self.fuel_yh))
+                    print("--")
 
 def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
     """Calculate lf improvement depending on linear diffusion
@@ -337,32 +342,34 @@ def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
 
     """
     try:
+        # Get assumed load shift
         lf_improvement_ey = demand_management[enduse]
 
-        # Calculate linear diffusion of improvement of load management
-        lin_diff_factor = diffusion_technologies.linear_diff(
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
-            0,
-            1,
-            sim_param['sim_period_yrs']
-            )
+        if lf_improvement_ey == 0:
+            return False, False
+        else:
+            # Calculate linear diffusion of improvement of load management
+            lin_diff_factor = diffusion_technologies.linear_diff(
+                sim_param['base_yr'],
+                sim_param['curr_yr'],
+                0,
+                1,
+                sim_param['sim_period_yrs'])
 
-        # Current year load factor improvement
-        lf_improvement_cy = lf_improvement_ey * lin_diff_factor
+            # Current year load factor improvement
+            lf_improvement_cy = lf_improvement_ey * lin_diff_factor
 
-        # Improve load factor
-        lf_cy_improved_d = daily_lf_cy + lf_improvement_cy
+            # Improve load factor
+            lf_cy_improved_d = daily_lf_cy + lf_improvement_cy
 
-        # If lager than zero, set to 1
-        lf_cy_improved_d[lf_cy_improved_d > 1] = 1
-
-        return lf_cy_improved_d
+            # If lager than zero, set to 1
+            lf_cy_improved_d[lf_cy_improved_d > 1] = 1
+            peak_shifting = True
+            return lf_cy_improved_d, peak_shifting
 
     except KeyError:
-        logging.debug("... no load management was defined for this enduse")
-        lf_improvement_ey = 0
-        return 'None'
+        logging.debug("... no load management was defined for enduse")
+        return False, False
 
 def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
     '''If a flat load profile is assigned (crit_flat_profile)

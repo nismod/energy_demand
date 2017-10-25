@@ -6,7 +6,7 @@ All fuel shares of the base year for the different technologies are defined
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
 
-def assign_by_fuel_tech_p(assumptions, data):
+def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     """Assigning fuel share per enduse for different
     technologies for the base year
 
@@ -31,19 +31,19 @@ def assign_by_fuel_tech_p(assumptions, data):
       assigned with technologies or none. No mixing possible
     """
     rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        data['enduses']['rs_all_enduses'], data['lookups']['fueltypes_nr'])
+        enduses['rs_all_enduses'], lookups['fueltypes_nr'])
     ss_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        data['enduses']['ss_all_enduses'], data['lookups']['fueltypes_nr'])
+        enduses['ss_all_enduses'], lookups['fueltypes_nr'])
     is_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
-        data['enduses']['is_all_enduses'], data['lookups']['fueltypes_nr'])
+        enduses['is_all_enduses'], lookups['fueltypes_nr'])
 
-    fuel_nr_oil = data['lookups']['fueltype']['oil']
-    fuel_nr_elec = data['lookups']['fueltype']['electricity']
-    fuel_nr_gas = data['lookups']['fueltype']['gas']
-    fuel_nr_heat_sold = data['lookups']['fueltype']['heat_sold']
-    fuel_nr_biomass = data['lookups']['fueltype']['biomass']
-    fuel_nr_hydrogen = data['lookups']['fueltype']['hydrogen']
-    fuel_nr_solid_fuel = data['lookups']['fueltype']['solid_fuel']
+    fuel_nr_oil = lookups['fueltype']['oil']
+    fuel_nr_elec = lookups['fueltype']['electricity']
+    fuel_nr_gas = lookups['fueltype']['gas']
+    fuel_nr_heat_sold = lookups['fueltype']['heat_sold']
+    fuel_nr_biomass = lookups['fueltype']['biomass']
+    fuel_nr_hydrogen = lookups['fueltype']['hydrogen']
+    fuel_nr_solid_fuel = lookups['fueltype']['solid_fuel']
 
     # ------------------
     # Residential subModel

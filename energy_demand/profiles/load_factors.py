@@ -7,8 +7,9 @@ import numpy as np
 from energy_demand.plotting import plotting_results
 
 def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
-    """Reduce peak per enduse
-    #TODO: MAYBE SHIFT SERVICE AND NOT FUEL
+    """Shift demand with help of load factor. All demand above
+    the maximum load is shifted proportionally to all hours
+    having below average demand (see Section XY)
 
     Arguments
     ----------
@@ -24,22 +25,19 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
 
     Info
     ----
-    shift_max_to_min() algorithmus
-    I. Calculate peak factor
-        - Calculate average and assign each hours whether it is above or below average
-    II. Calculate new peak factor of cy (with help of assumed peak factor reduction)
-    III: sort all hours according to value: 
-        - calculate difference between new peak value
-        --> Shift this energy demand to lowest value
-
-    II. Calculate maximum value if
+    Steps:
+    - Calculate new maximum demand for every hour and fueltype
+    - Calculate difference in demand to mean for every day and fueltype
+    - Calculate percentage of demand for every hour with lower demand than average
+    - Calculate total demand above average and shift to yh
+    - Set all hours with more demand than maximum peak to maximum peak demand
     """
     # ------------------------------------------
     # Calculate new maximum demand for every day
     # and fueltype with help of newly adaped load factor
     # ------------------------------------------
     max_daily_demand_allowed = average_yd / daily_lf_cy_improved
-
+    max_daily_demand_allowed[np.isnan(max_daily_demand_allowed)] = 0
     # ------------------------------------------
     # Calculate difference to daily mean for every hour
     # for every fueltype (hourly value - daily mean)

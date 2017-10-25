@@ -13,7 +13,7 @@ from energy_demand.read_write import data_loader
 #TODO: Make that HLC can be improved, ssumption share of existing
 #  dwelling stock which is assigned new HLC coefficients
 
-def load_assumptions(data, write_sim_param):
+def load_assumptions(paths, enduses, lookups, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -167,6 +167,7 @@ def load_assumptions(data, write_sim_param):
         'rs_home_computing': 0
 
         # TODO
+
     }
 
     # ============================================================
@@ -395,7 +396,7 @@ def load_assumptions(data, write_sim_param):
 
     # Load all technologies
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
-        data['paths']['path_technologies'])
+        paths['path_technologies'])
 
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_hp_ashp_gshp = 0.5
@@ -427,28 +428,29 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
-        data
+        enduses,
+        lookups
         )
 
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['rs_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['rs_path_fuel_switches'], enduses, lookups)
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['ss_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['ss_path_fuel_switches'], enduses, lookups)
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['is_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['is_path_fuel_switches'], enduses, lookups)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
     assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(
-        data['paths']['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
+        paths['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
     assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(
-        data['paths']['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
+        paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
-        data['paths']['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
+        paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
