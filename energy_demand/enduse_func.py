@@ -122,6 +122,7 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
+        self.region_name = region_name
         self.enduse = enduse
         self.sector = sector
         self.fuel_new_y = fuel #copy needed?
@@ -904,7 +905,7 @@ def service_to_fuel(enduse, service_tech, tech_stock, lookups, mode_constrained)
         for tech, service in service_tech.items():
             tech_eff = tech_stock.get_tech_attr(
                 enduse, tech, 'eff_cy')
-            
+
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_fueltype_int')
 
@@ -1535,7 +1536,7 @@ def fuel_switch(
         for fuelswitch in fuel_switches:
             if fuelswitch['enduse'] == enduse and fuelswitch['technology_install']:
                 fueltype_to_replace = fuelswitch['enduse_fueltype_replace']
-                
+
                 fueltypes_replaced.append(fueltype_to_replace) # Add replaced fueltype
 
                 # Share of service demand per fueltype * fraction of fuel switched

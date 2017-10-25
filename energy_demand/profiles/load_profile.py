@@ -36,7 +36,7 @@ class LoadProfileStock(object):
             enduses,
             shape_yd,
             shape_yh,
-            sectors=['dummy_sector'],
+            sectors=False,
             enduse_peak_yd_factor=1.0/365,
             shape_peak_dh=np.full((24), 1.0/24)
         ):
@@ -64,7 +64,12 @@ class LoadProfileStock(object):
         -----
         If no ``shape_peak_dh`` or ``enduse_peak_yd_factor`` is provided
         a flat shape is assumed.
-        """
+        """        
+        if not sectors:
+            sectors = ['dummy_sector']
+        else:
+            pass
+
         self.load_profile_dict[unique_identifier] = LoadProfile(
             enduses,
             unique_identifier,

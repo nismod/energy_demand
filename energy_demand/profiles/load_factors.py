@@ -265,4 +265,3 @@ def load_factor_d(self, data):
     lf_d = lf_d * 100 # Convert load factor to %
 
     return lf_d
-        
