@@ -14,10 +14,9 @@ import numpy as np
 from energy_demand.basic import testing_functions as testing
 from energy_demand.initalisations import helpers as init
 from energy_demand.profiles import load_profile as lp
-from energy_demand.profiles import load_factors
-from energy_demand.technologies import (diffusion_technologies,
-                                        fuel_service_switch)
-
+from energy_demand.profiles import load_factors as lf
+from energy_demand.technologies import diffusion_technologies
+from energy_demand.technologies import fuel_service_switch
 
 class Enduse(object):
     """Enduse Class (Residential, Service and Industry)
@@ -348,19 +347,13 @@ class Enduse(object):
                     lookups
                     )
 
-    
-                #'''
-
                 # ------------------------
                 # Demand Management Implementation
                 # ------------------------
-                daily_lf_cy, average_fuel_yd = load_factors.daily_load_factors(fuel_yh)
+                daily_lf_cy, average_fuel_yd = lf.daily_load_factors(fuel_yh)
 
                 lf_cy_improved_d, peak_shifting = calculate_lf_improvement(
-                    enduse,
-                    sim_param, 
-                    daily_lf_cy,
-                    assumptions['demand_management'])
+                    enduse, sim_param, daily_lf_cy, assumptions['demand_management'])
 
                 if not peak_shifting:
                     self.fuel_yh = fuel_yh
@@ -369,11 +362,11 @@ class Enduse(object):
                     self.fuel_peak_h = lp.calk_peak_h_dh(fuel_peak_dh)
                 else:
 
-                    self.fuel_yh = load_factors.peak_shaving_max_min(
+                    self.fuel_yh = lf.peak_shaving_max_min(
                         lf_cy_improved_d,
                         average_fuel_yd,
                         fuel_yh)
-                    
+
                     self.fuel_peak_dh = calc_peak_tech_dh(
                         enduse,
                         sector,
@@ -382,8 +375,8 @@ class Enduse(object):
                         self.fuel_yh,
                         tech_stock,
                         load_profiles,
-                        lookups
-                        )
+                        lookups)
+
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
 def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
@@ -1006,12 +999,13 @@ def fuel_to_service(
 
                 _fuel_tech = fuel_new_y[fueltype] * fuel_share
 
-                #TODO
+                '''#TODO
                 if crit_flat_profile:
                     fuel_tech = _fuel_tech * np.full((model_yeardays_nrs, 24), 1 / model_yearhours_nrs)
                 else:
                     fuel_tech = _fuel_tech * tech_load_profile
-                _sum_selection = np.sum(fuel_tech)
+                _sum_selection = np.sum(fuel_tech)'''
+                _sum_selection = _fuel_tech
 
                 #TODO: TEST
                 tot_service_y += _sum_selection #fuel_tech
@@ -1023,10 +1017,10 @@ def fuel_to_service(
         
                 # Assign all service to fueltype 'heat_fueltype'
                 try:
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
+                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(_fuel_tech))
                 except KeyError:
                     service_fueltype_tech_p[lu_fueltypes['heat']][tech] = 0
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
+                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(_fuel_tech))
     else:
         """Unconstrained version
         """
@@ -1044,14 +1038,14 @@ def fuel_to_service(
                 service_tech_y = fuel_new_y[fueltype] * fuel_share * tech_eff
 
                 # Calculate fuel share and convert fuel to service
-                if crit_flat_profile:
+                '''if crit_flat_profile:
                     service_tech_yh = service_tech_y * np.full(
                         (model_yeardays_nrs, 24),
                         1 / model_yearhours_nrs)
                 else:
                     service_tech_yh = service_tech_y * tech_load_profile
-
-                _sum_selection = np.sum(service_tech_yh)
+                _sum_selection = np.sum(service_tech_yh)'''
+                _sum_selection = service_tech_y
 
                 # Distribute y to yh profile and selection
                 ##service_tech[tech] += service_tech_yh # IS THIS REALLY NEEDED BECAUSE SAME EFFICIENCY?

@@ -227,6 +227,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     logging.info("... finished scenario_initalisation")
     print("... finished scenario_initalisation")
+
     if run_locally == False:
         return temp_climate_change, fts_cont, sgs_cont, sd_cont
     else:

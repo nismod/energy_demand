@@ -4,7 +4,7 @@ Energy Demand Model
 The industry heating is identical to service heating
 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
-6''' 
+'''
 import os
 import sys
 import logging
@@ -143,12 +143,14 @@ if __name__ == "__main__":
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
+        logging.info("... Start writing results to file")
         write_data.write_model_result_to_txt(
             sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
         write_data.write_model_result_to_txt_enduse(
             sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific)
         write_data.write_model_result_to_txt_maxresults(
             sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
+        logging.info("... Finished writing results to file")
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -177,6 +179,8 @@ if __name__ == "__main__":
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
+    logging.info("... Start reading in results")
+
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'],
         data['lookups']['fueltypes_nr'],
@@ -189,12 +193,11 @@ if __name__ == "__main__":
 
     tot_fuel_y_max = read_data.read_max_results(
         data['local_paths']['data_results_model_runs'])
-
     logging.info("... Reading in results finished")
-
     # ------------------------------
     # Plotting
     # ------------------------------
+    logging.info("... plotting results")
     plotting_results.run_all_plot_functions(
         results_every_year,
         results_enduse_every_year,
