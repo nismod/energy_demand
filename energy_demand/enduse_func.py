@@ -280,9 +280,10 @@ class Enduse(object):
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
+                print("MAJOR SPEED UP: " + str("t"))
                 self.fuel_new_y, fuel_tech_y = service_to_fuel(
                     enduse,
-                    service_tech_cy,
+                    service_tech_cy, #Could also be calculated for total year because the same for every hour
                     tech_stock,
                     lookups,
                     mode_constrained)
@@ -979,10 +980,8 @@ def fuel_to_service(
         However, the self.fuel_new_y is taken because the actual
         service was reduced e.g. due to smart meters or temperatur changes
     """
-    #service_tech_cy = init.dict_zero(enduse_techs)
     service_tech = dict.fromkeys(enduse_techs, 0)
     tot_service_y = 0
-    ##service_fueltype = {} #OLD
     tot_service_yh = np.zeros((model_yeardays_nrs, 24))
 
     if mode_constrained:
@@ -1047,7 +1046,7 @@ def fuel_to_service(
                 _sum_selection = np.sum(service_tech_yh)
 
                 # Distribute y to yh profile and selection
-                service_tech[tech] += service_tech_yh
+                service_tech[tech] += service_tech_yh # IS THIS REALLY NEEDED BECAUSE SAME EFFICIENCY?
 
                 # Add fuel for each technology (float() is necessary to avoid inf error)
                 service_fueltype_tech[fueltype][tech] += _sum_selection
