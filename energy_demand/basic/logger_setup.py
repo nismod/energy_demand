@@ -30,7 +30,7 @@ def set_up_logger(path_log_file):
     logging.basicConfig(
         filename=path_log_file,
         filemode='w', #'a, w'
-        level=logging.ERROR, #INFO, DEBUG, ERROR, CRITICAL
+        level=logging.INFO, #INFO, DEBUG, ERROR, CRITICAL
         format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
 
