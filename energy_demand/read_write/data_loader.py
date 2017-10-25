@@ -243,7 +243,7 @@ def load_paths(path):
         'path_dwtype': os.path.join(
             path, 'config_data', 'submodel_residential', 'lookup_dwelling_type.csv'),
         'path_hourly_gas_shape_resid': os.path.join(
-            path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_gas_boiler_dh_SANSOM.csv'),
         'path_dwtype_age': os.path.join(
             path, 'config_data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),
         'path_dwtype_floorarea_dw_type': os.path.join(
@@ -289,7 +289,9 @@ def load_paths(path):
         #'path_hourly_gas_shape_hp': os.path.join(
         # path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
         'lp_elec_hp_dh': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_elec_hp_LOVE_dh.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_elec_hp_dh_LOVE.csv'),
+        'lp_all_microCHP_dh': os.path.join(
+            path, 'config_data', 'submodel_residential', 'lp_all_microCHP_dh_SANSOM.csv'),
         'path_shape_rs_cooling': os.path.join(
             path, 'config_data', 'submodel_residential', 'shape_residential_cooling.csv'),
         'path_shape_ss_cooling': os.path.join(
@@ -317,11 +319,15 @@ def load_data_tech_profiles(tech_lp, paths):
     """
     tech_lp = {}
 
-    # Boiler shape from Robert Sansom
+    # Boiler load profile from Robert Sansom
     tech_lp['rs_lp_heating_boilers_dh'] = read_data.read_load_shapes_tech(
-        paths['path_hourly_gas_shape_resid']) #Regular day, weekday, weekend
+        paths['path_hourly_gas_shape_resid'])
 
-    # Heat pump shape from Love et al. (2017)
+    # CHP load profile from Robert Sansom
+    tech_lp['rs_lp_heating_CHP_dh'] = read_data.read_load_shapes_tech(
+        paths['lp_all_microCHP_dh'])
+
+    # Heat pump load profile from Love et al. (2017)
     tech_lp['rs_lp_heating_hp_dh'] = read_data.read_load_shapes_tech(
         paths['lp_elec_hp_dh'])
 
@@ -375,22 +381,29 @@ def load_data_profiles(paths, local_paths, assumptions):
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
         tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'])
 
-    # ---------------
-    # Calculate load profile for HEATPUMP TODO: PUT IN SEPARATE FUNCTION
-    # ---------------
-    # TODO: MAKE FASTER AND MOVE OUTSIDE WEATHER REGION INTO INITIALISATION
-    # from Robert Sansom for heat pump
+    # ------------------------------------------------------------
+    # Calculate yh load profiles for individual technologies
+    # ------------------------------------------------------------
+
+    # Heat pumps
     tech_lp['daily_fuel_profile_y'] = get_shape_every_day(
         'rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
+    # Storage heater
     tech_lp['rs_profile_storage_heater_yh'] = get_shape_every_day(
         'rs_lp_storage_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
+    # Electric heating
     tech_lp['rs_profile_elec_heater_yh'] = get_shape_every_day(
         'rs_lp_second_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
+    # Boilers
     tech_lp['rs_profile_boilers_yh'] = get_shape_every_day(
         'rs_lp_heating_boilers_dh', tech_lp, assumptions['model_yeardays_daytype'])
+
+    # Micro CHP
+    tech_lp['rs_profile_CHP_yh'] = get_shape_every_day(
+        'rs_lp_heating_CHP_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     return tech_lp
 

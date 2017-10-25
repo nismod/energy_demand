@@ -352,8 +352,33 @@ http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c
 
 http://datashine.org.uk/#table=QS605EW&col=QS605EW0004&ramp=RdYlGn&layers=BTTT&zoom=8&lon=-0.8789&lat=51.2172
 
+### 12.6 Technology specific load shapes
+
+For different technologies, load shares are derived from the following sources:
+
+
+   **Boiler load profile**
+   Load profiles for a typicaly working, weekend and peak day are derived from data provided by Sansom (2014).
+
+   **Micro-CHP**
+   Load profiles for a typicaly working, weekend and peak day are derived from data provided by Sansom (2014).
+
+   **Heat pumps load profile**
+   Based on nearly 700 domestic heat pump installations, Love et al. (2017) provides aggregated profiles for cold
+   and medium witer weekdays and weekends. The shape of the load profiles is derived for a working, weekend and peak day.
+
+   **Electric Heating**
+   BLABLA
+
+
+
 ## Literature
 
 BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
 
+Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, C., … Lowe, R. (2017). The addition of heat pump electricity load profiles to GB electricity demand: Evidence from a heat pump field trial. Applied Energy, 204, 332–342. [https://doi.org/10.1016/j.apenergy.2017.07.026](https://doi.org/10.1016/j.apenergy.2017.07.026)
+
+Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Imperial College London.
+
 UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Available    at: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).
+

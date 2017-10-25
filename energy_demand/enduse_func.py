@@ -221,8 +221,7 @@ class Enduse(object):
                     fuel_tech_p_by,
                     tech_stock,
                     lookups['fueltype'],
-                    mode_constrained
-                    )
+                    mode_constrained)
 
                 # ------------------------------------
                 # Reduction of service because of heat recovery
@@ -320,8 +319,7 @@ class Enduse(object):
                     load_profiles,
                     lookups,
                     mode_constrained,
-                    assumptions['model_yeardays_nrs']
-                    )
+                    assumptions['model_yeardays_nrs'])
 
                 # --PEAK
                 # Iterate technologies in enduse and assign technology specific profiles
@@ -333,12 +331,11 @@ class Enduse(object):
                     fuel_yh,
                     tech_stock,
                     load_profiles,
-                    lookups
-                    )
+                    lookups)
 
-                # ------------------------
-                # Demand Management Implementation
-                # ------------------------
+                # ---------------------------------------
+                # Demand Management (peak shaving)
+                # ---------------------------------------
                 daily_lf_cy, average_fuel_yd = lf.daily_load_factors(fuel_yh)
 
                 lf_cy_improved_d, peak_shifting = calculate_lf_improvement(

@@ -3,6 +3,12 @@
 import sys
 import numpy as np
 
+def test_defined_service_switch():
+    """Function to test if in case a fuel switch is defined,
+    all technologies are defined as specified in base year
+    """
+    pass
+
 def test_region_selection(fuel_indiv_regions_yh):
     """function to see whether if only some days are selected
     the sum makes sense

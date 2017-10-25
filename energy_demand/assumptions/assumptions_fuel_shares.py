@@ -5,6 +5,7 @@ All fuel shares of the base year for the different technologies are defined
 """
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
+from energy_demand.basic import testing_functions
 
 def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     """Assigning fuel share per enduse for different
@@ -86,7 +87,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_solid_fuel': 1.0
         }
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_gas] = {
-        'boiler_gas': 1.0
+        'boiler_gas': 0.98,
+        'stirling_micro_CHP': 0.02
         }
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
@@ -131,11 +133,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_hydrogen] = {
         'boiler_hydrogen': 1.0
         }
-
+    #TODO: Write function to test in case if a switch is defined,
+    # all technologies of base year are defined in switch
+    #testing_functions.test_defined_service_switch(rs_fuel_tech_p_by, )
     # --------------
     # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
     # --------------
     '''
+    TODO: IF XY MEGAWATT NEEDS TO BE PROVIDED
     # Service share within a fueltype
     tech_share_tot_service = {
         'heat_pumps_electricity': 0.02,

@@ -136,15 +136,7 @@ class WeatherRegion(object):
         rs_peak_yd_heating_factor = self.get_shape_peak_yd_factor(rs_hdd_cy)
         #rs_peak_yd_cooling_factor = self.get_shape_peak_yd_factor(rs_cdd_cy)
 
-        # --Specific heating technologies for residential sector #ADDED assumptions['model_yeardays']
-        rs_profile_storage_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_yh'][[assumptions['model_yeardays']]]
-
-        rs_profile_elec_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_yh'][[assumptions['model_yeardays']]]
-
-        # boiler, non-peak
-        rs_profile_boilers_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_yh'][[assumptions['model_yeardays']]]
-
-        # heat pumps, non-peak
+        # Heat pumps, non-peak
         rs_fuel_shape_hp_yh, _ = self.get_fuel_shape_heating_hp_yh(
             tech_lp,
             self.rs_tech_stock,
@@ -158,6 +150,7 @@ class WeatherRegion(object):
         # data, rs_fuel_shape_cooling_yd, 'rs_shapes_cooling_dh')
 
         # Heating boiler
+        rs_profile_boilers_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_boilers_yh'][[assumptions['model_yeardays']]]
         self.rs_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_const'],
@@ -168,7 +161,22 @@ class WeatherRegion(object):
             shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday']
             )
 
+        # Heating CHP
+        rs_profile_CHP_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_CHP_yh'][[assumptions['model_yeardays']]]
+
+        self.rs_load_profiles.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=assumptions['tech_list']['tech_heating_const'],
+            enduses=['rs_space_heating', 'rs_water_heating'],
+            shape_yd=rs_fuel_shape_heating_yd,
+            shape_yh=rs_profile_CHP_yh,
+            enduse_peak_yd_factor=rs_peak_yd_heating_factor,
+            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday']
+            )
+        
         # Electric heating, primary...(storage)
+        rs_profile_storage_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_yh'][[assumptions['model_yeardays']]]
+
         self.rs_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['primary_heating_electricity'],
@@ -180,6 +188,8 @@ class WeatherRegion(object):
             )
 
         # Electric heating, secondary...
+        rs_profile_elec_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_yh'][[assumptions['model_yeardays']]]
+
         self.rs_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['secondary_heating_electricity'],
