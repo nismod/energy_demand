@@ -247,12 +247,12 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
-                #TODO: WHY IS service_tech_cy Not used in both??
+
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(self.enduse))
                     service_tech_y_cy = service_switch(
                         enduse,
-                        tot_service_y_cy, # tot_service_yh_cy, #SHARK
+                        tot_service_y_cy,
                         service_tech_cy_p,
                         tech_increased_service,
                         tech_decreased_share,
@@ -265,8 +265,8 @@ class Enduse(object):
                         enduse,
                         installed_tech,
                         sig_param_tech,
-                        tot_service_y_cy, #tot_service_yh_cy, #sHARK
-                        service_tech_y_cy, #REPL
+                        tot_service_y_cy,
+                        service_tech_y_cy,
                         service_fueltype_tech_cy_p,
                         service_fueltype_cy_p,
                         fuel_switches,
@@ -469,16 +469,27 @@ def assign_flat_load_profiles_techs(enduse, tech_stock, fuel_tech_y, lookups, mo
 '''
 
 def assign_load_profiles_no_techs(enduse, sector, load_profiles, fuel_new_y):
-    """TODO
-    """
+    """Assign load profiles for an enduse which has not
+    technologies defined.
 
+    Arguments
+    ---------
+    enduse : str
+        Enduse
+    sector : str
+        Enduse
+    load_profiles : obj
+        Load profiles
+    fuel_new_y : array
+        Fuels
+
+    Returns
+    -------
+    """
     _fuel = fuel_new_y[:, np.newaxis, np.newaxis]
 
     fuel_yh = load_profiles.get_lp(
-        enduse,
-        sector,
-        'dummy_tech',
-        'shape_yh') * _fuel
+        enduse, sector, 'dummy_tech', 'shape_yh') * _fuel
 
     # Read dh profile from peak day
     peak_day = get_peak_day(fuel_yh)
@@ -1453,7 +1464,8 @@ def fuel_switch(
         TODO: MORE INFO
     """
     #service_tech_switched = {} 
-    service_tech_switched = service_tech # copy.copy(service_tech) # Must be like this, otherwise error 
+    service_tech_switched = service_tech # copy.copy(service_tech) 
+    # Must be like this, otherwise error
 
     # Iterate all technologies installed in fuel switches
     for tech_installed in installed_tech:
@@ -1532,7 +1544,8 @@ def fuel_switch(
                 # -------
                 # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
                 # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
-                if np.sum(service_tech[technology_replaced] - service_demand_tech) < 0:
+                service_tech_switched[technology_replaced] -= service_demand_tech
+                '''if np.sum(service_tech[technology_replaced] - service_demand_tech) < 0:
                     #logging.debug("service_tech[technology_replaced]; " + str(np.sum(service_tech[technology_replaced])))
                     #logging.debug(np.sum(service_tech[technology_replaced] - service_demand_tech))
                     print(np.sum(service_tech[technology_replaced] - service_demand_tech))
@@ -1544,7 +1557,7 @@ def fuel_switch(
                     #logging.debug("A: " + str(np.sum(service_tech_switched[technology_replaced])))
                     service_tech_switched[technology_replaced] -= service_demand_tech
                     #service_tech_switched[technology_replaced] = service_tech[technology_replaced] - service_demand_tech
-                    #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))
+                    #logging.debug("B: " + str(np.sum(service_tech_switched[technology_replaced])))'''
 
     return service_tech_switched
 
@@ -1578,7 +1591,7 @@ def convert_service_tech_to_p(service):
 
     return out_dict
 
-def convert_service_to_p(tot_service_y, service_fueltype_tech): 
+def convert_service_to_p(tot_service_y, service_fueltype_tech):
     """Calculate fraction of service for every technology
     of total service
 

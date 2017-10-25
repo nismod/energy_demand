@@ -3,13 +3,11 @@
 
 The main function executing all the submodels of the energy demand model
 """
-import uuid
 import logging
 from collections import defaultdict
-import concurrent.futures
+#import concurrent.futures
 import numpy as np
 import energy_demand.enduse_func as endusefunctions
-
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
@@ -17,7 +15,6 @@ from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
-from energy_demand.profiles import generic_shapes
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -41,7 +38,7 @@ class EnergyModel(object):
         self.curr_yr = data['sim_param']['curr_yr']
 
         # Create non regional dependent load profiles
-        data['non_regional_lp_stock'] = create_load_profile_stock(
+        data['non_regional_lp_stock'] = load_profile.create_load_profile_stock(
             data['tech_lp'],
             data['assumptions'],
             data['sectors'])
@@ -165,211 +162,6 @@ class EnergyModel(object):
             data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         '''
 
-    
-
-def create_load_profile_stock(tech_lp, assumptions, sectors):
-    """Assign load profiles which are the same for all regions
-    ``non_regional_load_profiles``
-
-    Arguments
-    ----------
-    tech_lp : dict
-        Load profiles
-    assumptions : dict
-        Assumptions
-    sectors : dict
-        Sectors
-
-    Returns
-    -------
-    non_regional_lp_stock : object
-        Load profile stock with non regional dependent load profiles
-    """
-    non_regional_lp_stock = load_profile.LoadProfileStock("non_regional_load_profiles")
-
-    # Lighting (residential)
-    non_regional_lp_stock.add_load_profile(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_lighting'],
-        enduses=['rs_lighting'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
-        )
-
-    # rs_cold (residential refrigeration)
-    non_regional_lp_stock.add_load_profile(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cold'],
-        enduses=['rs_cold'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh']
-        )
-
-    # rs_cooking
-    non_regional_lp_stock.add_load_profile(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_cooking'],
-        enduses=['rs_cooking'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
-        )
-
-    # rs_wet
-    non_regional_lp_stock.add_load_profile(
-        unique_identifier=uuid.uuid4(),
-        technologies=assumptions['tech_list']['rs_wet'],
-        enduses=['rs_wet'],
-        shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
-        shape_yh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
-        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh']
-        )
-
-    # -- dummy rs technologies (apply enduse sepcific shape)
-    for enduse in assumptions['rs_dummy_enduses']:
-        tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
-        non_regional_lp_stock.add_load_profile(
-            unique_identifier=uuid.uuid4(),
-            technologies=tech_list,
-            enduses=[enduse],
-            shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
-            shape_yh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
-            enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
-            shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh']
-            )
-
-    # - dummy ss technologies
-    for enduse in assumptions['ss_dummy_enduses']:
-        tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
-        for sector in sectors['ss_sectors']:
-            non_regional_lp_stock.add_load_profile(
-                unique_identifier=uuid.uuid4(),
-                technologies=tech_list,
-                enduses=[enduse],
-                shape_yd=tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
-                shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
-                sectors=[sector],
-                enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
-                )
-
-    # dummy is - Flat load profile
-    shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        assumptions['model_yeardays_nrs'], )
-
-    # If space heating, add load shapes for service sector
-    shape_peak_dh_sectors_enduses = defaultdict(dict)
-    all_enduses_including_heating = assumptions['is_dummy_enduses']
-    all_enduses_including_heating.append("is_space_heating")
-    for sector in sectors['is_sectors']:
-        for enduse in all_enduses_including_heating:
-            if enduse == "is_space_heating":
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
-                    'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
-            else:
-                shape_peak_dh_sectors_enduses[sector][enduse] = {
-                    'shape_peak_dh': shape_peak_dh}
-
-    for enduse in assumptions['is_dummy_enduses']:
-
-        # Add load profile for space heating of ss sector
-        if enduse == "is_space_heating":
-            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
-            for sector in sectors['is_sectors']:
-                non_regional_lp_stock.add_load_profile(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
-                    shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
-                    sectors=[sector],
-                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
-                    shape_peak_dh=shape_peak_dh_sectors_enduses
-                    )
-        else:
-            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
-            for sector in sectors['is_sectors']:
-                non_regional_lp_stock.add_load_profile(
-                    unique_identifier=uuid.uuid4(),
-                    technologies=tech_list,
-                    enduses=[enduse],
-                    shape_yd=shape_non_peak_yd,
-                    shape_yh=shape_non_peak_yh,
-                    sectors=[sector],
-                    enduse_peak_yd_factor=shape_peak_yd_factor,
-                    shape_peak_dh=shape_peak_dh_sectors_enduses
-                    )
-
-    return non_regional_lp_stock
-
-def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
-    """Get yh fuel for all fueltype for a specific region of all submodels
-
-    Arguments
-    ----------
-    fueltypes_nr : int
-        Number of fueltypes
-    region_name : str
-        Name of region to get attributes
-    region_enduses : list of list of Enduse
-        Enduse objects for each sector (service, residential, industrial)
-        in the region
-
-    Return
-    ------
-    region_fuel_yh : array
-        Summed fuel of a region
-
-    Note
-    ----
-    - Summing function
-    """
-    region_fuel_yh = fuel_aggr(
-        'fuel_yh',
-        fueltypes_nr,
-        region_enduses,
-        'no_sum',
-        model_yeardays_nrs,
-        region_name,
-    )
-
-    return region_fuel_yh
-
-def sum_enduse_all_regions(input_dict, attribute_to_get, sector_models, model_yearhours_nrs, model_yeardays_nrs):
-    """Summarise an enduse attribute across all regions
-
-    Arguments
-    ----------
-    attribute_to_get : string
-        Enduse attribute to summarise
-    sector_models : List
-        List with sector models
-
-    Return
-    ------
-    enduse_dict : dict
-        Summarise enduses across all regions
-    """
-    enduse_dict = input_dict
-    
-    for sector_model in sector_models:
-        for model_object in sector_model:
-
-            if model_object.enduse not in enduse_dict:
-                enduse_dict[model_object.enduse] = 0
-
-            # Add fuel with flat load shape
-            enduse_dict[model_object.enduse] += get_fuels_yh(
-                model_object, attribute_to_get, model_yearhours_nrs, model_yeardays_nrs)
-
-    return enduse_dict
-
 def simulate_region(array_nr_region, region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
     """
@@ -379,8 +171,7 @@ def simulate_region(array_nr_region, region_name, data, weather_regions):
     closest_weather_region_name = get_closest_station(
         data['reg_coord'][region_name]['longitude'],
         data['reg_coord'][region_name]['latitude'],
-        data['weather_stations']
-    )
+        data['weather_stations'])
 
     closest_weather_region = weather_regions[closest_weather_region_name]
 
@@ -389,8 +180,7 @@ def simulate_region(array_nr_region, region_name, data, weather_regions):
         rs_fuel_disagg=data['rs_fuel_disagg'][region_name],
         ss_fuel_disagg=data['ss_fuel_disagg'][region_name],
         is_fuel_disagg=data['is_fuel_disagg'][region_name],
-        weather_region=closest_weather_region
-    )
+        weather_region=closest_weather_region)
 
     # --------------------
     # Residential SubModel
@@ -618,7 +408,6 @@ def industry_submodel(region, data, enduse_names, sector_names):
 
     return submodels
 
-
 def residential_submodel(region, data, enduse_names, sector_names=False):
     """Create the residential submodules (per enduse and region) and add them to list
 
@@ -733,8 +522,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 sig_param_tech=data['assumptions']['ss_sig_param_tech'],
                 enduse_overall_change_ey=data['assumptions']['enduse_overall_change_ey']['ss_model'],
                 regional_lp_stock=region.ss_load_profiles,
-                dw_stock=data['ss_dw_stock']
-            )
+                dw_stock=data['ss_dw_stock'])
 
             # Add to list
             submodels.append(submodel)
@@ -785,3 +573,71 @@ def fuel_regions_fueltype(
         fuel_fueltype_regions[fueltype_str][array_region] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
     return fuel_fueltype_regions
+
+def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
+    """Get yh fuel for all fueltype for a specific region of all submodels
+
+    Arguments
+    ----------
+    fueltypes_nr : int
+        Number of fueltypes
+    region_name : str
+        Name of region to get attributes
+    region_enduses : list of list of Enduse
+        Enduse objects for each sector (service, residential, industrial)
+        in the region
+
+    Return
+    ------
+    region_fuel_yh : array
+        Summed fuel of a region
+
+    Note
+    ----
+    - Summing function
+    """
+    region_fuel_yh = fuel_aggr(
+        'fuel_yh',
+        fueltypes_nr,
+        region_enduses,
+        'no_sum',
+        model_yeardays_nrs,
+        region_name,
+    )
+
+    return region_fuel_yh
+
+def sum_enduse_all_regions(
+        input_dict,
+        attribute_to_get,
+        sector_models,
+        model_yearhours_nrs,
+        model_yeardays_nrs
+    ):
+    """Summarise an enduse attribute across all regions
+
+    Arguments
+    ----------
+    attribute_to_get : string
+        Enduse attribute to summarise
+    sector_models : List
+        List with sector models
+
+    Return
+    ------
+    enduse_dict : dict
+        Summarise enduses across all regions
+    """
+    enduse_dict = input_dict
+
+    for sector_model in sector_models:
+        for model_object in sector_model:
+
+            if model_object.enduse not in enduse_dict:
+                enduse_dict[model_object.enduse] = 0
+
+            # Add fuel with flat load shape
+            enduse_dict[model_object.enduse] += get_fuels_yh(
+                model_object, attribute_to_get, model_yearhours_nrs, model_yeardays_nrs)
+
+    return enduse_dict

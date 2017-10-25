@@ -106,8 +106,8 @@ class EDWrapper(SectorModel):
             ed_data)
 
         # Generate dwelling stocks over whole simulation period 
-        self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data)
-        self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data)
+        #self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data, ed_data['sim_param']['curr_yr'])
+        #self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data, ed_data['sim_param']['curr_yr'])
 
     def initialise(self, initial_conditions):
         """
@@ -195,8 +195,8 @@ class EDWrapper(SectorModel):
         ed_data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(ed_data['sim_param']['base_yr'], 1, 1), end=date(ed_data['sim_param']['base_yr'], 12, 31))
         ed_data['assumptions'] = base_assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
 
-        ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
-        ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
+        #ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
+        #ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
@@ -248,7 +248,7 @@ class EDWrapper(SectorModel):
         # ---------
         out_to_supply = results.fuel_indiv_regions_yh
 
-        logging.debug("FINISHED WRAPPER CALCULATIONS")
+        logging.info("... finished wrapper calculations")
         return results
 
     def extract_obj(self, results):

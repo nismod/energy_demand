@@ -492,7 +492,8 @@ def rs_dw_stock(region, data, curr_yr):
         data['lookups']['dwtype'],
         dwtype_floor_area,
         dwtype_distr)
-
+    print(region)
+    print( data['reg_floorarea_resid'])
     floorarea_by = data['reg_floorarea_resid'][region]
     population_by = data['population'][base_yr][region]
 

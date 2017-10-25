@@ -1,7 +1,11 @@
 """Functions related to load profiles
 """
-import sys
+import uuid
+import logging
+from collections import defaultdict
 import numpy as np
+from energy_demand.profiles import generic_shapes
+from energy_demand.initalisations import helpers
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -64,7 +68,7 @@ class LoadProfileStock(object):
         -----
         If no ``shape_peak_dh`` or ``enduse_peak_yd_factor`` is provided
         a flat shape is assumed.
-        """        
+        """
         if not sectors:
             sectors = ['dummy_sector']
         else:
@@ -76,16 +80,14 @@ class LoadProfileStock(object):
             shape_yd,
             shape_yh,
             enduse_peak_yd_factor,
-            shape_peak_dh
-            )
+            shape_peak_dh)
 
         # Generate lookup dictionary with triple key
         self.generate_dict_with_tuple_keys(
             unique_identifier,
             enduses,
             sectors,
-            technologies
-            )
+            technologies)
 
         # Update enduses in stock
         self.get_all_enduses_in_stock()
@@ -144,7 +146,7 @@ class LoadProfileStock(object):
         elif shape == 'shape_peak_dh':
             return load_profile_obj.shape_peak_dh
         else:
-            sys.error("Specific load shape is not found in object")
+            logging.critical("Specific load shape is not found in object")
             return
 
     def get_shape_peak_dh(self, enduse, sector, technology):
@@ -164,11 +166,9 @@ class LoadProfileStock(object):
 
         # Test if dummy sector and thus shape_peak not provided for different sectors
         if sector == 'dummy_sector':
-            shape_peak_dh = load_profile_obj.shape_peak_dh
-            return shape_peak_dh
+            return load_profile_obj.shape_peak_dh
         else:
-            shape_peak_dh = load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
-            return shape_peak_dh
+            return load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
 
 class LoadProfile(object):
     """Load profile container to store differengt shapes
@@ -231,7 +231,8 @@ class LoadProfile(object):
         # Info: nansum does not through an ErrorTimeWarning
         # Some rowy may be zeros, i.e. division by zero results in inf values
         #sum_every_day_p = 1 / np.nansum(self.shape_yh, axis=1)
-        sum_every_day_p = np.divide(1, np.sum(self.shape_yh, axis=1))
+        #sum_every_day_p = np.divide(1, np.sum(self.shape_yh, axis=1))
+        sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
         # Multiply (nr_of_days) + with (nr_of_days, 24)
@@ -259,7 +260,8 @@ def abs_to_rel_no_nan(absolute_array):
     sum_array = float(np.sum(absolute_array))
 
     if sum_array != 0:
-        return np.divide(absolute_array, sum_array)
+        #return np.divide(absolute_array, sum_array)
+        return absolute_array / sum_array
     else:
         return absolute_array
 
@@ -282,7 +284,7 @@ def abs_to_rel(absolute_array):
     """
     sum_array = float(np.sum(absolute_array))
     if sum_array != 0.0:
-        relative_array = np.divide(absolute_array, sum_array)
+        relative_array = absolute_array / sum_array
         relative_array[np.isnan(relative_array)] = 0
         return relative_array
     else:
@@ -305,3 +307,144 @@ def calk_peak_h_dh(fuel_peak_dh):
     peak_fueltype_h = np.max(fuel_peak_dh, axis=1)
 
     return peak_fueltype_h
+
+def create_load_profile_stock(tech_lp, assumptions, sectors):
+    """Assign load profiles which are the same for all regions
+    ``non_regional_load_profiles``
+
+    Arguments
+    ----------
+    tech_lp : dict
+        Load profiles
+    assumptions : dict
+        Assumptions
+    sectors : dict
+        Sectors
+
+    Returns
+    -------
+    non_regional_lp_stock : object
+        Load profile stock with non regional dependent load profiles
+    """
+    non_regional_lp_stock = LoadProfileStock("non_regional_load_profiles")
+
+    # Lighting (residential)
+    non_regional_lp_stock.add_load_profile(
+        unique_identifier=uuid.uuid4(),
+        technologies=assumptions['tech_list']['rs_lighting'],
+        enduses=['rs_lighting'],
+        shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
+        shape_yh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
+        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
+        )
+
+    # rs_cold (residential refrigeration)
+    non_regional_lp_stock.add_load_profile(
+        unique_identifier=uuid.uuid4(),
+        technologies=assumptions['tech_list']['rs_cold'],
+        enduses=['rs_cold'],
+        shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
+        shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
+        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh']
+        )
+
+    # rs_cooking
+    non_regional_lp_stock.add_load_profile(
+        unique_identifier=uuid.uuid4(),
+        technologies=assumptions['tech_list']['rs_cooking'],
+        enduses=['rs_cooking'],
+        shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
+        shape_yh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
+        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
+        )
+
+    # rs_wet
+    non_regional_lp_stock.add_load_profile(
+        unique_identifier=uuid.uuid4(),
+        technologies=assumptions['tech_list']['rs_wet'],
+        enduses=['rs_wet'],
+        shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
+        shape_yh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
+        enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh']
+        )
+
+    # -- dummy rs technologies (apply enduse sepcific shape)
+    for enduse in assumptions['rs_dummy_enduses']:
+        tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
+        non_regional_lp_stock.add_load_profile(
+            unique_identifier=uuid.uuid4(),
+            technologies=tech_list,
+            enduses=[enduse],
+            shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
+            shape_yh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
+            enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
+            shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh']
+            )
+
+    # - dummy ss technologies
+    for enduse in assumptions['ss_dummy_enduses']:
+        tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
+        for sector in sectors['ss_sectors']:
+            non_regional_lp_stock.add_load_profile(
+                unique_identifier=uuid.uuid4(),
+                technologies=tech_list,
+                enduses=[enduse],
+                shape_yd=tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'],
+                shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
+                sectors=[sector],
+                enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
+                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
+                )
+
+    # dummy is - Flat load profile
+    shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
+        assumptions['model_yeardays_nrs'], )
+
+    # If space heating, add load shapes for service sector
+    shape_peak_dh_sectors_enduses = defaultdict(dict)
+    all_enduses_including_heating = assumptions['is_dummy_enduses']
+    all_enduses_including_heating.append("is_space_heating")
+    for sector in sectors['is_sectors']:
+        for enduse in all_enduses_including_heating:
+            if enduse == "is_space_heating":
+                shape_peak_dh_sectors_enduses[sector][enduse] = {
+                    'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+            else:
+                shape_peak_dh_sectors_enduses[sector][enduse] = {
+                    'shape_peak_dh': shape_peak_dh}
+
+    for enduse in assumptions['is_dummy_enduses']:
+
+        # Add load profile for space heating of ss sector
+        if enduse == "is_space_heating":
+            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+            for sector in sectors['is_sectors']:
+                non_regional_lp_stock.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
+                    technologies=tech_list,
+                    enduses=[enduse],
+                    shape_yd=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'],
+                    shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
+                    sectors=[sector],
+                    enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
+                    shape_peak_dh=shape_peak_dh_sectors_enduses
+                    )
+        else:
+            tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
+            for sector in sectors['is_sectors']:
+                non_regional_lp_stock.add_load_profile(
+                    unique_identifier=uuid.uuid4(),
+                    technologies=tech_list,
+                    enduses=[enduse],
+                    shape_yd=shape_non_peak_yd,
+                    shape_yh=shape_non_peak_yh,
+                    sectors=[sector],
+                    enduse_peak_yd_factor=shape_peak_yd_factor,
+                    shape_peak_dh=shape_peak_dh_sectors_enduses
+                    )
+
+    return non_regional_lp_stock

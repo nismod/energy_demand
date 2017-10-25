@@ -58,17 +58,14 @@ def run_model(args):
     # Load data from script calculations
     data = read_data.load_script_data(data)
 
-    # Generate dwelling stocks over whole simulation period
-    data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)
-    data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data)
-
     results = energy_demand_model(data)
 
     logging.debug("... Result section")
-
+    
     results_every_year = [results]
 
     logging.debug("Finished energy demand model from command line execution")
+    print("Finished energy demand model from command line execution")
 
 def parse_arguments():
     """Parse command line arguments
