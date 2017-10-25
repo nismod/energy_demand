@@ -225,7 +225,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
     assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
     assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
-
+    assumptions['test'] = 'test'
     return assumptions
 
 def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, tech_stock, assumptions):

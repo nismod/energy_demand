@@ -73,8 +73,10 @@ class EnergyModel(object):
             region_obj = self.create_region(region_name, data)
 
             # Create dwelling stock
-            data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
-            data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
+            data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(
+                region_name, data, self.curr_yr)
+            data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(
+                region_name, data, self.curr_yr)
 
             # --------------------
             # Residential SubModel
@@ -88,14 +90,18 @@ class EnergyModel(object):
             # --------------------
             self.ss_submodel = self.service_submodel(
                 region_obj,
-                data, data['enduses']['ss_all_enduses'], data['sectors']['ss_sectors'])
+                data,
+                data['enduses']['ss_all_enduses'],
+                data['sectors']['ss_sectors'])
 
             # --------------------
             # Industry SubModel
             # --------------------
             self.is_submodel = self.industry_submodel(
                 region_obj,
-                data, data['enduses']['is_all_enduses'], data['sectors']['is_sectors'])
+                data,
+                data['enduses']['is_all_enduses'],
+                data['sectors']['is_sectors'])
 
             # ----------------------
             # Summarise functions
@@ -121,7 +127,7 @@ class EnergyModel(object):
                 'no_sum',
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
-            print("EGON: " + str(np.sum(reg_enduses_fueltype_y)))
+
             # Sum across all regions, enduses for peak hour
             tot_peak_enduses_fueltype = self.fuel_aggr(
                 tot_peak_enduses_fueltype,
@@ -469,7 +475,7 @@ class EnergyModel(object):
         logging.debug("... residential submodel start")
 
         if not sectors:
-            sectors=['dummy_sector']
+            sectors = ['dummy_sector']
         else:
             pass
 

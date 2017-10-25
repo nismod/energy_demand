@@ -4,7 +4,7 @@ Energy Demand Model
 The industry heating is identical to service heating
 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
-''' 
+6''' 
 import os
 import sys
 import logging
@@ -122,7 +122,11 @@ if __name__ == "__main__":
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        model_run_object = energy_demand_model(data, fuel_in, fuel_in_elec)
+        # Main model run function
+        model_run_object = energy_demand_model(
+            data,
+            fuel_in,
+            fuel_in_elec)
 
         if instrument_profiler:
             profiler.stop()
