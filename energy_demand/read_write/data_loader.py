@@ -279,7 +279,7 @@ def load_paths(path):
 
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
-            path, 'config_data', 'submodel_residential', 'data_residential_by_fuel_end_uses.csv'),
+            path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
         'ss_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_service', 'data_service_by_fuel_end_uses.csv'),
         'is_fuel_raw_data_enduses': os.path.join(
@@ -297,9 +297,9 @@ def load_paths(path):
         'path_shape_ss_cooling': os.path.join(
             path, 'config_data', 'submodel_service', 'shape_service_cooling.csv'),
         'lp_elec_primary_heating': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_HES_elec_primary_heating.csv'),
+            path, 'config_data', 'submodel_residential', 'lp_elec_primary_heating_HES.csv'),
         'lp_elec_secondary_heating': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lp_HES_elec_secondary_heating.csv')
+            path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv')
         }
 
     return paths

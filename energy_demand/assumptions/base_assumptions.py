@@ -94,6 +94,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # (e.g. per dwelling type or GVA class or residents....) #TODO
 
     # Dwelling type distribution base year (fixed)
+    # Source: Table 4c: Housing Stock Distribution by Type, UK Housing Energy Fact File
     assumptions['assump_dwtype_distr_by'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -103,6 +104,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         }
 
     # Dwelling type distribution end year
+    # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
     assumptions['assump_dwtype_distr_ey'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -111,7 +113,9 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'bungalow': 0.088
         }
 
-    # Floor area per dwelling type (TODO: SOURCE)
+    # Floor area per dwelling type
+    # Annex Table 3.1 
+    # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
         'terraced': 82.5,
@@ -130,6 +134,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         }
 
     # Assumption about age distribution
+    # Source: Housing Energy Fact Sheet
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918':0.21, #Average builing age within age class, fraction

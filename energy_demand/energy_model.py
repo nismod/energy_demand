@@ -15,6 +15,7 @@ from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
+from energy_demand.profiles import load_factors as lf
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -82,18 +83,21 @@ class EnergyModel(object):
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
 
-            array_nr_region, region, region_submodels = simulate_region(
-                array_nr_region,
+            region_submodels = simulate_region(
                 region_name,
                 data,
-                weather_regions
-                )
+                weather_regions)
 
+            # ----------------------
+            # Summarise functions
+            # ----------------------
+            logging.debug("... start summing")
+            #TODO: IN FUEL ARRAY NOT DICT
             # Sum across all regions, all enduse and sectors sum_reg
             fuel_indiv_regions_yh = fuel_regions_fueltype(
                 fuel_indiv_regions_yh,
                 data['lookups'],
-                region.region_name,
+                region_name,
                 array_nr_region,
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
@@ -162,8 +166,25 @@ class EnergyModel(object):
             data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         '''
 
-def simulate_region(array_nr_region, region_name, data, weather_regions):
+        #TODO: CALCULATE REGIONAL LOAD FACTORS SHARK
+        #self.rs_reg_load_factor_h = lf.calc_lf_y(self.fuel_indiv_regions_yh)
+        #self.ss_reg_load_factor_h = 
+
+def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
+
+    Arguments
+    ---------
+    region_name : str
+        Region name
+    data : dict
+        Data container
+    weather_regions : oject
+        Weather regions
+
+    Returns
+    -------
+
     """
     logging.debug("Running model for region %s", region_name)
 
@@ -208,12 +229,16 @@ def simulate_region(array_nr_region, region_name, data, weather_regions):
         data['enduses']['is_all_enduses'],
         data['sectors']['is_sectors'])
 
-    # ----------------------
-    # Summarise functions
-    # ----------------------
-    logging.debug("... start summing")
+    # ---------------------
+    # Regional calculations
+    # ---------------------
+
+    # --------
+    # Submodels
+    # --------
     region_submodels = [ss_submodel, rs_submodel, is_submodel]
-    return array_nr_region, region, region_submodels
+
+    return region_submodels
 
 def fuel_aggr(
         input_array,
@@ -332,7 +357,6 @@ def get_fuels_yh(enduse_object, attribute_to_get, model_yearhours_nrs, model_yea
             fuels = enduse_object.fuel_yh
 
     return fuels
-
 
 def industry_submodel(region, data, enduse_names, sector_names):
     """Industry subsector model
@@ -553,7 +577,8 @@ def fuel_regions_fueltype(
         Lookup container
     region_names : list
         All region names
-
+    array_nr_region : int
+        Array nr position of region to store results
     Example
     -------
     {'final_electricity_demand': np.array((regions, model_yearhours_nrs)), dtype=float}

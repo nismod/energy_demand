@@ -336,7 +336,11 @@ class Enduse(object):
                 # ---------------------------------------
                 # Demand Management (peak shaving)
                 # ---------------------------------------
-                daily_lf_cy, average_fuel_yd = lf.daily_load_factors(fuel_yh)
+                # Load factor for every day
+                daily_lf_cy, average_fuel_yd = lf.calc_lf_d(fuel_yh)
+
+                # Load factor for the full year TODO: MAYBE NOT NEEDE HERE BUT ONLY FOR REGION
+                yearly_lf_cy = lf.calc_lf_y(fuel_yh)
 
                 lf_cy_improved_d, peak_shifting = calculate_lf_improvement(
                     enduse, sim_param, daily_lf_cy, assumptions['demand_management'])
@@ -364,6 +368,8 @@ class Enduse(object):
                         lookups)
 
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
+                
+                # Calculate load factors per enduse
 
 def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
     """Calculate lf improvement depending on linear diffusion
@@ -1456,35 +1462,35 @@ def fuel_switch(
 
         TODO: MORE INFO
     """
-    #service_tech_switched = {} 
-    service_tech_switched = service_tech # copy.copy(service_tech) 
     # Must be like this, otherwise error
-
+    service_tech_switched = service_tech # copy.copy(service_tech) 
+    
     # Iterate all technologies installed in fuel switches
     for tech_installed in installed_tech:
 
-        # --------------------------------------------------------
-        # Calculate service for current year for installed technologies
-        # --------------------------------------------------------
+        # ---------------------------------------------------
+        # Calculate service for cy for installed technologies
+        # ---------------------------------------------------
         diffusion_cy = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech[enduse][tech_installed]['l_parameter'],
             sig_param_tech[enduse][tech_installed]['midpoint'],
             sig_param_tech[enduse][tech_installed]['steepness'])
 
-        # Calculate increase in service based on diffusion of installed technology
+        # Calculate service increase based on diffusion of installed technology
         service_tech_installed_cy = diffusion_cy * tot_service_yh_cy
         additional_service_tech_inst = service_tech_installed_cy - service_tech[tech_installed]
 
         service_tech_switched[tech_installed] = service_tech_installed_cy
 
         # ------------------------------------------------------------
-        # Substrat replaced service demand proportinally to fuel shares in base year
+        # Substrat replaced service demand proportinally
+        # to fuel shares in base year
         # ------------------------------------------------------------
         fueltypes_replaced = []
         tot_service_tech_instal_p = 0 # Total replaced service across different fueltypes
 
-        # Iterate fuelswitches and read out the shares of fuel which is switched with the installed technology
+        # Get shares of fuel which are switched with the installed technology
         for fuelswitch in fuel_switches:
             if fuelswitch['enduse'] == enduse and fuelswitch['technology_install']:
                 fueltype_to_replace = fuelswitch['enduse_fueltype_replace']
@@ -1494,10 +1500,7 @@ def fuel_switch(
                 # Share of service demand per fueltype * fraction of fuel switched
                 tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * fuelswitch['share_fuel_consumption_switched']
 
-        #logging.debug("Replaced fueltypes:                                      " + str(fueltypes_replaced))
-        #logging.debug("Service demand which is switched with this technology:   " + str(tot_service_tech_instal_p))
-
-        # Iterate all fueltypes which are affected by the technology installed
+        # Get fueltypes affected by installed technology
         for fueltype_replace in fueltypes_replaced:
 
             # Get all technologies of the replaced fueltype
@@ -1509,7 +1512,8 @@ def fuel_switch(
                     fuelswitch['technology_install'] == tech_installed) and (
                         fuelswitch['enduse_fueltype_replace'] == fueltype_replace):
 
-                    # Service reduced for this fueltype (service technology cy sigmoid diff *  % of heat demand within fueltype)
+                    # Service reduced for this fueltype 
+                    # (service technology cy sigmoid diff *  % of heat demand within fueltype)
                     if tot_service_tech_instal_p == 0:
                         reduction_service_fueltype = 0
                     else:
@@ -1519,25 +1523,22 @@ def fuel_switch(
                         reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break
 
-            logging.debug("Reduction of additional service of technology in replaced fueltype: " + str(np.sum(reduction_service_fueltype)))
-
             # ------------------------------------------
-            # Iterate all technologies in within the fueltype and calculate reduction per technology
+            # Iterate all technologies in within the fueltype 
+            # and calculate reduction per technology
             # ------------------------------------------
             for technology_replaced in technologies_replaced_fueltype:
                 logging.debug("technology_replaced: " + str(technology_replaced))
 
-                # Share of heat demand for technology in fueltype (share of heat demand within fueltype * reduction in servide demand)
+                # Share of heat demand for technology in fueltype 
+                # (share of heat demand within fueltype * reduction in servide demand)
                 service_demand_tech = service_fueltype_tech_cy_p[fueltype_replace][technology_replaced] * reduction_service_fueltype
-                logging.debug("service_demand_tech: " + str(np.sum(service_demand_tech)))
-                logging.debug("A: " + str(service_fueltype_tech_cy_p[fueltype_replace][technology_replaced]))
-
+    
                 # -------
                 # Substract technology specific service
                 # -------
-                # Because in region the fuel distribution may be different because of different efficiencies, particularly for fueltypes,
-                # it may happen that the switched service is minus 0. If this is the case, assume that the service is zero.
                 service_tech_switched[technology_replaced] -= service_demand_tech
+
                 #assert np.sum(service_tech[technology_replaced] - service_demand_tech) >= 0 #must be larger than zero
 
     return service_tech_switched

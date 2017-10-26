@@ -3,6 +3,8 @@ Energy Demand Model
 ===================
 The industry heating is identical to service heating
 
+TODO: Plot all load factors (daily and only y) for every region
+
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
 '''
 import os

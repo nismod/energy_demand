@@ -4,8 +4,11 @@ This section provides and overview how the model code is structured
 and storted.
 
 Folder
-assumptions:  Blbablabla
-
+assumptions:        Blbablabla
+basic:              Balbalba
+charts:             Balbalba
+cli:                Balbalba
+dwelling_stock:     Balbalba
 
 Model Documentation
 ===================
@@ -252,8 +255,11 @@ The base year energy consumption of the UK (ECUK) in terms of fuels and technolo
 
 ### 12.2 Household Electricity Servey
 
-The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey) is the most detailed monitoring of electricity use ever carried out in the UK.
-Electricity consumption was monitored at an appliance level in 250 owner-occupied households across England from 2010 to 2011. The load profiles for different residential enduses for
+The [Household Electricity Survey (HES)](https://www.gov.uk/government/collections/household-electricity-survey)
+is the most detailed monitoring of electricity use ever carried out in the UK.
+Electricity consumption was monitored at an appliance level in 250
+owner-occupied households across England from 2010 to 2011.
+The load profiles for different residential enduses for
 different daytypes (weekend, working day) are taken from a [24 hour spreadsheet tool](https://www.gov.uk/government/publications/spreadsheet-tools-for-users).
 
 ### 12.3 Carbon Trust advanced metering trial
@@ -345,7 +351,6 @@ To calculate regional daily hourly load heating profiles, hourly temperature dat
 
 http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c
 
- Met Office (2006): MIDAS: UK Hourly Weather Observation Data. NCAS British Atmospheric Data Centre, date of citation. 
 
 ### 12.5 Census Data
 
@@ -354,31 +359,52 @@ http://datashine.org.uk/#table=QS605EW&col=QS605EW0004&ramp=RdYlGn&layers=BTTT&z
 
 ### 12.6 Technology specific load shapes
 
-For different technologies, load shares are derived from the following sources:
+In order to generate load profiles for every hour in a year,
+different typical load profils for weekdays, weekends and the peak day
+are derived from measuremnt trials, i.e. load profiles are
+modelled in a bottom-up way. In every case, only the profile (i.e.
+the 'shape' of a profile) is read as an input into the model.
+
+For different heating technologies, load shares are derived from the
+following sources:
 
 
-   **Boiler load profile**
-   Load profiles for a typicaly working, weekend and peak day are derived from data provided by Sansom (2014).
+- **Boiler load profile**
 
-   **Micro-CHP**
-   Load profiles for a typicaly working, weekend and peak day are derived from data provided by Sansom (2014).
+   Load profiles for a typicaly working, weekend and peak day
+   are derived from data provided by Sansom (2014).
 
-   **Heat pumps load profile**
-   Based on nearly 700 domestic heat pump installations, Love et al. (2017) provides aggregated profiles for cold
-   and medium witer weekdays and weekends. The shape of the load profiles is derived for a working, weekend and peak day.
 
-   **Electric Heating**
-   BLABLA
+- **Micro-CHP**
 
+   Load profiles for a typicaly working, weekend and peak
+   day are derived from data provided by Sansom (2014).
+
+
+- **Heat pumps load profile**
+
+   Based on nearly 700 domestic heat pump installations,
+   Love et al. (2017) provides aggregated profiles for cold
+   and medium witer weekdays and weekends. The shape of the
+   load profiles is derived for a working, weekend and peak day.
+
+
+- **Primary and secondary electirc heating**
+
+  The load profiles are based on the Household Electricity
+  Survey (HES) by the Department of Energy & 
+  Climate Change (DECC, 2014).
 
 
 ## Literature
 
 BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
 
+DECC (2014) Household Electricity Survey. Available at: [https://www.gov.uk/government/collections/household-electricity-survey]
+(https://www.gov.uk/government/collections/household-electricity-survey)
+
 Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, C., … Lowe, R. (2017). The addition of heat pump electricity load profiles to GB electricity demand: Evidence from a heat pump field trial. Applied Energy, 204, 332–342. [https://doi.org/10.1016/j.apenergy.2017.07.026](https://doi.org/10.1016/j.apenergy.2017.07.026)
 
 Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Imperial College London.
 
-UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Available    at: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).
-
+UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Available at: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).
