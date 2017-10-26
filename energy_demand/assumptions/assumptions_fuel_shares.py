@@ -4,10 +4,10 @@ Fuel share assumptions
 All fuel shares of the base year for the different technologies are defined
 """
 from energy_demand.technologies import tech_related
-from energy_demand.initalisations import initialisations
 from energy_demand.initalisations import helpers
+from energy_demand.basic import testing_functions
 
-def assign_by_fuel_tech_p(assumptions, data):
+def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     """Assigning fuel share per enduse for different
     technologies for the base year
 
@@ -31,20 +31,20 @@ def assign_by_fuel_tech_p(assumptions, data):
     - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
     """
-    rs_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['rs_all_enduses'], data['lookups']['fueltypes_nr'])
-    ss_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['ss_all_enduses'], data['lookups']['fueltypes_nr'])
-    is_fuel_tech_p_by = initialisations.init_fuel_tech_p_by(
-        data['enduses']['is_all_enduses'], data['lookups']['fueltypes_nr'])
+    rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+        enduses['rs_all_enduses'], lookups['fueltypes_nr'])
+    ss_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+        enduses['ss_all_enduses'], lookups['fueltypes_nr'])
+    is_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+        enduses['is_all_enduses'], lookups['fueltypes_nr'])
 
-    fuel_nr_oil = data['lookups']['fueltype']['oil']
-    fuel_nr_elec = data['lookups']['fueltype']['electricity']
-    fuel_nr_gas = data['lookups']['fueltype']['gas']
-    fuel_nr_heat_sold = data['lookups']['fueltype']['heat_sold']
-    fuel_nr_biomass = data['lookups']['fueltype']['biomass']
-    fuel_nr_hydrogen = data['lookups']['fueltype']['hydrogen']
-    fuel_nr_solid_fuel = data['lookups']['fueltype']['solid_fuel']
+    fuel_nr_oil = lookups['fueltype']['oil']
+    fuel_nr_elec = lookups['fueltype']['electricity']
+    fuel_nr_gas = lookups['fueltype']['gas']
+    fuel_nr_heat_sold = lookups['fueltype']['heat_sold']
+    fuel_nr_biomass = lookups['fueltype']['biomass']
+    fuel_nr_hydrogen = lookups['fueltype']['hydrogen']
+    fuel_nr_solid_fuel = lookups['fueltype']['solid_fuel']
 
     # ------------------
     # Residential subModel
@@ -87,11 +87,11 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_solid_fuel': 1.0
         }
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_gas] = {
-        'boiler_gas': 1.0
+        'boiler_gas': 0.98,
+        'stirling_micro_CHP': 0.02
         }
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
-        'heat_pumps_electricity': 0.02, # 0.02 Hannon (2015)
-        'hybrid_gas_electricity': 0.02,
+        'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56
         }  # heat-pump share in uk #According to OFGEM 1.7 out of 4
@@ -119,8 +119,7 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_gas': 1.0
         }
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_elec] = {
-        'hybrid_gas_electricity': 0.02,
-        'boiler_electricity': 0.98
+        'boiler_electricity': 1.0
         }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0
@@ -134,11 +133,14 @@ def assign_by_fuel_tech_p(assumptions, data):
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_hydrogen] = {
         'boiler_hydrogen': 1.0
         }
-
+    #TODO: Write function to test in case if a switch is defined,
+    # all technologies of base year are defined in switch
+    #testing_functions.test_defined_service_switch(rs_fuel_tech_p_by, )
     # --------------
     # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
     # --------------
     '''
+    TODO: IF XY MEGAWATT NEEDS TO BE PROVIDED
     # Service share within a fueltype
     tech_share_tot_service = {
         'heat_pumps_electricity': 0.02,
@@ -172,8 +174,7 @@ def assign_by_fuel_tech_p(assumptions, data):
         'boiler_gas': 1.0
         }
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_elec] = {
-        'boiler_electricity': 0.98,
-        'hybrid_gas_electricity': 0.02
+        'boiler_electricity': 1.0
         }
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0
@@ -229,11 +230,7 @@ def assign_by_fuel_tech_p(assumptions, data):
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
     assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
     assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
-
-    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
-    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
-    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['hybrid_technologies'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
-
+    assumptions['test'] = 'test'
     return assumptions
 
 def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, tech_stock, assumptions):
@@ -275,9 +272,9 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
             assumptions['tech_list']
             )
 
-        if tech_type == 'hybrid_tech':
-            eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
-        elif tech_type == 'heat_pump':
+        #if tech_type == 'hybrid_tech':
+        #    eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
+        if tech_type == 'heat_pump':
             eff_tech_by = tech_related.eff_heat_pump(
                 temp_diff=10,
                 efficiency_intersect=tech_stock[technology]['eff_by']

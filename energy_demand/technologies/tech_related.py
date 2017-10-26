@@ -1,5 +1,6 @@
 """Functions related to technologies
 """
+import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 
@@ -34,7 +35,8 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:
 
-            # TODO write explicit in assumptions: Test if any fueltype is specified with a technology.
+            # TODO write explicit in assumptions: Test if any fueltype
+            # is specified with a technology.
             # If yes, do not insert dummy technologies
             # because in the fuel definition all technologies of all endueses need to be defined
             crit_tech_defined_in_enduse = False
@@ -72,15 +74,15 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
     dummy_enduses : list
         List with all endueses with dummy technologies
     """
-    dummy_enduses = set([])
-    for enduse in enduse_tech_p_by:
-        for fueltype in enduse_tech_p_by[enduse]:
-            for tech in enduse_tech_p_by[enduse][fueltype]:
+    dummy_enduses = []
+    for enduse, fueltype_techs in enduse_tech_p_by.items():
+        for techs in fueltype_techs.values():
+            for tech in techs:
                 if tech == 'dummy_tech':
-                    dummy_enduses.add(enduse)
+                    dummy_enduses.append(enduse)
                     continue
 
-    return list(dummy_enduses)
+    return list(set(dummy_enduses))
 
 def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperature difference of base year
@@ -108,14 +110,13 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
-
     # Calculate temperature difference to t_base_heating
     temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
 
-    # Calculate efficiency
+    # Calculate average efficiency of heat pumps over full year
     eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
 
-    return eff_hp_yh
+    return float(eff_hp_yh)
 
 def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     """Calculate efficiency of heat pump
@@ -154,7 +155,10 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
 
     #FAST
     #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
-    return efficiency_hp
+    # Calculate average efficiency over whole year
+    efficiency_hp_mean = np.mean(efficiency_hp)
+
+    return efficiency_hp_mean
 
 def get_fueltype_str(fueltype_lu, fueltype_nr):
     """Read from dict the fueltype string based on fueltype KeyError
@@ -213,9 +217,7 @@ def get_tech_type(tech_name, tech_list):
     -  Either a technology is a hybrid technology, a heat pump,
        a constant heating technology or a regular technolgy
     """
-    if tech_name in tech_list['tech_heating_hybrid']:
-        tech_type = 'hybrid_tech'
-    elif tech_name in tech_list['tech_heating_temp_dep']:
+    if tech_name in tech_list['tech_heating_temp_dep']:
         tech_type = 'heat_pump'
     elif tech_name in tech_list['tech_heating_const']:
         tech_type = 'boiler_heating_tech'
@@ -230,7 +232,7 @@ def get_tech_type(tech_name, tech_list):
 
     return tech_type
 
-def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, heat_pump_assump):
+def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump):
     """Delete all heat_pump from tech dict, define average new heat pump
     technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
 
@@ -260,7 +262,6 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
 
     # Calculate average efficiency of heat pump depending on installed ratio
     for fueltype in heat_pump_assump:
-
         av_eff_hps_by, av_eff_hps_ey, eff_achieved_av, market_entry_lowest = 0, 0, 0, 2200
 
         for heat_pump_type in heat_pump_assump[fueltype]:
@@ -279,9 +280,9 @@ def generate_heat_pump_from_split(data, temp_dependent_tech_list, technologies, 
                 market_entry_lowest = market_entry
 
         # Add average 'av_heat_pumps' to technology dict
-        name_av_hp = "heat_pumps_{}".format(str(get_fueltype_str(data['lookups']['fueltype'], fueltype)))
+        name_av_hp = "heat_pumps_{}".format(fueltype)
 
-        #logging.debug("...create new averaged heat pump technology: %s", name_av_hp)
+        logging.debug("... create new averaged heat pump technology: %s", name_av_hp)
 
         # Add technology to temperature dependent technology list
         temp_dependent_tech_list.append(name_av_hp)
@@ -366,103 +367,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
 
         return eff_cy
 
-def get_defined_hybrid_tech(assumptions, technologies, hybrid_cutoff_temp_low, hybrid_cutoff_temp_high):
-    """All hybrid technologies and their charactersitics are defined
-
-    Arguments
-    ----------
-    assumptions : dict
-        Assumptions
-    technologies : dict
-        Technologies
-    hybrid_cutoff_temp_low : float
-        Temperature below which 100% of service is provided by
-        low temperature technology (typically heat pump)
-    hybrid_cutoff_temp_high : float
-        Temperature above which 100% of service is provided by high
-        temperature technology (typically boiler)
-
-    Return
-    ------
-    technologies : dict
-        Technologies
-    hybrid_technologies : list
-        Name of hybrid technologies
-    hybrid_tech : dict
-        Definition of hybrid technologies
-
-    Note
-    ----
-    - The low and high temperature technology is defined, whereby the high temperature technology
-      must be a heatpump.
-
-    - Cut off temperatures can be defined to change the share of service for each
-      technology at a given temperature (see doumentation for more information)
-
-    - So far, the standard heat pump is only electricity. Can be changed however
-
-    #TODO: DEFINE WITH REAL VALUES
-    """
-    hybrid_tech = {
-        'hybrid_gas_electricity': {
-            "tech_low_temp": 'boiler_gas',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_gas',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-        'hybrid_hydrogen_electricity': {
-            "tech_low_temp": 'boiler_hydrogen',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_hydrogen',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-        'hybrid_biomass_electricity': {
-            "tech_low_temp": 'boiler_biomass',
-            "tech_high_temp": 'heat_pumps_electricity',
-            "hybrid_cutoff_temp_low": hybrid_cutoff_temp_low,
-            "hybrid_cutoff_temp_high": hybrid_cutoff_temp_high,
-            "average_efficiency_national_by": get_average_eff_by(
-                tech_low_temp='boiler_biomass',
-                tech_high_temp='heat_pumps_electricity',
-                assump_service_share_low_tech=0.2,
-                assumptions=assumptions
-                )
-            },
-    }
-
-    # Hybrid technologies
-    hybrid_technologies = hybrid_tech.keys()
-
-    # Add hybrid technologies to technological stock and define other attributes
-    for tech_name, tech in hybrid_tech.items():
-        technologies[tech_name] = tech
-        technologies[tech_name]['eff_achieved'] = 1
-        technologies[tech_name]['diff_method'] = 'linear'
-
-        # Select market entry of later appearing technology
-        entry_tech_low = assumptions['technologies'][tech['tech_low_temp']]['market_entry']
-        entry_tech_high = assumptions['technologies'][tech['tech_high_temp']]['market_entry']
-
-        if entry_tech_low < entry_tech_high:
-            technologies[tech_name]['market_entry'] = entry_tech_high
-        else:
-            technologies[tech_name]['market_entry'] = entry_tech_low
-
-    return technologies, list(hybrid_technologies), hybrid_tech
-
-def generate_ashp_gshp_split(split_factor, data):
+def generate_ashp_gshp_split(split_factor):
     """Assing split for each fueltype of heat pump technologies
 
     Arguments
@@ -485,15 +390,15 @@ def generate_ashp_gshp_split(split_factor, data):
     gshp_fraction = 1 - split_factor
 
     installed_heat_pump = {
-        data['lookups']['fueltype']['hydrogen']: {
+        'hydrogen': {
             'heat_pump_ASHP_hydro': ashp_fraction,
             'heat_pump_GSHP_hydro': gshp_fraction
             },
-        data['lookups']['fueltype']['electricity']: {
+        'electricity': {
             'heat_pump_ASHP_electricity': ashp_fraction,
             'heat_pump_GSHP_electricity': gshp_fraction
             },
-        data['lookups']['fueltype']['gas']: {
+        'gas': {
             'heat_pump_ASHP_gas': ashp_fraction,
             'heat_pump_GSHP_gas': gshp_fraction
             },

@@ -30,7 +30,7 @@ def set_up_logger(path_log_file):
     logging.basicConfig(
         filename=path_log_file,
         filemode='w', #'a, w'
-        level=logging.INFO, #INFO, DEBUG
+        level=logging.INFO, #INFO, DEBUG, ERROR, CRITICAL
         format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     )
 
@@ -38,5 +38,5 @@ def set_up_logger(path_log_file):
     logging.getLogger().addHandler(logging.StreamHandler())
 
     # Turn on/off logger
-    logging.disable = True
+    logging.disable = False
     #logging.disable(logging.CRITICAL)

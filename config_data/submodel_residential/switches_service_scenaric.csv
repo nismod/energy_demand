@@ -9,3 +9,4 @@ rs_space_heating,boiler_oil,0,0.9
 rs_space_heating,boiler_heat_sold,0,0.9
 rs_space_heating,boiler_solid_fuel,0,0.9
 rs_space_heating,heat_pumps_electricity,0.1,0.9
+rs_space_heating,stirling_micro_CHP,0,0.9

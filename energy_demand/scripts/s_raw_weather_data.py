@@ -62,7 +62,7 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
 
             # Add weather station if not already added to dict
             if station_id not in temp_stations:
-                temp_stations[station_id] = np.zeros((365, 24))
+                temp_stations[station_id] = np.zeros((365, 24), dtype=float)
 
             # Add data
             temp_stations[station_id][yearday][hour] = air_temp

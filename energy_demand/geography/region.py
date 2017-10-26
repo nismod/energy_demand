@@ -1,5 +1,5 @@
-"""Residential model"""
-from energy_demand.geography import weather_station_location as wl
+"""Region representation
+"""
 
 class Region(object):
     """Region class
@@ -8,8 +8,14 @@ class Region(object):
     ---------
     region_name : str
         Unique identifyer of region_name
-    data : dict
-        Dictionary containing data
+    rs_fuel_disagg : dict
+        Nested dict by region, enduse => np.array, single dimension for fuel type
+    ss_fuel_disagg : dict
+        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
+    is_fuel_disagg : dict
+        Nested dict by region, sector, enduse => np.array, single dimension for fuel type
+    weather_region : obj
+        weather_reg_obj weather region of Region
 
     Note
     ----
@@ -17,64 +23,35 @@ class Region(object):
     is calculated and the technology and load profiles imported from
     this station
     """
-    def __init__(self, region_name, data, weather_regions):
+    def __init__(self, region_name, rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg, weather_region):
         """Constructor
         """
         self.region_name = region_name
 
         # Fuels
-        self.rs_enduses_fuel = data['rs_fuel_disagg'][region_name]
-        self.ss_enduses_sectors_fuels = data['ss_fuel_disagg'][region_name]
-        self.is_enduses_sectors_fuels = data['is_fuel_disagg'][region_name]
-
-        # Get closest weather station to `Region`
-        closest_reg = wl.get_closest_station(
-            data['reg_coord'][region_name]['longitude'],
-            data['reg_coord'][region_name]['latitude'],
-            data['weather_stations']
-            )
-        weather_reg_obj = self.get_weather_reg(
-            weather_regions, closest_reg)
+        self.rs_enduses_fuel = rs_fuel_disagg
+        self.ss_enduses_sectors_fuels = ss_fuel_disagg
+        self.is_enduses_sectors_fuels = is_fuel_disagg
 
         # Get tech stocks and load profiles
 
         #Residential submodel
-        self.rs_tech_stock = weather_reg_obj.rs_tech_stock
-        self.rs_load_profiles = weather_reg_obj.rs_load_profiles
+        self.rs_tech_stock = weather_region.rs_tech_stock
+        self.rs_load_profiles = weather_region.rs_load_profiles
 
-        self.rs_heating_factor_y = weather_reg_obj.rs_heating_factor_y
-        self.rs_cooling_factor_y = weather_reg_obj.rs_cooling_factor_y
+        self.rs_heating_factor_y = weather_region.rs_heating_factor_y
+        self.rs_cooling_factor_y = weather_region.rs_cooling_factor_y
 
         #Service submodel
-        self.ss_tech_stock = weather_reg_obj.ss_tech_stock
-        self.ss_load_profiles = weather_reg_obj.ss_load_profiles
+        self.ss_tech_stock = weather_region.ss_tech_stock
+        self.ss_load_profiles = weather_region.ss_load_profiles
 
-        self.ss_heating_factor_y = weather_reg_obj.ss_heating_factor_y
-        self.ss_cooling_factor_y = weather_reg_obj.ss_cooling_factor_y
+        self.ss_heating_factor_y = weather_region.ss_heating_factor_y
+        self.ss_cooling_factor_y = weather_region.ss_cooling_factor_y
 
         #Industry submodel
-        self.is_tech_stock = weather_reg_obj.is_tech_stock
-        self.is_load_profiles = weather_reg_obj.is_load_profiles
+        self.is_tech_stock = weather_region.is_tech_stock
+        self.is_load_profiles = weather_region.is_load_profiles
 
-        self.is_heating_factor_y = weather_reg_obj.is_heating_factor_y
-        self.is_cooling_factor_y = weather_reg_obj.is_cooling_factor_y
-
-    @classmethod
-    def get_weather_reg(cls, weather_regions, closest_reg):
-        """Iterate list with weather regions and get weather region object
-
-        Arguments
-        ---------
-        weather_regions : dict
-            Weather regions
-        closest_reg : str
-            Station ID
-
-        Return
-        ------
-        weather_region : object
-            Weather region
-        """
-        for weather_region in weather_regions:
-            if weather_region.weather_region_name == closest_reg:
-                return weather_region
+        self.is_heating_factor_y = weather_region.is_heating_factor_y
+        self.is_cooling_factor_y = weather_region.is_cooling_factor_y

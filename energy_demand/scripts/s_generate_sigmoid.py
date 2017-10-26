@@ -7,6 +7,7 @@ fraction at the model end year
 import os
 import sys
 import copy
+import math
 import logging
 import numpy as np
 from scipy.optimize import curve_fit
@@ -37,18 +38,37 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     """
 
     # Generate possible starting parameters for fit
-    start_param_list = [1.0, 0.001, 0.01, 0.1, 60, 100, 200, 400, 500, 1000]
+    start_param_list = [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]
     for start in [x * 0.05 for x in range(0, 100)]:
-        start_param_list.append(start)
+        start_param_list.append(float(start))
     for start in range(1, 59):
-        start_param_list.append(start)
+        start_param_list.append(float(start))
 
     cnt = 0
     successfull = False
     while not successfull:
         try:
             start_parameters = [start_param_list[cnt], start_param_list[cnt]]
-            fit_parameter = fit_sigmoid_diffusion(l_value, xdata, ydata, start_parameters)
+            
+            # Fit function
+            fit_parameter = fit_sigmoid_diffusion(
+                l_value,
+                xdata,
+                ydata,
+                start_parameters)
+    
+            '''logging.debug("Fit parameters: %s", fit_parameter)
+            from energy_demand.plotting import plotting_program
+            #plot sigmoid curve
+            plotting_program.plotout_sigmoid_tech_diff(
+                l_value,
+                "GG",
+                "DD",
+                xdata,
+                ydata,
+                fit_parameter,
+                False
+                )'''
 
             # Criteria when fit did not work
             if (fit_parameter[0] > fit_crit_a) or (
@@ -114,6 +134,10 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
     a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
     """
+    # Because a fit canno't be plotted from 0, an initial
+    # assumption needs to be made.
+    fit_assump_init = 0.001
+
     sigmoid_parameters = defaultdict(dict)
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
@@ -146,14 +170,14 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             # --------
             if market_entry > data['sim_param']['base_yr']:
                 point_x_by = market_entry
-                point_y_by = 0.001 # very small service share if market entry in a future year
+                point_y_by = fit_assump_init # very small service share if market entry in a future year
             else: # If market entry before, set to 2015
                 point_x_by = data['sim_param']['base_yr']
                 point_y_by = service_tech_by_p[enduse][tech] # current service share
 
                 #If the base year is the market entry year use a very small number
                 if point_y_by == 0:
-                    point_y_by = 0.001
+                    point_y_by = fit_assump_init
 
             # Future energy service demand (second point on sigmoid curve for fitting)
             point_x_projected = year_until_switched
@@ -267,13 +291,18 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     ----
     The Sigmoid is substacted - 2000 to allow for better fit with low values
 
+    Warning
+    -------
+    It cannot fit a value starting from 0. Therfore, some initial penetration needs
+    to be assumed (e.g. 0.001%)
     RuntimeWarning is ignored
     https://stackoverflow.com/questions/4359959/overflow-in-exp-in-scipy-numpy-in-python
     """
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
         """
-        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000) - x0_value)))
+        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
+        #y_value = l_value / (1 + math.exp(float(-k_value) * ((float(x_value) - 2000.0) - float(x0_value))))
 
         return y_value
 
@@ -366,6 +395,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     Implement changes in heat demand (all technolgies within
     a fueltypes are replaced proportionally)
     """
+    #service_tech_switched_p = defaultdict(dict)
     service_tech_switched_p = copy.deepcopy(service_tech_by_p)
 
     for enduse in enduses:
@@ -391,6 +421,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
 
                     # ---Service addition
                     service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
+                    #service_tech_switched_p[enduse][tech_install] = service_tech_switched_p[enduse][tech_install] + change_service_fueltype_p
 
                     # Get all technologies which are replaced related to this fueltype
                     replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
@@ -398,6 +429,7 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
                     # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
                         service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
+                        #service_tech_switched_p[enduse][tech] = service_tech_switched_p[enduse][tech] - (change_service_fueltype_p * service_tech_by_p[enduse][tech])
 
     return service_tech_switched_p
 
@@ -430,7 +462,18 @@ def get_tech_installed(enduses, fuel_switches):
 
     return installed_tech
 
-def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_increased_service, share_service_tech_ey_p, enduse_tech_maxl_by_p, service_fueltype_by_p, service_tech_by_p, fuel_tech_p_by):
+def get_sig_diffusion(
+        data,
+        service_switches,
+        fuel_switches,
+        enduses,
+        tech_increased_service,
+        share_service_tech_ey_p,
+        enduse_tech_maxl_by_p,
+        service_fueltype_by_p,
+        service_tech_by_p,
+        fuel_tech_p_by
+    ):
     """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
 
     Arguments
@@ -467,7 +510,6 @@ def get_sig_diffusion(data, service_switches, fuel_switches, enduses, tech_incre
     It is assumed that the technology diffusion is the same over
     all the uk (no regional different diffusion)
     """
-    # Test is Service Switch is implemented
     if len(service_switches) > 0:
         crit_switch_service = True
     else:

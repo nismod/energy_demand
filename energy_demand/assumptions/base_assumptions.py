@@ -1,8 +1,8 @@
 """All assumptions are either loaded in this file or definied here
 """
 import logging
-import numpy as np
 from datetime import date
+import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions as testing
@@ -10,9 +10,10 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
 from energy_demand.read_write import data_loader
-#TODO: Make that HLC can be improved, ssumption share of existing dwelling stock which is assigned new HLC coefficients
+#TODO: Make that HLC can be improved, ssumption share of existing
+#  dwelling stock which is assigned new HLC coefficients
 
-def load_assumptions(data, write_sim_param):
+def load_assumptions(paths, enduses, lookups, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -22,7 +23,7 @@ def load_assumptions(data, write_sim_param):
     """
     logging.debug("... load assumptions")
     assumptions = {}
-    if write_sim_param == True:
+    if write_sim_param: # == True:
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
@@ -35,7 +36,7 @@ def load_assumptions(data, write_sim_param):
             end=date(sim_param['base_yr'], 12, 31))
 
     # ============
-    # Date selection for which model is run$
+    # Date selection for which model is run
     # Store in list all dates which are modelled
     # ============
     year_to_model = 2015
@@ -43,11 +44,12 @@ def load_assumptions(data, write_sim_param):
     spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
     summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
     autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
+    #TODO: DEFINE SEASONS WITH DATE
 
     # Modelled days
     assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     #assumptions['model_yeardays'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
-    assumptions['model_yeardays'] = list(range(365))
+    assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
     #Modelled dates
     assumptions['model_yeardays_date'] = []
@@ -57,6 +59,7 @@ def load_assumptions(data, write_sim_param):
 
     # Nr of days to model
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
+    assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24
 
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
@@ -79,11 +82,13 @@ def load_assumptions(data, write_sim_param):
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
     # False: heat is delievered
-    assumptions['mode_constrained'] = False #False proides technologies
+    assumptions['mode_constrained'] = False #False provides technologies
 
     # ============================================================
     # Residential dwelling stock assumptions
     # ============================================================
+    assumptions['virtual_dwelling_stock'] = True #OR newcastle is loaded
+
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
@@ -92,6 +97,7 @@ def load_assumptions(data, write_sim_param):
     # (e.g. per dwelling type or GVA class or residents....) #TODO
 
     # Dwelling type distribution base year (fixed)
+    # Source: Table 4c: Housing Stock Distribution by Type, UK Housing Energy Fact File
     assumptions['assump_dwtype_distr_by'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -101,6 +107,7 @@ def load_assumptions(data, write_sim_param):
         }
 
     # Dwelling type distribution end year
+    # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
     assumptions['assump_dwtype_distr_ey'] = {
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -109,7 +116,9 @@ def load_assumptions(data, write_sim_param):
         'bungalow': 0.088
         }
 
-    # Floor area per dwelling type (TODO: SOURCE)
+    # Floor area per dwelling type
+    # Annex Table 3.1 
+    # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
         'terraced': 82.5,
@@ -128,6 +137,7 @@ def load_assumptions(data, write_sim_param):
         }
 
     # Assumption about age distribution
+    # Source: Housing Energy Fact Sheet
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918':0.21, #Average builing age within age class, fraction
@@ -141,6 +151,32 @@ def load_assumptions(data, write_sim_param):
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
     # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses -->
     # Which then again influences HLC
+
+    # ============================================================
+    #  Demand management assumptions (daily demand shape)
+    #  An improvement in load factor improvement can be assigned
+    #  for every enduse (peak shaving)
+    # 
+    #  Example: 0.2 --> Improvement in load factor until ey
+    # ============================================================
+    assumptions['demand_management'] = {}
+
+    # --Residential SubModel
+    assumptions['demand_management'] = {
+
+        # Residential submodule
+        'rs_space_heating': 0,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0
+
+        # TODO
+
+    }
 
     # ============================================================
     #  Scenario drivers
@@ -168,21 +204,19 @@ def load_assumptions(data, write_sim_param):
         'ss_computing': [],
         'ss_space_cooling': ['floorarea'],
         'ss_other_gas': ['floorarea'],
-        'ss_other_electricity': ['floorarea']
-    }
+        'ss_other_electricity': ['floorarea']}
 
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
-        'is_high_temp_process': ['GVA'],
-        'is_low_temp_process': ['GVA'],
-        'is_drying_separation': ['GVA'],
-        'is_motors': ['GVA'],
-        'is_compressed_air': ['GVA'],
-        'is_lighting': ['GVA'],
-        'is_space_heating': ['GVA'],
-        'is_other': ['GVA'],
-        'is_refrigeration': ['GVA']
-    }
+        'is_high_temp_process': ['gva'],
+        'is_low_temp_process': ['gva'],
+        'is_drying_separation': ['gva'],
+        'is_motors': ['gva'],
+        'is_compressed_air': ['gva'],
+        'is_lighting': ['gva'],
+        'is_space_heating': ['gva'],
+        'is_other': ['gva'],
+        'is_refrigeration': ['gva']}
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # TODO: READ IN FROM READL BUILDING SCENARIOS...
@@ -368,8 +402,7 @@ def load_assumptions(data, write_sim_param):
 
     # Load all technologies
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
-        data['paths']['path_technologies'],
-        data['lookups']['fueltype'])
+        paths['path_technologies'])
 
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_hp_ashp_gshp = 0.5
@@ -379,23 +412,14 @@ def load_assumptions(data, write_sim_param):
 
     # --Heat pumps
     assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
-        split_hp_ashp_gshp,
-        data)
+        split_hp_ashp_gshp)
 
     # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
-        data,
         [],
         assumptions['technologies'],
         assumptions['installed_heat_pump']
         )
-
-    # --Hybrid technologies
-    assumptions['technologies'], assumptions['tech_list']['tech_heating_hybrid'], assumptions['hybrid_technologies'] = tech_related.get_defined_hybrid_tech(
-        assumptions,
-        assumptions['technologies'],
-        hybrid_cutoff_temp_low=2, #TODO :DEFINE PARAMETER
-        hybrid_cutoff_temp_high=7)
 
     # ----------
     # Enduse definition list
@@ -410,28 +434,29 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
-        data
+        enduses,
+        lookups
         )
 
     # ============================================================
     # Scenaric FUEL switches
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['rs_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['rs_path_fuel_switches'], enduses, lookups)
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['ss_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['ss_path_fuel_switches'], enduses, lookups)
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        data['paths']['is_path_fuel_switches'], data['enduses'], data['lookups'])
+        paths['is_path_fuel_switches'], enduses, lookups)
 
     # ============================================================
     # Scenaric SERVICE switches
     # ============================================================
     assumptions['rs_share_service_tech_ey_p'], assumptions['rs_enduse_tech_maxL_by_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(
-        data['paths']['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
+        paths['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
     assumptions['ss_share_service_tech_ey_p'], assumptions['ss_enduse_tech_maxL_by_p'], assumptions['ss_service_switches'] = read_data.read_service_switch(
-        data['paths']['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
+        paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
-        data['paths']['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
+        paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
@@ -454,8 +479,10 @@ def load_assumptions(data, write_sim_param):
     # ============================================================
     # Helper functions
     # ============================================================
-    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing.testing_service_switch_insert(assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
+    ##testing.testing_service_switch_insert(
+    # assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
+    ##testing.testing_service_switch_insert(
+    # assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
 
     # Test if fuel shares sum up to 1 within each fueltype
     testing.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
@@ -468,11 +495,6 @@ def load_assumptions(data, write_sim_param):
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
-    testing.testing_switch_technologies(
-        assumptions['hybrid_technologies'],
-        assumptions['rs_fuel_tech_p_by'],
-        assumptions['rs_share_service_tech_ey_p'],
-        assumptions['technologies'])
 
     if write_sim_param == True:
         return sim_param, assumptions

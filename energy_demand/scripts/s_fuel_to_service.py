@@ -164,7 +164,7 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
     aggregated_fuel_enduse = {}
 
     for enduse in ss_enduses:
-        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes))
+        aggregated_fuel_enduse[str(enduse)] = np.zeros((nr_fueltypes), dtype=float)
 
     # Iterate and sum fuel per enduse
     for fuels_sector in ss_fuel_raw_data_enduses.values():
@@ -173,7 +173,7 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
 
     return aggregated_fuel_enduse
 
-def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
+def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
     """Calculate total energy service percentage of each technology
     and energy service percentage within the fueltype
 
@@ -250,9 +250,7 @@ def get_service_fueltype_tech(tech_list, hybrid_technologies, lu_fueltypes, fuel
                 tech_type = tech_related.get_tech_type(tech, tech_list)
 
                 # Get efficiency for base year
-                if tech_type == 'hybrid_tech':
-                    eff_tech = hybrid_technologies[tech]['average_efficiency_national_by']
-                elif tech_type == 'heat_pump':
+                if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
                         efficiency_intersect=tech_stock[tech]['eff_by'])
@@ -310,7 +308,6 @@ def run(data):
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['assumptions']['hybrid_technologies'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
         data['fuels']['rs_fuel_raw_data_enduses'],
@@ -325,7 +322,6 @@ def run(data):
 
     ss_service_tech_by_p, ss_service_fueltype_tech_by_p, ss_service_fueltype_by_p = get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['assumptions']['hybrid_technologies'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
@@ -340,7 +336,6 @@ def run(data):
 
     is_service_tech_by_p, is_service_fueltype_tech_by_p, is_service_fueltype_by_p = get_service_fueltype_tech(
         data['assumptions']['tech_list'],
-        data['assumptions']['hybrid_technologies'],
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,

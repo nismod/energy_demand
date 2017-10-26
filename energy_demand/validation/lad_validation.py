@@ -20,8 +20,9 @@ def temporal_validation(data, reg_enduses_fueltype_y):
         # Compare total gas and electrictiy
         # load with Elexon Data for Base year for different regions
     """
-            
-    # Yeardays to plot
+    # -------------------------------
+    # Yeardays to plot for validation
+    # -------------------------------
     winter_week = list(range(date_handling.date_to_yearday(2015, 1, 12), date_handling.date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(date_handling.date_to_yearday(2015, 5, 11), date_handling.date_to_yearday(2015, 5, 18))) #May
     summer_week = list(range(date_handling.date_to_yearday(2015, 7, 13), date_handling.date_to_yearday(2015, 7, 20))) #Jul
@@ -58,24 +59,28 @@ def temporal_validation(data, reg_enduses_fueltype_y):
 
     return
 
-def spatial_validation(data, model_run_object):
+def spatial_validation(data, reg_enduses_fueltype_y, tot_peak_enduses_fueltype):
     """Validate national demand
     """
     logging.info("Spatial Validation of electrictiy demand")
 
+    # Add electricity data to region info
+    data['reg_coord'], _ = data_loader.get_national_electricity_data(
+        data['local_paths'], data['reg_coord'])
+
+    val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
+        data['local_paths']['folder_validation_national_elec_data'])
+
     compare_lad_regions(
         'compare_lad_regions.pdf',
         data,
-        data['reg_coord'], #lad_infos_shapefile,
-        model_run_object,
+        data['reg_coord'],
+        reg_enduses_fueltype_y,
         data['lookups']['fueltypes_nr'],
         data['lookups']['fueltype'],
         data['lu_reg']
         )
 
-    val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
-        data['local_paths']['folder_validation_national_elec_data'])
-        
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------
@@ -86,7 +91,7 @@ def spatial_validation(data, model_run_object):
         "peak_comparison_01.pdf",
         data,
         val_elec_data_2015_INDO,
-        model_run_object.reg_enduses_fueltype_y[peak_month][peak_day]
+        reg_enduses_fueltype_y[peak_month][peak_day]
         )
 
     logging.debug("...compare peak from max peak factors")
@@ -94,7 +99,7 @@ def spatial_validation(data, model_run_object):
         "peak_comparison_02.pdf",
         data,
         val_elec_data_2015_INDO,
-        model_run_object.tot_peak_enduses_fueltype[2])
+        tot_peak_enduses_fueltype[data['lookups']['fueltype']['electricity']])
 
     # ---------------------------------------------------
     # Validate boxplots for every hour
@@ -103,12 +108,11 @@ def spatial_validation(data, model_run_object):
         "hourly_boxplots_01.pdf",
         data,
         val_elec_data_2015_INDO,
-        model_run_object.reg_enduses_fueltype_y[2])
+        reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])
     
 
     # TODO: VALIDATE GAS DEMAND
 
-    
     return
 
 def compare_lad_regions(fig_name, data, reg_coord, model_run_object, fueltypes_nr, lu_fueltypes, lu_reg):
@@ -134,14 +138,13 @@ def compare_lad_regions(fig_name, data, reg_coord, model_run_object, fueltypes_n
     for region_name in lu_reg:
 
         # Iterate loaded data
-        for reg_csv_geocode in reg_coord:
-            if reg_csv_geocode == region_name:
+        for reg_geocode in reg_coord:
+            if reg_geocode == region_name:
 
-                # --Sub Regional Electricity
-                #value_gwh = conversions.ktoe_to_gwh(lad_infos_shapefile[reg_csv_geocode]['elec_tot15']) # Add data (CHECK UNIT: TODO)TODO
-                result_dict['REAL_electricity_demand'][region_name] = reg_coord[reg_csv_geocode]['elec_tot15'] #TODO: CHECK UNIT
+                # --Sub Regional Electricity #TODO: CHECK UNIT
+                result_dict['REAL_electricity_demand'][region_name] = reg_coord[reg_geocode]['elec_tot15']
 
-                all_fueltypes_reg_demand = model_run_object.get_regional_yh(fueltypes_nr, reg_csv_geocode, data['assumptions']['model_yeardays_nrs'])
+                all_fueltypes_reg_demand = model_run_object.get_regional_yh(fueltypes_nr, reg_geocode, data['assumptions']['model_yeardays_nrs'])
                 result_dict['modelled_electricity_demand'][region_name] = np.sum(all_fueltypes_reg_demand[lu_fueltypes['electricity']])
 
     # -----------------
@@ -171,7 +174,9 @@ def compare_lad_regions(fig_name, data, reg_coord, model_run_object, fueltypes_n
         labels.append(sorted_region)
 
     # RMSE calculations
-    rmse_value = basic_functions.rmse(np.array(y_values_modelled_electricity_demand), np.array(y_values_REAL_electricity_demand))
+    rmse_value = basic_functions.rmse(
+        np.array(y_values_modelled_electricity_demand),
+        np.array(y_values_REAL_electricity_demand))
 
     # ----------------------------------------------
     # Plot

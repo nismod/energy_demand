@@ -5,7 +5,7 @@ def const_eff_yh():
     """Testing function
     """
     in_value = 1
-    expected = np.ones((365, 24))
+    expected = np.ones((365, 24), dtype=float)
 
     # call function
     out_value = tech_related.const_eff_yh(in_value)

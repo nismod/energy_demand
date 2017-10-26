@@ -40,7 +40,7 @@ def post_install_setup(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
 
     # Read in temperature data from raw files
@@ -87,9 +87,10 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
+        data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass
 
@@ -111,7 +112,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         # RESIDENTIAL: Convert base year fuel input assumptions to energy service
         fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['rs_fuel_tech_p_by'],
             data['fuels']['rs_fuel_raw_data_enduses'],
@@ -126,7 +126,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
         fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['ss_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
@@ -141,7 +140,6 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
         fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
             data['assumptions']['tech_list'],
-            data['assumptions']['hybrid_technologies'],
             data['lookups']['fueltype'],
             data['assumptions']['is_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
@@ -229,6 +227,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']
 
     logging.info("... finished scenario_initalisation")
+    print("... finished scenario_initalisation")
+
     if run_locally == False:
         return temp_climate_change, fts_cont, sgs_cont, sd_cont
     else:

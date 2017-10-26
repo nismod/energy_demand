@@ -3,6 +3,12 @@
 import sys
 import numpy as np
 
+def test_defined_service_switch():
+    """Function to test if in case a fuel switch is defined,
+    all technologies are defined as specified in base year
+    """
+    pass
+
 def test_region_selection(fuel_indiv_regions_yh):
     """function to see whether if only some days are selected
     the sum makes sense
@@ -11,13 +17,17 @@ def test_region_selection(fuel_indiv_regions_yh):
     print("FUEL FOR FIRST WEEK")
     modelled_days = 1
     hours_modelled = modelled_days * 24
+    len_dict = 0
     _sum_day_selection = 0
-    for fueltype, fuels in fuel_indiv_regions_yh.items():
+    for fuels in fuel_indiv_regions_yh:
         for region_fuel in fuels:
-            _sum_day_selection += np.sum(region_fuel[:hours_modelled])
+            _sum_day_selection += np.sum(region_fuel[: hours_modelled])
+            len_dict = region_fuel.shape[0]
+    
+    print("nr of dasy to sho {}  {}".format(hours_modelled, len_dict))
 
     _sum_all = 0
-    for fueltype, fuels in fuel_indiv_regions_yh.items():
+    for fuels in fuel_indiv_regions_yh:
         for region_fuel in fuels:
             _sum_all += np.sum(region_fuel)
     print("_sum_day_selection")
@@ -82,9 +92,9 @@ def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_servi
                 if technology not in fuel_tech_p_by[enduse][fueltype_tech_high].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
             else:
-                fueltype_tech = technologies[technology]['fuel_type']
+                tech_fueltype = technologies[technology]['fuel_type']
 
-                if technology not in fuel_tech_p_by[enduse][fueltype_tech].keys():
+                if technology not in fuel_tech_p_by[enduse][tech_fueltype].keys():
                     sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
 
 def testing_service_switch_insert(tech_stock_definition, switches):

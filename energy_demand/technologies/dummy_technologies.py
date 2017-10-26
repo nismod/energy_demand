@@ -1,4 +1,0 @@
-"""Dummy technologies
-"""
-
-

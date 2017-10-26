@@ -46,29 +46,29 @@ def run_model(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data, write_sim_param=True)
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-
+    
     # =========DUMMY DATA
     data = data_loader.dummy_data_generation(data)
     # =========DUMMY DATA
 
+    #SCENARIO DATA
+    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
+
     # Load data from script calculations
     data = read_data.load_script_data(data)
-
-    # Generate dwelling stocks over whole simulation period
-    data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data)
-    data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data)
 
     results = energy_demand_model(data)
 
     logging.debug("... Result section")
-
+    
     results_every_year = [results]
 
     logging.debug("Finished energy demand model from command line execution")
+    print("Finished energy demand model from command line execution")
 
 def parse_arguments():
     """Parse command line arguments

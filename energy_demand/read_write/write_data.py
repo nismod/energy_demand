@@ -1,44 +1,54 @@
 """Functions which are writing data
 """
-import logging
-import json
+import os
 import yaml
 import numpy as np
-import os
+from energy_demand.basic import basic_functions
 
-def read_txt_shape_peak_dh(file_path):
-    """Read to txt. Array with shape: (24,)
+def write_load_factors(path_result_folder, path_new_folder, parameters, model_results):
+    """Write numpy array to txt file
     """
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    out_dict = np.array(read_dict_list, dtype=float)
+    # Create folder and subolder
+    basic_functions.create_folder(path_result_folder)
+    path_result_sub_folder = os.path.join(path_result_folder, path_new_folder)
+    basic_functions.create_folder(path_result_sub_folder)
 
-    return out_dict
+    file_name = "modelrun"
 
-def read_txt_shape_non_peak_yh(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)"""
-    out_dict = np.zeros((365, 24))
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(list(row.values()), dtype=float)
-    return out_dict
+    # Create full file_name
+    for name_param in parameters:
+        file_name += str("__") + str(name_param)
 
-def read_txt_shape_peak_yd_factor(file_path):
-    """Read to txt. Array with shape: (model_yeardays_nrs, 24)
+    # Generate full path
+    path_file = os.path.join(path_result_sub_folder, file_name)
+
+    # Write array to txt (only 2 dimensinal array possible)
+    for fueltype_nr, fuel_fueltype in enumerate(model_results):
+        path_file_fueltype = path_file + "__" + str(fueltype_nr) + "__" + ".txt"
+        np.savetxt(path_file_fueltype, fuel_fueltype, delimiter=',')
+
+    return
+
+def write_model_result_to_txt(sim_yr, path_result, model_results):
+    """Store yearly model resul to txt
+
+    Store numpy array to txt
+
+    Fueltype : Regions : Fuel
     """
-    out_dict = json.load(open(file_path))
-    return out_dict
+    # Create folder for model simulation year
+    basic_functions.create_folder(path_result)
 
-def read_txt_shape_non_peak_yd(file_path):
-    """Read to txt. Array with shape
-    """
-    out_dict = np.zeros((365))
-    read_dict = json.load(open(file_path))
-    read_dict_list = list(read_dict.values())
-    for day, row in enumerate(read_dict_list):
-        out_dict[day] = np.array(row, dtype=float)
-    return out_dict
+    # Write to txt
+    for fueltype_nr, fuel in enumerate(model_results):
+        path_file = os.path.join(
+            path_result,
+            "modelruns__{}__{}__{}".format(sim_yr, fueltype_nr, ".txt"))
+
+        np.savetxt(path_file, fuel, delimiter=',')
+
+    # Read in with loadtxt
+    return
 
 def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
@@ -111,57 +121,46 @@ def write_out_sim_param(path_to_txt, temp_assumptions):
             file.write("{}, {}".format(data_entry, 'None') + '\n')
         else:
             data_entry2 = str(temp_assumptions[data])
-            file.write("{}, {}".format(data_entry, data_entry2) + '\n'
-                    )
+            file.write("{}, {}".format(data_entry, data_entry2) + '\n')
     file.close()
 
     return
 
-def write_model_result_to_txt(sim_yr, path_result, model_results):
-    """Store yearly model resul to txt
-
-    Store numpy array to txt
-    """
-    # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result)
-
-    if not os.path.exists(path_result_yr):
-        os.makedirs(path_result_yr)
-
-    # Write to txt
-    for fueltype, fuel in model_results.items():
-        path_file = os.path.join(
-            path_result_yr,
-            "modelruns__{}__{}{}".format(sim_yr, fueltype, ".txt")
-            )
-        np.savetxt(path_file, fuel, delimiter=',')
-
-    # Read in with loadtxt
-    return
-
 def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
-    """Store yearly model resul to txt
+    """Store
 
     Store numpy array to txt
     """
     # Create folder for model simulation year
-    path_result_yr = os.path.join(path_result)
-    if not os.path.exists(path_result_yr):
-        os.makedirs(path_result_yr)
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "enduse_specific_results")
 
-    #Create Subolder
-    path_result_subolder = os.path.join(path_result, "enduse_specific_results")
-    if not os.path.exists(path_result_subolder):
-        os.makedirs(path_result_subolder)
-
-    # Write to txt
+     # Write to txt
     for enduse, fuel in model_results.items():
         for fueltype_nr, fuel_fueltype in enumerate(fuel):
             path_file = os.path.join(
-                path_result_subolder,
+                os.path.join(path_result, "enduse_specific_results"),
                 "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
                 )
             np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
     # Read in with loadtxt
+    return
+
+def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
+    """Store yearly model resul to txt
+
+    Store numpy array to txt
+    """
+    # Create folder and subolder
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "tot_fuel_max")
+
+    # Write to txt
+    path_file = os.path.join(
+        os.path.join(path_result, "tot_fuel_max"),
+        "peakfuels__{}__{}".format(sim_yr, ".txt")
+        )
+    np.savetxt(path_file, model_results, delimiter=',')
+
     return

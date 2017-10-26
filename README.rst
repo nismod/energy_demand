@@ -5,18 +5,25 @@ High Resolution Energy Demand Model
 ====================================
 **HIRE** is written in Python (Python>=3.6).
 
-HIRE has been developped within the MISTRAL
-project. A previous model has been developped within
-NISMOD by Pranab et al..(MOREINFO). HIRE develops this model
-further into a high temporal and spatial model.
+**HIRE** was written and developed at the `Environmental Change Institute,
+University of Oxford <http://www.eci.ox.ac.uk>`_ within the
+EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
+Research Consortium <http://www.itrc.org.uk/>`_.
+
+A full model description can be found here <http://ed.readthedocs.io/en/latest/?badge=latest>.
+
+The research behind the model witih the MISTRAL
+modelling context is documented in:
+
+    - Eggimann et al. (2018): Modelling energy demand and supply
+    within a system-of-systems appraoch. (working paper)
 
 
-More information can be found here:
+Note: A previous energy demand model has been developped within
+NISMOD <http://www.itrc.org.uk/nismod/#.WfCJg1tSxaQ> by Pranab et al. 2014. 
+HIRE is an extensive development into a high temporal and spatial 
+energy demand model simulation.
 
-    - Eggimann et al. (2018): Paper blablabla
-
-
-# This is still very much work in progress
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://ed.readthedocs.io/en/latest/?badge=latest
@@ -33,15 +40,18 @@ More information can be found here:
 Running the model (local)
 ========================
 
-In order to run the model, the following steps are necessary. Step 1, 2 and 3
-only needs to be execute once. Step 4 and 5 every time the model is run
-with different assumptions.
+In order to run HIRE, the following steps are necessary. Step 1, 2 and 3
+only needs to be executed to set-up the model. Step 4 and 5 need 
+to be run every time the model is run with different assumptions.
 
 Model Set-Up
 -------------
 
-1. Add the data into a local directory as ``path/to/energy_data_folder`` and
+1. Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
    download the energy_demand python code.
+
+   Note: Because some data is not open source, the full data needs to be optained
+   from the consortium. Please contact XY.
 
 
 2. Navigate to the folder where the python code is saved. Open a command and type into
@@ -49,7 +59,7 @@ Model Set-Up
 
    ``setup.py develop``
 
-3. Install the energy demand model from the console with the command
+3. Install HIRE from within the console with the command
 
    ``energy_demand post_install_setup -d path/to/energy_data_folder``
 
@@ -70,20 +80,20 @@ Scenario Set-up
    Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
    folder which contain assumption specific data.
 
-
-5. Run the energy demand model from the console with the command
+5. Run the model from the console with the command
 
    ``energy_demand run -d path/to/energy_data_folder``
 
-Running the model (with smif)
+
+Running the model with smif
 ========================
-This needs to be written TODO
+TODO
 
 
-A word from our sponsors
+LITERATURE
 ========================
+Baruah, P., Eyre, N., Qadrdan, M., Chaudry, M., Blainey, S., Hall, J. W., … Tran, M. (2014). Energy
+system impacts from heat and transport electrification. Proceedings of the ICE - Energy, 
+167(3), 139–151. https://doi.org/10.1680/ener.14.00008
 
-**HIRE** was written and developed at the `Environmental Change Institute,
-University of Oxford <http://www.eci.ox.ac.uk>`_ within the
-EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
-Research Consortium <http://www.itrc.org.uk/>`_.
+
