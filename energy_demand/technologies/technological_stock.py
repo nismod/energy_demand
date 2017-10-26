@@ -40,8 +40,10 @@ class TechStock(object):
         self.stock_name = stock_name
 
         # Select only modelled yeardays
-        self.stock_technologies = self.create_tech_stock(
-            assumptions, sim_param, lookups,
+        self.stock_technologies = create_tech_stock(
+            assumptions,
+            sim_param,
+            lookups,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -94,49 +96,62 @@ class TechStock(object):
 
         return attribute_value
 
-    @classmethod
-    def create_tech_stock(cls, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, t_base_heating_cy, enduses, technologies):
-        """Create technologies and add to dict with key_tuple
+def create_tech_stock(
+        assumptions,
+        sim_param,
+        lookups,
+        temp_by,
+        temp_cy,
+        t_base_heating_by,
+        t_base_heating_cy,
+        enduses,
+        technologies
+    ):
+    """Create technologies and add to dict with key_tuple
 
-        Arguments
-        ----------
-        data : dict
-            All data
-        temp_by : array
-            Base year temperatures
-        temp_cy : int
-            Current year temperatures
-        t_base_heating_by : float
-            Base temperature for heating
-        t_base_heating_cy : float
-            Base temperature current year
-        enduses : list
-            Enduses of technology stock
-        technologies : list
-            Technologies of technology stock
-        """
-        stock_technologies = {}
+    Arguments
+    ----------
+    assumptions : dict
+        Assumptions
+    sim_param : dict
+        Simulation parameter
+    lookups : dict
+        Lookups
+    temp_by : array
+        Base year temperatures
+    temp_cy : int
+        Current year temperatures
+    t_base_heating_by : float
+        Base temperature for heating
+    t_base_heating_cy : float
+        Base temperature current year
+    enduses : list
+        Enduses of technology stock
+    technologies : list
+        Technologies of technology stock
+    """
+    stock_technologies = {}
 
-        for enduse in enduses:
-            for technology_name in technologies[enduse]:
-                #logging.debug("         ...{}   {}".format(sector, technology))
-                tech_type = tech_related.get_tech_type(technology_name, assumptions['tech_list'])
+    for enduse in enduses:
+        for technology_name in technologies[enduse]:
+            tech_type = tech_related.get_tech_type(
+                technology_name, assumptions['tech_list'])
 
-                tech_obj = Technology(
-                    technology_name,
-                    assumptions,
-                    sim_param,
-                    lookups,
-                    temp_by,
-                    temp_cy,
-                    t_base_heating_by,
-                    t_base_heating_cy,
-                    tech_type
-                )
+            tech_obj = Technology(
+                technology_name,
+                assumptions,
+                sim_param,
+                lookups,
+                temp_by,
+                temp_cy,
+                t_base_heating_by,
+                t_base_heating_cy,
+                tech_type
+            )
 
-                stock_technologies[(technology_name, enduse)] = tech_obj
+            stock_technologies[(technology_name, enduse)] = tech_obj
 
-        return stock_technologies
+    return stock_technologies
 
 class Technology(object):
     """Technology Class
@@ -162,7 +177,18 @@ class Technology(object):
     -----
 
     """
-    def __init__(self, tech_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating, t_base_heating_cy, tech_type):
+    def __init__(
+            self,
+            tech_name,
+            assumptions,
+            sim_param,
+            lookups,
+            temp_by,
+            temp_cy,
+            t_base_heating,
+            t_base_heating_cy,
+            tech_type
+        ):
         """Contructor
         """
         if tech_name == 'dummy_tech':

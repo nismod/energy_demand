@@ -332,7 +332,7 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
 
-    TODO: TODO: Generate two types of sigmoid (convex & concav)
+    TODO: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':

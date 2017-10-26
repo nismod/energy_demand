@@ -52,7 +52,7 @@ class EnergyModel(object):
                 assumptions=data['assumptions'],
                 lookups=data['lookups'],
                 all_enduses=data['enduses'],
-                temperature_data=data['temp_data'],
+                temp_data=data['temp_data'],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors']
             )

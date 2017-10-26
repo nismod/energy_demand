@@ -292,17 +292,17 @@ def run(data):
     logging.debug("... start script %s", os.path.basename(__file__))
 
     # Read in raw temperature data
-    temperature_data_raw = read_weather_data_raw(
+    temp_data_raw = read_weather_data_raw(
         data['local_paths']['folder_path_weater_data'])
 
     # Clean raw temperature data
-    temperature_data = clean_weather_data_raw(
-        temperature_data_raw)
+    temp_data = clean_weather_data_raw(
+        temp_data_raw)
 
     # Weather stations
     weather_stations = read_weather_stations_raw(
         data['local_paths']['folder_path_weater_stations'],
-        temperature_data.keys()
+        temp_data.keys()
         )
 
     # Write out to csv files
@@ -311,7 +311,7 @@ def run(data):
         weather_stations)
     write_weather_data(
         data['local_paths']['path_processed_weather_data'],
-        temperature_data)
+        temp_data)
 
     logging.debug("..finished script %s", os.path.basename(__file__))
     return

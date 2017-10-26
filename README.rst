@@ -3,8 +3,6 @@
 
 High Resolution Energy Demand Model
 ====================================
-**HIRE** is written in Python (Python>=3.6).
-
 **HIRE** was written and developed at the `Environmental Change Institute,
 University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
@@ -39,14 +37,15 @@ energy demand model simulation.
 
 Running the model (local)
 ========================
-
-In order to run HIRE, the following steps are necessary. Step 1, 2 and 3
-only needs to be executed to set-up the model. Step 4 and 5 need 
-to be run every time the model is run with different assumptions.
+**HIRE** is written in Python (Python>=3.6). In order to run HIRE,
+the following steps are necessary. Step 1, 2 and 3 only needs to be
+executed to set-up the model. Step 4 and 5 need to be run every time
+the model is run with different assumptions.
 
 Model Set-Up
 -------------
 
+```
 1. Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
    download the energy_demand python code.
 
@@ -68,10 +67,12 @@ Model Set-Up
 
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
+```
 
 Scenario Set-up 
 ----------------
 
+```
 4. For every scenario run, the energy demand module needs to be
    initialised from the command line as follows:
 
@@ -83,14 +84,16 @@ Scenario Set-up
 5. Run the model from the console with the command
 
    ``energy_demand run -d path/to/energy_data_folder``
-
+```
 
 Running the model with smif
 ========================
-TODO
 
+```
+Describe...
+```
 
-LITERATURE
+Literature
 ========================
 Baruah, P., Eyre, N., Qadrdan, M., Chaudry, M., Blainey, S., Hall, J. W., … Tran, M. (2014). Energy
 system impacts from heat and transport electrification. Proceedings of the ICE - Energy, 

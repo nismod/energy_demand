@@ -401,6 +401,31 @@ def test_convert_service_tech_to_p():
     assert expected[1]['techC'] == 50.0 / 200
     assert expected[1]['techD'] == 150.0 / 200
 
+def test_calc_lf_improvement():
+
+    base_yr = 2010
+    curr_yr = 2015
+    sim_period_yrs = 11
+    sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr, 'sim_period_yrs': sim_period_yrs}
+    lf_improvement_ey = {'heating': 0.5} #50% improvement
+
+    #all factors must be smaller than one
+    loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
+    loadfactor_yd_cy[0][0] = 0.2
+    loadfactor_yd_cy[0][1] = 0.4
+    loadfactor_yd_cy[1][0] = 0.1
+    loadfactor_yd_cy[1][1] = 0.3
+
+    result, crit = enduse_func.calc_lf_improvement('heating', sim_param, loadfactor_yd_cy, lf_improvement_ey)
+
+    expected = loadfactor_yd_cy + 0.25
+
+    assert crit == True
+    assert result[0][0] == expected[0][0]
+    assert result[0][1] == expected[0][1]
+    assert result[1][0] == expected[1][0]
+    assert result[1][1] == expected[1][1]
+
 def test_Enduse():
     """
     """

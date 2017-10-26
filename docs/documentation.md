@@ -395,6 +395,19 @@ following sources:
   Survey (HES) by the Department of Energy & 
   Climate Change (DECC, 2014).
 
+Note: In case fuel is switched to another technology, it is assumed that
+the load profile looks the same for the new fuel type. If e.g.
+a gas boiler is replaced by a hydrogen boiler, the load profiles
+are the same for the fueltype hydrogen or oil.
+
+- COOLNIG?
+    - **Residential**: Taken from *Denholm, P., Ong, S., & Booten, C. (2012).
+        Using Utility Load Data to Estimate Demand for Space Cooling and
+        Potential for Shiftable Loads, (May), 23.
+        Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
+
+    - **Service**: *Knight, Dunn, Environments Carbon and Cooling in
+        Uk Office Environments*
 
 ## Literature
 
@@ -408,3 +421,7 @@ Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, 
 Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Imperial College London.
 
 UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre for Environmental Data Analysis. Available at: [http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c).
+
+
+###### Varia
+- https://www.codecogs.com/latex/eqneditor.php used for this documentation

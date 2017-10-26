@@ -1,6 +1,6 @@
 """
 Enduse
-========
+======
 
 Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
@@ -35,8 +35,16 @@ class Enduse(object):
     ----------
     region_name : str
         Region name
-    data : dict TODO
-        Data container
+    scenario_data : dict
+        Scenario data
+    lookups : dict
+        Lookups
+    assumptions : dict
+        Assumptions
+    non_regional_lp_stock : dict
+        Load profile stock
+    sim_param : dict
+        Simulation parameter
     enduse : str
         Enduse name
     sector : str
@@ -122,7 +130,7 @@ class Enduse(object):
         self.region_name = region_name
         self.enduse = enduse
         self.sector = sector
-        self.fuel_new_y = fuel #copy needed?
+        self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
@@ -134,9 +142,7 @@ class Enduse(object):
         else:
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
-                enduse,
-                non_regional_lp_stock,
-                regional_lp_stock)
+                enduse, non_regional_lp_stock, regional_lp_stock)
 
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
 
@@ -370,7 +376,7 @@ class Enduse(object):
 
                 # Calculate load factors per enduse
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -378,9 +384,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
     """
     try:
         # Get assumed load shift
-        lf_improvement_ey = demand_management[enduse]
-
-        if lf_improvement_ey == 0:
+        if lf_improvement_ey[enduse] == 0:
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
@@ -394,17 +398,17 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
                 sim_param['sim_period_yrs'])
 
             # Current year load factor improvement
-            lf_improvement_cy = lf_improvement_ey * lin_diff_factor
+            lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
 
             # Improve load factor
             lf_cy_improved_d = loadfactor_yd_cy + lf_improvement_cy
 
             # If lager than zero, set to 1
             lf_cy_improved_d[lf_cy_improved_d > 1] = 1
+
             peak_shift_crit = True
 
             return lf_cy_improved_d, peak_shift_crit
-
     except KeyError:
         logging.debug("... no load management was defined for enduse")
         return False, False
@@ -512,6 +516,8 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     non_regional_lp_stock : object
         Non regional dependent load profiles
     regional_lp_stock : object
@@ -740,7 +746,7 @@ def get_enduse_tech(fuel_tech_p_by):
     Return
     ------
     enduse_techs : list
-        All technologies (no technolgy is added twice)
+        All technologies
 
     Note
     ----
@@ -1000,9 +1006,7 @@ def fuel_to_service(
         for fueltype, tech_list in fuel_tech_p_by.items():
 
             for tech, fuel_share in tech_list.items():
-
                 fuel_tech = fuel_new_y[fueltype] * fuel_share
-
                 tot_service_y += fuel_tech
                 service_tech[tech] += fuel_tech
 
@@ -1105,7 +1109,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
 
 def apply_scenario_drivers(
         enduse,
-        fuel_new_y,
+        fuel_y,
         dw_stock,
         region_name,
         gva,
@@ -1117,6 +1121,10 @@ def apply_scenario_drivers(
 
     Arguments
     ----------
+    enduse: str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     dw_stock : object
         Dwelling stock
     region_name : str
@@ -1130,8 +1138,8 @@ def apply_scenario_drivers(
 
     Returns
     -------
-    self.fuel_new_y - array
-        Set attribute ``fuel_new_y``.
+    fuel_y : array
+        Changed yearly fuel per fueltype
 
     Note
     -----
@@ -1172,7 +1180,7 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        fuel_new_y = fuel_new_y * factor_driver
+        fuel_y = fuel_y * factor_driver
     else:
         # Test if enduse has a dwelling related scenario driver
         if hasattr(dw_stock[region_name][base_yr], enduse) and curr_yr != base_yr:
@@ -1187,11 +1195,11 @@ def apply_scenario_drivers(
             except ZeroDivisionError:
                 factor_driver = 1
 
-            fuel_new_y = fuel_new_y * factor_driver
+            fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
 
-    return fuel_new_y
+    return fuel_y
 
 def apply_specific_change(
         enduse,
@@ -1204,8 +1212,12 @@ def apply_specific_change(
 
     Arguments
     ----------
+    enduse : str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     assumptions : dict
-        assumptions
+        Assumptions
     enduse_overall_change_ey : dict
         Assumption of overall change in end year
 
@@ -1219,14 +1231,14 @@ def apply_specific_change(
 
     Note
     -----
-    - Because for enduses where no technology stock is defined (and may
+    -   Because for enduses where no technology stock is defined (and may
         consist of many different) technologies, a linear diffusion is
         suggested to best represent multiple sigmoid efficiency improvements
         of individual technologies.
 
-    - The changes are assumed across all fueltypes.
+    -   The changes are assumed across all fueltypes.
 
-    - Either a sigmoid standard diffusion or linear diffusion can be implemented.
+    -   Either a sigmoid standard diffusion or linear diffusion can be implemented.
         inear is suggested.
     """
     # Fuel consumption shares in base and end year
@@ -1238,7 +1250,6 @@ def apply_specific_change(
     diffusion_choice = assumptions['other_enduse_mode_info']['diff_method']
 
     if diff_fuel_consump != 0: # If change in fuel consumption
-        #new_fuels = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
         # Lineare diffusion up to cy
         if diffusion_choice == 'linear':
@@ -1247,8 +1258,7 @@ def apply_specific_change(
                 base_parameters['curr_yr'],
                 percent_by,
                 percent_ey,
-                base_parameters['sim_period_yrs']
-            )
+                base_parameters['sim_period_yrs'])
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1258,32 +1268,35 @@ def apply_specific_change(
                 base_parameters['curr_yr'],
                 base_parameters['end_yr'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
-                )
+                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor
 
-        # Calculate new fuel consumption percentage
         return fuel_y * change_cy
     else:
         return fuel_y
 
 def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y, assumptions):
-    """Change fuel demand for heat and cooling service depending on changes in
-    HDD and CDD within a region (e.g. climate change induced)
+    """Change fuel demand for heat and cooling service
+    depending on changes in HDD and CDD within a region
+    (e.g. climate change induced)
 
     Paramters
     ---------
+    enduse : str
+        Enduse
+    fuel_new_y : array
+        Yearly fuel per fueltype
     cooling_factor_y : array
-        Distribution of fuel within year to days (yd) (directly correlates with CDD)
+        Distribution of fuel within year to days (yd)
     heating_factor_y : array
-        Distribution of fuel within year to days (yd) (directly correlates with HDD)
+        Distribution of fuel within year to days (yd)
     assumptions : dict
         Assumptions
 
     Return
     ------
-    self.fuel_new_y - array
-        Set attribute ``fuel_new_y``
+    fuel_new_y : array
+        Changed yearly fuel per fueltype
 
     Note
     ----
@@ -1298,11 +1311,15 @@ def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y,
 
     return fuel_new_y
 
-def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
+def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param):
     """Calculate fuel savings depending on smart meter penetration
 
     Arguments
     ----------
+    enduse : str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     assumptions : dict
         assumptions
     base_sim_param : dict
@@ -1310,9 +1327,8 @@ def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
 
     Returns
     -------
-    fuel_new_y - array
-        Set attribute ``fuel_new_y``. Fuels which are
-        adapted according to smart meter penetration
+    fuel_y : array
+        New fuel per year
 
     Note
     -----
@@ -1338,10 +1354,10 @@ def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
             sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
 
         savings = assumptions['savings_smart_meter'][enduse]
-        saved_fuel = fuel_new_y * (penetration_by - penetration_cy) * savings
-        fuel_new_y = fuel_new_y - saved_fuel
+        saved_fuel = fuel_y * (penetration_by - penetration_cy) * savings
+        fuel_y = fuel_y - saved_fuel
 
-    return fuel_new_y
+    return fuel_y
 
 def service_switch(
         enduse,
@@ -1454,10 +1470,15 @@ def fuel_switch(
         fuel_tech_p_by,
         curr_yr
     ):
-    """Calulation of service after considering fuel switch assumptions
+    """Calulation of service by considering fuel switch assumptions. Based on 
+    assumptions about shares of fuels which are switched per enduse to specific
+    technologies, the installed technologies are used to calculate the new service 
+    demand after switching fuel shares.
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     installed_tech : dict
         Technologies installed
     sig_param_tech : dict
@@ -1474,19 +1495,14 @@ def fuel_switch(
         Fuel switches
     fuel_tech_p_by : dict
         Fuel tech assumtions in base year
+    curr_yr : int
+        Current year
 
     Returns
     -------
     service_tech_switched : dict
         Containing all service for each technology on a hourly basis
 
-    Note
-    ----
-    - Based on assumptions about shares of fuels which are switched per enduse to specific
-        technologies, the installed technologies are used to calculate the new service demand
-        after switching fuel shares.
-
-        TODO: MORE INFO
     """
     # Must be like this, otherwise error
     service_tech_switched = service_tech # copy.copy(service_tech)
@@ -1564,7 +1580,6 @@ def fuel_switch(
                 # Substract technology specific service
                 # -------
                 service_tech_switched[tech_replaced] -= service_demand_tech
-
                 #assert np.sum(service_tech[tech_replaced] - service_demand_tech) >= 0
 
     return service_tech_switched
@@ -1577,6 +1592,11 @@ def convert_service_tech_to_p(service):
     ---------
     service : dict
         Service per fueltype and technology
+    
+    Returns
+    -------
+    out_dict : dict
+        Service as a percentage of each technology per fueltype
     """
     out_dict = defaultdict(dict)
 
@@ -1640,6 +1660,8 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     tech_increased_service : dict
         All technologies per enduse with increased future service share
     sig_param_tech : dict

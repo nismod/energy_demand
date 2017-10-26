@@ -128,14 +128,13 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
 
     Notes
     -----
-    TODO: improve fitting
-
     Manually the fitting parameters can be defined which are not considered as
     a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
     """
-    # Because a fit canno't be plotted from 0, an initial
-    # assumption needs to be made.
+
+    # As fit does not work with a starting point of 0, an initial small value
+    # needs to be assumed
     fit_assump_init = 0.001
 
     sigmoid_parameters = defaultdict(dict)

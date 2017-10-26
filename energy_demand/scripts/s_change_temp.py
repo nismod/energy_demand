@@ -35,17 +35,17 @@ def read_weather_data_script_data(path_to_csv):
 
     return temp_data
 
-def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_param):
+def change_temp_climate_change(temp_data, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending on simple climate change assumptions
 
     Arguments
     ---------
-    temperature_data : dict
+    temp_data : dict
         Data
     assumptions_temp_change : dict
-
+        Assumption on temperature change
     sim_param : dict
-        TODO
+        Parameters for diffusion
     Returns
     -------
     temp_climate_change : dict
@@ -54,7 +54,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
     temp_climate_change = defaultdict(dict)
 
     # Change weather for all weater stations
-    for station_id in temperature_data:
+    for station_id in temp_data:
         logging.debug("... change climate for station_id %s", station_id)
 
         # Iterate over simulation period
@@ -86,7 +86,7 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
                 )
 
                 # Iterate hours of base year
-                for hour, temp_old in enumerate(temperature_data[station_id][yearday]):
+                for hour, temp_old in enumerate(temp_data[station_id][yearday]):
                     temp_climate_change[station_id][curr_yr][yearday][hour] = temp_old + lin_diff_factor
 
     return temp_climate_change
@@ -121,14 +121,14 @@ def run(local_paths, assumptions, sim_param):
     """
     logging.debug("... start script %s", os.path.basename(__file__))
 
-    temperature_data = read_weather_data_script_data(
+    temp_data = read_weather_data_script_data(
         local_paths['path_processed_weather_data']
         )
 
     assumptions_temp_change = assumptions['climate_change_temp_diff_month']
 
     temp_climate_change = change_temp_climate_change(
-        temperature_data, assumptions_temp_change, sim_param)
+        temp_data, assumptions_temp_change, sim_param)
 
     # Write out temp_climate_change
     write_chanted_temp_data(

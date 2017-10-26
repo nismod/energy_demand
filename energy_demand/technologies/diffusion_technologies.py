@@ -5,21 +5,21 @@ import numpy as np
 
 def linear_diff(base_yr, curr_yr, value_start, value_end, sim_years):
     """Calculate a linear diffusion for a current year. If
-    the current year is identical to the base year, the 
+    the current year is identical to the base year, the
     start value is returned
 
     Arguments
     ----------
     base_yr : int
-        The year of the current simulation.
+        The year of the current simulation
     curr_yr : int
-        The year of the current simulation.
+        The year of the current simulation
     value_start : float
         Fraction of population served with fuel_enduse_switch in base year
     value_end : float
         Fraction of population served with fuel_enduse_switch in end year
     sim_years : str
-        Total number of simulated years.
+        Total number of simulated years
 
     Returns
     -------
@@ -45,22 +45,21 @@ def sigmoid_function(x_value, l_value, midpoint, steepness):
         The curv'es maximum value
     midpoint : float
         The midpoint x-value of the sigmoid's midpoint
-    k : dict
+    steepness : dict
         The steepness of the curve
 
     Return
     ------
-    y : float
+    y-value : float
         Y-Value
 
     Notes
     -----
     This function is used for fitting and plotting.
-    
+
     Warning
     -------
     Because 2000 is substracted, the start year canno't be before 2001.
-
     """
     return l_value / (1 + np.exp(-steepness * ((x_value - 2000.0) - midpoint)))
 
@@ -91,12 +90,13 @@ def sigmoid_diffusion(base_yr, curr_yr, end_yr, sig_midpoint, sig_steeppness):
     Note
     ----
     It is always assuemed that for the simulation year the share is
-    replaced with technologies having the efficencies of the current year. For technologies
-    which get replaced fast (e.g. lightbulb) this is corret assumption, for longer lasting
-    technologies, this is more problematic (in this case, over every year would need to be iterated
+    replaced with technologies having the efficencies of the current year.
+    For technologies which get replaced fast (e.g. lightbulb) this
+    is corret assumption, for longer lasting technologies, this is
+    more problematic (in this case, over every year would need to be iterated
     and calculate share replaced with efficiency of technology in each year).
 
-    TODO: Always return positive value. Needs to be considered for changes in negative
+    Always returns positive value. Needs to be considered for changes in negative
     """
     if curr_yr == base_yr:
         return 0

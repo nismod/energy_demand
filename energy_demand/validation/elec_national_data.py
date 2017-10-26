@@ -1,5 +1,4 @@
 """This scripts reads the national electricity data for the base year"""
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import os
 import sys
 import csv
