@@ -342,7 +342,7 @@ class Enduse(object):
 
                 # Calculate current year load factors
                 lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
-                    enduse, sim_param, loadfactor_yd_cy, assumptions['demand_management'])
+                    sim_param, loadfactor_yd_cy, assumptions['demand_management'][enduse])
 
                 if not peak_shift_crit:
                     self.fuel_yh = fuel_yh
@@ -370,7 +370,7 @@ class Enduse(object):
 
                 # Calculate load factors per enduse
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
+def calc_lf_improvement(sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -378,8 +378,6 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
     """
     try:
         # Get assumed load shift
-        lf_improvement_ey = demand_management[enduse]
-
         if lf_improvement_ey == 0:
             return False, False
         else:
@@ -401,10 +399,10 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
 
             # If lager than zero, set to 1
             lf_cy_improved_d[lf_cy_improved_d > 1] = 1
+
             peak_shift_crit = True
 
             return lf_cy_improved_d, peak_shift_crit
-
     except KeyError:
         logging.debug("... no load management was defined for enduse")
         return False, False

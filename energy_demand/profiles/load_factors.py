@@ -92,10 +92,9 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     return shifted_fuel_yh
 
 def calc_lf_y(fuel_yh_input):
-    """Calculate the yearly load factor
-    for a full year
-    Calculate load factor of a h in a year
-    from peak data (peak hour compared to all hours in a year)
+    """Calculate the yearly load factor by dividing
+    the yearly average load by the peak hourly load
+    in a year
 
     Note
     -----
@@ -104,14 +103,10 @@ def calc_lf_y(fuel_yh_input):
 
     Combined Heating, Cooling & Power Handbook: Technologies & 
     https://books.google.co.uk/books?id=hA129h8dc1AC&pg=PA421&lpg=PA421&dq=load+factor+handbook+electricity&source=bl&ots=yQt-VBL9PP&sig=NaW4Y1jW4R4AH8yCS6hhuont9hQ&hl=en&sa=X&ved=0ahUKEwj2nMTKiozXAhVHExoKHaxXCeMQ6AEIKDAA#v=onepage&q=load%20factor%20handbook%20electricity&f=false
-
-
     """
     # Calculate average yearly fuel per fueltype
     average_load_y_days = np.average(fuel_yh_input, axis=1)
     average_load_y = np.average(average_load_y_days, axis=1)
-
-    # total_fuel_y
 
     # Calculate maximum hour in year
     max_load_h_days = np.max(fuel_yh_input, axis=2)
@@ -124,8 +119,9 @@ def calc_lf_y(fuel_yh_input):
     return yearly_lf
 
 def calc_lf_d(fuel_yh_input):
-    """Calculate the daily load factor for
-    every day in a year
+    """Calculate the daily load factor for every day in a year
+    by dividing for each day the daily average by the 
+    daily peak hour load
 
     Arguments
     ---------
@@ -152,42 +148,9 @@ def calc_lf_d(fuel_yh_input):
     daily_lf[np.isnan(daily_lf)] = 0
 
     # MAYBE: # Convert load factor to %
-
     return daily_lf, average_fuel_yd
 
-'''def load_factor_d_non_peak(self, data):
-    """Calculate load factor of a day in a year from non-peak data
-    self.fuels_peak_d     :   Fuels for peak day (fueltype, data)
-    self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
-
-    Return
-    ------
-    lf_d : array
-            Array with load factor for every fuel type in %
-
-    Note
-    -----
-    Load factor = average load / maximum load in given time period
-
-    https://en.wikipedia.org/wiki/Load_factor_(electrical)
-    """
-    lf_d = np.zeros((data['lookups']['fueltypes_nr']))
-
-    # Iterate fueltypes to calculate load factors for each fueltype
-    for k, fueldata in enumerate(self.rs_fuels_tot_enduses_d):
-
-        average_demand = sum(fueldata) / 365 # Averae_demand = yearly demand / nr of days
-        max_demand_d = max(fueldata)
-
-        if  max_demand_d != 0:
-            lf_d[k] = average_demand / max_demand_d # Calculate load factor
-
-    lf_d = lf_d * 100 # Convert load factor to %
-
-    return lf_d
-'''
-
-def load_factor_h_non_peak(data, fueltypes_nr, fuels_tot_enduses_h, rs_fuels_peak_h): #data['lookups']['fueltypes_nr'
+'''def load_factor_h_non_peak(data, fueltypes_nr, fuels_tot_enduses_h, rs_fuels_peak_h):
     """Calculate load factor of a h in a year from non-peak data
 
     self.rs_fuels_tot_enduses_d    :   Hourly fuel for different fueltypes (fueltype, 24 hours data)
@@ -197,23 +160,18 @@ def load_factor_h_non_peak(data, fueltypes_nr, fuels_tot_enduses_h, rs_fuels_pea
     load_factor_h : array
         Array with load factor for every fuel type [in %]
 
-    Note
-    -----
-    Load factor = average load / maximum load in given time period
-
-    https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     load_factor_h = np.zeros((fueltypes_nr), dtype=float) # Initialise array to store fuel
 
     # Iterate fueltypes to calculate load factors for each fueltype
     for fueltype, fueldata in enumerate(fuels_tot_enduses_h):
 
-        '''all_hours = []
-        for day_hours in self.fuels_tot_enduses_h[fueltype]:
-                for h in day_hours:
-                    all_hours.append(h)
-        maximum_h_of_day_in_year = max(all_hours)
-        '''
+        #all_hours = []
+        #for day_hours in self.fuels_tot_enduses_h[fueltype]:
+        #        for h in day_hours:
+        #            all_hours.append(h)
+        #maximum_h_of_day_in_year = max(all_hours)
+        
         maximum_h_of_day_in_year = rs_fuels_peak_h[fueltype]
 
         average_demand_h = np.sum(fueldata) / 8760 # Averae load = yearly demand / nr of days
@@ -260,3 +218,4 @@ def load_factor_d(self, data):
     lf_d = lf_d * 100 # Convert load factor to %
 
     return lf_d
+'''
