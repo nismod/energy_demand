@@ -6,7 +6,6 @@ import logging
 import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
-from energy_demand.read_write import write_data
 from energy_demand.basic import conversions
 from energy_demand.basic import basic_functions
 
@@ -387,39 +386,61 @@ def load_data_profiles(paths, local_paths, assumptions):
     # ------------------------------------------------------------
 
     # Heat pumps by Love
-    tech_lp['rs_profile_hp_yh'] = get_shape_every_day(
+    tech_lp['rs_profile_hp_y_dh'] = get_shape_every_day(
         'rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     # Storage heater
-    tech_lp['rs_profile_storage_heater_yh'] = get_shape_every_day(
+    tech_lp['rs_profile_storage_heater_y_dh'] = get_shape_every_day(
         'rs_lp_storage_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     # Electric heating
-    tech_lp['rs_profile_elec_heater_yh'] = get_shape_every_day(
+    tech_lp['rs_profile_elec_heater_y_dh'] = get_shape_every_day(
         'rs_lp_second_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     # Boilers
-    tech_lp['rs_profile_boilers_yh'] = get_shape_every_day(
+    tech_lp['rs_profile_boilers_y_dh'] = get_shape_every_day(
         'rs_lp_heating_boilers_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     # Micro CHP
-    tech_lp['rs_profile_CHP_yh'] = get_shape_every_day(
+    tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
         'rs_lp_heating_CHP_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     return tech_lp
 
 def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
-    """TODO
+    """Generate yh shape based on the daytype of
+    every day in year. This function iteraes every day
+    of the base year and assigns daily profiles depending
+    on the daytype for every day
+
+    Arguments
+    ---------
+    tech : str
+        Technology
+    tech_lp : dict
+        Technology load profiles
+    model_yeardays_daytype : list
+        List with the daytype of every modelled day
+    
+    Return
+    ------
+    load_profile_y_dh : dict
+        Fuel profiles yh (total sum for a fully ear is 365,
+        i.e. the load profile is given for every day)
     """
-    daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
-    daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
-    daily_fuel_profile_y = np.zeros((365, 24))
+    # Load profiles for a single day
+    lp_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
+    lp_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
+
+    load_profile_y_dh = np.zeros((365, 24))
+
     for day_array_nr, day_type in enumerate(model_yeardays_daytype):
         if day_type == 'holiday':
-            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_holiday
+            load_profile_y_dh[day_array_nr] = lp_holiday
         else:
-            daily_fuel_profile_y[day_array_nr] = daily_fuel_profile_workday
-    return daily_fuel_profile_y
+            load_profile_y_dh[day_array_nr] = lp_workday
+
+    return load_profile_y_dh
 
 def load_temp_data(paths):
     """Read in cleaned temperature and weather station data
@@ -444,7 +465,7 @@ def load_temp_data(paths):
     return weather_stations, temp_data
 
 def load_fuels(paths, lookups):
-    """Load in ECUK fuel data
+    """Load in ECUK fuel data, enduses and sectors
 
     Arguments
     ---------
@@ -452,6 +473,15 @@ def load_fuels(paths, lookups):
         Paths container
     lookups : dict
         Lookups
+
+    Returns
+    -------
+    enduses : dict
+        Enduses for every submodel
+    sectors : dict
+        Sectors for every submodel
+    fuels : dict
+        yearly fuels for every submodel
     """
     enduses = {}
     sectors = {}
@@ -478,7 +508,8 @@ def load_fuels(paths, lookups):
     return enduses, sectors, fuels
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
-    """All pre-processed load shapes are read in from .txt files without accesing raw files
+    """All pre-processed load shapes are read in from .txt files
+    without accesing raw files
 
     This loads HES files for residential sector
 
@@ -491,8 +522,10 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
     Return
     ------
-    data : dict TODO
-        Data
+    rs_shapes_dh : dict
+        Residential yh shapes
+    rs_shapes_yd : dict
+        Residential yd shapes
     """
     rs_shapes_dh = {}
     rs_shapes_yd = {}
@@ -520,8 +553,13 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
         shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
         shape_non_peak_yd_selection= shape_non_peak_yd[[model_yeardays]]
 
-        rs_shapes_dh[enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
-        rs_shapes_yd[enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}
+        rs_shapes_dh[enduse] = {
+            'shape_peak_dh': shape_peak_dh,
+            'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
+
+        rs_shapes_yd[enduse] = {
+            'shape_peak_yd_factor': shape_peak_yd_factor,
+            'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return rs_shapes_dh, rs_shapes_yd
 
@@ -532,6 +570,8 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
     ----------
     txt_path : string
         Path to txt shapes files
+    model_yeardays : array
+        Modelled yeardays
 
     Return
     ------
@@ -582,8 +622,13 @@ def ss_collect_shapes_from_txts(txt_path, model_yeardays):
             shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
             shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
 
-            ss_shapes_dh[sector][enduse] = {'shape_peak_dh': shape_peak_dh, 'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
-            ss_shapes_yd[sector][enduse] = {'shape_peak_yd_factor': shape_peak_yd_factor, 'shape_non_peak_yd': shape_non_peak_yd_selection}
+            ss_shapes_dh[sector][enduse] = {
+                'shape_peak_dh': shape_peak_dh,
+                'shape_non_peak_y_dh': shape_non_peak_y_dh_selection}
+
+            ss_shapes_yd[sector][enduse] = {
+                'shape_peak_yd_factor': shape_peak_yd_factor,
+                'shape_non_peak_yd': shape_non_peak_yd_selection}
 
     return ss_shapes_dh, ss_shapes_yd
 
@@ -642,7 +687,7 @@ def ss_read_shapes_enduse_techs(ss_shapes_dh, ss_shapes_yd):
         for enduse in ss_shapes_yd[sector]:
             ss_all_tech_shapes_dh[enduse] = ss_shapes_dh[sector][enduse]
             ss_all_tech_shapes_yd[enduse] = ss_shapes_yd[sector][enduse]
-            
+
         break #only iterate first sector as all enduses are the same in all sectors
 
     return ss_all_tech_shapes_dh, ss_all_tech_shapes_yd

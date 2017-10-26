@@ -398,7 +398,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
                 sim_param['sim_period_yrs'])
 
             # Current year load factor improvement
-            lf_improvement_cy = lf_improvement_ey * lin_diff_factor
+            lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
 
             # Improve load factor
             lf_cy_improved_d = loadfactor_yd_cy + lf_improvement_cy
@@ -1006,9 +1006,7 @@ def fuel_to_service(
         for fueltype, tech_list in fuel_tech_p_by.items():
 
             for tech, fuel_share in tech_list.items():
-
                 fuel_tech = fuel_new_y[fueltype] * fuel_share
-
                 tot_service_y += fuel_tech
                 service_tech[tech] += fuel_tech
 
@@ -1472,10 +1470,15 @@ def fuel_switch(
         fuel_tech_p_by,
         curr_yr
     ):
-    """Calulation of service after considering fuel switch assumptions
+    """Calulation of service by considering fuel switch assumptions. Based on 
+    assumptions about shares of fuels which are switched per enduse to specific
+    technologies, the installed technologies are used to calculate the new service 
+    demand after switching fuel shares.
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     installed_tech : dict
         Technologies installed
     sig_param_tech : dict
@@ -1492,19 +1495,14 @@ def fuel_switch(
         Fuel switches
     fuel_tech_p_by : dict
         Fuel tech assumtions in base year
+    curr_yr : int
+        Current year
 
     Returns
     -------
     service_tech_switched : dict
         Containing all service for each technology on a hourly basis
 
-    Note
-    ----
-    - Based on assumptions about shares of fuels which are switched per enduse to specific
-        technologies, the installed technologies are used to calculate the new service demand
-        after switching fuel shares.
-
-        TODO: MORE INFO
     """
     # Must be like this, otherwise error
     service_tech_switched = service_tech # copy.copy(service_tech)
@@ -1582,7 +1580,6 @@ def fuel_switch(
                 # Substract technology specific service
                 # -------
                 service_tech_switched[tech_replaced] -= service_demand_tech
-
                 #assert np.sum(service_tech[tech_replaced] - service_demand_tech) >= 0
 
     return service_tech_switched
@@ -1595,6 +1592,11 @@ def convert_service_tech_to_p(service):
     ---------
     service : dict
         Service per fueltype and technology
+    
+    Returns
+    -------
+    out_dict : dict
+        Service as a percentage of each technology per fueltype
     """
     out_dict = defaultdict(dict)
 
@@ -1658,6 +1660,8 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     tech_increased_service : dict
         All technologies per enduse with increased future service share
     sig_param_tech : dict
