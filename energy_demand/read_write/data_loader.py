@@ -386,8 +386,8 @@ def load_data_profiles(paths, local_paths, assumptions):
     # Calculate yh load profiles for individual technologies
     # ------------------------------------------------------------
 
-    # Heat pumps
-    tech_lp['daily_fuel_profile_y'] = get_shape_every_day(
+    # Heat pumps by Love
+    tech_lp['rs_profile_hp_yh'] = get_shape_every_day(
         'rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
 
     # Storage heater
@@ -409,7 +409,8 @@ def load_data_profiles(paths, local_paths, assumptions):
     return tech_lp
 
 def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
-
+    """TODO
+    """
     daily_fuel_profile_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
     daily_fuel_profile_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
     daily_fuel_profile_y = np.zeros((365, 24))

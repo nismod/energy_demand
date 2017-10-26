@@ -70,4 +70,4 @@ class GenericFlatEnduse(object):
         # h fuel shape per fueltype (peak)
         self.fuel_peak_h = load_profile.calk_peak_h_dh(self.fuel_peak_dh)
 
-        self.crit_flat_profile = True #False #WHY?TODO
+        self.crit_flat_profile = True

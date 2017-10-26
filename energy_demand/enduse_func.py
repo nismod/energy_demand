@@ -1,6 +1,6 @@
 """
 Enduse
-========
+======
 
 Contains the `Enduse` Class. This is the most important class
 where the change in enduse specific energy demand is simulated
@@ -35,8 +35,16 @@ class Enduse(object):
     ----------
     region_name : str
         Region name
-    data : dict TODO
-        Data container
+    scenario_data : dict
+        Scenario data
+    lookups : dict
+        Lookups
+    assumptions : dict
+        Assumptions
+    non_regional_lp_stock : dict
+        Load profile stock
+    sim_param : dict
+        Simulation parameter
     enduse : str
         Enduse name
     sector : str
@@ -122,7 +130,7 @@ class Enduse(object):
         self.region_name = region_name
         self.enduse = enduse
         self.sector = sector
-        self.fuel_new_y = fuel #copy needed?
+        self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
@@ -134,9 +142,7 @@ class Enduse(object):
         else:
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
-                enduse,
-                non_regional_lp_stock,
-                regional_lp_stock)
+                enduse, non_regional_lp_stock, regional_lp_stock)
 
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
 
@@ -342,7 +348,7 @@ class Enduse(object):
 
                 # Calculate current year load factors
                 lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
-                    sim_param, loadfactor_yd_cy, assumptions['demand_management'][enduse])
+                    enduse, sim_param, loadfactor_yd_cy, assumptions['demand_management'])
 
                 if not peak_shift_crit:
                     self.fuel_yh = fuel_yh
@@ -370,7 +376,7 @@ class Enduse(object):
 
                 # Calculate load factors per enduse
 
-def calc_lf_improvement(sim_param, loadfactor_yd_cy, lf_improvement_ey):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -378,7 +384,7 @@ def calc_lf_improvement(sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """
     try:
         # Get assumed load shift
-        if lf_improvement_ey == 0:
+        if lf_improvement_ey[enduse] == 0:
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
@@ -510,6 +516,8 @@ def get_lp_stock(enduse, non_regional_lp_stock, regional_lp_stock):
 
     Arguments
     ----------
+    enduse : str
+        Enduse
     non_regional_lp_stock : object
         Non regional dependent load profiles
     regional_lp_stock : object
@@ -738,7 +746,7 @@ def get_enduse_tech(fuel_tech_p_by):
     Return
     ------
     enduse_techs : list
-        All technologies (no technolgy is added twice)
+        All technologies
 
     Note
     ----
@@ -1103,7 +1111,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
 
 def apply_scenario_drivers(
         enduse,
-        fuel_new_y,
+        fuel_y,
         dw_stock,
         region_name,
         gva,
@@ -1115,6 +1123,10 @@ def apply_scenario_drivers(
 
     Arguments
     ----------
+    enduse: str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     dw_stock : object
         Dwelling stock
     region_name : str
@@ -1128,8 +1140,8 @@ def apply_scenario_drivers(
 
     Returns
     -------
-    self.fuel_new_y - array
-        Set attribute ``fuel_new_y``.
+    fuel_y : array
+        Changed yearly fuel per fueltype
 
     Note
     -----
@@ -1170,7 +1182,7 @@ def apply_scenario_drivers(
         except ZeroDivisionError:
             factor_driver = 1
 
-        fuel_new_y = fuel_new_y * factor_driver
+        fuel_y = fuel_y * factor_driver
     else:
         # Test if enduse has a dwelling related scenario driver
         if hasattr(dw_stock[region_name][base_yr], enduse) and curr_yr != base_yr:
@@ -1185,11 +1197,11 @@ def apply_scenario_drivers(
             except ZeroDivisionError:
                 factor_driver = 1
 
-            fuel_new_y = fuel_new_y * factor_driver
+            fuel_y = fuel_y * factor_driver
         else:
             pass #enduse not define with scenario drivers
 
-    return fuel_new_y
+    return fuel_y
 
 def apply_specific_change(
         enduse,
@@ -1202,8 +1214,12 @@ def apply_specific_change(
 
     Arguments
     ----------
+    enduse : str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     assumptions : dict
-        assumptions
+        Assumptions
     enduse_overall_change_ey : dict
         Assumption of overall change in end year
 
@@ -1217,14 +1233,14 @@ def apply_specific_change(
 
     Note
     -----
-    - Because for enduses where no technology stock is defined (and may
+    -   Because for enduses where no technology stock is defined (and may
         consist of many different) technologies, a linear diffusion is
         suggested to best represent multiple sigmoid efficiency improvements
         of individual technologies.
 
-    - The changes are assumed across all fueltypes.
+    -   The changes are assumed across all fueltypes.
 
-    - Either a sigmoid standard diffusion or linear diffusion can be implemented.
+    -   Either a sigmoid standard diffusion or linear diffusion can be implemented.
         inear is suggested.
     """
     # Fuel consumption shares in base and end year
@@ -1236,7 +1252,6 @@ def apply_specific_change(
     diffusion_choice = assumptions['other_enduse_mode_info']['diff_method']
 
     if diff_fuel_consump != 0: # If change in fuel consumption
-        #new_fuels = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
         # Lineare diffusion up to cy
         if diffusion_choice == 'linear':
@@ -1245,8 +1260,7 @@ def apply_specific_change(
                 base_parameters['curr_yr'],
                 percent_by,
                 percent_ey,
-                base_parameters['sim_period_yrs']
-            )
+                base_parameters['sim_period_yrs'])
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1256,32 +1270,35 @@ def apply_specific_change(
                 base_parameters['curr_yr'],
                 base_parameters['end_yr'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness']
-                )
+                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor
 
-        # Calculate new fuel consumption percentage
         return fuel_y * change_cy
     else:
         return fuel_y
 
 def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y, assumptions):
-    """Change fuel demand for heat and cooling service depending on changes in
-    HDD and CDD within a region (e.g. climate change induced)
+    """Change fuel demand for heat and cooling service
+    depending on changes in HDD and CDD within a region
+    (e.g. climate change induced)
 
     Paramters
     ---------
+    enduse : str
+        Enduse
+    fuel_new_y : array
+        Yearly fuel per fueltype
     cooling_factor_y : array
-        Distribution of fuel within year to days (yd) (directly correlates with CDD)
+        Distribution of fuel within year to days (yd)
     heating_factor_y : array
-        Distribution of fuel within year to days (yd) (directly correlates with HDD)
+        Distribution of fuel within year to days (yd)
     assumptions : dict
         Assumptions
 
     Return
     ------
-    self.fuel_new_y - array
-        Set attribute ``fuel_new_y``
+    fuel_new_y : array
+        Changed yearly fuel per fueltype
 
     Note
     ----
@@ -1296,11 +1313,15 @@ def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y,
 
     return fuel_new_y
 
-def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
+def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param):
     """Calculate fuel savings depending on smart meter penetration
 
     Arguments
     ----------
+    enduse : str
+        Enduse
+    fuel_y : array
+        Yearly fuel per fueltype
     assumptions : dict
         assumptions
     base_sim_param : dict
@@ -1308,9 +1329,8 @@ def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
 
     Returns
     -------
-    fuel_new_y - array
-        Set attribute ``fuel_new_y``. Fuels which are
-        adapted according to smart meter penetration
+    fuel_y : array
+        New fuel per year
 
     Note
     -----
@@ -1336,10 +1356,10 @@ def apply_smart_metering(enduse, fuel_new_y, assumptions, base_sim_param):
             sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
 
         savings = assumptions['savings_smart_meter'][enduse]
-        saved_fuel = fuel_new_y * (penetration_by - penetration_cy) * savings
-        fuel_new_y = fuel_new_y - saved_fuel
+        saved_fuel = fuel_y * (penetration_by - penetration_cy) * savings
+        fuel_y = fuel_y - saved_fuel
 
-    return fuel_new_y
+    return fuel_y
 
 def service_switch(
         enduse,

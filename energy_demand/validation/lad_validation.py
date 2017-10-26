@@ -1,18 +1,15 @@
 """Compare gas/elec demand on Local Authority Districts with modelled demand
 """
-# pylint: disable=I0011,C0321,C0301,C0103,C0325,no-member
 import os
-import sys
 import operator
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import date_handling
-import logging
 
 def temporal_validation(data, reg_enduses_fueltype_y):
     """
@@ -54,8 +51,9 @@ def temporal_validation(data, reg_enduses_fueltype_y):
         'all_submodels',
         days_to_plot)
 
-    logging.debug("FUEL gwh TOTAL  val_elec_data_2015_INDO:  {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO), np.sum(model_run_object.reg_enduses_fueltype_y[2])))
-    logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_INDO: {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO)/11.63, np.sum(val_elec_data_2015_ITSDO)/11.63, np.sum(model_run_object.reg_enduses_fueltype_y[2])/11.63))
+    logging.debug(
+        "FUEL gwh TOTAL  val_elec_data_2015_INDO:  {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO), np.sum(reg_enduses_fueltype_y[2])))
+    logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_INDO: {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO)/11.63, np.sum(val_elec_data_2015_ITSDO)/11.63, np.sum(reg_enduses_fueltype_y[2])/11.63))
 
     return
 

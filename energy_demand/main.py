@@ -5,6 +5,7 @@ The industry heating is identical to service heating
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
+TODO: Simplify load profiles (they are non-regional now)
 '''
 import os
 import sys

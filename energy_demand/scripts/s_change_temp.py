@@ -43,9 +43,9 @@ def change_temp_climate_change(temperature_data, assumptions_temp_change, sim_pa
     temperature_data : dict
         Data
     assumptions_temp_change : dict
-
+        Assumption on temperature change
     sim_param : dict
-        TODO
+        Parameters for diffusion
     Returns
     -------
     temp_climate_change : dict

@@ -63,5 +63,4 @@ def test_calc_lf_y():
     expected[2] = np.average(fuel_yh[2]) / np.max(fuel_yh[2])
 
     assert expected[0] == result[0]
-    assert expected[1] == result[1]
-
+    assert expected[2] == result[2]

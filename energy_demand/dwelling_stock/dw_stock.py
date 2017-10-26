@@ -148,7 +148,7 @@ class Dwelling(object):
         assert floorarea != 0
 
         #: Calculate heat loss coefficient with age and dwelling type if possible
-        self.hlc = self.get_hlc(dwtype, age)
+        self.hlc = get_hlc(dwtype, age)
 
         # Generate attribute for each enduse containing calculated scenario driver value
         self.calc_scenario_driver(driver_assumptions)
@@ -185,43 +185,7 @@ class Dwelling(object):
 
             assert scenario_driver_value != 0
 
-    @classmethod
-    def get_hlc(cls, dw_type, age):
-        """Calculates the linearly derived heat loss coeeficients depending on age and dwelling type
 
-        Arguments
-        ----------
-        dw_type : int
-            Dwelling type
-        age : int
-            Age of dwelling
-
-        Returns
-        -------
-        hls : Heat loss coefficient [W/m2 * K]
-
-        Notes
-        -----
-        Source: Linear trends derived from Table 3.17 ECUK Tables
-        https://www.gov.uk/government/collections/energy-consumption-in-the-uk
-        """
-        if dw_type is None or age is None:
-            #logging.debug("The HLC could not be calculated of a dwelling")
-            return None
-
-        # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
-        linear_fits_hlc = {
-            'detached': [-0.0223, 48.292],
-            'semi_detached': [-0.0223, 48.251],
-            'terraced': [-0.0223, 48.063],
-            'flat': [-0.0223, 47.02],
-            'bungalow': [-0.0223, 48.261],
-            }
-
-        # Get linearly fitted value
-        hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
-
-        return hlc
 
 class DwellingStock(object):
     """Class of the building stock in a region
@@ -514,6 +478,8 @@ def rs_dw_stock(region, data, curr_yr):
         Region name
     data : dict
         Data container
+    curr_yr : int
+        Current year
 
     Returns
     -------
@@ -863,3 +829,40 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
     #assert round(new_floorarea_cy/floorarea_pp_cy, 3) == round(control_pop, 3)
 
     return dw_stock_new_dw
+
+def get_hlc(dw_type, age):
+    """Calculates the linearly derived heat loss coeeficients
+    depending on age and dwelling type
+
+    Arguments
+    ----------
+    dw_type : int
+        Dwelling type
+    age : int
+        Age of dwelling
+
+    Returns
+    -------
+    hls : Heat loss coefficient [W/m2 * K]
+
+    Notes
+    -----
+    Source: Linear trends derived from Table 3.17 ECUK Tables
+    https://www.gov.uk/government/collections/energy-consumption-in-the-uk
+    """
+    if dw_type is None or age is None:
+        logging.debug("The HLC could not be calculated of a dwelling")
+        return None
+
+    # Dict with linear fits for all different dwelling types {dw_type: [slope, constant]}
+    linear_fits_hlc = {
+        'detached': [-0.0223, 48.292],
+        'semi_detached': [-0.0223, 48.251],
+        'terraced': [-0.0223, 48.063],
+        'flat': [-0.0223, 47.02],
+        'bungalow': [-0.0223, 48.261]}
+
+    # Get linearly fitted value
+    hlc = linear_fits_hlc[dw_type][0] * age + linear_fits_hlc[dw_type][1]
+
+    return hlc
