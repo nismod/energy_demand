@@ -22,21 +22,21 @@ path_data_stations = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-
 
 # Read temp data
 logging.debug("...read temp")
-temperature_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9999)
+temp_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9999)
 
 # Clean raw temperature data
 logging.debug("...clean temp")
-temperature_data = read_weather_data.clean_weather_data_raw(temperature_data_raw, 9999)
+temp_data = read_weather_data.clean_weather_data_raw(temp_data_raw, 9999)
 
 # Weather stations
 logging.debug("...weatherstations")
-weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temperature_data.keys())
+weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temp_data.keys())
 
 # Temperature weather data weater station 
 # 595	CHURCH	LAWFORD	WARWICKSHIRE	COUNTY	01/01/1983	Current	52.3584	-1.32987	CV23	9
 #593	ELMDON	WEST	MIDLANDS	COUNTY	01/01/1949	Current	52.4524	-1.74099	B26	3				--> slightly better correlation
 station_ID_ELMDON = 593 #593
-temperatures = temperature_data[station_ID_ELMDON]
+temperatures = temp_data[station_ID_ELMDON]
 
 
 # Calculate average day temp

@@ -400,6 +400,15 @@ the load profile looks the same for the new fuel type. If e.g.
 a gas boiler is replaced by a hydrogen boiler, the load profiles
 are the same for the fueltype hydrogen or oil.
 
+- COOLNIG?
+    - **Residential**: Taken from *Denholm, P., Ong, S., & Booten, C. (2012).
+        Using Utility Load Data to Estimate Demand for Space Cooling and
+        Potential for Shiftable Loads, (May), 23.
+        Retrieved from http://www.nrel.gov/docs/fy12osti/54509.pdf*
+
+    - **Service**: *Knight, Dunn, Environments Carbon and Cooling in
+        Uk Office Environments*
+
 ## Literature
 
 BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)

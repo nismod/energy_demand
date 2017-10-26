@@ -433,15 +433,15 @@ def load_temp_data(paths):
     -------
     weather_stations : dict
         Weather stations
-    temperature_data : dict
+    temp_data : dict
         Temperatures
     """
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
-    temperature_data = read_weather_data.read_weather_data_script_data(
+    temp_data = read_weather_data.read_weather_data_script_data(
         paths['changed_weather_data'])
 
-    return weather_stations, temperature_data
+    return weather_stations, temp_data
 
 def load_fuels(paths, lookups):
     """Load in ECUK fuel data

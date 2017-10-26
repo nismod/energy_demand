@@ -10,6 +10,7 @@ import numpy as np
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
+#TODO: NEEDS MORE CLEANING
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -18,12 +19,24 @@ class WeatherRegion(object):
     ----------
     weather_region_name : str
         Unique identifyer of region_name
-    TODO
-    modeltype : str
-        Model type
+    sim_param : dict
+        Simulation parameter
+    assumptions : dict
+        Assumptions
+    lookups : dict
+        Lookups
+    all_enduse : list
+        All enduses
+    temp_data : list
+        Temperature data
+    tech_lp : dict
+        Technology load profiles
+    sectors : list
+        Sectors
 
     Note
     ----
+    #TODO: THE TECHNOLOGY STOCK can be for the whole country if not HP
     - For each region_name, a technology stock is defined with help of
       regional temperature data technology specific
     - regional specific fuel shapes are assigned to technologies
@@ -35,7 +48,7 @@ class WeatherRegion(object):
             assumptions,
             lookups,
             all_enduses,
-            temperature_data,
+            temp_data,
             tech_lp,
             sectors
         ):
@@ -44,8 +57,8 @@ class WeatherRegion(object):
         self.weather_region_name = weather_region_name
 
         # Temperatures
-        temp_by = temperature_data[weather_region_name][sim_param['base_yr']]
-        temp_cy = temperature_data[weather_region_name][sim_param['curr_yr']]
+        temp_by = temp_data[weather_region_name][sim_param['base_yr']]
+        temp_cy = temp_data[weather_region_name][sim_param['curr_yr']]
 
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions, 'rs_t_base_heating')
@@ -77,8 +90,7 @@ class WeatherRegion(object):
             assumptions['ss_t_base_heating']['base_yr'],
             all_enduses['is_all_enduses'],
             ss_t_base_heating_cy,
-            assumptions['is_specified_tech_enduse_by']
-            )
+            assumptions['is_specified_tech_enduse_by'])
 
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
@@ -90,8 +102,7 @@ class WeatherRegion(object):
             assumptions['rs_t_base_heating']['base_yr'],
             all_enduses['rs_all_enduses'],
             rs_t_base_heating_cy,
-            assumptions['rs_specified_tech_enduse_by']
-            )
+            assumptions['rs_specified_tech_enduse_by'])
 
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
@@ -103,8 +114,7 @@ class WeatherRegion(object):
             assumptions['ss_t_base_heating']['base_yr'],
             all_enduses['ss_all_enduses'],
             ss_t_base_heating_cy,
-            assumptions['ss_specified_tech_enduse_by']
-            )
+            assumptions['ss_specified_tech_enduse_by'])
 
         # -------------------
         # Load profiles
@@ -138,7 +148,7 @@ class WeatherRegion(object):
 
         # Heat pumps, non-peak
         rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_yh'], #NEW 'rs_lp_heating_hp_dh' 
+            tech_lp['rs_profile_hp_yh'], #NEW 'rs_lp_heating_hp_dh'
             self.rs_tech_stock,
             rs_hdd_cy,
             assumptions['model_yeardays'])
@@ -169,8 +179,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_CHP_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday']
-            )
+            shape_peak_dh=tech_lp['rs_lp_heating_CHP_dh']['peakday'])
         
         # Electric heating, primary...(storage)
         rs_profile_storage_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_storage_heater_yh'][[assumptions['model_yeardays']]]
@@ -182,8 +191,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_storage_heater_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday']
-            )
+            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         # Electric heating, secondary...
         rs_profile_elec_heater_yh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_elec_heater_yh'][[assumptions['model_yeardays']]]
@@ -425,69 +433,53 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
     Arguments
     ---------
     tech_lp : dict
-        Technology lod profiles
-    sim_param : dict
-        Simulation parameters
+        Technology load profiles
     tech_stock : object
         Technology stock
     rs_hdd_cy : array
         Heating Degree Days (model_yeardays_nrs, 1)
-
+    model_yeardays : array
+        Modelled year days
 
     Returns
     -------
-    hp_shape : array
-        Daily shape how yearly fuel can be distributed to hourly
+    shape_yh : array
+        Yearly shape to calculate hourly load (total sum == 1)
     shape_y_dh : array
         Shape of fuel shape for every day in a year (total sum = nr_of_days)
 
     Note
     ----
-    The service is calculated based on the efficiency of gas
-    heat pumps ``av_heat_pump_gas``
+    -  An average heat pump efficiency is calculated for the whole day
+       depending on hourly temperatures.
 
-    The daily heat demand is converted to daily fuel depending on efficiency of
-    heatpumps (assume if 100% heat pumps). In a final step the hourly fuel
-    is converted to percentage of yearly fuel demand.
-
-    See XY in documentation for source of heat pumps
+    -  See XY in documentation for source of heat pumps
     """
     shape_yh_hp = np.zeros((365, 24), dtype=float)
     shape_y_dh = np.zeros((365, 24), dtype=float)
 
-    tech_eff = tech_stock.get_tech_attr('rs_space_heating', 'heat_pumps_gas', 'eff_cy') #TODO
+    tech_eff = tech_stock.get_tech_attr(
+        'rs_space_heating',
+        'heat_pumps_gas',
+        'eff_cy')
 
     # Convert daily service demand to fuel (fuel = Heat demand / efficiency)
+    # As only the shape is of interest, the HDD
+    # can be used as an indicator for fuel use (which correlates)
+    # directly
     hp_daily_fuel = rs_hdd_cy[:, np.newaxis] / tech_eff
 
-    # Distribute fuel of day according to fuel load curve
+    # Distribute daily according to fuel load curves of heat pumps
     shape_yh_hp = hp_daily_fuel * tech_lp
-    #TODO VERS MUCH
-    # Calculate weighted average daily efficiency of heat pump
-    # (Hourly heat demand * heat pump efficiency)
-    #average_eff_d = np.sum(tech_eff[day_array_nr] * daily_fuel_profile)
-
-    # Convert daily service demand to fuel (Heat demand / efficiency = fuel)
-    #hp_daily_fuel = rs_hdd_cy[day_array_nr] / tech_eff
-
-    # Fuel distribution within day
-    #fuel_shape_d = hp_daily_fuel * daily_fuel_profile
-
-    # Distribute fuel of day according to fuel load curve
-    #shape_yh_hp[day_array_nr] = fuel_shape_d
-
-    # Add normalised daily fuel curve BEO
-    #shape_y_dh[day_array_nr] = load_profile.abs_to_rel_no_nan(fuel_shape_d)
-    #shape_y_dh[day_array_nr] = fuel_shape_d
 
     # Convert absolute hourly fuel demand to relative fuel demand within a year
     shape_yh = load_profile.abs_to_rel(shape_yh_hp)
-    
-    # Convert for every day the shape to absolute shape (tot array sum for a full year == 365)
+
+    # Convert for every day the shape to absolute shape (tot sum for a full year == 365)
     _shape_y_dh_sum_rows = np.sum(shape_yh_hp, axis=1)
     shape_y_dh = shape_yh_hp / _shape_y_dh_sum_rows[:, np.newaxis]
     shape_y_dh[np.isnan(shape_y_dh)] = 0
-    
+
     # Select only modelled days
     return shape_yh[[model_yeardays]], shape_y_dh[[model_yeardays]]
 
@@ -530,13 +522,15 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
 
     Arguments
     ---------
-    data : dict
-        data
+    tech_lp : array
+        Technology load profile
     heating_shape : array
         Daily (yd) service demand shape for heat (percentage of yearly
         heat demand for every day)
     enduse : str
         Enduse where technology is used
+    model_yeardays_nrs : int
+        Number of modelled hours in a year
 
     Returns
     -------
