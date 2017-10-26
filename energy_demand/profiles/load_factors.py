@@ -6,14 +6,14 @@
 import numpy as np
 from energy_demand.plotting import plotting_results
 
-def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
+def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     """Shift demand with help of load factor. All demand above
     the maximum load is shifted proportionally to all hours
     having below average demand (see Section XY)
 
     Arguments
     ----------
-    daily_lf_cy_improved : array
+    loadfactor_yd_cy_improved : array
         Improved shifted daily load fuel
     fuel_yh : array
         Fuel for every hour
@@ -36,8 +36,9 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
     # Calculate new maximum demand for every day
     # and fueltype with help of newly adaped load factor
     # ------------------------------------------
-    max_daily_demand_allowed = average_yd / daily_lf_cy_improved
+    max_daily_demand_allowed = average_yd / loadfactor_yd_cy_improved
     max_daily_demand_allowed[np.isnan(max_daily_demand_allowed)] = 0
+
     # ------------------------------------------
     # Calculate difference to daily mean for every hour
     # for every fueltype (hourly value - daily mean)
@@ -76,8 +77,9 @@ def peak_shaving_max_min(daily_lf_cy_improved, average_yd, fuel_yh):
     tot_demand_to_shift = np.sum(diff_to_new_daily_max, axis=2)
 
     # Add fuel below average:
-    # Distribute shiftable demand to all hours which are below average according
-    # to percentage contributing to lf which is below average
+    # Distribute shiftable demand to all hours which are below
+    # average according to percentage contributing to lf which
+    # is below average
     shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, :, np.newaxis])
 
     # Set all fuel hours whih are above max to max (substract diff)

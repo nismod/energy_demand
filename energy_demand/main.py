@@ -3,8 +3,6 @@ Energy Demand Model
 ===================
 The industry heating is identical to service heating
 
-TODO: Plot all load factors (daily and only y) for every region
-
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
 '''
 import os
@@ -141,7 +139,7 @@ if __name__ == "__main__":
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
-
+        rs_reg_load_factor_h = model_run_object.rs_reg_load_factor_h
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
@@ -152,8 +150,10 @@ if __name__ == "__main__":
             sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific)
         write_data.write_model_result_to_txt_maxresults(
             sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
-        logging.info("... Finished writing results to file")
+        write_data.write_load_factors(
+            data['local_paths']['data_results_model_runs'], "result_load_factors", [sim_yr], rs_reg_load_factor_h)
 
+        logging.info("... Finished writing results to file")
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
@@ -195,8 +195,11 @@ if __name__ == "__main__":
 
     tot_fuel_y_max = read_data.read_max_results(
         data['local_paths']['data_results_model_runs'])
-    logging.info("... Reading in results finished")
 
+    load_factors_y = read_data.read_lf_y(
+        os.path.join(data['local_paths']['data_results_model_runs'], "result_load_factors"))
+
+    logging.info("... Reading in results finished")
     # ------------------------------
     # Plotting
     # ------------------------------
@@ -205,6 +208,7 @@ if __name__ == "__main__":
         results_every_year,
         results_enduse_every_year,
         tot_fuel_y_max,
-        data)
+        data,
+        load_factors_y)
 
     logging.info("... Finished running Energy Demand Model")

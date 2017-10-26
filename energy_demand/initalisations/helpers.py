@@ -2,16 +2,6 @@
 """
 import numpy as np
 
-def init_loop_dicts(data):
-    """Initialise
-    """
-    fuel_indiv_regions_yh = {}
-    for fueltype_str in data['lookups']['fueltype'].keys():
-        fuel_indiv_regions_yh[fueltype_str] = np.zeros(
-            (len(data['lu_reg']), data['assumptions']['model_yeardays_nrs'] * 24), dtype=float)
-
-    return fuel_indiv_regions_yh
-
 def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
     """Helper function to define stocks for all enduse and fueltype
 

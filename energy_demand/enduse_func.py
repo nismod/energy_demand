@@ -336,16 +336,15 @@ class Enduse(object):
                 # ---------------------------------------
                 # Demand Management (peak shaving)
                 # ---------------------------------------
-                # Load factor for every day
-                daily_lf_cy, average_fuel_yd = lf.calc_lf_d(fuel_yh)
 
-                # Load factor for the full year TODO: MAYBE NOT NEEDE HERE BUT ONLY FOR REGION
-                yearly_lf_cy = lf.calc_lf_y(fuel_yh)
+                # Calculate laod factors (only inter_day load shifting as for now)
+                loadfactor_yd_cy, average_fuel_yd = lf.calc_lf_d(fuel_yh) # Daily load factor
 
-                lf_cy_improved_d, peak_shifting = calculate_lf_improvement(
-                    enduse, sim_param, daily_lf_cy, assumptions['demand_management'])
+                # Calculate current year load factors
+                lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
+                    enduse, sim_param, loadfactor_yd_cy, assumptions['demand_management'])
 
-                if not peak_shifting:
+                if not peak_shift_crit:
                     self.fuel_yh = fuel_yh
                     self.fuel_peak_dh = fuel_peak_dh
                     # Get maximum hour demand of peak day
@@ -371,7 +370,7 @@ class Enduse(object):
                 
                 # Calculate load factors per enduse
 
-def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, demand_management):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -385,6 +384,8 @@ def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
+            # TODO: Could be sligliht made faster if linear diffusion is calculated once
+            # on top of enduse class
             lin_diff_factor = diffusion_technologies.linear_diff(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
@@ -396,12 +397,13 @@ def calculate_lf_improvement(enduse, sim_param, daily_lf_cy, demand_management):
             lf_improvement_cy = lf_improvement_ey * lin_diff_factor
 
             # Improve load factor
-            lf_cy_improved_d = daily_lf_cy + lf_improvement_cy
+            lf_cy_improved_d = loadfactor_yd_cy + lf_improvement_cy
 
             # If lager than zero, set to 1
             lf_cy_improved_d[lf_cy_improved_d > 1] = 1
-            peak_shifting = True
-            return lf_cy_improved_d, peak_shifting
+            peak_shift_crit = True
+
+            return lf_cy_improved_d, peak_shift_crit
 
     except KeyError:
         logging.debug("... no load management was defined for enduse")

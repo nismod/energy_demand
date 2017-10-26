@@ -79,6 +79,7 @@ class EnergyModel(object):
         tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
         tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
+        rs_reg_load_factor_h = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs']), dtype=float)
 
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
@@ -140,15 +141,24 @@ class EnergyModel(object):
             # -------------------
             # Local calculations
             # -------------------
-            #TODO: CALCULATE REGIONAL LOAD FACTORS SHARK
-            #self.rs_reg_load_factor_h = lf.calc_lf_y(self.fuel_indiv_regions_yh)
-            #self.ss_reg_load_factor_h = 
-
+            # Calculate load factors across all enduses
+            load_factor_y = lf.calc_lf_y(fuel_indiv_regions_yh) #Yearly lf
+            #load_factor_yd = lf.calc_lf_d(fuel_indiv_regions_yh) # Daily lf
+            #Seasonal and other lf  TODO
+            # 
+            for fueltype_nr, fuel in enumerate(load_factor_y):
+                rs_reg_load_factor_h[fueltype_nr][array_nr_region] += fuel
+            
+            
+        # -------------------------------------------------
+        # Store values for all region in EnergyModel object
+        # -------------------------------------------------
         self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
         self.reg_enduses_fueltype_y = reg_enduses_fueltype_y
         self.tot_peak_enduses_fueltype = tot_peak_enduses_fueltype
         self.tot_fuel_y_max_enduses = tot_fuel_y_max_enduses
         self.tot_fuel_y_enduse_specific_h = tot_fuel_y_enduse_specific_h
+        self.rs_reg_load_factor_h = rs_reg_load_factor_h
 
         #-------------------
         # TESTING
@@ -167,10 +177,6 @@ class EnergyModel(object):
             'fuel_yh', [self.rs_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
         ss_tot_fuels_all_enduses_y = fuel_aggr(
             'fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
-        self.rs_reg_load_factor_h = load_factors.calc_load_factor_h(
-            data, self.rs_tot_fuels_all_enduses_y, rs_fuels_peak_h)
-        self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(
-            data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         '''
 
 def simulate_region(region_name, data, weather_regions):
@@ -597,7 +603,7 @@ def fuel_regions_fueltype(
         )
 
     # Reshape
-    for _, fueltype_nr in lookups['fueltype'].items():
+    for fueltype_nr in lookups['fueltype'].values():
         fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
     return fuel_fueltype_regions

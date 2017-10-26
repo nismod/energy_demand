@@ -7,10 +7,19 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from energy_demand.technologies import tech_related
 
-def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fuel_y_max, data):
-    """Function summarising all functions to plot 
+def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fuel_y_max, data, load_factors_y):
+    """Function summarising all functions to plot
+
+    load_factors_y : Array
+        All load factors (fueltype, region)
     """
     ##pf.plot_load_curves_fueltype(results_every_year, data)
+    # plotting load factors per fueltype and region
+    plot_loadfactors_y(
+        data['lookups']['fueltype']['electricity'],
+        load_factors_y, 
+        data['print_criteria'])
+
 
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
@@ -48,6 +57,7 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
         data['enduses']['rs_all_enduses'],
         'tot_fuel_y_enduse_specific_h')
 
+
     # Plot all enduses
     #plt_stacked_enduse(
     # "figure_stacked_country_final.pdf",
@@ -59,6 +69,35 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
     #logging.debug('Plot peak demand (h) per fueltype')
     #plt_fuels_peak_h(tot_fuel_y_max, data)
     return
+
+def testplot():
+    x_values = [3,3]
+    y_values = [4,4]
+    plt.plot(x_values, y_values) #color='green') #'ro', markersize=1,
+    plt.show()
+testplot()
+
+def plot_loadfactors_y(fueltype_lf, load_factors_y, print_criteria):
+    """Plot load factors per region for every year
+    """
+    # nr of years
+    x_values = []
+    y_values = []
+
+    for year, lf_fueltype_reg in load_factors_y.items():
+        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
+            x_values.append(year)
+            y_values.append(lf_reg)
+
+    #plt.plot(x_values, y_values)
+    plt.scatter(x_values, y_values)
+
+    plt.xlabel("year")
+    plt.ylabel("yearly load factor")
+    plt.title("load factors for ever year and all regions")
+    plt.legend()
+    if print_criteria:
+        plt.show()
 
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load
@@ -168,6 +207,7 @@ def plt_stacked_enduse(fig_name, data, results_enduse_every_year, enduses_data, 
         pass
 
     return
+
 def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
     """Plots stacked end_use for a region
 
@@ -387,4 +427,3 @@ def plot_load_profile_dh(array_dh):
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
     
     plt.show()
-    

@@ -162,7 +162,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['demand_management'] = {
 
         # Residential submodule
-        'rs_space_heating': 0.2,
+        'rs_space_heating': 0.,
         'rs_water_heating': 0,
         'rs_lighting': 0,
         'rs_cooking': 0,
