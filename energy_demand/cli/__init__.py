@@ -50,10 +50,13 @@ def run_model(args):
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-
+    
     # =========DUMMY DATA
     data = data_loader.dummy_data_generation(data)
     # =========DUMMY DATA
+
+    #SCENARIO DATA
+    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
     # Load data from script calculations
     data = read_data.load_script_data(data)

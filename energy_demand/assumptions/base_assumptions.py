@@ -44,6 +44,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
     summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
     autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
+    #TODO: DEFINE SEASONS WITH DATE
 
     # Modelled days
     assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
@@ -58,7 +59,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
 
     # Nr of days to model
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
-    assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24 #TODO
+    assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24
 
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
@@ -86,6 +87,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # ============================================================
     # Residential dwelling stock assumptions
     # ============================================================
+    assumptions['virtual_dwelling_stock'] = True #OR newcastle is loaded
+
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
@@ -152,7 +155,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # ============================================================
     #  Demand management assumptions (daily demand shape)
     #  An improvement in load factor improvement can be assigned
-    #  for every enduse
+    #  for every enduse (peak shaving)
     # 
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
@@ -162,7 +165,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['demand_management'] = {
 
         # Residential submodule
-        'rs_space_heating': 0.,
+        'rs_space_heating': 0,
         'rs_water_heating': 0,
         'rs_lighting': 0,
         'rs_cooking': 0,
@@ -201,8 +204,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'ss_computing': [],
         'ss_space_cooling': ['floorarea'],
         'ss_other_gas': ['floorarea'],
-        'ss_other_electricity': ['floorarea']
-    }
+        'ss_other_electricity': ['floorarea']}
 
     # --Industry Submodel
     assumptions['scenario_drivers']['is_submodule'] = {
@@ -214,8 +216,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'is_lighting': ['gva'],
         'is_space_heating': ['gva'],
         'is_other': ['gva'],
-        'is_refrigeration': ['gva']
-    }
+        'is_refrigeration': ['gva']}
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # TODO: READ IN FROM READL BUILDING SCENARIOS...

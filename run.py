@@ -54,60 +54,60 @@ class EDWrapper(SectorModel):
         `self.user_data` allows to pass data from before_model_run to main model
         """
         self.user_data['data_path'] = '/vagrant/data_energy_demand'
-        self.processed_path = '/vagrant/data_energy_demand/_processed_data'
+        self.processed_path = '/vagrant/data_energy_demand/_processdata'
         self.result_path = '/vagrant/data_energy_demand/_result_data'
 
         # Obtain scenario data
-        ed_data = {}
-        ed_data['print_criteria'] = False #Print criteria
+        data = {}
+        data['print_criteria'] = False #Print criteria
 
         pop_array = self.get_scenario_data('population')
-        ed_data['population'] = self.array_to_dict(pop_array)
+        data['population'] = self.array_to_dict(pop_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
 
         gva_array = self.get_scenario_data('gva')
-        ed_data['gva'] = self.array_to_dict(gva_array)
+        data['gva'] = self.array_to_dict(gva_array)
         self.user_data['gva'] = self.array_to_dict(gva_array)
 
         floor_array = self.get_scenario_data('floor_area')
-        ed_data['rs_floorarea'] = self.array_to_dict(floor_array)
-        ed_data['ss_floorarea'] = self.array_to_dict(floor_array)
-        ed_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
+        data['rs_floorarea'] = self.array_to_dict(floor_array)
+        data['ss_floorarea'] = self.array_to_dict(floor_array)
+        data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
 
         self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
         self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
 
-        ed_data['lu_reg'] = self.get_region_names('lad')
-        #ed_data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
+        data['lu_reg'] = self.get_region_names('lad')
+        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
 
         # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
-        ed_data['paths'] = data_loader.load_paths(path_main)
-        ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
-        ed_data['lookups'] = data_loader.load_basic_lookups()
+        data['paths'] = data_loader.load_paths(path_main)
+        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+        data['lookups'] = data_loader.load_basic_lookups()
 
-        ed_data['reg_coord'], _ = data_loader.get_dummy_coord_region(ed_data['local_paths']) #REMOVE IF CORRECT DATA IN
-        
-        ed_data['weather_stations'], ed_data['temp_data'] = data_loader.load_temp_data(ed_data['local_paths'])
-        ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
-        ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data['paths'], ed_data['enduses'], ed_data['lookups'], write_sim_param=True)
-        ed_data['tech_lp'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'], ed_data['assumptions'])
+        data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
+
+        data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         
         
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        #ed_data = data_loader.dummy_data_generation(ed_data)
-        #ed_data['reg_coord'], _ = data_loader.get_dummy_coord_region(ed_data['local_paths'])
+        #data = data_loader.dummy_data_generation(data)
+        #data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths'])
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # Initialise scenario
         self.user_data['temp_data'], self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
             self.user_data['data_path'],
-            ed_data)
+            data)
 
-        # Generate dwelling stocks over whole simulation period 
-        #self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(ed_data['lu_reg'], ed_data, ed_data['sim_param']['curr_yr'])
-        #self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(ed_data['lu_reg'], ed_data, ed_data['sim_param']['curr_yr'])
+        # Generate dwelling stocks over whole simulation period
+        #self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data, data['sim_param']['curr_yr'])
+        #self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data, data['sim_param']['curr_yr'])
 
     def initialise(self, initial_conditions):
         """
@@ -156,92 +156,95 @@ class EDWrapper(SectorModel):
         # ---------
         # Scenario data
         # ---------
-        ed_data = {}
-        ed_data['print_criteria'] = False # No plt.show() functions are exectued if False
-        ed_data['population'] = self.user_data['population']
-        ed_data['gva'] = self.user_data['gva']
-        ed_data['rs_floorarea'] = self.user_data['rs_floor_area']
-        ed_data['ss_floorarea'] = self.user_data['ss_floor_area']
-        ed_data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
-
+        data = {}
+        data['print_criteria'] = False # No plt.show() functions are exectued if False
+        data['population'] = self.user_data['population']
+        data['gva'] = self.user_data['gva']
+        data['rs_floorarea'] = self.user_data['rs_floor_area']
+        data['ss_floorarea'] = self.user_data['ss_floor_area']
+        data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
+        data['scenario_data'] = {
+            'gva': self.user_data['gva'],
+            'population':  self.user_data['population']
+            }
         # ---------
-        # Replace data in ed_data with data provided from wrapper or before_model_run
+        # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
-        ed_data['lu_reg'] = self.get_region_names('lad')
+        data['lu_reg'] = self.get_region_names('lad')
 
-        #ed_data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
-        ed_data['paths'] = data_loader.load_paths(path_main)
-        ed_data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
-        ed_data['lookups'] = data_loader.load_basic_lookups()
-        ed_data['enduses'], ed_data['sectors'], ed_data['fuels'] = data_loader.load_fuels(ed_data['paths'], ed_data['lookups'])
-        ed_data['sim_param'], ed_data['assumptions'] = base_assumptions.load_assumptions(ed_data['paths'], ed_data['enduses'], ed_data['lookups'], write_sim_param=True)
-        ed_data['tech_lp'] = data_loader.load_data_profiles(ed_data['paths'], ed_data['local_paths'], ed_data['assumptions'])
-        ed_data['weather_stations'], _ = data_loader.load_temp_data(ed_data['local_paths'])
-        ed_data['reg_coord'], _ = data_loader.get_dummy_coord_region(ed_data['local_paths']) #REPLACE BY SMIF INPUT
-        ed_data['sim_param']['current_year'] = timestep
-        ed_data['sim_param']['end_year'] = 2020
-        ed_data['sim_param']['sim_years_intervall'] = 1
+        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
+        data['paths'] = data_loader.load_paths(path_main)
+        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+        data['lookups'] = data_loader.load_basic_lookups()
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+        data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
+        data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths']) #REPLACE BY SMIF INPUT
+        data['sim_param']['current_year'] = timestep
+        data['sim_param']['end_year'] = 2020
+        data['sim_param']['sim_years_intervall'] = 1
 
-        ed_data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
-        ed_data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
-        ed_data['assumptions']['rs_t_base_heating']['end_yr'] = data['rs_t_base_heating_ey']
-        ed_data['assumptions']['efficiency_achieving_factor'] = data['efficiency_achieving_factor']
+        data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
+        data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
+        data['assumptions']['rs_t_base_heating']['end_yr'] = data['rs_t_base_heating_ey']
+        data['assumptions']['efficiency_achieving_factor'] = data['efficiency_achieving_factor']
 
         # Update: Necessary updates after external data definition
-        ed_data['sim_param']['sim_period'] = range(ed_data['sim_param']['base_yr'], ed_data['sim_param']['end_yr'] + 1, ed_data['sim_param']['sim_years_intervall'])
-        ed_data['sim_param']['sim_period_yrs'] = int(ed_data['sim_param']['end_yr'] + 1 - ed_data['sim_param']['base_yr'])
-        ed_data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(ed_data['sim_param']['base_yr'], 1, 1), end=date(ed_data['sim_param']['base_yr'], 12, 31))
-        ed_data['assumptions'] = base_assumptions.update_assumptions(ed_data['assumptions']) #Maybe write s_script
+        data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
+        data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
+        data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(data['sim_param']['base_yr'], 1, 1), end=date(data['sim_param']['base_yr'], 12, 31))
+        data['assumptions'] = base_assumptions.update_assumptions(data['assumptions']) #Maybe write s_script
 
-        #ed_data['rs_dw_stock'] = self.user_data['rs_dw_stock']
-        #ed_data['ss_dw_stock'] = self.user_data['ss_dw_stock']
+        #data['rs_dw_stock'] = self.user_data['rs_dw_stock']
+        #data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        #ed_data = data_loader.dummy_data_generation(ed_data)
-        #ed_data['reg_coord'], _ = data_loader.get_dummy_coord_region(ed_data['local_paths'])
+        #data = data_loader.dummy_data_generation(data)
+        #data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths'])
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # -----------------------
-        # Load data from scripts (replacing #ed_data = read_data.load_script_data(ed_data))
+        # Load data from scripts (replacing #data = read_data.load_script_data(data))
         # -----------------------
         # fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p']
         # Insert from script calculations which are stored in memory
-        ed_data['temp_data'] = self.user_data['temp_data']
-        ed_data['assumptions']['rs_service_tech_by_p'] = self.user_data['fts_cont']['rs_service_tech_by_p']
-        ed_data['assumptions']['ss_service_tech_by_p'] = self.user_data['fts_cont']['ss_service_tech_by_p']
-        ed_data['assumptions']['is_service_tech_by_p'] = self.user_data['fts_cont']['is_service_tech_by_p']
-        ed_data['assumptions']['rs_service_fueltype_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_by_p']
-        ed_data['assumptions']['ss_service_fueltype_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_by_p']
-        ed_data['assumptions']['is_service_fueltype_by_p'] = self.user_data['fts_cont']['is_service_fueltype_by_p']
-        ed_data['assumptions']['rs_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_tech_by_p']
-        ed_data['assumptions']['ss_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_tech_by_p']
-        ed_data['assumptions']['is_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['is_service_fueltype_tech_by_p']
-        ed_data['assumptions']['rs_tech_increased_service'] = self.user_data['sgs_cont']['rs_tech_increased_service']
-        ed_data['assumptions']['ss_tech_increased_service'] = self.user_data['sgs_cont']['ss_tech_increased_service']
-        ed_data['assumptions']['is_tech_increased_service'] = self.user_data['sgs_cont']['is_tech_increased_service']
-        ed_data['assumptions']['rs_tech_decreased_share'] = self.user_data['sgs_cont']['rs_tech_decreased_share']
-        ed_data['assumptions']['ss_tech_decreased_share'] = self.user_data['sgs_cont']['ss_tech_decreased_share']
-        ed_data['assumptions']['is_tech_decreased_share'] = self.user_data['sgs_cont']['is_tech_decreased_share']
-        ed_data['assumptions']['rs_tech_constant_share'] = self.user_data['sgs_cont']['rs_tech_constant_share']
-        ed_data['assumptions']['ss_tech_constant_share'] = self.user_data['sgs_cont']['ss_tech_constant_share']
-        ed_data['assumptions']['is_tech_constant_share'] = self.user_data['sgs_cont']['is_tech_constant_share']
-        ed_data['assumptions']['rs_sig_param_tech'] = self.user_data['sgs_cont']['rs_sig_param_tech']
-        ed_data['assumptions']['ss_sig_param_tech'] = self.user_data['sgs_cont']['ss_sig_param_tech']
-        ed_data['assumptions']['is_sig_param_tech'] = self.user_data['sgs_cont']['is_sig_param_tech']
-        ed_data['assumptions']['rs_installed_tech'] = self.user_data['sgs_cont']['rs_installed_tech']
-        ed_data['assumptions']['ss_installed_tech'] = self.user_data['sgs_cont']['ss_installed_tech']
-        ed_data['assumptions']['is_installed_tech'] = self.user_data['sgs_cont']['is_installed_tech']
-        ed_data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
-        ed_data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
-        ed_data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
+        data['temp_data'] = self.user_data['temp_data']
+        data['assumptions']['rs_service_tech_by_p'] = self.user_data['fts_cont']['rs_service_tech_by_p']
+        data['assumptions']['ss_service_tech_by_p'] = self.user_data['fts_cont']['ss_service_tech_by_p']
+        data['assumptions']['is_service_tech_by_p'] = self.user_data['fts_cont']['is_service_tech_by_p']
+        data['assumptions']['rs_service_fueltype_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_by_p']
+        data['assumptions']['ss_service_fueltype_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_by_p']
+        data['assumptions']['is_service_fueltype_by_p'] = self.user_data['fts_cont']['is_service_fueltype_by_p']
+        data['assumptions']['rs_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_tech_by_p']
+        data['assumptions']['ss_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_tech_by_p']
+        data['assumptions']['is_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['is_service_fueltype_tech_by_p']
+        data['assumptions']['rs_tech_increased_service'] = self.user_data['sgs_cont']['rs_tech_increased_service']
+        data['assumptions']['ss_tech_increased_service'] = self.user_data['sgs_cont']['ss_tech_increased_service']
+        data['assumptions']['is_tech_increased_service'] = self.user_data['sgs_cont']['is_tech_increased_service']
+        data['assumptions']['rs_tech_decreased_share'] = self.user_data['sgs_cont']['rs_tech_decreased_share']
+        data['assumptions']['ss_tech_decreased_share'] = self.user_data['sgs_cont']['ss_tech_decreased_share']
+        data['assumptions']['is_tech_decreased_share'] = self.user_data['sgs_cont']['is_tech_decreased_share']
+        data['assumptions']['rs_tech_constant_share'] = self.user_data['sgs_cont']['rs_tech_constant_share']
+        data['assumptions']['ss_tech_constant_share'] = self.user_data['sgs_cont']['ss_tech_constant_share']
+        data['assumptions']['is_tech_constant_share'] = self.user_data['sgs_cont']['is_tech_constant_share']
+        data['assumptions']['rs_sig_param_tech'] = self.user_data['sgs_cont']['rs_sig_param_tech']
+        data['assumptions']['ss_sig_param_tech'] = self.user_data['sgs_cont']['ss_sig_param_tech']
+        data['assumptions']['is_sig_param_tech'] = self.user_data['sgs_cont']['is_sig_param_tech']
+        data['assumptions']['rs_installed_tech'] = self.user_data['sgs_cont']['rs_installed_tech']
+        data['assumptions']['ss_installed_tech'] = self.user_data['sgs_cont']['ss_installed_tech']
+        data['assumptions']['is_installed_tech'] = self.user_data['sgs_cont']['is_installed_tech']
+        data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
+        data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
+        data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
         # ---------
         # Run model
         # ---------
-        results = energy_demand_model(ed_data)
+        results = energy_demand_model(data)
 
         # ---------
         # Process results

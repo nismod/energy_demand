@@ -8,6 +8,78 @@ from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import diffusion_technologies
 
+def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
+    """Create dwelling stock based on input from
+    building model from Newcastle
+
+    Arguments
+    ---------
+    curr_yr : int
+        Current year
+    """
+    # ------
+    # Get all regional information concering floor area etc.
+    # Either preprocessed or direct
+    # ------
+    stock_pop = {}
+    floor_area = {}
+    # Iterate all buildings
+    # see which dwelling type -->
+    # see which age_class --> 
+    # see which building attribute (e.g. resid, industry) 
+    # --> summen the following attributes according these categories
+    #       - population stock_pop[]
+    #       - floor area
+    #       - 
+    # ----------------
+    # Create residential dwelling stock
+    # ----------------
+    # Create dwellings
+    rs_dw_stock = []
+    dwelling_types = ["detached", "semi_detached"]
+    age_classs = [1920, 1930, 1940] #Age categories
+    building_type = "residential"
+    for dwelling_type in dwelling_types:
+        for age_class in age_classs:
+
+            # Get pop of age class
+            pop_dwtype_age_class = stock_pop[building_type][dwelling_type][age_class]
+            floor_area_dwtype_age_class = floor_area[building_type][dwelling_type][age_class]
+
+            dwelling_obj = Dwelling(
+                curr_yr=curr_yr,
+                region=region,
+                coordinates=data['reg_coord'][region],
+                floorarea=floor_area_dwtype_age_class,
+                enduses=data['enduses']['rs_all_enduses'],
+                driver_assumptions=data['assumptions']['scenario_drivers']['rs_submodule'],
+                population=pop_dwtype_age_class,
+                age=age_class,
+                dwtype=dwelling_type,
+                gva=data['gva'][curr_yr][region]) #TODO
+            rs_dw_stock.append(dwelling_obj)
+
+    dwelling_stock = DwellingStock(
+        region,
+        rs_dw_stock,
+        data['enduses']['rs_all_enduses'])
+
+    return dwelling_stock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Dwelling(object):
     """Dwelling or aggregated group of dwellings
 
@@ -492,8 +564,7 @@ def rs_dw_stock(region, data, curr_yr):
         data['lookups']['dwtype'],
         dwtype_floor_area,
         dwtype_distr)
-    print(region)
-    print( data['reg_floorarea_resid'])
+
     floorarea_by = data['reg_floorarea_resid'][region]
     population_by = data['population'][base_yr][region]
 

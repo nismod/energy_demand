@@ -17,9 +17,9 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
     # plotting load factors per fueltype and region
     plot_loadfactors_y(
         data['lookups']['fueltype']['electricity'],
-        load_factors_y, 
-        data['print_criteria'])
-
+        load_factors_y,
+        data['print_criteria'],
+        data['reg_nrs'])
 
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
@@ -70,32 +70,37 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
     #plt_fuels_peak_h(tot_fuel_y_max, data)
     return
 
-def testplot():
-    x_values = [3,3]
-    y_values = [4,4]
-    plt.plot(x_values, y_values) #color='green') #'ro', markersize=1,
-    plt.show()
-testplot()
-
-def plot_loadfactors_y(fueltype_lf, load_factors_y, print_criteria):
+def plot_loadfactors_y(fueltype_lf, load_factors_y, print_criteria, reg_nrs):
     """Plot load factors per region for every year
-    """
-    # nr of years
-    x_values = []
-    y_values = []
 
-    for year, lf_fueltype_reg in load_factors_y.items():
+    Arguments
+    --------
+    
+    """
+    # Line plot for every region over years
+    for reg_nr in range(reg_nrs):
+        x_values_year = []
+        y_values_year = []
+
+        for year, lf_fueltype_reg in load_factors_y.items():
+            x_values_year.append(year)
+            y_values_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
+        print(" PLOT RESULT: {} {} ".format(x_values_year, y_values_year))
+        plt.plot(x_values_year, y_values_year, color='green')
+
+    # Scatter plot over years
+    '''for year, lf_fueltype_reg in load_factors_y.items():
         for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
             x_values.append(year)
             y_values.append(lf_reg)
 
     #plt.plot(x_values, y_values)
-    plt.scatter(x_values, y_values)
+    plt.scatter(x_values, y_values)'''
 
-    plt.xlabel("year")
+    '''plt.xlabel("year")
     plt.ylabel("yearly load factor")
     plt.title("load factors for ever year and all regions")
-    plt.legend()
+    plt.legend()'''
     if print_criteria:
         plt.show()
 
@@ -426,4 +431,17 @@ def plot_load_profile_dh(array_dh):
 
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
     
+    plt.show()
+
+
+
+def testplot():
+    """TESTLINELOTS
+    """
+    x_values = [[3,23],[32,12]]
+    y_values = [[4,44],[33,1]]
+
+    for line_nr in range(2):
+        plt.plot(x_values[line_nr], y_values[line_nr], color='green') #'ro', markersize=1,
+    testplot()
     plt.show()

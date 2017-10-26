@@ -2,7 +2,8 @@
 Energy Demand Model
 ===================
 The industry heating is identical to service heating
-
+Development checklist: https://nismod.github.io/docs/development-checklist.html
+https://nismod.github.io/docs/
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
 '''
 import os
@@ -45,8 +46,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
-        data=data
-        )
+        data=data)
 
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
@@ -92,13 +92,15 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    
+
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
+        data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
+    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -111,10 +113,7 @@ if __name__ == "__main__":
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
 
-        logging.debug("-------------------------- ")
-        logging.debug("SIM RUN:  " + str(sim_yr))
-        logging.debug("-------------------------- ")
-
+        logging.debug("SIMULATION RUN--------------:  " + str(sim_yr))
         fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
 
         #-------------PROFILER
@@ -140,10 +139,12 @@ if __name__ == "__main__":
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
         rs_reg_load_factor_h = model_run_object.rs_reg_load_factor_h
+
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
         logging.info("... Start writing results to file")
+
         write_data.write_model_result_to_txt(
             sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
         write_data.write_model_result_to_txt_enduse(
@@ -154,10 +155,11 @@ if __name__ == "__main__":
             data['local_paths']['data_results_model_runs'], "result_load_factors", [sim_yr], rs_reg_load_factor_h)
 
         logging.info("... Finished writing results to file")
+
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        if validation_criteria == True:
+        if validation_criteria: # == True:
 
             # Add electricity for transportation sector
             fuel_electricity_year_validation = 385
@@ -200,10 +202,12 @@ if __name__ == "__main__":
         os.path.join(data['local_paths']['data_results_model_runs'], "result_load_factors"))
 
     logging.info("... Reading in results finished")
+
     # ------------------------------
     # Plotting
     # ------------------------------
     logging.info("... plotting results")
+
     plotting_results.run_all_plot_functions(
         results_every_year,
         results_enduse_every_year,

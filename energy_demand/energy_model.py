@@ -59,17 +59,26 @@ class EnergyModel(object):
             for weather_region_name in data['weather_stations']
         }
 
-        logging.info("... Generate dwelling stock for base year")
-        data['rs_dw_stock'] = defaultdict(dict)
-        data['ss_dw_stock'] = defaultdict(dict)
-        for region_name in region_names:
-            data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(region_name, data, data['sim_param']['base_yr'])
-            data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(region_name, data, data['sim_param']['base_yr'])
+        if data['assumptions']['virtual_dwelling_stock']:
+            logging.info("... Generate virtual dwelling stock for base year")
 
-            # Create dwelling stock
-            data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
-            data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
-        logging.info("... finished dwelling stock for base year")
+            data['rs_dw_stock'] = defaultdict(dict)
+            data['ss_dw_stock'] = defaultdict(dict)
+            for region_name in region_names:
+                data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(region_name, data, data['sim_param']['base_yr'])
+                data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(region_name, data, data['sim_param']['base_yr'])
+
+                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
+                data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
+            logging.info("... finished virtual dwelling stock for base year")
+        
+        else:
+
+            # Create dwelling stock from imported data from newcastle
+            #createNEWCASTLE_dwelling_stock()
+            #data['rs_dw_stock'][region_name][self.curr_yr]
+            #data['ss_dw_stock'][region_name][self.curr_yr]
+            pass
 
         # ---------------------------------------------
         # Initialise and iterate over years
@@ -84,6 +93,9 @@ class EnergyModel(object):
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
 
+            # ----------------
+            # Simulate region
+            # ----------------
             region_submodels = simulate_region(
                 region_name,
                 data,
@@ -93,7 +105,7 @@ class EnergyModel(object):
             # Summarise functions
             # ----------------------
             logging.debug("... start summing")
-            #TODO: IN FUEL ARRAY NOT DICT
+
             # Sum across all regions, all enduse and sectors sum_reg
             fuel_indiv_regions_yh = fuel_regions_fueltype(
                 fuel_indiv_regions_yh,
@@ -405,7 +417,7 @@ def industry_submodel(region, data, enduse_names, sector_names):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data={'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
@@ -476,7 +488,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data={'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
@@ -534,7 +546,7 @@ def service_submodel(region, data, enduse_names, sector_names):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data={'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
