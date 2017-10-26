@@ -74,7 +74,7 @@ class EnergyModel(object):
         # ---------------------------------------------
         # Initialise and iterate over years
         # ---------------------------------------------
-        fuel_indiv_regions_yh = helpers.init_loop_dicts(data)
+        fuel_indiv_regions_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
         reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
         tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
         tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
@@ -137,6 +137,13 @@ class EnergyModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
+            # -------------------
+            # Local calculations
+            # -------------------
+            #TODO: CALCULATE REGIONAL LOAD FACTORS SHARK
+            #self.rs_reg_load_factor_h = lf.calc_lf_y(self.fuel_indiv_regions_yh)
+            #self.ss_reg_load_factor_h = 
+
         self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
         self.reg_enduses_fueltype_y = reg_enduses_fueltype_y
         self.tot_peak_enduses_fueltype = tot_peak_enduses_fueltype
@@ -165,10 +172,6 @@ class EnergyModel(object):
         self.ss_reg_load_factor_h = load_factors.calc_load_factor_h(
             data, ss_tot_fuels_all_enduses_y, ss_fuels_peak_h)
         '''
-
-        #TODO: CALCULATE REGIONAL LOAD FACTORS SHARK
-        #self.rs_reg_load_factor_h = lf.calc_lf_y(self.fuel_indiv_regions_yh)
-        #self.ss_reg_load_factor_h = 
 
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
@@ -563,7 +566,7 @@ def fuel_regions_fueltype(
         fuel_fueltype_regions,
         lookups,
         region_name,
-        array_region,
+        array_region_nr,
         model_yearhours_nrs,
         model_yeardays_nrs,
         all_submodels
@@ -577,7 +580,7 @@ def fuel_regions_fueltype(
         Lookup container
     region_names : list
         All region names
-    array_nr_region : int
+    array_region_nr : int
         Array nr position of region to store results
     Example
     -------
@@ -594,8 +597,8 @@ def fuel_regions_fueltype(
         )
 
     # Reshape
-    for fueltype_str, fueltype_nr in lookups['fueltype'].items():
-        fuel_fueltype_regions[fueltype_str][array_region] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
+    for _, fueltype_nr in lookups['fueltype'].items():
+        fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
     return fuel_fueltype_regions
 

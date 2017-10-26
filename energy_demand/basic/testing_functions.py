@@ -19,15 +19,15 @@ def test_region_selection(fuel_indiv_regions_yh):
     hours_modelled = modelled_days * 24
     len_dict = 0
     _sum_day_selection = 0
-    for fueltype, fuels in fuel_indiv_regions_yh.items():
+    for fuels in fuel_indiv_regions_yh:
         for region_fuel in fuels:
-            _sum_day_selection += np.sum(region_fuel[:hours_modelled])
+            _sum_day_selection += np.sum(region_fuel[: hours_modelled])
             len_dict = region_fuel.shape[0]
     
     print("nr of dasy to sho {}  {}".format(hours_modelled, len_dict))
 
     _sum_all = 0
-    for fueltype, fuels in fuel_indiv_regions_yh.items():
+    for fuels in fuel_indiv_regions_yh:
         for region_fuel in fuels:
             _sum_all += np.sum(region_fuel)
     print("_sum_day_selection")

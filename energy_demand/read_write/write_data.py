@@ -113,8 +113,7 @@ def write_out_sim_param(path_to_txt, temp_assumptions):
             file.write("{}, {}".format(data_entry, 'None') + '\n')
         else:
             data_entry2 = str(temp_assumptions[data])
-            file.write("{}, {}".format(data_entry, data_entry2) + '\n'
-                    )
+            file.write("{}, {}".format(data_entry, data_entry2) + '\n')
     file.close()
 
     return
@@ -123,15 +122,17 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     """Store yearly model resul to txt
 
     Store numpy array to txt
+
+    Fueltype : Regions : Fuel
     """
     # Create folder for model simulation year
     basic_functions.create_folder(path_result)
 
     # Write to txt
-    for fueltype, fuel in model_results.items():
+    for fueltype_nr, fuel in enumerate(model_results):
         path_file = os.path.join(
             path_result,
-            "modelruns__{}__{}__{}".format(sim_yr, fueltype, ".txt")
+            "modelruns__{}__{}__{}".format(sim_yr, fueltype_nr, ".txt")
             )
         np.savetxt(path_file, fuel, delimiter=',')
 

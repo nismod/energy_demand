@@ -131,6 +131,7 @@ def dummy_data_generation(data):
     data['lu_reg'] = {}
     for region_name in regions:
         data['lu_reg'][region_name] = region_name
+    data['reg_nrs'] = len(regions)
 
     #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}

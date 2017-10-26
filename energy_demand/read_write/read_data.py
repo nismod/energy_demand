@@ -22,10 +22,8 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
             year = int(file_path_split[1])
-            fueltype_str = str(file_path_split[2])
-
-            fueltype_array_position = int(fueltypes_lu[fueltype_str])
-
+            fueltype_array_position = int(file_path_split[2])
+            #fueltype_array_position = int(fueltypes_lu[str(file_path_split[2])])
             txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
             try:
