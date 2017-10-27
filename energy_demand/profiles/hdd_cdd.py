@@ -56,7 +56,15 @@ def calc_cdd(rs_t_base_cooling, temperatures):
 
     return cdd_d
 
-def get_hdd_country(regions, data, t_base_type):
+def get_hdd_country(
+        sim_param,
+        regions,
+        temp_data,
+        assumptions,
+        reg_coord,
+        weather_stations,
+        t_base_type
+    ):
     """Calculate total number of heating degree days in a region for the base year
 
     Arguments
@@ -72,22 +80,28 @@ def get_hdd_country(regions, data, t_base_type):
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
-            data['reg_coord'][region_name]['longitude'],
-            data['reg_coord'][region_name]['latitude'],
-            data['weather_stations']
-            )
+            reg_coord[region_name]['longitude'],
+            reg_coord[region_name]['latitude'],
+            weather_stations)
 
-        temperatures = data['temp_data'][closest_station_id][data['sim_param']['base_yr']]
+        temperatures = temp_data[closest_station_id][sim_param['base_yr']]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(data['sim_param'], data['assumptions'], t_base_type)
+        t_base_heating_cy = sigm_temp(sim_param, assumptions, t_base_type)
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
         hdd_regions[region_name] = np.sum(hdd_reg)
 
     return hdd_regions
 
-def get_cdd_country(regions, data, t_base_type):
+def get_cdd_country(
+        sim_param,
+        regions,
+        temp_data,
+        assumptions,
+        reg_coord,
+        weather_stations,
+        t_base_type):
     """Calculate total number of cooling degree days in a region for the base year
 
     Arguments
@@ -100,25 +114,23 @@ def get_cdd_country(regions, data, t_base_type):
     cdd_regions = {}
 
     for region_name in regions:
-        longitude = data['reg_coord'][region_name]['longitude']
-        latitude = data['reg_coord'][region_name]['latitude']
+        longitude = reg_coord[region_name]['longitude']
+        latitude = reg_coord[region_name]['latitude']
 
         # Get closest weather station and temperatures
         closest_station_id = weather_station.get_closest_station(
             longitude,
             latitude,
-            data['weather_stations']
-            )
+            weather_stations)
 
         # Temp data
-        temperatures = data['temp_data'][closest_station_id][data['sim_param']['base_yr']]
+        temperatures = temp_data[closest_station_id][sim_param['base_yr']]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(
-            data['sim_param'],
-            data['assumptions'],
-            t_base_type
-            )
+            sim_param,
+            assumptions,
+            t_base_type)
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
         cdd_regions[region_name] = np.sum(cdd_reg)

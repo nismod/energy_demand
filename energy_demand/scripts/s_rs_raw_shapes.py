@@ -215,7 +215,7 @@ def read_hes_data(paths_hes, nr_app_type_lu):
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script %s", os.path.basename(__file__))
+    print("... start script %s", os.path.basename(__file__))
 
     hes_appliances_matching = {
         'rs_cold': 0,
@@ -228,26 +228,22 @@ def run(data):
         'NOT_USED_unkown_1': 7,
         'NOT_USED_unkown_2': 8,
         'NOT_USED_unkown_3': 9,
-        'NOT_USED_showers': 10
-        }
+        'NOT_USED_showers': 10}
 
     # HES data -- Generate generic load profiles
     # for all electricity appliances from HES data
     hes_data, hes_y_peak, _ = read_hes_data(
         data['local_paths']['path_bd_e_load_profiles'],
-        len(hes_appliances_matching)
-        )
+        len(hes_appliances_matching))
 
     # Assign read in raw data to the base year
     year_raw_hes_values = assign_hes_data_to_year(
         len(hes_appliances_matching),
         hes_data,
-        int(data['sim_param']['base_yr'])
-        )
+        int(data['sim_param']['base_yr']))
 
     _, rs_enduses = read_data.read_base_data_resid(
-        data['paths']['rs_fuel_raw_data_enduses']
-        )
+        data['paths']['rs_fuel_raw_data_enduses'])
 
     # Load shape for all enduses
     for enduse in rs_enduses:
@@ -259,8 +255,7 @@ def run(data):
                 hes_appliances_matching,
                 year_raw_hes_values,
                 hes_y_peak,
-                enduse
-                )
+                enduse)
 
             # Write txt files
             s_shared_functions.create_txt_shapes(
@@ -269,8 +264,7 @@ def run(data):
                 shape_peak_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,
-                shape_non_peak_yd
-                )
+                shape_non_peak_yd)
 
-    logging.debug("... finished script %s", os.path.basename(__file__))
+    print("... finished script %s", os.path.basename(__file__))
     return

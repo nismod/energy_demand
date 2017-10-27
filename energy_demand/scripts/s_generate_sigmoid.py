@@ -720,49 +720,49 @@ def run(data):
 
     # Write out to csv
     write_installed_tech(
-        os.path.join(data['local_paths']['data_processed'], 'rs_installed_tech.csv'),
+        os.path.join(data['local_paths']['path_sigmoid_data'], 'rs_installed_tech.csv'),
                          rs_installed_tech)
     write_installed_tech(
-        os.path.join(data['local_paths']['data_processed'], 'ss_installed_tech.csv'),
+        os.path.join(data['local_paths']['path_sigmoid_data'], 'ss_installed_tech.csv'),
                          ss_installed_tech)
     write_installed_tech(
-        os.path.join(data['local_paths']['data_processed'], 'is_installed_tech.csv'),
+        os.path.join(data['local_paths']['path_sigmoid_data'], 'is_installed_tech.csv'),
                          is_installed_tech)
     write_sig_param_tech(
-        os.path.join(data['local_paths']['data_processed'], 'rs_sig_param_tech.csv'),
+        os.path.join(data['local_paths']['path_sigmoid_data'], 'rs_sig_param_tech.csv'),
                          rs_sig_param_tech)
     write_sig_param_tech(os.path.join(
-        data['local_paths']['data_processed'], 'ss_sig_param_tech.csv'),
+        data['local_paths']['path_sigmoid_data'], 'ss_sig_param_tech.csv'),
                          ss_sig_param_tech)
     write_sig_param_tech(os.path.join(
-        data['local_paths']['data_processed'], 'is_sig_param_tech.csv'),
+        data['local_paths']['path_sigmoid_data'], 'is_sig_param_tech.csv'),
                          is_sig_param_tech)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'rs_tech_increased_service.csv'),
+        data['local_paths']['path_sigmoid_data'], 'rs_tech_increased_service.csv'),
                          rs_tech_increased_service)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'ss_tech_increased_service.csv'),
+        data['local_paths']['path_sigmoid_data'], 'ss_tech_increased_service.csv'),
                          ss_tech_increased_service)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'is_tech_increased_service.csv'),
+        data['local_paths']['path_sigmoid_data'], 'is_tech_increased_service.csv'),
                          is_tech_increased_service)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'rs_tech_decreased_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'rs_tech_decreased_share.csv'),
                          rs_tech_decreased_share)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'ss_tech_decreased_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'ss_tech_decreased_share.csv'),
                          ss_tech_decreased_share)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'is_tech_decreased_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'is_tech_decreased_share.csv'),
                          is_tech_decreased_share)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'rs_tech_constant_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'rs_tech_constant_share.csv'),
                          rs_tech_constant_share)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'ss_tech_constant_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'ss_tech_constant_share.csv'),
                          ss_tech_constant_share)
     write_installed_tech(os.path.join(
-        data['local_paths']['data_processed'], 'is_tech_constant_share.csv'),
+        data['local_paths']['path_sigmoid_data'], 'is_tech_constant_share.csv'),
                          is_tech_constant_share)
 
     logging.debug("... finished script %s", os.path.basename(__file__))

@@ -29,7 +29,7 @@ energy_demand_parameters = [
 
     # Technology related parameters
     {
-        "name": "efficiency_achieving_factor",
+        "name": "eff_achieving_factor",
         "description": "How much of the potential efficiency improvements up to end year can be reaped",
         "absolute_range": (0,1),
         "suggested_range": (0,1),

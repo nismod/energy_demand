@@ -23,6 +23,7 @@ from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup as log
 from energy_demand.read_write import write_data
+from energy_demand.basic import basic_functions
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -110,6 +111,14 @@ if __name__ == "__main__":
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
+
+    #--------------------
+    # Folder cleaning
+    #--------------------
+    basic_functions.delete_previous_results(
+        data['local_paths']['data_results'],
+        data['local_paths']['path_post_installation_data'])
+    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
 
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr

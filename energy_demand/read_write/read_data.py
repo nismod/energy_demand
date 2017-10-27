@@ -98,18 +98,19 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    local_path = data['local_paths']['data_processed']
+    local_path = data['local_paths']['path_sigmoid_data']
+    dir_services_path = data['local_paths']['dir_services']
 
     # Read in Services (from script data)
-    data['assumptions']['rs_service_tech_by_p'] = read_service_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'rs_service_tech_by_p.csv'))
-    data['assumptions']['ss_service_tech_by_p'] = read_service_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'ss_service_tech_by_p.csv'))
-    data['assumptions']['is_service_tech_by_p'] = read_service_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'is_service_tech_by_p.csv'))
-    data['assumptions']['rs_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(data['local_paths']['dir_services'], 'rs_service_fueltype_by_p.csv'))
-    data['assumptions']['ss_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(data['local_paths']['dir_services'], 'ss_service_fueltype_by_p.csv'))
-    data['assumptions']['is_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(data['local_paths']['dir_services'], 'is_service_fueltype_by_p.csv'))
-    data['assumptions']['rs_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'rs_service_fueltype_tech_by_p.csv'))
-    data['assumptions']['ss_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'ss_service_fueltype_tech_by_p.csv'))
-    data['assumptions']['is_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(data['local_paths']['dir_services'], 'is_service_fueltype_tech_by_p.csv'))
+    data['assumptions']['rs_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'rs_service_tech_by_p.csv'))
+    data['assumptions']['ss_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'ss_service_tech_by_p.csv'))
+    data['assumptions']['is_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'is_service_tech_by_p.csv'))
+    data['assumptions']['rs_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'rs_service_fueltype_by_p.csv'))
+    data['assumptions']['ss_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'ss_service_fueltype_by_p.csv'))
+    data['assumptions']['is_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'is_service_fueltype_by_p.csv'))
+    data['assumptions']['rs_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'rs_service_fueltype_tech_by_p.csv'))
+    data['assumptions']['ss_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'ss_service_fueltype_tech_by_p.csv'))
+    data['assumptions']['is_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'is_service_fueltype_tech_by_p.csv'))
 
     # Read technologies with more, less and constant service based on service switch assumptions (from script data)
     data['assumptions']['rs_tech_increased_service'] = read_installed_tech(os.path.join(local_path, 'rs_tech_increased_service.csv'))

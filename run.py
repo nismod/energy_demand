@@ -190,7 +190,7 @@ class EDWrapper(SectorModel):
         data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
         data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
         data['assumptions']['rs_t_base_heating']['end_yr'] = data['rs_t_base_heating_ey']
-        data['assumptions']['efficiency_achieving_factor'] = data['efficiency_achieving_factor']
+        data['assumptions']['eff_achieving_factor'] = data['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition
         data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
@@ -284,7 +284,7 @@ if __name__ == '__main__':
     data['assump_diff_floorarea_pp'] = 1
     data['climate_change_temp_diff_month'] = 1
     data['rs_t_base_heating_ey'] = 1
-    data['efficiency_achieving_factor'] = 1
+    data['eff_achieving_factor'] = 1
 
     ed = EDWrapper('ed')
     from smif.convert.area import get_register as get_region_register

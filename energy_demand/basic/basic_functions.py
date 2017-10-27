@@ -1,7 +1,10 @@
 """Contains very basic functions
 """
 import os
+import logging
 import numpy as np
+import shutil
+
 
 def rmse(predictions, targets):
     """RMSE calculations
@@ -32,3 +35,42 @@ def create_folder(path_folder, name_subfolder=None):
         path_result_subolder = os.path.join(path_folder, name_subfolder)
         if not os.path.exists(path_result_subolder):
             os.makedirs(path_result_subolder)
+
+def delete_previous_results(path_folder, path_subfolder_keep):
+    """Delete all model results from previous model run. Do not
+    delete post installation setup files
+
+    Arguments
+    ---------
+    path_folder : str
+        Path to results of model run
+    path_subfolder_keep : str
+        Path of subfolder which must not be deleted
+    """
+    if os.path.exists(path_folder):
+
+        all_files_and_folders = os.listdir(path_folder)
+
+        # Iterate folders in data folders
+        for entry in all_files_and_folders:
+            path_subfolder = os.path.join(path_folder, entry)
+            # Do not deleted post installation files
+            if path_subfolder != path_subfolder_keep:
+                shutil.rmtree(path_subfolder)
+    else:
+        logging.info("...Deleted previous scenario results")
+        print("...Deleted previous scenario results")
+
+def delete_previous_model_setup_data(path_folder):
+    """Delete all model results from previous model run
+
+    Arguments
+    ---------
+    path : str
+        Path to results of model run
+    """
+    if os.path.exists(path_folder):
+        shutil.rmtree(path_folder)
+    else:
+        logging.info("...Deleted previous scenario results")
+        print("...Deleted previous scenario results")

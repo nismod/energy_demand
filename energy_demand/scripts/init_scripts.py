@@ -13,6 +13,7 @@ from energy_demand.scripts import s_change_temp
 from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
+from energy_demand.basic import basic_functions
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -27,7 +28,7 @@ def post_install_setup(args):
     Only needs to be executed once after the energy_demand
     model has been installed
     """
-    logging.debug("... start running initialisation scripts")
+    print("... start running initialisation scripts")
 
     # Paths
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
@@ -40,8 +41,22 @@ def post_install_setup(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
+        data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
+
+    # Delete all previous data from previous model runs
+    basic_functions.delete_previous_model_setup_data(data['local_paths']['data_processed'])
+    basic_functions.delete_previous_model_setup_data(data['local_paths']['data_results'])
+
+    # Create folders and subfolder for data_processed
+    basic_functions.create_folder(data['local_paths']['data_processed'])
+    basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
+    basic_functions.create_folder(data['local_paths']['dir_changed_weather_data'])
+    basic_functions.create_folder(data['local_paths']['load_profiles'])
+    basic_functions.create_folder(data['local_paths']['rs_load_profiles'])
+    basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
+    basic_functions.create_folder(data['local_paths']['dir_disattregated'])
 
     # Read in temperature data from raw files
     s_raw_weather_data.run(data)
@@ -52,7 +67,8 @@ def post_install_setup(args):
     # Read in service submodel shapes
     s_ss_raw_shapes.run(data)
 
-    logging.debug("... finished post_install_setup")
+    logging.info("... finished post_install_setup")
+    print("... finished post_install_setup")
 
 def scenario_initalisation(path_data_energy_demand, data=False):
     """Scripts which need to be run for every different scenario
@@ -72,7 +88,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     If no data is provided, dummy data is generated TODO
     """
-    if data == False:
+    if not data:
         run_locally = True
     else:
         run_locally = False
@@ -80,19 +96,31 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
     if run_locally is True:
-
         data = {}
         data['print_criteria'] = True #Print criteria
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass
+
+    # --------------------------------------------
+    # Delete processed data from former model runs
+    # --------------------------------------------
+    basic_functions.delete_previous_results(
+        data['local_paths']['data_processed'],
+        data['local_paths']['path_post_installation_data'])
+
+    # Create folders
+    basic_functions.create_folder(data['local_paths']['data_results'])
+    basic_functions.create_folder(data['local_paths']['dir_services']) 
+    basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
 
     # s_change_temp----------------------------------------------
     if run_locally is True:
@@ -115,8 +143,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['lookups']['fueltype'],
             data['assumptions']['rs_fuel_tech_p_by'],
             data['fuels']['rs_fuel_raw_data_enduses'],
-            data['assumptions']['technologies']
-            )
+            data['assumptions']['technologies'])
 
         # SERVICE: Convert base year fuel input assumptions to energy service
         fuels_aggregated_across_sectors = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
@@ -129,8 +156,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['lookups']['fueltype'],
             data['assumptions']['ss_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
-            data['assumptions']['technologies']
-            )
+            data['assumptions']['technologies'])
 
         # INDUSTRY
         fuels_aggregated_across_sectors = s_fuel_to_service.ss_sum_fuel_enduse_sectors(
@@ -143,8 +169,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['lookups']['fueltype'],
             data['assumptions']['is_fuel_tech_p_by'],
             fuels_aggregated_across_sectors,
-            data['assumptions']['technologies']
-            )
+            data['assumptions']['technologies'])
 
     # s_generate_sigmoid
     if run_locally is True:
@@ -184,8 +209,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['assumptions']['rs_enduse_tech_maxL_by_p'],
             rs_service_fueltype_by_p,
             rs_service_tech_by_p,
-            data['assumptions']['rs_fuel_tech_p_by']
-            )
+            data['assumptions']['rs_fuel_tech_p_by'])
 
         # --Service
         sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
@@ -198,8 +222,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['assumptions']['ss_enduse_tech_maxL_by_p'],
             ss_service_fueltype_by_p,
             ss_service_tech_by_p,
-            data['assumptions']['ss_fuel_tech_p_by']
-            )
+            data['assumptions']['ss_fuel_tech_p_by'])
 
         # --Industry
         sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
@@ -212,8 +235,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['assumptions']['is_enduse_tech_maxL_by_p'],
             is_service_fueltype_by_p,
             is_service_tech_by_p,
-            data['assumptions']['is_fuel_tech_p_by']
-            )
+            data['assumptions']['is_fuel_tech_p_by'])
 
     # from energy_demand.scripts import s_disaggregation
     if run_locally is True:

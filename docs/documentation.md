@@ -413,8 +413,7 @@ are the same for the fueltype hydrogen or oil.
 
 BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [https://www.gov.uk/government/collections/energy-consumption-in-the-uk](https://www.gov.uk/government/collections/energy-consumption-in-the-uk)
 
-DECC (2014) Household Electricity Survey. Available at: [https://www.gov.uk/government/collections/household-electricity-survey]
-(https://www.gov.uk/government/collections/household-electricity-survey)
+DECC (2014) Household Electricity Survey. Available at:[https://www.gov.uk/government/collections/household-electricity-survey](https://www.gov.uk/government/collections/household-electricity-survey)
 
 Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, C., … Lowe, R. (2017). The addition of heat pump electricity load profiles to GB electricity demand: Evidence from a heat pump field trial. Applied Energy, 204, 332–342. [https://doi.org/10.1016/j.apenergy.2017.07.026](https://doi.org/10.1016/j.apenergy.2017.07.026)
 

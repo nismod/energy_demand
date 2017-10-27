@@ -3,12 +3,25 @@
 
 High Resolution Energy Demand Model
 ====================================
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
+    :target: http://ed.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
+    :target: https://travis-ci.org/nismod/energy_demand
+
+.. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
+    :target: https://coveralls.io/github/nismod/energy_demand
+
+*(click on the 'docs' button to get directed to the full model documentation)*
+
+
 **HIRE** was written and developed at the `Environmental Change Institute,
 University of Oxford <http://www.eci.ox.ac.uk>`_ within the
 EPSRC sponsored MISTRAL programme, as part of the `Infrastructure Transition
 Research Consortium <http://www.itrc.org.uk/>`_.
 
-A full model description can be found here <http://ed.readthedocs.io/en/latest/?badge=latest>.
+A full model description can be found `here <http://ed.readthedocs.io/en/latest/?badge=latest>`_.
 
 The research behind the model witih the MISTRAL
 modelling context is documented in:
@@ -23,17 +36,6 @@ HIRE is an extensive development into a high temporal and spatial
 energy demand model simulation.
 
 
-.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-    :target: http://ed.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-
-.. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
-    :target: https://travis-ci.org/nismod/energy_demand
-
-.. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
-    :target: https://coveralls.io/github/nismod/energy_demand
-
-*(click on the 'docs' button to get directed to the full model documentation)*
 
 Running the model (local)
 ========================
@@ -45,9 +47,9 @@ the model is run with different assumptions.
 Model Set-Up
 -------------
 
-```
-1. Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
-   download the energy_demand python code.
+``
+1.  Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
+    download the energy_demand python code.
 
    Note: Because some data is not open source, the full data needs to be optained
    from the consortium. Please contact XY.
@@ -67,7 +69,7 @@ Model Set-Up
 
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
-```
+``
 
 Scenario Set-up 
 ----------------
@@ -89,9 +91,9 @@ Scenario Set-up
 Running the model with smif
 ========================
 
-```
+``
 Describe...
-```
+``
 
 Literature
 ========================

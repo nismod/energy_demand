@@ -26,8 +26,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     if write_sim_param: # == True:
         sim_param = {}
         sim_param['base_yr'] = 2015
-        sim_param['end_yr'] = 2022
-        sim_param['sim_years_intervall'] = 1 # Make calculation only every X year
+        sim_param['end_yr'] = 2020
+        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['curr_yr'] = sim_param['base_yr']
@@ -103,8 +103,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'terraced': 0.283,
         'flat': 0.203,
         'detached': 0.166,
-        'bungalow': 0.088
-        }
+        'bungalow': 0.088}
 
     # Dwelling type distribution end year
     # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
@@ -113,8 +112,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'terraced': 0.283,
         'flat': 0.203,
         'detached': 0.166,
-        'bungalow': 0.088
-        }
+        'bungalow': 0.088}
 
     # Floor area per dwelling type
     # Annex Table 3.1 
@@ -124,8 +122,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
-        'bungalow': 77
-        }
+        'bungalow': 77}
 
     # Floor area per dwelling type #TODO
     assumptions['assump_dwtype_floorarea_ey'] = {
@@ -133,8 +130,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
-        'bungalow': 77
-        }
+        'bungalow': 77}
 
     # Assumption about age distribution
     # Source: Housing Energy Fact Sheet
@@ -144,8 +140,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
-            '2002': 0.05}
-        }
+            '2002': 0.05}}
 
     # TODO: Get assumptions for heat loss coefficient
     # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
@@ -192,8 +187,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'rs_cold': ['population'],
         'rs_wet': ['population'],
         'rs_consumer_electronics': ['population'],
-        'rs_home_computing': ['population']
-    }
+        'rs_home_computing': ['population']}
 
     # --Servicse Submodel
     assumptions['scenario_drivers']['ss_submodule'] = {
@@ -231,8 +225,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'offices': 1,
         'retail': 1,
         'storage': 1,
-        'other': 1
-        }
+        'other': 1}
 
     # =======================================
     # Climate Change assumptions
@@ -250,8 +243,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         0, # September
         0, # October
         0, # November
-        0 # December
-    ]
+        0] # December
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     # ============================================================
@@ -260,23 +252,20 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # ============================================================
     assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5 #replaced by rs_t_base_heating_ey
-        }
-
+        'end_yr': 15.5} #replaced by rs_t_base_heating_ey
+        
     assumptions['ss_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5
-        }
+        'end_yr': 15.5}
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {
         'base_yr': 21.0,
-        'end_yr': 21.0
-        }
+        'end_yr': 21.0}
+
     assumptions['ss_t_base_cooling'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5
-        }
+        'end_yr': 15.5}
 
     # Sigmoid parameters for diffusion of penetration of smart meters
     assumptions['base_temp_diff_params'] = {}
@@ -330,8 +319,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['heat_recovered'] = {
         'rs_space_heating': 0.0, # e.g. 0.2 = 20% reduction
         'ss_space_heating': 0.0,
-        'is_space_heating': 0.0
-    }
+        'is_space_heating': 0.0}
 
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses
@@ -357,8 +345,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             'rs_cold': 1,
             'rs_wet': 1,
             'rs_consumer_electronics': 1,
-            'rs_home_computing': 1
-        },
+            'rs_home_computing': 1},
 
         # Submodel Service
         'ss_model': {
@@ -369,8 +356,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             'ss_water_heating': 1,
             'ss_lighting': 1,
             'ss_other_gas': 1,
-            'ss_other_electricity': 1
-        },
+            'ss_other_electricity': 1},
 
         # Submodel Industry
         'is_model': {
@@ -382,8 +368,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             'is_lighting': 1,
             'is_space_heating': 1,
             'is_other': 1,
-            'is_refrigeration': 1
-        }
+            'is_refrigeration': 1}
     }
 
     # Specific diffusion information for the diffusion of enduses
@@ -391,8 +376,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1
-            }
+            'sig_steeppness': 1}
         }
 
     # ============================================================
@@ -408,7 +392,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     split_hp_ashp_gshp = 0.5
 
     # --Assumption how much of technological efficiency is reached
-    assumptions['efficiency_achieving_factor'] = 1
+    assumptions['eff_achieving_factor'] = 1
 
     # --Heat pumps
     assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
@@ -511,7 +495,7 @@ def update_assumptions(assumptions):
     """
     assumptions['technologies'] = helpers.helper_set_same_eff_all_tech(
         assumptions['technologies'],
-        assumptions['efficiency_achieving_factor']
+        assumptions['eff_achieving_factor']
         )
 
     return assumptions

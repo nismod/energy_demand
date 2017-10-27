@@ -245,6 +245,7 @@ def write_weather_data(path_to_txt, weather_data):
     weather_data : dict
         Weather data
     """
+    print("... start write_weather_data")
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}".format(
         'station_id', 'day', 'hour', 'temp_in_celsius') + '\n'
@@ -258,7 +259,7 @@ def write_weather_data(path_to_txt, weather_data):
                           )
 
     file.close()
-    logging.debug("...finished write_weather_data")
+    print("... finished write_weather_data")
 
     return
 
@@ -272,6 +273,7 @@ def write_weather_stations(path_to_txt, weather_station):
     weather_station : dict
         Weater station data
     """
+    print("... writing weather stations to file")
     file = open(path_to_txt, "w")
 
     file.write("{}, {}, {}".format('station_id', 'station_latitude', 'station_longitude') + '\n')
@@ -279,17 +281,15 @@ def write_weather_stations(path_to_txt, weather_station):
     for station_id in weather_station:
         file.write("{}, {}, {}".format(
             station_id, weather_station[station_id]['station_latitude'],
-            weather_station[station_id]['station_longitude'])  + '\n'
-                  )
-
+            weather_station[station_id]['station_longitude'])  + '\n')
     file.close()
-    logging.debug("...finished write_weather_stations")
+
     return
 
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script %s", os.path.basename(__file__))
+    print("... start script %s", os.path.basename(__file__))
 
     # Read in raw temperature data
     temp_data_raw = read_weather_data_raw(
@@ -302,8 +302,7 @@ def run(data):
     # Weather stations
     weather_stations = read_weather_stations_raw(
         data['local_paths']['folder_path_weater_stations'],
-        temp_data.keys()
-        )
+        temp_data.keys())
 
     # Write out to csv files
     write_weather_stations(
@@ -313,5 +312,6 @@ def run(data):
         data['local_paths']['path_processed_weather_data'],
         temp_data)
 
-    logging.debug("..finished script %s", os.path.basename(__file__))
+    logging.info("... finished script %s", os.path.basename(__file__))
+    print("... finished script %s", os.path.basename(__file__))
     return

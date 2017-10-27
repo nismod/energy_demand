@@ -3,17 +3,14 @@
 import os
 import sys
 import csv
-from collections import defaultdict
 from datetime import date
 import numpy as np
-import logging
 from energy_demand.read_write import read_data
 from energy_demand.basic import date_handling
 from energy_demand.scripts import s_shared_functions
-from energy_demand.assumptions import base_assumptions
-from energy_demand.read_write import data_loader
-from energy_demand.read_write import read_data
 from energy_demand.profiles import load_profile
+#from collections import defaultdict
+#import logging
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -69,7 +66,6 @@ def read_raw_carbon_trust_data(folder_path):
             out_dict_av[dtype] = month_dict
         return out_dict_av
 
-
     # Get all files in folder
     all_csv_in_folder = os.listdir(folder_path)
     main_dict = initialise_main_dict()
@@ -84,7 +80,7 @@ def read_raw_carbon_trust_data(folder_path):
 
         # Read csv file
         with open(path_csv_file, 'r') as csv_file:
-            logging.debug("path_csv_file: " + str(path_csv_file))
+            #print("path_csv_file: " + str(path_csv_file))
             read_lines = csv.reader(csv_file, delimiter=',')
             _headings = next(read_lines)
             max_d_demand = 0 # Used for searching maximum
@@ -93,11 +89,11 @@ def read_raw_carbon_trust_data(folder_path):
             row_data = []
             for count_row, row in enumerate(read_lines):
                 row_data.append(row)
-            #logging.debug("Number of lines in csv file: " + str(count_row))
+            #print("Number of lines in csv file: " + str(count_row))
 
             # Calc yearly demand based on one year data measurements
             if count_row > 365: # if more than one year is in csv file
-                logging.debug("FILE covers a full year---------------------------")
+                #print("FILE covers a full year---------------------------")
 
                 # Test if file has correct form and not more entries than 48 half-hourly entries
                 for day, row in enumerate(row_data):
@@ -225,7 +221,8 @@ def read_raw_carbon_trust_data(folder_path):
     shape_non_peak_yd = np.zeros((365), dtype=float)
     for yearday, carbon_trust_d in enumerate(year_data):
         shape_non_peak_yd[yearday] = np.sum(carbon_trust_d)
-    shape_non_peak_yd = (1.0 / yearly_demand) * shape_non_peak_yd
+
+    shape_non_peak_yd = shape_non_peak_yd / yearly_demand
 
     np.testing.assert_almost_equal(np.sum(shape_non_peak_yd), 1, decimal=2, err_msg="")
 
@@ -248,7 +245,9 @@ def assign_data_to_year(carbon_trust_data, base_yr):
     shape_non_peak_y_dh = np.zeros((365, 24), dtype=float)
 
     # Create list with all dates of a whole year
-    list_dates = date_handling.fullyear_dates(start=date(base_yr, 1, 1), end=date(base_yr, 12, 31))
+    list_dates = date_handling.fullyear_dates(
+        start=date(base_yr, 1, 1),
+        end=date(base_yr, 12, 31))
 
     # Assign every date to the place in the array of the year
     for yearday in list_dates:
@@ -271,7 +270,7 @@ def assign_data_to_year(carbon_trust_data, base_yr):
 def run(data):
     """Function to run script
     """
-    logging.debug("... start script %s", os.path.basename(__file__))
+    print("... start script %s", os.path.basename(__file__))
     _, ss_sectors, ss_enduses = read_data.read_csv_data_service(
         data['paths']['ss_fuel_raw_data_enduses'],
         data['lookups']['fueltypes_nr'])
@@ -314,20 +313,18 @@ def run(data):
         # Assign same shape across all enduse for service sector
         # ------------------------------------------------------
         for enduse in ss_enduses:
-            logging.debug("Enduse service: %s in sector %s", enduse, sector)
+            #print("Enduse service: %s in sector %s", enduse, sector)
 
             # Select shape depending on enduse
             if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #TODO
                 folder_path = os.path.join(
                     data['local_paths']['folder_raw_carbon_trust'],
-                    "_all_gas"
-                    )
+                    "_all_gas")
             else:
                 if enduse == 'ss_other_electricity' or enduse == 'ss_cooling_and_ventilation':
                     folder_path = os.path.join(
                         data['local_paths']['folder_raw_carbon_trust'],
-                        "_all_elec"
-                        )
+                        "_all_elec")
                 else:
                     folder_path = sector_folder_path_elec
 
@@ -344,15 +341,14 @@ def run(data):
                 load_peak_shape_dh,
                 shape_non_peak_y_dh,
                 shape_peak_yd_factor,
-                shape_non_peak_yd
-                )
+                shape_non_peak_yd)
 
     # ---------------------
     # Compare Jan and Jul
     # ---------------------
     #ss_read_data.compare_jan_jul(main_dict_dayyear_absolute)
+    print("... finished script %s", os.path.basename(__file__))
 
-    logging.debug("... finished script %s", os.path.basename(__file__))
     return
 
 '''
@@ -371,14 +367,14 @@ def compare_jan_jul(main_dict_dayyear_absolute):
                 jan[h].append(main_dict_dayyear_absolute[day][h])
             if day in jul_yearday:
                 jul[h].append(main_dict_dayyear_absolute[day][h])
-    #logging.debug(jan)
+    #print(jan)
     # Average the montly entries
     for i in jan:
-        logging.debug("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
+        print("Nr of datapoints in Jan for hour: " + str(len(jan[i])))
         jan[i] = sum(jan[i]) / len(jan[i])
 
     for i in jul:
-        logging.debug("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
+        print("Nr of datapoints in Jul for hour:" + str(len(jul[i])))
         jul[i] = sum(jul[i]) / len(jul[i])
 
     # Test HEATING_ELEC SHARE DIFFERENCE JAN and JUN [daytype][_month][_hr]
@@ -398,8 +394,8 @@ def compare_jan_jul(main_dict_dayyear_absolute):
     #--- if JAn = 100%
     jul_percent_of_jan = (100/jan[:, 1]) * jul[:, 1]
     for h ,i in enumerate(jul_percent_of_jan):
-        logging.debug("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
+        print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
 
     pf.plot_load_shape_yd_non_resid(jan)
-    logging.debug("TEST: " + str(jan-jul))
+    print("TEST: " + str(jan-jul))
 '''

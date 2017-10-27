@@ -24,8 +24,7 @@ def load_basic_lookups():
         1: 'semi_detached',
         2: 'terraced',
         3: 'flat',
-        4: 'bungalow'
-        }
+        4: 'bungalow'}
 
     lookups['fueltype'] = {
         'solid_fuel': 0,
@@ -35,8 +34,7 @@ def load_basic_lookups():
         'heat_sold': 4,
         'biomass': 5,
         'hydrogen': 6,
-        'heat': 7
-        }
+        'heat': 7}
 
     lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
 
@@ -173,52 +171,54 @@ def load_local_paths(path):
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
-        'rs_load_profile_txt': os.path.join(
-            path, '_processed_data', 'load_profiles', 'rs_submodel'),
-        'ss_load_profile_txt': os.path.join(
-            path, '_processed_data', 'load_profiles', 'ss_submodel'),
 
-        # Output Data
         'data_processed': os.path.join(
             path, '_processed_data'),
-        'data_processed_disaggregated': os.path.join(
-            path, '_processed_data', 'disaggregated'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'path_post_installation_data': os.path.join(
+            path, '_processed_data', '_post_installation_data'),
+        'data_processed_disaggregated': os.path.join(
+            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+        'path_sigmoid_data': os.path.join(
+            path, '_processed_data', 'sigmoid_data'),
         'data_results_model_runs': os.path.join(
             path, '_result_data', "model_run_results_txt"),
         'dir_changed_weather_data': os.path.join(
-            path, '_processed_data', 'weather_data'),
+            path, '_processed_data', '_post_installation_data', 'weather_data'),
         'path_processed_weather_data': os.path.join(
-            path, '_processed_data', 'weather_data', 'weather_data.csv'),
+            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_data.csv'),
         'changed_weather_station_data': os.path.join(
-            path, '_processed_data', 'weather_data', 'weather_stations.csv'),
+            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_stations.csv'),
         'changed_weather_data': os.path.join(
-            path, '_processed_data', 'weather_data', 'weather_data_changed_climate.csv'),
+            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_data_changed_climate.csv'),
         'load_profiles': os.path.join(
-            path, '_processed_data', 'load_profiles'),
+            path, '_processed_data', '_post_installation_data','load_profiles'),
         'rs_load_profiles': os.path.join(
-            path, '_processed_data', 'load_profiles', 'rs_submodel'),
+            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profiles': os.path.join(
-            path, '_processed_data', 'load_profiles', 'ss_submodel'),
+            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
         'dir_disattregated': os.path.join(
-            path, '_processed_data', 'disaggregated'),
+            path, '_processed_data', '_post_installation_data', 'disaggregated'),
+        'rs_load_profile_txt': os.path.join(
+            path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
+        'ss_load_profile_txt': os.path.join(
+            path, '_processed_data', '_post_installation_data', 'load_profiles', 'ss_submodel'),
         'dir_services': os.path.join(
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
-            path, '_result_data', 'PDF')
-        }
+            path, '_result_data', 'PDF')}
 
     # Create folders is they do not exist yet
-    basic_functions.create_folder(paths['data_processed'])
-    basic_functions.create_folder(paths['data_results'])
-    basic_functions.create_folder(paths['data_results_PDF'])
-    basic_functions.create_folder(paths['load_profiles'])
-    basic_functions.create_folder(paths['rs_load_profiles'])
-    basic_functions.create_folder(paths['ss_load_profiles'])
-    basic_functions.create_folder(paths['dir_disattregated'])
-    basic_functions.create_folder(paths['dir_services'])
-    basic_functions.create_folder(paths['dir_changed_weather_data'])
+    #basic_functions.create_folder(paths['data_processed'])
+    #basic_functions.create_folder(paths['data_results'])
+    #basic_functions.create_folder(paths['data_results_PDF'])
+    #basic_functions.create_folder(paths['load_profiles'])
+    #basic_functions.create_folder(paths['rs_load_profiles'])
+    #basic_functions.create_folder(paths['ss_load_profiles'])
+    #basic_functions.create_folder(paths['dir_disattregated'])
+    #basic_functions.create_folder(paths['dir_services'])
+    #basic_functions.create_folder(paths['dir_changed_weather_data'])
 
     return paths
 
