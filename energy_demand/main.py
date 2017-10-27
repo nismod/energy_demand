@@ -1,7 +1,7 @@
 '''
 Energy Demand Model
 ===================
-The industry heating is identical to service heating
+
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
@@ -21,7 +21,7 @@ from energy_demand.basic import conversions
 from energy_demand.profiles import generic_shapes
 from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
-from energy_demand.basic import logger_setup as log
+from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
-    log.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
+    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
     logging.info("... start local energy demand calculations")
 
     # Run settings
@@ -119,6 +119,7 @@ if __name__ == "__main__":
     logging.info("... delete previous model run results")
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
+    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
 
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr

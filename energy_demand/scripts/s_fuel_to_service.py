@@ -278,15 +278,17 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
 
-                with np.errstate(divide='ignore'):
+                #with np.errstate(divide='ignore'): OptimizeWarning: Covariance of the parameters could not be estimated
+                with np.errstate(all='ignore'):
                     service_tech_by_p[enduse][technology] = service_tech / total_service
 
         ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
-
-            with np.errstate(divide='ignore'):
+            
+            #OptimizeWarning: Covariance of the parameters could not be estimated
+            with np.errstate(all='ignore'):
                 service_fueltype_by_p[enduse][fueltype] = service_fueltype_by_p[enduse][fueltype] / total_service
 
     # Assert does not work for endues with no defined technologies

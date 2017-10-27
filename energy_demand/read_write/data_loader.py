@@ -144,7 +144,7 @@ def dummy_data_generation(data):
     return data
 
 def load_local_paths(path):
-    """Create all local paths and folders
+    """Create all local paths
 
     Argument
     --------
@@ -208,17 +208,6 @@ def load_local_paths(path):
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
             path, '_result_data', 'PDF')}
-
-    # Create folders is they do not exist yet
-    #basic_functions.create_folder(paths['data_processed'])
-    #basic_functions.create_folder(paths['data_results'])
-    #basic_functions.create_folder(paths['data_results_PDF'])
-    #basic_functions.create_folder(paths['load_profiles'])
-    #basic_functions.create_folder(paths['rs_load_profiles'])
-    #basic_functions.create_folder(paths['ss_load_profiles'])
-    #basic_functions.create_folder(paths['dir_disattregated'])
-    #basic_functions.create_folder(paths['dir_services'])
-    #basic_functions.create_folder(paths['dir_changed_weather_data'])
 
     return paths
 

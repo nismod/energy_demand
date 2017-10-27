@@ -92,7 +92,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 #print("Calculated value:  " + str(y_calculated))
                 #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                print("Fitting measure in %: {}".format(fit_measure_in_percent))
+                logging.debug("... Fitting measure in %: {}".format(fit_measure_in_percent))
                 logging.debug("Fitting measure in %: {}".format(fit_measure_in_percent))
 
                 if fit_measure_in_percent < 99.0:
@@ -210,14 +210,11 @@ def tech_sigmoid_parameters(
             xdata = np.array([point_x_by, point_x_projected])
             ydata = np.array([point_y_by, point_y_projected])
 
-            logging.debug("DATA TO FIT: %s %s ", xdata, ydata)
-
             # ----------------
             # Parameter fitting
             # ----------------
             fit_parameter = calc_sigmoid_parameters(l_value, xdata, ydata)
-            logging.debug(" ... Result fit: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
-            print(" ... Result fit: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
+            logging.debug(" ... Fitting: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
 
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
@@ -324,10 +321,11 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
-        """
-        #with np.errstate(warn='ignore'):
-        y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
-        return y_value
+        """ 
+        #RuntimeWarning: overflow encountered in exp
+        with np.errstate(over='ignore'):
+            y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
+            return y_value
 
     popt, _ = curve_fit(
         sigmoid_fitting_function,

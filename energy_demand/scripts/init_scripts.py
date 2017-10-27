@@ -1,7 +1,9 @@
 """Script functions which are executed after model installation and
 after each scenario definition
 """
+import os
 import logging
+
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.read_write import data_loader
@@ -14,6 +16,7 @@ from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
+from energy_demand.basic import logger_setup
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -33,6 +36,10 @@ def post_install_setup(args):
     # Paths
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
     local_data_path = args.data_energy_demand
+
+    # Initialise logger
+    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_post_install_setup.log"))
+    logging.info("... start local energy demand calculations")
 
     # Load data
     data = {}
@@ -109,6 +116,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass
+
+    # Initialise logger
+    logger_setup.set_up_logger(os.path.join(path_data_energy_demand, "logging_scenario_initialisation.log"))
 
     # --------------------------------------------
     # Delete processed data from former model runs
