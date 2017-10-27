@@ -55,3 +55,5 @@ def test_calc_sigmoid_parameters2():
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
+
+test_calc_sigmoid_parameters2()

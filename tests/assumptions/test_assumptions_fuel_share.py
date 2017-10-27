@@ -8,7 +8,7 @@ import os
 def test_assign_by_fuel_tech_p():
     """DUMMY OS FAR
     """
-    path_main_data = r"C://Users//cenv0553//nismod//models//energy_demand//energy_demand"
+    path_main_data = "C://Users//cenv0553//nismod//models//energy_demand//energy_demand"
     path_main = os.path.join(path_main_data, '../')
     local_data_path = "C://DATA_NISMODII//data_energy_demand"
 

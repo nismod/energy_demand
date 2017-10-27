@@ -7,14 +7,14 @@ fraction at the model end year
 import os
 import sys
 import copy
-import math
 import logging
+from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
-from collections import defaultdict
 from energy_demand.plotting import plotting_program
 from energy_demand.initalisations import helpers
+from energy_demand.technologies import diffusion_technologies
 
 def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.001):
     """Calculate sigmoid parameters
@@ -36,7 +36,6 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     fit_parameter : array
         Parameters (first position: midpoint, second position: slope)
     """
-
     # Generate possible starting parameters for fit
     start_param_list = [1.0, 0.001, 0.01, 0.1, 60.0, 100.0, 200.0, 400.0, 500.0, 1000.0]
     for start in [x * 0.05 for x in range(0, 100)]:
@@ -79,11 +78,26 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                                 fit_parameter[1] == start_parameters[1]):
                                 # or(round(fit_parameter[0], 2) == round(fit_parameter[1], 2)): #NEW RULE
                                 # successfull = False
+
                 cnt += 1
                 if cnt >= len(start_param_list):
                     sys.exit("Error2: CURVE FITTING DID NOT WORK")
             else:
                 successfull = True
+
+                # -------------------------
+                # Check how good the fit is
+                # -------------------------
+                y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
+                #print("Calculated value:  " + str(y_calculated))
+                #print("original value:    " + str(ydata[1]))
+                fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
+                print("Fitting measure in %: {}".format(fit_measure_in_percent))
+                logging.debug("Fitting measure in %: {}".format(fit_measure_in_percent))
+
+                if fit_measure_in_percent < 99.0:
+                    logging.critical("The sigmoid fitting is not good enough")
+                    sys.exit()
 
         except RuntimeError:
             logging.debug("Unsuccessful fit %s", start_parameters[1])
@@ -94,8 +108,18 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
 
     return fit_parameter
 
-def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l_values, service_tech_by_p, service_tech_switched_p, fuel_switches):
-    """Calculate diffusion parameters based on energy service demand in base year and projected future energy service demand
+def tech_sigmoid_parameters(
+        data,
+        enduse,
+        crit_switch_service,
+        installed_tech,
+        l_values,
+        service_tech_by_p,
+        service_tech_switched_p,
+        fuel_switches
+    ):
+    """Calculate diffusion parameters based on energy service
+    demand in base year and projected future energy service demand
 
     The future energy servie demand is calculated based on fuel switches.
     A sigmoid diffusion is fitted.
@@ -193,6 +217,7 @@ def tech_sigmoid_parameters(data, enduse, crit_switch_service, installed_tech, l
             # ----------------
             fit_parameter = calc_sigmoid_parameters(l_value, xdata, ydata)
             logging.debug(" ... Result fit: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
+            print(" ... Result fit: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
 
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
@@ -300,9 +325,8 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
         """
+        #with np.errstate(warn='ignore'):
         y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
-        #y_value = l_value / (1 + math.exp(float(-k_value) * ((float(x_value) - 2000.0) - float(x0_value))))
-
         return y_value
 
     popt, _ = curve_fit(
@@ -354,8 +378,7 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
                     service_tech_by_p, # Percentage of service demands for every technology
                     fuel_tech_p_by,
                     {str(enduse): [technology]},
-                    'max_switch'
-                    )
+                    'max_switch')
 
                 # Read L-values with calculating maximum sigmoid theoretical diffusion
                 l_values_sig[enduse][technology] = tech_install_p[enduse][technology]

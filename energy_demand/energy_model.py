@@ -65,13 +65,14 @@ class EnergyModel(object):
             data['rs_dw_stock'] = defaultdict(dict)
             data['ss_dw_stock'] = defaultdict(dict)
             for region_name in region_names:
-                data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(region_name, data, data['sim_param']['base_yr'])
-                data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(region_name, data, data['sim_param']['base_yr'])
+                data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
+                    region_name, data, data['sim_param']['base_yr'])
+                data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
+                    region_name, data, data['sim_param']['base_yr'])
 
                 data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
                 data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
             logging.info("... finished virtual dwelling stock for base year")
-        
         else:
 
             # Create dwelling stock from imported data from newcastle
@@ -157,11 +158,10 @@ class EnergyModel(object):
             load_factor_y = lf.calc_lf_y(fuel_indiv_regions_yh) #Yearly lf
             #load_factor_yd = lf.calc_lf_d(fuel_indiv_regions_yh) # Daily lf
             #Seasonal and other lf  TODO
-            # 
+
             for fueltype_nr, fuel in enumerate(load_factor_y):
                 rs_reg_load_factor_h[fueltype_nr][array_nr_region] += fuel
-            
-            
+
         # -------------------------------------------------
         # Store values for all region in EnergyModel object
         # -------------------------------------------------
@@ -205,7 +205,8 @@ def simulate_region(region_name, data, weather_regions):
 
     Returns
     -------
-
+    region_submodels : list
+        All submodel objects
     """
     logging.debug("Running model for region %s", region_name)
 
@@ -257,6 +258,7 @@ def simulate_region(region_name, data, weather_regions):
     # --------
     # Submodels
     # --------
+    # IS MODEL OK WITH SWITCHES
     region_submodels = [ss_submodel, rs_submodel, is_submodel]
 
     return region_submodels
@@ -417,7 +419,7 @@ def industry_submodel(region, data, enduse_names, sector_names):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
@@ -488,7 +490,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],
@@ -546,7 +548,7 @@ def service_submodel(region, data, enduse_names, sector_names):
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
-                scenario_data=data['scenario_data'], #{'gva': data['gva'], 'population': data['population']},
+                scenario_data=data['scenario_data'],
                 lookups=data['lookups'],
                 assumptions=data['assumptions'],
                 non_regional_lp_stock=data['non_regional_lp_stock'],

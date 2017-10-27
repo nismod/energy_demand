@@ -119,7 +119,8 @@ def calc_lf_y(fuel_yh):
     max_load_h = np.max(max_load_h_days, axis=1)
 
     # Caclualte yearly load factor for every fueltype
-    load_factor_y = average_load_y / max_load_h
+    with np.errstate(divide='ignore'):
+        load_factor_y = average_load_y / max_load_h
     load_factor_y[np.isnan(load_factor_y)] = 0
 
     return load_factor_y
@@ -148,8 +149,10 @@ def calc_lf_d(fuel_yh):
 
     # Get maximum hours in every day
     max_load_yd = np.max(fuel_yh, axis=2)
-
-    daily_lf = average_fuel_yd / max_load_yd
+    
+    # Unable local RuntimeWarning: divide by zero encountered
+    with np.errstate(divide='ignore'):
+        daily_lf = average_fuel_yd / max_load_yd
 
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0

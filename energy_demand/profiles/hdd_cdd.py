@@ -90,6 +90,7 @@ def get_hdd_country(
         t_base_heating_cy = sigm_temp(sim_param, assumptions, t_base_type)
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
+
         hdd_regions[region_name] = np.sum(hdd_reg)
 
     return hdd_regions
@@ -210,6 +211,10 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
 
     - The diffusion is assumed to be sigmoid
     """
+
+    #SCRAP TODO TODO REMOVE
+    ##temperatures = np.ones((365, 24)) + 14
+
     # Temperatures of full year
     hdd_d = calc_hdd(t_base_heating, temperatures)
 

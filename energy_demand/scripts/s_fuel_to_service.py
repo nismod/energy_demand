@@ -18,8 +18,7 @@ def write_service_fueltype_by_p(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}".format(
-        'service', 'fueltype', 'service_p') + '\n'
-              )
+        'service', 'fueltype', 'service_p') + '\n')
 
     for service, fueltypes in data.items():
         for fueltype, service_p in fueltypes.items():
@@ -28,7 +27,6 @@ def write_service_fueltype_by_p(path_to_txt, data):
                     service, fueltype, float(service_p)) + '\n')
 
     file.close()
-
     return
 
 def write_service_fueltype_tech_by_p(path_to_txt, data):
@@ -57,7 +55,6 @@ def write_service_fueltype_tech_by_p(path_to_txt, data):
                         service, fueltype, tech, float(service_p)) + '\n')
 
     file.close()
-
     return
 
 def write_service_tech_by_p(path_to_txt, data):
@@ -82,7 +79,6 @@ def write_service_tech_by_p(path_to_txt, data):
                       )
 
     file.close()
-
     return
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
@@ -146,11 +142,6 @@ def sum_2_level_dict(two_level_dict):
     tot_sum : float
         Number of all entries in nested dict
     """
-    '''tot_sum = 0
-    for i in two_level_dict:
-        for j in two_level_dict[i]:
-            tot_sum += two_level_dict[i][j]
-    '''
     tot_sum = 0
     for  j in two_level_dict.values():
         tot_sum += sum(j.values())
@@ -215,6 +206,8 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
 
     Because regional efficiencies may differ within regions, the fuel distribution within
     the fueltypes may also differ
+
+    TODO: IMPROVE
     """
     # Energy service per technology for base year
     service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
@@ -241,8 +234,7 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
             # service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
 
-                # Fuel share based on defined fuel shares within fueltype
-                # (share of fuel * total fuel)
+                # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
                 #logging.debug("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
@@ -285,13 +277,17 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         # Percentage of energy service per technology
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
-                service_tech_by_p[enduse][technology] = (1 / total_service) * service_tech
+
+                with np.errstate(divide='ignore'):
+                    service_tech_by_p[enduse][technology] = service_tech / total_service
 
         ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
-            service_fueltype_by_p[enduse][fueltype] = (1.0 / total_service) * service_fueltype_by_p[enduse][fueltype]
+
+            with np.errstate(divide='ignore'):
+                service_fueltype_by_p[enduse][fueltype] = service_fueltype_by_p[enduse][fueltype] / total_service
 
     # Assert does not work for endues with no defined technologies
     # --------

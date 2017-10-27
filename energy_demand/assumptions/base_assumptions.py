@@ -35,20 +35,23 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             start=date(sim_param['base_yr'], 1, 1),
             end=date(sim_param['base_yr'], 12, 31))
 
-    # ============
+    # --------------------------------------
     # Date selection for which model is run
     # Store in list all dates which are modelled
-    # ============
+    # --------------------------------------
     year_to_model = 2015
-    winter_week = list(range(date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
-    spring_week = list(range(date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
-    summer_week = list(range(date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
-    autumn_week = list(range(date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
+    winter_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
+    spring_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
+    summer_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
+    autumn_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
     #TODO: DEFINE SEASONS WITH DATE
 
     # Modelled days
     assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
-    #assumptions['model_yeardays'] = list(range(date_handling.date_to_yearday(2015, 1, 1), date_handling.date_to_yearday(2015, 1, 8)))
     assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
     #Modelled dates
@@ -71,8 +74,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     model_yeardays_daytype = np.chararray(365, itemsize=7)
     model_yeardays_daytype[:] = 'workday'
 
+    # Take respectve daily fuel curve depending on weekday or weekend
     for array_day, date_yearday in enumerate(list_dates):
-        # Take respectve daily fuel curve depending on weekday or weekend
         if date_handling.get_weekday_type(date_yearday) == 'holiday':
             model_yeardays_daytype[array_day] = 'holiday'
 
@@ -134,9 +137,10 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
 
     # Assumption about age distribution
     # Source: Housing Energy Fact Sheet
+    #Average builing age within age class, fraction
     assumptions['dwtype_age_distr'] = {
         2015: {
-            '1918':0.21, #Average builing age within age class, fraction
+            '1918':0.21,
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,

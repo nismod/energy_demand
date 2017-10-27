@@ -193,7 +193,7 @@ def load_local_paths(path):
         'changed_weather_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_data_changed_climate.csv'),
         'load_profiles': os.path.join(
-            path, '_processed_data', '_post_installation_data','load_profiles'),
+            path, '_processed_data', '_post_installation_data', 'load_profiles'),
         'rs_load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles', 'rs_submodel'),
         'ss_load_profiles': os.path.join(

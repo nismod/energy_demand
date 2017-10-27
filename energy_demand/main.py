@@ -56,7 +56,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     logging.info("Number of regions    " + str(len(data['lu_reg'])))
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("Fuel output:         " + str(np.sum(model_run_object.reg_enduses_fueltype_y)))
-    logging.info("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.reg_enduses_fueltype_y) - fuel_in), 4)))
+    logging.info("FUEL DIFFERENCE:     " + str(round(
+        (np.sum(model_run_object.reg_enduses_fueltype_y) - fuel_in), 4)))
     logging.info("elec fuel in:        " + str(fuel_in_elec))
     logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
     logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
@@ -115,10 +116,9 @@ if __name__ == "__main__":
     #--------------------
     # Folder cleaning
     #--------------------
-    basic_functions.delete_previous_results(
-        data['local_paths']['data_results'],
-        data['local_paths']['path_post_installation_data'])
-    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    logging.info("... delete previous model run results")
+    basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    basic_functions.create_folder(data['local_paths']['data_results'])
 
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
-    logging.info("... Start reading in results")
+    logging.info("... Reading in results")
 
     results_every_year = read_data.read_model_result_from_txt(
         data['lookups']['fueltype'],

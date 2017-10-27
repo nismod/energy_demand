@@ -132,7 +132,7 @@ class Enduse(object):
         self.sector = sector
         self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
-
+        print("VORHER {}  {}".format(region_name, np.sum(fuel)))
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.crit_flat_profile = True
             self.fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
@@ -375,6 +375,9 @@ class Enduse(object):
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
                 # Calculate load factors per enduse
+                print("NACHER {}  {}".format(region_name, np.sum(self.fuel_yh)))
+                print("DIFF  percnet {}".format((100 / np.sum(fuel)) * np.sum(self.fuel_yh)))
+                print("--------")
 
 def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """Calculate lf improvement depending on linear diffusion
@@ -772,7 +775,17 @@ def get_enduse_tech(fuel_tech_p_by):
 
     return list(set(enduse_techs))
 
-def calc_fuel_tech_yh(enduse, sector, enduse_techs, enduse_fuel_tech, tech_stock, load_profiles, lookups, mode_constrained, model_yeardays_nrs):
+def calc_fuel_tech_yh(
+        enduse,
+        sector,
+        enduse_techs,
+        enduse_fuel_tech,
+        tech_stock,
+        load_profiles,
+        lookups,
+        mode_constrained,
+        model_yeardays_nrs
+    ):
     """Iterate fuels for each technology and assign shape yd and yh shape
 
     Arguments
@@ -811,7 +824,6 @@ def calc_fuel_tech_yh(enduse, sector, enduse_techs, enduse_fuel_tech, tech_stock
     else:
         for tech in enduse_techs:
 
-            # Get fueltype of technology
             tech_fueltype_int = tech_stock.get_tech_attr(
                 enduse, tech, 'tech_fueltype_int')
 
@@ -1369,7 +1381,8 @@ def service_switch(
         sig_param_tech,
         curr_yr
     ):
-    """Apply change in service depending on defined service switches
+    """Apply change in service depending on
+    defined service switches.
 
     Paramters
     ---------
@@ -1442,13 +1455,8 @@ def service_switch(
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
-            # Convert service to rel share in cy to substract share in cy
-            #service_to_substract_p_cy = service_to_substract / tot_fuel_cy_y
-            #TEST IF NEEDED
-            #if service_tech_cy_p[tech_decr] - service_to_substract_p_cy < 0:
-            #    service_tech_cy_p[tech_decr] = 0 # Set to zero service
-            #    sys.exit("ERROR TESTI:::")
-            #else:
+            # TODO: Leave away for speed uproses
+            ##assert (service_tech_cy_p[tech_decr] - service_to_substract_p_cy) >= 0
             service_tech_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies
@@ -1470,10 +1478,11 @@ def fuel_switch(
         fuel_tech_p_by,
         curr_yr
     ):
-    """Calulation of service by considering fuel switch assumptions. Based on 
-    assumptions about shares of fuels which are switched per enduse to specific
-    technologies, the installed technologies are used to calculate the new service 
-    demand after switching fuel shares.
+    """Calulation of service by considering fuel switch assumptions.
+    Based on  assumptions about shares of fuels which are switched
+    per enduse to specific technologies, the installed technologies
+    are used to calculate the new service demand after switching
+    fuel shares.
 
     Arguments
     ----------

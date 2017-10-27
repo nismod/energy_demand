@@ -1,10 +1,10 @@
 """Script to disaggregate national data into regional data
 """
 import os
-import numpy as np
 import logging
-from energy_demand.profiles import hdd_cdd
 from collections import defaultdict
+import numpy as np
+from energy_demand.profiles import hdd_cdd
 
 '''
 ============================================
@@ -40,7 +40,6 @@ def disaggregate_base_demand(data):
         tot = 0
         for i in fuel:
             tot += np.sum(fuel[i])
-        #tot = np.sum(fuel.values())
         return tot
 
     def sum_fuels_after(reg_fuel):
@@ -49,7 +48,6 @@ def disaggregate_base_demand(data):
         for reg in reg_fuel:
             for enduse in reg_fuel[reg].values():
                 tot += np.sum(enduse)
-
         return tot
 
     # Disaggregate residential submodel data
@@ -66,9 +64,6 @@ def disaggregate_base_demand(data):
     data['is_fuel_disagg'] = is_disaggregate(data, data['fuels']['is_fuel_raw_data_enduses'])
 
     # Check if total fuel is the same before and after aggregation
-    print("--------")
-    print(sum_fuels_before(data['fuels']['rs_fuel_raw_data_enduses']))
-    print(sum_fuels_after(data['rs_fuel_disagg']))
     np.testing.assert_almost_equal(
         sum_fuels_before(data['fuels']['rs_fuel_raw_data_enduses']),
         sum_fuels_after(data['rs_fuel_disagg']),
@@ -144,6 +139,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             # Population
             reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
+            #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
+
             # National disaggregation factors
             f_ss_catering[sector] += reg_pop
             f_ss_computing[sector] += reg_pop
@@ -172,6 +169,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                 # Population
                 reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
+                #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
+
                 if enduse == 'ss_catering':
                     reg_diasg_factor = reg_pop / f_ss_catering[sector]
                 elif enduse == 'ss_computing':
@@ -184,7 +183,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                     reg_diasg_factor = (reg_floor_area * reg_hdd) / f_ss_space_heating[sector]
                 elif enduse == 'ss_lighting':
                     reg_diasg_factor = reg_floor_area / f_ss_lighting[sector]
-                if enduse == 'ss_other_electricity':
+                elif enduse == 'ss_other_electricity':
                     reg_diasg_factor = reg_pop / f_ss_other_electricity[sector]
                 elif enduse == 'ss_other_gas':
                     reg_diasg_factor = reg_pop / f_ss_other_gas[sector]
@@ -193,8 +192,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                 ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
-    control_sum1 = 0
-    control_sum2 = 0
+    control_sum1, control_sum2 = 0, 0
     for reg in ss_fuel_disagg:
         for sector in ss_fuel_disagg[reg]:
             for enduse in ss_fuel_disagg[reg][sector]:
@@ -206,7 +204,6 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
 
     #The loaded floor area must correspond to provided fuel sectors numers
     np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="")
-
     return ss_fuel_disagg
 
 def scrap_ts_disaggregate(data, fuel_national):
@@ -259,7 +256,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
                 # ----------------------
                 # Disaggregating factors
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
-                reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
+                reg_disaggregation_factor = reg_floorarea_sector / national_floorarea_sector
 
                 # Disaggregated national fuel
                 reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
@@ -306,10 +303,11 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         data['weather_stations'],
         'rs_t_base_heating')
 
-    total_pop = sum(data['population'][sim_param['base_yr']].values()) # Total population
+    #total_pop = sum(data['population'][sim_param['base_yr']].values()) # Total population
     # ---------------------------------------
     # Overall disaggregation factors per enduse
     # ---------------------------------------
+    total_pop = 0
     f_rs_lighting = 0
     fs_rs_cold = 0
     fs_rs_wet = 0
@@ -330,6 +328,8 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         # Population
         reg_pop = data['population'][sim_param['base_yr']][region_name]
 
+        #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
+
         # National dissagregation factors
         f_rs_lighting += reg_floor_area
         fs_rs_cold += reg_pop
@@ -339,6 +339,7 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         fs_rs_cooking += reg_pop
         f_rs_space_heating += reg_hdd * reg_floor_area
         fs_rs_water_heating += reg_pop
+        total_pop += reg_pop
 
     # ---------------------------------------
     # Disaggregate according to enduse
@@ -349,6 +350,8 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         reg_pop = data['population'][sim_param['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
         reg_floor_area = data['rs_floorarea'][sim_param['base_yr']][region_name]
+
+        #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
@@ -398,8 +401,7 @@ def write_disagg_fuel(path_to_txt, data):
                     str.strip(region),
                     str.strip(enduse),
                     str(int(fueltype)),
-                    str(float(fuel)) + '\n')
-                          )
+                    str(float(fuel)) + '\n'))
     file.close()
 
     return
@@ -440,8 +442,7 @@ def write_disagg_fuel_sector(path_to_txt, data):
     """
     file = open(path_to_txt, "w")
     file.write("{}, {}, {}, {}, {}".format(
-        'region', 'enduse', 'sector', 'fueltype', 'fuel') + '\n'
-              )
+        'region', 'enduse', 'sector', 'fueltype', 'fuel') + '\n')
 
     for region, sectors in data.items():
         for sector, enduses in sectors.items():

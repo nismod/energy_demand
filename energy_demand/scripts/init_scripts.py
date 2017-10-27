@@ -46,8 +46,8 @@ def post_install_setup(args):
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
 
     # Delete all previous data from previous model runs
-    basic_functions.delete_previous_model_setup_data(data['local_paths']['data_processed'])
-    basic_functions.delete_previous_model_setup_data(data['local_paths']['data_results'])
+    basic_functions.del_previous_setup(data['local_paths']['data_processed'])
+    basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
     # Create folders and subfolder for data_processed
     basic_functions.create_folder(data['local_paths']['data_processed'])
@@ -113,13 +113,13 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     # --------------------------------------------
     # Delete processed data from former model runs
     # --------------------------------------------
-    basic_functions.delete_previous_results(
+    basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
 
     # Create folders
     basic_functions.create_folder(data['local_paths']['data_results'])
-    basic_functions.create_folder(data['local_paths']['dir_services']) 
+    basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
 
     # s_change_temp----------------------------------------------

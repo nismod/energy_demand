@@ -26,8 +26,8 @@ A full model description can be found `here <http://ed.readthedocs.io/en/latest/
 The research behind the model witih the MISTRAL
 modelling context is documented in:
 
-    - Eggimann et al. (2018): Modelling energy demand and supply
-    within a system-of-systems appraoch. (working paper)
+- Eggimann et al. (2019): Modelling energy demand and supply
+  within a system-of-systems appraoch. (working paper)
 
 
 Note: A previous energy demand model has been developped within
@@ -37,17 +37,16 @@ energy demand model simulation.
 
 
 
-Running the model (local)
+1. Initialising and running the model (local)
 ========================
 **HIRE** is written in Python (Python>=3.6). In order to run HIRE,
-the following steps are necessary. Step 1, 2 and 3 only needs to be
-executed to set-up the model. Step 4 and 5 need to be run every time
-the model is run with different assumptions.
+first the model needs to be set up one (Section 1.1). The scenario Set-up need to be
+run every time the model is run with different assumptions (Section 1.2).
 
-Model Set-Up
+1.1 Model Set-Up
 -------------
 
-``
+
 1.  Add all necessary HIRE data into a local directory as ``path/to/energy_data_folder`` and
     download the energy_demand python code.
 
@@ -69,13 +68,13 @@ Model Set-Up
 
    Note: The `post_install_setup` generates new folders in the 
    ``energy_data_folder``.
-``
 
-Scenario Set-up 
+
+1.2 Scenario Set-up 
 ----------------
 
-```
-4. For every scenario run, the energy demand module needs to be
+
+1. For every scenario run, the energy demand module needs to be
    initialised from the command line as follows:
 
    ``energy_demand scenario_initialisation -d path/to/energy_data_folder``
@@ -83,22 +82,20 @@ Scenario Set-up
    Note: Upon scenario initialisation, data gets saved in the ``_process_data`` 
    folder which contain assumption specific data.
 
-5. Run the model from the console with the command
+2. Run the model from the console with the command
 
    ``energy_demand run -d path/to/energy_data_folder``
-```
 
-Running the model with smif
+
+
+2. Running the model with smif
 ========================
 
-``
 Describe...
-``
+
 
 Literature
 ========================
 Baruah, P., Eyre, N., Qadrdan, M., Chaudry, M., Blainey, S., Hall, J. W., … Tran, M. (2014). Energy
 system impacts from heat and transport electrification. Proceedings of the ICE - Energy, 
 167(3), 139–151. https://doi.org/10.1680/ener.14.00008
-
-

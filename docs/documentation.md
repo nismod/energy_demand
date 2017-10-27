@@ -3,12 +3,18 @@ Model Code Overview
 This section provides and overview how the model code is structured
 and storted.
 
-Folder
-assumptions:        Blbablabla
-basic:              Balbalba
-charts:             Balbalba
-cli:                Balbalba
-dwelling_stock:     Balbalba
+All model input data used to configure the model is sorted in the 
+`config_data` folder (i.e. load profiles of technologies,
+fuel input data for the whole UK...)
+
+The python scripts are stored in the following folders:
+
+- **assumptions** | Model assumptions which need to be configured 
+- **basic** | Standard functions
+- **charts** | Functions to generate charts
+- **cli** | Script to run model from command line
+- **dwelling_stock** | Dwelling stock related functions
+
 
 Model Documentation
 ===================
@@ -148,21 +154,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, 
 
 #### 5.1.3 Base year fuel assignement
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet se
 
 ### 5.2 Scenario input parameters
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
 
 ## 6. Disaggregation
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi
 
 ### 6.1 Temporal disaggregation
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit ame
 
 ### 6.2 Spatial disaggregation
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet
 
 ## 10. Reading the code
 
@@ -198,6 +204,9 @@ across all modules.
     temp:       Temperature
 
 ### 10.2 Load profiles annotation
+
+Different endings are appended to variables, depending on the temporal
+resolution of the data. The following abbreviations hold true:
 
 > `y`:  Total demand in a year
 

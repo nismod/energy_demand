@@ -232,8 +232,14 @@ class LoadProfile(object):
         # Some rowy may be zeros, i.e. division by zero results in inf values
         #sum_every_day_p = 1 / np.nansum(self.shape_yh, axis=1)
         #sum_every_day_p = np.divide(1, np.sum(self.shape_yh, axis=1))
-        sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
+        
+        # Unable local RuntimeWarning: divide by zero encountered
+        with np.errstate(divide='ignore'):
+            sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
         sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
+
+        # Ignore division error TODO:
+        #np.seterr(divide='ignore')
 
         # Multiply (nr_of_days) + with (nr_of_days, 24)
         shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
