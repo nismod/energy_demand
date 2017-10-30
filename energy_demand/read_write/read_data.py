@@ -451,7 +451,6 @@ def read_technologies(path_to_csv):
 
         for row in read_lines:
             technology = row[0]
-
             try:
                 dict_technologies[technology] = {
                     'fuel_type': str(row[1]),
@@ -460,7 +459,8 @@ def read_technologies(path_to_csv):
                     'eff_achieved': float(row[4]),
                     'diff_method': str(row[5]),
                     'market_entry': float(row[6]),
-                    'tech_list': str.strip(row[7])
+                    'tech_list': str.strip(row[7]),
+                    'tech_assum_max_share': float(str.strip(row[8]))
                 }
                 try:
                     dict_tech_lists[str.strip(row[7])].append(technology)
@@ -852,3 +852,39 @@ def read_lf_y(path_enduse_specific_results):
         results[year][fueltype_int] = txt_data
 
     return results
+
+def read_capacity_definitions(path_to_csv):
+    """This function reads in service assumptions from csv file
+
+    Arguments
+    ----------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    TODO
+    """
+    service_switches = []
+    enduse_tech_ey_p = {}
+    tech_maxl_by_p = {}
+    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
+
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+
+        for row in read_lines:
+            try:
+                service_switches.append(
+                    {
+                        'enduse': str(row[0]),
+                        'technology_install': str(row[1]),
+                        'market_entry': float(row[2]),
+                        'year_fuel_consumption_switched': float(row[3]),
+                        'fuel_capacity_installed':  float(row[4])
+                    }
+                )
+            except (KeyError, ValueError):
+                sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+    return service_switches

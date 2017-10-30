@@ -266,6 +266,9 @@ def load_paths(path):
         'is_path_industry_switch': os.path.join(
             path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
+        # Path to capacity installations
+        'path_assumptions_capacity_installations': os.path.join(
+            path, 'config_data', 'assumptions_capacity_installations.csv'),
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
@@ -275,8 +278,6 @@ def load_paths(path):
             path, 'config_data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
 
         # Technologies load shapes
-        #'path_hourly_gas_shape_hp': os.path.join(
-        # path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
         'lp_elec_hp_dh': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_hp_dh_LOVE.csv'),
         'lp_all_microCHP_dh': os.path.join(

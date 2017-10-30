@@ -1,10 +1,12 @@
 '''
 Energy Demand Model
 ===================
+- run in constrained mode
+- run with same weather shape and same fuel input --> flat line expected
 
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
-TODO: REplace 1 and zero by fueltypes test_fuel_switch
+TODO: REplace 1 and zero by fueltypes test_fuel_switch 
 TODO: Simplify load profiles (they are non-regional now)
 '''
 import os
@@ -24,6 +26,7 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
+from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -74,7 +77,7 @@ if __name__ == "__main__":
         print("Please provide a local data path:")
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
-        local_data_path = r'C:\DATA_NISMODII\data_energy_demand'
+        local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
@@ -99,6 +102,16 @@ if __name__ == "__main__":
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+
+    #NEW ABSOLUTE assumptions['rs_service_switches']
+    data['assumptions'] = fuel_service_switch.generate_fuel_switches_from_absolute(
+        data['paths'],
+        data['enduses'],
+        data['assumptions'], data['fuels'], data['sim_param'])
+    #print("---------")
+    #print(data['assumptions']['rs_service_switches'])
+    #prnt("l.")
+
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

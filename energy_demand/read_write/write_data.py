@@ -50,7 +50,7 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     # Read in with loadtxt
     return
 
-def write_YAML(crit_write, path_YAML, yaml_list):
+'''def write_YAML(crit_write, path_YAML, yaml_list):
     """Creates a YAML file with the timesteps IDs
 
     https://en.wikipedia.org/wiki/ISO_8601#Duration
@@ -69,7 +69,7 @@ def write_YAML(crit_write, path_YAML, yaml_list):
             yaml.dump(yaml_list, outfile, default_flow_style=False)
 
     return
-
+'''
 def write_out_txt(path_to_txt, enduses_service):
     """Generate a txt file with base year service for each technology according to provided fuel split input
     """

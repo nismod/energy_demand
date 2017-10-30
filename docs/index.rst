@@ -16,7 +16,7 @@ Contents
    :maxdepth: 4
 
    Model Documentation <documentation>
-   Module Reference <api/modules>
+   Code documentation <api/modules>
    Authors <authors>
    Changelog <changes>
    License <license>

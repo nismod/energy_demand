@@ -406,8 +406,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         [],
         assumptions['technologies'],
-        assumptions['installed_heat_pump']
-        )
+        assumptions['installed_heat_pump'])
 
     # ----------
     # Enduse definition list
@@ -423,8 +422,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
         enduses,
-        lookups
-        )
+        lookups)
 
     # ============================================================
     # Scenaric FUEL switches

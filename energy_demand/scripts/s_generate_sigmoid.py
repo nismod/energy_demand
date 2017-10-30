@@ -22,7 +22,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     Arguments
     ----------
     l_value : float
-
+        TODO
     xdata : array
 
     ydata : array
@@ -47,7 +47,9 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     successfull = False
     while not successfull:
         try:
-            start_parameters = [start_param_list[cnt], start_param_list[cnt]]
+            start_parameters = [
+                start_param_list[cnt],
+                start_param_list[cnt]]
             
             # Fit function
             fit_parameter = fit_sigmoid_diffusion(
@@ -88,7 +90,11 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 # -------------------------
                 # Check how good the fit is
                 # -------------------------
-                y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
+                y_calculated = diffusion_technologies.sigmoid_function(
+                    xdata[1],
+                    l_value,
+                    *fit_parameter)
+
                 #print("Calculated value:  " + str(y_calculated))
                 #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
@@ -157,8 +163,8 @@ def tech_sigmoid_parameters(
     If service definition, the year until switched is the end model year
     """
 
-    # As fit does not work with a starting point of 0, an initial small value
-    # needs to be assumed
+    # As fit does not work with a starting point of 0, 
+    # an initial small value needs to be assumed
     fit_assump_init = 0.001
 
     sigmoid_parameters = defaultdict(dict)
@@ -169,8 +175,6 @@ def tech_sigmoid_parameters(
     else:
         for tech in installed_tech[enduse]:
             logging.debug("... create sigmoid difufsion parameters %s %s", enduse, tech)
-
-            l_value = l_values[enduse][tech]
 
             # If service switch
             if crit_switch_service:
@@ -213,13 +217,18 @@ def tech_sigmoid_parameters(
             # ----------------
             # Parameter fitting
             # ----------------
-            fit_parameter = calc_sigmoid_parameters(l_value, xdata, ydata)
-            logging.debug(" ... Fitting: Midpoint: %s   steepness: %s", fit_parameter[0], fit_parameter[1])
+            fit_parameter = calc_sigmoid_parameters(
+                l_values[enduse][tech],
+                xdata,
+                ydata)
+
+            logging.debug(
+                " ... Fitting: Midpoint: %s steepness: %s", fit_parameter[0], fit_parameter[1])
 
             # Insert parameters
             sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
             sigmoid_parameters[tech]['steepness'] = fit_parameter[1] #Steepnes (k)
-            sigmoid_parameters[tech]['l_parameter'] = l_value
+            sigmoid_parameters[tech]['l_parameter'] = l_values[enduse][tech]
 
             #plot sigmoid curve
             # plotting_program.plotout_sigmoid_tech_diff(

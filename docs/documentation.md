@@ -1,4 +1,4 @@
-Model Code Overview
+Code Overview
 ===================
 This section provides and overview how the model code is stored.
 
@@ -17,7 +17,7 @@ The python scripts are stored in the following folders:
 All additional data necessary to run the model needs
 to be stored in a local folder (`data_energy_demand`).
 
-Model Documentation
+Documentation
 ===================
 
 ## 1. Overview
