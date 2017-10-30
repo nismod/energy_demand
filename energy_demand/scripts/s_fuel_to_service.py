@@ -2,6 +2,7 @@
 """
 import os
 import logging
+import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
@@ -278,18 +279,21 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
 
-                #with np.errstate(divide='ignore'): OptimizeWarning: Covariance of the parameters could not be estimated
-                with np.errstate(all='ignore'):
+                with np.errstate(divide='ignore'): #OptimizeWarning: Covariance of the parameters could not be estimated
+                    #with warnings.catch_warnings():
                     service_tech_by_p[enduse][technology] = service_tech / total_service
+                    warnings.filterwarnings('ignore')
 
         ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:
-            
+
             #OptimizeWarning: Covariance of the parameters could not be estimated
-            with np.errstate(all='ignore'):
+            with np.errstate(divide='ignore'):
+                #with warnings.catch_warnings():
                 service_fueltype_by_p[enduse][fueltype] = service_fueltype_by_p[enduse][fueltype] / total_service
+                #warnings.filterwarnings('ignore')
 
     # Assert does not work for endues with no defined technologies
     # --------
@@ -309,8 +313,7 @@ def run(data):
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
         data['fuels']['rs_fuel_raw_data_enduses'],
-        data['assumptions']['technologies']
-        )
+        data['assumptions']['technologies'])
 
     # SERVICE: Convert base year fuel input assumptions to energy service
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
@@ -323,8 +326,7 @@ def run(data):
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
-        data['assumptions']['technologies']
-        )
+        data['assumptions']['technologies'])
 
     # INDUSTRY
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
@@ -337,14 +339,12 @@ def run(data):
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
         fuels_aggregated_across_sectors,
-        data['assumptions']['technologies']
-        )
+        data['assumptions']['technologies'])
 
     # Write to csv files
     write_service_tech_by_p(
         os.path.join(data['local_paths']['dir_services'], 'rs_service_tech_by_p.csv'),
         rs_service_tech_by_p)
-
     write_service_tech_by_p(
         os.path.join(data['local_paths']['dir_services'], 'ss_service_tech_by_p.csv'),
         ss_service_tech_by_p)

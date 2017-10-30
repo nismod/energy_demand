@@ -1,11 +1,10 @@
 Model Code Overview
 ===================
-This section provides and overview how the model code is structured
-and storted.
+This section provides and overview how the model code is stored.
 
-All model input data used to configure the model is sorted in the 
+All model input data used to configure the model is storted in the 
 `config_data` folder (i.e. load profiles of technologies,
-fuel input data for the whole UK...)
+fuel input data for the whole UK).
 
 The python scripts are stored in the following folders:
 
@@ -15,6 +14,8 @@ The python scripts are stored in the following folders:
 - **cli** | Script to run model from command line
 - **dwelling_stock** | Dwelling stock related functions
 
+All additional data necessary to run the model needs
+to be stored in a local folder (`data_energy_demand`).
 
 Model Documentation
 ===================
@@ -142,25 +143,36 @@ Note: The generic dwelling model can be replaced by directly defining the the ``
 
 ### 5.1 General model parameters
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsu
 
 #### 5.1.1 Technologies
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem 
 
 #### 5.1.2 Load profiles
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ips
+
+#### 5.1.2 Demand side response and peak shifting
+
+Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (lfcy).  With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
+
+l_max^new=(l_av^by)/(lf_cy )
+
+For all hours with loads higher than the new maximum hourly load, the shiftable load is distributed to all off-peak load hours as shown in Figure XY.
+
+![Peak shiting](../docs/documentation_images/004-peak_shifting.jpg)
+*Figure XX: Shifting loads from peak hours to off-peak hours based on load factor changes.*
 
 #### 5.1.3 Base year fuel assignement
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet se
 
 ### 5.2 Scenario input parameters
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet sem eleifend sagittis. Nulla at malesuada magna, sit amet placerat dui. Suspendisse potenti. Sed non elit euismod, dapibus sapien eu, scelerisque nisi. Duis euismod enim eu mi vestibulum tristique. Nulla lacinia turpis vitae mattis iaculis. Phasellus venenatis nisi diam, fringilla tempus neque tincidunt et. Aenean odio dui, interdum a libero a, cursus pharetra lacus. Ut 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit am
 
 ## 6. Disaggregation
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi
+Lorem ipsum dolor sit ametes 
 
 ### 6.1 Temporal disaggregation
 
@@ -221,9 +233,8 @@ resolution of the data. The following abbreviations hold true:
 
 ## 11.Technologies
 
-Based on ECUK() different technologies are assigned to enduses. Efficiencies are 
-
-### 11.1 Residential sector
+Based on ECUK() different technologies are assigned to enduses. Efficiencies are calculated
+based on....
 
 <table align="center">
   <tr>
@@ -425,6 +436,8 @@ BEIS (2016): Energy consumption in the UK (ECUK). London, UK. Available at: [htt
 DECC (2014) Household Electricity Survey. Available at:[https://www.gov.uk/government/collections/household-electricity-survey](https://www.gov.uk/government/collections/household-electricity-survey)
 
 Love, J., Smith, A. Z. P., Watson, S., Oikonomou, E., Summerfield, A., Gleeson, C., … Lowe, R. (2017). The addition of heat pump electricity load profiles to GB electricity demand: Evidence from a heat pump field trial. Applied Energy, 204, 332–342. [https://doi.org/10.1016/j.apenergy.2017.07.026](https://doi.org/10.1016/j.apenergy.2017.07.026)
+
+Petchers, N. (2003) Combined heating, cooling & power handbook: technologies & applications. 2 edition. Lilburn: Fairmont Press.
 
 Sansom, R. (2014). Decarbonising low grade heat for low carbon future. Imperial College London.
 
