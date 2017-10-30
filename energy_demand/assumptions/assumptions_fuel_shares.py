@@ -1,7 +1,9 @@
 """
 Fuel share assumptions
 ======================
-All fuel shares of the base year for the different technologies are defined
+All fuel shares of the base year for the
+different technologies are defined
+
 """
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
@@ -50,7 +52,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # Residential subModel
     # ------------------
 
-    # ---Lighting (calculated on the basis of EUCK Table 3.08)
+    # ---Lighting (calculated on the basis of ECUK Table 3.08)
     rs_fuel_tech_p_by['rs_lighting'][fuel_nr_elec] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
@@ -58,14 +60,14 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'energy_saving_lighting_bulb' : 0.32,
         'LED': 0.01}
 
-    # ---rs_cold (calculated on the basis of EUCK Table 3.08)
+    # ---rs_cold (calculated on the basis of ECUK Table 3.08)
     rs_fuel_tech_p_by['rs_cold'][fuel_nr_elec] = {
         'chest_freezer': 0.087,
         'fridge_freezer': 0.588,
         'refrigerator': 0.143,
         'upright_freezer': 0.182}
 
-    # ---rs_cooking (calculated on the basis of EUCK Table 3.08)
+    # ---rs_cooking (calculated on the basis of ECUK Table 3.08)
     rs_fuel_tech_p_by['rs_cooking'][fuel_nr_elec] = {
         'hob_electricity': 0.49,
         'oven_electricity': 0.51,
@@ -132,6 +134,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     #TODO: Write function to test in case if a switch is defined,
     # all technologies of base year are defined in switch
     #testing_functions.test_defined_service_switch(rs_fuel_tech_p_by, )
+
     # --------------
     # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
     # --------------
@@ -153,10 +156,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     '''
 
     assumptions['rs_fuel_tech_p_by'] = rs_fuel_tech_p_by
-    # --------------
-    # TODO URGENT: Make that e.g. GW can be added to calculate fuel
-    # --------------
-    # add_GWH_heating_change_serivce_ey()
+
+
+    # rs_fuel_tech_p_by['rs_space_heating'])
 
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
@@ -264,18 +266,12 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
     for technology, service_share_tech in tech_share_tot_service.items():
 
         # Get by efficiency
-        tech_type = tech_related.get_tech_type(
-            technology,
-            assumptions['tech_list']
-            )
+        tech_type = tech_related.get_tech_type(technology, assumptions['tech_list'])
 
-        #if tech_type == 'hybrid_tech':
-        #    eff_tech_by = assumptions['hybrid_technologies'][technology]['average_efficiency_national_by']
         if tech_type == 'heat_pump':
             eff_tech_by = tech_related.eff_heat_pump(
                 temp_diff=10,
-                efficiency_intersect=tech_stock[technology]['eff_by']
-                )
+                efficiency_intersect=tech_stock[technology]['eff_by'])
         else:
             eff_tech_by = tech_stock[technology]['eff_by']
 
@@ -291,3 +287,4 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
         fuel_share_tech_fueltype[tech] = (1.0 / total_fuel) * fuel
 
     return fuel_share_tech_fueltype
+

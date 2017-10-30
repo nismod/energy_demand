@@ -1,31 +1,39 @@
 from energy_demand.profiles import load_factors
 import numpy as np
 
-'''def test_peak_shaving_max_min():
+def test_peak_shaving_max_min():
     """Test
     """
-    fuel_yh = np.zeros((8, 365, 24))
+    fuel_yh = np.zeros((2, 1, 24)) #tow fueltypes one day
     # fill all first 100 days with one
-    for day in range(100):
-        fuel_yh[:][day] = 1
+    for fueltype in range(2):
+        for hour in range(12):
+            fuel_yh[fueltype][0][hour] = 1
+        for hour in range(12,24):
+            fuel_yh[fueltype][0][hour] = 0.5
     average_yd = np.average(fuel_yh, axis=2)
-    loadfactor_yd_cy_improved = 0.1
+    loac_factor_improvement = 0.1
+    loadfactor_yd_cy_improved = (0.75 / 1) + loac_factor_improvement
 
     result = load_factors.peak_shaving_max_min(
         loadfactor_yd_cy_improved, average_yd, fuel_yh)
 
+    # ---------
     # expected
     # ---------
-    lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
-        enduse, sim_param, loadfactor_yd_cy, )
-    load_factor_cy = average_yd / 
-    fuel_yh_expected = np.zeros((8, 365, 24))
-    
-    for day in range(100):
-        fuel_yh_expected[:][day] = 1
+    max_daily_demand_allowed = 0.75 / (0.75 + 0.1)
 
+    fuel_yh_expected = np.zeros((2, 1, 24))
 
-    assert result'''
+    area_to_shift = (1 - max_daily_demand_allowed) * 12
+
+    for fueltype in range(2):
+        for hour in range(12):
+            fuel_yh_expected[fueltype][0][hour] = max_daily_demand_allowed
+        for hour in range(12, 24):
+            fuel_yh_expected[fueltype][0][hour] = 0.5 + (area_to_shift / 12)
+
+    np.testing.assert_equal(result, fuel_yh_expected)
 
 def test_calc_lf_d():
     """Test
@@ -49,6 +57,7 @@ def test_calc_lf_d():
 def test_calc_lf_y():
     """Test
     """
+    # fueltype, days, hours
     fuel_yh = np.ones((8, 2, 24)) #Two day example
     fuel_yh[2][1] = np.array((range(24)))
     for i in range(12):

@@ -95,6 +95,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     If no data is provided, dummy data is generated TODO
     """
+    print("... start running sceario_initialisation scripts")
     if not data:
         run_locally = True
     else:

@@ -260,7 +260,6 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
                 # Disaggregated national fuel
                 reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
-
                 is_fuel_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
 
     return is_fuel_disagg
@@ -303,7 +302,6 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         data['weather_stations'],
         'rs_t_base_heating')
 
-    #total_pop = sum(data['population'][sim_param['base_yr']].values()) # Total population
     # ---------------------------------------
     # Overall disaggregation factors per enduse
     # ---------------------------------------

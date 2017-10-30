@@ -5,8 +5,7 @@ import os
 def test_load_assumptions():
     """
     """
-    path_main_data = "C://Users//cenv0553//nismod//models//energy_demand//energy_demand"
-    path_main = os.path.join(path_main_data, '../')
+    path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
     local_data_path = "C://DATA_NISMODII//data_energy_demand"
 
     # Load data

@@ -7,7 +7,6 @@ import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.basic import conversions
-from energy_demand.basic import basic_functions
 
 def load_basic_lookups():
     """Definition of basic lookups or other related information
@@ -115,13 +114,15 @@ def dummy_data_generation(data):
     for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
         rs_floorarea[year] = {}
         for region_geocode in regions:
-            rs_floorarea[year][region_geocode] = pop_dummy[year][region_geocode] #USE FLOOR AREA
+            #rs_floorarea[year][region_geocode] = pop_dummy[year][region_geocode] #USE FLOOR AREA
+            rs_floorarea[year][region_geocode] = 10000 #USE FLOOR AREA
 
     # Dummy flor area
     for region_geocode in regions:
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in data['all_sectors']:
-            ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
+            #ss_floorarea_sector_by_dummy[region_geocode][sector] = pop_dummy[2015][region_geocode]
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
 
     data['rs_floorarea'] = rs_floorarea
     data['ss_floorarea'] = ss_floorarea_sector_by_dummy
@@ -266,6 +267,9 @@ def load_paths(path):
         'is_path_industry_switch': os.path.join(
             path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
+        # Path to capacity installations
+        'path_capacity_installation': os.path.join(
+            path, 'config_data', 'assumptions_capacity_installations.csv'),
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
@@ -275,8 +279,6 @@ def load_paths(path):
             path, 'config_data', 'submodel_industry', 'data_industry_by_fuel_end_uses.csv'),
 
         # Technologies load shapes
-        #'path_hourly_gas_shape_hp': os.path.join(
-        # path, 'config_data', 'submodel_residential', 'SANSOM_residential_gas_hourly_shape_hp.csv'),
         'lp_elec_hp_dh': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_elec_hp_dh_LOVE.csv'),
         'lp_all_microCHP_dh': os.path.join(

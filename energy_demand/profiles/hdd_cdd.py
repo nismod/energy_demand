@@ -107,10 +107,20 @@ def get_cdd_country(
 
     Arguments
     ----------
+    sim_param : dict
+        Simulation parameters
     regions : dict
         Dictionary containing regions
-    data : dict
-        Dictionary with data
+    temp_data : array
+        Temperature data
+    assumptions : dict
+        Assumptions
+    reg_coord : dict
+        Coordinates
+    weather_stations : dict
+        Weather stations
+    t_base_type : str
+        Type of base temperature
     """
     cdd_regions = {}
 
@@ -211,10 +221,6 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
 
     - The diffusion is assumed to be sigmoid
     """
-
-    #SCRAP TODO TODO REMOVE
-    ##temperatures = np.ones((365, 24)) + 14
-
     # Temperatures of full year
     hdd_d = calc_hdd(t_base_heating, temperatures)
 

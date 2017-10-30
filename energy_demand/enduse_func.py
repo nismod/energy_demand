@@ -132,7 +132,7 @@ class Enduse(object):
         self.sector = sector
         self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
-        print("VORHER {}  {}".format(region_name, np.sum(fuel)))
+
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.crit_flat_profile = True
             self.fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
@@ -373,11 +373,6 @@ class Enduse(object):
                         lookups)
 
                     self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
-
-                # Calculate load factors per enduse
-                print("NACHER {}  {}".format(region_name, np.sum(self.fuel_yh)))
-                print("DIFF  percnet {}".format((100 / np.sum(fuel)) * np.sum(self.fuel_yh)))
-                print("--------")
 
 def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
     """Calculate lf improvement depending on linear diffusion
@@ -994,11 +989,10 @@ def fuel_to_service(
     contributes to total energy service (e.g. how much of
     total heat service is provided by boiler technology).
 
-    -  Efficiency changes of technologis are considered.
-
-    - Energy service = fuel * efficiency
-    - This function can be run in two modes, depending on `mode_constrained` criteria
-    - The base year efficiency is taken because the actual service can
+    -   Efficiency changes of technologis are considered.
+    -   Energy service = fuel * efficiency
+    -   This function can be run in two modes, depending on `mode_constrained` criteria
+    -   The base year efficiency is taken because the actual service can
         only be calculated with base year. Otherwise, the service would
         increase e.g. if technologies would become more efficient.
         Efficiencies are only considered if converting back to fuel
@@ -1546,7 +1540,8 @@ def fuel_switch(
             if switch['enduse'] == enduse and switch['technology_install']:
                 fueltype_to_replace = switch['enduse_fueltype_replace']
 
-                fueltypes_replaced.append(fueltype_to_replace) # Add replaced fueltype
+                # Add replaced fueltype
+                fueltypes_replaced.append(fueltype_to_replace)
 
                 # Share of service demand per fueltype * fraction of fuel switched
                 tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch['share_fuel_consumption_switched']

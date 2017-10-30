@@ -92,9 +92,9 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     return shifted_fuel_yh
 
 def calc_lf_y(fuel_yh):
-    """Calculate the yearly load factor by dividing
-    the yearly average load by the peak hourly load
-    in a year
+    """Calculate the yearly load factor for every fueltype
+    by dividing the yearly average load by the peak hourly
+    load in a year.
 
     Arguments
     ---------
@@ -111,7 +111,7 @@ def calc_lf_y(fuel_yh):
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     # Calculate average yearly fuel per fueltype
-    average_load_y_days = np.average(fuel_yh, axis=1)
+    average_load_y_days = np.average(fuel_yh, axis=2)
     average_load_y = np.average(average_load_y_days, axis=1)
 
     # Calculate maximum hour in year
@@ -149,15 +149,15 @@ def calc_lf_d(fuel_yh):
 
     # Get maximum hours in every day
     max_load_yd = np.max(fuel_yh, axis=2)
-    
+
     # Unable local RuntimeWarning: divide by zero encountered
-    with np.errstate(divide='ignore'):
+    with np.errstate(divide='ignore', invalid='ignore'):
         daily_lf = average_fuel_yd / max_load_yd
 
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0
     daily_lf[np.isnan(daily_lf)] = 0
-    
+
     return daily_lf, average_fuel_yd
 
 '''def load_factor_d(self, data):

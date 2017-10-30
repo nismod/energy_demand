@@ -211,11 +211,6 @@ def get_tech_type(tech_name, tech_list):
     ------
     tech_type : string
         Technology type
-
-    Note
-    -----
-    -  Either a technology is a hybrid technology, a heat pump,
-       a constant heating technology or a regular technolgy
     """
     if tech_name in tech_list['tech_heating_temp_dep']:
         tech_type = 'heat_pump'
@@ -270,6 +265,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
             eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey']
             eff_achieved = technologies[heat_pump_type]['eff_achieved']
             market_entry = technologies[heat_pump_type]['market_entry']
+            tech_assum_max_share = technologies[heat_pump_type]['tech_assum_max_share']
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
@@ -295,6 +291,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
         technologies[name_av_hp]['eff_achieved'] = eff_achieved_av
         technologies[name_av_hp]['diff_method'] = 'linear'
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
+        technologies[name_av_hp]['tech_assum_max_share'] = tech_assum_max_share
 
         heat_pumps.append(name_av_hp)
 
@@ -305,18 +302,26 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
     return technologies, temp_dependent_tech_list, heat_pumps
 
-def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_factor, diff_method):
-    """Calculate efficiency of current year based on efficiency assumptions and achieved efficiency
+def calc_eff_cy(
+        technology,
+        sim_param,
+        technologies,
+        other_enduse_mode_info,
+        eff_achieved_factor,
+        diff_method
+    ):
+    """Calculate efficiency of current year based on efficiency
+    assumptions and achieved efficiency
 
     Arguments
     ----------
-    eff_by : array
-        Efficiency of current year
     technology :
-    base_sim_param : dict
+    sim_param : dict
         Base simulation parameters
-    assumptions : dict
-        Assumptions
+    technologies : dict
+        Technologies
+    other_enduse_mode_info : Dict
+        TODO
     eff_achieved_factor : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
@@ -332,17 +337,16 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
 
-    TODO: Generate two types of sigmoid (convex & concav)
+    TODO: TODO: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
         theor_max_eff = diffusion.linear_diff(
-            base_sim_param['base_yr'],
-            base_sim_param['curr_yr'],
-            assumptions['technologies'][technology]['eff_by'],
-            assumptions['technologies'][technology]['eff_ey'],
-            base_sim_param['sim_period_yrs']
-        )
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
+            technologies[technology]['eff_by'],
+            technologies[technology]['eff_ey'],
+            sim_param['sim_period_yrs'])
 
         # Consider actual achieved efficiency
         eff_cy = theor_max_eff * eff_achieved_factor
@@ -350,20 +354,19 @@ def calc_eff_cy(eff_by, technology, base_sim_param, assumptions, eff_achieved_fa
         return eff_cy
 
     elif diff_method == 'sigmoid':
-
         theor_max_eff = diffusion.sigmoid_diffusion(
-            base_sim_param['base_yr'],
-            base_sim_param['curr_yr'],
-            base_sim_param['end_yr'],
-            assumptions['other_enduse_mode_info']['sig_midpoint'],
-            assumptions['other_enduse_mode_info']['sig_steeppness'])
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
+            sim_param['end_yr'],
+            other_enduse_mode_info['sig_midpoint'],
+            other_enduse_mode_info['sig_steeppness'])
 
         # Differencey in efficiency change
         efficiency_change = theor_max_eff * (
-            assumptions['technologies'][technology]['eff_ey'] - assumptions['technologies'][technology]['eff_by'])
+            technologies[technology]['eff_ey'] - technologies[technology]['eff_by'])
 
         # Actual efficiency potential
-        eff_cy = eff_by + efficiency_change
+        eff_cy = technologies[technology]['eff_by'] + efficiency_change
 
         return eff_cy
 
@@ -381,10 +384,6 @@ def generate_ashp_gshp_split(split_factor):
     --------
     installed_heat_pump : dict
         Ditionary with split of heat pumps for every fueltype
-
-    Note
-    -----
-    The heat pump technologies need to be defined in ``get_defined_hybrid_tech``
     """
     ashp_fraction = split_factor
     gshp_fraction = 1 - split_factor

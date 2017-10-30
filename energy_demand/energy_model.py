@@ -59,6 +59,9 @@ class EnergyModel(object):
             for weather_region_name in data['weather_stations']
         }
 
+        # --------------
+        # Dwelling stock
+        # --------------
         if data['assumptions']['virtual_dwelling_stock']:
             logging.info("... Generate virtual dwelling stock for base year")
 
@@ -108,7 +111,8 @@ class EnergyModel(object):
             logging.debug("... start summing")
 
             # Sum across all regions, all enduse and sectors sum_reg
-            fuel_indiv_regions_yh = fuel_regions_fueltype(
+            # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
+            fuel_indiv_regions_yh, fuel_region = fuel_regions_fueltype(
                 fuel_indiv_regions_yh,
                 data['lookups'],
                 region_name,
@@ -116,6 +120,8 @@ class EnergyModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 region_submodels)
+            
+            print("REGION ouer {} {}".format(region_name, np.sum(fuel_region)))
 
             # Sum across all regions, all enduse and sectors
             reg_enduses_fueltype_y = fuel_aggr(
@@ -152,15 +158,15 @@ class EnergyModel(object):
                 data['assumptions']['model_yeardays_nrs'])
 
             # -------------------
-            # Local calculations
+            # Regional Load factor calculations
             # -------------------
             # Calculate load factors across all enduses
-            load_factor_y = lf.calc_lf_y(fuel_indiv_regions_yh) #Yearly lf
-            #load_factor_yd = lf.calc_lf_d(fuel_indiv_regions_yh) # Daily lf
+            load_factor_y = lf.calc_lf_y(fuel_region) #Yearly lf 
+            #load_factor_yd = lf.calc_lf_d(fuel_region) # Daily lf
             #Seasonal and other lf  TODO
-
-            for fueltype_nr, fuel in enumerate(load_factor_y):
-                rs_reg_load_factor_h[fueltype_nr][array_nr_region] += fuel
+            print("load_factor_y: " + str(load_factor_y))
+            for fueltype_nr, load_factor in enumerate(load_factor_y):
+                rs_reg_load_factor_h[fueltype_nr][array_nr_region] = load_factor
 
         # -------------------------------------------------
         # Store values for all region in EnergyModel object
@@ -190,7 +196,6 @@ class EnergyModel(object):
         ss_tot_fuels_all_enduses_y = fuel_aggr(
             'fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
         '''
-
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
 
@@ -251,15 +256,10 @@ def simulate_region(region_name, data, weather_regions):
         data['enduses']['is_all_enduses'],
         data['sectors']['is_sectors'])
 
-    # ---------------------
-    # Regional calculations
-    # ---------------------
-
     # --------
     # Submodels
     # --------
-    # IS MODEL OK WITH SWITCHES
-    region_submodels = [ss_submodel, rs_submodel, is_submodel]
+    region_submodels = [rs_submodel, ss_submodel, is_submodel]
 
     return region_submodels
 
@@ -606,6 +606,7 @@ def fuel_regions_fueltype(
     -------
     {'final_electricity_demand': np.array((regions, model_yearhours_nrs)), dtype=float}
     """
+    
     fuels = fuel_aggr(
         np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float),
         'fuel_yh',
@@ -613,14 +614,16 @@ def fuel_regions_fueltype(
         'no_sum',
         model_yearhours_nrs,
         model_yeardays_nrs,
-        region_name
-        )
+        region_name)
 
     # Reshape
     for fueltype_nr in lookups['fueltype'].values():
         fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
-
-    return fuel_fueltype_regions
+    
+    fuel_region = np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24))
+    for fueltype_nr in lookups['fueltype'].values():
+        fuel_region[fueltype_nr] = fuels[fueltype_nr]
+    return fuel_fueltype_regions, fuel_region
 
 def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
     """Get yh fuel for all fueltype for a specific region of all submodels

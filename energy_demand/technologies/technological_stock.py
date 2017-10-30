@@ -9,7 +9,19 @@ class TechStock(object):
 
     The main class of the residential model.
     """
-    def __init__(self, stock_name, assumptions, sim_param, lookups, temp_by, temp_cy, t_base_heating_by, potential_enduses, t_base_heating_cy, enduse_technologies):
+    def __init__(
+        self,
+        stock_name,
+        assumptions,
+        sim_param,
+        lookups,
+        temp_by,
+        temp_cy,
+        t_base_heating_by,
+        potential_enduses,
+        t_base_heating_cy,
+        enduse_technologies
+        ):
         """Constructor of technologies for residential sector
 
         Arguments
@@ -49,8 +61,7 @@ class TechStock(object):
             t_base_heating_by,
             t_base_heating_cy,
             potential_enduses,
-            enduse_technologies
-            )
+            enduse_technologies)
 
     def get_tech_attr(self, enduse, tech_name, attribute_to_get):
         """Get a technology attribute from a technology object stored in a list
@@ -146,8 +157,7 @@ def create_tech_stock(
                 temp_cy,
                 t_base_heating_by,
                 t_base_heating_cy,
-                tech_type
-            )
+                tech_type)
 
             stock_technologies[(technology_name, enduse)] = tech_obj
 
@@ -200,8 +210,8 @@ class Technology(object):
             self.tech_fueltype = assumptions['technologies'][tech_name]['fuel_type']
             self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype)
             self.market_entry = assumptions['technologies'][tech_name]['market_entry']
-            self.eff_achieved_factor = assumptions['technologies'][self.tech_name]['eff_achieved']
-            self.diff_method = assumptions['technologies'][self.tech_name]['diff_method']
+            self.eff_achieved_factor = assumptions['technologies'][tech_name]['eff_achieved']
+            self.diff_method = assumptions['technologies'][tech_name]['diff_method']
 
             # Shares of fueltype for every hour for single fueltype
             self.fueltypes_yh_p_cy = np.full((
@@ -219,21 +229,36 @@ class Technology(object):
                 self.eff_cy = tech_related.get_heatpump_eff(
                     temp_cy,
                     tech_related.calc_eff_cy(
-                        assumptions['technologies'][tech_name]['eff_by'],
                         tech_name,
                         sim_param,
-                        assumptions,
+                        assumptions['technologies'],
+                        assumptions['other_enduse_mode_info'],
                         self.eff_achieved_factor,
-                        self.diff_method
-                        ),
+                        self.diff_method),
                     t_base_heating_cy)
             else:
                 self.eff_by = assumptions['technologies'][tech_name]['eff_by']
                 self.eff_cy = tech_related.calc_eff_cy(
-                    assumptions['technologies'][tech_name]['eff_by'],
                     tech_name,
                     sim_param,
-                    assumptions,
+                    assumptions['technologies'],
+                    assumptions['other_enduse_mode_info'],
                     self.eff_achieved_factor,
-                    self.diff_method
+                    self.diff_method)
+                
+                '''#TODO: Create function to calculate eff of any year
+                self.eff_sy = self.calc_eff_sy(
+                    assumptions['technologies'][tech_name]['eff_by'],
                     )
+
+    def calc_eff_sy(self, ):
+        """Calculate efficiency of any year with
+        linear distribution
+        
+        Return
+        ------
+        eff_sy : float
+            Efficiency of simulation year
+        """
+
+        return eff_sy'''
