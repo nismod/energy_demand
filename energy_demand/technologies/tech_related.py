@@ -211,11 +211,6 @@ def get_tech_type(tech_name, tech_list):
     ------
     tech_type : string
         Technology type
-
-    Note
-    -----
-    -  Either a technology is a hybrid technology, a heat pump,
-       a constant heating technology or a regular technolgy
     """
     if tech_name in tech_list['tech_heating_temp_dep']:
         tech_type = 'heat_pump'
@@ -389,10 +384,6 @@ def generate_ashp_gshp_split(split_factor):
     --------
     installed_heat_pump : dict
         Ditionary with split of heat pumps for every fueltype
-
-    Note
-    -----
-    The heat pump technologies need to be defined in ``get_defined_hybrid_tech``
     """
     ashp_fraction = split_factor
     gshp_fraction = 1 - split_factor

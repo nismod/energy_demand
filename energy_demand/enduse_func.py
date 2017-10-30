@@ -250,6 +250,7 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
+                '''
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(self.enduse))
                     service_tech_y_cy = service_switch(
@@ -276,7 +277,7 @@ class Enduse(object):
                         sim_param['curr_yr'])
                 else:
                     pass #No switch implemented
-
+                '''
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -619,10 +620,6 @@ def get_crit_switch(enduse, fuelswitches, base_parameters, mode_constrained):
         return False
     else:
         for fuelswitch in fuelswitches:
-            print(fuelswitch)
-            print(fuelswitch['enduse'])
-            print(enduse)
-            print("...")
             if fuelswitch['enduse'] == enduse:
                 return True
 

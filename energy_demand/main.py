@@ -3,9 +3,8 @@ Energy Demand Model
 ===================
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected
-
 Development checklist: https://nismod.github.io/docs/development-checklist.html
-https://nismod.github.io/docs/
+https://nismod.github.io/docs/ 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch 
 TODO: Simplify load profiles (they are non-regional now)
 '''
@@ -104,13 +103,10 @@ if __name__ == "__main__":
         data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
 
     #NEW ABSOLUTE assumptions['rs_service_switches']
-    data['assumptions'] = fuel_service_switch.generate_fuel_switches_from_absolute(
+    data['assumptions'] = fuel_service_switch.calc_service_switch_capacity(
         data['paths'],
         data['enduses'],
         data['assumptions'], data['fuels'], data['sim_param'])
-    #print("---------")
-    #print(data['assumptions']['rs_service_switches'])
-    #prnt("l.")
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])

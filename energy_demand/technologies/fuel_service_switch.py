@@ -34,46 +34,43 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     return rel_share_service_tech_decr_by
 
-def generate_fuel_switches_from_absolute(paths, enduses, assumptions, fuels, sim_param):
+def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     """Create service switch based on assumption on
-    changes in fuel. A service switch is generated
+    changes in installed fuel capacity. Service switch are calculated
     based on the assumed capacity installation (in absolute GW)
-    of a technology
+    of a technologies. Assumptions on capacities
+    are defined in the CSV file `assumptions_capacity_installations.csv`
 
     Arguments
     ---------
+    paths : dict
+        Paths
     enduses : dict
         Enduses
+    assumptions : dict
+        Assumptions
+    fuels : dict
+        Fuels
+    sim_param : dict
+        Simulation parameters
 
     Returns
     -------
-    service_switches : list
-        List with service switches
+    assumptions : dict
+        Dict with updated service switches
     """
     # --------------------------------
-    # Definition of capacity switches
+    # Reading in assumptions on capacity
+    # installations from csv file
     # --------------------------------
-    capcity_switches = read_data.read_capacity_definitions(
-        paths['path_assumptions_capacity_installations'])
-
-    '''capcity_switches = []
-    # Assu
-    capcity_switch = {
-        'enduse': 'rs_space_heating', #Enduse where technology is installed
-        'technology_install': 'boiler_gas', #Installed technology
-        'market_entry': 2015, #Standard = base year
-        'year_fuel_consumption_switched': 2040, #Year until installed
-        'tech_assum_max_share': 1, #Standard = 1.0, #TODO: TAKE ASSUMPTION FRON TECH LIST
-        'fuel_capacity_installed': 20, #UNIT GWH? #Installed  capacity
-        'fuel_shares_enduse_by_dict': 'rs_fuel_tech_p_by',
-        'fuels': 'rs_fuel_raw_data_enduses'}
-    capcity_switches.append(capcity_switch)'''
+    capcity_switches = read_data.read_capacity_installation(
+        paths['path_capacity_installation'])
 
     # -------------------------------------
     # Assign correct fuel shares and fuels
     # -------------------------------------
     rs_enduses = []
-    ss_enuses = []
+    ss_enduses = []
     is_enduses = []
     for switch in capcity_switches:
         if switch['enduse'] in enduses['rs_all_enduses']:
@@ -92,11 +89,16 @@ def generate_fuel_switches_from_absolute(paths, enduses, assumptions, fuels, sim
     # ----------------------
     #
     # ----------------------
-    rs_service_switches = []
-    ss_service_switches = []
-    is_service_switches = []
+    assumptions['rs_service_switches'] = create_service_switch(rs_enduses, capcity_switches, assumptions, sim_param, fuels)
+    assumptions['ss_service_switches'] = create_service_switch(ss_enduses, capcity_switches, assumptions, sim_param, fuels)
+    assumptions['is_service_switches'] = create_service_switch(is_enduses, capcity_switches, assumptions, sim_param, fuels)
+    return assumptions
 
-    for enduse in rs_enduses:
+def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fuels):
+    """
+    """
+    service_switches = []
+    for enduse in enduses:
         for capcity_switch in capcity_switches:
             if capcity_switch['enduse'] == enduse:
                 service_switches_enduse = add_GWH_heating_change_serivce_ey(
@@ -108,12 +110,9 @@ def generate_fuel_switches_from_absolute(paths, enduses, assumptions, fuels, sim
                     fuel_enduse_y=fuels[capcity_switch['fuels']][capcity_switch['enduse']],
                     sim_param=sim_param,
                     other_enduse_mode_info=assumptions['other_enduse_mode_info'])
-                rs_service_switches += service_switches_enduse
+                service_switches += service_switches_enduse
 
-    #RESIDENTIAL
-    assumptions['rs_service_switches'] = rs_service_switches
-
-    return assumptions
+    return service_switches
 
 def add_GWH_heating_change_serivce_ey(
         enduse,

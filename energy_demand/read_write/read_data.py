@@ -853,7 +853,7 @@ def read_lf_y(path_enduse_specific_results):
 
     return results
 
-def read_capacity_definitions(path_to_csv):
+def read_capacity_installation(path_to_csv):
     """This function reads in service assumptions from csv file
 
     Arguments

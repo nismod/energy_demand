@@ -60,6 +60,10 @@ class WeatherRegion(object):
         temp_by = temp_data[weather_region_name][sim_param['base_yr']]
         temp_cy = temp_data[weather_region_name][sim_param['curr_yr']]
 
+        # SCRAP TODO TODO
+        #temp_by = np.ones((365, 24)) + 12
+        #temp_cy = np.ones((365, 24)) + 12
+
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions, 'rs_t_base_heating')
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
@@ -166,8 +170,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_boilers_y_dh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday']
-            )
+            shape_peak_dh=tech_lp['rs_lp_heating_boilers_dh']['peakday'])
 
         # Heating CHP
         rs_profile_chp_y_dh = rs_fuel_shape_heating_yd[:, np.newaxis] * tech_lp['rs_profile_chp_y_dh'][[assumptions['model_yeardays']]]
@@ -203,18 +206,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_profile_elec_heater_y_dh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday']
-            )
-
-        # Hybrid heating
-        '''self.rs_load_profiles.add_load_profile(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_heating_hybrid'],
-            enduses=['rs_space_heating', 'rs_water_heating'],
-            shape_yd=rs_fuel_shape_heating_yd,
-            shape_yh=rs_fuel_shape_hybrid_tech_yh,
-            enduse_peak_yd_factor=rs_peak_yd_heating_factor
-            )'''
+            shape_peak_dh=tech_lp['rs_lp_second_heating_dh']['peakday'])
 
         # Heat pump heating
         self.rs_load_profiles.add_load_profile(
@@ -266,7 +258,6 @@ class WeatherRegion(object):
         #ss_fuel_shape_cooling_yh = self.get_shape_cooling_yh(
         # data, load_profile.abs_to_rel(ss_hdd_cy + ss_cdd_cy), 'ss_shapes_cooling_dh') # hdd & cdd
 
-
         self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
             technologies=assumptions['tech_list']['tech_heating_const'],
@@ -286,8 +277,7 @@ class WeatherRegion(object):
             shape_yd=ss_fuel_shape_heating_yd,
             shape_yh=ss_fuel_shape_any_tech,
             enduse_peak_yd_factor=ss_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday']
-            )
+            shape_peak_dh=tech_lp['rs_lp_storage_heating_dh']['peakday'])
 
         self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -296,8 +286,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
             shape_yh=ss_fuel_shape_any_tech,
-            enduse_peak_yd_factor=ss_peak_yd_heating_factor
-            )
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor)
 
         self.ss_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -306,8 +295,7 @@ class WeatherRegion(object):
             sectors=sectors['ss_sectors'],
             shape_yd=ss_fuel_shape_heating_yd,
             shape_yh=ss_fuel_shape_any_tech,
-            enduse_peak_yd_factor=ss_peak_yd_heating_factor
-            )
+            enduse_peak_yd_factor=ss_peak_yd_heating_factor)
 
         # Industry submodel
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
@@ -347,8 +335,7 @@ class WeatherRegion(object):
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech,
-            enduse_peak_yd_factor=is_peak_yd_heating_factor
-            )
+            enduse_peak_yd_factor=is_peak_yd_heating_factor)
 
         self.is_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -357,8 +344,7 @@ class WeatherRegion(object):
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
             enduse_peak_yd_factor=is_peak_yd_heating_factor,
-            shape_yh=is_fuel_shape_any_tech
-            )
+            shape_yh=is_fuel_shape_any_tech)
 
         self.is_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),
@@ -367,18 +353,7 @@ class WeatherRegion(object):
             sectors=sectors['is_sectors'],
             shape_yd=is_fuel_shape_heating_yd,
             shape_yh=is_fuel_shape_any_tech,
-            enduse_peak_yd_factor=is_peak_yd_heating_factor,
-            )
-
-        '''self.is_load_profiles.add_load_profile(
-            unique_identifier=uuid.uuid4(),
-            technologies=assumptions['tech_list']['tech_heating_hybrid'],
-            enduses=['is_space_heating'],
-            sectors=sectors['is_sectors'],
-            shape_yd=is_fuel_shape_heating_yd,
-            shape_yh=is_fuel_shape_any_tech,
-            enduse_peak_yd_factor=is_peak_yd_heating_factor,
-            )'''
+            enduse_peak_yd_factor=is_peak_yd_heating_factor)
 
         self.is_load_profiles.add_load_profile(
             unique_identifier=uuid.uuid4(),

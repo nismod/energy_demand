@@ -49,6 +49,7 @@ def test_calc_lf_d():
 def test_calc_lf_y():
     """Test
     """
+    # fueltype, days, hours
     fuel_yh = np.ones((8, 2, 24)) #Two day example
     fuel_yh[2][1] = np.array((range(24)))
     for i in range(12):
