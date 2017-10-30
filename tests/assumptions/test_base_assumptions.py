@@ -6,7 +6,7 @@ def test_load_assumptions():
     """
     """
     path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
-    path_main = os.path.join("//energy_demand", '/..')
+    path_main = os.path.join("")
 
     # Load data
     data = {}
