@@ -169,7 +169,6 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                 # Population
                 reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
 
-                # TODO TODO
                 #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
                 if enduse == 'ss_catering':

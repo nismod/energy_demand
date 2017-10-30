@@ -60,10 +60,6 @@ class WeatherRegion(object):
         temp_by = temp_data[weather_region_name][sim_param['base_yr']]
         temp_cy = temp_data[weather_region_name][sim_param['curr_yr']]
 
-        # SCRAP TODO TODO
-        #temp_by = np.ones((365, 24)) + 12
-        #temp_cy = np.ones((365, 24)) + 12
-
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions, 'rs_t_base_heating')
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(

@@ -102,7 +102,7 @@ if __name__ == "__main__":
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
 
-    #NEW ABSOLUTE assumptions['rs_service_switches']
+    # Capacity switches implemented
     data['assumptions'] = fuel_service_switch.calc_service_switch_capacity(
         data['paths'],
         data['enduses'],

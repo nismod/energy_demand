@@ -122,8 +122,6 @@ class EnergyModel(object):
                 region_submodels)
             
             print("REGION ouer {} {}".format(region_name, np.sum(fuel_region)))
-            print("-------")
-            #del fuel_region
 
             # Sum across all regions, all enduse and sectors
             reg_enduses_fueltype_y = fuel_aggr(
@@ -160,9 +158,8 @@ class EnergyModel(object):
                 data['assumptions']['model_yeardays_nrs'])
 
             # -------------------
-            # Local calculations
+            # Regional Load factor calculations
             # -------------------
-
             # Calculate load factors across all enduses
             load_factor_y = lf.calc_lf_y(fuel_region) #Yearly lf 
             #load_factor_yd = lf.calc_lf_d(fuel_region) # Daily lf
@@ -199,7 +196,6 @@ class EnergyModel(object):
         ss_tot_fuels_all_enduses_y = fuel_aggr(
             'fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
         '''
-
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
 
@@ -233,16 +229,6 @@ def simulate_region(region_name, data, weather_regions):
         ss_fuel_disagg=data['ss_fuel_disagg'][region_name],
         is_fuel_disagg=data['is_fuel_disagg'][region_name],
         weather_region=closest_weather_region)
-    _sum = 0
-    for enduse, fuel in region.rs_enduses_fuel.items():
-        _sum += np.sum(fuel)
-    for enduse, fuel_sector in region.ss_enduses_sectors_fuels.items():
-        for sector, fuel in fuel_sector.items():
-            _sum += np.sum(fuel)
-    for enduse, fuel_sector in region.is_enduses_sectors_fuels.items():
-        for sector, fuel in fuel_sector.items():
-            _sum += np.sum(fuel)
-    print("SUMME REGION: " + str(_sum))
 
     # --------------------
     # Residential SubModel

@@ -38,7 +38,7 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     """Create service switch based on assumption on
     changes in installed fuel capacity. Service switch are calculated
     based on the assumed capacity installation (in absolute GW)
-    of a technologies. Assumptions on capacities
+    of technologies. Assumptions on capacities
     are defined in the CSV file `assumptions_capacity_installations.csv`
 
     Arguments
@@ -86,22 +86,44 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
             switch['fuels'] = 'is_fuel_raw_data_enduses'
             is_enduses.append(switch['enduse'])
 
-    # ----------------------
-    #
-    # ----------------------
-    assumptions['rs_service_switches'] = create_service_switch(rs_enduses, capcity_switches, assumptions, sim_param, fuels)
-    assumptions['ss_service_switches'] = create_service_switch(ss_enduses, capcity_switches, assumptions, sim_param, fuels)
-    assumptions['is_service_switches'] = create_service_switch(is_enduses, capcity_switches, assumptions, sim_param, fuels)
+    # -------------------------
+    # Calculate service switches
+    # -------------------------
+    assumptions['rs_service_switches'] = create_service_switch(
+        rs_enduses, capcity_switches, assumptions, sim_param, fuels)
+    assumptions['ss_service_switches'] = create_service_switch(
+        ss_enduses, capcity_switches, assumptions, sim_param, fuels)
+    assumptions['is_service_switches'] = create_service_switch(
+        is_enduses, capcity_switches, assumptions, sim_param, fuels)
+
+    # TODO: Test that either capacity swithc or service swithc is iplemented
+
     return assumptions
 
 def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fuels):
+    """Generate service switch based on capacity
+    assumptions
+
+    Arguments
+    ---------
+    enduses : dict
+        Enduses
+    capcity_switches : list
+        List containing all capcity_switches
+    assumptions : dict
+        Assumptions
+    fuels : dict
+        Fuels
+    sim_param : dict
+        Simulation parameters
     """
-    """
+    # List to store service switches
     service_switches = []
+
     for enduse in enduses:
         for capcity_switch in capcity_switches:
             if capcity_switch['enduse'] == enduse:
-                service_switches_enduse = add_GWH_heating_change_serivce_ey(
+                service_switches_enduse = convert_capacity_assumption_to_service(
                     enduse=enduse,
                     capcity_switches=capcity_switches,
                     technologies=assumptions['technologies'],
@@ -110,11 +132,13 @@ def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fue
                     fuel_enduse_y=fuels[capcity_switch['fuels']][capcity_switch['enduse']],
                     sim_param=sim_param,
                     other_enduse_mode_info=assumptions['other_enduse_mode_info'])
+
+                # Add service switch
                 service_switches += service_switches_enduse
 
     return service_switches
 
-def add_GWH_heating_change_serivce_ey(
+def convert_capacity_assumption_to_service(
         enduse,
         capcity_switches,
         technologies,
@@ -143,37 +167,19 @@ def add_GWH_heating_change_serivce_ey(
     other_enduse_mode_info : dict
         TODO
 
-    Flow
+    Major steps
     ----
-    Convert fuel shares to absolute fuel per technology,
-    add technology specific absolute fuel change.
-
-    Calculate back to fuel shares in ey.
-
-
-    - Add XY GWh for a specific technology (e.g. 20GWH heat pumps added until ey)
-
-    TOODS
-    - convert to service per technology for end_year
-    - convert fuel input to service end year
-    - Calculate percentage of service for ey (collect all different absolute fuel
-    definitions (e.g. absolute fuel heat pumps & absolute fuel boiler C))
-    --> This is actually a service switch --> Convert to service switch
+    1.  Convert fuel per technology to service in ey
+    2.  Convert installed capacity to service of ey and add this
+    3.  Calculate percentage of service for ey
+    4.  Write out as service switch
     """
-    """Example boilerA: 100GWH, boilerB: 100GWH by
+    sim_param_NEW = {} 
+    sim_param_NEW['base_yr'] = sim_param['base_yr']
+    sim_param_NEW['curr_yr'] = capcity_switch['year_fuel_consumption_switched']
+    sim_param_NEW['end_yr'] = capcity_switch['year_fuel_consumption_switched']
+    sim_param_NEW['sim_period_yrs'] = capcity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
 
-    1. Calculate service for ey: 100GWH * 0.4 , 100 GWH * 0.7
-    2. Calculate service for new tech: Boiler C 100 GWH * eff_boilerC_ey 0.5
-    3. Convert all services to percent: BoilerA: 40/160 = 0.25; BoilerB: 70/160 = 0.43; boilerC:50/160 = 0.31
-
-    --> Service 
-    """
-    sim_param_NEW = {
-        'base_yr': sim_param['base_yr'],
-        'curr_yr': capcity_switch['year_fuel_consumption_switched'],
-        'end_yr': capcity_switch['year_fuel_consumption_switched'],
-        'sim_period_yrs': capcity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
-        }
     # ---------------------------------------------
     # Calculate service per technolgies of by for ey
     # ---------------------------------------------
@@ -183,15 +189,14 @@ def add_GWH_heating_change_serivce_ey(
     for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
         for tech, fuel_share_by in tech_fuel_shares.items():
 
-            # End year efficiency TODO: DO NOT TAKE EFFICIENCY OF END YEAR BUT EFFICIENCY OF SIMLATION YEAR
-            #tech_eff_ey = tech_stock.get_tech_attr(enduse, tech, 'eff_ey')
+            # Efficincy of year when capacity is fully installed
             tech_eff_ey = tech_related.calc_eff_cy(
-                    tech,
-                    sim_param_NEW,
-                    technologies,
-                    other_enduse_mode_info,
-                    technologies[tech]['eff_achieved'],
-                    technologies[tech]['diff_method'])
+                tech,
+                sim_param_NEW,
+                technologies,
+                other_enduse_mode_info,
+                technologies[tech]['eff_achieved'],
+                technologies[tech]['diff_method'])
                 
             # Convert to service
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
@@ -208,7 +213,7 @@ def add_GWH_heating_change_serivce_ey(
         if enduse == switch['enduse']:
             technology_install = switch['technology_install']
             fuel_capacity_installed = switch['fuel_capacity_installed']
-            #TODO: UNIT CONVERSION!!
+
             tech_eff_ey = tech_related.calc_eff_cy(
                 technology_install,
                 sim_param_NEW,
@@ -227,7 +232,6 @@ def add_GWH_heating_change_serivce_ey(
     # Calculate service in % per enduse
     # -------------------------------------------
     tot_service = sum(service_enduse_tech.values())
-
     for tech, service_tech in service_enduse_tech.items():
         service_enduse_tech[tech] = service_tech / tot_service
 
@@ -237,15 +241,10 @@ def add_GWH_heating_change_serivce_ey(
     service_switches_enduse = []
 
     for tech, service_tech_p in service_enduse_tech.items():
-
-        #TODO DEFINE tech_assum_max_share for all techs
-        # TODO: Assert if tech_assum_max_share > than defined in technologies
         service_switches_enduse.append({
             'enduse': enduse,
             'tech': tech,
             'service_share_ey': service_tech_p,
-            'tech_assum_max': technologies[tech]['tech_assum_max_share']
-            }
-            )
+            'tech_assum_max': technologies[tech]['tech_assum_max_share']})
 
     return service_switches_enduse

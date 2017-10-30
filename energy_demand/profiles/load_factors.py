@@ -149,7 +149,7 @@ def calc_lf_d(fuel_yh):
 
     # Get maximum hours in every day
     max_load_yd = np.max(fuel_yh, axis=2)
-    
+
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
         daily_lf = average_fuel_yd / max_load_yd
@@ -157,7 +157,7 @@ def calc_lf_d(fuel_yh):
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0
     daily_lf[np.isnan(daily_lf)] = 0
-    
+
     return daily_lf, average_fuel_yd
 
 '''def load_factor_d(self, data):
