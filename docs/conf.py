@@ -70,8 +70,8 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'energy_demand | MISTRAL'
-copyright = u'2017, Sven Eggimann'
+project = u'Energy Demand Model | MISTRAL'
+copyright = u'2018, Sven Eggimann'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

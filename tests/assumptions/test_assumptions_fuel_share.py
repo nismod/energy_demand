@@ -9,7 +9,7 @@ def test_assign_by_fuel_tech_p():
     """DUMMY OS FAR
     """
     path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
-    path_main = os.path.join("..//energy_demand", '/..')
+    path_main = os.path.join("//energy_demand", '/..')
 
     # Load data
     data = {}

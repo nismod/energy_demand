@@ -6,12 +6,11 @@ def test_load_assumptions():
     """
     """
     path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
-    local_data_path = "C://DATA_NISMODII//data_energy_demand"
+    path_main = os.path.join("//energy_demand", '/..')
 
     # Load data
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
-    #data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
