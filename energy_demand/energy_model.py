@@ -197,7 +197,7 @@ class EnergyModel(object):
 
         self.reg_load_factor_y = reg_load_factor_y
         self.reg_load_factor_yd = reg_load_factor_yd
-
+        self.reg_load_factor_seasons = reg_load_factor_seasons
         #-------------------
         # TESTING
         #-------------------
