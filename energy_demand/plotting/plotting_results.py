@@ -97,7 +97,7 @@ def run_all_plot_functions(
 
 def plot_loadfactors_seasonal(fueltype_lf, load_factors_seasonal, print_criteria, reg_nrs):
     """Plot load factors per region for every year
-    
+
     Arguments
     --------
 
@@ -157,11 +157,10 @@ def plot_loadfactors_y(fueltype_lf, load_factors_y, print_criteria, reg_nrs):
         for year, lf_fueltype_reg in load_factors_y.items():
             x_values_year.append(year)
             y_values_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
-        #print(" PLOT RESULT: {} {} ".format(x_values_year, y_values_year))
-        #------
-        diff_abs = y_values_year[0] - y_values_year[1]
-        diff_rel = (100.0 / y_values_year[0]) * y_values_year[1]
-        print("DIFF region {}   {}  {} {} {} ".format(reg_nr, diff_rel, diff_abs, x_values_year, y_values_year))
+
+        #diff_abs = y_values_year[0] - y_values_year[1]
+        #diff_rel = (100.0 / y_values_year[0]) * y_values_year[1]
+        #print("DIFF region {}   {}  {} {} {} ".format(reg_nr, diff_rel, diff_abs, x_values_year, y_values_year))
         plt.plot(x_values_year, y_values_year, color='grey')
 
     # Scatter plot over years

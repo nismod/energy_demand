@@ -170,8 +170,6 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
 
     return seasons_lfs
 
-
-
 def calc_lf_d(fuel_yh, average_fuel_yd):
     """Calculate the daily load factor for every day in a year
     by dividing for each day the daily average by the daily peak

@@ -250,7 +250,7 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
-                if crit_switch_service:
+                '''if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(self.enduse))
                     service_tech_y_cy = service_switch(
                         enduse,
@@ -276,7 +276,7 @@ class Enduse(object):
                         sim_param['curr_yr'])
                 else:
                     pass #No switch implemented
-
+                '''
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
