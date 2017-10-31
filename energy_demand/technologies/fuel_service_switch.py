@@ -58,10 +58,13 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     -------
     assumptions : dict
         Dict with updated service switches
+
+    Warning
+    -------
+    Capacity switches overwrite existing service switches
     """
     # --------------------------------
-    # Reading in assumptions on capacity
-    # installations from csv file
+    # Reading in assumptions on capacity installations from csv file
     # --------------------------------
     capcity_switches = read_data.read_capacity_installation(
         paths['path_capacity_installation'])
@@ -96,13 +99,13 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     assumptions['is_service_switches'] = create_service_switch(
         is_enduses, capcity_switches, assumptions, sim_param, fuels)
 
-    # TODO: Test that either capacity swithc or service swithc is iplemented
+    # Criteria that capacity switch is implemented
+    assumptions['capacity_switch'] = True
 
     return assumptions
 
 def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fuels):
-    """Generate service switch based on capacity
-    assumptions
+    """Generate service switch based on capacity assumptions
 
     Arguments
     ---------
@@ -148,7 +151,7 @@ def convert_capacity_assumption_to_service(
         sim_param,
         other_enduse_mode_info
     ):
-    """Convert assumption about adding 
+    """Convert assumption about adding
 
     Arguments
     ---------
@@ -165,7 +168,7 @@ def convert_capacity_assumption_to_service(
     sim_param : dict
         Simulation parameters
     other_enduse_mode_info : dict
-        TODO
+        Sigmoid diffusion information
 
     Major steps
     ----
@@ -174,36 +177,33 @@ def convert_capacity_assumption_to_service(
     3.  Calculate percentage of service for ey
     4.  Write out as service switch
     """
-    sim_param_NEW = {} 
-    sim_param_NEW['base_yr'] = sim_param['base_yr']
-    sim_param_NEW['curr_yr'] = capcity_switch['year_fuel_consumption_switched']
-    sim_param_NEW['end_yr'] = capcity_switch['year_fuel_consumption_switched']
-    sim_param_NEW['sim_period_yrs'] = capcity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
+    sim_param_new = {} 
+    sim_param_new['base_yr'] = sim_param['base_yr']
+    sim_param_new['curr_yr'] = capcity_switch['year_fuel_consumption_switched']
+    sim_param_new['end_yr'] = capcity_switch['year_fuel_consumption_switched']
+    sim_param_new['sim_period_yrs'] = capcity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
 
     # ---------------------------------------------
     # Calculate service per technolgies of by for ey
     # ---------------------------------------------
     service_enduse_tech = {}
-    tot_service_y = 0
 
     for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
         for tech, fuel_share_by in tech_fuel_shares.items():
 
-            # Efficincy of year when capacity is fully installed
+            # Efficiency of year when capacity is fully installed
+            # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(
                 tech,
-                sim_param_NEW,
+                sim_param_new,
                 technologies,
                 other_enduse_mode_info,
                 technologies[tech]['eff_achieved'],
                 technologies[tech]['diff_method'])
-                
+
             # Convert to service
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
             service_enduse_tech[tech] = service_tech_ey_y
-
-            # Sum total yearly service
-            tot_service_y += service_tech_ey_y
 
     # -------------------------------------------
     # Calculate service for increased technologies
@@ -216,7 +216,7 @@ def convert_capacity_assumption_to_service(
 
             tech_eff_ey = tech_related.calc_eff_cy(
                 technology_install,
-                sim_param_NEW,
+                sim_param_new,
                 technologies,
                 other_enduse_mode_info,
                 technologies[technology_install]['eff_achieved'],

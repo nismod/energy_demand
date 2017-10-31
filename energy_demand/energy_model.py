@@ -120,8 +120,6 @@ class EnergyModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'],
                 region_submodels)
-            
-            print("REGION ouer {} {}".format(region_name, np.sum(fuel_region)))
 
             # Sum across all regions, all enduse and sectors
             reg_enduses_fueltype_y = fuel_aggr(
@@ -164,7 +162,7 @@ class EnergyModel(object):
             load_factor_y = lf.calc_lf_y(fuel_region) #Yearly lf 
             #load_factor_yd = lf.calc_lf_d(fuel_region) # Daily lf
             #Seasonal and other lf  TODO
-            print("load_factor_y: " + str(load_factor_y))
+
             for fueltype_nr, load_factor in enumerate(load_factor_y):
                 rs_reg_load_factor_h[fueltype_nr][array_nr_region] = load_factor
 

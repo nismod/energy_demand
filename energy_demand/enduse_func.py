@@ -597,6 +597,13 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
         crit_switch_service,
         enduse)
 
+    # Test if capacity switch is implemented
+    try:
+        if assumptions['capacity_switch'] and crit_switch_service:
+            logging.warning("Warning: Capacity switch and service switch are installed simultaniously")
+    except KeyError:
+        logging.debug("... no capacity and service switch defined simultaniously")
+
     return mode_constrained, crit_switch_fuel, crit_switch_service
 
 def get_crit_switch(enduse, fuelswitches, base_parameters, mode_constrained):
