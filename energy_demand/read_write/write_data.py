@@ -4,7 +4,7 @@ import os
 import numpy as np
 from energy_demand.basic import basic_functions
 
-def write_load_factors(path_result_folder, path_new_folder, parameters, model_results, file_name):
+def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
     """Write numpy array to txt file
 
     """
@@ -27,7 +27,7 @@ def write_load_factors(path_result_folder, path_new_folder, parameters, model_re
 
     return
 
-def write_model_result_to_txt(sim_yr, path_result, model_results, file_name):
+def write_supply_results(sim_yr, path_result, model_results, file_name):
     """Store yearly model resul to txt
 
     Store numpy array to txt
@@ -48,7 +48,7 @@ def write_model_result_to_txt(sim_yr, path_result, model_results, file_name):
     # Read in with loadtxt
     return
 
-def write_model_result_to_txt_enduse(sim_yr, path_result, model_results, filename):
+def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Store
 
     Store numpy array to txt

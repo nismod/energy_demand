@@ -107,9 +107,9 @@ class EnergyModel(object):
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
 
-            # ----------------
+            # ----------------------
             # Simulate region
-            # ----------------
+            # ----------------------
             region_submodels = simulate_region(
                 region_name,
                 data,
@@ -187,7 +187,7 @@ class EnergyModel(object):
                     reg_load_factor_seasons[season][fueltype_nr][array_nr_region] = lf_season[fueltype_nr]
 
         # -------------------------------------------------
-        # Store values for all region in EnergyModel object
+        # Assign values for all region in EnergyModel object
         # -------------------------------------------------
         self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
         self.reg_enduses_fueltype_y = reg_enduses_fueltype_y
@@ -198,24 +198,12 @@ class EnergyModel(object):
         self.reg_load_factor_y = reg_load_factor_y
         self.reg_load_factor_yd = reg_load_factor_yd
         self.reg_load_factor_seasons = reg_load_factor_seasons
+
         #-------------------
         # TESTING
         #-------------------
         testing.test_region_selection(self.fuel_indiv_regions_yh)
 
-        # ---------------------------
-        # Functions for load calculations
-        # Across all enduses calc_load_factor_h
-        # ---------------------------
-        '''rs_fuels_peak_h = fuel_aggr(
-            'fuel_peak_h', [self.rs_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
-        ss_fuels_peak_h = fuel_aggr(
-            'fuel_peak_h', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
-        self.rs_tot_fuels_all_enduses_y = fuel_aggr(
-            'fuel_yh', [self.rs_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
-        ss_tot_fuels_all_enduses_y = fuel_aggr(
-            'fuel_yh', [self.ss_submodel], 'no_sum', data['assumptions']['model_yearhours_nrs'], data['assumptions']['model_yeardays_nrs'])
-        '''
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
 

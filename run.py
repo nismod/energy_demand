@@ -249,7 +249,7 @@ class EDWrapper(SectorModel):
         # ---------
         # Process results
         # ---------
-        out_to_supply = results.fuel_indiv_regions_yh
+        supply_results = results.fuel_indiv_regions_yh
 
         logging.info("... finished wrapper calculations")
         return results

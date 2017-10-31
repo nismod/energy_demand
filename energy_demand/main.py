@@ -153,7 +153,7 @@ if __name__ == "__main__":
             print(profiler.output_text(unicode=True, color=True))
 
         # Take attributes from model object run
-        out_to_supply = model_run_object.fuel_indiv_regions_yh
+        supply_results = model_run_object.fuel_indiv_regions_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
@@ -171,21 +171,21 @@ if __name__ == "__main__":
         # -------------------------------------------
         logging.info("... Start writing results to file")
         path_runs = data['local_paths']['data_results_model_runs']
-        write_data.write_model_result_to_txt(
-            sim_yr, path_runs, out_to_supply, "out_to_supply")
-        write_data.write_model_result_to_txt_enduse(
+        write_data.write_supply_results(
+            sim_yr, path_runs, supply_results, "supply_results")
+        write_data.write_enduse_specific(
             sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(
             sim_yr, path_runs, tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
-        write_data.write_load_factors(
+        write_data.write_lf(
             path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y,'reg_load_factor_y')
-        write_data.write_load_factors(
+        write_data.write_lf(
             path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
        
-        write_data.write_load_factors(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
-        write_data.write_load_factors(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
-        write_data.write_load_factors(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
-        write_data.write_load_factors(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+        write_data.write_lf(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
+        write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
+        write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
+        write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
         
         logging.info("... Finished writing results to file")
         # ------------------------------------------------
