@@ -41,7 +41,7 @@ def flat_shape(nr_of_days):
     return shape_peak_dh, shape_non_peak_y_dh, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh
 
 class GenericFlatEnduse(object):
-    """Class for creating generic enduses with flat shapes, 
+    """Class for creating generic enduses with flat shapes,
     i.e. same amount of fuel for every hour in a year.
 
     Arguments
@@ -61,7 +61,7 @@ class GenericFlatEnduse(object):
         max_fuel_d = self.fuel_new_y * shape_peak_yd_factor
 
         # Yh fuel shape per fueltype (non-peak)
-        self.fuel_yh = self.fuel_new_y[:,np.newaxis, np.newaxis] * (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * (model_yeardays_nrs/365.0)
+        self.fuel_yh = self.fuel_new_y[:, np.newaxis, np.newaxis] * (shape_non_peak_yd[:, np.newaxis] * shape_non_peak_y_dh) * (model_yeardays_nrs/365.0)
 
         # Dh fuel shape per fueltype (peak)
         # (shape of peak & maximum fuel per fueltype)

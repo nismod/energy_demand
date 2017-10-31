@@ -9,7 +9,7 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
-from energy_demand.read_write import data_loader
+
 #TODO: Make that HLC can be improved, ssumption share of existing
 #  dwelling stock which is assigned new HLC coefficients
 
@@ -26,8 +26,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     if write_sim_param:
         sim_param = {}
         sim_param['base_yr'] = 2015
-        sim_param['end_yr'] = 2025
-        sim_param['sim_years_intervall'] = 1 # Make calculation only every X year
+        sim_param['end_yr'] = 2019
+        sim_param['sim_years_intervall'] = 2 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['curr_yr'] = sim_param['base_yr']
@@ -73,7 +73,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['seasons']['autumn'] = list(range(
         date_handling.date_to_yearday(year_to_model, 9, 1),
         date_handling.date_to_yearday(year_to_model, 11, 30)))
-    
+
     # Modelled days
     #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
@@ -110,12 +110,20 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['model_yeardays_daytype'] = model_yeardays_daytype
     
     # Calculate month of dates
+    yeardays_month_days = {}
+    for i in range(12):
+        yeardays_month_days[i] = []
+
     yeardays_month = []
-    for date_object in list_dates:
+    for yearday, date_object in enumerate(list_dates):
         # Get month type of yearday
         month_yearday = date_object.timetuple().tm_mon - 1
         yeardays_month.append(month_yearday)
+
+        yeardays_month_days[month_yearday].append(yearday)
+
     assumptions['yeardays_month'] = yeardays_month
+    assumptions['yeardays_month_days'] = yeardays_month_days
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
@@ -283,7 +291,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         0, # October
         0, # November
         0] # December
-    assumptions['climate_change_temp_diff_month'] = [2] * 12 # No change
+    #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand

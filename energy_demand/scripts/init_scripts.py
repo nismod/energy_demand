@@ -16,7 +16,6 @@ from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
-from energy_demand.read_write import read_weather_data
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -47,7 +46,8 @@ def post_install_setup(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+        data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
@@ -59,7 +59,7 @@ def post_install_setup(args):
     # Create folders and subfolder for data_processed
     basic_functions.create_folder(data['local_paths']['data_processed'])
     basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
-    basic_functions.create_folder(data['local_paths']['dir_raw_weather_data']) 
+    basic_functions.create_folder(data['local_paths']['dir_raw_weather_data'])
     basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
     basic_functions.create_folder(data['local_paths']['load_profiles'])
     basic_functions.create_folder(data['local_paths']['rs_load_profiles'])
@@ -79,24 +79,18 @@ def post_install_setup(args):
     print("... finished post_install_setup")
 
 def scenario_initalisation(path_data_energy_demand, data=False):
-    """Scripts which need to be run for every different scenario
+    """Scripts which need to be run for every different scenario.
+    Only needs to be executed once for each scenario (not for every
+    simulation year)
 
     Arguments
     ----------
     path_data_energy_demand : str
         Path to the energy demand data folder
-
-    Note
-    ----
-    Only needs to be executed once for each scenario (not for every
-    simulation year)
-
-    The ``path_data_energy_demand`` is the path to the main
-    energy demand data folder
-
-    If no data is provided, dummy data is generated TODO
     """
     print("... start running sceario_initialisation scripts")
+    logging.info("... start running sceario_initialisation scripts")
+
     if not data:
         run_locally = True
     else:
@@ -110,7 +104,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
         data['lookups'] = data_loader.load_basic_lookups()
-        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
+            data['paths'], data['lookups'])
         data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
@@ -120,7 +115,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         pass
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(path_data_energy_demand, "logging_scenario_initialisation.log"))
+    logger_setup.set_up_logger(os.path.join(
+        path_data_energy_demand, "logging_scenario_initialisation.log"))
 
     # --------------------------------------------
     # Delete processed data from former model runs
@@ -260,5 +256,3 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         return fts_cont, sgs_cont, sd_cont
     else:
         return
-
-##scenario_initalisation("C:/DATA_NISMODII/data_energy_demand")

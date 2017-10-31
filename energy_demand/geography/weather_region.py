@@ -11,8 +11,6 @@ from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.basic import date_handling
-
 #TODO: NEEDS MORE CLEANING
 
 class WeatherRegion(object):
@@ -58,13 +56,13 @@ class WeatherRegion(object):
         """Constructor of weather region
         """
         self.weather_region_name = weather_region_name
-        
+
         # -------
         # Calculate current year temperatures
         # -------
-        temp_cy = change_temp_climate_change_single_region(
+        temp_cy = change_temp_climate(
             temp_by,
-            assumptions['yeardays_month'],
+            assumptions['yeardays_month_days'],
             assumptions['climate_change_temp_diff_month'],
             sim_param)
 
@@ -524,7 +522,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
 
-def change_temp_climate_change_single_region(temp_data, yeardays_month, assumptions_temp_change, sim_param):
+def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param):
     """Change temperature data for every year depending
     on simple climate change assumptions
 
@@ -532,8 +530,8 @@ def change_temp_climate_change_single_region(temp_data, yeardays_month, assumpti
     ---------
     temp_data : dict
         Data
-    yeardays_month : list
-        List with month type for every yearday
+    yeardays_month_days : dict
+        Month containing all yeardays
     assumptions_temp_change : dict
         Assumption on temperature change
     sim_param : dict
@@ -543,23 +541,31 @@ def change_temp_climate_change_single_region(temp_data, yeardays_month, assumpti
     temp_climate_change : dict
         Adapted temperatures for all weather stations depending on climate change assumptions
     """
-    # Iterate over simulation period
     temp_climate_change = np.zeros((365, 24), dtype=float)
-    
+
+    # Iterate every month
+    for yearday_month, month_yeardays in yeardays_month_days.items():
+
+        # Calculate monthly change in temperature
+        lin_diff_factor = diffusion_technologies.linear_diff(
+            base_yr=sim_param['base_yr'],
+            curr_yr=sim_param['curr_yr'],
+            value_start=0,
+            value_end=assumptions_temp_change[yearday_month], # added degrees
+            sim_years=sim_param['sim_period_yrs'])
+
+        temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
+
     # Iterate every month and substract
-    for yearday, yearday_month in enumerate(yeardays_month):
+    '''for yearday, yearday_month in enumerate(yeardays_month):
         # Get linear diffusion of current year
         lin_diff_factor = diffusion_technologies.linear_diff(
             base_yr=sim_param['base_yr'],
             curr_yr=sim_param['curr_yr'],
-            value_start=0, #temp by
-            value_end=assumptions_temp_change[yearday_month], #temp ey
+            value_start=0,
+            value_end=assumptions_temp_change[yearday_month], # added degrees
             sim_years=sim_param['sim_period_yrs'])
 
-        # Iterate hours of base year
-        #for hour, temp_old in enumerate(temp_data[yearday]):
-        #    temp_climate_change[yearday][hour] = temp_old + lin_diff_factor
-        
-        temp_climate_change[yearday] =  temp_data[yearday] + lin_diff_factor
+        temp_climate_change[yearday] =  temp_data[yearday] + lin_diff_factor'''
 
     return temp_climate_change

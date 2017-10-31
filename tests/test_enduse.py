@@ -402,7 +402,8 @@ def test_convert_service_tech_to_p():
     assert expected[1]['techD'] == 150.0 / 200
 
 def test_calc_lf_improvement():
-
+    """
+    """
     base_yr = 2010
     curr_yr = 2015
     sim_period_yrs = 11

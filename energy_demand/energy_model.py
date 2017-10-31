@@ -110,10 +110,10 @@ class EnergyModel(object):
         reg_load_factor_y = np.zeros((fueltypes_nr, reg_nrs), dtype=float)
         reg_load_factor_yd = np.zeros((fueltypes_nr, reg_nrs, yeardays_nrs), dtype=float)
         reg_load_factor_seasons = {
-            'summer' : np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['summer'])), dtype=float),
-            'winter': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['winter'])), dtype=float),
-            'spring': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['spring'])), dtype=float),
-            'autumn': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['autumn'])), dtype=float)}
+            'summer' : np.zeros((fueltypes_nr, reg_nrs), dtype=float),
+            'spring': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
+            'winter': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
+            'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype=float)}
 
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)

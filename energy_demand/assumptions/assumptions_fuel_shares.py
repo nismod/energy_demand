@@ -3,7 +3,6 @@ Fuel share assumptions
 ======================
 All fuel shares of the base year for the
 different technologies are defined
-
 """
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
@@ -92,7 +91,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
         'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56}  
+        'secondary_heater_electricity': 0.56}
         # heat-pump share in uk #According to OFGEM 1.7 out of 4
         # mio households use storage heating == 42.5%..Hoever,
         # often more flats and more fuel poverty and some heatpumps,
@@ -156,9 +155,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     '''
 
     assumptions['rs_fuel_tech_p_by'] = rs_fuel_tech_p_by
-
-
-    # rs_fuel_tech_p_by['rs_space_heating'])
 
     # ------------------
     # Service subModel - Fuel shares of technologies in enduse
@@ -287,4 +283,3 @@ def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, te
         fuel_share_tech_fueltype[tech] = (1.0 / total_fuel) * fuel
 
     return fuel_share_tech_fueltype
-

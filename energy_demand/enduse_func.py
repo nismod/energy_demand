@@ -1607,7 +1607,7 @@ def convert_service_tech_to_p(service):
     ---------
     service : dict
         Service per fueltype and technology
-    
+
     Returns
     -------
     out_dict : dict

@@ -7,9 +7,8 @@ from datetime import date
 import collections
 import numpy as np
 import logging
-from energy_demand.read_write import data_loader
 
-def read_weather_data_raw(path_to_csv, placeholder_value=999): 
+def read_weather_data_raw(path_to_csv, placeholder_value=999):
     """Read in raw weather data
 
     Arguments
@@ -245,15 +244,13 @@ def write_weather_data(path_to_txt, weather_data):
         Weather data
     """
     print("... start write_weather_data")
+    logging.info("... start write_weather_data")
     for station_id in weather_data:
         file_name = os.path.join(path_to_txt, "tempdata__{}__{}".format(str(station_id), ".txt"))
-        print(file_name)
-        print("---")
-        print(station_id)
-
         np.savetxt(file_name, weather_data[station_id], delimiter=',')
-    print("... finished write_weather_data")
 
+    print("... finished write_weather_data")
+    logging.info("... finished write_weather_data")
     return
 
 def write_weather_stations(path_to_txt, weather_station):
@@ -266,11 +263,8 @@ def write_weather_stations(path_to_txt, weather_station):
     weather_station : dict
         Weater station data
     """
-    print("... writing weather stations to file")
     file = open(path_to_txt, "w")
-
     file.write("{}, {}, {}".format('station_id', 'station_latitude', 'station_longitude') + '\n')
-
     for station_id in weather_station:
         file.write("{}, {}, {}".format(
             station_id, weather_station[station_id]['station_latitude'],
@@ -283,6 +277,7 @@ def run(data):
     """Function to run script
     """
     print("... start script %s", os.path.basename(__file__))
+    logging.info("... start script %s", os.path.basename(__file__))
 
     # Read in raw temperature data
     temp_data_raw = read_weather_data_raw(
