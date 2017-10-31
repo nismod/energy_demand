@@ -9,7 +9,7 @@ import numpy as np
 import logging
 from energy_demand.read_write import data_loader
 
-def read_weather_data_raw(path_to_csv, placeholder_value=999):
+def read_weather_data_raw(path_to_csv, placeholder_value=999): 
     """Read in raw weather data
 
     Arguments
@@ -230,8 +230,7 @@ def read_weather_stations_raw(path_to_csv, stations_with_data):
                 station_id = int(all_float_values[0])
                 weather_stations[station_id] = {
                     'station_latitude': float(all_float_values[1]),
-                    'station_longitude': float(all_float_values[2])
-                    }
+                    'station_longitude': float(all_float_values[2])}
 
     return weather_stations
 
@@ -246,19 +245,13 @@ def write_weather_data(path_to_txt, weather_data):
         Weather data
     """
     print("... start write_weather_data")
-    file = open(path_to_txt, "w")
-    file.write("{}, {}, {}, {}".format(
-        'station_id', 'day', 'hour', 'temp_in_celsius') + '\n'
-              )
-
     for station_id in weather_data:
-        for day in range(365):
-            for hour in range(24):
-                file.write("{}, {}, {}, {}".format(
-                    station_id, day, hour, weather_data[station_id][day][hour]) + '\n'
-                          )
+        file_name = os.path.join(path_to_txt, "tempdata__{}__{}".format(str(station_id), ".txt"))
+        print(file_name)
+        print("---")
+        print(station_id)
 
-    file.close()
+        np.savetxt(file_name, weather_data[station_id], delimiter=',')
     print("... finished write_weather_data")
 
     return
@@ -308,8 +301,9 @@ def run(data):
     write_weather_stations(
         data['local_paths']['changed_weather_station_data'],
         weather_stations)
+
     write_weather_data(
-        data['local_paths']['path_processed_weather_data'],
+        data['local_paths']['dir_raw_weather_data'],
         temp_data)
 
     logging.info("... finished script %s", os.path.basename(__file__))

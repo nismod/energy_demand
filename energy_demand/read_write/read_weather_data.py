@@ -1,10 +1,12 @@
 """Loading weather data (temp)
 """
+import os
 import re
 import csv
 import numpy as np
 import logging
 from energy_demand.basic import date_handling
+from collections import defaultdict
 
 def read_weather_station_script_data(path_to_csv):
     """Read in weather stations from script data
@@ -32,66 +34,41 @@ def read_weather_station_script_data(path_to_csv):
 
 def read_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
+
+
     """
     temp_data = {}
+    all_txt_files_in_folder = os.listdir(path_to_csv)
+    
+    # Iterate files
+    for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_to_csv, file_path)
+        file_path_split = file_path.split("__")
+        station_id = str(file_path_split[1]) #str_id
 
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
+        txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
-        for row in read_lines:
-            station_id = str(row[0])
-            year = float(row[1])
-            day = int(row[2])
-            hour = int(row[3])
-            temperature = float(row[4])
-
-            try:
-                temp_data[station_id]
-            except KeyError:
-                temp_data[station_id] = {}
-            try:
-                temp_data[station_id][year]
-            except KeyError:
-                temp_data[station_id][year] = np.zeros((365, 24), dtype=float)
-
-            temp_data[station_id][year][day][hour] = temperature
+        temp_data[station_id] = txt_data
 
     return temp_data
 
-def read_changed_weather_data_script_data(path_to_csv, sim_period):
+def read_yearly_weather_data_script_data(path_to_csv):
     """Read in weather data from script data
+
+    Read in weather data from script data
     """
-    logging.debug("... read changed weather data")
-    temp_data = {} #TODO: IMPLEMENT ITERDICT
+    temp_data = defaultdict(dict)
+    all_txt_files_in_folder = os.listdir(path_to_csv)
 
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip headers
+    # Iterate files
+    for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_to_csv, file_path)
+        file_path_split = file_path.split("__")
+        station_id = int(file_path_split[1])
+        year = int(file_path_split[2])
 
-        for row in read_lines:
-            station_id = str(row[0])
-            year = int(row[1])
-            day = float(row[2])
-            hour = float(row[3])
-            temperature = float(row[4])
+        txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
-            if year in sim_period:
-                try:
-                    temp_data[station_id][year][int(day)][int(hour)] = temperature
-
-                except KeyError:
-
-                    # Add station ID or year
-                    try:
-                        temp_data[station_id]
-                    except KeyError:
-                        temp_data[station_id] = {}
-                    try:
-                        temp_data[station_id][year]
-                    except KeyError:
-                        temp_data[station_id][year] = np.zeros((365, 24), dtype=float)
-
-                    temp_data[station_id][year][int(day)][int(hour)] = temperature
+        temp_data[station_id][year] = txt_data
 
     return temp_data
