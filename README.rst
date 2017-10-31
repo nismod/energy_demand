@@ -31,7 +31,7 @@ modelling context is documented in:
 
 
 Note: A previous energy demand model has been developped within
-NISMOD <http://www.itrc.org.uk/nismod/#.WfCJg1tSxaQ> by Pranab et al. 2014. 
+`NISMOD <http://www.itrc.org.uk/nismod/#.WfCJg1tSxaQ>`_ by Pranab et al. 2014. 
 HIRE is an extensive development into a high temporal and spatial 
 energy demand model simulation.
 

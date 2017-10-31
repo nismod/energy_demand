@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from energy_demand.technologies import tech_related
 
-def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fuel_y_max, data, load_factors_y):
+def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fuel_y_max, data, load_factors_y, load_factors_yh):
     """Function summarising all functions to plot
 
     load_factors_y : Array
@@ -15,6 +15,13 @@ def run_all_plot_functions(results_every_year, results_enduse_every_year, tot_fu
     """
     ##pf.plot_load_curves_fueltype(results_every_year, data)
     # plotting load factors per fueltype and region
+    print("... plotting load_factors_yh")
+    plot_loadfactors_y(
+        data['lookups']['fueltype']['electricity'],
+        load_factors_yh,
+        data['print_criteria'],
+        data['reg_nrs'])
+    print("... plotting plot_loadfactors_y")
     plot_loadfactors_y(
         data['lookups']['fueltype']['electricity'],
         load_factors_y,

@@ -87,12 +87,22 @@ class EnergyModel(object):
         # ---------------------------------------------
         # Initialise and iterate over years
         # ---------------------------------------------
-        fuel_indiv_regions_yh = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs'], data['assumptions']['model_yearhours_nrs']), dtype=float)
-        reg_enduses_fueltype_y = np.zeros((data['lookups']['fueltypes_nr'], data['assumptions']['model_yeardays_nrs'], 24), dtype=float)
-        tot_peak_enduses_fueltype = np.zeros((data['lookups']['fueltypes_nr'], 24), dtype=float)
-        tot_fuel_y_max_enduses = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
+        fueltypes_nr = data['lookups']['fueltypes_nr']
+        yearhours_nrs = data['assumptions']['model_yearhours_nrs']
+        yeardays_nrs = data['assumptions']['model_yeardays_nrs']
+        reg_nrs = data['reg_nrs']
+        fuel_indiv_regions_yh = np.zeros((fueltypes_nr, reg_nrs, yearhours_nrs), dtype=float)
+        reg_enduses_fueltype_y = np.zeros((fueltypes_nr, yeardays_nrs, 24), dtype=float)
+        tot_peak_enduses_fueltype = np.zeros((fueltypes_nr, 24), dtype=float)
+        tot_fuel_y_max_enduses = np.zeros((fueltypes_nr), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
-        rs_reg_load_factor_h = np.zeros((data['lookups']['fueltypes_nr'], data['reg_nrs']), dtype=float)
+        reg_load_factor_y = np.zeros((fueltypes_nr, reg_nrs), dtype=float)
+        reg_load_factor_yd = np.zeros((fueltypes_nr, reg_nrs, yeardays_nrs), dtype=float)
+        reg_load_factor_seasons = {
+            'summer' : np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['summer'])), dtype=float),
+            'winter': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['winter'])), dtype=float),
+            'spring': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['spring'])), dtype=float),
+            'autumn': np.zeros((fueltypes_nr, reg_nrs, len(data['assumptions']['seasons']['autumn'])), dtype=float)}
 
         for array_nr_region, region_name in enumerate(region_names):
             logging.info("... Generate region %s for year %s", region_name, self.curr_yr)
@@ -112,7 +122,7 @@ class EnergyModel(object):
 
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
-            fuel_indiv_regions_yh, fuel_region = fuel_regions_fueltype(
+            fuel_indiv_regions_yh, fuel_region_yh = fuel_regions_fueltype(
                 fuel_indiv_regions_yh,
                 data['lookups'],
                 region_name,
@@ -155,16 +165,26 @@ class EnergyModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
-            # -------------------
-            # Regional Load factor calculations
-            # -------------------
-            # Calculate load factors across all enduses
-            load_factor_y = lf.calc_lf_y(fuel_region) #Yearly lf 
-            #load_factor_yd = lf.calc_lf_d(fuel_region) # Daily lf
-            #Seasonal and other lf  TODO
+            # --------------------------------------
+            # Regional load factor calculations
+            # --------------------------------------
 
-            for fueltype_nr, load_factor in enumerate(load_factor_y):
-                rs_reg_load_factor_h[fueltype_nr][array_nr_region] = load_factor
+            # Calculate average load for every day
+            average_fuel_yd = np.mean(fuel_region_yh, axis=2)
+
+            # Calculate load factors across all enduses
+            load_factor_y = lf.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
+            load_factor_yd = lf.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
+            load_factor_seasons = lf.calc_lf_season(data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
+            #workdays, monthly, TODO
+
+            # Copy regional load factors
+            for fueltype_nr in range(data['lookups']['fueltypes_nr']):
+                reg_load_factor_y[fueltype_nr][array_nr_region] = load_factor_y[fueltype_nr]
+                reg_load_factor_yd[fueltype_nr][array_nr_region] = load_factor_yd[fueltype_nr]
+
+                for season, lf_season in load_factor_seasons.items():
+                    reg_load_factor_seasons[season][fueltype_nr][array_nr_region] = lf_season[fueltype_nr]
 
         # -------------------------------------------------
         # Store values for all region in EnergyModel object
@@ -174,7 +194,9 @@ class EnergyModel(object):
         self.tot_peak_enduses_fueltype = tot_peak_enduses_fueltype
         self.tot_fuel_y_max_enduses = tot_fuel_y_max_enduses
         self.tot_fuel_y_enduse_specific_h = tot_fuel_y_enduse_specific_h
-        self.rs_reg_load_factor_h = rs_reg_load_factor_h
+
+        self.reg_load_factor_y = reg_load_factor_y
+        self.reg_load_factor_yd = reg_load_factor_yd
 
         #-------------------
         # TESTING

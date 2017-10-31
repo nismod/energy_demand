@@ -3,13 +3,14 @@
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 
-def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
-    """Iterate technologies with future reduced service demand (replaced tech)
-    and calculate their relative share of service in the base year
+def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
+    """Iterate technologies with future reduced service
+    demand (replaced tech) and calculate their relative
+    share of service in the base year
 
     Arguments
     ----------
-    tech_decreased_share : dict
+    tech_decrease_service : dict
         Technologies with decreased service
     service_tech_by_p : dict
         Share of service of technologies in by
@@ -23,10 +24,10 @@ def get_service_rel_tech_decr_by(tech_decreased_share, service_tech_by_p):
 
     # Summed share of all diminishing technologies
     sum_service_tech_decrease_p = sum(
-        [service_tech_by_p[tech] for tech in tech_decreased_share])
+        [service_tech_by_p[tech] for tech in tech_decrease_service])
 
     # Relative of each diminishing tech (convert abs in dict to rel in dict)
-    for tech in tech_decreased_share:
+    for tech in tech_decrease_service:
         try:
             rel_share_service_tech_decr_by[tech] = service_tech_by_p[tech] / float(sum_service_tech_decrease_p)
         except ZeroDivisionError:
@@ -177,7 +178,7 @@ def convert_capacity_assumption_to_service(
     3.  Calculate percentage of service for ey
     4.  Write out as service switch
     """
-    sim_param_new = {} 
+    sim_param_new = {}
     sim_param_new['base_yr'] = sim_param['base_yr']
     sim_param_new['curr_yr'] = capcity_switch['year_fuel_consumption_switched']
     sim_param_new['end_yr'] = capcity_switch['year_fuel_consumption_switched']

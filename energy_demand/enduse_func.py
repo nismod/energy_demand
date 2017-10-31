@@ -342,9 +342,11 @@ class Enduse(object):
                 # ---------------------------------------
                 # Demand Management (peak shaving)
                 # ---------------------------------------
+                # Calculate average for every day
+                average_fuel_yd = np.mean(fuel_yh, axis=2)
 
                 # Calculate laod factors (only inter_day load shifting as for now)
-                loadfactor_yd_cy, average_fuel_yd = lf.calc_lf_d(fuel_yh) # Daily load factor
+                loadfactor_yd_cy = lf.calc_lf_d(fuel_yh, average_fuel_yd)
 
                 # Calculate current year load factors
                 lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
@@ -600,7 +602,9 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
     # Test if capacity switch is implemented
     try:
         if assumptions['capacity_switch'] and crit_switch_service:
-            logging.warning("Warning: Capacity switch and service switch are installed simultaniously")
+            logging.warning(
+                "Warning: Capacity switch and service switch are installed simultaniously"
+                )
     except KeyError:
         logging.debug("... no capacity and service switch defined simultaniously")
 

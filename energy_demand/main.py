@@ -7,7 +7,7 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/ 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch 
 TODO: Simplify load profiles (they are non-regional now)
-'''
+''' 
 import os
 import sys
 import logging
@@ -158,21 +158,25 @@ if __name__ == "__main__":
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
-        rs_reg_load_factor_h = model_run_object.rs_reg_load_factor_h
 
+        reg_load_factor_y = model_run_object.reg_load_factor_y
+        reg_load_factor_yd = model_run_object.reg_load_factor_yd
+    
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
         logging.info("... Start writing results to file")
 
         write_data.write_model_result_to_txt(
-            sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
+            sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply, "out_to_supply")
         write_data.write_model_result_to_txt_enduse(
-            sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific)
+            sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific, "out_enduse_specific")
         write_data.write_model_result_to_txt_maxresults(
-            sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
+            sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_load_factors(
-            data['local_paths']['data_results_model_runs'], "result_load_factors", [sim_yr], rs_reg_load_factor_h)
+            data['local_paths']['data_results_model_runs'], "result_reg_load_factor_y", [sim_yr], reg_load_factor_y,'reg_load_factor_y')
+        write_data.write_load_factors(
+            data['local_paths']['data_results_model_runs'], "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
 
         logging.info("... Finished writing results to file")
 
@@ -219,7 +223,10 @@ if __name__ == "__main__":
         data['local_paths']['data_results_model_runs'])
 
     load_factors_y = read_data.read_lf_y(
-        os.path.join(data['local_paths']['data_results_model_runs'], "result_load_factors"))
+        os.path.join(data['local_paths']['data_results_model_runs'], "result_reg_load_factor_y"))
+    
+    load_factors_yh = read_data.read_lf_y(
+        os.path.join(data['local_paths']['data_results_model_runs'], "result_reg_load_factor_yd"))
 
     logging.info("... Reading in results finished")
 
@@ -233,6 +240,7 @@ if __name__ == "__main__":
         results_enduse_every_year,
         tot_fuel_y_max,
         data,
-        load_factors_y)
+        load_factors_y,
+        load_factors_yh)
 
     logging.info("... Finished running Energy Demand Model")

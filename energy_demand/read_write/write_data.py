@@ -5,15 +5,16 @@ import yaml
 import numpy as np
 from energy_demand.basic import basic_functions
 
-def write_load_factors(path_result_folder, path_new_folder, parameters, model_results):
+def write_load_factors(path_result_folder, path_new_folder, parameters, model_results, file_name):
     """Write numpy array to txt file
+
+
+
     """
     # Create folder and subolder
     basic_functions.create_folder(path_result_folder)
     path_result_sub_folder = os.path.join(path_result_folder, path_new_folder)
     basic_functions.create_folder(path_result_sub_folder)
-
-    file_name = "modelrun"
 
     # Create full file_name
     for name_param in parameters:
@@ -29,7 +30,7 @@ def write_load_factors(path_result_folder, path_new_folder, parameters, model_re
 
     return
 
-def write_model_result_to_txt(sim_yr, path_result, model_results):
+def write_model_result_to_txt(sim_yr, path_result, model_results, file_name):
     """Store yearly model resul to txt
 
     Store numpy array to txt
@@ -38,12 +39,12 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
     """
     # Create folder for model simulation year
     basic_functions.create_folder(path_result)
-
+    
     # Write to txt
     for fueltype_nr, fuel in enumerate(model_results):
         path_file = os.path.join(
             path_result,
-            "modelruns__{}__{}__{}".format(sim_yr, fueltype_nr, ".txt"))
+            "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
 
         np.savetxt(path_file, fuel, delimiter=',')
 
@@ -70,7 +71,7 @@ def write_model_result_to_txt(sim_yr, path_result, model_results):
 
     return
 '''
-def write_out_txt(path_to_txt, enduses_service):
+'''def write_out_txt(path_to_txt, enduses_service):
     """Generate a txt file with base year service for each technology according to provided fuel split input
     """
     file = open(path_to_txt, "w")
@@ -89,8 +90,9 @@ def write_out_txt(path_to_txt, enduses_service):
 
     file.close()
     return
+'''
 
-def write_out_temp_assumptions(path_to_txt, temp_assumptions):
+'''def write_out_temp_assumptions(path_to_txt, temp_assumptions):
     """ # Write out assumptions
     """
     file = open(path_to_txt, "w")
@@ -104,9 +106,9 @@ def write_out_temp_assumptions(path_to_txt, temp_assumptions):
                   )
     file.close()
 
-    return
+    return'''
 
-def write_out_sim_param(path_to_txt, temp_assumptions):
+'''def write_out_sim_param(path_to_txt, temp_assumptions):
     """Write sim_param dictionary to csv
     """
     file = open(path_to_txt, "w")
@@ -125,8 +127,9 @@ def write_out_sim_param(path_to_txt, temp_assumptions):
     file.close()
 
     return
+'''
 
-def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
+def write_model_result_to_txt_enduse(sim_yr, path_result, model_results, filename):
     """Store
 
     Store numpy array to txt
@@ -140,14 +143,13 @@ def write_model_result_to_txt_enduse(sim_yr, path_result, model_results):
         for fueltype_nr, fuel_fueltype in enumerate(fuel):
             path_file = os.path.join(
                 os.path.join(path_result, "enduse_specific_results"),
-                "modelruns__{}__{}__{}__{}".format(enduse, sim_yr, fueltype_nr, ".txt")
+                "{}__{}__{}__{}__{}".format(filename, enduse, sim_yr, fueltype_nr, ".txt")
                 )
             np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
-    # Read in with loadtxt
     return
 
-def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
+def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results, filename):
     """Store yearly model resul to txt
 
     Store numpy array to txt
@@ -159,7 +161,7 @@ def write_model_result_to_txt_maxresults(sim_yr, path_result, model_results):
     # Write to txt
     path_file = os.path.join(
         os.path.join(path_result, "tot_fuel_max"),
-        "peakfuels__{}__{}".format(sim_yr, ".txt")
+        "{}__{}__{}".format(filename, sim_yr, ".txt")
         )
     np.savetxt(path_file, model_results, delimiter=',')
 

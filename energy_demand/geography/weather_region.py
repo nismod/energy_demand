@@ -441,7 +441,7 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
     # Convert for every day the shape to absolute shape (tot sum for a full year == 365)
     _shape_y_dh_sum_rows = np.sum(shape_yh_hp, axis=1)
 
-    with np.errstate(divide='ignore'):
+    with np.errstate(divide='ignore', invalid='ignore'):
         shape_y_dh = shape_yh_hp / _shape_y_dh_sum_rows[:, np.newaxis]
     shape_y_dh[np.isnan(shape_y_dh)] = 0
 

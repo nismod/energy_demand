@@ -23,7 +23,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     """
     logging.debug("... load assumptions")
     assumptions = {}
-    if write_sim_param: # == True:
+    if write_sim_param:
         sim_param = {}
         sim_param['base_yr'] = 2015
         sim_param['end_yr'] = 2020
@@ -40,28 +40,56 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # Store in list all dates which are modelled
     # --------------------------------------
     year_to_model = 2015
-    winter_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 1, 12), date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
-    spring_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 5, 11), date_handling.date_to_yearday(year_to_model, 5, 25))) #May
-    summer_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 7, 13), date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
-    autumn_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 10, 12), date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
-    #TODO: DEFINE SEASONS WITH DATE
 
+    # Weeks in middle of meteorological seasons
+    winter_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 1, 12),
+        date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
+    spring_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 5, 11),
+        date_handling.date_to_yearday(year_to_model, 5, 25))) #May
+    summer_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 7, 13),
+        date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
+    autumn_week = list(range(
+        date_handling.date_to_yearday(year_to_model, 10, 12),
+        date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
+
+    # Full meteorological seasons
+    assumptions['seasons'] = {}
+    assumptions['seasons']['winter'] = list(
+        range(
+            date_handling.date_to_yearday(year_to_model, 12, 1),
+            date_handling.date_to_yearday(year_to_model, 12, 31))) + list(
+                range(
+                    date_handling.date_to_yearday(year_to_model, 1, 1),
+                    date_handling.date_to_yearday(year_to_model, 2, 28)))
+    assumptions['seasons']['spring'] = list(range(
+        date_handling.date_to_yearday(year_to_model, 3, 1),
+        date_handling.date_to_yearday(year_to_model, 5, 31)))
+    assumptions['seasons']['summer'] = list(range(
+        date_handling.date_to_yearday(year_to_model, 6, 1),
+        date_handling.date_to_yearday(year_to_model, 8, 31)))
+    assumptions['seasons']['autumn'] = list(range(
+        date_handling.date_to_yearday(year_to_model, 9, 1),
+        date_handling.date_to_yearday(year_to_model, 11, 30)))
+    
     # Modelled days
-    assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
+    #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
-    #Modelled dates
+    # -------------
+    # Calculate dates of modelled days
+    # -------------
     assumptions['model_yeardays_date'] = []
     for yearday in assumptions['model_yeardays']:
         assumptions['model_yeardays_date'].append(
             date_handling.yearday_to_date(sim_param['base_yr'], yearday))
 
-    # Nr of days to model
+    # Nr of modelled days
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
+
+    # Nr of modelled hours
     assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24
 
     # --------------------------------------
@@ -118,7 +146,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'bungalow': 0.088}
 
     # Floor area per dwelling type
-    # Annex Table 3.1 
+    # Annex Table 3.1
     # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
@@ -257,7 +285,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
         'end_yr': 15.5} #replaced by rs_t_base_heating_ey
-        
+
     assumptions['ss_t_base_heating'] = {
         'base_yr': 15.5,
         'end_yr': 15.5}
@@ -275,6 +303,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['base_temp_diff_params'] = {}
     assumptions['base_temp_diff_params']['sig_midpoint'] = 0
     assumptions['base_temp_diff_params']['sig_steeppness'] = 1
+
     # Penetration of cooling devices
     # COLING_OENETRATION ()
     # Or Assumkp Peneetration curve in relation to HDD from PAPER #Residential
@@ -289,7 +318,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # NTH: saturation year
     # ============================================================
 
-    # Fraction of population with smart meters (Across all sectors. If wants to be spedified, needs some extra code. Easily possible)
+    # Fraction of population with smart meters
+    # (Across all sectors. If wants to be spedified, needs some extra code. Easily possible)
     assumptions['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_p_ey'] = 0.1
 
@@ -329,12 +359,12 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     # General change in fuel consumption for specific enduses
     # ---------------------------------------------------------
     #   With these assumptions, general efficiency gain (across all fueltypes)
-    #   can be defined
-    #   for specific enduses. This may be e.g. due to general efficiency gains 
-    #   or anticipated increases in demand.
+    #   can be defined for specific enduses. This may be e.g. due to general
+    #   efficiency gains or anticipated increases in demand.
     #   NTH: Specific hanges per fueltype (not across al fueltesp)
     #
-    #   Change in fuel until the simulation end year (if no change set to 1, if e.g. 10% decrease change to 0.9)
+    #   Change in fuel until the simulation end year (
+    #   if no change set to 1, if e.g. 10% decrease change to 0.9)
     # -------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
