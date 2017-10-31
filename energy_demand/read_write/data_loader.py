@@ -185,14 +185,12 @@ def load_local_paths(path):
             path, '_processed_data', 'sigmoid_data'),
         'data_results_model_runs': os.path.join(
             path, '_result_data', "model_run_results_txt"),
-        'dir_changed_weather_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_data'),
-        'path_processed_weather_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_data.csv'),
+        'dir_changed_weather_station_data': os.path.join(
+            path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_stations.csv'),
-        'changed_weather_data': os.path.join(
-            path, '_processed_data', '_post_installation_data', 'weather_data', 'weather_data_changed_climate.csv'),
+            path, '_processed_data', '_post_installation_data', 'weather_station_data', 'weather_stations.csv'),
+        'dir_raw_weather_data': os.path.join(
+            path, '_processed_data', '_post_installation_data', 'raw_weather_data'),
         'load_profiles': os.path.join(
             path, '_processed_data', '_post_installation_data', 'load_profiles'),
         'rs_load_profiles': os.path.join(
@@ -412,7 +410,7 @@ def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
         Technology load profiles
     model_yeardays_daytype : list
         List with the daytype of every modelled day
-    
+
     Return
     ------
     load_profile_y_dh : dict
@@ -451,7 +449,7 @@ def load_temp_data(paths):
     weather_stations = read_weather_data.read_weather_station_script_data(
         paths['changed_weather_station_data'])
     temp_data = read_weather_data.read_weather_data_script_data(
-        paths['changed_weather_data'])
+        paths['dir_raw_weather_data'])
 
     return weather_stations, temp_data
 

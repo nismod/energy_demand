@@ -57,7 +57,7 @@ def del_previous_results(path_folder, path_subfolder_keep):
             if path_subfolder != path_subfolder_keep:
                 shutil.rmtree(path_subfolder)
     else:
-        logging.info("...Deleted previous scenario results")
+        logging.info("... deleted previous scenario results")
         print("...Deleted previous scenario results")
 
 def del_previous_setup(path_folder):
@@ -69,7 +69,7 @@ def del_previous_setup(path_folder):
         Path to results of model run
     """
     if os.path.exists(path_folder):
-        shutil.rmtree(path_folder)
+        shutil.rmtree(path_folder, ignore_errors=True)
     else:
-        logging.info("...Deleted previous scenario results")
+        logging.info("... deleted previous scenario results")
         print("...Deleted previous scenario results")

@@ -11,12 +11,12 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.scripts import s_rs_raw_shapes
 from energy_demand.scripts import s_ss_raw_shapes
-from energy_demand.scripts import s_change_temp
 from energy_demand.scripts import s_fuel_to_service
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
+from energy_demand.read_write import read_weather_data
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -59,7 +59,8 @@ def post_install_setup(args):
     # Create folders and subfolder for data_processed
     basic_functions.create_folder(data['local_paths']['data_processed'])
     basic_functions.create_folder(data['local_paths']['path_post_installation_data'])
-    basic_functions.create_folder(data['local_paths']['dir_changed_weather_data'])
+    basic_functions.create_folder(data['local_paths']['dir_raw_weather_data']) 
+    basic_functions.create_folder(data['local_paths']['dir_changed_weather_station_data'])
     basic_functions.create_folder(data['local_paths']['load_profiles'])
     basic_functions.create_folder(data['local_paths']['rs_load_profiles'])
     basic_functions.create_folder(data['local_paths']['ss_load_profiles'])
@@ -133,15 +134,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
 
-    # s_change_temp----------------------------------------------
-    if run_locally is True:
-        s_change_temp.run(data['local_paths'], data['assumptions'], data['sim_param'])
-        data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(
-            data['local_paths'])
-    else:
-        temp_data = s_change_temp.read_weather_data_script_data(data['local_paths']['path_processed_weather_data'])
-        assumptions_temp_change = data['assumptions']['climate_change_temp_diff_month']
-        temp_climate_change = s_change_temp.change_temp_climate_change(temp_data, assumptions_temp_change, data['sim_param'])
+    # Read temp data
+    data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     # s_fuel_to_service----------------------------------------------
     if run_locally is True:
@@ -262,7 +256,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     logging.info("... finished scenario_initalisation")
     print("... finished scenario_initalisation")
 
-    if run_locally == False:
-        return temp_climate_change, fts_cont, sgs_cont, sd_cont
+    if not run_locally: # == False:
+        return fts_cont, sgs_cont, sd_cont
     else:
         return
+
+##scenario_initalisation("C:/DATA_NISMODII/data_energy_demand")

@@ -10,7 +10,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
-def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_to_folder):
+def read_model_result_from_txt(fueltypes_nr, nr_of_regions, path_to_folder):
     """
     """
     results = defaultdict(dict)
@@ -24,7 +24,6 @@ def read_model_result_from_txt(fueltypes_lu, fueltypes_nr, nr_of_regions, path_t
             file_path_split = file_path.split("__")
             year = int(file_path_split[1])
             fueltype_array_position = int(file_path_split[2])
-            #fueltype_array_position = int(fueltypes_lu[str(file_path_split[2])])
             txt_data = np.loadtxt(path_file_to_read, delimiter=',')
 
             try:
@@ -136,9 +135,8 @@ def load_script_data(data):
     data['assumptions']['is_installed_tech'] = read_installed_tech(os.path.join(local_path, 'is_installed_tech.csv'))
 
     # Read data after apply climate change (from script data)
-    data['temp_data'] = read_weather_data.read_changed_weather_data_script_data(
-        os.path.join(data['local_paths']['dir_changed_weather_data'], 'weather_data_changed_climate.csv'),
-        data['sim_param']['sim_period'])
+    data['temp_data'] = read_weather_data.read_weather_data_script_data(
+        data['local_paths']['dir_raw_weather_data'])
 
     # Disaggregation: Load disaggregated fuel per enduse and sector
     data['rs_fuel_disagg'] = read_disaggregated_fuel(
@@ -866,9 +864,6 @@ def read_capacity_installation(path_to_csv):
     TODO
     """
     service_switches = []
-    enduse_tech_ey_p = {}
-    tech_maxl_by_p = {}
-    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
@@ -887,4 +882,5 @@ def read_capacity_installation(path_to_csv):
                 )
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+
     return service_switches

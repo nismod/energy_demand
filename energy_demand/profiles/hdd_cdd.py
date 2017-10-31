@@ -84,7 +84,7 @@ def get_hdd_country(
             reg_coord[region_name]['latitude'],
             weather_stations)
 
-        temperatures = temp_data[closest_station_id][sim_param['base_yr']]
+        temperatures = temp_data[closest_station_id] #[sim_param['base_yr']]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(sim_param, assumptions, t_base_type)
@@ -135,7 +135,7 @@ def get_cdd_country(
             weather_stations)
 
         # Temp data
-        temperatures = temp_data[closest_station_id][sim_param['base_yr']]
+        temperatures = temp_data[closest_station_id] #[sim_param['base_yr']]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(

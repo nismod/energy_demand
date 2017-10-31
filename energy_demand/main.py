@@ -220,7 +220,7 @@ if __name__ == "__main__":
     path_runs = data['local_paths']['data_results_model_runs']
 
     results_every_year = read_data.read_model_result_from_txt(
-        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'], len(data['lu_reg']), path_runs)
+        data['lookups']['fueltypes_nr'], len(data['lu_reg']), path_runs)
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltypes_nr'], path_runs)

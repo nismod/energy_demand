@@ -20,7 +20,7 @@ def test_calc_hdd():
     expected = np.sum(t_base - temp_yh) / 24
 
     # positive values
-    assert np.sum(result) == expected
+    assert round(np.sum(result), 3) == round(expected, 3)
 
 def test_sigm_temp():
     assumptions = {}

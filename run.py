@@ -92,8 +92,6 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
-        
-        
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
         #data = data_loader.dummy_data_generation(data)
@@ -101,7 +99,7 @@ class EDWrapper(SectorModel):
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # Initialise scenario
-        self.user_data['temp_data'], self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
+        self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
             self.user_data['data_path'],
             data)
 

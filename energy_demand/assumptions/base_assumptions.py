@@ -78,9 +78,9 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
-    # -------------
+    # ---------------------------------------
     # Calculate dates of modelled days
-    # -------------
+    # ---------------------------------------
     assumptions['model_yeardays_date'] = []
     for yearday in assumptions['model_yeardays']:
         assumptions['model_yeardays_date'].append(
@@ -108,7 +108,14 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             model_yeardays_daytype[array_day] = 'holiday'
 
     assumptions['model_yeardays_daytype'] = model_yeardays_daytype
-
+    
+    # Calculate month of dates
+    yeardays_month = []
+    for date_object in list_dates:
+        # Get month type of yearday
+        month_yearday = date_object.timetuple().tm_mon - 1
+        yeardays_month.append(month_yearday)
+    assumptions['yeardays_month'] = yeardays_month
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
     # True --> Technologies are defined in ED model
@@ -276,7 +283,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         0, # October
         0, # November
         0] # December
-    #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
+    assumptions['climate_change_temp_diff_month'] = [2] * 12 # No change
 
     # ============================================================
     # Base temperature assumptions for heating and cooling demand

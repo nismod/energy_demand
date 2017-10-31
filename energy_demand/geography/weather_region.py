@@ -10,6 +10,9 @@ import numpy as np
 from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
+from energy_demand.technologies import diffusion_technologies
+from energy_demand.basic import date_handling
+
 #TODO: NEEDS MORE CLEANING
 
 class WeatherRegion(object):
@@ -27,7 +30,7 @@ class WeatherRegion(object):
         Lookups
     all_enduse : list
         All enduses
-    temp_data : list
+    temp_by, temp_ey : array
         Temperature data
     tech_lp : dict
         Technology load profiles
@@ -48,18 +51,24 @@ class WeatherRegion(object):
             assumptions,
             lookups,
             all_enduses,
-            temp_data,
+            temp_by,
             tech_lp,
             sectors
         ):
         """Constructor of weather region
         """
         self.weather_region_name = weather_region_name
+        
+        # -------
+        # Calculate current year temperatures
+        # -------
+        temp_cy = change_temp_climate_change_single_region(
+            temp_by,
+            assumptions['yeardays_month'],
+            assumptions['climate_change_temp_diff_month'],
+            sim_param)
 
-        # Temperatures
-        temp_by = temp_data[weather_region_name][sim_param['base_yr']]
-        temp_cy = temp_data[weather_region_name][sim_param['curr_yr']]
-
+        #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions, 'rs_t_base_heating')
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
@@ -361,7 +370,8 @@ class WeatherRegion(object):
             enduse_peak_yd_factor=is_peak_yd_heating_factor)
 
 def get_shape_peak_yd_factor(demand_yd):
-    """From yd shape calculate maximum relative yearly service demand which is provided in a day
+    """From yd shape calculate maximum relative yearly service demand
+    which is provided in a day
 
     Arguments
     ----------
@@ -513,3 +523,43 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
         shape_yh_generic_tech = heating_shape[:, np.newaxis] * shape_y_dh_generic_tech
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
+
+def change_temp_climate_change_single_region(temp_data, yeardays_month, assumptions_temp_change, sim_param):
+    """Change temperature data for every year depending
+    on simple climate change assumptions
+
+    Arguments
+    ---------
+    temp_data : dict
+        Data
+    yeardays_month : list
+        List with month type for every yearday
+    assumptions_temp_change : dict
+        Assumption on temperature change
+    sim_param : dict
+        Parameters for diffusion
+    Returns
+    -------
+    temp_climate_change : dict
+        Adapted temperatures for all weather stations depending on climate change assumptions
+    """
+    # Iterate over simulation period
+    temp_climate_change = np.zeros((365, 24), dtype=float)
+    
+    # Iterate every month and substract
+    for yearday, yearday_month in enumerate(yeardays_month):
+        # Get linear diffusion of current year
+        lin_diff_factor = diffusion_technologies.linear_diff(
+            base_yr=sim_param['base_yr'],
+            curr_yr=sim_param['curr_yr'],
+            value_start=0, #temp by
+            value_end=assumptions_temp_change[yearday_month], #temp ey
+            sim_years=sim_param['sim_period_yrs'])
+
+        # Iterate hours of base year
+        #for hour, temp_old in enumerate(temp_data[yearday]):
+        #    temp_climate_change[yearday][hour] = temp_old + lin_diff_factor
+        
+        temp_climate_change[yearday] =  temp_data[yearday] + lin_diff_factor
+
+    return temp_climate_change

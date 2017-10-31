@@ -45,19 +45,30 @@ class EnergyModel(object):
             data['sectors'])
 
         # Weather Regions
-        weather_regions = {
+        weather_regions = {}
+        for weather_region_name in data['weather_stations']:
+            weather_regions[weather_region_name] = WeatherRegion(
+                weather_region_name=weather_region_name,
+                sim_param=data['sim_param'],
+                assumptions=data['assumptions'],
+                lookups=data['lookups'],
+                all_enduses=data['enduses'],
+                temp_by=data['temp_data'][weather_region_name],
+                tech_lp=data['tech_lp'],
+                sectors=data['sectors'])
+        '''weather_regions = {
             weather_region_name: WeatherRegion(
                 weather_region_name=weather_region_name,
                 sim_param=data['sim_param'],
                 assumptions=data['assumptions'],
                 lookups=data['lookups'],
                 all_enduses=data['enduses'],
-                temp_data=data['temp_data'],
+                temp_by=data['temp_data'][weather_region_name],
                 tech_lp=data['tech_lp'],
                 sectors=data['sectors']
             )
             for weather_region_name in data['weather_stations']
-        }
+        }'''
 
         # --------------
         # Dwelling stock
