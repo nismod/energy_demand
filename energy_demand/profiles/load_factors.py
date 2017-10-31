@@ -91,7 +91,7 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     #plotting_results.plot_load_profile_dh(shifted_fuel_yh[2][0])
     return shifted_fuel_yh
 
-def calc_lf_y(fuel_yh):
+def calc_lf_y(fuel_yh, average_fuel_yd):
     """Calculate the yearly load factor for every fueltype
     by dividing the yearly average load by the peak hourly
     load in a year.
@@ -100,6 +100,8 @@ def calc_lf_y(fuel_yh):
     ---------
     fuel_yh : array
         Fuel for every day in year per fueltype
+    average_fuel_yd : array
+        Average load per day
 
     Returns
     -------
@@ -111,8 +113,8 @@ def calc_lf_y(fuel_yh):
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     # Calculate average yearly fuel per fueltype
-    average_load_y_days = np.average(fuel_yh, axis=2)
-    average_load_y = np.average(average_load_y_days, axis=1)
+    #average_fuel_yd = np.average(fuel_yh, axis=2)
+    average_load_y = np.average(average_fuel_yd, axis=1)
 
     # Calculate maximum hour in year
     max_load_h_days = np.max(fuel_yh, axis=2)
@@ -125,7 +127,50 @@ def calc_lf_y(fuel_yh):
 
     return load_factor_y
 
-def calc_lf_d(fuel_yh):
+def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
+    """Calculate load factors per fueltype per region
+
+    Arguments
+    ---------
+    seasons : dict
+        Seasons containing yeardays for four seasons
+    fuel_region_yh : array
+        Fuels
+    average_fuel_yd : array
+        Average fuels
+
+    Returns
+    -------
+    seasons_lfs : dict
+        Load factors per fueltype and season
+    """
+    seasons_lfs = {}
+    for season, yeardays_modelled in seasons.items():
+
+        #Season YD
+        #average_fuel_yd_season = average_fuel_yd[:, yeardays_modelled]
+        #max_load_yd_season = np.max(fuel_region_yh[:, yeardays_modelled])
+
+        average_fuel_yd_season = np.average(average_fuel_yd[:, yeardays_modelled], axis=1)
+
+        # Calculate maximum hour in year
+        max_load_h_days_season = np.max(fuel_region_yh[:, yeardays_modelled], axis=2)
+        max_load_h_season = np.max(max_load_h_days_season, axis=1)
+
+        # Unable local RuntimeWarning: divide by zero encountered
+        with np.errstate(divide='ignore', invalid='ignore'):
+            #season_lf = average_fuel_yd_season / max_load_yd_season
+            season_lf = average_fuel_yd_season / max_load_h_season
+
+        # Replace
+        season_lf[np.isinf(season_lf)] = 0
+        season_lf[np.isnan(season_lf)] = 0
+
+        seasons_lfs[season] = season_lf
+
+    return seasons_lfs
+
+def calc_lf_d(fuel_yh, average_fuel_yd):
     """Calculate the daily load factor for every day in a year
     by dividing for each day the daily average by the daily peak
     hour load.
@@ -136,6 +181,8 @@ def calc_lf_d(fuel_yh):
     ---------
     fuel_yh : array
         Fuel for every hour in a year
+    average_fuel_yd : array
+        Average load per day
 
     Returns
     -------
@@ -144,9 +191,6 @@ def calc_lf_d(fuel_yh):
     average_fuel_yd : array
         Average fuel for every day
     """
-    # Calculate average load for every day
-    average_fuel_yd = np.mean(fuel_yh, axis=2)
-
     # Get maximum hours in every day
     max_load_yd = np.max(fuel_yh, axis=2)
 
@@ -158,7 +202,7 @@ def calc_lf_d(fuel_yh):
     daily_lf[np.isinf(daily_lf)] = 0
     daily_lf[np.isnan(daily_lf)] = 0
 
-    return daily_lf, average_fuel_yd
+    return daily_lf
 
 '''def load_factor_d(self, data):
     """Calculate load factor of a day in a year from peak values

@@ -7,7 +7,7 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/ 
 TODO: REplace 1 and zero by fueltypes test_fuel_switch 
 TODO: Simplify load profiles (they are non-regional now)
-'''
+''' 
 import os
 import sys
 import logging
@@ -158,24 +158,36 @@ if __name__ == "__main__":
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
-        rs_reg_load_factor_h = model_run_object.rs_reg_load_factor_h
+
+        reg_load_factor_y = model_run_object.reg_load_factor_y
+        reg_load_factor_yd = model_run_object.reg_load_factor_yd
+        reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']
+        reg_load_factor_spring = model_run_object.reg_load_factor_seasons['spring']
+        reg_load_factor_summer = model_run_object.reg_load_factor_seasons['summer']
+        reg_load_factor_autumn = model_run_object.reg_load_factor_seasons['autumn']
 
         # -------------------------------------------
         # Write annual results to txt files
         # -------------------------------------------
         logging.info("... Start writing results to file")
-
+        path_runs = data['local_paths']['data_results_model_runs']
         write_data.write_model_result_to_txt(
-            sim_yr, data['local_paths']['data_results_model_runs'], out_to_supply)
+            sim_yr, path_runs, out_to_supply, "out_to_supply")
         write_data.write_model_result_to_txt_enduse(
-            sim_yr, data['local_paths']['data_results_model_runs'], out_enduse_specific)
-        write_data.write_model_result_to_txt_maxresults(
-            sim_yr, data['local_paths']['data_results_model_runs'], tot_peak_enduses_fueltype)
+            sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
+        write_data.write_max_results(
+            sim_yr, path_runs, tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_load_factors(
-            data['local_paths']['data_results_model_runs'], "result_load_factors", [sim_yr], rs_reg_load_factor_h)
-
+            path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y,'reg_load_factor_y')
+        write_data.write_load_factors(
+            path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
+       
+        write_data.write_load_factors(path_runs, "result_reg_load_factor_winter", [sim_yr], reg_load_factor_winter, 'reg_load_factor_winter')
+        write_data.write_load_factors(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
+        write_data.write_load_factors(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
+        write_data.write_load_factors(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
+        
         logging.info("... Finished writing results to file")
-
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
@@ -204,22 +216,25 @@ if __name__ == "__main__":
     # Reading in results from different model runs
     # --------------------------------------------
     logging.info("... Reading in results")
+    #read_results_from_txt(data['local_paths']['data_results_model_runs'])
+    path_runs = data['local_paths']['data_results_model_runs']
 
     results_every_year = read_data.read_model_result_from_txt(
-        data['lookups']['fueltype'],
-        data['lookups']['fueltypes_nr'],
-        len(data['lu_reg']),
-        data['local_paths']['data_results_model_runs'])
+        data['lookups']['fueltype'], data['lookups']['fueltypes_nr'], len(data['lu_reg']), path_runs)
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
-        data['lookups']['fueltypes_nr'],
-        data['local_paths']['data_results_model_runs'])
+        data['lookups']['fueltypes_nr'], path_runs)
 
-    tot_fuel_y_max = read_data.read_max_results(
-        data['local_paths']['data_results_model_runs'])
+    tot_fuel_y_max = read_data.read_max_results(path_runs)
 
-    load_factors_y = read_data.read_lf_y(
-        os.path.join(data['local_paths']['data_results_model_runs'], "result_load_factors"))
+    load_factors_y = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_y"))
+    load_factors_yh = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_yd"))
+
+    load_factor_seasons = {}
+    load_factor_seasons['winter'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_winter"))
+    load_factor_seasons['spring'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_spring"))
+    load_factor_seasons['summer'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_summer"))
+    load_factor_seasons['autumn'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
 
     logging.info("... Reading in results finished")
 
@@ -233,6 +248,8 @@ if __name__ == "__main__":
         results_enduse_every_year,
         tot_fuel_y_max,
         data,
-        load_factors_y)
+        load_factors_y,
+        load_factors_yh,
+        load_factor_seasons)
 
     logging.info("... Finished running Energy Demand Model")

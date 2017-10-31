@@ -1,3 +1,5 @@
+"""testing load_factors.py
+"""
 from energy_demand.profiles import load_factors
 import numpy as np
 
@@ -9,7 +11,7 @@ def test_peak_shaving_max_min():
     for fueltype in range(2):
         for hour in range(12):
             fuel_yh[fueltype][0][hour] = 1
-        for hour in range(12,24):
+        for hour in range(12, 24):
             fuel_yh[fueltype][0][hour] = 0.5
     average_yd = np.average(fuel_yh, axis=2)
     loac_factor_improvement = 0.1
@@ -38,21 +40,23 @@ def test_peak_shaving_max_min():
 def test_calc_lf_d():
     """Test
     """
-    fuel_yh = np.ones((8, 2, 24)) #Two day example
-    fuel_yh[2][1] = np.array((range(24)))
+    fuel_yh = np.ones((2, 2, 24)) #tow fueltype, Two day example
+
+    fuel_yh[1][1] = np.array((range(24)))
     for i in range(12):
-        fuel_yh[2][0][i] = 5
-    for i in range(12,24):
-        fuel_yh[2][1][i] = 10
+        fuel_yh[1][0][i] = 5
+    for i in range(12, 24):
+        fuel_yh[1][1][i] = 10
+    average_per_day = np.average(fuel_yh, axis=2)
 
-    result, result2 = load_factors.calc_lf_d(fuel_yh)
+    result = load_factors.calc_lf_d(fuel_yh, average_per_day)
 
-    expected = np.zeros((8, 2))
-    expected[2][0] = np.average(fuel_yh[2][0]) / np.max(fuel_yh[2][0])
-    expected[2][1] = np.average(fuel_yh[2][1]) / np.max(fuel_yh[2][1])
+    expected = np.zeros((2, 2))
+    expected[1][0] = np.average(fuel_yh[1][0]) / np.max(fuel_yh[1][0])
+    expected[1][1] = np.average(fuel_yh[1][1]) / np.max(fuel_yh[1][1])
 
-    assert expected[2][0] == result[2][0]
-    assert expected[2][1] == result[2][1]
+    assert expected[1][0] == result[1][0]
+    assert expected[1][1] == result[1][1]
 
 def test_calc_lf_y():
     """Test
@@ -64,8 +68,9 @@ def test_calc_lf_y():
         fuel_yh[2][0][i] = 5
     for i in range(12, 24):
         fuel_yh[2][1][i] = 10
+    average_per_day = np.average(fuel_yh, axis=2)
 
-    result = load_factors.calc_lf_y(fuel_yh)
+    result = load_factors.calc_lf_y(fuel_yh, average_per_day)
 
     expected = np.zeros((8))
     expected[0] = np.average(fuel_yh[0]) / np.max(fuel_yh[0])
@@ -73,3 +78,24 @@ def test_calc_lf_y():
 
     assert expected[0] == result[0]
     assert expected[2] == result[2]
+
+def test_calc_lf_season():
+    """Test
+    """
+    # fueltype, days, hours
+    fuel_yh = np.ones((8, 3, 24))
+    seasons = {'seasonA': [1,2]}  #Two day example, seasonA is second and third day
+
+    fuel_yh[2][1] = np.array((range(24)))
+    for i in range(12):
+        fuel_yh[2][0][i] = 5
+    for i in range(12, 24):
+        fuel_yh[2][1][i] = 10
+    average_per_day = np.average(fuel_yh, axis=2)
+
+    result = load_factors.calc_lf_season(seasons, fuel_yh, average_per_day)
+
+    expected = {'seasonA': np.zeros((8))}
+    expected['seasonA'][2] = np.average(fuel_yh[2][1:3]) / np.max(fuel_yh[2][1:3])
+
+    assert expected['seasonA'][2] == result['seasonA'][2]
