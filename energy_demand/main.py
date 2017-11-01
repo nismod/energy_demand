@@ -103,11 +103,6 @@ if __name__ == "__main__":
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
-
-    # ------------------------------
-    # Capacity switches implemented
-    # ------------------------------
-
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
@@ -117,7 +112,7 @@ if __name__ == "__main__":
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
     logging.info("Nr of Regions " + str(data['reg_nrs']))
-    '''
+    ##'''
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
@@ -211,7 +206,7 @@ if __name__ == "__main__":
             lad_validation.spatial_validation(
                 data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
                 model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
-    '''
+    ##'''
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------

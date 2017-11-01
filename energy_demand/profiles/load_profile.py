@@ -242,27 +242,6 @@ def calc_y_dh_shape_from_yh(shape_yh):
 
     return shape_y_dh
 
-'''def abs_to_rel_no_nan(absolute_array):
-    """Convert absolute to relative (without correcting the NaN values)
-    If the total sum is zero, return same array
-
-    Arguments
-    ----------
-    absolute_array : array
-        Input array with absolute numbers
-
-    Returns
-    -------
-    relative_array : array
-        Array with relative numbers
-    """
-    sum_array = float(np.sum(absolute_array))
-
-    if sum_array != 0:
-        return absolute_array / sum_array
-    else:
-        return absolute_array'''
-
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
 

@@ -15,6 +15,7 @@ from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results
+from energy_demand.basic import basic_functions
 
 def init_scenario(args):
     """
@@ -58,8 +59,17 @@ def run_model(args):
     #SCENARIO DATA
     data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
-    # Load data from script calculations
+    # In order to load these data, the initialisation scripts need to be run
+    logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
+
+    #--------------------
+    # Folder cleaning
+    #--------------------
+    logging.info("... delete previous model run results")
+    basic_functions.del_previous_setup(data['local_paths']['data_results'])
+    basic_functions.create_folder(data['local_paths']['data_results'])
+    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
 
     results = energy_demand_model(data)
 

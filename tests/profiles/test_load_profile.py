@@ -37,7 +37,6 @@ def test_calk_peak_h_dh():
     assert result[0] == np.max(fuel_yh[0])
     assert result[1] == np.max(fuel_yh[1])
 
-
 def test_LoadProfileStock():
     """testing
     """
@@ -47,3 +46,15 @@ def test_LoadProfileStock():
     expected = "test_stock"
 
     assert result.stock_name == expected
+
+def test_LoadProfile():
+
+    result = load_profile.LoadProfile(
+        enduses=['heating'],
+        unique_identifier="A123",
+        shape_yd=np.zeros((365)),
+        shape_yh=np.zeros((365, 24)),
+        enduse_peak_yd_factor=0.7,
+        shape_peak_dh=np.zeros((24)))
+
+    assert result.enduses == ['heating']

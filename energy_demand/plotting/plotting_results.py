@@ -29,7 +29,7 @@ def run_all_plot_functions(
     ##pf.plot_load_curves_fueltype(results_every_year, data)
     # plotting load factors per fueltype and region
     #for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
-    '''if 1 == 1: #TODO :REMOVE
+    if 1 == 1: #TODO :REMOVE
         fueltype_str = 'electricity'
         fueltype_int = 2
 
@@ -58,7 +58,7 @@ def run_all_plot_functions(
             os.path.join(
                 data['local_paths']['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
-    '''
+    
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
         results_every_year,
@@ -211,10 +211,16 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     for color_nr in range(0, len(class_colours)):
         recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=0.7))
 
-    plt.legend(recs, classes, loc='best', frameon=False) #4
+    plt.legend(
+        recs,
+        classes,
+        ncol=2,
+        loc='best',
+        frameon=False)
 
     # Tight layout
     plt.tight_layout()
+    plt.margins(x=0)#ax.margins(x=0)
 
     # Save fig
     plt.savefig(path_plot_fig) #, bbox_inches='tight')
@@ -260,6 +266,7 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
 
     # Tight layout
     plt.tight_layout()
+    plt.margins(x=0)#ax.margins(x=0)
 
     plt.savefig(path_plot_fig)
     plt.close()
@@ -283,7 +290,7 @@ def plot_x_days(all_hours_year, region, days):
     plt.xlabel("Hours")
     plt.ylabel("Energy demand [GW]")
     plt.title("Energy Demand")
-    plt.legend(frameon=False)
+    plt.legend(ncol=2, frameon=False)
 
     plt.show()
 
@@ -298,7 +305,7 @@ def plot_load_shape_yd(daily_load_shape):
     plt.xlabel("Hours")
     plt.ylabel("Percentage of daily demand")
     plt.title("Load curve of a day")
-    plt.legend(frameon=False)
+    plt.legend(ncol=2, frameon=False)
     
     plt.show()
 
@@ -311,7 +318,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.plot(x_values, y_values)
 
     plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
-    plt.legend(frameon=False)
+    plt.legend(ncol=2, frameon=False)
     plt.show()
 
 def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
@@ -364,6 +371,7 @@ def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
     plt.legend(
         color_stackplots,
         legend_entries,
+        ncol=2,
         loc='best',
         frameon=False)
 
@@ -380,6 +388,7 @@ def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
 
     # Tight layout
     plt.tight_layout()
+    plt.margins(x=0)#ax.margins(x=0)
 
     # Save fig
     plt.savefig(fig_name)
@@ -477,7 +486,7 @@ def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_
     plt.xticks(x_tick_pos, days_to_plot, color='black')
     plt.axis('tight')
 
-    plt.legend(frameon=False)
+    plt.legend(ncol=2, frameon=False)
 
     plt.ylabel("Fuel")
     plt.xlabel("days")
@@ -560,14 +569,14 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     plt.ylabel("energy demand [GW]")
     plt.xlabel("years")
     plt.title("total yearly fuels of all enduses per fueltype")
-    print(":.")
 
     # Tight layout
     plt.tight_layout()
+    plt.margins(x=0)#ax.margins(x=0)
 
     # Save fig
     #plt.show()
-    plt.savefig(fig_name)
+    plt.savefig(fig_name) #, bbox_inches='tight')
     plt.close()
 
 def plt_fuels_peak_h(tot_fuel_y_max, data):
