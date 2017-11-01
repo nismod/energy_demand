@@ -84,19 +84,19 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         data['sim_param'],
         data['lu_reg'],
         data['temp_data'],
-        data['assumptions'],
+        data['assumptions']['smart_meter_diff_params'],
+        data['assumptions']['ss_t_base_heating'],
         data['reg_coord'],
-        data['weather_stations'],
-        'ss_t_base_heating')
+        data['weather_stations'],)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
         data['sim_param'],
         data['lu_reg'],
         data['temp_data'],
-        data['assumptions'],
+        data['assumptions']['get_cdd_country'],
+        data['assumptions']['ss_t_base_cooling'],
         data['reg_coord'],
-        data['weather_stations'],
-        'ss_t_base_cooling')
+        data['weather_stations'])
 
     # ---------------------------------------
     # Overall disaggregation factors per enduse and sector
@@ -297,10 +297,10 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         sim_param,
         lu_reg,
         data['temp_data'],
-        data['assumptions'],
+        data['assumptions']['smart_meter_diff_params'],
+        data['assumptions']['rs_t_base_heating'],
         data['reg_coord'],
-        data['weather_stations'],
-        'rs_t_base_heating')
+        data['weather_stations'])
 
     # ---------------------------------------
     # Overall disaggregation factors per enduse

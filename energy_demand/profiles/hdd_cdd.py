@@ -60,10 +60,10 @@ def get_hdd_country(
         sim_param,
         regions,
         temp_data,
-        assumptions,
+        smart_meter_diff_params,
+        t_base,
         reg_coord,
-        weather_stations,
-        t_base_type
+        weather_stations
     ):
     """Calculate total number of heating degree days in a region for the base year
 
@@ -84,10 +84,10 @@ def get_hdd_country(
             reg_coord[region_name]['latitude'],
             weather_stations)
 
-        temperatures = temp_data[closest_station_id] #[sim_param['base_yr']]
+        temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(sim_param, assumptions, t_base_type)
+        t_base_heating_cy = sigm_temp(sim_param, smart_meter_diff_params, t_base)
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
 
@@ -99,10 +99,10 @@ def get_cdd_country(
         sim_param,
         regions,
         temp_data,
-        assumptions,
+        smart_meter_diff_params,
+        t_base,
         reg_coord,
-        weather_stations,
-        t_base_type):
+        weather_stations):
     """Calculate total number of cooling degree days in a region for the base year
 
     Arguments
@@ -140,15 +140,15 @@ def get_cdd_country(
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(
             sim_param,
-            assumptions,
-            t_base_type)
+            smart_meter_diff_params,
+            t_base)
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
         cdd_regions[region_name] = np.sum(cdd_reg)
 
     return cdd_regions
 
-def sigm_temp(base_sim_param, assumptions, t_base_type):
+def sigm_temp(base_sim_param, smart_meter_diff_params, t_base):
     """Calculate base temperature depending on sigmoid diff and location
 
     Arguments
@@ -172,21 +172,21 @@ def sigm_temp(base_sim_param, assumptions, t_base_type):
     This allows to model changes e.g. in thermal confort
     """
     # Base temperature of end year minus base temp of base year
-    t_base_diff = assumptions[t_base_type]['end_yr'] - assumptions[t_base_type]['base_yr']
+    t_base_diff = t_base['end_yr'] - t_base['base_yr']
 
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
         base_sim_param['base_yr'],
         base_sim_param['curr_yr'],
         base_sim_param['end_yr'],
-        assumptions['smart_meter_diff_params']['sig_midpoint'],
-        assumptions['smart_meter_diff_params']['sig_steeppness'])
+        smart_meter_diff_params['sig_midpoint'],
+        smart_meter_diff_params['sig_steeppness'])
 
     # Temp diff until current year
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = t_diff_cy + assumptions[t_base_type]['base_yr']
+    t_base_cy = t_diff_cy + t_base['base_yr']
 
     return t_base_cy
 

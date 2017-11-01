@@ -22,7 +22,28 @@ def test_calc_hdd():
     # positive values
     assert round(np.sum(result), 3) == round(expected, 3)
 
+def test_calc_cdd():
+    """testing
+    """
+    t_base = 15 #degree
+    temp_yh = np.zeros((365, 24))
+
+    for day in range(365):
+        for hour in range(24):
+            temp_yh[day][hour] = np.random.randint(-4, 30)
+
+    result = hdd_cdd.calc_cdd(t_base, temp_yh)
+
+    temp_yh[temp_yh < t_base] = t_base
+
+    expected = np.sum(temp_yh -t_base) / 24
+
+    # positive values
+    assert round(np.sum(result), 3) == round(expected, 3)
+
 def test_sigm_temp():
+    """
+    """
     assumptions = {}
     assumptions['smart_meter_diff_params'] = {}
     assumptions['smart_meter_diff_params']['sig_midpoint'] = 0
@@ -38,7 +59,26 @@ def test_sigm_temp():
         'curr_yr': 2020,
         'end_yr': 2020}
 
-    result = hdd_cdd.sigm_temp(base_sim_param, assumptions, 'rs_t_base_heating')
+    result = hdd_cdd.sigm_temp(base_sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
 
     expected = end_yr_t_base
     assert result == expected
+
+'''def test_get_hdd_country():
+    """
+    """
+
+    base_sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020,
+        'end_yr': 2020}
+
+    hdd_cdd.get_hdd_country(
+        base_sim_param,
+        regions,
+        temp_data,
+        assumptions['smart_meter_diff_params'],
+        assumptions[t_base_type]
+        reg_coord,
+        weather_stations
+        )'''

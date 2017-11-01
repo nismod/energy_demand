@@ -57,4 +57,4 @@ def get_closest_station(longitude_reg, latitude_reg, weather_stations):
         if dist_to_station < closest_dist:
             closest_dist, closest_id = dist_to_station, station
 
-    return closest_id #int? TODO
+    return closest_id

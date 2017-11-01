@@ -68,21 +68,21 @@ class WeatherRegion(object):
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'rs_t_base_heating')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'rs_t_base_cooling')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_cooling'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'rs_t_base_heating')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'rs_t_base_cooling')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_cooling'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'ss_t_base_heating')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['ss_t_base_heating'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'ss_t_base_cooling')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['ss_t_base_cooling'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'ss_t_base_heating')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['ss_t_base_heating'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions, 'ss_t_base_cooling')
+            sim_param, assumptions['smart_meter_diff_params'], assumptions['ss_t_base_cooling'])
 
         # -------------------
         # Technology stock

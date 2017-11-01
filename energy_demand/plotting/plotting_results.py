@@ -27,21 +27,28 @@ def run_all_plot_functions(
 
     ##pf.plot_load_curves_fueltype(results_every_year, data)
     # plotting load factors per fueltype and region
-    plot_seasonal_lf(
-        data['lookups']['fueltype']['electricity'],
-        load_factor_seasons,
-        data['reg_nrs'])
+    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+        plot_seasonal_lf(
+            fueltype_int,
+            fueltype_str,
+            load_factor_seasons,
+            data['reg_nrs'],
+            os.path.join(data['local_paths']['data_results_PDF'], 'lf_seasonal_{}.pdf'.format(fueltype_str)))
 
-    print("... plotting load_factors_yh")
-    plot_lf_y(
-        data['lookups']['fueltype']['electricity'],
-        load_factors_yh,
-        data['reg_nrs'])
+        print("... plotting load_factors_yh")
+        plot_lf_y(
+            fueltype_int,
+            fueltype_str,
+            load_factors_yh,
+            data['reg_nrs'],
+            os.path.join(data['local_paths']['data_results_PDF'], 'lf_yh_{}.pdf'.format(fueltype_str)))
+
     print("... plotting plot_lf_y")
     plot_lf_y(
         data['lookups']['fueltype']['electricity'],
         load_factors_y,
-        data['reg_nrs'])
+        data['reg_nrs'],
+        os.path.join(data['local_paths']['data_results_PDF'], 'lf_y.pdf'))
 
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
@@ -90,13 +97,15 @@ def run_all_plot_functions(
     #plt_fuels_peak_h(tot_fuel_y_max, data)
     return
 
-def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
+def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs, path_plot_fig):
     """Plot load factors per region for every year
 
     Arguments
     --------
-    fueltype_lf : int
+    fueltype_int : int
         Fueltype_int to print (see lookup)
+    fueltype_str : str
+        Fueltype string to print
     load_factors_seasonal : dict
         Seasonal load factors per season
     reg_nrs : int
@@ -114,8 +123,10 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
         'spring': 'yellowgreen',
         'autumn': 'darkkhaki'}
 
-    classes = color_list.keys()
-    class_colours = color_list.values()
+    #classes = color_list.keys()
+    #class_colours = color_list.values()
+    classes = ['winter', 'summer', 'spring', 'autumn']
+    class_colours = ['green', 'blue', 'grey', 'orange']
 
     # ------------
     # Iterate regions and plot load factors
@@ -126,8 +137,8 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
             y_values_season_year = []
             for year, lf_fueltype_reg in lf_fueltypes_season.items():
                 x_values_season_year.append(year)
-                y_values_season_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
-                #y_values_season_year.append(load_factors_seasonal[season][year][fueltype_lf][reg_nr])
+                y_values_season_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
+                #y_values_season_year.append(load_factors_seasonal[season][year][fueltype_int][reg_nr])
 
             # plot individual saisonal data point
             plt.plot(
@@ -135,7 +146,7 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
                 y_values_season_year,
                 color=color_list[season],
                 linewidth=0.5,
-                alpha=0.7) #, label=season)
+                alpha=0.9) #, label=season)
 
     # ------------------------------------
     # Calculate average per season for all regions
@@ -149,7 +160,7 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
 
             # Iterate over regions
             for reg_nr in range(reg_nrs):
-                average_season_year.append(load_factors_seasonal[season][year][fueltype_lf][reg_nr])
+                average_season_year.append(load_factors_seasonal[season][year][fueltype_int][reg_nr])
 
             years.append(int(year))
             average_season_year_years.append(np.mean(average_season_year))
@@ -160,7 +171,7 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
             average_season_year_years,
             color=color_list[season],
             linewidth=2,
-            linestyle='--', dashes=(5, 10))
+            linestyle='--')) #, dashes=(5, 10))
 
     # -----------------
     # Axis
@@ -171,28 +182,32 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
     # Axis labelling
     # -----------------
     plt.xlabel("years")
-    plt.ylabel("load factor [%]")
+    plt.ylabel("load factor for fueltype {} [%]".format(fueltype_str))
 
     base_yr = 2015
     year_interval = 5
-    major_ticks = np.arange(base_yr, years[-1] + year_interval, year_interval)                                                                                          
+    major_ticks = np.arange(
+        base_yr,
+        years[-1] + year_interval, year_interval)     
+                                                                                     
     plt.xticks(major_ticks, major_ticks) #, rotation=90)
-
-
 
     # ------------
     # Plot color legend with colors for every season
     # ------------
     recs = []
     for color_nr in range(0, len(class_colours)):
-        recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr]))
+        recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=0.9))
 
     plt.legend(recs, classes, loc='best') #4
 
-    # plot
-    plt.show()
+    # Tight layout
+    plt.tight_layout()
 
-def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
+    # Save fig
+    plt.savefig(path_plot_fig) #, bbox_inches='tight')
+
+def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig):
     """Plot load factors per region for every year
 
     Arguments
@@ -206,7 +221,7 @@ def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
 
         for year, lf_fueltype_reg in load_factors_y.items():
             x_values_year.append(year)
-            y_values_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
+            y_values_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
 
         plt.plot(x_values_year, y_values_year, color='grey')
 
@@ -219,7 +234,7 @@ def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
     # Axis labelling
     # -----------------
     plt.xlabel("years")
-    plt.ylabel("load factor [%]")
+    plt.ylabel("load factor for fueltpye {} [%]".format(fueltype_str))
 
     base_yr = 2015
     year_interval = 2
@@ -228,8 +243,11 @@ def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
     major_ticks = np.arange(base_yr, years[-1] + year_interval, year_interval)                                                                                          
     plt.xticks(major_ticks, major_ticks) #, rotation=90)
 
-    plt.show()
 
+    # Tight layout
+    plt.tight_layout()
+    plt.savefig(path_plot_fig)
+    
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load
     """
@@ -572,7 +590,7 @@ def testplot():
 '''
     # Scatter plot over years
     for year, lf_fueltype_reg in load_factors_y.items():
-        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
+        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_int]):
             x_values.append(year)
             y_values.append(lf_reg)
 
