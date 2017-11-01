@@ -3,7 +3,7 @@
 from energy_demand.technologies import diffusion_technologies
 
 def test_linear_diff():
-    """Testing function
+    """Testing function 
     """
     expected1 = 1
     expected2 = 1.5
@@ -43,3 +43,56 @@ def test_linear_diff():
         sim_years=0
         )
     assert out_value_4 == expected4
+
+def test_sigmoid_diffusion():
+    """testing
+    """
+
+    base_yr = 2015
+    curr_yr = 2020
+    end_yr = 2020
+    sig_midpoint = 0
+    sig_steeppness = 1
+
+    result = diffusion_technologies.sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        end_yr,
+        sig_midpoint,
+        sig_steeppness)
+
+    assert result == 1
+    
+    # ---
+
+    base_yr = 2015
+    curr_yr = 2015
+    end_yr = 2020
+    sig_midpoint = 0
+    sig_steeppness = 1
+
+    result = diffusion_technologies.sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        end_yr,
+        sig_midpoint,
+        sig_steeppness)
+
+    assert result == 0    
+
+    # ---
+
+    base_yr = 2015
+    curr_yr = 2020
+    end_yr = 2025
+    sig_midpoint = 0
+    sig_steeppness = 1
+
+    result = diffusion_technologies.sigmoid_diffusion(
+        base_yr,
+        curr_yr,
+        end_yr,
+        sig_midpoint,
+        sig_steeppness)
+
+    assert result == 0.5
