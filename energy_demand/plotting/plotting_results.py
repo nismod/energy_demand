@@ -77,19 +77,21 @@ def run_all_plot_functions(
 
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
-        "fig_tot_all_enduse03.pdf",
         results_every_year,
         data,
         data['assumptions']['model_yearhours_nrs'],
-        data['assumptions']['model_yeardays_nrs'])
+        data['assumptions']['model_yeardays_nrs'],
+        2015,
+        os.path.join(data['local_paths']['data_results_PDF'], "fig_tot_all_enduse03.pdf"))
 
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
-        "fig_tot_all_enduse04.pdf",
         results_every_year,
         data,
         data['assumptions']['model_yearhours_nrs'],
-        data['assumptions']['model_yeardays_nrs'])
+        data['assumptions']['model_yeardays_nrs'],
+        2015,
+        os.path.join(data['local_paths']['data_results_PDF'], "fig_tot_all_enduse04.pdf"))
 
     plt_stacked_enduse(
         data,
@@ -216,6 +218,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
 
     # Save fig
     plt.savefig(path_plot_fig) #, bbox_inches='tight')
+    plt.close()
 
 def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig):
     """Plot load factors per region for every year
@@ -257,7 +260,9 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
 
     # Tight layout
     plt.tight_layout()
+
     plt.savefig(path_plot_fig)
+    plt.close()
     
 def plot_x_days(all_hours_year, region, days):
     """With input 2 dim array plot daily load
@@ -327,51 +332,67 @@ def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-    nr_y_to_plot = data['sim_param']['sim_period_yrs']
+    #nr_y_to_plot = data['sim_param']['sim_period_yrs']
     years_simulated = data['sim_param']['sim_period']
 
-    x_data = years_simulated #range(nr_y_to_plot)
-    y_data = np.zeros((len(enduses_data), len(years_simulated))) #nr_y_to_plot))
+    x_data = years_simulated
+    y_data = np.zeros((len(enduses_data), len(years_simulated)))
 
     legend_entries = []
-    for k, enduse in enumerate(enduses_data):
+    for fueltype_int, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
 
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
-            y_data[k][model_year] = np.sum(data_model_run[enduse])
+            y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
 
         '''for year, model_year_object in enumerate(results_objects):
             country_enduse_y = getattr(model_year_object, attribute_to_get)
 
             # Sum all fueltypes
-            y_data[k][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
+            y_data[fueltype_int][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
         '''
 
     fig, ax = plt.subplots()
-    sp = ax.stackplot(x_data, y_data)
-    proxy = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in sp]
-    ax.legend(proxy, legend_entries)
+    stack_plot = ax.stackplot(x_data, y_data)
 
-    plt.xticks(years_simulated, years_simulated, color='red') # range(nr_y_to_plot) range(2015, 2015 + nr_y_to_plot)
-    plt.axis('tight')
+    # -------
+    # Legend
+    # -------
+    # Get color of stacks in stackplot
+    color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
 
+    plt.legend(
+        color_stackplots,
+        legend_entries,
+        loc='best',
+        frameon=False)
+
+    # -------
+    # Axis
+    # -------
+    plt.xticks(years_simulated, years_simulated, color='red')
+
+    # -------
+    # Labels
+    # -------
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
 
+    # Tight layout
+    plt.tight_layout()
+
     # Save fig
     plt.savefig(fig_name)
-
     plt.show()
+    plt.close()
 
-def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fueltype, yearday, region):
+def plot_load_curves_fueltype(results_objects, data):
     """Plots stacked end_use for a region
-
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-
-    fig, ax = plt.subplots() #fig is needed
+    fig, ax = plt.subplots()
     nr_y_to_plot = len(results_objects) #number of simluated years
 
     x = range(nr_y_to_plot)
@@ -409,7 +430,7 @@ def plot_load_curves_fueltype(results_objects, data): # nr_of_day_to_plot, fuelt
     plt.title("Load factor of maximum hour across all enduses")
     plt.show()
 
-def plt_fuels_enduses_week(fig_name, results_resid, data, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot=2015):
+def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot, fig_name):
     """Plots stacked end_use for all regions
 
     Input
@@ -462,9 +483,9 @@ def plt_fuels_enduses_week(fig_name, results_resid, data, nr_of_h_to_plot, model
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
-    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
-
+    plt.savefig(fig_name)
     plt.show()
+    plt.close()
 
 def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     """Plot lines with total fuel demand for all enduses
@@ -527,27 +548,27 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
             list(fuel_fueltype_yrs.values()), #yearly data per fueltype
             color=color_line,
             label=fueltype_str)
-    
-    plt.axis('tight')
+
     # ------------
     # Plot legend
     # ------------
-    print("plottt...")
     plt.legend(ncol=2, loc=2, frameon=False) 
-    #plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=8) #loc='center left', bbox_to_anchor=(1, 0.5)
-    
 
     # ---------
     # Labels
     # ---------
-    
     plt.ylabel("energy demand [GW]")
     plt.xlabel("years")
     plt.title("total yearly fuels of all enduses per fueltype")
+    print(":.")
+
+    # Tight layout
+    plt.tight_layout()
 
     # Save fig
-    plt.show()
-    plt.savefig(fig_name) #, bbox_inches='tight')
+    #plt.show()
+    plt.savefig(fig_name)
+    plt.close()
 
 def plt_fuels_peak_h(tot_fuel_y_max, data):
     """Plots stacked end_use for a region
@@ -592,7 +613,6 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.title("Fuels for peak hour in a year across all enduses")
 
     plt.show()
-
 
 def plot_load_profile_dh(array_dh):
     """plot daily profile

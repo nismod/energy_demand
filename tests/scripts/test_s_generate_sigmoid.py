@@ -9,7 +9,7 @@ def test_calc_sigmoid_parameters():
     """Testing
     """
     l_value = 0.5
-    xdata = np.array([2020.0, 2050.0]) #[point_x_by, point_x_projected]
+    xdata = np.array([2020.0, 2050.0])
     ydata = np.array([0.1, 0.2]) #[point_y_by, point_y_projected]
 
     # fit parameters
