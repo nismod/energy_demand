@@ -470,7 +470,7 @@ def industry_submodel(region, data, enduse_names, sector_names):
             logging.debug(
                 "... industry model {} in %s %s",
                 data['sim_param']['curr_yr'],
-                (100*_scrap_cnt)/(len(data['lu_reg']) * len(sector_names) * len(enduse_names)))
+                (100*_scrap_cnt)/(data['reg_nrs'] * len(sector_names) * len(enduse_names)))
 
     return submodels
 
@@ -597,7 +597,7 @@ def service_submodel(region, data, enduse_names, sector_names):
             logging.debug(
                 " ...running service model %s %s",
                 data['sim_param']['curr_yr'],
-                100.0 / (len(data['lu_reg']) * len(sector_names) * len(enduse_names)) * _scrap_cnt)
+                100.0 / (data['reg_nrs'] * len(sector_names) * len(enduse_names)) * _scrap_cnt)
 
     return submodels
 

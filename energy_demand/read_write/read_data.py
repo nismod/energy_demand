@@ -10,7 +10,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
-def read_model_result_from_txt(fueltypes_nr, nr_of_regions, path_to_folder):
+def read_results_y(fueltypes_nr, nr_of_regions, path_to_folder):
     """
     """
     results = defaultdict(dict)

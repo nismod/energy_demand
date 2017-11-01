@@ -5,7 +5,7 @@ Energy Demand Model
 - run with same weather shape and same fuel input --> flat line expected
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
-TODO: REplace 1 and zero by fueltypes test_fuel_switch 
+TODO: REplace 1 and zero by fueltypes test_fuel_switch
 TODO: Simplify load profiles (they are non-regional now)
 '''
 import os
@@ -55,14 +55,16 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("================================================")
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
-    logging.info("Number of regions    " + str(len(data['lu_reg'])))
+    logging.info("Number of regions    " + str(data['reg_nrs']))
     logging.info("Fuel input:          " + str(fuel_in))
     logging.info("Fuel output:         " + str(np.sum(model_run_object.reg_enduses_fueltype_y)))
     logging.info("FUEL DIFFERENCE:     " + str(round(
         (np.sum(model_run_object.reg_enduses_fueltype_y) - fuel_in), 4)))
     logging.info("elec fuel in:        " + str(fuel_in_elec))
-    logging.info("elec fuel out:       " + str(np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
-    logging.info("ele fueld diff:      " + str(round(fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
+    logging.info("elec fuel out:       " + str(np.sum(
+        model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
+    logging.info("ele fueld diff:      " + str(round(
+        fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
     logging.info("================================================")
     logging.debug("...finished energy demand model simulation")
 
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-
+    
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
@@ -105,10 +107,6 @@ if __name__ == "__main__":
     # ------------------------------
     # Capacity switches implemented
     # ------------------------------
-    '''data['assumptions'] = fuel_service_switch.calc_service_switch_capacity(
-        data['paths'],
-        data['enduses'],
-        data['assumptions'], data['fuels'], data['sim_param'])'''
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
@@ -118,8 +116,8 @@ if __name__ == "__main__":
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
-    logging.info("Nr of Regions " + str(len(data['lu_reg'])))
-
+    logging.info("Nr of Regions " + str(data['reg_nrs']))
+    '''
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
@@ -213,7 +211,7 @@ if __name__ == "__main__":
             lad_validation.spatial_validation(
                 data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
                 model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
-
+    '''
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
@@ -221,8 +219,8 @@ if __name__ == "__main__":
     #read_results_from_txt(data['local_paths']['data_results_model_runs'])
     path_runs = data['local_paths']['data_results_model_runs']
 
-    results_every_year = read_data.read_model_result_from_txt(
-        data['lookups']['fueltypes_nr'], len(data['lu_reg']), path_runs)
+    results_every_year = read_data.read_results_y(
+        data['lookups']['fueltypes_nr'], data['reg_nrs'], path_runs)
 
     results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
         data['lookups']['fueltypes_nr'], path_runs)
@@ -239,7 +237,7 @@ if __name__ == "__main__":
     load_factor_seasons['autumn'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
 
     logging.info("... Reading in results finished")
-
+    
     # ------------------------------
     # Plotting
     # ------------------------------

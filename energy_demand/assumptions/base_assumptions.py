@@ -27,7 +27,7 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
     if write_sim_param:
         sim_param = {}
         sim_param['base_yr'] = 2015
-        sim_param['end_yr'] = 2025
+        sim_param['end_yr'] = 2020
         sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])

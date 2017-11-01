@@ -64,21 +64,102 @@ def test_sigm_temp():
     expected = end_yr_t_base
     assert result == expected
 
-'''def test_get_hdd_country():
+def test_get_hdd_country():
+    """testing
     """
-    """
-
     base_sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
         'end_yr': 2020}
 
-    hdd_cdd.get_hdd_country(
+    weather_stations = {
+        "weater_station_A": {
+            'station_latitude': 55.8695,
+            'station_longitude': -4.4}}
+
+    regions = ['reg_A', 'reg_B']
+
+    temp_data = {
+        "weater_station_A": np.zeros((365, 24)) + 12}
+
+    smart_meter_diff_params = {}
+    smart_meter_diff_params['sig_midpoint'] = 0
+    smart_meter_diff_params['sig_steeppness'] = 1
+    
+    reg_coord = {
+        "reg_A": {
+            'latitude': 59.02999742,
+            'longitude': -3.4},
+        "reg_B": {
+            'latitude': 57.02999742,
+            'longitude': -4.4}}
+    
+    t_base_heating = {
+        'base_yr': 15.5,
+        'end_yr': 15.5}
+
+    result = hdd_cdd.get_hdd_country(
         base_sim_param,
         regions,
         temp_data,
-        assumptions['smart_meter_diff_params'],
-        assumptions[t_base_type]
+        smart_meter_diff_params,
+        t_base_heating,
         reg_coord,
-        weather_stations
-        )'''
+        weather_stations)
+    
+    expected = {
+        "reg_A": (15.5 - 12.0) * 8760 / 24,
+        "reg_B": (15.5 - 12.0) * 8760 / 24}
+
+    assert result['reg_A'] == expected['reg_A']
+    assert result['reg_B'] == expected['reg_B']
+
+def test_get_cdd_country():
+    """testing
+    """
+    base_sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020,
+        'end_yr': 2020}
+
+    weather_stations = {
+        "weater_station_A": {
+            'station_latitude': 55.8695,
+            'station_longitude': -4.4}}
+
+    regions = ['reg_A', 'reg_B']
+
+    temp_data = {
+        "weater_station_A": np.zeros((365, 24)) + 20}
+
+    smart_meter_diff_params = {}
+    smart_meter_diff_params['sig_midpoint'] = 0
+    smart_meter_diff_params['sig_steeppness'] = 1
+    
+    reg_coord = {
+        "reg_A": {
+            'latitude': 59.02999742,
+            'longitude': -3.4},
+        "reg_B": {
+            'latitude': 57.02999742,
+            'longitude': -4.4}}
+    
+    t_base_heating = {
+        'base_yr': 15.5,
+        'end_yr': 15.5}
+
+    result = hdd_cdd.get_cdd_country(
+        base_sim_param,
+        regions,
+        temp_data,
+        smart_meter_diff_params,
+        t_base_heating,
+        reg_coord,
+        weather_stations)
+    
+    expected = {
+        "reg_A": (20 - 15.5) * 8760 / 24,
+        "reg_B": (20 - 15.5) * 8760 / 24}
+
+    assert result['reg_A'] == expected['reg_A']
+    assert result['reg_B'] == expected['reg_B']
