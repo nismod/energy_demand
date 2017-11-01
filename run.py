@@ -90,7 +90,8 @@ class EDWrapper(SectorModel):
 
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
 
         #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
@@ -177,7 +178,8 @@ class EDWrapper(SectorModel):
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
         data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths']) #REPLACE BY SMIF INPUT

@@ -9,11 +9,12 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_handling
+from energy_demand.technologies import fuel_service_switch
 
 #TODO: Make that HLC can be improved, ssumption share of existing
 #  dwelling stock which is assigned new HLC coefficients
 
-def load_assumptions(paths, enduses, lookups, write_sim_param):
+def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -26,8 +27,8 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     if write_sim_param:
         sim_param = {}
         sim_param['base_yr'] = 2015
-        sim_param['end_yr'] = 2019
-        sim_param['sim_years_intervall'] = 2 # Make calculation only every X year
+        sim_param['end_yr'] = 2025
+        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['curr_yr'] = sim_param['base_yr']
@@ -73,8 +74,10 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     assumptions['seasons']['autumn'] = list(range(
         date_handling.date_to_yearday(year_to_model, 9, 1),
         date_handling.date_to_yearday(year_to_model, 11, 30)))
-
+    
+    # ------------
     # Modelled days
+    # ------------
     #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
     assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
 
@@ -425,8 +428,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         'diff_method': 'linear', # sigmoid or linear
         'sigmoid': {
             'sig_midpoint': 0,
-            'sig_steeppness': 1}
-        }
+            'sig_steeppness': 1}}
 
     # ============================================================
     # Technologies & efficiencies
@@ -488,6 +490,15 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
         paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
         paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
+    
+    # ============================================================
+    # Scenaric Capacity switches
+    # Warning: Overwrites other switches
+    # ============================================================
+    assumptions = fuel_service_switch.calc_service_switch_capacity(
+        paths,
+        enduses,
+        assumptions, fuels, sim_param)
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
@@ -527,7 +538,7 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
     testing.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
 
-    if write_sim_param == True:
+    if write_sim_param: #== True:
         return sim_param, assumptions
     else:
         return assumptions

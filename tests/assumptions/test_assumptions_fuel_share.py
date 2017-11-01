@@ -19,7 +19,7 @@ def test_assign_by_fuel_tech_p():
 
     #Load assumptions
     _, data['assumptions'] = base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(data['assumptions'], data['enduses'], data['lookups'])
 

@@ -9,6 +9,10 @@ import matplotlib.patches as mpatches
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import plotting_program
 
+# INFO
+# https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
+# https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
+
 def run_all_plot_functions(
         results_every_year,
         results_enduse_every_year,
@@ -23,8 +27,6 @@ def run_all_plot_functions(
 
     ##pf.plot_load_curves_fueltype(results_every_year, data)
     # plotting load factors per fueltype and region
-    
-    print("... plotting seasonal load factors")
     plot_seasonal_lf(
         data['lookups']['fueltype']['electricity'],
         load_factor_seasons,
@@ -100,14 +102,21 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
     reg_nrs : int
         Number of region
     """
+    print("... plotting seasonal load factors")
+
     # Set figure size
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
     # Settings
-    color_list = {'winter': 'green', 'summer': 'blue', 'spring': 'grey', 'autumn': 'orange'}
-    classes = ['winter', 'summer', 'spring', 'autumn']
-    class_colours = ['green', 'blue', 'grey', 'orange']
-   
+    color_list = {
+        'winter': 'wheat',
+        'summer': 'olive',
+        'spring': 'yellowgreen',
+        'autumn': 'darkkhaki'}
+
+    classes = color_list.keys()
+    class_colours = color_list.values()
+
     # ------------
     # Iterate regions and plot load factors
     # ------------
@@ -117,7 +126,8 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
             y_values_season_year = []
             for year, lf_fueltype_reg in lf_fueltypes_season.items():
                 x_values_season_year.append(year)
-                y_values_season_year.append(lf_fueltype_reg[reg_nr][fueltype_lf])
+                y_values_season_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
+                #y_values_season_year.append(load_factors_seasonal[season][year][fueltype_lf][reg_nr])
 
             # plot individual saisonal data point
             plt.plot(
@@ -127,17 +137,19 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
                 linewidth=0.5,
                 alpha=0.7) #, label=season)
 
-    # ------------ 
+    # ------------------------------------
     # Calculate average per season for all regions
     # and plot average line a bit thicker
-    # ------------
+    # ------------------------------------
     for season in classes:
         years = []
         average_season_year_years = []
         for year in load_factors_seasonal[season].keys():
             average_season_year = []
+
+            # Iterate over regions
             for reg_nr in range(reg_nrs):
-                average_season_year.append(load_factors_seasonal[season][year][reg_nr][fueltype_lf])
+                average_season_year.append(load_factors_seasonal[season][year][fueltype_lf][reg_nr])
 
             years.append(int(year))
             average_season_year_years.append(np.mean(average_season_year))
@@ -147,7 +159,8 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
             years,
             average_season_year_years,
             color=color_list[season],
-            linewidth=2) #, label=season)
+            linewidth=2,
+            linestyle='--', dashes=(5, 10))
 
     # -----------------
     # Axis
@@ -161,22 +174,11 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
     plt.ylabel("load factor [%]")
 
     base_yr = 2015
-    year_interval = 2
+    year_interval = 5
     major_ticks = np.arange(base_yr, years[-1] + year_interval, year_interval)                                                                                          
     plt.xticks(major_ticks, major_ticks) #, rotation=90)
 
-    # Scatter plot over years
-    '''for year, lf_fueltype_reg in load_factors_y.items():
-        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
-            x_values.append(year)
-            y_values.append(lf_reg)
 
-    #plt.plot(x_values, y_values)
-    plt.scatter(x_values, y_values)'''
-
-    '''plt.xlabel("year")
-    plt.ylabel("yearly load factor")
-    plt.title("load factors for ever year and all regions")'''
 
     # ------------
     # Plot color legend with colors for every season
@@ -189,7 +191,6 @@ def plot_seasonal_lf(fueltype_lf, load_factors_seasonal, reg_nrs):
 
     # plot
     plt.show()
-
 
 def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
     """Plot load factors per region for every year
@@ -207,9 +208,6 @@ def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
             x_values_year.append(year)
             y_values_year.append(lf_fueltype_reg[fueltype_lf][reg_nr])
 
-        #diff_abs = y_values_year[0] - y_values_year[1]
-        #diff_rel = (100.0 / y_values_year[0]) * y_values_year[1]
-        #print("DIFF region {}   {}  {} {} {} ".format(reg_nr, diff_rel, diff_abs, x_values_year, y_values_year))
         plt.plot(x_values_year, y_values_year, color='grey')
 
     # -----------------
@@ -230,19 +228,6 @@ def plot_lf_y(fueltype_lf, load_factors_y, reg_nrs):
     major_ticks = np.arange(base_yr, years[-1] + year_interval, year_interval)                                                                                          
     plt.xticks(major_ticks, major_ticks) #, rotation=90)
 
-    # Scatter plot over years
-    '''for year, lf_fueltype_reg in load_factors_y.items():
-        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
-            x_values.append(year)
-            y_values.append(lf_reg)
-
-    #plt.plot(x_values, y_values)
-    plt.scatter(x_values, y_values)'''
-
-    '''plt.xlabel("year")
-    plt.ylabel("yearly load factor")
-    plt.title("load factors for ever year and all regions")
-    plt.legend()'''
     plt.show()
 
 def plot_x_days(all_hours_year, region, days):
@@ -583,3 +568,15 @@ def testplot():
         plt.plot(x_values[line_nr], y_values[line_nr], color='green') #'ro', markersize=1,
     testplot()
     plt.show()
+
+'''
+    # Scatter plot over years
+    for year, lf_fueltype_reg in load_factors_y.items():
+        for _region, lf_reg in enumerate(lf_fueltype_reg[fueltype_lf]):
+            x_values.append(year)
+            y_values.append(lf_reg)
+
+    #plt.plot(x_values, y_values)
+    plt.scatter(x_values, y_values)
+
+'''

@@ -49,7 +49,7 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
 
     # Delete all previous data from previous model runs
@@ -107,7 +107,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
         data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
@@ -252,7 +252,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     logging.info("... finished scenario_initalisation")
     print("... finished scenario_initalisation")
 
-    if not run_locally: # == False:
+    if not run_locally:
         return fts_cont, sgs_cont, sd_cont
     else:
         return

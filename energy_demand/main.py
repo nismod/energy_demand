@@ -100,13 +100,15 @@ if __name__ == "__main__":
 
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
 
+    # ------------------------------
     # Capacity switches implemented
-    data['assumptions'] = fuel_service_switch.calc_service_switch_capacity(
+    # ------------------------------
+    '''data['assumptions'] = fuel_service_switch.calc_service_switch_capacity(
         data['paths'],
         data['enduses'],
-        data['assumptions'], data['fuels'], data['sim_param'])
+        data['assumptions'], data['fuels'], data['sim_param'])'''
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])

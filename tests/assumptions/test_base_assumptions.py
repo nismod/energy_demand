@@ -14,7 +14,7 @@ def test_load_assumptions():
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-    sim_param_expected, assumptions_expected = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], write_sim_param=True)
+    sim_param_expected, assumptions_expected = base_assumptions.load_assumptions(data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
 
     # Dummy test
     assert sim_param_expected['base_yr'] == 2015
