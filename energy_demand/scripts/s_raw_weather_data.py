@@ -33,6 +33,9 @@ def read_weather_data_raw(path_to_csv, placeholder_value=999):
     [Download link]http://data.ceda.ac.uk/badc/ukmo-midas/data/WH/yearly_files/ ()
 
     http://badc.nerc.ac.uk/artefacts/badc_datadocs/ukmo-midas/WH_Table.html (metadata)
+
+    Weather Stations information: http://badc.nerc.ac.uk/search/midas_stations/
+    http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=
     """
     temp_stations = {}
 

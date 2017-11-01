@@ -55,3 +55,27 @@ def test_calc_sigmoid_parameters2():
     y_calculated = diffusion_technologies.sigmoid_function(xdata[1], l_value, *fit_parameter)
 
     assert round(y_calculated, 3) == round(ydata[1], 3)
+
+def test_get_tech_installed():
+
+    enduses = ['heating', 'cooking']
+    fuel_switches = [
+        {
+            'enduse' : 'heating',
+            'technology_install': 'boilerB'
+        },
+        {
+            'enduse' : 'heating',
+            'technology_install': 'boilerA'},
+        {
+            'enduse' : 'cooking',
+            'technology_install': 'techC'
+            }
+        ]
+
+    result = s_generate_sigmoid.get_tech_installed(enduses, fuel_switches)
+
+    expected = {'heating': ['boilerA', 'boilerB'], 'cooking': ['techC']}
+
+    assert result['heating'] == expected['heating']
+    assert result['cooking'] == expected['cooking']

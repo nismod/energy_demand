@@ -8,8 +8,7 @@ import matplotlib as mpl
 import matplotlib.patches as mpatches
 from energy_demand.technologies import tech_related
 from energy_demand.plotting import plotting_program
-#import matplotlib.colors as colors
-#for color_name in colors.cnmaes:
+#import matplotlib.colors as colors #for color_name in colors.cnmaes:
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -93,19 +92,18 @@ def run_all_plot_functions(
         data['assumptions']['model_yeardays_nrs'])
 
     plt_stacked_enduse(
-        "figure_stacked_country_final.pdf",
         data,
         results_enduse_every_year,
         data['enduses']['rs_all_enduses'],
-        'tot_fuel_y_enduse_specific_h')
+        os.path.join(data['local_paths']['data_results_PDF'], "figure_stacked_country_final.pdf"))
 
     # Plot all enduses
     #plt_stacked_enduse(
-    # "figure_stacked_country_final.pdf",
     # data,
     # results_every_year,
     # data['enduses']['rs_all_enduses'],
-    # 'tot_fuel_y_enduse_specific_h')
+    # 'tot_fuel_y_enduse_specific_h',
+    # os.path.join(data['local_paths']['data_results_PDF'], "figure_stacked_country_final.pdf")))
 
     #logging.debug('Plot peak demand (h) per fueltype')
     #plt_fuels_peak_h(tot_fuel_y_max, data)
@@ -315,7 +313,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend(frameon=False)
     plt.show()
 
-def plt_stacked_enduse(fig_name, data, results_enduse_every_year, enduses_data, attribute_to_get):
+def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
     """Plots stacked end_use for a region
 
     Arguments
@@ -325,9 +323,6 @@ def plt_stacked_enduse(fig_name, data, results_enduse_every_year, enduses_data, 
     results_objects :
 
     enduses_data :
-
-    attribute_to_get :
-
 
     Note
     ----
@@ -366,8 +361,9 @@ def plt_stacked_enduse(fig_name, data, results_enduse_every_year, enduses_data, 
 
     plt.xlabel("Simulation years")
     plt.title("Stacked energy demand for simulation years for whole UK")
-    logging.debug("...plot figure")
-    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], fig_name))
+
+    # Save fig
+    plt.savefig(fig_name)
 
     plt.show()
 
@@ -490,7 +486,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     """
     # Set figure size
-    plt.figure(figsize=plotting_program.cm2inch(10, 14))
+    plt.figure(figsize=plotting_program.cm2inch(14, 8))
 
     # Initialise (number of enduses, number of hours to plot)
     y_values_fueltype = {}
@@ -528,35 +524,37 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
 
     for fueltype_str, fuel_fueltype_yrs in y_values_fueltype.items():
         color_line = str(color_list.pop())
+
+        # plot line
         plt.plot(
             list(fuel_fueltype_yrs.keys()), #years
-            list(fuel_fueltype_yrs.values()), #data per fueltype
+            list(fuel_fueltype_yrs.values()), #yearly data per fueltype
             color=color_line,
             label=fueltype_str)
-
-
+    
+    plt.axis('tight')
     # ------------
     # Plot legend
     # ------------
-    plt.legend(loc='best')
+    print("plottt...")
+    plt.legend(loc=2, ncol=2) 
+    #plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=8) #loc='center left', bbox_to_anchor=(1, 0.5)
+    plt.legend(frameon=False)
 
     # ---------
     # Labels
     # ---------
-    plt.ylabel("Energy demand [GW]")
-    plt.xlabel("Years")
-    plt.title("Total yearly fuels of all enduses per fueltype")
-
-    plt.axis('tight')
+    
+    plt.ylabel("energy demand [GW]")
+    plt.xlabel("years")
+    plt.title("total yearly fuels of all enduses per fueltype")
 
     # Save fig
-    plt.savefig(fig_name)
-
     plt.show()
+    plt.savefig(fig_name, bbox_inches='tight')
 
 def plt_fuels_peak_h(tot_fuel_y_max, data):
     """Plots stacked end_use for a region
-
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?

@@ -330,7 +330,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """
     def sigmoid_fitting_function(x_value, x0_value, k_value):
         """Sigmoid function used for fitting
-        """ 
+        """
         #RuntimeWarning: overflow encountered in exp
         with np.errstate(over='ignore'):
             y_value = l_value / (1 + np.exp(-k_value * ((x_value - 2000.0) - x0_value)))
@@ -463,12 +463,16 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
     return service_tech_switched_p
 
 def get_tech_installed(enduses, fuel_switches):
-    """Read out all technologies which are specifically switched to
+    """Read out all technologies which are
+    specifically switched to for all enduses
 
     Parameter
     ---------
+    enduses : list
+        List with enduses
     fuel_switches : dict
-        All fuel switches where a share of a fuel of an enduse is switched to a specific technology
+        All fuel switches where a share of a fuel
+        of an enduse is switched to a specific technology
 
     Return
     ------
