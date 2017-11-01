@@ -14,7 +14,7 @@ def test_get_shape_peak_yd_factor():
 
     expected = (1 / np.sum(demand_yd)) * np.max(demand_yd)
 
-    assert result == expected
+    assert round(result, 4) == round(expected, 4)
 
 def test_change_temp_climate():
 

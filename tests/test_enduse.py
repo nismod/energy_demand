@@ -451,3 +451,23 @@ def test_Enduse():
         regional_lp_stock
         )'''
     pass
+
+def test_get_enduse_tech():
+    """Testing
+    """
+    fuel_tech_p_by = {
+        0: {'techA': 0.4, 'techB': 0.6},
+        1: {'techC': 0.4, 'techD': 0.6}}
+    result = enduse_func.get_enduse_tech(fuel_tech_p_by)
+    expected = ['techA', 'techB', 'techC', 'techD']
+    assert expected[0] in result
+    assert expected[1] in result
+    assert expected[2] in result
+    assert expected[3] in result
+
+    fuel_tech_p_by = {
+        0: {'techA': 0.4, 'techB': 0.6},
+        1: {'dummy_tech': 0.4, 'techD': 0.6}}
+    result = enduse_func.get_enduse_tech(fuel_tech_p_by)
+    expected = []
+    assert expected == result

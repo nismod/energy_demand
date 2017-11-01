@@ -4,10 +4,10 @@ Energy Demand Model
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected
 Development checklist: https://nismod.github.io/docs/development-checklist.html
-https://nismod.github.io/docs/ 
+https://nismod.github.io/docs/
 TODO: REplace 1 and zero by fueltypes test_fuel_switch 
 TODO: Simplify load profiles (they are non-regional now)
-''' 
+'''
 import os
 import sys
 import logging
@@ -243,13 +243,16 @@ if __name__ == "__main__":
     # ------------------------------
     logging.info("... plotting results")
 
-    plotting_results.run_all_plot_functions(
-        results_every_year,
-        results_enduse_every_year,
-        tot_fuel_y_max,
-        data,
-        load_factors_y,
-        load_factors_yh,
-        load_factor_seasons)
+    if data['print_criteria']:
+        plotting_results.run_all_plot_functions(
+            results_every_year,
+            results_enduse_every_year,
+            tot_fuel_y_max,
+            data,
+            load_factors_y,
+            load_factors_yh,
+            load_factor_seasons)
+    else:
+        logging.info("Results are not plotted")
 
     logging.info("... Finished running Energy Demand Model")

@@ -108,27 +108,27 @@ def load_assumptions(paths, enduses, lookups, write_sim_param):
             model_yeardays_daytype[array_day] = 'holiday'
 
     assumptions['model_yeardays_daytype'] = model_yeardays_daytype
-    
+
     # Calculate month of dates
     yeardays_month_days = {}
     for i in range(12):
         yeardays_month_days[i] = []
 
     yeardays_month = []
+
+    # Get month type of yearday for every day
     for yearday, date_object in enumerate(list_dates):
-        # Get month type of yearday
         month_yearday = date_object.timetuple().tm_mon - 1
         yeardays_month.append(month_yearday)
-
         yeardays_month_days[month_yearday].append(yearday)
 
     assumptions['yeardays_month'] = yeardays_month
     assumptions['yeardays_month_days'] = yeardays_month_days
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
-    # True --> Technologies are defined in ED model
-    # False: heat is delievered
-    assumptions['mode_constrained'] = False #False provides technologies
+    # True:  Technologies are defined in ED model and fuel is provided
+    # False: Heat is delievered not per technologies
+    assumptions['mode_constrained'] = False
 
     # ============================================================
     # Residential dwelling stock assumptions

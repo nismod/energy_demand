@@ -773,11 +773,10 @@ def get_enduse_tech(fuel_tech_p_by):
     """
     enduse_techs = []
     for tech_fueltype in fuel_tech_p_by.values():
-        for tech in tech_fueltype.keys():
-            enduse_techs.append(tech)
-
-            if tech == 'dummy_tech':
-                return []
+        if 'dummy_tech' in tech_fueltype.keys():
+            return []
+        else:
+            enduse_techs += tech_fueltype.keys()
 
     return list(set(enduse_techs))
 
@@ -880,19 +879,16 @@ def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 enduse,
                 tech,
-                'tech_fueltype_int'
-                )
+                'tech_fueltype_int')
             # Assign all to heat fueltype
             fuel_y[lookups['fueltype']['heat']] += np.sum(fuel_tech_y)
-
     else:
         for tech, fuel_tech_y in fuel_tech_y.items():
             tech_fuel_type_int = tech_stock.get_tech_attr(
                 enduse,
                 tech,
-                'tech_fueltype_int'
-                )
-
+                'tech_fueltype_int')
+            # Assign to fueltype of technology
             fuel_y[tech_fuel_type_int] += np.sum(fuel_tech_y)
 
     return fuel_y
@@ -1018,10 +1014,9 @@ def fuel_to_service(
         Constrained version
         no efficiencies are considered, because not technology specific service calculation
         """
-        service_fueltype_tech_p = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
+        service_fueltype_tech = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
         # Calculate share of service
         for fueltype, tech_list in fuel_tech_p_by.items():
-
             for tech, fuel_share in tech_list.items():
                 fuel_tech = fuel_new_y[fueltype] * fuel_share
                 tot_service_y += fuel_tech
@@ -1029,10 +1024,10 @@ def fuel_to_service(
 
                 # Assign all service to fueltype 'heat_fueltype'
                 try:
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
+                    service_fueltype_tech[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
                 except KeyError:
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] = 0
-                    service_fueltype_tech_p[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
+                    service_fueltype_tech[lu_fueltypes['heat']][tech] = 0
+                    service_fueltype_tech[lu_fueltypes['heat']][tech] += float(np.sum(fuel_tech))
     else:
         """Unconstrained version
         """
@@ -1040,7 +1035,6 @@ def fuel_to_service(
 
         # Calulate share of energy service per tech depending on fuel and efficiencies
         for fueltype, tech_list in fuel_tech_p_by.items():
-
             for tech, fuel_share in tech_list.items():
                 tech_eff = tech_stock.get_tech_attr(enduse, tech, 'eff_by')
 
@@ -1059,8 +1053,7 @@ def fuel_to_service(
     service_tech_p = convert_service_to_p(tot_service_y, service_fueltype_tech)
 
     # Convert service per technology to share of service within fueltype
-    service_fueltype_tech_p = convert_service_tech_to_p(
-        service_fueltype_tech)
+    service_fueltype_tech_p = convert_service_tech_to_p(service_fueltype_tech)
 
     # Calculate service fraction per fueltype
     service_fueltype_p = {

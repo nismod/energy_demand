@@ -52,8 +52,8 @@ def test_calc_lf_d():
     result = load_factors.calc_lf_d(fuel_yh, average_per_day)
 
     expected = np.zeros((2, 2))
-    expected[1][0] = np.average(fuel_yh[1][0]) / np.max(fuel_yh[1][0])
-    expected[1][1] = np.average(fuel_yh[1][1]) / np.max(fuel_yh[1][1])
+    expected[1][0] = np.average(fuel_yh[1][0]) / np.max(fuel_yh[1][0]) * 100
+    expected[1][1] = np.average(fuel_yh[1][1]) / np.max(fuel_yh[1][1]) * 100
 
     assert expected[1][0] == result[1][0]
     assert expected[1][1] == result[1][1]
@@ -73,8 +73,8 @@ def test_calc_lf_y():
     result = load_factors.calc_lf_y(fuel_yh, average_per_day)
 
     expected = np.zeros((8))
-    expected[0] = np.average(fuel_yh[0]) / np.max(fuel_yh[0])
-    expected[2] = np.average(fuel_yh[2]) / np.max(fuel_yh[2])
+    expected[0] = np.average(fuel_yh[0]) / np.max(fuel_yh[0]) * 100
+    expected[2] = np.average(fuel_yh[2]) / np.max(fuel_yh[2]) * 100
 
     assert expected[0] == result[0]
     assert expected[2] == result[2]
@@ -96,6 +96,6 @@ def test_calc_lf_season():
     result = load_factors.calc_lf_season(seasons, fuel_yh, average_per_day)
 
     expected = {'seasonA': np.zeros((8))}
-    expected['seasonA'][2] = np.average(fuel_yh[2][1:3]) / np.max(fuel_yh[2][1:3])
+    expected['seasonA'][2] = np.average(fuel_yh[2][1:3]) / np.max(fuel_yh[2][1:3]) * 100
 
     assert expected['seasonA'][2] == result['seasonA'][2]

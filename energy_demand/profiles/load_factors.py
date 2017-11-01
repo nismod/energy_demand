@@ -38,8 +38,8 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     # Calculate new maximum demand for every day
     # and fueltype with help of newly adaped load factor
     # ------------------------------------------
-    max_daily_demand_allowed = average_yd / loadfactor_yd_cy_improved
-    max_daily_demand_allowed[np.isnan(max_daily_demand_allowed)] = 0
+    allowed_demand_max_d = average_yd / loadfactor_yd_cy_improved
+    allowed_demand_max_d[np.isnan(allowed_demand_max_d)] = 0
 
     # ------------------------------------------
     # Calculate difference to daily mean for every hour
@@ -65,15 +65,15 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     # ------------------------------------------
     # Calculate diff to newmax for every hour
     # ------------------------------------------
-    diff_to_new_daily_max = fuel_yh - max_daily_demand_allowed[:, :, np.newaxis]
-    diff_to_new_daily_max[diff_to_new_daily_max < 0] = 0
+    diff_to_max_demand_d = fuel_yh - allowed_demand_max_d[:, :, np.newaxis]
+    diff_to_max_demand_d[diff_to_max_demand_d < 0] = 0
 
     # -----------------------------------------
     # Start with largest deviation to mean
     # and shift to all hours below average
     # -----------------------------------------
     # Calculate total demand which is to be shifted for every fueltype
-    tot_demand_to_shift = np.sum(diff_to_new_daily_max, axis=2)
+    tot_demand_to_shift = np.sum(diff_to_max_demand_d, axis=2)
 
     # Add fuel below average:
     # Distribute shiftable demand to all hours which are below average
@@ -81,7 +81,7 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     shifted_fuel_yh = fuel_yh + (area_below_mean_p * tot_demand_to_shift[:, :, np.newaxis])
 
     # Set all fuel hours whih are above max to max (substract diff)
-    shifted_fuel_yh = shifted_fuel_yh - diff_to_new_daily_max
+    shifted_fuel_yh = shifted_fuel_yh - diff_to_max_demand_d
 
     # -----------------------
     # Plotting - compare lp
@@ -122,7 +122,7 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
 
     # Caclualte yearly load factor for every fueltype
     with np.errstate(divide='ignore', invalid='ignore'):
-        load_factor_y = average_load_y / max_load_h
+        load_factor_y = average_load_y / max_load_h * 100 #convert to percentage
     load_factor_y[np.isnan(load_factor_y)] = 0
 
     return load_factor_y
@@ -160,7 +160,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
             #season_lf = average_fuel_yd_season / max_load_yd_season
-            season_lf = average_fuel_yd_season / max_load_h_season
+            season_lf = average_fuel_yd_season / max_load_h_season * 100 #convert to percentage
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
@@ -173,9 +173,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
 def calc_lf_d(fuel_yh, average_fuel_yd):
     """Calculate the daily load factor for every day in a year
     by dividing for each day the daily average by the daily peak
-    hour load.
-
-    # SHARK: Convert load factor to %
+    hour load. The load factor is given in %
 
     Arguments
     ---------
@@ -187,7 +185,7 @@ def calc_lf_d(fuel_yh, average_fuel_yd):
     Returns
     -------
     daily_lf : array
-        Laod factor calculated for every modelled day
+        Laod factor calculated for every modelled day [in %]
     average_fuel_yd : array
         Average fuel for every day
     """
@@ -196,7 +194,7 @@ def calc_lf_d(fuel_yh, average_fuel_yd):
 
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
-        daily_lf = average_fuel_yd / max_load_yd
+        daily_lf = average_fuel_yd / max_load_yd * 100 #convert to percentage
 
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0

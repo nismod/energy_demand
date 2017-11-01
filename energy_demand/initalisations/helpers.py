@@ -24,24 +24,6 @@ def init_fuel_tech_p_by(all_enduses_with_fuels, fueltypes_nr):
 
     return fuel_tech_p_by
 
-'''def dict_zero(first_level_keys):
-    """Initialise a dictionary with one level and
-    set zero as the value
-
-    Arguments
-    ----------
-    first_level_keys : list
-        First level data
-
-    Returns
-    -------
-    one_level_dict : dict
-         dictionary
-    """
-    one_level_dict = dict.fromkeys(first_level_keys, 0)
-
-    return one_level_dict'''
-
 def service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by):
     """Initialise dict and fill with zeros
 
