@@ -369,6 +369,10 @@ Contrasting electricity use from January and July shows that there are differenc
 
 To calculate regional daily hourly load heating profiles, hourly temperature data are used from the [UK Met Office (2015)](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c.) and loaded for weather stations across the UK.
 
+Metadatda of raw data can be found here: http://artefacts.ceda.ac.uk/badc_datadocs/ukmo-midas/WH_Table.html
+
+The station ID can be retreived here: http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=
+
 http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c
 
 

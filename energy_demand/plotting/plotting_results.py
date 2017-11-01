@@ -537,7 +537,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # Plot legend
     # ------------
     print("plottt...")
-    plt.legend(loc=2, ncol=2) 
+    plt.legend(ncol=2, loc=2) 
     #plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=8) #loc='center left', bbox_to_anchor=(1, 0.5)
     plt.legend(frameon=False)
 
@@ -551,7 +551,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
 
     # Save fig
     plt.show()
-    plt.savefig(fig_name, bbox_inches='tight')
+    plt.savefig(fig_name) #, bbox_inches='tight')
 
 def plt_fuels_peak_h(tot_fuel_y_max, data):
     """Plots stacked end_use for a region

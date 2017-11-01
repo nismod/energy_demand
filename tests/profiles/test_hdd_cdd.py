@@ -85,7 +85,7 @@ def test_get_hdd_country():
     smart_meter_diff_params = {}
     smart_meter_diff_params['sig_midpoint'] = 0
     smart_meter_diff_params['sig_steeppness'] = 1
-    
+
     reg_coord = {
         "reg_A": {
             'latitude': 59.02999742,
@@ -93,7 +93,7 @@ def test_get_hdd_country():
         "reg_B": {
             'latitude': 57.02999742,
             'longitude': -4.4}}
-    
+
     t_base_heating = {
         'base_yr': 15.5,
         'end_yr': 15.5}
@@ -135,7 +135,7 @@ def test_get_cdd_country():
     smart_meter_diff_params = {}
     smart_meter_diff_params['sig_midpoint'] = 0
     smart_meter_diff_params['sig_steeppness'] = 1
-    
+
     reg_coord = {
         "reg_A": {
             'latitude': 59.02999742,
@@ -143,7 +143,7 @@ def test_get_cdd_country():
         "reg_B": {
             'latitude': 57.02999742,
             'longitude': -4.4}}
-    
+
     t_base_heating = {
         'base_yr': 15.5,
         'end_yr': 15.5}
@@ -156,10 +156,24 @@ def test_get_cdd_country():
         t_base_heating,
         reg_coord,
         weather_stations)
-    
+
     expected = {
         "reg_A": (20 - 15.5) * 8760 / 24,
         "reg_B": (20 - 15.5) * 8760 / 24}
 
     assert result['reg_A'] == expected['reg_A']
     assert result['reg_B'] == expected['reg_B']
+
+def test_get_reg_hdd():
+    """testing
+    """
+    t_base_heating = 15.5
+
+    temperatures = np.zeros((365, 24)) + 12
+
+    model_yeardays = range(365)
+
+    result_hdd_d, result_shape = hdd_cdd.get_reg_hdd(temperatures, t_base_heating, model_yeardays)
+
+    assert np.sum(result_hdd_d) == (15.5 - 12) * 8760 / 24
+    assert round(np.sum(result_shape), 3) == round(1.0, 3)

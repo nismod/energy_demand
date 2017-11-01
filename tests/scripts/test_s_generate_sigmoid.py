@@ -75,7 +75,7 @@ def test_get_tech_installed():
 
     result = s_generate_sigmoid.get_tech_installed(enduses, fuel_switches)
 
-    expected = {'heating': ['boilerA', 'boilerB'], 'cooking': ['techC']}
+    expected = {'heating': ['boilerB', 'boilerA'], 'cooking': ['techC']}
 
     assert result['heating'] == expected['heating']
     assert result['cooking'] == expected['cooking']

@@ -191,7 +191,7 @@ def sigm_temp(base_sim_param, smart_meter_diff_params, t_base):
     return t_base_cy
 
 def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
-    """Calculate HDD for every day and daily yd shape of cooling demand
+    """Calculate hdd for every day and daily yd shape of heating demand
 
     Arguments
     ----------
