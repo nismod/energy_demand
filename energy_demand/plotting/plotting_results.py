@@ -209,8 +209,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     for color_nr in range(0, len(class_colours)):
         recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=0.7))
 
-    plt.legend(recs, classes, loc='best') #4
-    plt.legend(frameon=False)
+    plt.legend(recs, classes, loc='best', frameon=False) #4
 
     # Tight layout
     plt.tight_layout()
@@ -279,7 +278,6 @@ def plot_x_days(all_hours_year, region, days):
     plt.xlabel("Hours")
     plt.ylabel("Energy demand [GW]")
     plt.title("Energy Demand")
-    plt.legend()
     plt.legend(frameon=False)
 
     plt.show()
@@ -295,7 +293,6 @@ def plot_load_shape_yd(daily_load_shape):
     plt.xlabel("Hours")
     plt.ylabel("Percentage of daily demand")
     plt.title("Load curve of a day")
-    plt.legend()
     plt.legend(frameon=False)
     
     plt.show()
@@ -309,7 +306,6 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.plot(x_values, y_values)
 
     plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
-    plt.legend()
     plt.legend(frameon=False)
     plt.show()
 
@@ -537,9 +533,9 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # Plot legend
     # ------------
     print("plottt...")
-    plt.legend(ncol=2, loc=2) 
+    plt.legend(ncol=2, loc=2, frameon=False) 
     #plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=8) #loc='center left', bbox_to_anchor=(1, 0.5)
-    plt.legend(frameon=False)
+    
 
     # ---------
     # Labels

@@ -77,5 +77,6 @@ def test_get_tech_installed():
 
     expected = {'heating': ['boilerB', 'boilerA'], 'cooking': ['techC']}
 
-    assert result['heating'] == expected['heating']
+    assert 'boilerA' in expected['heating']
+    assert 'boilerB' in expected['heating']
     assert result['cooking'] == expected['cooking']

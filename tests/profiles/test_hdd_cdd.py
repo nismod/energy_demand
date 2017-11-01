@@ -177,3 +177,17 @@ def test_get_reg_hdd():
 
     assert np.sum(result_hdd_d) == (15.5 - 12) * 8760 / 24
     assert round(np.sum(result_shape), 3) == round(1.0, 3)
+
+def test_get_reg_cdd():
+    """testing
+    """
+    t_base_heating = 15.5
+
+    temperatures = np.zeros((365, 24)) + 20
+
+    model_yeardays = range(365)
+
+    result_hdd_d, result_shape = hdd_cdd.get_reg_cdd(temperatures, t_base_heating, model_yeardays)
+
+    assert np.sum(result_hdd_d) == (20 - 15.5) * 8760 / 24
+    assert round(np.sum(result_shape), 3) == round(1.0, 3)
