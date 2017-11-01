@@ -6,7 +6,7 @@ from datetime import date
 from datetime import timedelta
 from isoweek import Week
 
-def get_dates_week_nr(year, week_nr):
+'''def get_dates_week_nr(year, week_nr):
     """Get all dates from a ISO week_nr in a list
 
     Arguments
@@ -32,7 +32,7 @@ def get_dates_week_nr(year, week_nr):
         list_days.append(monday_in_week + timedelta(days=day))
 
     return list_days
-
+'''
 def date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 

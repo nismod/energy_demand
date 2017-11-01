@@ -26,7 +26,6 @@ class LoadProfileStock(object):
         enduses for which load profies are provided
         """
         all_enduses = set([])
-
         for profile_obj in self.load_profile_dict.values():
             for enduse in profile_obj.enduses:
                 all_enduses.add(enduse)
@@ -200,56 +199,50 @@ class LoadProfile(object):
         """
         self.unique_identifier = unique_identifier
         self.enduses = enduses
-
         self.shape_yd = shape_yd
         self.shape_yh = shape_yh
         self.enduse_peak_yd_factor = enduse_peak_yd_factor
 
         # Calculate percentage for every day
-        self.shape_y_dh = self.calc_y_dh_shape_from_yh()
+        self.shape_y_dh = calc_y_dh_shape_from_yh(shape_yh)
 
         self.shape_peak_dh = shape_peak_dh
 
-    def calc_y_dh_shape_from_yh(self):
-        """Calculate shape for every day
+def calc_y_dh_shape_from_yh(shape_yh):
+    """Calculate shape for every day
 
-        Returns
-        -------
-        shape_y_dh : array
-            Shape for every day
+    Returns
+    -------
+    shape_y_dh : array
+        Shape for every day
 
-        Note
-        ----
-        The output gives the shape for every day in a year (total sum == nr_of_days)
-        Within each day, the sum is 1
+    Note
+    ----
+    The output gives the shape for every day in a year (total sum == nr_of_days)
+    Within each day, the sum is 1
 
-        A RuntimeWarning may be raised if in one day a zero value is found.
-        The resulting inf are replaced however and thus this warning
-        can be ignored
-        """
-        # Calculate even if flat shape is assigned
-        # Info: nansum does not through an ErrorTimeWarning
-        # Some rowy may be zeros, i.e. division by zero results in inf values
-        #sum_every_day_p = 1 / np.nansum(self.shape_yh, axis=1)
-        #sum_every_day_p = np.divide(1, np.sum(self.shape_yh, axis=1))
-        
-        # Unable local RuntimeWarning: divide by zero encountered
-        with np.errstate(divide='ignore'):
-            sum_every_day_p = 1 / np.sum(self.shape_yh, axis=1)
-        sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
+    A RuntimeWarning may be raised if in one day a zero value is found.
+    The resulting inf are replaced however and thus this warning
+    can be ignored
+    """
+    # Calculate even if flat shape is assigned
+    # Info: nansum does not through an ErrorTimeWarning
+    # Some rowy may be zeros, i.e. division by zero results in inf values
 
-        # Ignore division error TODO:
-        #np.seterr(divide='ignore')
+    # Unable local RuntimeWarning: divide by zero encountered
+    with np.errstate(divide='ignore'):
+        sum_every_day_p = 1 / np.sum(shape_yh, axis=1)
+    sum_every_day_p[np.isinf(sum_every_day_p)] = 0 # Replace inf by zero
 
-        # Multiply (nr_of_days) + with (nr_of_days, 24)
-        shape_y_dh = sum_every_day_p[:, np.newaxis] * self.shape_yh
+    # Multiply (nr_of_days) + with (nr_of_days, 24)
+    shape_y_dh = sum_every_day_p[:, np.newaxis] * shape_yh
 
-        # Replace nan by zero (faster than np.nan_to_num)
-        shape_y_dh[np.isnan(shape_y_dh)] = 0
+    # Replace nan by zero
+    shape_y_dh[np.isnan(shape_y_dh)] = 0
 
-        return shape_y_dh
+    return shape_y_dh
 
-def abs_to_rel_no_nan(absolute_array):
+'''def abs_to_rel_no_nan(absolute_array):
     """Convert absolute to relative (without correcting the NaN values)
     If the total sum is zero, return same array
 
@@ -266,10 +259,9 @@ def abs_to_rel_no_nan(absolute_array):
     sum_array = float(np.sum(absolute_array))
 
     if sum_array != 0:
-        #return np.divide(absolute_array, sum_array)
         return absolute_array / sum_array
     else:
-        return absolute_array
+        return absolute_array'''
 
 def abs_to_rel(absolute_array):
     """Convert absolute numbers in an array to relative
@@ -302,7 +294,7 @@ def calk_peak_h_dh(fuel_peak_dh):
     Arguments
     ----------
     fuel_peak_dh : array
-        Fuel of peak day
+        Fuel of peak day for every fueltype
 
     Return
     ------
@@ -342,8 +334,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_yd=tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'],
         shape_yh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_lighting']['shape_non_peak_yd'][:, np.newaxis],
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_lighting']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh']
-        )
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
     # rs_cold (residential refrigeration)
     non_regional_lp_stock.add_load_profile(
@@ -353,8 +344,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_yd=tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'],
         shape_yh=tech_lp['rs_shapes_dh']['rs_cold']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cold']['shape_non_peak_yd'][:, np.newaxis],
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cold']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh']
-        )
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
     non_regional_lp_stock.add_load_profile(
@@ -364,8 +354,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_yd=tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'],
         shape_yh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_cooking']['shape_non_peak_yd'][:, np.newaxis],
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_cooking']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh']
-        )
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh'])
 
     # rs_wet
     non_regional_lp_stock.add_load_profile(
@@ -375,8 +364,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_yd=tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'],
         shape_yh=tech_lp['rs_shapes_dh']['rs_wet']['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd']['rs_wet']['shape_non_peak_yd'][:, np.newaxis],
         enduse_peak_yd_factor=tech_lp['rs_shapes_yd']['rs_wet']['shape_peak_yd_factor'],
-        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh']
-        )
+        shape_peak_dh=tech_lp['rs_shapes_dh']['rs_wet']['shape_peak_dh'])
 
     # -- dummy rs technologies (apply enduse sepcific shape)
     for enduse in assumptions['rs_dummy_enduses']:
@@ -388,8 +376,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
             shape_yd=tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'],
             shape_yh=tech_lp['rs_shapes_dh'][enduse]['shape_non_peak_y_dh'] * tech_lp['rs_shapes_yd'][enduse]['shape_non_peak_yd'][:, np.newaxis],
             enduse_peak_yd_factor=tech_lp['rs_shapes_yd'][enduse]['shape_peak_yd_factor'],
-            shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh']
-            )
+            shape_peak_dh=tech_lp['rs_shapes_dh'][enduse]['shape_peak_dh'])
 
     # - dummy ss technologies
     for enduse in assumptions['ss_dummy_enduses']:
@@ -403,8 +390,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                 shape_yh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sector][enduse]['shape_non_peak_yd'][:, np.newaxis],
                 sectors=[sector],
                 enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sector][enduse]['shape_peak_yd_factor'],
-                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh']
-                )
+                shape_peak_dh=tech_lp['ss_shapes_dh'][sector][enduse]['shape_peak_dh'])
 
     # dummy is - Flat load profile
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
@@ -437,8 +423,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
                     sectors=[sector],
                     enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
-                    shape_peak_dh=shape_peak_dh_sectors_enduses
-                    )
+                    shape_peak_dh=shape_peak_dh_sectors_enduses)
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
@@ -450,7 +435,6 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
                     enduse_peak_yd_factor=shape_peak_yd_factor,
-                    shape_peak_dh=shape_peak_dh_sectors_enduses
-                    )
+                    shape_peak_dh=shape_peak_dh_sectors_enduses)
 
     return non_regional_lp_stock

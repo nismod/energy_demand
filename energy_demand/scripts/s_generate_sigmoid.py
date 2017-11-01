@@ -238,8 +238,7 @@ def tech_sigmoid_parameters(
             #     xdata,
             #     ydata,
             #     fit_parameter,
-            #     True
-            #     )
+            #     True)
 
     return sigmoid_parameters
 
@@ -341,8 +340,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
         x_data,
         y_data,
         p0=start_parameters,
-        maxfev=10000 # Numer of iterations
-        ) #bounds=([-np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf]))
+        maxfev=10000) # Numer of iterations
 
     return popt
 
@@ -458,7 +456,6 @@ def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, servi
                     # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
                         service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
-                        #service_tech_switched_p[enduse][tech] = service_tech_switched_p[enduse][tech] - (change_service_fueltype_p * service_tech_by_p[enduse][tech])
 
     return service_tech_switched_p
 
@@ -577,8 +574,7 @@ def get_sig_diffusion(
                 service_tech_by_p,
                 fuel_tech_p_by,
                 installed_tech,
-                'actual_switch'
-            )
+                'actual_switch')
 
             # Calculate L for every technology for sigmod diffusion
             l_values_sig = tech_l_sigmoid(
@@ -587,8 +583,7 @@ def get_sig_diffusion(
                 installed_tech,
                 service_fueltype_by_p,
                 service_tech_by_p,
-                fuel_tech_p_by
-                )
+                fuel_tech_p_by)
 
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech[enduse] = tech_sigmoid_parameters(
@@ -599,8 +594,7 @@ def get_sig_diffusion(
             l_values_sig,
             service_tech_by_p,
             service_tech_switched_p,
-            fuel_switches
-        )
+            fuel_switches)
 
     return installed_tech, sig_param_tech
 
@@ -651,7 +645,7 @@ def write_sig_param_tech(path_to_txt, data):
 
     return
 
-def write_tech_increased_service(path_to_txt, data):
+'''def write_tech_increased_service(path_to_txt, data):
     """Write out function
 
     Arguments
@@ -667,16 +661,18 @@ def write_tech_increased_service(path_to_txt, data):
               )
     for enduse, technologies in data.items():
         for technology, parameters in technologies.items():
-            midpoint = float(parameters['midpoint'])
-            steepness = float(parameters['steepness'])
-            l_parameter = float(parameters['l_parameter'])
 
             file.write("{}, {}, {}, {}, {}".format(
-                enduse, str.strip(technology), midpoint, steepness, l_parameter) + '\n')
+                enduse,
+                str.strip(technology),
+                float(parameters['midpoint']),
+                float(parameters['steepness']),
+                float(parameters['l_parameter'])) + '\n')
 
     file.close()
 
     return
+'''
 
 def run(data):
     """Function run script

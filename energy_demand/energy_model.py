@@ -409,7 +409,6 @@ def industry_submodel(region, data, enduse_names, sector_names):
     - The ``regions`` and ``weather_regions`` gets deleted to save memory
     """
     logging.debug("... industry submodel start")
-    _scrap_cnt = 0
     submodels = []
 
     for sector_name in sector_names:
@@ -452,12 +451,6 @@ def industry_submodel(region, data, enduse_names, sector_names):
 
             # Add to list
             submodels.append(submodel)
-
-            _scrap_cnt += 1
-            logging.debug(
-                "... industry model {} in %s %s",
-                data['sim_param']['curr_yr'],
-                (100*_scrap_cnt)/(data['reg_nrs'] * len(sector_names) * len(enduse_names)))
 
     return submodels
 
@@ -545,7 +538,6 @@ def service_submodel(region, data, enduse_names, sector_names):
     - The ``regions`` and ``weather_regions`` gets deleted to save memory
     """
     logging.debug("... service submodel start")
-    _scrap_cnt = 0
     submodels = []
 
     for sector_name in sector_names:
@@ -579,12 +571,6 @@ def service_submodel(region, data, enduse_names, sector_names):
 
             # Add to list
             submodels.append(submodel)
-
-            _scrap_cnt += 1
-            logging.debug(
-                " ...running service model %s %s",
-                data['sim_param']['curr_yr'],
-                100.0 / (data['reg_nrs'] * len(sector_names) * len(enduse_names)) * _scrap_cnt)
 
     return submodels
 
