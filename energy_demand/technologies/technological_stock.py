@@ -10,17 +10,17 @@ class TechStock(object):
     The main class of the residential model.
     """
     def __init__(
-        self,
-        stock_name,
-        assumptions,
-        sim_param,
-        lookups,
-        temp_by,
-        temp_cy,
-        t_base_heating_by,
-        potential_enduses,
-        t_base_heating_cy,
-        enduse_technologies
+            self,
+            stock_name,
+            assumptions,
+            sim_param,
+            lookups,
+            temp_by,
+            temp_cy,
+            t_base_heating_by,
+            potential_enduses,
+            t_base_heating_cy,
+            enduse_technologies
         ):
         """Constructor of technologies for residential sector
 
@@ -245,20 +245,3 @@ class Technology(object):
                     assumptions['other_enduse_mode_info'],
                     self.eff_achieved_factor,
                     self.diff_method)
-                
-                '''#TODO: Create function to calculate eff of any year
-                self.eff_sy = self.calc_eff_sy(
-                    assumptions['technologies'][tech_name]['eff_by'],
-                    )
-
-    def calc_eff_sy(self, ):
-        """Calculate efficiency of any year with
-        linear distribution
-        
-        Return
-        ------
-        eff_sy : float
-            Efficiency of simulation year
-        """
-
-        return eff_sy'''

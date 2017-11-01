@@ -174,7 +174,7 @@ class EnergyModel(object):
             load_factor_y = lf.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
             load_factor_yd = lf.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
             load_factor_seasons = lf.calc_lf_season(data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
-            #workdays, monthly, TODO
+            #Alternative MAYBE: workdays, monthly
 
             # Copy regional load factors
             for fueltype_nr in range(data['lookups']['fueltypes_nr']):
@@ -351,21 +351,15 @@ def get_fuels_yh(enduse_object, attribute_to_get, model_yearhours_nrs, model_yea
             shape_peak_dh = np.full((24), 1 / 8760)
             fuels_reg_peak = fuels_reg_y
             fuels = fuels_reg_peak[:, np.newaxis] * shape_peak_dh
-
         elif attribute_to_get == 'fuel_peak_h':
             shape_peak_h = 1 / 8760
             fuels = fuels_reg_y * shape_peak_h
-
         elif attribute_to_get == 'shape_non_peak_y_dh':
             shape_non_peak_y_dh = np.full((model_yeardays_nrs, 24), (1.0 / 24))
             fuels = fuels_reg_y * shape_non_peak_y_dh
-
         elif attribute_to_get == 'shape_non_peak_yd':
             shape_non_peak_yd = np.ones((model_yeardays_nrs), dtype=float) / model_yeardays_nrs
             fuels = fuels_reg_y * shape_non_peak_yd
-            #FAST TODO:_a = np.full(
-            # (model_yeardays_nrs), (fuels_reg_y / model_yeardays_nrs), dtype=float)
-
         elif attribute_to_get == 'fuel_yh':
             nr_modelled_hours_factor = 1 / model_yearhours_nrs
             fast_shape = np.full(

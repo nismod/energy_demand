@@ -43,7 +43,7 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
     year_to_model = 2015
 
     # Weeks in middle of meteorological seasons
-    winter_week = list(range(
+    '''winter_week = list(range(
         date_handling.date_to_yearday(year_to_model, 1, 12),
         date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
     spring_week = list(range(
@@ -54,7 +54,7 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
         date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
     autumn_week = list(range(
         date_handling.date_to_yearday(year_to_model, 10, 12),
-        date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct
+        date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct'''
 
     # Full meteorological seasons
     assumptions['seasons'] = {}
@@ -173,7 +173,7 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
         'detached': 147,
         'bungalow': 77}
 
-    # Floor area per dwelling type #TODO
+    # Floor area per dwelling type
     assumptions['assump_dwtype_floorarea_ey'] = {
         'semi_detached': 96,
         'terraced': 82.5,
@@ -183,7 +183,7 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
 
     # Assumption about age distribution
     # Source: Housing Energy Fact Sheet
-    #Average builing age within age class, fraction
+    # Average builing age within age class, fraction
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918':0.21,

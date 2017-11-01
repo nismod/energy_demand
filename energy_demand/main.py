@@ -99,7 +99,6 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
@@ -173,7 +172,7 @@ if __name__ == "__main__":
         write_data.write_max_results(
             sim_yr, path_runs, tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_lf(
-            path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y,'reg_load_factor_y')
+            path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
         write_data.write_lf(
             path_runs, "result_reg_load_factor_yd", [sim_yr], reg_load_factor_yd, 'reg_load_factor_yd')
        
@@ -217,7 +216,7 @@ if __name__ == "__main__":
     results_every_year = read_data.read_results_y(
         data['lookups']['fueltypes_nr'], data['reg_nrs'], path_runs)
 
-    results_enduse_every_year = read_data.read_enduse_specific_model_result_from_txt(
+    results_enduse_every_year = read_data.read_enduse_specific_results_txt(
         data['lookups']['fueltypes_nr'], path_runs)
 
     tot_fuel_y_max = read_data.read_max_results(path_runs)
@@ -232,7 +231,7 @@ if __name__ == "__main__":
     load_factor_seasons['autumn'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
 
     logging.info("... Reading in results finished")
-    
+
     # ------------------------------
     # Plotting
     # ------------------------------

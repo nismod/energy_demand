@@ -12,7 +12,6 @@ from collections import defaultdict
 import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.read_write import read_data
-from energy_demand.plotting import plotting_program
 from energy_demand.initalisations import helpers
 from energy_demand.technologies import diffusion_technologies
 
@@ -22,14 +21,15 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     Arguments
     ----------
     l_value : float
-        TODO
+        Maximum upper level
     xdata : array
-
+        X data
     ydata : array
-
+        Y data
     fit_crit_a : float
-
+        Criteria to control and abort fit
     fit_crit_b : float
+        Criteria to control and abort fit
 
     Returns
     ------
@@ -57,7 +57,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 xdata,
                 ydata,
                 start_parameters)
-    
+
             '''logging.debug("Fit parameters: %s", fit_parameter)
             from energy_demand.plotting import plotting_program
             #plot sigmoid curve
@@ -78,8 +78,6 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                         fit_parameter[1] < 0) or (
                             fit_parameter[0] == start_parameters[0]) or (
                                 fit_parameter[1] == start_parameters[1]):
-                                # or(round(fit_parameter[0], 2) == round(fit_parameter[1], 2)): #NEW RULE
-                                # successfull = False
 
                 cnt += 1
                 if cnt >= len(start_param_list):
@@ -91,15 +89,13 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 # Check how good the fit is
                 # -------------------------
                 y_calculated = diffusion_technologies.sigmoid_function(
-                    xdata[1],
-                    l_value,
-                    *fit_parameter)
+                    xdata[1], l_value, *fit_parameter)
 
                 #print("Calculated value:  " + str(y_calculated))
                 #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                logging.debug("... Fitting measure in %: {}".format(fit_measure_in_percent))
-                logging.debug("... Fitting measure in %: {}".format(fit_measure_in_percent))
+                logging.debug("... Fitting measure in %: %s", fit_measure_in_percent)
+                logging.debug("... Fitting measure in %: %s", fit_measure_in_percent)
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
@@ -162,8 +158,7 @@ def tech_sigmoid_parameters(
     a good fit: fit_crit_a, fit_crit_b
     If service definition, the year until switched is the end model year
     """
-
-    # As fit does not work with a starting point of 0, 
+    # As fit does not work with a starting point of 0,
     # an initial small value needs to be assumed
     fit_assump_init = 0.001
 
@@ -231,6 +226,7 @@ def tech_sigmoid_parameters(
             sigmoid_parameters[tech]['l_parameter'] = l_values[enduse][tech]
 
             #plot sigmoid curve
+            #from energy_demand.plotting import plotting_program
             # plotting_program.plotout_sigmoid_tech_diff(
             #     l_values,
             #     tech,

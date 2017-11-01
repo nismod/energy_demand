@@ -25,12 +25,12 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     floor_area = {}
     # Iterate all buildings
     # see which dwelling type -->
-    # see which age_class --> 
+    # see which age_class -->
     # see which building attribute (e.g. resid, industry) 
     # --> summen the following attributes according these categories
     #       - population stock_pop[]
     #       - floor area
-    #       - 
+    #       -
     # ----------------
     # Create residential dwelling stock
     # ----------------
@@ -137,8 +137,8 @@ class Dwelling(object):
         self.floorarea = floorarea
         self.sector_type = sector_type
         self.gva = gva
-        #self.income = get_income_factor(income)?? #TODO
-        #self.household_size = get_household_factor(household_size)?? #TODO
+        #self.income = get_income_factor(income)?? MAYBE
+        #self.household_size = get_household_factor(household_size)?? MAYBE
 
         # FACTORS
         # HOW MUCH MORE ENERGY e.g. certain dwelling type uses

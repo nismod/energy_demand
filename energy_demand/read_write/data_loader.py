@@ -131,7 +131,6 @@ def dummy_data_generation(data):
         data['lu_reg'][region_name] = region_name
     data['reg_nrs'] = len(regions)
 
-    #TODO: FLOOR_AREA_LOOKUP:
     data['reg_floorarea_resid'] = {}
     for region_name in pop_dummy[data['sim_param']['base_yr']]:
         data['reg_floorarea_resid'][region_name] = 100000
@@ -538,7 +537,7 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
         shape_non_peak_yd = read_data.read_txt_shape_non_peak_yd(
             os.path.join(txt_path, str(enduse) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
-        # Select only modelled days (nr_of_days, 24) 
+        # Select only modelled days (nr_of_days, 24)
         shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
         shape_non_peak_yd_selection= shape_non_peak_yd[[model_yeardays]]
 

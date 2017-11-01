@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.patches as mpatches
-from energy_demand.technologies import tech_related
 from energy_demand.plotting import plotting_program
 #import matplotlib.colors as colors #for color_name in colors.cnmaes:
 
@@ -27,9 +26,9 @@ def run_all_plot_functions(
     """
 
     ##pf.plot_load_curves_fueltype(results_every_year, data)
+
     # plotting load factors per fueltype and region
-    #for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
-    if 1 == 1: #TODO :REMOVE
+    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
         fueltype_str = 'electricity'
         fueltype_int = 2
 
@@ -59,6 +58,9 @@ def run_all_plot_functions(
                 data['local_paths']['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
     
+    # ----------------
+    # Plotting yearly fuel for whole UK
+    # ----------------
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
         results_every_year,
@@ -223,7 +225,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     plt.margins(x=0)#ax.margins(x=0)
 
     # Save fig
-    plt.savefig(path_plot_fig) #, bbox_inches='tight')
+    plt.savefig(path_plot_fig)
     plt.close()
 
 def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig):
@@ -470,7 +472,7 @@ def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_
         data_over_day = np.zeros((8760))
         for region_data in fuel_all_regions:
             data_over_day += region_data
-        #_a = np.sum(data_over_day, axis=0)  #FASTER with numpy TODO
+        #data_over_day = np.sum(fuel_all_regions, axis=0)  #FASTER with numpy TODO
 
         y_init[fueltype_int] = data_over_day
 
@@ -575,8 +577,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     plt.margins(x=0)#ax.margins(x=0)
 
     # Save fig
-    #plt.show()
-    plt.savefig(fig_name) #, bbox_inches='tight')
+    plt.savefig(fig_name)
     plt.close()
 
 def plt_fuels_peak_h(tot_fuel_y_max, data):
@@ -620,7 +621,6 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.ylabel("Fuel")
     plt.xlabel("Simulation years")
     plt.title("Fuels for peak hour in a year across all enduses")
-
     plt.show()
 
 def plot_load_profile_dh(array_dh):
@@ -629,14 +629,14 @@ def plot_load_profile_dh(array_dh):
     x_values = range(24)
 
     plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
-    
+
     plt.show()
 
 def testplot():
     """TESTLINELOTS
     """
-    x_values = [[3,23],[32,12]]
-    y_values = [[4,44],[33,1]]
+    x_values = [[3, 23], [32, 12]]
+    y_values = [[4, 44], [33, 1]]
 
     for line_nr in range(2):
         plt.plot(x_values[line_nr], y_values[line_nr], color='green') #'ro', markersize=1,

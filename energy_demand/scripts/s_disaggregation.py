@@ -244,7 +244,6 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
         # Iterate sector
         for sector in data['sectors']['is_sectors']:
-            #is_fuel_disagg[region_name][sector] = {}
 
             # Sector specifid info
             reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())

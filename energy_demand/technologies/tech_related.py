@@ -18,6 +18,8 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
 
     Arguments
     ----------
+    technologies : dict
+        Technologies
     tech_p_by : dict
         Fuel assignement of technologies in base year
     all_specified_tech_enduse_by : dict
@@ -26,11 +28,11 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     Returns
     -------
     tech_p_by : dict
-
+        Fuel assignement of technologies in base year
     all_specified_tech_enduse_by : dict
-
-    dummy_techs : dict
-    TODO
+        Technologies per enduse
+    technologies : dict
+        Technologies
     """
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:

@@ -235,9 +235,8 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
             # service depending on fuel and efficiencies
             for tech, fuel_alltech_by in fuel_p_tech_by[enduse][fueltype].items():
 
-                # Fuel share based on defined fuel shares within fueltype (share of fuel * total fuel)
+                # Fuel share based on defined shares within fueltype (share of fuel * total fuel)
                 fuel_tech = fuel_alltech_by * fuel_fueltype
-                #logging.debug("------------Tech: {}  {} ".format(fuel_alltech_by, fuel_fueltype))
 
                 # Get technology type
                 tech_type = tech_related.get_tech_type(tech, tech_list)
@@ -254,8 +253,6 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech
-                ###logging.debug("SERVICE NATIONA LCALCUATION: {} {} {}  {} {}".format(
-                # enduse, tech, fuel_tech, eff_tech, service_fueltype_tech))
 
                 # Add energy service demand
                 service[enduse][fueltype][tech] += service_fueltype_tech
@@ -280,10 +277,8 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
             for technology, service_tech in technology_service_enduse.items():
 
                 with np.errstate(divide='ignore'): #OptimizeWarning: Covariance of the parameters could not be estimated
-                    #with warnings.catch_warnings():
                     service_tech_by_p[enduse][technology] = service_tech / total_service
                     warnings.filterwarnings('ignore')
-
         ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
@@ -291,15 +286,12 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
 
             #OptimizeWarning: Covariance of the parameters could not be estimated
             with np.errstate(divide='ignore'):
-                #with warnings.catch_warnings():
                 service_fueltype_by_p[enduse][fueltype] = service_fueltype_by_p[enduse][fueltype] / total_service
-                #warnings.filterwarnings('ignore')
 
     # Assert does not work for endues with no defined technologies
     # --------
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
-
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
 def run(data):
@@ -370,5 +362,5 @@ def run(data):
         os.path.join(data['local_paths']['dir_services'], 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
-    logging.debug("... finished script {}".format(os.path.basename(__file__)))
+    logging.debug("... finished script %s", os.path.basename(__file__))
     return

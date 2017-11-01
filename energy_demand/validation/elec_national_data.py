@@ -9,7 +9,6 @@ from energy_demand.basic import date_handling
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
-from collections import defaultdict
 
 def get_month_from_string(month_string):
     """Convert string month to int month with Jan == 1
@@ -18,7 +17,7 @@ def get_month_from_string(month_string):
     --------
     month_string : str
         Month given as a string
-    
+
     Returns
     --------
     month : int
@@ -60,7 +59,7 @@ def read_raw_elec_2015_data(path_to_csv):
     -----
     Half hourly measurements are aggregated to hourly values
 
-    Necessary data preparation: On 29 March and 25 Octobre 
+    Necessary data preparation: On 29 March and 25 Octobre
     there are 46 and 48 values because of the changing of the clocks
     The 25 Octobre value is omitted, the 29 March hour interpolated in the csv file
     """
@@ -166,7 +165,7 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
 
     plt.xlabel("Hours", fontsize=10)
     plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
-    
+
     plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
 
     plt.legend()
@@ -179,6 +178,8 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
 def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
 
+    Arguments
+    ---------
     TODO: IMPROVE:
     """
     logging.debug("...compare elec peak results")
@@ -241,7 +242,7 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     for yearday_python in range(365):
         for hour in range(24):
 
-            # Calculate difference in electricity use
+            # Calculate difference in electricity use TODO: DIFF UNUSED
             diff = data_real[yearday_python][hour] - data_calculated[yearday_python][hour]
 
             # Differenc in % of real value

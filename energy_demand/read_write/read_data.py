@@ -10,14 +10,28 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
-def read_results_y(fueltypes_nr, nr_of_regions, path_to_folder):
-    """
+def read_results_y(fueltypes_nr, reg_nrs, path_to_folder):
+    """Read results
+
+    Arguments
+    ---------
+    fueltypes_nr : int
+        Number of fueltypes
+    reg_nrs : int
+        Number of regions
+    path_to_folder : str
+        Path to folder
+    
+    Returns
+    -------
+    results = dict
+        Results
     """
     results = defaultdict(dict)
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
-    # Iterate files
+    # Iterate files in older
     for file_path in all_txt_files_in_folder:
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
@@ -29,7 +43,7 @@ def read_results_y(fueltypes_nr, nr_of_regions, path_to_folder):
             try:
                 results[year]
             except KeyError:
-                results[year] = np.zeros((fueltypes_nr, nr_of_regions, 8760), dtype=float)
+                results[year] = np.zeros((fueltypes_nr, reg_nrs, 8760), dtype=float)
 
             results[year][fueltype_array_position] = txt_data
         except IndexError:
@@ -38,7 +52,12 @@ def read_results_y(fueltypes_nr, nr_of_regions, path_to_folder):
     return results
 
 def read_max_results(path_to_folder):
-    """
+    """Read max results
+
+    Arguments
+    ---------
+    path_to_folder : str
+        Path to folder
     """
     results = {}
     path_enduse_specific_results = os.path.join(path_to_folder, "tot_fuel_max")
@@ -54,11 +73,18 @@ def read_max_results(path_to_folder):
 
         # Add year if not already exists
         results[year] = txt_data
-    
+
     return results
 
-def read_enduse_specific_model_result_from_txt(fueltypes_nr, path_to_folder):
-    """
+def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
+    """Read restuls
+
+    Arguments
+    ---------
+    fueltypes_nr : int
+        Number of fueltypes
+    path_to_folder : str
+        Folder path
     """
     results = {}
     path_enduse_specific_results = os.path.join(path_to_folder, "enduse_specific_results")
@@ -304,7 +330,7 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
                     }
                 )
             except (KeyError, ValueError):
-                sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
+                sys.exit("Check if provided data is complete (no empty csv entries)")
 
     # Group all entries according to enduse
     all_enduses = []
@@ -330,17 +356,17 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
             for tech in specified_tech_enduse_by[enduse]:
                 if tech not in enduse_tech_ey_p[enduse]:
-                    sys.exit("Error XY: No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
+                    sys.exit("No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
 
     # Test if more service is provided as input than possible to maximum switch
     for entry in service_switches:
         if entry['service_share_ey'] > entry['tech_assum_max_share']:
-            sys.exit("Error: More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
+            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
 
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in enduse_tech_ey_p:
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
-            sys.exit("Error while loading future services assumptions: The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+            sys.exit("The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
 
     # ------------------------------------------------------
     # Add all other enduses for which no switch is defined
@@ -388,17 +414,17 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                     }
                 )
             except (KeyError, ValueError):
-                sys.exit("Error in loading fuel switch: Check if provided data is complete (no emptly csv entries)")
+                sys.exit("Check if provided data is complete (no emptly csv entries)")
 
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for element in service_switches:
         if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
-            sys.exit("Error while loading fuel switch assumptions: More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
+            sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
 
         if element['share_fuel_consumption_switched'] == 0:
-            sys.exit("Error: The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
+            sys.exit("The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
 
     # Test if more than 100% per fueltype is switched
     for element in service_switches:
@@ -413,14 +439,14 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                 tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
 
         if tot_share_fueltype_switched > 1.0:
-            sys.exit("ERROR: The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
+            sys.exit("The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
     # Test whether defined enduse exist
     for element in service_switches:
         if element['enduse'] in enduses['ss_all_enduses'] or element['enduse'] in enduses['rs_all_enduses'] or element['enduse'] in enduses['is_all_enduses']:
             pass
         else:
-            sys.exit("ERROR: The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
+            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
 
     return service_switches
 
@@ -515,7 +541,7 @@ def read_base_data_resid(path_to_csv):
                     end_uses_dict[end_use][cnt_fueltype] = i
                     cnt += 1
     except (KeyError, ValueError):
-        sys.exit("Error: Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
+        sys.exit("Check whether tehre any empty cells in the csv files for enduse '{}".format(end_use))
 
     # Create list with all rs enduses
     all_enduses = []
@@ -583,7 +609,12 @@ def read_csv_base_data_industry(path_to_csv, fueltypes_nr, lu_fueltypes):
     return end_uses_dict, list(all_sectors), list(all_enduses)
 
 def read_installed_tech(path_to_csv):
-    """Read 
+    """Read
+
+    Arguments
+    --------
+    path_to_csv : str
+        Path
     """
     tech_installed = {}
 
@@ -830,8 +861,6 @@ def read_txt_shape_non_peak_yd(file_path):
 
 def read_lf_y(path_enduse_specific_results):
     """Read load factors from txt file
-
-
     """
     results = defaultdict(dict)
 
@@ -861,7 +890,8 @@ def read_capacity_installation(path_to_csv):
 
     Returns
     -------
-    TODO
+    service_switches : dict
+        Service switches which implement the defined capacity installation
     """
     service_switches = []
 
