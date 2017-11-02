@@ -95,15 +95,23 @@ def run_all_plot_functions(
         2015,
         os.path.join(data['local_paths']['data_results_PDF'], "fig_tot_all_enduse04.pdf"))
 
+    # Residential
     plt_stacked_enduse(
-        data,
+        data['sim_param']['sim_period'],
         results_enduse_every_year,
         data['enduses']['rs_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "figure_stacked_country_final.pdf"))
+        os.path.join(data['local_paths']['data_results_PDF'], "fig_rs_stacked_country_final.pdf"))
+
+    # Service #TODO TEST
+    plt_stacked_enduse(
+        data['sim_param']['sim_period'],
+        results_enduse_every_year,
+        data['enduses']['ss_all_enduses'],
+        os.path.join(data['local_paths']['data_results_PDF'], "fig_ss_stacked_country_final.pdf"))
 
     # Plot all enduses
     #plt_stacked_enduse(
-    # data,
+    # data['sim_param']['sim_period'],
     # results_every_year,
     # data['enduses']['rs_all_enduses'],
     # 'tot_fuel_y_enduse_specific_h',
@@ -323,7 +331,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.legend(ncol=2, frameon=False)
     plt.show()
 
-def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
+def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_name):
     """Plots stacked end_use for a region
 
     Arguments
@@ -342,7 +350,7 @@ def plt_stacked_enduse(data, results_enduse_every_year, enduses_data, fig_name):
     # INFO Cannot plot a single year?
     """
     #nr_y_to_plot = data['sim_param']['sim_period_yrs']
-    years_simulated = data['sim_param']['sim_period']
+    years_simulated = sim_period #data['sim_param']['sim_period']
 
     x_data = years_simulated
     y_data = np.zeros((len(enduses_data), len(years_simulated)))

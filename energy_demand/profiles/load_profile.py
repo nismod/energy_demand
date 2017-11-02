@@ -21,17 +21,6 @@ class LoadProfileStock(object):
         self.dict_with_tuple_keys = {}
         self.enduses_in_stock = set([])
 
-    def get_all_enduses_in_stock(self):
-        """Update the list of the object with all
-        enduses for which load profies are provided
-        """
-        all_enduses = set([])
-        for profile_obj in self.load_profile_dict.values():
-            for enduse in profile_obj.enduses:
-                all_enduses.add(enduse)
-
-        setattr(self, 'enduses_in_stock', all_enduses)
-
     def add_load_profile(
             self,
             unique_identifier,
@@ -82,33 +71,15 @@ class LoadProfileStock(object):
             shape_peak_dh)
 
         # Generate lookup dictionary with triple key
-        self.generate_dict_with_tuple_keys(
+        self.dict_with_tuple_keys = generate_dict_with_tuple_keys(
+            self.dict_with_tuple_keys,
             unique_identifier,
             enduses,
             sectors,
             technologies)
 
         # Update enduses in stock
-        self.get_all_enduses_in_stock()
-
-    def generate_dict_with_tuple_keys(self, unique_identifier, enduses, sectors, technologies):
-        """Generate look_up keys to position in 'load_profile_dict'
-
-        Arguments
-        ----------
-        unique_identifier : string
-            Unique identifier of load shape object
-        enduses : list
-            List with enduses
-        sectors : list
-            List with sectors
-        technologies : list
-            List with technologies
-        """
-        for enduse in enduses:
-            for sector in sectors:
-                for technology in technologies:
-                    self.dict_with_tuple_keys[(enduse, sector, technology)] = unique_identifier
+        self.enduses_in_stock = get_all_enduses_in_stock(self.load_profile_dict)
 
     def get_lp(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
@@ -168,6 +139,39 @@ class LoadProfileStock(object):
             return load_profile_obj.shape_peak_dh
         else:
             return load_profile_obj.shape_peak_dh[sector][enduse]['shape_peak_dh']
+
+def generate_dict_with_tuple_keys(dict_with_tuple_keys, unique_identifier, enduses, sectors, technologies):
+    """Generate look_up keys to position in 'load_profile_dict'
+
+    Arguments
+    ----------
+    unique_identifier : string
+        Unique identifier of load shape object
+    enduses : list
+        List with enduses
+    sectors : list
+        List with sectors
+    technologies : list
+        List with technologies
+    """
+    for enduse in enduses:
+        for sector in sectors:
+            for technology in technologies:
+                dict_with_tuple_keys[(enduse, sector, technology)] = unique_identifier
+
+    return dict_with_tuple_keys
+
+def get_all_enduses_in_stock(load_profile_dict):
+    """Update the list of the object with all
+    enduses for which load profies are provided
+    """
+    all_enduses = set([])
+    for profile_obj in load_profile_dict.values():
+        for enduse in profile_obj.enduses:
+            all_enduses.add(enduse)
+
+    #setattr(self, 'enduses_in_stock', list(all_enduses))
+    return list(all_enduses)
 
 class LoadProfile(object):
     """Load profile container to store differengt shapes

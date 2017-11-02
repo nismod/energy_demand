@@ -41,15 +41,62 @@ def test_LoadProfileStock():
     """testing
     """
 
-    result = load_profile.LoadProfileStock("test_stock")
+    result_obj = load_profile.LoadProfileStock("test_stock")
 
     expected = "test_stock"
 
-    assert result.stock_name == expected
+    assert result_obj.stock_name == expected
+
+    # -----
+    result_obj.add_load_profile(
+        unique_identifier="A123",
+        technologies=['dummy_tech'],
+        enduses=['cooking'],
+        shape_yd=np.zeros((365)),
+        shape_yh=np.zeros((365, 24)),
+        sectors=False,
+        enduse_peak_yd_factor=1.0/365,
+        shape_peak_dh=np.full((24), 1.0/24))
+
+    result = result_obj.enduses_in_stock
+
+    result2 = load_profile.get_all_enduses_in_stock(result_obj.load_profile_dict)
+
+    assert result == ['cooking']
+    assert result2 == ['cooking']
+
+    # ---
+    # -----
+    result_obj.add_load_profile(
+        unique_identifier="A123",
+        technologies=['dummy_tech'],
+        enduses=['cooking'],
+        shape_yd=np.zeros((365)),
+        shape_yh=np.zeros((365, 24)),
+        sectors=['sectorA'],
+        enduse_peak_yd_factor=1.0/365,
+        shape_peak_dh=np.full((24), 1.0/24))
+
+    result = result_obj.enduses_in_stock
+    assert result == ['cooking']
+
+def test_generate_dict_with_tuple_keys():
+    """
+    """
+    result = load_profile.generate_dict_with_tuple_keys(
+        {"A": 3},
+        "100D",
+        ['cooking'],
+        ["sectorA", "sectorB"],
+        ['techA'])
+    
+    expected = {"A": 3, ('cooking', "sectorA", 'techA'): "100D", ('cooking', "sectorB", 'techA'): "100D"}
+
+    assert expected == result
 
 def test_LoadProfile():
 
-    result = load_profile.LoadProfile(
+    result_obj = load_profile.LoadProfile(
         enduses=['heating'],
         unique_identifier="A123",
         shape_yd=np.zeros((365)),
@@ -57,4 +104,6 @@ def test_LoadProfile():
         enduse_peak_yd_factor=0.7,
         shape_peak_dh=np.zeros((24)))
 
-    assert result.enduses == ['heating']
+    
+
+    assert result_obj.enduses == ['heating']
