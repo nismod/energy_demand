@@ -180,12 +180,9 @@ class Dwelling(object):
                 Dwelling.__setattr__(
                     self,
                     enduse,
-                    scenario_driver_value
-                    )
+                    scenario_driver_value)
 
             assert scenario_driver_value != 0
-
-
 
 class DwellingStock(object):
     """Class of the building stock in a region
@@ -206,47 +203,46 @@ class DwellingStock(object):
         self.dwellings = dwellings
 
         # Calculate pop of dwelling stock
-        self.population = self.get_tot_pop()
+        self.population = get_tot_pop(dwellings)
 
         # Calculate enduse specific scenario driver
         for enduse in enduses:
             DwellingStock.__setattr__(
                 self,
                 enduse,
-                self.get_scenario_driver_enduse(enduse)
-                )
+                get_scenario_driver_enduse(dwellings, enduse))
 
-    def get_scenario_driver_enduse(self, enduse):
-        """Sum all scenario driver for space heating
+def get_scenario_driver_enduse(dwellings, enduse):
+    """Sum all scenario driver for space heating
 
-        Arguments
-        ----------
-        enduse: string
-            Enduse
-        """
-        sum_driver = 0
-        for dwelling in self.dwellings:
-            sum_driver += getattr(dwelling, enduse)
+    Arguments
+    ----------
+    enduse: string
+        Enduse
+    """
+    sum_driver = 0
+    for dwelling in dwellings:
+        sum_driver += getattr(dwelling, enduse)
 
-        return sum_driver
+    return sum_driver
 
-    def get_tot_pop(self):
-        """Get total population of all dwellings
+def get_tot_pop(dwellings):
+    """Get total population of all dwellings
 
-        Return
-        ------
-        tot_pop : float or bool
-            If population is not provided, return `None`,
-            otherwise summed population of all dwellings
-        """
-        tot_pop = 0
-        for dwelling in self.dwellings:
-            if dwelling.population is None:
-                return None
-            else:
-                tot_pop += dwelling.population
+    Return
+    ------
+    tot_pop : float or bool
+        If population is not provided, return `None`,
+        otherwise summed population of all dwellings
+    """
+    tot_pop = 0
+    for dwelling in dwellings:
+        if dwelling.population is None:
+            return None
+        else:
+            tot_pop += dwelling.population
 
-        return tot_pop
+    return tot_pop
 
 def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp):
     """Calculate future floor area per person depending
@@ -293,8 +289,7 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                     curr_yr,
                     1,
                     assump_final_diff_floorarea_pp,
-                    sim_param['sim_period_yrs']
-                    )
+                    sim_param['sim_period_yrs'])
 
                 # Floor area per person of simulation year
                 floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
@@ -350,7 +345,6 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_ey, sim_param):
 
     return dwtype_floor_area
 
-
 def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, sim_param):
     """Calculates the annual distribution of dwelling types
     based on assumption of base and end year distribution
@@ -403,8 +397,7 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, sim_param):
             sum(dwtype_distr[year].values()),
             1.0,
             decimal=5,
-            err_msg='The distribution of dwelling types went wrong', verbose=True
-            )
+            err_msg='The distribution of dwelling types went wrong', verbose=True)
 
     return dwtype_distr
 

@@ -135,7 +135,7 @@ def get_cdd_country(
             weather_stations)
 
         # Temp data
-        temperatures = temp_data[closest_station_id] #[sim_param['base_yr']]
+        temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(

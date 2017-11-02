@@ -86,7 +86,7 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
 
     return list(set(dummy_enduses))
 
-def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
+def calc_hp_eff(temp_yr, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperature difference of base year
 
     Arguments
@@ -112,8 +112,12 @@ def get_heatpump_eff(temp_yr, efficiency_intersect, t_base_heating):
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
-    # Calculate temperature difference to t_base_heating
-    temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
+    # Calculate temperature difference to t_base_heating TODO WHY NOT t_base_heating - temp_yr
+    #temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
+
+    # SHARK NEW: 
+    temp_difference_temp_yr = t_base_heating - temp_yr #TODO TODO
+    temp_difference_temp_yr[temp_difference_temp_yr < 0] = 0 #Ignore all hours where no heating is necessary
 
     # Calculate average efficiency of heat pumps over full year
     eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
@@ -407,7 +411,7 @@ def generate_ashp_gshp_split(split_factor):
 
     return installed_heat_pump
 
-def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_tech, assumptions):
+'''def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_tech, assumptions):
     """Calculate average efficiency for base year of hybrid technologies for
     overall national energy service calculation
 
@@ -463,3 +467,4 @@ def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_t
     av_eff = service_low_temp_tech_p * eff_tech_low_temp + service_high_temp_tech_p * eff_tech_high_temp
 
     return av_eff
+'''

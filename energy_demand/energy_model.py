@@ -397,10 +397,6 @@ def industry_submodel(region, data, enduse_names, sector_names):
     ------
     submodules : list
         Submodule objects
-
-    Note
-    ----
-    - The ``regions`` and ``weather_regions`` gets deleted to save memory
     """
     logging.debug("... industry submodel start")
     submodels = []
@@ -464,10 +460,6 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
     -------
     submodule_list : list
         List with submodules
-
-    Note
-    ----
-    - The ``regions`` and ``weather_regions`` gets deleted to save memory
     """
     logging.debug("... residential submodel start")
 
@@ -526,10 +518,6 @@ def service_submodel(region, data, enduse_names, sector_names):
     -------
     submodels : list
         List with submodels
-
-    Note
-    ----
-    - The ``regions`` and ``weather_regions`` gets deleted to save memory
     """
     logging.debug("... service submodel start")
     submodels = []

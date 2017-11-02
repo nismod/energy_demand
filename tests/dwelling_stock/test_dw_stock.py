@@ -34,8 +34,8 @@ def test_get_tot_pop():
     expected2 = None
 
     # call function
-    out_value = dw_stock_object.get_tot_pop()
-    out_value2 = dw_stock_object2.get_tot_pop()
+    out_value = dw_stock.get_tot_pop(dw_stock_object.dwellings) 
+    out_value2 = dw_stock.get_tot_pop(dw_stock_object2.dwellings)
 
     assert out_value == expected
     assert out_value2 == expected2
@@ -59,7 +59,7 @@ def test_get_scenario_driver_enduse():
     expected = 4.4
 
     # call function
-    out_value = dw_stock_object.get_scenario_driver_enduse('population')
+    out_value = dw_stock.get_scenario_driver_enduse(dw_stock_object.dwellings, 'population')
 
     assert out_value == expected
 

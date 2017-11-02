@@ -87,8 +87,8 @@ def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
     # Plotting - compare lp
     # -----------------------
     #from energy_demand.plotting import plotting_results
-    #plotting_results.plot_load_profile_dh(fuel_yh[2][0])
-    #plotting_results.plot_load_profile_dh(shifted_fuel_yh[2][0])
+    #plotting_results.plot_load_profile_dh(fuel_yh[data['lookups']['fueltype']['electricity']2][0])
+    #plotting_results.plot_load_profile_dh(shifted_fuel_yh[data['lookups']['fueltype']['electricity']][0])
     return shifted_fuel_yh
 
 def calc_lf_y(fuel_yh, average_fuel_yd):

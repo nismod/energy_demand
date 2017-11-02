@@ -80,10 +80,10 @@ def test_LoadProfileStock():
     result = result_obj.enduses_in_stock
     assert result == ['cooking']
 
-def test_generate_dict_with_tuple_keys():
+def test_generate_key_lu_dict():
     """
     """
-    result = load_profile.generate_dict_with_tuple_keys(
+    result = load_profile.generate_key_lu_dict(
         {"A": 3},
         "100D",
         ['cooking'],

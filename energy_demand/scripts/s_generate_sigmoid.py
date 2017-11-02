@@ -238,14 +238,14 @@ def tech_sigmoid_parameters(
 
     return sigmoid_parameters
 
-def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
+def get_tech_future_service(service_tech_by_p, service_tech_ey_p):
     """Get all those technologies with increased service in future
 
     Arguments
     ----------
     service_tech_by_p : dict
         Share of service per technology of base year of total service
-    share_service_tech_ey_p : dict
+    service_tech_ey_p : dict
         Share of service per technology of end year of total service
 
     Returns
@@ -271,7 +271,7 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
     for enduse in service_tech_by_p:
 
         # If no service switch defined
-        if share_service_tech_ey_p[enduse] == {}:
+        if service_tech_ey_p[enduse] == {}:
             tech_increased_service[enduse] = []
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []
@@ -284,11 +284,11 @@ def get_tech_future_service(service_tech_by_p, share_service_tech_ey_p):
             for tech in service_tech_by_p[enduse]:
 
                 # If future larger share
-                if service_tech_by_p[enduse][tech] < share_service_tech_ey_p[enduse][tech]:
+                if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]:
                     tech_increased_service[enduse].append(tech)
 
                 # If future smaller service share
-                elif service_tech_by_p[enduse][tech] > share_service_tech_ey_p[enduse][tech]:
+                elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]:
                     tech_decreased_share[enduse].append(tech)
                 else:
                     tech_constant_share[enduse].append(tech)
@@ -494,7 +494,7 @@ def get_sig_diffusion(
         fuel_switches,
         enduses,
         tech_increased_service,
-        share_service_tech_ey_p,
+        service_tech_ey_p,
         enduse_tech_maxl_by_p,
         service_fueltype_by_p,
         service_tech_by_p,
@@ -514,7 +514,7 @@ def get_sig_diffusion(
         Enduses
     tech_increased_service : list
         Technologies with increased service
-    share_service_tech_ey_p : dict
+    service_tech_ey_p : dict
         Fraction of service in end year
     enduse_tech_maxl_by_p :
         Maximum service (L crit) per technology
@@ -551,7 +551,7 @@ def get_sig_diffusion(
             installed_tech = tech_increased_service
 
             # End year service shares (scenaric input)
-            service_tech_switched_p = share_service_tech_ey_p
+            service_tech_switched_p = service_tech_ey_p
 
             # Maximum shares of each technology
             l_values_sig = enduse_tech_maxl_by_p

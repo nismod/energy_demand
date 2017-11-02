@@ -221,12 +221,12 @@ class Technology(object):
             # Base and current year efficiencies depending on technology type
             # --------------------------------------------------------------
             if tech_type == 'heat_pump':
-                self.eff_by = tech_related.get_heatpump_eff(
+                self.eff_by = tech_related.calc_hp_eff(
                     temp_by,
                     assumptions['technologies'][tech_name]['eff_by'],
                     t_base_heating)
 
-                self.eff_cy = tech_related.get_heatpump_eff(
+                self.eff_cy = tech_related.calc_hp_eff(
                     temp_cy,
                     tech_related.calc_eff_cy(
                         tech_name,

@@ -1,4 +1,4 @@
-"""
+"""Plotting model results and storing as PDF to result folder
 """
 import os
 import logging
@@ -29,8 +29,6 @@ def run_all_plot_functions(
 
     # plotting load factors per fueltype and region
     for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
-        fueltype_str = 'electricity'
-        fueltype_int = 2
 
         plot_seasonal_lf(
             fueltype_int,
@@ -57,9 +55,9 @@ def run_all_plot_functions(
             os.path.join(
                 data['local_paths']['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
-    
-    # ----------------
-    # Plotting yearly fuel for whole UK
+
+    # --------------
+    # Fuel per fueltpye for whole country over time
     # ----------------
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
@@ -69,13 +67,17 @@ def run_all_plot_functions(
             data['local_paths']['data_results_PDF'],
             'fig_tot_all_enduse01.pdf'))
 
-    logging.debug("... plot other figure")
-    plt_fuels_enduses_y(
+    # --------------
+    # Fuel week of base year
+    # ----------------
+    logging.debug("... plot a full week")
+    plt_fuels_enduses_week(
         results_every_year,
-        data['lookups'],
-        os.path.join(
-            data['local_paths']['data_results_PDF'],
-            'fig_tot_all_enduse02.pdf'))
+        data,
+        data['assumptions']['model_yearhours_nrs'],
+        data['assumptions']['model_yeardays_nrs'],
+        2015,
+        os.path.join(data['local_paths']['data_results_PDF'], "tot_all_enduse03.pdf"))
 
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
@@ -84,30 +86,31 @@ def run_all_plot_functions(
         data['assumptions']['model_yearhours_nrs'],
         data['assumptions']['model_yeardays_nrs'],
         2015,
-        os.path.join(data['local_paths']['data_results_PDF'], "fig_tot_all_enduse03.pdf"))
+        os.path.join(data['local_paths']['data_results_PDF'], "tot_all_enduse04.pdf"))
 
-    logging.debug("... plot a full week")
-    plt_fuels_enduses_week(
-        results_every_year,
-        data,
-        data['assumptions']['model_yearhours_nrs'],
-        data['assumptions']['model_yeardays_nrs'],
-        2015,
-        os.path.join(data['local_paths']['data_results_PDF'], "fig_tot_all_enduse04.pdf"))
-
+    # ------------
+    # Stacked enduses
+    # ------------
     # Residential
     plt_stacked_enduse(
         data['sim_param']['sim_period'],
         results_enduse_every_year,
         data['enduses']['rs_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "fig_rs_stacked_country_final.pdf"))
+        os.path.join(data['local_paths']['data_results_PDF'], "stacked_rs_country_final.pdf"))
 
-    # Service #TODO TEST
+    # Service
     plt_stacked_enduse(
         data['sim_param']['sim_period'],
         results_enduse_every_year,
         data['enduses']['ss_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "fig_ss_stacked_country_final.pdf"))
+        os.path.join(data['local_paths']['data_results_PDF'], "stacked_ss_country_final.pdf"))
+
+    # Industry
+    plt_stacked_enduse(
+        data['sim_param']['sim_period'],
+        results_enduse_every_year,
+        data['enduses']['is_all_enduses'],
+        os.path.join(data['local_paths']['data_results_PDF'], "stacked_is_country_final.pdf"))
 
     # Plot all enduses
     #plt_stacked_enduse(
@@ -303,6 +306,7 @@ def plot_x_days(all_hours_year, region, days):
     plt.legend(ncol=2, frameon=False)
 
     plt.show()
+    plt.close()
 
 def plot_load_shape_yd(daily_load_shape):
     """With input 2 dim array plot daily load"""
@@ -318,6 +322,7 @@ def plot_load_shape_yd(daily_load_shape):
     plt.legend(ncol=2, frameon=False)
     
     plt.show()
+    plt.close()
 
 def plot_load_shape_yd_non_resid(daily_load_shape):
     """With input 2 dim array plot daily load"""
@@ -362,13 +367,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
             y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
 
-        '''for year, model_year_object in enumerate(results_objects):
-            country_enduse_y = getattr(model_year_object, attribute_to_get)
-
-            # Sum all fueltypes
-            y_data[fueltype_int][year] = np.sum(country_enduse_y[enduse]) #Summing across all fueltypes
-        '''
-
     fig, ax = plt.subplots()
     stack_plot = ax.stackplot(x_data, y_data)
 
@@ -402,10 +400,9 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
 
     # Save fig
     plt.savefig(fig_name)
-    plt.show()
     plt.close()
 
-def plot_load_curves_fueltype(results_objects, data):
+def plot_load_curves_fueltype(results_objects, data, fig_name):
     """Plots stacked end_use for a region
 
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
@@ -448,6 +445,8 @@ def plot_load_curves_fueltype(results_objects, data):
     plt.xlabel("Simulation years")
     plt.title("Load factor of maximum hour across all enduses")
     plt.show()
+    plt.savefig(fig_name)
+    plt.close()
 
 def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot, fig_name):
     """Plots stacked end_use for all regions
@@ -498,12 +497,11 @@ def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_
 
     plt.legend(ncol=2, frameon=False)
 
-    plt.ylabel("Fuel")
+    plt.ylabel("fuel")
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
     plt.savefig(fig_name)
-    plt.show()
     plt.close()
 
 def plt_fuels_enduses_y(results_resid, lookups, fig_name):
@@ -518,8 +516,12 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
         Lookup fueltypes
     fig_name : str
         Figure name
-
+    
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
+
+    Note
+    ----
+    Values are divided by 1'000
     """
     # Set figure size
     plt.figure(figsize=plotting_program.cm2inch(14, 8))
@@ -533,6 +535,10 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
         data_years = {}
         for year, data_year in results_resid.items():
             tot_fuel_fueltype_y = np.sum(data_year[fueltype_int])
+
+            # -------
+            # Conversion i necessary?? TODO
+            # -------
             data_years[year] = tot_fuel_fueltype_y
 
         y_values_fueltype[fueltype_str] = data_years

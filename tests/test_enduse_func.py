@@ -5,6 +5,30 @@ from energy_demand import enduse_func
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.plotting import plotting_program
 
+'''def test_calc_fuel_tech_yh():
+    
+    enduse_func.calc_fuel_tech_yh(
+        enduse='heating',
+        sector=,
+        enduse_techs,
+        enduse_fuel_tech,
+        tech_stock,
+        load_profiles)
+    pass'''
+
+def test_get_peak_day():
+    """
+    """
+
+    fuel_yh = np.zeros((8, 365, 24))
+    fuel_yh[2][33] = 3
+
+    result = enduse_func.get_peak_day(fuel_yh)
+
+    expected = 33
+
+    assert result == expected
+
 def test_service_switch():
     """Test
     """

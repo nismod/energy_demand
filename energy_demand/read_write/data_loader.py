@@ -324,7 +324,7 @@ def load_data_tech_profiles(tech_lp, paths):
     #from energy_demand.plotting import plotting_results
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][0] * 45.8)
     #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][1] * 45.8)
-    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][2] * 45.8)
+    #plotting_results.plot_load_profile_dh(data['rs_lp_heating_boilers_dh'][data['lookups']['fueltype']['electricity']] * 45.8)
 
     # Add fuel data of other model enduses to the fuel data table (E.g. ICT or wastewater)
     tech_lp['rs_lp_storage_heating_dh'] = read_data.read_load_shapes_tech(
@@ -489,9 +489,9 @@ def load_fuels(paths, lookups):
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
 
     # Convert units
-    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes(rs_fuel_raw_data_enduses)
-    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(ss_fuel_raw_data_enduses)
-    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors(is_fuel_raw_data_enduses)
+    fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
+    fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
+    fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
 
     return enduses, sectors, fuels
 

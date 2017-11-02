@@ -47,13 +47,13 @@ def temporal_validation(data, reg_enduses_fueltype_y):
         val_elec_data_2015_INDO,
         val_elec_data_2015_ITSDO,
         INDO_factoreddata,
-        reg_enduses_fueltype_y[2],
+        reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']],
         'all_submodels',
         days_to_plot)
 
     logging.debug(
-        "FUEL gwh TOTAL  val_elec_data_2015_INDO:  {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO), np.sum(reg_enduses_fueltype_y[2])))
-    logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_INDO: {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO)/11.63, np.sum(val_elec_data_2015_ITSDO)/11.63, np.sum(reg_enduses_fueltype_y[2])/11.63))
+        "FUEL gwh TOTAL  val_elec_data_2015_INDO:  {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO), np.sum(val_elec_data_2015_ITSDO), np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
+    logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_INDO: {} val_elec_data_2015_ITSDO: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_INDO)/11.63, np.sum(val_elec_data_2015_ITSDO)/11.63, np.sum(reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])/11.63))
 
     return
 

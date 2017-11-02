@@ -13,7 +13,8 @@ import sys
 import logging
 import numpy as np
 from pyinstrument import Profiler
-import energy_demand.energy_model as energy_model
+#import energy_demand.energy_model as energy_model
+from energy_demand import energy_model
 from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
@@ -185,7 +186,7 @@ if __name__ == "__main__":
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        if validation_criteria: # == True:
+        if validation_criteria:
 
             # Add electricity for transportation sector
             fuel_electricity_year_validation = 385

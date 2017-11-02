@@ -5,6 +5,18 @@ import numpy as np
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
 
+def test_get_tech_future_service():
+    """
+    """
+    service_tech_by_p = {'heating': {'techA': 0.7, 'techB': 0.3}}
+    service_tech_ey_p = {'heating':{'techA': 0.6, 'techB': 0.4}}
+    tech_increased_service, tech_decreased_share, tech_constant_share = s_generate_sigmoid.get_tech_future_service(service_tech_by_p, service_tech_ey_p)
+
+    assert tech_increased_service ==  {'heating': ['techB']}
+    assert tech_decreased_share ==  {'heating': ['techA']}
+    assert tech_constant_share == []
+
+
 def test_calc_sigmoid_parameters():
     """Testing
     """

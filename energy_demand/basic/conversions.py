@@ -3,12 +3,12 @@
 from collections import defaultdict
 import numpy as np
 
-def ktoe_to_gwh(data_ktoe):
+def ktoe_to_gwh(ktoe):
     """Conversion of ktoe to gwh
 
     Arguments
     ----------
-    data_ktoe : float
+    ktoe : float
         Energy demand in ktoe
 
     Returns
@@ -20,7 +20,7 @@ def ktoe_to_gwh(data_ktoe):
     -----
     https://www.iea.org/statistics/resources/unitconverter/
     """
-    data_gwh = data_ktoe * 11.6300000
+    data_gwh = ktoe * 11.6300000
 
     return data_gwh
 
@@ -65,12 +65,12 @@ def mw_to_gwh(megawatt, number_of_hours):
 
     return gigawatthour
 
-def ktoe_to_twh(data_ktoe):
+def ktoe_to_twh(ktoe):
     """Conversion of ktoe to TWh
 
     Arguments
     ----------
-    data_ktoe : float
+    ktoe : float
         Energy demand in ktoe
 
     Returns
@@ -82,11 +82,11 @@ def ktoe_to_twh(data_ktoe):
     -----
     https://www.iea.org/statistics/resources/unitconverter/
     """
-    data_twh = data_ktoe * 0.01163
+    data_twh = ktoe * 0.01163
 
     return data_twh
 
-def convert_fueltypes(fuel_dict):
+def convert_fueltypes_ktoe_GWh(fuel_dict):
     """Iterature ktoe in fueltypes and convert to GWh
 
     Arguments
@@ -108,7 +108,7 @@ def convert_fueltypes(fuel_dict):
 
     return fuel_converted
 
-def convert_fueltypes_sectors(fuel_dict):
+def convert_fueltypes_sectors_ktoe_gwh(fuel_dict):
     """Iterate fueltypes and convert ktoe to gwh
 
     Arguments

@@ -2,6 +2,40 @@
 """
 from energy_demand.geography import weather_region
 import numpy as np
+import os
+
+'''def test_WeatherRegion():
+
+    from energy_demand.read_write import data_loader
+    from energy_demand.assumptions import base_assumptions
+    path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
+    path_main = os.path.join("")
+
+    # Load data
+    data = {}
+    data['paths'] = data_loader.load_paths(path_main)
+    data['local_paths'] = data_loader.load_local_paths(path_main)
+    data['lookups'] = data_loader.load_basic_lookups()
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    
+    #{'base_yr': base_yr, 'curr_yr': curr_yr, 'sim_period_yrs': sim_period_yrs}
+    #Load assumptions
+    _, data['assumptions'] = base_assumptions.load_assumptions(
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
+    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+
+    weather_region_obj = weather_region.WeatherRegion(
+        weather_region_name="Bern",
+        sim_param=data['sim_param'],
+        assumptions=data['assumptions'],
+        lookups=data['lookups'],
+        all_enduses=['heating', 'cooking'],
+        temp_by=np.zeros((365, 24)),
+        tech_lp=data['tech_lp'],
+        sectors=["sec_A"]
+    )
+    assert weather_region_obj.weather_region_name == 'Bern'
+test_WeatherRegion()'''
 
 def test_get_shape_peak_yd_factor():
 

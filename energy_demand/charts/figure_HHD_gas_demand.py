@@ -4,40 +4,42 @@ Calculate HDD with weather data from a asingle weather station for the whole of 
 Correlate HDD with national gas data.
 
 National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
+
+TODO: This could be improved by calculating the HDD for every region and multiplying
+by the population. This would take into consideration the different population
 """
 import os
-import logging
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 from energy_demand.profiles import hdd_cdd
-from energy_demand.read_write import read_weather_data
+from energy_demand.scripts import s_raw_weather_data
 from energy_demand.plotting import plotting_program
+from energy_demand.read_write import data_loader
 
 # ----------------------------------
 # Read temp data and weather station
 # ----------------------------------
-path_data_temp = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-Met_office_weather_data\midas_wxhrly_201501-201512.csv')
-path_data_stations = os.path.join(r'Z:\01-Data_NISMOD\data_energy_demand', r'16-Met_office_weather_data\excel_list_station_details.csv')
+path_data_temp = os.path.abspath(
+    "C:\DATA_NISMODII\data_energy_demand\_raw_data\H-Met_office_weather_data\midas_wxhrly_201501-201512.csv")
+
+path_data_stations = os.path.abspath(
+    "C:\DATA_NISMODII\data_energy_demand\_raw_data\H-Met_office_weather_data\excel_list_station_details.csv")
 
 # Read temp data
-logging.debug("...read temp")
-temp_data_raw = read_weather_data.read_weather_data_raw(path_data_temp, 9999)
+temp_data_raw = s_raw_weather_data.read_weather_data_raw(path_data_temp, 9999)
 
 # Clean raw temperature data
-logging.debug("...clean temp")
-temp_data = read_weather_data.clean_weather_data_raw(temp_data_raw, 9999)
+temp_data = s_raw_weather_data.clean_weather_data_raw(temp_data_raw, 9999)
 
 # Weather stations
-logging.debug("...weatherstations")
-weather_stations = read_weather_data.read_weather_stations_raw(path_data_stations, temp_data.keys())
+weather_stations = s_raw_weather_data.read_weather_stations_raw(path_data_stations, temp_data.keys())
 
 # Temperature weather data weater station 
 # 595	CHURCH	LAWFORD	WARWICKSHIRE	COUNTY	01/01/1983	Current	52.3584	-1.32987	CV23	9
 #593	ELMDON	WEST	MIDLANDS	COUNTY	01/01/1949	Current	52.4524	-1.74099	B26	3				--> slightly better correlation
 station_ID_ELMDON = 593 #593
 temperatures = temp_data[station_ID_ELMDON]
-
 
 # Calculate average day temp
 averag_day_temp = []
@@ -47,21 +49,17 @@ for day in temperatures:
 # ----------------------------------
 # Calculate HDD
 # ----------------------------------
-logging.debug("...calc hdd")
-logging.debug(temperatures.shape)
-
 t_base_heating = 15.5 # Heating t_base temp
 
 # HDD
 hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
-logging.debug("shape hdd  %s", hdd_reg.shape)
 
 # Test if correlation with mean temp is better than with HDd
 #hdd_reg = averag_day_temp
 
-# Data
-
-# -- Non daily metered gas demand in mcm == Residential heating gas demand for year 2015 (Jan - Dez --> Across two excel in orig file)
+# -- Non daily metered gas demand in mcm == Residential heating gas 
+# demand for year 2015 (Jan - Dez --> Across two excel in orig file)
+# gas demand for 365 days
 gas_demand_NDM_2015_2016 = [
     2059.3346672,
     2170.0185108,
@@ -438,14 +436,14 @@ def lin_func(x, slope, intercept):
     y = slope * x + intercept
     return y
 
-logging.debug("...regression")
+print("...regression")
 slope, intercept, r_value, p_value, std_err = stats.linregress(gas_demand_NDM_2015_2016, hdd_reg)
 
-logging.debug("Slope:         %s", str(slope))
-logging.debug("intercept:     %s", str(intercept))
-logging.debug("r_value:       %s", str(r_value))
-logging.debug("p_value:       %s", str(p_value))
-logging.debug("std_err:       %s", str(std_err))
+print("Slope:         %s", str(slope))
+print("intercept:     %s", str(intercept))
+print("r_value:       %s", str(r_value))
+print("p_value:       %s", str(p_value))
+print("std_err:       %s", str(std_err))
 
 # Set figure size in cm
 plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -466,7 +464,9 @@ for x in X_plot:
 plt.plot(X_plot, Y_plot, color='k')
 #plt.axis([0, 6, 0, 20])
 
-
+# Tight layout
+#plt.tight_layout()
+#plt.margins(x=0)#ax.margins(x=0)
 
 plt.xlabel("National gas demand [GWh / h]")
 plt.ylabel("Heating degree days")
