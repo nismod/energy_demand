@@ -78,7 +78,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['seasons']['autumn'] = list(range(
         date_handling.date_to_yearday(year_to_model, 9, 1),
         date_handling.date_to_yearday(year_to_model, 11, 30)))
-    
+
     # ------------
     # Modelled days
     # ------------

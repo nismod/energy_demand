@@ -20,10 +20,11 @@ def read_national_real_elec_data(path_to_csv):
     -------
     national_fuel_data : dict
         geocode, total consumption
-    
+
     Info
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets/regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
+    Source: https://www.gov.uk/government/statistical-data-sets/
+    regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
@@ -54,7 +55,8 @@ def read_national_real_gas_data(path_to_csv):
 
     Info
     -----
-    Source: https://www.gov.uk/government/statistical-data-sets/gas-sales-and-numbers-of-customers-by-region-and-local-authority
+    Source: https://www.gov.uk/government/statistical-data-sets
+    /gas-sales-and-numbers-of-customers-by-region-and-local-authority
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
@@ -64,7 +66,7 @@ def read_national_real_gas_data(path_to_csv):
         for row in read_lines:
             geocode = str.strip(row[3])
             tot_consumption_unclean = row[10].strip()  
-            print(tot_consumption_unclean)
+
             if tot_consumption_unclean == '-':
                 # No entry provided
                 total_consumption = 0

@@ -156,7 +156,7 @@ Lorem ips
 
 #### 5.1.2 Demand side response and peak shifting
 
-Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (lfcy).  With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
+Intraday demand side responses per end use are modelled with help of load factors  (Petchers, 2003).  For every end use, a potential (linear) reduction of the load factor over time can be assumed with which the load factor of the current year is calculated (![equation](https://latex.codecogs.com/gif.latex?lf_%7Bcy%7D "l_{cy}"). With help lfcy, and the daily average load of the base year (l_av^by), the maximum hourly load per day is calculated as follows:
 
 ![equation](https://latex.codecogs.com/gif.latex?l_%7Bcy%7D%5E%7Bmax%7D%20%3D%20%5Cfrac%7Bl_%7Bby%7D%5E%7Bav%7D%7D%7Blf_%7Bcy%7D%7D "l_{cy}^{max} = \frac{l_{by}^{av}}{lf_{cy}}")
 

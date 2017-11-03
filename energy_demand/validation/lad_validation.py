@@ -27,23 +27,27 @@ def temporal_validation(local_paths, lookups, ed_fueltype_national_yh):
     # Compare total gas and electrictiy
     # load with Elexon Data for Base year for different regions
 
-    Info 
-    -------
+    Info
+    ----
     It is not sure wheter notheren irleand is included. However does not matter
     because shape is of interest. With correction factor, the shape gets corrected anyway
     """
     # -------------------------------
     # Yeardays to plot for validation
     # -------------------------------
-    winter_week = list(range(date_handling.date_to_yearday(2015, 1, 12), date_handling.date_to_yearday(2015, 1, 19))) #Jan
-    spring_week = list(range(date_handling.date_to_yearday(2015, 5, 11), date_handling.date_to_yearday(2015, 5, 18))) #May
-    summer_week = list(range(date_handling.date_to_yearday(2015, 7, 13), date_handling.date_to_yearday(2015, 7, 20))) #Jul
-    autumn_week = list(range(date_handling.date_to_yearday(2015, 10, 12), date_handling.date_to_yearday(2015, 10, 19))) #Oct
+    winter_week = list(range(
+        date_handling.date_to_yearday(2015, 1, 12), date_handling.date_to_yearday(2015, 1, 19))) #Jan
+    spring_week = list(range(
+        date_handling.date_to_yearday(2015, 5, 11), date_handling.date_to_yearday(2015, 5, 18))) #May
+    summer_week = list(range(
+        date_handling.date_to_yearday(2015, 7, 13), date_handling.date_to_yearday(2015, 7, 20))) #Jul
+    autumn_week = list(range(
+        date_handling.date_to_yearday(2015, 10, 12), date_handling.date_to_yearday(2015, 10, 19))) #Oct
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
     #days_to_plot = list(range(0, 365))
 
     # ---------------------------
-    # Read in hourly national electricity data 
+    # Read in hourly national electricity data
     # ---------------------------
     val_elec_data_2015_INDO, val_elec_data_2015_ITSDO = elec_national_data.read_raw_elec_2015_data(
         local_paths['path_val_nat_elec_data'])
@@ -132,7 +136,7 @@ def tempo_spatial_validation(
     # Read national electricity data
     national_elec_data = data_loader.read_national_real_elec_data(
         data['local_paths']['path_val_subnational_elec_data'])
-    
+
     national_gas_data = data_loader.read_national_real_gas_data(
         data['local_paths']['path_val_subnational_gas_data'])
 
@@ -159,14 +163,12 @@ def tempo_spatial_validation(
 
     # Peak across all fueltypes TODO: Fueltype specific
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
-    #TODO: write out also month
-    peak_month = 2 #Feb
-    peak_day = 18 #Day
+    peak_month = date_handling.yearday_to_date(data['sim_param']['base_yr'], peak_day)
 
     elec_national_data.compare_peak(
         "validation_peak_comparison_01.pdf",
         data['local_paths'],
-        val_elec_data_2015_INDO, 
+        val_elec_data_2015_INDO,
         ed_fueltype_national_yh[peak_month][peak_day])
 
     logging.debug("...compare peak from max peak factors")
@@ -217,7 +219,7 @@ def spatial_validation(
     # ------------
     # Substraction demand for notheren ireland TODO
     # ------------
-    # 
+    #
     # e.g. proportionally to population
     #
 
@@ -238,30 +240,32 @@ def spatial_validation(
     result_dict['modelled_elec_demand_sorted'] = {}
 
     # --Sorted sub regional electricity demand
-    sorted_dict_real_elec_demand = sorted(result_dict['real_elec_demand'].items(), key=operator.itemgetter(1))
+    sorted_dict_real_elec_demand = sorted(
+        result_dict['real_elec_demand'].items(),
+        key=operator.itemgetter(1))
 
     # -------------------------------------
     # Plot
     # -------------------------------------
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(17, 10))
-    ax = fig.add_subplot(1, 1, 1) # fig plot
+    ax = fig.add_subplot(1, 1, 1)
 
     x_values = np.arange(0, len(sorted_dict_real_elec_demand), 1)
 
-    y_values_real_elec_demand = []
-    y_values_modelled_elec_demand = []
+    y_real_elec_demand = []
+    y_modelled_elec_demand = []
 
     labels = []
     for sorted_region in sorted_dict_real_elec_demand:
-        y_values_real_elec_demand.append(result_dict['real_elec_demand'][sorted_region[0]])
-        y_values_modelled_elec_demand.append(result_dict['modelled_elec_demand'][sorted_region[0]])
+        y_real_elec_demand.append(result_dict['real_elec_demand'][sorted_region[0]])
+        y_modelled_elec_demand.append(result_dict['modelled_elec_demand'][sorted_region[0]])
         labels.append(sorted_region)
 
     # RMSE calculations
     rmse_value = basic_functions.rmse(
-        np.array(y_values_modelled_elec_demand),
-        np.array(y_values_real_elec_demand))
+        np.array(y_modelled_elec_demand),
+        np.array(y_real_elec_demand))
 
     # --------
     # Axis
@@ -274,17 +278,18 @@ def spatial_validation(
     # ----------------------------------------------
     # Plot
     # ----------------------------------------------
-    plt.plot(x_values, y_values_real_elec_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
-    plt.plot(x_values, y_values_modelled_elec_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
-    
+    plt.plot(x_values, y_real_elec_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
+    plt.plot(x_values, y_modelled_elec_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
+
     # Limit
     #plt.ylim(0, 6000)
 
     # -----------
     # Labelling
     # -----------
-    font_additional_info = {'family': 'arial', 'color':  'black', 'weight': 'normal','size': 8}
-    title_info = ('RMSE: {}, Region Nr: {}'.format(rmse_value, len(y_values_real_elec_demand)))
+    font_additional_info = {
+        'family': 'arial', 'color': 'black', 'weight': 'normal','size': 8}
+    title_info = ('RMSE: {}, Region Nr: {}'.format(rmse_value, len(y_real_elec_demand)))
 
     plt.title(
         title_info,
@@ -292,8 +297,8 @@ def spatial_validation(
         fontdict=font_additional_info)
 
     plt.xlabel("Regions")
-    plt.ylabel("Sub-regional yearly electricity demand [GW]")
-    
+    plt.ylabel("Sub-regional yearly {} demand [GW]".format(fueltype))
+
     # --------
     # Legend
     # --------
