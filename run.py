@@ -2,6 +2,7 @@
 """
 import logging
 from datetime import date
+from collections import defaultdict
 from smif.model.sector_model import SectorModel
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.cli import run_model
@@ -13,14 +14,12 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.basic import date_handling
 from pkg_resources import Requirement, resource_filename
 
-from collections import defaultdict
-
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
 
     def array_to_dict(self, input_array):
-        """
+        """Convert array to dict
 
         Arguments
         ---------
@@ -29,14 +28,16 @@ class EDWrapper(SectorModel):
 
         Returns
         -------
-        {}
+        output_dict : dict
+            timesteps, region, interval
 
         """
-        data = defaultdict(dict)
+        output_dict = defaultdict(dict)
         for t_idx, timestep in enumerate(self.timesteps):
             for r_idx, region in enumerate(self.get_region_names('lad')):
-                data[timestep][region] = input_array[t_idx, r_idx, 0]
-        return data
+                output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
+
+        return output_dict
 
     def before_model_run(self):
         """Runs prior to any ``simulate()`` step
@@ -57,26 +58,32 @@ class EDWrapper(SectorModel):
         self.processed_path = '/vagrant/data_energy_demand/_processdata'
         self.result_path = '/vagrant/data_energy_demand/_result_data'
 
-        # Obtain scenario data
         data = {}
-        data['print_criteria'] = False #Print criteria
+        data['print_criteria'] = False
 
+        # -----------------------------
+        # Obtain external scenario data
+        # -----------------------------
+
+        # Population
         pop_array = self.get_scenario_data('population')
         data['population'] = self.array_to_dict(pop_array)
         self.user_data['population'] = self.array_to_dict(pop_array)
 
+        # GVA
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array)
         self.user_data['gva'] = self.array_to_dict(gva_array)
 
+        # Building stock related data
         floor_array = self.get_scenario_data('floor_area')
         data['rs_floorarea'] = self.array_to_dict(floor_array)
         data['ss_floorarea'] = self.array_to_dict(floor_array)
         data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
-
         self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
         self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
 
+        # Region name & coordinates
         data['lu_reg'] = self.get_region_names('lad')
         #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
 
@@ -94,19 +101,12 @@ class EDWrapper(SectorModel):
             data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
 
-        #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        #data = data_loader.dummy_data_generation(data)
-        #data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths'])
-        #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-
+        # --------------------
         # Initialise scenario
+        # --------------------
         self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
             self.user_data['data_path'],
             data)
-
-        # Generate dwelling stocks over whole simulation period
-        #self.user_data['rs_dw_stock'] = dw_stock.rs_dw_stock(data['lu_reg'], data, data['sim_param']['curr_yr'])
-        #self.user_data['ss_dw_stock'] = dw_stock.ss_dw_stock(data['lu_reg'], data, data['sim_param']['curr_yr'])
 
     def initialise(self, initial_conditions):
         """
@@ -201,11 +201,6 @@ class EDWrapper(SectorModel):
         #data['rs_dw_stock'] = self.user_data['rs_dw_stock']
         #data['ss_dw_stock'] = self.user_data['ss_dw_stock']
 
-
-        #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
-        #data = data_loader.dummy_data_generation(data)
-        #data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths'])
-        #========SCRAP (POP.....) THIS OVERRITES SMIF INPUT REMOVE
 
         # -----------------------
         # Load data from scripts (replacing #data = read_data.load_script_data(data))

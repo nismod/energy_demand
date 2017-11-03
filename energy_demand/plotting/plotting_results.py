@@ -215,16 +215,14 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     base_yr = 2015
     minor_interval = 5
     major_interval = 10
-    ##plt.xticks(minor_ticks, minor_ticks)
-    ##plt.xticks(major_ticks, minor_ticks)
 
     # Major ticks
-    major_ticks = np.arange(base_yr,years[-1] + major_interval, major_interval)  
+    major_ticks = np.arange(base_yr,years[-1] + major_interval, major_interval)
     ax.set_xticks(major_ticks)
     ax.set_xlabel(major_ticks)
 
     # Minor ticks
-    minor_ticks = np.arange(base_yr,years[-1] + minor_interval, minor_interval)    
+    minor_ticks = np.arange(base_yr,years[-1] + minor_interval, minor_interval)
     ax.set_xticks(minor_ticks, minor = True)
     ax.set_xlabel(minor_ticks)
 

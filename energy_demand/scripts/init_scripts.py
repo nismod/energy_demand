@@ -109,14 +109,16 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-        data = data_loader.dummy_data_generation(data)
+        data = data_loader.dummy_data_generation(data) #REMOVE TODO
+
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass
 
     # Initialise logger
     logger_setup.set_up_logger(os.path.join(
-        path_data_energy_demand, "logging_scenario_initialisation.log"))
+        path_data_energy_demand,
+        "logging_scenario_initialisation.log"))
 
     # --------------------------------------------
     # Delete processed data from former model runs
