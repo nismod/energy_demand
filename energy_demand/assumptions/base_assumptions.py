@@ -8,7 +8,7 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions as testing
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
 
 #TODO: Make that HLC can be improved, ssumption share of existing
@@ -24,7 +24,7 @@ def load_sim_param():
     sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
     sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
     sim_param['curr_yr'] = sim_param['base_yr']
-    sim_param['list_dates'] = date_handling.fullyear_dates(
+    sim_param['list_dates'] = date_prop.fullyear_dates(
         start=date(sim_param['base_yr'], 1, 1),
         end=date(sim_param['base_yr'], 12, 31))
     return sim_param
@@ -48,36 +48,36 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
     # Weeks in middle of meteorological seasons
     '''winter_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 1, 12),
-        date_handling.date_to_yearday(year_to_model, 1, 26))) #Jan
+        date_prop.date_to_yearday(year_to_model, 1, 12),
+        date_prop.date_to_yearday(year_to_model, 1, 26))) #Jan
     spring_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 5, 11),
-        date_handling.date_to_yearday(year_to_model, 5, 25))) #May
+        date_prop.date_to_yearday(year_to_model, 5, 11),
+        date_prop.date_to_yearday(year_to_model, 5, 25))) #May
     summer_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 7, 13),
-        date_handling.date_to_yearday(year_to_model, 7, 27))) #Jul
+        date_prop.date_to_yearday(year_to_model, 7, 13),
+        date_prop.date_to_yearday(year_to_model, 7, 27))) #Jul
     autumn_week = list(range(
-        date_handling.date_to_yearday(year_to_model, 10, 12),
-        date_handling.date_to_yearday(year_to_model, 10, 26))) #Oct'''
+        date_prop.date_to_yearday(year_to_model, 10, 12),
+        date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
 
     # Full meteorological seasons
     assumptions['seasons'] = {}
     assumptions['seasons']['winter'] = list(
         range(
-            date_handling.date_to_yearday(year_to_model, 12, 1),
-            date_handling.date_to_yearday(year_to_model, 12, 31))) + list(
+            date_prop.date_to_yearday(year_to_model, 12, 1),
+            date_prop.date_to_yearday(year_to_model, 12, 31))) + list(
                 range(
-                    date_handling.date_to_yearday(year_to_model, 1, 1),
-                    date_handling.date_to_yearday(year_to_model, 2, 28)))
+                    date_prop.date_to_yearday(year_to_model, 1, 1),
+                    date_prop.date_to_yearday(year_to_model, 2, 28)))
     assumptions['seasons']['spring'] = list(range(
-        date_handling.date_to_yearday(year_to_model, 3, 1),
-        date_handling.date_to_yearday(year_to_model, 5, 31)))
+        date_prop.date_to_yearday(year_to_model, 3, 1),
+        date_prop.date_to_yearday(year_to_model, 5, 31)))
     assumptions['seasons']['summer'] = list(range(
-        date_handling.date_to_yearday(year_to_model, 6, 1),
-        date_handling.date_to_yearday(year_to_model, 8, 31)))
+        date_prop.date_to_yearday(year_to_model, 6, 1),
+        date_prop.date_to_yearday(year_to_model, 8, 31)))
     assumptions['seasons']['autumn'] = list(range(
-        date_handling.date_to_yearday(year_to_model, 9, 1),
-        date_handling.date_to_yearday(year_to_model, 11, 30)))
+        date_prop.date_to_yearday(year_to_model, 9, 1),
+        date_prop.date_to_yearday(year_to_model, 11, 30)))
 
     # ------------
     # Modelled days
@@ -91,7 +91,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['model_yeardays_date'] = []
     for yearday in assumptions['model_yeardays']:
         assumptions['model_yeardays_date'].append(
-            date_handling.yearday_to_date(sim_param['base_yr'], yearday))
+            date_prop.yearday_to_date(sim_param['base_yr'], yearday))
 
     # Nr of modelled days
     assumptions['model_yeardays_nrs'] = len(assumptions['model_yeardays'])
@@ -102,7 +102,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year
     # --------------------------------------
-    list_dates = date_handling.fullyear_dates(
+    list_dates = date_prop.fullyear_dates(
         start=date(sim_param['base_yr'], 1, 1),
         end=date(sim_param['base_yr'], 12, 31))
 
@@ -111,7 +111,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
     # Take respectve daily fuel curve depending on weekday or weekend
     for array_day, date_yearday in enumerate(list_dates):
-        if date_handling.get_weekday_type(date_yearday) == 'holiday':
+        if date_prop.get_weekday_type(date_yearday) == 'holiday':
             model_yeardays_daytype[array_day] = 'holiday'
 
     assumptions['model_yeardays_daytype'] = model_yeardays_daytype

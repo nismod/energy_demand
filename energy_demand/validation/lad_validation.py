@@ -11,7 +11,7 @@ from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 from energy_demand import energy_model
 from energy_demand import enduse_func
 
@@ -36,13 +36,13 @@ def temporal_validation(local_paths, lookups, ed_fueltype_national_yh):
     # Yeardays to plot for validation
     # -------------------------------
     winter_week = list(range(
-        date_handling.date_to_yearday(2015, 1, 12), date_handling.date_to_yearday(2015, 1, 19))) #Jan
+        date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(
-        date_handling.date_to_yearday(2015, 5, 11), date_handling.date_to_yearday(2015, 5, 18))) #May
+        date_prop.date_to_yearday(2015, 5, 11), date_prop.date_to_yearday(2015, 5, 18))) #May
     summer_week = list(range(
-        date_handling.date_to_yearday(2015, 7, 13), date_handling.date_to_yearday(2015, 7, 20))) #Jul
+        date_prop.date_to_yearday(2015, 7, 13), date_prop.date_to_yearday(2015, 7, 20))) #Jul
     autumn_week = list(range(
-        date_handling.date_to_yearday(2015, 10, 12), date_handling.date_to_yearday(2015, 10, 19))) #Oct
+        date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
     #days_to_plot = list(range(0, 365))
 
@@ -163,8 +163,11 @@ def tempo_spatial_validation(
 
     # Peak across all fueltypes TODO: Fueltype specific
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
-    peak_month = date_handling.yearday_to_date(data['sim_param']['base_yr'], peak_day)
-
+    print("EPAK DAY: " + str(peak_day))
+    print(date_prop.yearday_to_date(data['sim_param']['base_yr'], peak_day))
+    peak_month = date_prop.get_month_from_yeraday(data['sim_param']['base_yr'], peak_day)
+    print(peak_month)
+    #date_object.timetuple().tm_mon - 1
     elec_national_data.compare_peak(
         "validation_peak_comparison_01.pdf",
         data['local_paths'],

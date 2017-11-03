@@ -33,6 +33,26 @@ from isoweek import Week
 
     return list_days
 '''
+def get_month_from_yeraday(year, yearday):
+    """Get python month from yearday
+
+    Arguments
+    ----------
+    year : int
+        year
+    yearday : int
+        yearday
+
+    Return
+    ------
+    python_month : int
+        Python month (0 == 1)
+    """
+    date_year = yearday_to_date(int(year), int(yearday))
+    python_month = date_year.timetuple().tm_mon - 1
+
+    return python_month
+
 def date_to_yearday(year, month, day):
     """Gets the yearday (julian year day) of a year minus one to correct because of python iteration
 
@@ -63,6 +83,11 @@ def yearday_to_date(year, yearday_python):
         Year
     yearday_python : int
         Yearday - 1
+
+    Returns
+    -------
+    date_new : date
+        Date
     """
     date_new = date(year, 1, 1) + timedelta(yearday_python)
 

@@ -5,7 +5,7 @@ import csv
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
@@ -44,7 +44,7 @@ def read_raw_elec_2015_data(path_to_csv):
             day = int(line[0].split("-")[0])
 
             # Get yearday
-            yearday = date_handling.date_to_yearday(year, month, day)
+            yearday = date_prop.date_to_yearday(year, month, day)
 
             if counter_half_hour == 1:
                 counter_half_hour = 0

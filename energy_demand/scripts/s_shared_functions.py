@@ -4,7 +4,7 @@ import os
 import csv
 from datetime import date
 from datetime import timedelta
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 import json
 import numpy as np
 
@@ -102,7 +102,7 @@ def read_assumption_sim_param(path_to_csv):
         )
 
     # Redefine sim_period_yrs
-    assumptions['list_dates'] = date_handling.fullyear_dates(
+    assumptions['list_dates'] = date_prop.fullyear_dates(
         start=date(int(assumptions['base_yr']), 1, 1),
         end=date(int(assumptions['base_yr']), 12, 31))
 

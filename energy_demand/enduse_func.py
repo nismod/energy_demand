@@ -1441,8 +1441,7 @@ def service_switch(
         tech_decrease_service,
         service_tech_by_p)
 
-    # Calculated gained service and substract this proportionally
-    # along all decreasing technologies
+    # Calculated gained service and substract this proportionally along all decreasing technologies
     for tech_incr, service_tech_incr_cy in service_tech_incr_cy_p.items():
 
         # Difference in service up to current year per technology

@@ -5,7 +5,7 @@ import csv
 from datetime import date
 import numpy as np
 import logging
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 from energy_demand.scripts import s_shared_functions
 from energy_demand.read_write import read_data
 from energy_demand.read_write import data_loader
@@ -125,7 +125,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     year_raw_values = np.zeros((365, 24, nr_of_appliances), dtype=float)
 
     # Create list with all dates of a whole year
-    list_dates = date_handling.fullyear_dates(
+    list_dates = date_prop.fullyear_dates(
         start=date(base_yr, 1, 1),
         end=date(base_yr, 12, 31)
         )
@@ -134,7 +134,7 @@ def assign_hes_data_to_year(nr_of_appliances, hes_data, base_yr):
     for yearday in list_dates:
         month_python = yearday.timetuple().tm_mon - 1 # - 1 because in _info: Month 1 = Jan
         yearday_python = yearday.timetuple().tm_yday - 1 # - 1 because in _info: 1.Jan = 1
-        daytype = date_handling.get_weekday_type(yearday)
+        daytype = date_prop.get_weekday_type(yearday)
 
         if daytype == 'holiday':
             daytype = 1

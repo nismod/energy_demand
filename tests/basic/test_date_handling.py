@@ -1,7 +1,7 @@
-"""Testing functions ``basic`` ``date_handling``
+"""Testing functions ``basic`` ``date_prop``
 """
 from datetime import date
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 
 '''def test_get_dates_week_nr():
     """testing function
@@ -21,7 +21,7 @@ from energy_demand.basic import date_handling
     ]
 
     # call function
-    out_value = date_handling.get_dates_week_nr(in_year, week_nr)
+    out_value = date_prop.get_dates_week_nr(in_year, week_nr)
 
     assert out_value == expected
 '''
@@ -34,7 +34,7 @@ def test_date_to_yearday():
     expected = 164 - 1
 
     # call function
-    out_value = date_handling.date_to_yearday(in_year, in_month, in_day)
+    out_value = date_prop.date_to_yearday(in_year, in_month, in_day)
 
     assert out_value == expected
 
@@ -48,7 +48,7 @@ def test_yearday_to_date():
     expected = date(2015, in_month, in_day)
 
     # call function
-    out_value = date_handling.yearday_to_date(in_year, in_yearday)
+    out_value = date_prop.yearday_to_date(in_year, in_yearday)
 
     assert out_value == expected
 
@@ -64,7 +64,7 @@ def test_fullyear_dates():
         date(2015, 1, 4)]
 
     # call function
-    out_value = date_handling.fullyear_dates(start_date, end_date)
+    out_value = date_prop.fullyear_dates(start_date, end_date)
 
     assert out_value == expected
 
@@ -75,7 +75,7 @@ def test_get_weekday_type():
     expected = 'holiday'
 
     # call function
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
 
     assert out_value == expected
 
@@ -83,7 +83,7 @@ def test_get_weekday_type():
     expected = 'working_day'
 
     # call function
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
 
     assert out_value == expected
 
@@ -91,76 +91,76 @@ def test_get_weekday_type():
     expected = 'holiday'
 
     # call function
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
 
     assert out_value == expected
 
     # Test year
     date_to_test = date(2015, 4, 3)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2014, 4, 21)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
     date_to_test = date(2013, 4, 1)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2012, 4, 9)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2011, 1, 2)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
     
     date_to_test = date(2010, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
     
     date_to_test = date(2009, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
     
     date_to_test = date(2008, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
     
     date_to_test = date(2007, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2006, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2005, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2004, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2003, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected
 
     date_to_test = date(2002, 12, 25)
     expected = 'holiday'
-    out_value = date_handling.get_weekday_type(date_to_test)
+    out_value = date_prop.get_weekday_type(date_to_test)
     assert out_value == expected

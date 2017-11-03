@@ -5,7 +5,7 @@ import re
 import csv
 import numpy as np
 import logging
-from energy_demand.basic import date_handling
+from energy_demand.basic import date_prop
 from collections import defaultdict
 
 def read_weather_station_script_data(path_to_csv):
