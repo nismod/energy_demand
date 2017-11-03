@@ -12,6 +12,7 @@ from energy_demand.plotting import plotting_program
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
+# Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
 def run_all_plot_functions(
         results_every_year,
@@ -141,7 +142,9 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     print("... plotting seasonal load factors")
 
     # Set figure size
-    plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+
+    ax = fig.add_subplot(1, 1, 1) # fig plot
 
     # Settings
     color_list = {
@@ -204,18 +207,26 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     plt.ylim(0, 100)
 
     # -----------------
-    # Axis labelling
+    # Axis labelling and ticks
     # -----------------
     plt.xlabel("years")
     plt.ylabel("load factor for fueltype {} [%]".format(fueltype_str))
 
     base_yr = 2015
-    year_interval = 5
-    major_ticks = np.arange(
-        base_yr,
-        years[-1] + year_interval, year_interval)     
+    minor_interval = 5
+    major_interval = 10
+    ##plt.xticks(minor_ticks, minor_ticks)
+    ##plt.xticks(major_ticks, minor_ticks)
 
-    plt.xticks(major_ticks, major_ticks)
+    # Major ticks
+    major_ticks = np.arange(base_yr,years[-1] + major_interval, major_interval)  
+    ax.set_xticks(major_ticks)
+    ax.set_xlabel(major_ticks)
+
+    # Minor ticks
+    minor_ticks = np.arange(base_yr,years[-1] + minor_interval, minor_interval)    
+    ax.set_xticks(minor_ticks, minor = True)
+    ax.set_xlabel(minor_ticks)
 
     # ------------
     # Plot color legend with colors for every season
@@ -354,7 +365,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
-    #nr_y_to_plot = data['sim_param']['sim_period_yrs']
     years_simulated = sim_period #data['sim_param']['sim_period']
 
     x_data = years_simulated
@@ -386,7 +396,7 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # -------
     # Axis
     # -------
-    plt.xticks(years_simulated, years_simulated, color='red')
+    plt.xticks(years_simulated, years_simulated) #, color='red')
 
     # -------
     # Labels
@@ -438,7 +448,7 @@ def plot_load_curves_fueltype(results_objects, data, fig_name):
 
     ax.legend(legend_entries)
 
-    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot), color='red')
+    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot)) #, color='red')
     plt.axis('tight')
 
     plt.ylabel("Percent %")

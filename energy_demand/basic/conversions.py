@@ -13,6 +13,27 @@ def ktoe_to_gwh(ktoe):
 
     Returns
     -------
+    gwh : float
+        Energy demand in GWh
+
+    Notes
+    -----
+    https://www.iea.org/statistics/resources/unitconverter/
+    """
+    gwh = ktoe * 11.6300000
+
+    return gwh
+
+def gwh_to_ktoe(gwh):
+    """Conversion of gwh to ktoe
+
+    Arguments
+    ----------
+    ktoe : float
+        Energy demand in ktoe
+
+    Returns
+    -------
     data_gwh : float
         Energy demand in GWh
 
@@ -20,9 +41,9 @@ def ktoe_to_gwh(ktoe):
     -----
     https://www.iea.org/statistics/resources/unitconverter/
     """
-    data_gwh = ktoe * 11.6300000
+    ktoe = gwh / 11.6300000
 
-    return data_gwh
+    return ktoe
 
 def kwh_to_gwh(kwh):
     """"Conversion of MW to GWh

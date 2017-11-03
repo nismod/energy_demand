@@ -5,6 +5,7 @@ Energy Demand Model
 - run with same weather shape and same fuel input --> flat line expected
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
+https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
 TODO: Simplify load profiles (they are non-regional now)
 '''
@@ -13,7 +14,6 @@ import sys
 import logging
 import numpy as np
 from pyinstrument import Profiler
-#import energy_demand.energy_model as energy_model
 from energy_demand import energy_model
 from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
