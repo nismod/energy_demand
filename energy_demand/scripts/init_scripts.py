@@ -48,9 +48,11 @@ def post_install_setup(args):
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
+    data['sim_param'] = base_assumptions.load_sim_param()
+    data['assumptions'] = base_assumptions.load_assumptions(
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
+    
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -98,7 +100,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
 
     path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
-    if run_locally is True:
+    if run_locally is True: #EVerything removed or data needs to be read in from somewhere locally
         data = {}
         data['print_criteria'] = True #Print criteria
         data['paths'] = data_loader.load_paths(path_main)
@@ -106,11 +108,12 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
+        data['sim_param'] = base_assumptions.load_sim_param()
+        data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data) #REMOVE TODO
-
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass
@@ -174,7 +177,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             fuels_aggregated_across_sectors,
             data['assumptions']['technologies'])
 
+    # -------------------
     # s_generate_sigmoid
+    # -------------------
     if run_locally is True:
         s_generate_sigmoid.run(data)
     else:
@@ -240,7 +245,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             is_service_tech_by_p,
             data['assumptions']['is_fuel_tech_p_by'])
 
-    # from energy_demand.scripts import s_disaggregation
+    # -------------------
+    # Disaggregate
+    # -------------------
     if run_locally is True:
         s_disaggregation.run(data)
     else:

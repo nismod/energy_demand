@@ -14,47 +14,41 @@ from energy_demand.plotting import plotting_program
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
-def run_all_plot_functions(
-        results_every_year,
-        results_enduse_every_year,
-        tot_fuel_y_max,
-        data,
-        load_factors_y,
-        load_factors_yh,
-        load_factor_seasons
-    ):
-    """Function summarising all functions to plot
-    """
+def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, assumptions):
+    """Summary function to plot all results
 
+    
+    """
+    logging.info("... plotting results")
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
     # plotting load factors per fueltype and region
-    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltype'].items():
 
         plot_seasonal_lf(
             fueltype_int,
             fueltype_str,
-            load_factor_seasons,
-            data['reg_nrs'],
+            results_container['load_factor_seasons'],
+            reg_nrs,
             os.path.join(
-                data['local_paths']['data_results_PDF'],
+                local_paths['data_results_PDF'],
                 'lf_seasonal_{}.pdf'.format(fueltype_str)))
 
         plot_lf_y(
             fueltype_int,
             fueltype_str,
-            load_factors_yh,
-            data['reg_nrs'],
+            results_container['load_factors_yh'],
+            reg_nrs,
             os.path.join(
-                data['local_paths']['data_results_PDF'], 'lf_yh_{}.pdf'.format(fueltype_str)))
+                local_paths['data_results_PDF'], 'lf_yh_{}.pdf'.format(fueltype_str)))
 
         plot_lf_y(
             fueltype_int,
             fueltype_str,
-            load_factors_y,
-            data['reg_nrs'],
+            results_container['load_factors_y'],
+            reg_nrs,
             os.path.join(
-                data['local_paths']['data_results_PDF'],
+                local_paths['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
 
     # --------------
@@ -62,10 +56,10 @@ def run_all_plot_functions(
     # ----------------
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
-        results_every_year,
-        data['lookups'],
+        results_container['results_every_year'],
+        lookups,
         os.path.join(
-            data['local_paths']['data_results_PDF'],
+            local_paths['data_results_PDF'],
             'fig_tot_all_enduse01.pdf'))
 
     # --------------
@@ -73,21 +67,21 @@ def run_all_plot_functions(
     # ----------------
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
-        results_every_year,
+        results_container['results_every_year'],
         data,
-        data['assumptions']['model_yearhours_nrs'],
-        data['assumptions']['model_yeardays_nrs'],
+        assumptions['model_yearhours_nrs'],
+        assumptions['model_yeardays_nrs'],
         2015,
-        os.path.join(data['local_paths']['data_results_PDF'], "tot_all_enduse03.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "tot_all_enduse03.pdf"))
 
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
-        results_every_year,
+        results_container['results_every_year'],
         data,
-        data['assumptions']['model_yearhours_nrs'],
-        data['assumptions']['model_yeardays_nrs'],
+        assumptions['model_yearhours_nrs'],
+        assumptions['model_yeardays_nrs'],
         2015,
-        os.path.join(data['local_paths']['data_results_PDF'], "tot_all_enduse04.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "tot_all_enduse04.pdf"))
 
     # ------------
     # Stacked enduses
@@ -95,34 +89,34 @@ def run_all_plot_functions(
     # Residential
     plt_stacked_enduse(
         data['sim_param']['sim_period'],
-        results_enduse_every_year,
+        results_container['results_enduse_every_year'],
         data['enduses']['rs_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "stacked_rs_country_final.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country_final.pdf"))
 
     # Service
     plt_stacked_enduse(
         data['sim_param']['sim_period'],
-        results_enduse_every_year,
+        results_container['results_enduse_every_year'],
         data['enduses']['ss_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "stacked_ss_country_final.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country_final.pdf"))
 
     # Industry
     plt_stacked_enduse(
         data['sim_param']['sim_period'],
-        results_enduse_every_year,
+        results_container['results_enduse_every_year'],
         data['enduses']['is_all_enduses'],
-        os.path.join(data['local_paths']['data_results_PDF'], "stacked_is_country_final.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
 
     # Plot all enduses
     #plt_stacked_enduse(
     # data['sim_param']['sim_period'],
-    # results_every_year,
+    # results_container['results_every_year'],
     # data['enduses']['rs_all_enduses'],
     # 'tot_fuel_y_enduse_specific_h',
     # os.path.join(data['local_paths']['data_results_PDF'], "figure_stacked_country_final.pdf")))
 
     #logging.debug('Plot peak demand (h) per fueltype')
-    #plt_fuels_peak_h(tot_fuel_y_max, data)
+    #plt_fuels_peak_h(results_container['tot_fuel_y_max'], data)
     return
 
 def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs, path_plot_fig):

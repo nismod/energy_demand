@@ -62,6 +62,35 @@ class EDWrapper(SectorModel):
         data['print_criteria'] = False
 
         # -----------------------------
+        # Paths
+        # -----------------------------
+        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+        data['paths'] = data_loader.load_paths(path_main)
+        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+
+        # ---------------------
+        # Simulation parameters
+        # ---------------------
+        sim_param = {}
+        sim_param['base_yr'] = 2015 #TODO: REPLACE
+        sim_param['end_yr'] = 2030 #TODO: REPLACE
+        sim_param['curr_yr'] = sim_param['base_yr'] #TODO REPLACE
+        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+        sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
+        sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+        sim_param['list_dates'] = date_handling.fullyear_dates(
+            start=date(sim_param['base_yr'], 1, 1),
+            end=date(sim_param['base_yr'], 12, 31))
+        data['sim_param'] = sim_param
+
+        # -----------------------------
+        # Region related informatiom
+        # -----------------------------
+        data['lu_reg'] = self.get_region_names('lad')
+        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
+
+        # -----------------------------
         # Obtain external scenario data
         # -----------------------------
 
@@ -83,23 +112,16 @@ class EDWrapper(SectorModel):
         self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
         self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
 
-        # Region name & coordinates
-        data['lu_reg'] = self.get_region_names('lad')
-        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
-
-        # Load data (is to be replaced partly by scenario data (e.g. scenario assumptions))
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
-        data['paths'] = data_loader.load_paths(path_main)
-        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+        # ---------------------
+        # Energy demand specific input which needs to be read in
+        # ---------------------
         data['lookups'] = data_loader.load_basic_lookups()
-
-        data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
-
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
-        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+        data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['tech_lp'] = data_loader.load_data_profiles(
+            data['paths'], data['local_paths'], data['assumptions'])
 
         # --------------------
         # Initialise scenario
@@ -156,9 +178,7 @@ class EDWrapper(SectorModel):
         # Scenario data
         # ---------
         data = {}
-        data['print_criteria'] = False # No plt.show() functions are exectued if False
-        data['population'] = self.user_data['population']
-        data['gva'] = self.user_data['gva']
+        data['print_criteria'] = False
         data['rs_floorarea'] = self.user_data['rs_floor_area']
         data['ss_floorarea'] = self.user_data['ss_floor_area']
         data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
@@ -166,26 +186,37 @@ class EDWrapper(SectorModel):
             'gva': self.user_data['gva'],
             'population':  self.user_data['population']
             }
+
         # ---------
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
         data['lu_reg'] = self.get_region_names('lad')
-
         #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
+    
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
+        
+        # Simulation parameters
+        data['sim_param'] = base_assumptions.load_sim_param() #TODO: REMOVE
+        data['sim_param']['current_year'] = timestep
+        data['sim_param']['end_year'] = 2020 #TODO INPUT
+        data['sim_param']['sim_years_intervall'] = 1 #TODO INPUT
+        
+        # Necessary update
+        data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
+        data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
+        data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(data['sim_param']['base_yr'], 1, 1), end=date(data['sim_param']['base_yr'], 12, 31))
+
+        # ED related stuff
+        data['assumptions'] = base_assumptions.load_assumptions(
+            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
-        data['reg_coord'], _ = data_loader.get_dummy_coord_region(data['local_paths']) #REPLACE BY SMIF INPUT
-        data['sim_param']['current_year'] = timestep
-        data['sim_param']['end_year'] = 2020
-        data['sim_param']['sim_years_intervall'] = 1
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REPLACE BY SMIF INPUT
 
         data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
         data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
@@ -193,14 +224,7 @@ class EDWrapper(SectorModel):
         data['assumptions']['eff_achieving_factor'] = data['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition
-        data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
-        data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
-        data['sim_param']['list_dates'] = date_handling.fullyear_dates(start=date(data['sim_param']['base_yr'], 1, 1), end=date(data['sim_param']['base_yr'], 12, 31))
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions']) #Maybe write s_script
-
-        #data['rs_dw_stock'] = self.user_data['rs_dw_stock']
-        #data['ss_dw_stock'] = self.user_data['ss_dw_stock']
-
 
         # -----------------------
         # Load data from scripts (replacing #data = read_data.load_script_data(data))
@@ -241,9 +265,9 @@ class EDWrapper(SectorModel):
         # ---------
         results = energy_demand_model(data)
 
-        # ---------
-        # Process results
-        # ---------
+        # ------------------------------------
+        # Write results output for supply
+        # ------------------------------------
         supply_results = results.fuel_indiv_regions_yh
 
         logging.info("... finished wrapper calculations")

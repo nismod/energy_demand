@@ -14,7 +14,22 @@ from energy_demand.technologies import fuel_service_switch
 #TODO: Make that HLC can be improved, ssumption share of existing
 #  dwelling stock which is assigned new HLC coefficients
 
-def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
+def load_sim_param():
+    """
+    """
+    sim_param = {}
+    sim_param['base_yr'] = 2015
+    sim_param['end_yr'] = 2030
+    sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
+    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+    sim_param['curr_yr'] = sim_param['base_yr']
+    sim_param['list_dates'] = date_handling.fullyear_dates(
+        start=date(sim_param['base_yr'], 1, 1),
+        end=date(sim_param['base_yr'], 12, 31))
+    return sim_param
+
+def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
 
     Returns
@@ -24,17 +39,6 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
     """
     logging.debug("... load assumptions")
     assumptions = {}
-    if write_sim_param:
-        sim_param = {}
-        sim_param['base_yr'] = 2015
-        sim_param['end_yr'] = 2030
-        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-        sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-        sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
-        sim_param['curr_yr'] = sim_param['base_yr']
-        sim_param['list_dates'] = date_handling.fullyear_dates(
-            start=date(sim_param['base_yr'], 1, 1),
-            end=date(sim_param['base_yr'], 12, 31))
 
     # --------------------------------------
     # Date selection for which model is run
@@ -537,11 +541,9 @@ def load_assumptions(paths, enduses, lookups, fuels, write_sim_param):
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
+    assumptions['testing'] = True
 
-    if write_sim_param: #== True:
-        return sim_param, assumptions
-    else:
-        return assumptions
+    return assumptions
 
 def update_assumptions(assumptions):
     """Updates calculations based on assumptions

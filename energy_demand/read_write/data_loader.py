@@ -43,24 +43,22 @@ def get_dummy_coord_region(local_paths):
     """create dummy coord and regions
     """
     coord_dummy = {}
-    regions = {}
+
     # Load dummy LAC and pop
     dummy_pop_geocodes = load_LAC_geocodes_info(
-        local_paths['path_dummy_regions']
-        )
+        local_paths['path_dummy_regions'])
+
     for geo_code, values in dummy_pop_geocodes.items():
-        regions[geo_code] = values['label']
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
 
-    return coord_dummy, regions
+    return coord_dummy
 
 def get_national_electricity_data(local_paths, coord_dummy):
     """Read in national electrictiy data from csv file
     """
     # Load dummy LAC and pop
     dummy_pop_geocodes = load_LAC_geocodes_info(
-        local_paths['path_dummy_regions']
-        )
+        local_paths['path_dummy_regions'])
     for geo_code, values in dummy_pop_geocodes.items():
         coord_dummy[geo_code]['elec_tot15'] = values['elec_tot15']
 
