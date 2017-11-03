@@ -25,6 +25,15 @@ from energy_demand.basic import date_prop
 
     assert out_value == expected
 '''
+
+def test_get_month_from_yeraday():
+    """testing
+    """
+
+    result = date_prop.get_month_from_yeraday(year=2015, yearday=37)
+    expected = 1 #Feb
+    assert result == expected
+
 def test_date_to_yearday():
     """Testing
     """
