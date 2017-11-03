@@ -10,6 +10,36 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
+def read_in_results(path_runs, lookups, reg_nrs):
+    """Read in results from txt files and store into container all results
+    """
+    logging.info("... Reading in results")
+
+    results_container = {}
+
+    #read_results_from_txt(data['local_paths']['data_results_model_runs'])
+    
+
+    results_container['results_every_year'] = read_results_y(
+        lookups['fueltypes_nr'], reg_nrs, path_runs)
+
+    results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
+        lookups['fueltypes_nr'], path_runs)
+
+    results_container['tot_fuel_y_max'] = read_max_results(path_runs)
+
+    results_container['load_factors_y'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_y"))
+    results_container['load_factors_yh'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_yd"))
+
+    results_container['load_factor_seasons'] = {}
+    results_container['load_factor_seasons']['winter'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_winter"))
+    results_container['load_factor_seasons']['spring'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_spring"))
+    results_container['load_factor_seasons']['summer'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_summer"))
+    results_container['load_factor_seasons']['autumn'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
+
+    logging.info("... Reading in results finished")
+    return results_container
+
 def read_results_y(fueltypes_nr, reg_nrs, path_to_folder):
     """Read results
 

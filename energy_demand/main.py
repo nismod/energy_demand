@@ -8,6 +8,7 @@ https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 TODO: REplace 1 and zero by fueltypes test_fuel_switch
 TODO: Simplify load profiles (they are non-regional now)
+TODO: REMOVE run_locally
 '''
 import os
 import sys
@@ -101,8 +102,9 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'], data['assumptions'] = base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], data['fuels'], write_sim_param=True)
+    data['sim_param'] = base_assumptions.load_sim_param()
+    data['assumptions'] = base_assumptions.load_assumptions(
+        data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
@@ -210,44 +212,19 @@ if __name__ == "__main__":
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
-    logging.info("... Reading in results")
-    #read_results_from_txt(data['local_paths']['data_results_model_runs'])
-    path_runs = data['local_paths']['data_results_model_runs']
-
-    results_every_year = read_data.read_results_y(
-        data['lookups']['fueltypes_nr'], data['reg_nrs'], path_runs)
-
-    results_enduse_every_year = read_data.read_enduse_specific_results_txt(
-        data['lookups']['fueltypes_nr'], path_runs)
-
-    tot_fuel_y_max = read_data.read_max_results(path_runs)
-
-    load_factors_y = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_y"))
-    load_factors_yh = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_yd"))
-
-    load_factor_seasons = {}
-    load_factor_seasons['winter'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_winter"))
-    load_factor_seasons['spring'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_spring"))
-    load_factor_seasons['summer'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_summer"))
-    load_factor_seasons['autumn'] = read_data.read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
-
-    logging.info("... Reading in results finished")
-
+    results_container = read_data.read_in_results(
+        data['local_paths']['data_results_model_runs'],
+        data['lookups'],
+        data['reg_nrs'])
+    
     # ------------------------------
-    # Plotting
+    # Plotting results
     # ------------------------------
-    logging.info("... plotting results")
-
-    if data['print_criteria']:
-        plotting_results.run_all_plot_functions(
-            results_every_year,
-            results_enduse_every_year,
-            tot_fuel_y_max,
-            data,
-            load_factors_y,
-            load_factors_yh,
-            load_factor_seasons)
-    else:
-        logging.info("Results are not plotted")
+    plotting_results.run_all_plot_functions(
+        results_container,
+        data['reg_nrs'],
+        data['lookups'],
+        data['local_paths'],
+        data['assumptions'])
 
     logging.info("... Finished running Energy Demand Model")
