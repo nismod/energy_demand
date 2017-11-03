@@ -150,7 +150,7 @@ def compare_results(
     
     plt.show()
 
-def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_enduses_fueltype):
+def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
 
     Arguments
@@ -159,9 +159,9 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_endu
     """
     logging.debug("...compare elec peak results")
     # -------------------------------
-    # Find maximumg peak in real data
+    # Find maximumg peak in real data TODO WHY?
     # -------------------------------
-    max_h_year = 0
+    '''max_h_year = 0
     max_day = "None"
 
     for day in range(365):
@@ -176,14 +176,15 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_endu
     logging.debug("max_h_year (modelled):           %s", np.max(tot_peak_enduses_fueltype))
     logging.debug("Fuel max peak day (real):        %s", np.sum(validation_elec_data_2015[max_day]))
     logging.debug("Fuel max peak day (modelled):    %s", np.sum(tot_peak_enduses_fueltype))
-
+    '''
     # -------------------------------
     # Compare values
     # -------------------------------
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
     plt.plot(range(24), tot_peak_enduses_fueltype, color='red', label='modelled')
-    plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
+    #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
+    plt.plot(range(24), validation_elec_data_2015_peak, color='green', label='real')
 
     # Y-axis ticks
     plt.xlim(0, 25)
