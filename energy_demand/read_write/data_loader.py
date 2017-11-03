@@ -8,6 +8,38 @@ from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.basic import conversions
 
+def read_national_real_fuel_data(path_to_csv):
+    """Read in national consumption from csv file
+
+    Arguments
+    ---------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    national_fuel_data : dict
+        geocode, total consumption
+    
+    Info
+    -----
+    Source: https://www.gov.uk/government/statistical-data-sets/regional-and-local-authority-electricity-consumption-statistics-2005-to-2011
+    """
+    national_fuel_data = {}
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+
+        for row in read_lines:
+            geocode = str.strip(row[2])
+
+            tot_consumption_unclean = row[7].strip()  
+            total_consumption = float(tot_consumption_unclean.replace(",", "."))
+
+            national_fuel_data[geocode] = total_consumption
+
+    return national_fuel_data
+
 def load_basic_lookups():
     """Definition of basic lookups or other related information
 
@@ -50,17 +82,6 @@ def get_dummy_coord_region(local_paths):
 
     for geo_code, values in dummy_pop_geocodes.items():
         coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
-
-    return coord_dummy
-
-def get_national_electricity_data(local_paths, coord_dummy):
-    """Read in national electrictiy data from csv file
-    """
-    # Load dummy LAC and pop
-    dummy_pop_geocodes = load_LAC_geocodes_info(
-        local_paths['path_dummy_regions'])
-    for geo_code, values in dummy_pop_geocodes.items():
-        coord_dummy[geo_code]['elec_tot15'] = values['elec_tot15']
 
     return coord_dummy
 
@@ -163,8 +184,10 @@ def load_local_paths(path):
             path, '_raw_data', 'H-Met_office_weather_data', 'midas_wxhrly_201501-201512.csv'),
         'folder_path_weater_stations': os.path.join(
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
-        'folder_validation_national_elec_data': os.path.join(
+        'path_val_nat_elec_data': os.path.join(
             path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
+        'path_val_subnational_elec_data': os.path.join(
+            path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
@@ -225,22 +248,8 @@ def load_paths(path):
         'path_main': path,
 
         # Path for dwelling stock assumptions
-        'path_dwtype': os.path.join(
-            path, 'config_data', 'submodel_residential', 'lookup_dwelling_type.csv'),
         'path_hourly_gas_shape_resid': os.path.join(
             path, 'config_data', 'submodel_residential', 'lp_gas_boiler_dh_SANSOM.csv'),
-        'path_dwtype_age': os.path.join(
-            path, 'config_data', 'submodel_residential', 'data_submodel_residential_dwtype_age.csv'),
-        'path_dwtype_floorarea_dw_type': os.path.join(
-            path, 'config_data', 'submodel_residential', 'data_submodel_residential_dwtype_floorarea.csv'),
-        'path_reg_floorarea_resid': os.path.join(
-            path, 'config_data', 'submodel_residential', 'data_submodel_residential_floorarea.csv'),
-
-        # Path for model outputs
-        'path_txt_service_tech_by_p': os.path.join(
-            path, 'model_output', 'rs_service_tech_by_p.txt'),
-        'path_out_stats_cProfile': os.path.join(
-            path, 'model_output', 'stats_cProfile.txt'),
 
         # Path to all technologies
         'path_technologies': os.path.join(

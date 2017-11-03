@@ -9,7 +9,7 @@ def test_defined_service_switch():
     """
     pass
 
-def test_region_selection(fuel_indiv_regions_yh):
+def test_region_selection(ed_fueltype_regs_yh):
     """function to see whether if only some days are selected
     the sum makes sense
     """
@@ -19,7 +19,7 @@ def test_region_selection(fuel_indiv_regions_yh):
     hours_modelled = modelled_days * 24
     len_dict = 0
     _sum_day_selection = 0
-    for fuels in fuel_indiv_regions_yh:
+    for fuels in ed_fueltype_regs_yh:
         for region_fuel in fuels:
             _sum_day_selection += np.sum(region_fuel[: hours_modelled])
             len_dict = region_fuel.shape[0]
@@ -27,7 +27,7 @@ def test_region_selection(fuel_indiv_regions_yh):
     print("nr of dasy to sho {}  {}".format(hours_modelled, len_dict))
 
     _sum_all = 0
-    for fuels in fuel_indiv_regions_yh:
+    for fuels in ed_fueltype_regs_yh:
         for region_fuel in fuels:
             _sum_all += np.sum(region_fuel)
     print("_sum_day_selection")

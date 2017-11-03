@@ -61,7 +61,13 @@ def read_raw_elec_2015_data(path_to_csv):
 
     Necessary data preparation: On 29 March and 25 Octobre
     there are 46 and 48 values because of the changing of the clocks
-    The 25 Octobre value is omitted, the 29 March hour interpolated in the csv file
+    The 25 Octobre value is omitted, the 29 March hour interpolated
+    in the csv file
+
+    Source
+    ------
+    http://www2.nationalgrid.com/uk/Industry-information/electricity-transmission-operational-data/
+    
     """
     year = 2015
 
@@ -69,7 +75,7 @@ def read_raw_elec_2015_data(path_to_csv):
     elec_data_ITSDO = np.zeros((365, 24), dtype=float)
 
     with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',') 
+        read_lines = csv.reader(csvfile, delimiter=',')
         _headings = next(read_lines) # Skip first row
 
         hour = 0
@@ -111,7 +117,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
     return elec_data_INDO, elec_data_ITSDO
 
-def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
+def compare_results(name_fig, local_paths, y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
     """Compare national electrictiy demand data with model results
 
     Note
@@ -166,16 +172,12 @@ def compare_results(name_fig, data, y_real_array_INDO, y_real_array_ITSDO, y_fac
     plt.xlabel("Hours", fontsize=10)
     plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
 
-    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
 
     plt.legend()
+    plt.show()
 
-    if data['print_criteria'] == True:
-        plt.show()
-    else:
-        pass
-
-def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fueltype):
+def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_enduses_fueltype):
     """Compare Peak electricity day with calculated peak energy demand
 
     Arguments
@@ -222,16 +224,12 @@ def compare_peak(name_fig, data, validation_elec_data_2015, tot_peak_enduses_fue
     plt.xlabel("Hours")
     plt.ylabel("National electrictiy use [GWh / h]")
     plt.legend()
-    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
 
-    if data['print_criteria']:
-        plt.show()
-    else:
-        pass
+    plt.show()
 
-    return
 
-def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
+def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
     for the full year
     """
@@ -272,12 +270,6 @@ def compare_results_hour_boxplots(name_fig, data, data_real, data_calculated):
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
-    plt.savefig(os.path.join(data['local_paths']['data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
 
-
-    if data['print_criteria']:
-        plt.show()
-    else:
-        pass
-
-    return
+    plt.show()

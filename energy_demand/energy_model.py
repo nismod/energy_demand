@@ -89,8 +89,9 @@ class EnergyModel(object):
         yearhours_nrs = data['assumptions']['model_yearhours_nrs']
         yeardays_nrs = data['assumptions']['model_yeardays_nrs']
         reg_nrs = data['reg_nrs']
-        fuel_indiv_regions_yh = np.zeros((fueltypes_nr, reg_nrs, yearhours_nrs), dtype=float)
-        reg_enduses_fueltype_y = np.zeros((fueltypes_nr, yeardays_nrs, 24), dtype=float)
+
+        ed_fueltype_regs_yh = np.zeros((fueltypes_nr, reg_nrs, yearhours_nrs), dtype=float)
+        ed_fueltype_national_yh = np.zeros((fueltypes_nr, yeardays_nrs, 24), dtype=float)
         tot_peak_enduses_fueltype = np.zeros((fueltypes_nr, 24), dtype=float)
         tot_fuel_y_max_enduses = np.zeros((fueltypes_nr), dtype=float)
         tot_fuel_y_enduse_specific_h = {}
@@ -120,8 +121,8 @@ class EnergyModel(object):
 
             # Sum across all regions, all enduse and sectors sum_reg
             # [fueltype, region, fuel_yh], [fueltype, fuel_yh]
-            fuel_indiv_regions_yh, fuel_region_yh = fuel_regions_fueltype(
-                fuel_indiv_regions_yh,
+            ed_fueltype_regs_yh, fuel_region_yh = fuel_regions_fueltype(
+                ed_fueltype_regs_yh,
                 data['lookups'],
                 region_name,
                 array_nr_region,
@@ -130,8 +131,8 @@ class EnergyModel(object):
                 region_submodels)
 
             # Sum across all regions, all enduse and sectors
-            reg_enduses_fueltype_y = fuel_aggr(
-                reg_enduses_fueltype_y,
+            ed_fueltype_national_yh = fuel_aggr(
+                ed_fueltype_national_yh,
                 'fuel_yh',
                 region_submodels,
                 'no_sum',
@@ -187,8 +188,8 @@ class EnergyModel(object):
         # -------------------------------------------------
         # Assign values for all region in EnergyModel object
         # -------------------------------------------------
-        self.fuel_indiv_regions_yh = fuel_indiv_regions_yh
-        self.reg_enduses_fueltype_y = reg_enduses_fueltype_y
+        self.ed_fueltype_regs_yh = ed_fueltype_regs_yh
+        self.ed_fueltype_national_yh = ed_fueltype_national_yh
         self.tot_peak_enduses_fueltype = tot_peak_enduses_fueltype
         self.tot_fuel_y_max_enduses = tot_fuel_y_max_enduses
         self.tot_fuel_y_enduse_specific_h = tot_fuel_y_enduse_specific_h
@@ -200,7 +201,7 @@ class EnergyModel(object):
         #-------------------
         # TESTING
         #-------------------
-        testing.test_region_selection(self.fuel_indiv_regions_yh)
+        testing.test_region_selection(self.ed_fueltype_regs_yh)
 
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
@@ -627,8 +628,7 @@ def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nr
         region_enduses,
         'no_sum',
         model_yeardays_nrs,
-        region_name,
-    )
+        region_name)
 
     return region_fuel_yh
 

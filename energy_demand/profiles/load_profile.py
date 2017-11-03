@@ -389,7 +389,8 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         for enduse in all_enduses_including_heating:
             if enduse == "is_space_heating":
                 shape_peak_dh_sectors_enduses[sector][enduse] = {
-                    'shape_peak_dh': tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
+                    'shape_peak_dh':
+                    tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_dh']}
             else:
                 shape_peak_dh_sectors_enduses[sector][enduse] = {
                     'shape_peak_dh': shape_peak_dh}

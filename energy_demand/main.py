@@ -21,7 +21,6 @@ from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
 from energy_demand.basic import testing_functions as testing
 from energy_demand.basic import conversions
-from energy_demand.profiles import generic_shapes
 from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup
@@ -59,14 +58,14 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     logging.info("Simulation year:     " + str(model_run_object.curr_yr))
     logging.info("Number of regions    " + str(data['reg_nrs']))
     logging.info("Fuel input:          " + str(fuel_in))
-    logging.info("Fuel output:         " + str(np.sum(model_run_object.reg_enduses_fueltype_y)))
+    logging.info("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
     logging.info("FUEL DIFFERENCE:     " + str(round(
-        (np.sum(model_run_object.reg_enduses_fueltype_y) - fuel_in), 4)))
+        (np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
     logging.info("elec fuel in:        " + str(fuel_in_elec))
     logging.info("elec fuel out:       " + str(np.sum(
-        model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']])))
+        model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
     logging.info("ele fueld diff:      " + str(round(
-        fuel_in_elec - np.sum(model_run_object.reg_enduses_fueltype_y[data['lookups']['fueltype']['electricity']]), 4)))
+        fuel_in_elec - np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4)))
     logging.info("================================================")
     logging.debug("...finished energy demand model simulation")
 
@@ -93,7 +92,7 @@ if __name__ == "__main__":
     # Run settings
     instrument_profiler = True
     print_criteria = True
-    validation_criteria = False
+    validation_criteria = True
 
     # Load data
     data = {}
@@ -109,7 +108,7 @@ if __name__ == "__main__":
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
-    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
+    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']} #TODO add everwhere data['scenario_data']
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -150,11 +149,12 @@ if __name__ == "__main__":
             print(profiler.output_text(unicode=True, color=True))
 
         # Take attributes from model object run
-        supply_results = model_run_object.fuel_indiv_regions_yh
+        supply_results = model_run_object.ed_fueltype_regs_yh
+        ed_fueltype_regs_yh = model_run_object.ed_fueltype_regs_yh
         out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
-        reg_enduses_fueltype_y = model_run_object.reg_enduses_fueltype_y
+        ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
 
         reg_load_factor_y = model_run_object.reg_load_factor_y
         reg_load_factor_yd = model_run_object.reg_load_factor_yd
@@ -189,25 +189,13 @@ if __name__ == "__main__":
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
         if validation_criteria:
-
-            # Add electricity for transportation sector
-            fuel_electricity_year_validation = 385
-            fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
-            fuel_national_tranport[data['lookups']['fueltype']['electricity']] = conversions.ktoe_to_gwh(
-                fuel_electricity_year_validation) #Elec demand from ECUK for transport sector
-            model_object_transport = generic_shapes.GenericFlatEnduse(
-                fuel_national_tranport, data['assumptions']['model_yeardays_nrs'])
-
-            lad_validation.temporal_validation(
+            lad_validation.tempo_spatial_validation(
+                data['sim_param']['base_yr'],
+                data['assumptions']['model_yearhours_nrs'],
                 data,
-                model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh)
-
-            # --------------------------------------------
-            # Validation base year: Spatial disaggregation
-            # --------------------------------------------
-            lad_validation.spatial_validation(
-                data, model_run_object.reg_enduses_fueltype_y + model_object_transport.fuel_yh,
-                model_run_object.tot_peak_enduses_fueltype + model_object_transport.fuel_peak_dh)
+                model_run_object.ed_fueltype_national_yh,
+                ed_fueltype_regs_yh,
+                model_run_object.tot_peak_enduses_fueltype)
     ##'''
     # --------------------------------------------
     # Reading in results from different model runs
