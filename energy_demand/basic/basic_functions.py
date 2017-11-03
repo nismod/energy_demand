@@ -75,3 +75,43 @@ def del_previous_setup(path_folder):
         print("...Deleted previous scenario results")
     else:
         pass
+
+def get_month_from_string(month_string):
+    """Convert string month to int month with Jan == 1
+
+    Argument
+    --------
+    month_string : str
+        Month given as a string
+
+    Returns
+    --------
+    month : int
+        Month as an integer (jan = 1, dez = 12)
+    """
+    if month_string == 'Jan':
+        month = 1
+    elif month_string == 'Feb':
+        month = 2
+    elif month_string == 'Mar':
+        month = 3
+    elif month_string == 'Apr':
+        month = 4
+    elif month_string == 'May':
+        month = 5
+    elif month_string == 'Jun':
+        month = 6
+    elif month_string == 'Jul':
+        month = 7
+    elif month_string == 'Aug':
+        month = 8
+    elif month_string == 'Sep':
+        month = 9
+    elif month_string == 'Oct':
+        month = 10
+    elif month_string == 'Nov':
+        month = 11
+    elif month_string == 'Dec':
+        month = 12
+
+    return int(month)

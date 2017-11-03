@@ -13,6 +13,7 @@ from energy_demand.validation import elec_national_data
 from energy_demand.read_write import data_loader
 from energy_demand.basic import date_handling
 from energy_demand import energy_model
+from energy_demand import enduse_func
 
 def temporal_validation(local_paths, lookups, ed_fueltype_national_yh):
     """National hourly electricity data is validated with fuel of
@@ -74,7 +75,14 @@ def temporal_validation(local_paths, lookups, ed_fueltype_national_yh):
 
     return
 
-def tempo_spatial_validation(base_yr, model_yearhours_nrs, data, ed_fueltype_national_yh, ed_fueltype_regs_yh, tot_peak_enduses_fueltype):
+def tempo_spatial_validation(
+        base_yr,
+        model_yearhours_nrs,
+        data,
+        ed_fueltype_national_yh,
+        ed_fueltype_regs_yh,
+        tot_peak_enduses_fueltype
+    ):
     """Validate national hourly demand for yearls fuel
     for all LADs. Test how the national disaggregation
     works
@@ -122,31 +130,43 @@ def tempo_spatial_validation(base_yr, model_yearhours_nrs, data, ed_fueltype_nat
     # Spatial validation
     # -------------------------------------------
     # Read national electricity data
-    national_elec_data = data_loader.read_national_real_fuel_data(
+    national_elec_data = data_loader.read_national_real_elec_data(
         data['local_paths']['path_val_subnational_elec_data'])
+    
+    national_gas_data = data_loader.read_national_real_gas_data(
+        data['local_paths']['path_val_subnational_gas_data'])
 
     spatial_validation(
-        data['local_paths'],
         data['reg_coord'],
-        data['assumptions']['model_yeardays_nrs'],
         ed_fueltype_regs_yh,
-        data['lookups']['fueltypes_nr'],
-        data['lookups']['fueltype'],
+        data['lookups']['fueltype']['electricity'],
         data['lu_reg'],
-        data['enduses'],
         national_elec_data,
-        os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_validation.pdf'))
+        os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_elec.pdf'))
+
+    spatial_validation(
+        data['reg_coord'],
+        ed_fueltype_regs_yh,
+        data['lookups']['fueltype']['gas'],
+        data['lu_reg'],
+        national_gas_data,
+        os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_gas.pdf'))
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------
     logging.debug("...compare peak from data")
+
+    # Peak across all fueltypes TODO: Fueltype specific
+    peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
+    #TODO: write out also month
     peak_month = 2 #Feb
     peak_day = 18 #Day
+
     elec_national_data.compare_peak(
         "validation_peak_comparison_01.pdf",
         data['local_paths'],
-        val_elec_data_2015_INDO,
+        val_elec_data_2015_INDO, 
         ed_fueltype_national_yh[peak_month][peak_day])
 
     logging.debug("...compare peak from max peak factors")
@@ -157,27 +177,21 @@ def tempo_spatial_validation(base_yr, model_yearhours_nrs, data, ed_fueltype_nat
         tot_peak_enduses_fueltype[data['lookups']['fueltype']['electricity']])
 
     # ---------------------------------------------------
-    # Validate boxplots for every hour
+    # Validate boxplots for every hour (temporal validation)
     # ---------------------------------------------------
     elec_national_data.compare_results_hour_boxplots(
-        "validation_hourly_boxplots_01.pdf",
+        "validation_hourly_boxplots_electricity_01.pdf",
         data['local_paths'],
         val_elec_data_2015_INDO,
         ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])
-    
-    # TODO: VALIDATE GAS DEMAND
 
     return
 
 def spatial_validation(
-        local_paths,
         reg_coord,
-        model_yeardays_nrs,
         ed_fueltype_regs_yh,
-        fueltypes_nr,
-        lu_fueltypes,
+        fueltype,
         lu_reg,
-        all_enduses,
         national_elec_data,
         fig_name
     ):
@@ -216,7 +230,7 @@ def spatial_validation(
 
                 # --Sub Regional Electricity demand
                 result_dict['real_elec_demand'][reg_geocode] = national_elec_data[reg_geocode]
-                result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[lu_fueltypes['electricity']][region_array_nr])
+                result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype][region_array_nr])
 
     # -----------------
     # Sort results according to size
@@ -263,7 +277,8 @@ def spatial_validation(
     plt.plot(x_values, y_values_real_elec_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
     plt.plot(x_values, y_values_modelled_elec_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
     
-    plt.ylim(0, 6000)
+    # Limit
+    #plt.ylim(0, 6000)
 
     # -----------
     # Labelling
@@ -282,7 +297,7 @@ def spatial_validation(
     # --------
     # Legend
     # --------
-    plt.legend()
+    plt.legend(frameon=False)
 
     # Tight layout
     plt.margins(x=0)

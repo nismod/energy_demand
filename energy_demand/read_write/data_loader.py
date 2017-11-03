@@ -8,7 +8,7 @@ from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.basic import conversions
 
-def read_national_real_fuel_data(path_to_csv):
+def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file
 
     Arguments
@@ -32,9 +32,44 @@ def read_national_real_fuel_data(path_to_csv):
 
         for row in read_lines:
             geocode = str.strip(row[2])
-
-            tot_consumption_unclean = row[7].strip()  
+            tot_consumption_unclean = row[7].strip()
             total_consumption = float(tot_consumption_unclean.replace(",", "."))
+
+            national_fuel_data[geocode] = total_consumption
+
+    return national_fuel_data
+
+def read_national_real_gas_data(path_to_csv):
+    """Read in national consumption from csv file
+
+    Arguments
+    ---------
+    path_to_csv : str
+        Path to csv file
+
+    Returns
+    -------
+    national_fuel_data : dict
+        geocode, total consumption
+
+    Info
+    -----
+    Source: https://www.gov.uk/government/statistical-data-sets/gas-sales-and-numbers-of-customers-by-region-and-local-authority
+    """
+    national_fuel_data = {}
+    with open(path_to_csv, 'r') as csvfile:
+        read_lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(read_lines) # Skip first row
+
+        for row in read_lines:
+            geocode = str.strip(row[3])
+            tot_consumption_unclean = row[10].strip()  
+            print(tot_consumption_unclean)
+            if tot_consumption_unclean == '-':
+                # No entry provided
+                total_consumption = 0
+            else:
+                total_consumption = float(tot_consumption_unclean.replace(",", "."))
 
             national_fuel_data[geocode] = total_consumption
 
@@ -188,6 +223,8 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
         'path_val_subnational_elec_data': os.path.join(
             path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
+        'path_val_subnational_gas_data': os.path.join(
+            path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(

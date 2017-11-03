@@ -10,48 +10,6 @@ from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 
-def get_month_from_string(month_string):
-    """Convert string month to int month with Jan == 1
-
-    Argument
-    --------
-    month_string : str
-        Month given as a string
-
-    Returns
-    --------
-    month : int
-        Month as an integer (jan = 1, dez = 12)
-    """
-    if month_string == 'Jan':
-        month = 1
-    elif month_string == 'Feb':
-        month = 2
-    elif month_string == 'Mar':
-        month = 3
-    elif month_string == 'Apr':
-        month = 4
-    elif month_string == 'May':
-        month = 5
-    elif month_string == 'Jun':
-        month = 6
-    elif month_string == 'Jul':
-        month = 7
-    elif month_string == 'Aug':
-        month = 8
-    elif month_string == 'Sep':
-        month = 9
-    elif month_string == 'Oct':
-        month = 10
-    elif month_string == 'Nov':
-        month = 11
-    elif month_string == 'Dec':
-        month = 12
-    else:
-        sys.exit("Could not convert string month to int month")
-
-    return int(month)
-
 def read_raw_elec_2015_data(path_to_csv):
     """Read in national electricity values provided in MW and convert to GWh
 
@@ -82,7 +40,7 @@ def read_raw_elec_2015_data(path_to_csv):
         counter_half_hour = 0
 
         for line in read_lines:
-            month = get_month_from_string(line[0].split("-")[1])
+            month = basic_functions.get_month_from_string(line[0].split("-")[1])
             day = int(line[0].split("-")[0])
 
             # Get yearday
@@ -117,7 +75,16 @@ def read_raw_elec_2015_data(path_to_csv):
 
     return elec_data_INDO, elec_data_ITSDO
 
-def compare_results(name_fig, local_paths, y_real_array_INDO, y_real_array_ITSDO, y_factored_INDO, y_calculated_array, title_left, days_to_plot):
+def compare_results(
+        name_fig,
+        local_paths,
+        y_real_array_INDO,
+        y_real_array_ITSDO,
+        y_factored_INDO,
+        y_calculated_array,
+        title_left,
+        days_to_plot
+    ):
     """Compare national electrictiy demand data with model results
 
     Note
@@ -142,11 +109,6 @@ def compare_results(name_fig, local_paths, y_real_array_INDO, y_real_array_ITSDO
             y_calculated.append(y_calculated_array[day][hour])
             y_real_INDO_factored.append(y_factored_INDO[day][hour])
 
-    # -------------------
-    # Smoothing algorithm
-    # -------------------
-    #y_calculated = savitzky_golay(y_calculated, 3, 3) # window size 51, polynomial order 3
-
     # RMSE
     rmse_val_INDO = basic_functions.rmse(np.array(y_real_INDO), np.array(y_calculated))
     rmse_val_ITSDO = basic_functions.rmse(np.array(y_real_ITSDO), np.array(y_calculated))
@@ -163,18 +125,29 @@ def compare_results(name_fig, local_paths, y_real_array_INDO, y_real_array_ITSDO
     plt.plot(x, y_calculated, color='red', label='modelled') #'ro', markersize=1
 
     plt.xlim([0, 8760])
-    plt.margins(x=0) #remove white space
+    plt.margins(x=0)
     plt.axis('tight')
 
-    plt.title('RMSE (TD): {}  RMSE (TSD):  {} RMSE (factored TSD): {}'.format(rmse_val_INDO, rmse_val_ITSDO, rmse_val_corrected), fontsize=10)
+    # Labelling
+    # ----------
+    font_additional_info = {'family': 'arial', 'color':  'black', 'weight': 'normal','size': 8}
+    plt.title(
+        'RMSE (TD): {} RMSE (TSD): {} RMSE (factored TSD): {}'.format(
+            round(rmse_val_INDO, 3), round(rmse_val_ITSDO, 3), round(rmse_val_corrected)),
+            fontsize=10,
+            fontdict=font_additional_info,
+            loc='right')
+    
     plt.title(title_left, loc='left')
 
     plt.xlabel("Hours", fontsize=10)
-    plt.ylabel("National electrictiy use [GWh / h]", fontsize=10)
+    plt.ylabel("National electrictiy use [GWh / h] for {}".format(title_left), fontsize=10)
+
+    plt.legend(frameon=False)
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
 
-    plt.legend()
+    
     plt.show()
 
 def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_enduses_fueltype):
@@ -207,27 +180,30 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015, tot_peak_endu
     # -------------------------------
     # Compare values
     # -------------------------------
-    x = range(24)
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    plt.figure(figsize=plotting_program.cm2inch(8, 8))
-
-    plt.plot(x, tot_peak_enduses_fueltype, color='red', label='modelled')
-    plt.plot(x, validation_elec_data_2015[max_day], color='green', label='real')
+    plt.plot(range(24), tot_peak_enduses_fueltype, color='red', label='modelled')
+    plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
 
     # Y-axis ticks
-    #plt.ylim(0, 80)
     plt.xlim(0, 25)
     plt.yticks(range(0, 90, 10))
 
-    #plt.axis('tight')
+    # Legend
+    plt.legend()
+
+    # Labelling
     plt.title("Peak day comparison", loc='left')
     plt.xlabel("Hours")
     plt.ylabel("National electrictiy use [GWh / h]")
-    plt.legend()
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-
     plt.show()
-
 
 def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour

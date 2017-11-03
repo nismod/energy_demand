@@ -581,7 +581,6 @@ def fuel_regions_fueltype(
     -------
     {'final_electricity_demand': np.array((regions, model_yearhours_nrs)), dtype=float}
     """
-    
     fuels = fuel_aggr(
         np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float),
         'fuel_yh',
@@ -594,13 +593,13 @@ def fuel_regions_fueltype(
     # Reshape
     for fueltype_nr in lookups['fueltype'].values():
         fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
-    
+
     fuel_region = np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24))
     for fueltype_nr in lookups['fueltype'].values():
         fuel_region[fueltype_nr] = fuels[fueltype_nr]
     return fuel_fueltype_regions, fuel_region
 
-def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
+'''def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nrs):
     """Get yh fuel for all fueltype for a specific region of all submodels
 
     Arguments
@@ -630,7 +629,7 @@ def get_regional_yh(fueltypes_nr, region_name, region_enduses, model_yeardays_nr
         model_yeardays_nrs,
         region_name)
 
-    return region_fuel_yh
+    return region_fuel_yh'''
 
 def sum_enduse_all_regions(
         input_dict,
