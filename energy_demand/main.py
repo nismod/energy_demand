@@ -213,6 +213,8 @@ if __name__ == "__main__":
         data['reg_nrs'],
         data['lookups'],
         data['local_paths'],
-        data['assumptions'])
+        data['assumptions'],
+        data['sim_param'],
+        data['enduses'])
 
     logging.info("... Finished running Energy Demand Model")

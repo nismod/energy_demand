@@ -14,7 +14,7 @@ from energy_demand.plotting import plotting_program
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
-def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, assumptions):
+def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, assumptions, sim_param, enduses):
     """Summary function to plot all results
 
     
@@ -68,7 +68,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         results_container['results_every_year'],
-        data,
+        lookups,
         assumptions['model_yearhours_nrs'],
         assumptions['model_yeardays_nrs'],
         2015,
@@ -77,7 +77,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     logging.debug("... plot a full week")
     plt_fuels_enduses_week(
         results_container['results_every_year'],
-        data,
+        lookups,
         assumptions['model_yearhours_nrs'],
         assumptions['model_yeardays_nrs'],
         2015,
@@ -88,28 +88,28 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     # ------------
     # Residential
     plt_stacked_enduse(
-        data['sim_param']['sim_period'],
+        sim_param['sim_period'],
         results_container['results_enduse_every_year'],
         data['enduses']['rs_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_rs_country_final.pdf"))
 
     # Service
     plt_stacked_enduse(
-        data['sim_param']['sim_period'],
+        sim_param['sim_period'],
         results_container['results_enduse_every_year'],
-        data['enduses']['ss_all_enduses'],
+        enduses['ss_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_ss_country_final.pdf"))
 
     # Industry
     plt_stacked_enduse(
-        data['sim_param']['sim_period'],
+        sim_param['sim_period'],
         results_container['results_enduse_every_year'],
-        data['enduses']['is_all_enduses'],
+        enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
 
     # Plot all enduses
     #plt_stacked_enduse(
-    # data['sim_param']['sim_period'],
+    # sim_param['sim_period'],
     # results_container['results_every_year'],
     # data['enduses']['rs_all_enduses'],
     # 'tot_fuel_y_enduse_specific_h',
@@ -450,7 +450,7 @@ def plot_load_curves_fueltype(results_objects, data, fig_name):
     plt.savefig(fig_name)
     plt.close()
 
-def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot, fig_name):
+def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot, fig_name):
     """Plots stacked end_use for all regions
 
     Input
@@ -470,9 +470,9 @@ def plt_fuels_enduses_week(results_resid, data, nr_of_h_to_plot, model_yeardays_
     legend_entries = []
 
     # Initialise (number of enduses, number of hours to plot)
-    y_init = np.zeros((data['lookups']['fueltypes_nr'], nr_of_h_to_plot))
+    y_init = np.zeros((lookups['fueltypes_nr'], nr_of_h_to_plot))
 
-    for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltype'].items():
         legend_entries.append(fueltype_str)
 
         # Select year to plot

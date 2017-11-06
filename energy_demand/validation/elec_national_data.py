@@ -147,7 +147,6 @@ def compare_results(
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
 
-    
     plt.show()
 
 def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak_enduses_fueltype):

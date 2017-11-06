@@ -144,6 +144,7 @@ def tempo_spatial_validation(
         data['reg_coord'],
         ed_fueltype_regs_yh,
         data['lookups']['fueltype']['electricity'],
+        ['electricity'],
         data['lu_reg'],
         national_elec_data,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_elec.pdf'))
@@ -152,6 +153,7 @@ def tempo_spatial_validation(
         data['reg_coord'],
         ed_fueltype_regs_yh,
         data['lookups']['fueltype']['gas'],
+        'gas',
         data['lu_reg'],
         national_gas_data,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_gas.pdf'))
@@ -191,7 +193,8 @@ def tempo_spatial_validation(
 def spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
-        fueltype,
+        fueltype_int,
+        fueltype_str,
         lu_reg,
         national_elec_data,
         fig_name
@@ -228,10 +231,10 @@ def spatial_validation(
     for region_array_nr, region_name in enumerate(lu_reg):
         for reg_geocode in reg_coord:
             if reg_geocode == region_name:
-
+                print("-- {}   {}".format(reg_geocode, region_name))
                 # --Sub Regional Electricity demand
                 result_dict['real_elec_demand'][reg_geocode] = national_elec_data[reg_geocode]
-                result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype][region_array_nr])
+                result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
     # -----------------
     # Sort results according to size
@@ -281,7 +284,7 @@ def spatial_validation(
     plt.plot(x_values, y_modelled_elec_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
 
     # Limit
-    #plt.ylim(0, 6000)
+    plt.ylim(0, 10000)
 
     # -----------
     # Labelling
@@ -296,7 +299,7 @@ def spatial_validation(
         fontdict=font_additional_info)
 
     plt.xlabel("Regions")
-    plt.ylabel("Sub-regional yearly {} demand [GW]".format(fueltype))
+    plt.ylabel("Sub-regional yearly {} demand [GW]".format(fueltype_str))
 
     # --------
     # Legend

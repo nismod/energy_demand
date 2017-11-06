@@ -99,7 +99,14 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
 
     return assumptions
 
-def create_service_switch(enduses, capacity_switches, assumptions, sim_param, fuels, fuel_shares_enduse_by_dict):
+def create_service_switch(
+        enduses,
+        capacity_switches,
+        assumptions,
+        sim_param,
+        fuels,
+        fuel_shares_enduse_by_dict
+    ):
     """Generate service switch based on capacity assumptions
 
     Arguments
@@ -121,6 +128,8 @@ def create_service_switch(enduses, capacity_switches, assumptions, sim_param, fu
     for enduse in enduses:
         for capacity_switch in capacity_switches:
             if capacity_switch['enduse'] == enduse:
+                
+                # Convert
                 service_switches_enduse = convert_capacity_assumption_to_service(
                     enduse=enduse,
                     capacity_switches=capacity_switches,
