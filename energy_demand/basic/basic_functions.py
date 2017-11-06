@@ -10,9 +10,9 @@ def rmse(predictions, targets):
 
     Arguments
     ----------
-    predictions : any
+    predictions : array
         Model prediction (real value)
-    targets : any
+    targets : array
         Moodelled value
     """
     return np.sqrt(((predictions - targets) ** 2).mean())

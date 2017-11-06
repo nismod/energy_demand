@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 from energy_demand.plotting import plotting_program
+from energy_demand.basic import basic_functions
 #import matplotlib.colors as colors #for color_name in colors.cnmaes:
 
 # INFO
@@ -641,9 +642,72 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
 
+def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, path_plot_fig):
+    """Plotting average saisonal loads for each daytype
+
+    https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
+    """
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
+    ax = fig.add_subplot(nrows=4, ncols=2)
+
+    plot_nr = 0
+    for season in calc_av_lp_modelled:
+        for daytype in calc_av_lp_modelled[season]:
+            plot_nr += 1
+
+            plt.subplot(4, 2, plot_nr)
+
+            x_values = range(24)
+            plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real')
+            plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled')
+
+            # -----------------
+            # Axis
+            # -----------------
+            plt.ylim(0, 60)
+
+            # Tight layout
+            plt.tight_layout()
+            plt.margins(x=0)
+
+            # Calculate RMSE
+            rmse = basic_functions.rmse(
+                calc_av_lp_modelled[season][daytype],
+                calc_av_lp_real[season][daytype])
+
+            # -----------
+            # Labelling
+            # -----------
+            font_additional_info = {
+                'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
+            title_info = ('{}, {}'.format(season, daytype))
+            plt.text(1, 0.55, "RMSE: {}".format(round(rmse, 2)), fontdict=font_additional_info)
+            plt.title(title_info, loc='left',fontdict=font_additional_info)
+
+            #plt.ylabel("hours")
+            #plt.ylabel("average electricity [GW] ")
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    plt.show()
+
+    # Save fig
+    fig.savefig(path_plot_fig)
+    plt.close()
+
+
 def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile
     """
+
     x_values = range(24)
 
     plt.plot(x_values, list(data_dh_real), color='green', label='real') #'ro', markersize=1,
@@ -662,6 +726,7 @@ def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
+
     # Save fig
     plt.savefig(path_plot_fig)
     plt.close()

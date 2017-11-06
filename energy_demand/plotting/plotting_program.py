@@ -4,7 +4,7 @@ import pylab
 from energy_demand.technologies import diffusion_technologies
 
 def cm2inch(*tupl):
-    """Convert input cm to inches
+    """Convert input cm to inches (width, hight)
     """
     inch = 2.54
     if isinstance(tupl[0], tuple):

@@ -148,12 +148,12 @@ def get_cdd_country(
 
     return cdd_regions
 
-def sigm_temp(base_sim_param, smart_meter_diff_params, t_base):
+def sigm_temp(sim_param, smart_meter_diff_params, t_base):
     """Calculate base temperature depending on sigmoid diff and location
 
     Arguments
     ----------
-    base_sim_param : dict
+    sim_param : dict
         Base simulation assumptions
     assumptions : dict
         Dictionary with assumptions
@@ -176,9 +176,9 @@ def sigm_temp(base_sim_param, smart_meter_diff_params, t_base):
 
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
-        base_sim_param['base_yr'],
-        base_sim_param['curr_yr'],
-        base_sim_param['end_yr'],
+        sim_param['base_yr'],
+        sim_param['curr_yr'],
+        sim_param['end_yr'],
         smart_meter_diff_params['sig_midpoint'],
         smart_meter_diff_params['sig_steeppness'])
 

@@ -16,6 +16,33 @@ from energy_demand.plotting import plotting_program
         load_profiles)
     pass'''
 
+def test_get_crit_switch():
+    """
+    """
+    mode_constrained = True
+    fuelswitches = [{'enduse': 'heating'}]
+
+    sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020,
+        'end_yr': 2020}
+
+    result = enduse_func.get_crit_switch(
+        'heating', fuelswitches, sim_param, mode_constrained)
+    assert result == False
+    
+    mode_constrained = False
+    fuelswitches = [{'enduse': 'heating'}]
+
+    sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020,
+        'end_yr': 2020}
+
+    result2 = enduse_func.get_crit_switch(
+        'heating', fuelswitches, sim_param, mode_constrained)
+    assert result2 == True
+
 def test_get_peak_day():
     """
     """

@@ -424,7 +424,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
 
     return non_regional_lp_stock
 
-def average_load_profile(demand_yh, seasons, model_yeardays_daytype):
+def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
     """Calculate average load profile for daytype and season
     for fuel of a fueltype
 

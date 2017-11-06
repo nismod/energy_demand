@@ -608,14 +608,14 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
 
     return mode_constrained, crit_switch_fuel, crit_switch_service
 
-def get_crit_switch(enduse, fuelswitches, base_parameters, mode_constrained):
+def get_crit_switch(enduse, fuelswitches, sim_param, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
     ----------
     fuelswitches : dict
         All fuel switches
-    base_parameters : float
+    sim_param : float
         Base Arguments
     mode_constrained : bool
         Mode criteria
@@ -624,7 +624,7 @@ def get_crit_switch(enduse, fuelswitches, base_parameters, mode_constrained):
     ----
     If base year, no switches are implemented
     """
-    if base_parameters['base_yr'] == base_parameters['curr_yr'] or mode_constrained is True:
+    if sim_param['base_yr'] == sim_param['curr_yr'] or mode_constrained is True:
         return False
     else:
         for fuelswitch in fuelswitches:
@@ -1210,7 +1210,7 @@ def apply_specific_change(
         fuel_y,
         assumptions,
         enduse_overall_change_ey,
-        base_parameters
+        sim_param
     ):
     """Calculates fuel based on assumed overall enduse specific fuel consumption changes
 
@@ -1225,7 +1225,7 @@ def apply_specific_change(
     enduse_overall_change_ey : dict
         Assumption of overall change in end year
 
-    base_parameters : dict
+    sim_param : dict
         Base simulation parameters
 
     Returns
@@ -1258,19 +1258,19 @@ def apply_specific_change(
         # Lineare diffusion up to cy
         if diffusion_choice == 'linear':
             lin_diff_factor = diffusion_technologies.linear_diff(
-                base_parameters['base_yr'],
-                base_parameters['curr_yr'],
+                sim_param['base_yr'],
+                sim_param['curr_yr'],
                 percent_by,
                 percent_ey,
-                base_parameters['sim_period_yrs'])
+                sim_param['sim_period_yrs'])
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
         elif diffusion_choice == 'sigmoid':
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
-                base_parameters['base_yr'],
-                base_parameters['curr_yr'],
-                base_parameters['end_yr'],
+                sim_param['base_yr'],
+                sim_param['curr_yr'],
+                sim_param['end_yr'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor

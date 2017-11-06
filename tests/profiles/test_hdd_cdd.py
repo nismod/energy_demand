@@ -54,12 +54,12 @@ def test_sigm_temp():
     assumptions['rs_t_base_heating']['base_yr'] = 15
     assumptions['rs_t_base_heating']['end_yr'] = end_yr_t_base
 
-    base_sim_param = {
+    sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
         'end_yr': 2020}
 
-    result = hdd_cdd.sigm_temp(base_sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
+    result = hdd_cdd.sigm_temp(sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
 
     expected = end_yr_t_base
     assert result == expected
@@ -67,7 +67,7 @@ def test_sigm_temp():
 def test_get_hdd_country():
     """testing
     """
-    base_sim_param = {
+    sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
         'end_yr': 2020}
@@ -99,7 +99,7 @@ def test_get_hdd_country():
         'end_yr': 15.5}
 
     result = hdd_cdd.get_hdd_country(
-        base_sim_param,
+        sim_param,
         regions,
         temp_data,
         smart_meter_diff_params,
@@ -117,7 +117,7 @@ def test_get_hdd_country():
 def test_get_cdd_country():
     """testing
     """
-    base_sim_param = {
+    sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
         'end_yr': 2020}
@@ -149,7 +149,7 @@ def test_get_cdd_country():
         'end_yr': 15.5}
 
     result = hdd_cdd.get_cdd_country(
-        base_sim_param,
+        sim_param,
         regions,
         temp_data,
         smart_meter_diff_params,

@@ -164,25 +164,26 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     logging.debug("...calculate average data and plot per season and fueltype")
 
-    average_load_profile_modelled = load_profile.average_load_profile(
+    calc_av_lp_modelled = load_profile.calc_av_lp(
         ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']],
-        data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'])
+        data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
 
-    average_load_profile_real = load_profile.average_load_profile(
-        indo_factoreddata,
-        data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'])
+    calc_av_lp_real = load_profile.calc_av_lp(
+        indo_factoreddata, data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
 
     # Plot average daily loads
-    for season in average_load_profile_modelled:
-        for daytype in average_load_profile_modelled[season]:
+    plotting_results.plot_load_profile_dh_multiple(
+        calc_av_lp_modelled,
+        calc_av_lp_real,
+        os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))
+    '''for season in calc_av_lp_modelled:
+        for daytype in calc_av_lp_modelled[season]:
             figure_name = "validation__{}__{}__{}".format(season, daytype, ".pdf")
             path_plot_fig = os.path.join(data['local_paths']['data_results_PDF'], figure_name)
             plotting_results.plot_load_profile_dh(
-                average_load_profile_modelled[season][daytype],
-                average_load_profile_real[season][daytype],
-                path_plot_fig)
+                calc_av_lp_modelled[season][daytype],
+                calc_av_lp_real[season][daytype],
+                path_plot_fig)'''
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
