@@ -164,13 +164,6 @@ def tempo_spatial_validation(
     # Peak across all fueltypes TODO: Fueltype specific
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
 
-    #peak_month = date_prop.get_month_from_yeraday(data['sim_param']['base_yr'], peak_day)
-    print(data['lookups']['fueltype']['electricity'])
-    print("--")
-    print(ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])
-    print(val_elec_data_2015_INDO[peak_day])
-    print(ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']][peak_day])
-
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_01.pdf",
         data['local_paths'],

@@ -67,53 +67,47 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     # --------------------------------
     # Reading in assumptions on capacity installations from csv file
     # --------------------------------
-    capcity_switches = read_data.read_capacity_installation(
+    capacity_switches = read_data.read_capacity_installation(
         paths['path_capacity_installation'])
 
     # -------------------------------------
     # Assign correct fuel shares and fuels
     # -------------------------------------
-    rs_enduses = []
-    ss_enduses = []
-    is_enduses = []
-    for switch in capcity_switches:
+    rs_enduses_switch = set([])
+    ss_enduses_switch  = set([])
+    is_enduses_switch  = set([])
+    for switch in capacity_switches:
         if switch['enduse'] in enduses['rs_all_enduses']:
-            switch['fuel_shares_enduse_by_dict'] = 'rs_fuel_tech_p_by'
-            switch['fuels'] = 'rs_fuel_raw_data_enduses'
-            rs_enduses.append(switch['enduse'])
+            rs_enduses_switch.add(switch['enduse'])
         elif switch['enduse'] in enduses['ss_all_enduses']:
-            switch['fuel_shares_enduse_by_dict'] = 'ss_fuel_tech_p_by'
-            switch['fuels'] = 'ss_fuel_raw_data_enduses'
-            ss_enduses.append(switch['enduse'])
+            ss_enduses_switch.add(switch['enduse'])
         elif switch['enduse'] in enduses['is_all_enduses']:
-            switch['fuel_shares_enduse_by_dict'] = 'is_fuel_tech_p_by'
-            switch['fuels'] = 'is_fuel_raw_data_enduses'
-            is_enduses.append(switch['enduse'])
+            is_enduses_switch.add(switch['enduse'])
 
     # -------------------------
     # Calculate service switches
     # -------------------------
     assumptions['rs_service_switches'] = create_service_switch(
-        rs_enduses, capcity_switches, assumptions, sim_param, fuels)
+        rs_enduses_switch, capacity_switches, assumptions, sim_param, fuels['rs_fuel_raw_data_enduses'], 'rs_fuel_tech_p_by')
     assumptions['ss_service_switches'] = create_service_switch(
-        ss_enduses, capcity_switches, assumptions, sim_param, fuels)
+        ss_enduses_switch, capacity_switches, assumptions, sim_param, fuels['ss_fuel_raw_data_enduses'], 'ss_fuel_tech_p_by')
     assumptions['is_service_switches'] = create_service_switch(
-        is_enduses, capcity_switches, assumptions, sim_param, fuels)
+        is_enduses_switch, capacity_switches, assumptions, sim_param, fuels['is_fuel_raw_data_enduses'], 'is_fuel_tech_p_by')
 
     # Criteria that capacity switch is implemented
     assumptions['capacity_switch'] = True
 
     return assumptions
 
-def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fuels):
+def create_service_switch(enduses, capacity_switches, assumptions, sim_param, fuels, fuel_shares_enduse_by_dict):
     """Generate service switch based on capacity assumptions
 
     Arguments
     ---------
     enduses : dict
         Enduses
-    capcity_switches : list
-        List containing all capcity_switches
+    capacity_switches : list
+        List containing all capacity_switches
     assumptions : dict
         Assumptions
     fuels : dict
@@ -125,15 +119,15 @@ def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fue
     service_switches = []
 
     for enduse in enduses:
-        for capcity_switch in capcity_switches:
-            if capcity_switch['enduse'] == enduse:
+        for capacity_switch in capacity_switches:
+            if capacity_switch['enduse'] == enduse:
                 service_switches_enduse = convert_capacity_assumption_to_service(
                     enduse=enduse,
-                    capcity_switches=capcity_switches,
+                    capacity_switches=capacity_switches,
                     technologies=assumptions['technologies'],
-                    capcity_switch=capcity_switch,
-                    fuel_shares_enduse_by=assumptions[capcity_switch['fuel_shares_enduse_by_dict']][capcity_switch['enduse']],
-                    fuel_enduse_y=fuels[capcity_switch['fuels']][capcity_switch['enduse']],
+                    capacity_switch=capacity_switch,
+                    fuel_shares_enduse_by=assumptions[fuel_shares_enduse_by_dict][enduse],
+                    fuel_enduse_y=fuels[enduse],
                     sim_param=sim_param,
                     other_enduse_mode_info=assumptions['other_enduse_mode_info'])
 
@@ -144,9 +138,9 @@ def create_service_switch(enduses, capcity_switches, assumptions, sim_param, fue
 
 def convert_capacity_assumption_to_service(
         enduse,
-        capcity_switches,
+        capacity_switches,
         technologies,
-        capcity_switch,
+        capacity_switch,
         fuel_shares_enduse_by,
         fuel_enduse_y,
         sim_param,
@@ -158,7 +152,7 @@ def convert_capacity_assumption_to_service(
     ---------
     enduse : str
         Enduse
-    capcity_switch : dict
+    capacity_switch : dict
         All capacity switches
     technologies : dict
         Technologies
@@ -180,9 +174,9 @@ def convert_capacity_assumption_to_service(
     """
     sim_param_new = {}
     sim_param_new['base_yr'] = sim_param['base_yr']
-    sim_param_new['curr_yr'] = capcity_switch['year_fuel_consumption_switched']
-    sim_param_new['end_yr'] = capcity_switch['year_fuel_consumption_switched']
-    sim_param_new['sim_period_yrs'] = capcity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
+    sim_param_new['curr_yr'] = capacity_switch['year_fuel_consumption_switched']
+    sim_param_new['end_yr'] = capacity_switch['year_fuel_consumption_switched']
+    sim_param_new['sim_period_yrs'] = capacity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
 
     # ---------------------------------------------
     # Calculate service per technolgies of by for ey
@@ -210,7 +204,7 @@ def convert_capacity_assumption_to_service(
     # Calculate service for increased technologies
     # -------------------------------------------
     #If technology exists, add service
-    for switch in capcity_switches:
+    for switch in capacity_switches:
         if enduse == switch['enduse']:
             technology_install = switch['technology_install']
             fuel_capacity_installed = switch['fuel_capacity_installed']

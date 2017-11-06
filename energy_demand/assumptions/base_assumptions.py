@@ -494,7 +494,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
     assumptions['is_share_service_tech_ey_p'], assumptions['is_enduse_tech_maxL_by_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
         paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
-    
+
     # ============================================================
     # Scenaric Capacity switches
     # Warning: Overwrites other switches

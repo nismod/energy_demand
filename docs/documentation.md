@@ -285,11 +285,7 @@ different daytypes (weekend, working day) are taken from a [24 hour spreadsheet 
 
 ### 12.3 Carbon Trust advanced metering trial
 
-For the service submodel, data are used from a metering trial where electricity and gas
-use across different business sectors was metered. The sectors in the Carbon Trust trial
-do not fully correspond to the listed ECUK sectors (see Section 12.1). In case a
-sector is missing, the data is aggregated across all sectors and mapped with a sector 
-according to Table 3.
+The (Carbon Trust, 2007) advanced metering trial dataset contains hourly electricity and gas demand measurements for different service (business) sectors. The Carbon Trust data does not allow distinguishing between different end uses within each sector. According to the dominant fuel type of each end use, either aggregated gas or sector specific load profiles are therefore assigned. For ‘water heating’, ‘space heating’ and the ‘other_gas_enduse’, all gas measurements across all sectors are used, because the sample size was too little to distinguish between gas use for different sectors. For all other end uses, sector specific electricity load profiles are assigned. The provided sectors in the data trial do not fully correspond to the ECUK sectors (see Table 5) and where a sector is missing, the aggregated profiles across all sectors are used. No technology specific load profiles are used.
 
 <table align="center">
   <tr>
@@ -336,30 +332,15 @@ according to Table 3.
 
 *Table 3: Matching sectors from the ECUK dataset and sectors from the Carbon Trust dataset*
 
-The Carbon Trust data does not allow distinguishing between different end uses
-within each sector and according to the dominant fuel type, either aggregated
-gas or sector specific load shapes are assigned. For water heating, space
-heating and the other_gas_enduse, all gas measurements across all sectors
-are used, because the sample size was too little to distinguish between
-gas use for different sectors. Sector specific electricity load shapes
-are assigned for all other end uses. For the service sector no technology
-specific load shapes are used but energy used for space heating
-is distributed according to gas load shapes of all sectors.
-
-Yearly load profiles are generated based on averaging measurements for
-every month and day type (weekend, working day). In addition,
-average peak daily load profiles and the peak day factor is calculated.
+Yearly load profiles are generated based on averaging measurements for every month and day type (weekend, working day). In addition, average peak daily load profiles and the peak day factor is calculated. Only the yearly load profile for space heating is generated as explained in Section XY . The daily load profiles are derived from gas load profile from the Carbon Trust dataset. Data preparation and cleaning was necessary of the raw input files (see XY):
 
 Data preparation of the raw input files was necessary:
-
 •	Half-hourly data was converted into hourly data
-•	Within each sector, only datasets containing at least one full year of monitoring data are used
-•	From each measurement, only one full year is selected
+•	Within each sector, only datasets containing at least one full year of monitoring data are used, from which only one full year is selected
 •	Only datasets having not more than one missing measurement point per day are used
-•	The data was clean from obviously wrong measurement points (containing very large minus values)
-•	missing measurement points are interpolated
+•	The data was cleaned from obviously wrong measurement points (containing very large minus values)
+•	missing measurement points are interpolated 
 
-Contrasting electricity use from January and July shows that there are differences in electricity consumption in some cases over 20% due to electric heating and lighting. The used carbon trust electricity data therefore contains some electricity for electric heating. Excluding these shares is however not possible and for some sectors (e.g. Community, Office) differences are only minor
 
 **More information**
  - The data download link can be found [here](http://data.ukedc.rl.ac.uk/simplebrowse/edc/efficiency/residential/Buildings/AdvancedMeteringTrial_2006/)

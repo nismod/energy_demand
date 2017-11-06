@@ -158,25 +158,7 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak
     TODO: IMPROVE:
     """
     logging.debug("...compare elec peak results")
-    # -------------------------------
-    # Find maximumg peak in real data TODO WHY?
-    # -------------------------------
-    '''max_h_year = 0
-    max_day = "None"
 
-    for day in range(365):
-        max_h_day = np.max(validation_elec_data_2015[day])
-
-        if max_h_day > max_h_year:
-            max_h_year = max_h_day
-            max_day = day
-
-    logging.debug("Max Peak Day:                    %s", max_day)
-    logging.debug("max_h_year (real):               %s", max_h_year)
-    logging.debug("max_h_year (modelled):           %s", np.max(tot_peak_enduses_fueltype))
-    logging.debug("Fuel max peak day (real):        %s", np.sum(validation_elec_data_2015[max_day]))
-    logging.debug("Fuel max peak day (modelled):    %s", np.sum(tot_peak_enduses_fueltype))
-    '''
     # -------------------------------
     # Compare values
     # -------------------------------
