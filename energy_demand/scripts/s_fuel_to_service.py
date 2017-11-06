@@ -166,12 +166,11 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
     return aggregated_fuel_enduse
 
 def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
-    """Calculate total energy service percentage of each technology
-    and energy service percentage within the fueltype
+    """Calculate total energy service fractions.
 
     This calculation converts fuels into energy services (e.g. heating
     for fuel into heat demand) and then calculated how much an invidual
-    technology contributes in percent to total energy service demand.
+    technology contributes as a fraction of total energy service demand.
 
     This is calculated to determine how much the technology
     has already diffused up to the base year to define the
@@ -197,18 +196,6 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         technologies with this fueltype for base year
     service_fueltype_by_p : dict
         Percentage of energy service per fueltype
-
-    Notes
-    -----
-    Regional temperatures are not considered because otherwise the initial fuel share of
-    hourly dependent technology would differ and thus the technology diffusion within a region.
-    Therfore a constant technology efficiency of the full year needs to
-    be assumed for all technologies.
-
-    Because regional efficiencies may differ within regions, the fuel distribution within
-    the fueltypes may also differ
-
-    TODO: IMPROVE
     """
     # Energy service per technology for base year
     service = init_nested_dict_brackets(fuels, lu_fueltypes.values())
@@ -276,10 +263,9 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         for fueltype, technology_service_enduse in service[enduse].items():
             for technology, service_tech in technology_service_enduse.items():
 
-                with np.errstate(divide='ignore'): #OptimizeWarning: Covariance of the parameters could not be estimated
+                with np.errstate(divide='ignore'):
                     service_tech_by_p[enduse][technology] = service_tech / total_service
                     warnings.filterwarnings('ignore')
-        ###logging.debug("Total Service by per enduse {}: {}".format(enduse, total_service))
 
         # Convert service per enduse
         for fueltype in service_fueltype_by_p[enduse]:

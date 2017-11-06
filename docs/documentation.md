@@ -13,7 +13,7 @@ The python scripts are stored in the following folders:
 - **charts** | Functions to generate charts
 - **cli** | Script to run model from command line
 - **dwelling_stock** | Dwelling stock related functions
-- TODO more...
+- ...
 
 All additional data necessary to run the model needs
 to be stored in a local folder (`data_energy_demand`).

@@ -22,7 +22,14 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     logging.info("... plotting results")
     ##pf.plot_load_curves_fueltype(results_every_year, data)
 
-    # plotting load factors per fueltype and region
+    # ----------
+    # Plot seasonal typical load profiles
+    # ----------
+    # Averaged load profile per daytpe for a region
+
+    # ------------------------------------
+    # Load factors per fueltype and region
+    # ------------------------------------
     for fueltype_str, fueltype_int in lookups['fueltype'].items():
 
         plot_seasonal_lf(
@@ -52,7 +59,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
                 'lf_y_{}.pdf'.format(fueltype_str)))
 
     # --------------
-    # Fuel per fueltpye for whole country over time
+    # Fuel per fueltype for whole country over time
     # ----------------
     logging.debug("... Plot total fuel (y) per fueltype")
     plt_fuels_enduses_y(
@@ -90,7 +97,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     plt_stacked_enduse(
         sim_param['sim_period'],
         results_container['results_enduse_every_year'],
-        data['enduses']['rs_all_enduses'],
+        enduses['rs_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_rs_country_final.pdf"))
 
     # Service
@@ -107,6 +114,8 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
 
+
+    # 
     # Plot all enduses
     #plt_stacked_enduse(
     # sim_param['sim_period'],
@@ -236,7 +245,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
 
     # Tight layout
     plt.tight_layout()
-    plt.margins(x=0)#ax.margins(x=0)
+    plt.margins(x=0)
 
     # Save fig
     plt.savefig(path_plot_fig)
@@ -354,7 +363,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     ----
         -   Sum across all fueltypes
 
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
     years_simulated = sim_period #data['sim_param']['sim_period']
@@ -406,8 +414,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
 
 def plot_load_curves_fueltype(results_objects, data, fig_name):
     """Plots stacked end_use for a region
-
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
     fig, ax = plt.subplots()
@@ -458,7 +464,6 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
     year_to_plot : int
         2015 --> 0
 
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
     # Number of days to plot
@@ -518,8 +523,6 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
         Lookup fueltypes
     fig_name : str
         Figure name
-    
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
 
     Note
     ----
@@ -562,7 +565,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # Plot lines
     # ----------
     color_list = [
-        'darkturquoise','orange', 'firebrick',
+        'darkturquoise', 'orange', 'firebrick',
         'darkviolet', 'khaki', 'olive', 'darkseagreen',
         'darkcyan', 'indianred', 'darkblue']
 
@@ -579,7 +582,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # ------------
     # Plot legend
     # ------------
-    plt.legend(ncol=2, loc=2, frameon=False) 
+    plt.legend(ncol=2, loc=2, frameon=False)
 
     # ---------
     # Labels
@@ -599,7 +602,6 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
 def plt_fuels_peak_h(tot_fuel_y_max, data):
     """Plots stacked end_use for a region
 
-    #TODO: For nice plot make that 24 --> shift averaged 30 into middle of bins.
     # INFO Cannot plot a single year?
     """
 
@@ -639,14 +641,31 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
 
-def plot_load_profile_dh(array_dh):
+def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile
     """
     x_values = range(24)
 
-    plt.plot(x_values, list(array_dh), color='green') #'ro', markersize=1,
+    plt.plot(x_values, list(data_dh_real), color='green', label='real') #'ro', markersize=1,
+    plt.plot(x_values, list(data_dh_modelled), color='red', label='modelled') #'ro', markersize=1,
 
-    plt.show()
+    # -----------------
+    # Axis
+    # -----------------
+    plt.ylim(0, 60)
+
+    # ------------
+    # Plot legend
+    # ------------
+    plt.legend(ncol=2, loc=2, frameon=False)
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+    # Save fig
+    plt.savefig(path_plot_fig)
+    plt.close()
+    return
 
 def testplot():
     """TESTLINELOTS

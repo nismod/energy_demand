@@ -56,7 +56,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
                 population=pop_dwtype_age_class,
                 age=age_class,
                 dwtype=dwelling_type,
-                gva=data['gva'][curr_yr][region]) #TODO
+                gva=data['gva'][curr_yr][region])
             rs_dw_stock.append(dwelling_obj)
 
     dwelling_stock = DwellingStock(

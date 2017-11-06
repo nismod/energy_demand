@@ -72,9 +72,9 @@ class EDWrapper(SectorModel):
         # Simulation parameters
         # ---------------------
         sim_param = {}
-        sim_param['base_yr'] = 2015 #TODO: REPLACE
-        sim_param['end_yr'] = 2030 #TODO: REPLACE
-        sim_param['curr_yr'] = sim_param['base_yr'] #TODO REPLACE
+        sim_param['base_yr'] = 2015 #REPLACE
+        sim_param['end_yr'] = 2030 #REPLACE
+        sim_param['curr_yr'] = sim_param['base_yr'] #REPLACE
         sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
@@ -201,10 +201,10 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         
         # Simulation parameters
-        data['sim_param'] = base_assumptions.load_sim_param() #TODO: REMOVE
+        data['sim_param'] = base_assumptions.load_sim_param() #REPLACE
         data['sim_param']['current_year'] = timestep
-        data['sim_param']['end_year'] = 2020 #TODO INPUT
-        data['sim_param']['sim_years_intervall'] = 1 #TODO INPUT
+        data['sim_param']['end_year'] = 2020 #REPLACE
+        data['sim_param']['sim_years_intervall'] = 1 #REPLACE
         
         # Necessary update
         data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])

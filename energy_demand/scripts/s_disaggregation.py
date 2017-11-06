@@ -206,30 +206,16 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="")
     return ss_fuel_disagg
 
-def scrap_ts_disaggregate(data, fuel_national):
-    """Disaggregate transport sector
-    """
-    fueldata_disagg = defaultdict(dict)
-
-    national_floorarea_sector = 0
-    for region_name in data['lu_reg']:
-        national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region_name].values())
-
-    # Iterate regions
-    for region_name in data['lu_reg']:
-        reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
-        reg_disaggregation_factor = (1 / national_floorarea_sector) * reg_floorarea_sector
-
-        reg_fuel_sector_enduse = reg_disaggregation_factor * fuel_national
-
-        fueldata_disagg[region_name] = reg_fuel_sector_enduse
-
-    return fueldata_disagg
-
 def is_disaggregate(data, raw_fuel_sectors_enduses):
-    """TODO: Disaggregate fuel for sector and enduses with floor
+    """Disaggregate fuel for sector and enduses with floor
     area and GVA for sectors and enduses (IMPROVE)
 
+    Arguments
+    ---------
+    data : dict
+        Data container
+    raw_fuel_sectors_enduses ; dict
+        Fuels
     #TODO: DISAGGREGATE WITH OTHER DATA
     """
     is_fuel_disagg = {}

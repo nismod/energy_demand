@@ -6,7 +6,6 @@ from collections import defaultdict
 import numpy as np
 from energy_demand.profiles import generic_shapes
 from energy_demand.initalisations import helpers
-#TODO DESCRIBE PARAMETERS BECUASE PULLED OUT of classes
 
 class LoadProfileStock(object):
     """Collection of load shapes in a list
@@ -424,3 +423,57 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_peak_dh=shape_peak_dh_sectors_enduses)
 
     return non_regional_lp_stock
+
+def average_load_profile(demand_yh, seasons, model_yeardays_daytype):
+    """Calculate average load profile for daytype and season
+    for fuel of a fueltype
+
+    Result
+    ------
+    demand_yh : array
+        Energy demand for every day of a single fueltype
+    seasons: dict
+        Seasons and their yeardays
+    model_yeardays_daytype : dict
+        Yearday type of every year
+    av_loadprofiles : dict
+        season, daytype
+
+    """
+    av_season_daytypes = {
+        'spring': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'summer': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'autumn': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'winter': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))}}
+
+    for yearday, daytype_yearday in enumerate(model_yeardays_daytype):
+
+        # Season
+        if yearday in seasons['spring']:
+            season = 'spring'
+        elif yearday in seasons['summer']:
+            season = 'summer'
+        elif yearday in seasons['autumn']:
+            season = 'autumn'
+        else:
+            season = 'winter'
+
+        # Add data as row to array
+        new_data_dh = demand_yh[yearday]
+        existing_array = av_season_daytypes[season][daytype_yearday]
+
+        stacked_array = np.vstack([existing_array, new_data_dh])
+
+        # Add to dict
+        av_season_daytypes[season][daytype_yearday] = stacked_array
+
+    # -----------------------------
+    # Calculate average of all dict
+    # -----------------------------
+    for season, daytypes_data in av_season_daytypes.items():
+        for daytype, daytpe_data in daytypes_data.items():
+
+            # Calculate average over every hour in a day
+            av_season_daytypes[season][daytype] = np.mean(daytpe_data, axis=0)
+
+    return av_season_daytypes

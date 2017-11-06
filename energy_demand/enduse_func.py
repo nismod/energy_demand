@@ -388,8 +388,6 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
-            # TODO: Could be sligliht made faster if linear diffusion is calculated once
-            # on top of enduse class
             lin_diff_factor = diffusion_technologies.linear_diff(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
@@ -1127,7 +1125,9 @@ def apply_scenario_drivers(
         reg_scen_drivers,
         base_sim_param
     ):
-    """The fuel data for every end use are multiplied with respective scenario driver
+    """The fuel data for every end use are multiplied with respective
+    scenario drivers. If no dwelling specific scenario driver is found,
+    the identical fuel is returned.
 
     Arguments
     ----------
@@ -1150,12 +1150,6 @@ def apply_scenario_drivers(
     -------
     fuel_y : array
         Changed yearly fuel per fueltype
-
-    Note
-    -----
-    - If no dwelling specific scenario driver is found, the identical fuel is returned.
-
-        TODO
     """
     if reg_scen_drivers is None:
         reg_scen_drivers = {}
@@ -1452,8 +1446,7 @@ def service_switch(
         for tech_decr, service_tech_decr_by in service_tech_decrease_by_rel.items():
             service_to_substract_p_cy = service_tech_decr_by * diff_service_incr
 
-            # TODO: Leave away for speed uproses
-            ##assert (service_tech_cy_p[tech_decr] - service_to_substract_p_cy) >= 0
+            ##assert (service_tech_cy_p[tech_decr] - service_to_substract_p_cy) >= 0 #Leave away for speed uproses
             service_tech_cy_p[tech_decr] -= service_to_substract_p_cy
 
     # Assign total service share to service share of technologies

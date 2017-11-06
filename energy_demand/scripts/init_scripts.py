@@ -111,9 +111,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['sim_param'] = base_assumptions.load_sim_param()
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-        
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-        data = data_loader.dummy_data_generation(data) #REMOVE TODO
+        data = data_loader.dummy_data_generation(data)
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
     else:
         pass

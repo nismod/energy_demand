@@ -228,7 +228,12 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
 
     return assumptions
 
-def service_share_input_to_fuel(total_share_fueltype, tech_share_tot_service, tech_stock, assumptions):
+def service_share_input_to_fuel(
+        total_share_fueltype,
+        tech_share_tot_service,
+        tech_stock,
+        assumptions
+    ):
     """Convert share of service to fuel share
 
     Arguments

@@ -15,7 +15,7 @@ from energy_demand.technologies import fuel_service_switch
 #  dwelling stock which is assigned new HLC coefficients
 
 def load_sim_param():
-    """
+    """Load sigmoid parameters: REPLACE
     """
     sim_param = {}
     sim_param['base_yr'] = 2015
@@ -106,12 +106,11 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         start=date(sim_param['base_yr'], 1, 1),
         end=date(sim_param['base_yr'], 12, 31))
 
-    model_yeardays_daytype = np.chararray(365, itemsize=7)
-    model_yeardays_daytype[:] = 'workday'
-
+    model_yeardays_daytype = np.array(['workday']*365)
     # Take respectve daily fuel curve depending on weekday or weekend
     for array_day, date_yearday in enumerate(list_dates):
-        if date_prop.get_weekday_type(date_yearday) == 'holiday':
+        daytype = date_prop.get_weekday_type(date_yearday)
+        if daytype == 'holiday':
             model_yeardays_daytype[array_day] = 'holiday'
 
     assumptions['model_yeardays_daytype'] = model_yeardays_daytype
@@ -205,7 +204,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     #  Demand management assumptions (daily demand shape)
     #  An improvement in load factor improvement can be assigned
     #  for every enduse (peak shaving)
-    # 
+    #
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
     assumptions['demand_management'] = {}

@@ -6,9 +6,6 @@ Energy Demand Model
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
-TODO: REplace 1 and zero by fueltypes test_fuel_switch
-TODO: Simplify load profiles (they are non-regional now)
-TODO: REMOVE run_locally
 '''
 import os
 import sys
@@ -20,13 +17,11 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.read_write import read_data
 from energy_demand.basic import testing_functions as testing
-from energy_demand.basic import conversions
 from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
-from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -196,6 +191,8 @@ if __name__ == "__main__":
                 model_run_object.ed_fueltype_national_yh,
                 ed_fueltype_regs_yh,
                 model_run_object.tot_peak_enduses_fueltype)
+
+            # Plot average loads
     ##'''
     # --------------------------------------------
     # Reading in results from different model runs
@@ -204,7 +201,7 @@ if __name__ == "__main__":
         data['local_paths']['data_results_model_runs'],
         data['lookups'],
         data['reg_nrs'])
-    
+
     # ------------------------------
     # Plotting results
     # ------------------------------

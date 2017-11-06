@@ -25,7 +25,6 @@ def read_raw_elec_2015_data(path_to_csv):
     Source
     ------
     http://www2.nationalgrid.com/uk/Industry-information/electricity-transmission-operational-data/
-    
     """
     year = 2015
 
@@ -154,6 +153,14 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak
 
     Arguments
     ---------
+    name_fig :
+    local_paths :
+    validation_elec_data_2015_peak :
+    tot_peak_enduses_fueltype :
+
+    Returns
+    -------
+    
     TODO: IMPROVE:
     """
     logging.debug("...compare elec peak results")

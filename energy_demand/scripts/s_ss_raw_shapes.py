@@ -155,7 +155,7 @@ def read_raw_carbon_trust_data(folder_path):
                                 load_shape_dh[h_day] = 0
                                 continue
                             else:
-                                load_shape_dh[h_day] = (1.0 / daily_sum) * demand_h
+                                load_shape_dh[h_day] = demand_h / daily_sum
 
                             cnt = 0
                             h_day += 1
@@ -211,7 +211,7 @@ def read_raw_carbon_trust_data(folder_path):
         if daily_sum > max_demand_d:
             max_demand_d = daily_sum
 
-    shape_peak_yd_factor = (1.0 / yearly_demand) * max_demand_d
+    shape_peak_yd_factor = max_demand_d / yearly_demand
 
     # Create load_shape_dh
     load_shape_y_dh = np.zeros((365, 24), dtype=float)

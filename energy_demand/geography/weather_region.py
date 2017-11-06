@@ -36,9 +36,7 @@ class WeatherRegion(object):
 
     Note
     ----
-    #TODO: THE TECHNOLOGY STOCK can be for the whole country if not HP
-    - For each region_name, a technology stock is defined with help of
-      regional temperature data technology specific
+    - For each region_name, a technology stock is defined
     - regional specific fuel shapes are assigned to technologies
     """
     def __init__(
