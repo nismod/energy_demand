@@ -198,9 +198,6 @@ def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calcula
     for yearday_python in range(365):
         for hour in range(24):
 
-            # Calculate difference in electricity use TODO: DIFF UNUSED
-            diff = data_real[yearday_python][hour] - data_calculated[yearday_python][hour]
-
             # Differenc in % of real value
             diff_percent = (100 / data_real[yearday_python][hour]) * data_calculated[yearday_python][hour]
 

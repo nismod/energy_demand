@@ -93,10 +93,10 @@ def tempo_spatial_validation(
     """
     logging.info("... spatial validation")
 
-    fueltype_elec = data['lookups']['fueltype']['electricity']
     # -------------------------------------------
     # Add electricity for transportation sector
     # -------------------------------------------
+    fueltype_elec = data['lookups']['fueltype']['electricity']
     fuel_electricity_year_validation = 385
     fuel_national_tranport = np.zeros((data['lookups']['fueltypes_nr']), dtype=float)
     fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(
@@ -224,18 +224,20 @@ def spatial_validation(
     #
     # e.g. proportionally to population
     #
-
+    print("Anzahl datapoints: " + str(len(national_elec_data)))
+    print("Anzahl reg       : " + str(len(lu_reg)))
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
     for region_array_nr, region_name in enumerate(lu_reg):
         for reg_geocode in reg_coord:
             if reg_geocode == region_name:
-                print("-- {}   {}".format(reg_geocode, region_name))
-                # --Sub Regional Electricity demand
-                result_dict['real_elec_demand'][reg_geocode] = national_elec_data[reg_geocode]
-                result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
-
+                try:
+                    # --Sub Regional Electricity demand
+                    result_dict['real_elec_demand'][reg_geocode] = national_elec_data[reg_geocode]
+                    result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
+                except:
+                    logging.warning("Error Validation: No fuel is defined for region %s", reg_geocode)
     # -----------------
     # Sort results according to size
     # -----------------
@@ -272,25 +274,37 @@ def spatial_validation(
     # --------
     # Axis
     # --------
-    major_ticks = np.arange(0, len(sorted_dict_real_elec_demand), 1)
-    ax.set_xticks(major_ticks)
-    empty_string_labels = ['']*len(labels)
-    ax.set_xticklabels(empty_string_labels)
+    #major_ticks = np.arange(0, len(sorted_dict_real_elec_demand), 1)
+    #ax.set_xticks(major_ticks)
+    #empty_string_labels = ['']*len(labels)
+    #ax.set_xticklabels(empty_string_labels)
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
 
     # ----------------------------------------------
     # Plot
     # ----------------------------------------------
-    plt.plot(x_values, y_real_elec_demand, 'ro', markersize=1, color='green', label='Sub-regional demand (real)')
-    plt.plot(x_values, y_modelled_elec_demand, 'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
+    plt.plot(
+        x_values,
+        y_real_elec_demand,
+        'ro', markersize=1, color='green', label='Sub-regional demand (real)')
+    plt.plot(
+        x_values,
+        y_modelled_elec_demand,
+        'ro', markersize=1, color='red', label='Disaggregated demand (modelled)')
 
     # Limit
-    plt.ylim(0, 10000)
+    plt.ylim(0, 6000)
 
     # -----------
     # Labelling
     # -----------
     font_additional_info = {
-        'family': 'arial', 'color': 'black', 'weight': 'normal','size': 8}
+        'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
     title_info = ('RMSE: {}, Region Nr: {}'.format(rmse_value, len(y_real_elec_demand)))
 
     plt.title(

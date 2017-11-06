@@ -5,10 +5,10 @@ from energy_demand.profiles import load_profile
 import sys
 import numpy as np
 
+
 def test_abs_to_rel():
     """Test
     """
-
     absolute_array = np.array([1,2,3])
     absolute_array2 = np.array([0,0,0])
 
@@ -79,6 +79,20 @@ def test_LoadProfileStock():
 
     result = result_obj.enduses_in_stock
     assert result == ['cooking']
+
+    # test get_lp()
+    np.testing.assert_array_equal(np.zeros((365)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_yd'))
+    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_yh'))
+    np.testing.assert_array_equal(np.zeros((365, 24)), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_y_dh'))
+    np.testing.assert_array_equal(np.full((24), 1.0/24), result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_peak_dh'))
+    np.testing.assert_array_equal(1.0/365, result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'enduse_peak_yd_factor'))
+
+    # test get_shape_peak_dh()
+    '''_var = result_obj.get_lp('cooking', 'sectorA', 'dummy_tech', 'shape_peak_dh')
+    np.testing.assert_array_equal(
+        _var, 
+        result_obj.get_shape_peak_dh('cooking', 'sectorA', 'dummy_tech'))'''
+#test_LoadProfileStock()
 
 def test_generate_key_lu_dict():
     """

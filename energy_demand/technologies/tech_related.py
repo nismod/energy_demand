@@ -112,11 +112,8 @@ def calc_hp_eff(temp_yr, efficiency_intersect, t_base_heating):
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
-    # Calculate temperature difference to t_base_heating TODO WHY NOT t_base_heating - temp_yr
-    #temp_difference_temp_yr = np.abs(temp_yr - t_base_heating)
-
-    # SHARK NEW: 
-    temp_difference_temp_yr = t_base_heating - temp_yr #TODO TODO
+    # Calculate temperature difference to t_base_heating
+    temp_difference_temp_yr = t_base_heating - temp_yr
     temp_difference_temp_yr[temp_difference_temp_yr < 0] = 0 #Ignore all hours where no heating is necessary
 
     # Calculate average efficiency of heat pumps over full year
@@ -130,11 +127,11 @@ def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
     Arguments
     ----------
     temp_diff: array
-        Temperature difference
+        Temperature difference between base temperature and temperature
     efficiency_intersect : float,default=-0.08
         Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
     m_slope : float, default=10
-        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012),
+        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012)
     h_diff : float
         Temperature difference
 
@@ -321,13 +318,14 @@ def calc_eff_cy(
 
     Arguments
     ----------
-    technology :
+    technology : str
+        Name of technology
     sim_param : dict
         Base simulation parameters
     technologies : dict
         Technologies
     other_enduse_mode_info : Dict
-        TODO
+        diffusion information
     eff_achieved_factor : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
@@ -343,7 +341,7 @@ def calc_eff_cy(
     The development of efficiency improvements over time is assumed to be linear
     This can however be changed with the `diff_method` attribute
 
-    TODO: TODO: Generate two types of sigmoid (convex & concav)
+    TODO: Generate two types of sigmoid (convex & concav)
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
