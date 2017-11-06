@@ -34,11 +34,12 @@ def read_raw_carbon_trust_data(folder_path):
     -------
     load_shape_y_dh : array
         Load shape for every day (tot sum 365)
-    load_peak_shape_dh : TODO:
-
-    shape_peak_yd_factor : 
-
-    shape_non_peak_yd :
+    load_peak_shape_dh : array
+        Peak loadshape for peak day
+    shape_peak_yd_factor : array
+        Peak load factor
+    shape_non_peak_yd : array
+        Yh load profile
 
     Note
     -----

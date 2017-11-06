@@ -56,7 +56,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
                 population=pop_dwtype_age_class,
                 age=age_class,
                 dwtype=dwelling_type,
-                gva=data['gva'][curr_yr][region])
+                gva=data['scenario_data']['gva'][curr_yr][region])
             rs_dw_stock.append(dwelling_obj)
 
     dwelling_stock = DwellingStock(
@@ -452,7 +452,7 @@ def ss_dw_stock(region, data, curr_yr):
                 enduses=data['enduses']['ss_all_enduses'],
                 driver_assumptions=data['assumptions']['scenario_drivers']['ss_submodule'],
                 sector_type=sector,
-                gva=data['gva'][curr_yr][region]))
+                gva=data['scenario_data']['gva'][curr_yr][region]))
 
     # Add regional base year dwelling to dwelling stock
     dwelling_stock = DwellingStock(
@@ -514,7 +514,7 @@ def rs_dw_stock(region, data, curr_yr):
     # Get floor area per person for every simulation year
     data_floorarea_pp = get_floorare_pp(
         data['reg_floorarea_resid'],
-        data['population'][base_yr],
+        data['scenario_data']['population'][base_yr],
         data['sim_param'],
         data['assumptions']['assump_diff_floorarea_pp'])
 
@@ -525,7 +525,7 @@ def rs_dw_stock(region, data, curr_yr):
         dwtype_distr)
 
     floorarea_by = data['reg_floorarea_resid'][region]
-    population_by = data['population'][base_yr][region]
+    population_by = data['scenario_data']['population'][base_yr][region]
 
     if population_by != 0:
         floorarea_pp_by = floorarea_by / population_by # [m2 / person]
@@ -534,7 +534,7 @@ def rs_dw_stock(region, data, curr_yr):
 
     # Calculate new necessary floor area  per person of current year
     floorarea_pp_cy = data_floorarea_pp[region][curr_yr]
-    population_cy = data['population'][curr_yr][region]
+    population_cy = data['scenario_data']['population'][curr_yr][region]
 
     # Calculate new floor area
     tot_floorarea_cy = floorarea_pp_cy * population_cy
@@ -734,14 +734,12 @@ def generate_dw_existing(
                     population=pop_dwtype_age_class,
                     age=float(dwtype_age_id),
                     dwtype=dw_type_name,
-                    gva=data['gva'][curr_yr][region]
+                    gva=data['scenario_data']['gva'][curr_yr][region]
                     )
                 )
 
             control_floorarea += dw_type_age_class_floorarea
             control_pop += pop_dwtype_age_class
-
-            # TODO: IF Necessary calculate absolute number of buildings by dividng by the average floor size of a dwelling
 
     #Testing
     '''np.testing.assert_array_almost_equal(
@@ -810,7 +808,7 @@ def generate_dw_new(data, region, curr_yr, floorarea_p_by, floorarea_pp_cy, dw_s
                 population=pop_dwtype_new_build_cy,
                 age=curr_yr,
                 dwtype=dw_type_name,
-                gva=data['gva'][curr_yr][region]
+                gva=data['scenario_data']['gva'][curr_yr][region]
                 )
             )
 

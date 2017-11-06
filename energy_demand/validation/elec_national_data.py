@@ -145,11 +145,11 @@ def compare_results(
     plt.legend(frameon=False)
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-
     plt.show()
+    plt.close()
 
 def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak_enduses_fueltype):
-    """Compare Peak electricity day with calculated peak energy demand
+    """Compare peak electricity day with calculated peak energy demand
 
     Arguments
     ---------
@@ -157,11 +157,6 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak
     local_paths :
     validation_elec_data_2015_peak :
     tot_peak_enduses_fueltype :
-
-    Returns
-    -------
-    
-    TODO: IMPROVE:
     """
     logging.debug("...compare elec peak results")
 
@@ -193,6 +188,7 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak
     # Save fig
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
     plt.show()
+    plt.close()
 
 def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
@@ -233,5 +229,5 @@ def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calcula
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-
     plt.show()
+    plt.close()

@@ -487,7 +487,6 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
         data_over_day = np.zeros((8760))
         for region_data in fuel_all_regions:
             data_over_day += region_data
-        #data_over_day = np.sum(fuel_all_regions, axis=0)  #FASTER with numpy TODO
 
         y_init[fueltype_int] = data_over_day
 
@@ -509,6 +508,7 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
     plt.xlabel("days")
     plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
 
+    # Saving figure
     plt.savefig(fig_name)
     plt.close()
 
@@ -730,7 +730,6 @@ def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     # Save fig
     plt.savefig(path_plot_fig)
     plt.close()
-    return
 
 def testplot():
     """TESTLINELOTS

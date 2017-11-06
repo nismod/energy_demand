@@ -12,7 +12,7 @@ class TestDataPath:
     '''def test_get_path(self):
         path_main = resource_filename(Requirement.parse("energy_demand"),
                                       "data")
-        # CHECK THAT DATA FOLDER IN NISMOD FOLDER ? WHY? TODO
+        # CHECK THAT DATA FOLDER IN NISMOD FOLDER
         expected = os.path.join(path_main)
         assert os.path.exists(expected)
 

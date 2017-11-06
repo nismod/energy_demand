@@ -14,13 +14,13 @@ def main():
             'end_yr': 2050
         }
     })
-    plogging.debug(data)
+    logging.debug(data)
 
     # regions
 
     # gva : year x region
     gva = []
-    for year, region_value in data['gva'].items():
+    for year, region_value in data['scenario_data']['gva'].items():
         for region, value in region_value.items():
             gva.append({
                 'interval': 1,
@@ -33,7 +33,7 @@ def main():
 
     # population : year x region
     population = []
-    for year, region_value in data['population'].items():
+    for year, region_value in data['scenario_data']['population'].items():
         for region, value in region_value.items():
             population.append({
                 'interval': 1,

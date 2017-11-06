@@ -176,14 +176,6 @@ def tempo_spatial_validation(
         calc_av_lp_modelled,
         calc_av_lp_real,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))
-    '''for season in calc_av_lp_modelled:
-        for daytype in calc_av_lp_modelled[season]:
-            figure_name = "validation__{}__{}__{}".format(season, daytype, ".pdf")
-            path_plot_fig = os.path.join(data['local_paths']['data_results_PDF'], figure_name)
-            plotting_results.plot_load_profile_dh(
-                calc_av_lp_modelled[season][daytype],
-                calc_av_lp_real[season][daytype],
-                path_plot_fig)'''
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
@@ -311,12 +303,10 @@ def spatial_validation(
     # Plot
     # ----------------------------------------------
     plt.plot(
-        x_values,
-        y_real_elec_demand,
+        x_values, y_real_elec_demand,
         'ro', markersize=2, color='green', label='Sub-regional demand (real)')
     plt.plot(
-        x_values,
-        y_modelled_elec_demand,
+        x_values, y_modelled_elec_demand,
         'ro', markersize=2, color='red', label='Disaggregated demand (modelled)')
 
     # Limit
@@ -351,4 +341,4 @@ def spatial_validation(
 
     # Save fig
     plt.savefig(fig_name)
-    plt.show()
+    plt.close()

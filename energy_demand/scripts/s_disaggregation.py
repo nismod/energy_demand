@@ -137,7 +137,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
 
             # Population
-            reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
+            reg_pop = data['scenario_data']['population'][data['sim_param']['base_yr']][region_name]
 
             #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -167,7 +167,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
                 reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
 
                 # Population
-                reg_pop = data['population'][data['sim_param']['base_yr']][region_name]
+                reg_pop = data['scenario_data']['population'][data['sim_param']['base_yr']][region_name]
 
                 #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -309,7 +309,7 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         reg_floor_area = data['rs_floorarea'][sim_param['base_yr']][region_name]
 
         # Population
-        reg_pop = data['population'][sim_param['base_yr']][region_name]
+        reg_pop = data['scenario_data']['population'][sim_param['base_yr']][region_name]
 
         #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -330,7 +330,7 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
     rs_fuel_disagg = defaultdict(dict)
 
     for region_name in lu_reg:
-        reg_pop = data['population'][sim_param['base_yr']][region_name]
+        reg_pop = data['scenario_data']['population'][sim_param['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
         reg_floor_area = data['rs_floorarea'][sim_param['base_yr']][region_name]
 

@@ -5,16 +5,10 @@ import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
 
 def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
-    """Define dummy technologies
-
-    Where no specific technologies are assigned for an enduse
-    and a fueltype, dummy technologies are generated. This is
-    necessary because the model needs a technology for every
-    fueltype in an enduse. Technologies are however defined
-    with no efficiency changes, so that the energy demand
-    for an enduse per fueltype can be treated not related
-    to technologies (e.g. definieng definin overall
-    eficiency change)
+    """Define dummy technologies. Where no specific technologies are
+    assigned for an enduse and a fueltype, dummy technologies
+    are generated. This is necessary because the model needs
+    a technology for every fueltype in an enduse.
 
     Arguments
     ----------

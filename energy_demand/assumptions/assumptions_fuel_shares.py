@@ -224,7 +224,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
     assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
     assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
-    assumptions['test'] = 'test' #TODO
+    assumptions['test'] = 'test'
 
     return assumptions
 
@@ -234,7 +234,11 @@ def service_share_input_to_fuel(
         tech_stock,
         assumptions
     ):
-    """Convert share of service to fuel share
+    """Convert service share to fuel share. As an input, provide share of
+    service per fueltype (e.g. in gas fueltype: 0.6 boilerA, 0.4, boilerB).
+
+    With help of assumption of share per fueltype ``total_share_fueltype``,
+    calculate fuel share.
 
     Arguments
     ----------
@@ -252,15 +256,6 @@ def service_share_input_to_fuel(
     -------
     fuel_share_tech_fueltype : dict
         Fuel share per technology of a fueltype
-
-    Note
-    -----
-    Convert service share to fuel share. As an input, provide share of
-    service per fueltype (e.g. in gas fueltype: 0.6 boilerA, 0.4, boilerB).
-
-    With help of assumption of share per fueltype ``total_share_fueltype``,
-    calculate fuel share.
-    TODO:  IMPROVE
     """
     fuel_share_tech_fueltype = {}
 
@@ -285,6 +280,6 @@ def service_share_input_to_fuel(
     total_fuel = sum(fuel_share_tech_fueltype.values())
 
     for tech, fuel in fuel_share_tech_fueltype.items():
-        fuel_share_tech_fueltype[tech] = (1.0 / total_fuel) * fuel
+        fuel_share_tech_fueltype[tech] = fuel / total_fuel
 
     return fuel_share_tech_fueltype

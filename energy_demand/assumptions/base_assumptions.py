@@ -11,9 +11,6 @@ from energy_demand.initalisations import helpers
 from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
 
-#TODO: Make that HLC can be improved, ssumption share of existing
-#  dwelling stock which is assigned new HLC coefficients
-
 def load_sim_param():
     """Load sigmoid parameters: REPLACE
     """
@@ -266,7 +263,6 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         'is_refrigeration': ['gva']}
 
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
-    # TODO: READ IN FROM READL BUILDING SCENARIOS...
     # TODO: Project future demand based on seperate methodology
     assumptions['ss_floorarea_change_ey_p'] = {
         'community_arts_leisure': 1,
