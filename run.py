@@ -14,6 +14,9 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.basic import date_prop
 from pkg_resources import Requirement, resource_filename
 
+# must match smif project name for Local Authority Districts
+REGION_SET_NAME = 'lad_2016'
+
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
@@ -34,7 +37,7 @@ class EDWrapper(SectorModel):
         """
         output_dict = defaultdict(dict)
         for t_idx, timestep in enumerate(self.timesteps):
-            for r_idx, region in enumerate(self.get_region_names('lad')):
+            for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
                 output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
 
         return output_dict
@@ -86,8 +89,8 @@ class EDWrapper(SectorModel):
         # -----------------------------
         # Region related informatiom
         # -----------------------------
-        data['lu_reg'] = self.get_region_names('lad')
-        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
+        data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
+        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
 
         # -----------------------------
@@ -192,20 +195,20 @@ class EDWrapper(SectorModel):
         # Write data from smif to data container from energy demand model
         # ---------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
-        data['lu_reg'] = self.get_region_names('lad')
-        #data['reg_coord'] = regions.get_region_centroids('lad') #TO BE IMPLEMENTED BY THE SMIF GUYS
-    
+        data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
+        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
+
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        
+
         # Simulation parameters
         data['sim_param'] = base_assumptions.load_sim_param() #REPLACE
         data['sim_param']['current_year'] = timestep
         data['sim_param']['end_year'] = 2020 #REPLACE
         data['sim_param']['sim_years_intervall'] = 1 #REPLACE
-        
+
         # Necessary update
         data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
         data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
@@ -312,7 +315,7 @@ if __name__ == '__main__':
     from smif.convert.interval import IntervalSet
     from unittest.mock import Mock
     regions = get_region_register()
-    regions.register(RegionSet('lad', []))
+    regions.register(RegionSet(REGION_SET_NAME, []))
 
     ed.before_model_run()
 
