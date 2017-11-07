@@ -209,7 +209,7 @@ class Technology(object):
             self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype)
             #self.market_entry = assumptions['technologies'][tech_name]['market_entry'] #TODO: NOT NECESSARY
             self.tech_eff_achieved_f = assumptions['technologies'][tech_name]['eff_achieved']
-            self.diff_method = assumptions['technologies'][tech_name]['diff_method'] #TODO: NOT NECESSARY
+            self.diff_method = assumptions['technologies'][tech_name]['diff_method']
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type

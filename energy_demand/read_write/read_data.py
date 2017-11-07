@@ -9,18 +9,23 @@ from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
+from energy_demand.profiles import load_profile
 
-def read_in_results(path_runs, lookups):
-    """Read in results from txt files and store into container all results
+def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
+    """Read and post calculate
+    results from txt files
+    and store into container
+
+
     """
     logging.info("... Reading in results")
 
     results_container = {}
 
-    #read_results_from_txt(data['local_paths']['data_results_model_runs'])
-    
-
-    results_container['results_every_year'] = read_results_y(
+    # -------------
+    # Fuels
+    # -------------
+    results_container['results_every_year'] = read_results_yh(
         lookups['fueltypes_nr'], path_runs)
 
     results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
@@ -28,19 +33,57 @@ def read_in_results(path_runs, lookups):
 
     results_container['tot_fuel_y_max'] = read_max_results(path_runs)
 
-    results_container['load_factors_y'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_y"))
-    results_container['load_factors_yh'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_yd"))
+    # -------------
+    # Load factors
+    # -------------
+    results_container['load_factors_y'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_y"))
+    results_container['load_factors_yh'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_yd"))
 
     results_container['load_factor_seasons'] = {}
-    results_container['load_factor_seasons']['winter'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_winter"))
-    results_container['load_factor_seasons']['spring'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_spring"))
-    results_container['load_factor_seasons']['summer'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_summer"))
-    results_container['load_factor_seasons']['autumn'] = read_lf_y(os.path.join(path_runs, "result_reg_load_factor_autumn"))
+    results_container['load_factor_seasons']['winter'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_winter"))
+    results_container['load_factor_seasons']['spring'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_spring"))
+    results_container['load_factor_seasons']['summer'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_summer"))
+    results_container['load_factor_seasons']['autumn'] = read_lf_y(
+        os.path.join(path_runs, "result_reg_load_factor_autumn"))
+
+    # -------------
+    # Post-calculations
+    # -------------
+
+    # Calculate average per season and fueltype for every fueltype
+    av_season_daytype_current_year = {}
+    season_daytype_current_year = {}
+    for year, fueltypes_data in results_container['results_every_year'].items():
+        av_season_daytype_current_year[year] = {}
+        season_daytype_current_year[year] = {}
+
+        for fueltype, reg_fuels in fueltypes_data.items():
+
+            # Summarise across regions
+            tot_across_all_reg_fueltype = np.sum(reg_fuels, axis=0)
+
+            tot_across_all_reg_fueltype_reshape = tot_across_all_reg_fueltype.reshape((365, 24))
+
+            calc_av, calc_lp = load_profile.calc_av_lp(
+                tot_across_all_reg_fueltype,
+                seasons,
+                model_yeardays_daytype)
+
+            av_season_daytype_current_year[year][fueltype] = calc_av
+            season_daytype_current_year[year][fueltype] = calc_lp
+
+    results_container['av_season_daytype_current_year'] = av_season_daytype_current_year
+    results_container['season_daytype_current_year'] = season_daytype_current_year
 
     logging.info("... Reading in results finished")
     return results_container
 
-def read_results_y(fueltypes_nr, path_to_folder):
+def read_results_yh(fueltypes_nr, path_to_folder):
     """Read results
 
     Arguments
@@ -61,14 +104,20 @@ def read_results_y(fueltypes_nr, path_to_folder):
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
+    # ------------------
     # Get number of regions (search largest fueltype_array_position)
+    # ------------------
     reg_nrs = 0
     for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_to_folder, file_path)
         file_path_split = file_path.split("__")
-        fueltype_array_position = int(file_path_split[2])
+        try:
+            fueltype_array_position = int(file_path_split[2])
 
-        if fueltype_array_position > reg_nrs:
-            reg_nrs = fueltype_array_position
+            if fueltype_array_position > reg_nrs:
+                reg_nrs = fueltype_array_position
+        except IndexError:
+            pass #path is a folder and not a file
 
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:

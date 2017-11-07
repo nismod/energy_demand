@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # Run settings
     instrument_profiler = True
     print_criteria = True
-    validation_criteria = True
+    validation_criteria = False
 
     # Load data
     data = {}
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
-    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']} #TODO add everwhere data['scenario_data']
+    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         write_data.write_lf(path_runs, "result_reg_load_factor_spring", [sim_yr], reg_load_factor_spring, 'reg_load_factor_spring')
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
-        
+
         logging.info("... Finished writing results to file")
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
@@ -205,23 +205,18 @@ if __name__ == "__main__":
     #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
+    #data['assumptions']['seasons']
+    #data['assumptions']['model_yeardays_daytype']
 
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
-        data['lookups'])
+        data['lookups'],
+        data['assumptions']['seasons'],
+        data['assumptions']['model_yeardays_daytype'])
 
-    # -------------
-    # Calculations
-    # -------------
-
-    '''results_container['av_season_daytype'] = load_profile.calc_av_lp(
-        ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']],
-        data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
-    '''
-    
     # ------------------------------
     # Plotting results
     # ------------------------------

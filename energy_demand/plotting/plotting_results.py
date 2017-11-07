@@ -118,11 +118,15 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     # ------------------------------------
     # Plot averaged per season an fueltype
     # ------------------------------------
-    '''plotting_results.plot_load_profile_dh_multiple(
-        results_container['av_season_daytype'], #MAYBE CURRENT YEAR
-        calc_av_lp_real, #MAYBE BASEYEAR
-        os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))'''
-    # 
+    base_year = 2015
+    for year, fueltype_data in results_container['av_season_daytype_current_year'].items():
+        for fueltype in results_container['av_season_daytype_current_year'].keys():
+            plot_load_profile_dh_multiple(
+                results_container['av_season_daytype_current_year'][year][fueltype], #d#MAYBE CURRENT YEAR
+                results_container['av_season_daytype_current_year'][base_year][fueltype], #BASEYEAR
+                results_container['season_daytype_current_year'][year][fueltype], #MAYBE CURRENT YEAR
+                results_container['season_daytype_current_year'][base_year][fueltype], #BASEYEAR
+                os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes__{}.pdf'.format(fueltype)))
     # Plot all enduses
     #plt_stacked_enduse(
     # sim_param['sim_period'],
@@ -670,13 +674,14 @@ def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_
             x_values = range(24)
             plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real')
             plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled')
-            
+
             # ------------------
             # Plot every single line
             # ------------------
             for entry in range(len(calc_lp_real[season][daytype])):
-                plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', label='modelled', alpha='0.6')
-                plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', label='real', alpha='0.6')
+                plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', markersize=0.5, alpha=0.2)
+                plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', markersize=0.5, alpha=0.2)
+
             # -----------------
             # Axis
             # -----------------
@@ -698,8 +703,7 @@ def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_
                 'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
             title_info = ('{}, {}'.format(season, daytype))
             plt.text(1, 0.55, "RMSE: {}".format(round(rmse, 2)), fontdict=font_additional_info)
-            plt.title(title_info, loc='left',fontdict=font_additional_info)
-
+            plt.title(title_info, loc='left', fontdict=font_additional_info)
             #plt.ylabel("hours")
             #plt.ylabel("average electricity [GW] ")
 
@@ -712,17 +716,13 @@ def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_
     plt.tight_layout()
     plt.margins(x=0)
 
-    plt.show()
-
     # Save fig
     fig.savefig(path_plot_fig)
     plt.close()
 
-
 def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile
     """
-
     x_values = range(24)
 
     plt.plot(x_values, list(data_dh_real), color='green', label='real') #'ro', markersize=1,
