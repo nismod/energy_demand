@@ -114,7 +114,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
-    
+
     # ------------------------------------
     # Plot averaged per season an fueltype
     # ------------------------------------'''
@@ -674,8 +674,8 @@ def plot_load_profile_dh_multiple(path_plot_fig, calc_av_lp_modelled, calc_av_lp
             # Plot average
             # ------------------
             x_values = range(24)
-            plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real')
-            plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled')
+            plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real_by')
+            plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled_future')
 
             # ------------------
             # Plot every single line
@@ -688,7 +688,7 @@ def plot_load_profile_dh_multiple(path_plot_fig, calc_av_lp_modelled, calc_av_lp
             # -----------------
             # Axis
             # -----------------
-            plt.ylim(0, 60)
+            plt.ylim(0, 50)
 
             # Tight layout
             plt.tight_layout()

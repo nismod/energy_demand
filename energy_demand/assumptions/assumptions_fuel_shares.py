@@ -70,7 +70,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     rs_fuel_tech_p_by['rs_cooking'][fuel_nr_elec] = {
         'hob_electricity': 0.49,
         'oven_electricity': 0.51,
-        'hob_induction_electricity': 0.0 #TODO: MAKE OWN ASSUMPTION
+        'hob_induction_electricity': 0.0 # MAKE OWN ASSUMPTION
         }
 
     # ---rs_wet (calculated on the basis of EUCK Table 3.08)
@@ -80,7 +80,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'dishwasher': 0.220,
         'tumble_dryer': 0.318}
 
-    #---Space heating (calculated based on XX TODO)
+    #---Space heating
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_solid_fuel] = {
         'boiler_solid_fuel': 1.0}
 

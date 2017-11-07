@@ -5,7 +5,7 @@ Correlate HDD with national gas data.
 
 National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
 
-TODO: This could be improved by calculating the HDD for every region and multiplying
+Note: This could be improved by calculating the HDD for every region and multiplying
 by the population. This would take into consideration the different population
 """
 import os

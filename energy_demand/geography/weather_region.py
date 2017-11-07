@@ -246,7 +246,7 @@ class WeatherRegion(object):
         #ss_peak_yd_cooling_factor = get_shape_peak_yd_factor(ss_cdd_cy)
 
         # --Heating technologies for service sector
-        # (the heating shape follows the gas shape of aggregated sectors) #TODO
+        # (the heating shape follows the gas shape of aggregated sectors)
         ss_fuel_shape_any_tech, ss_fuel_shape = ss_get_sector_enduse_shape(
             tech_lp, ss_fuel_shape_heating_yd, 'ss_space_heating', assumptions['model_yeardays_nrs'])
 

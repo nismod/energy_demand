@@ -314,13 +314,13 @@ def run(data):
             sys.exit("Error: The sector {} could not be assigned".format(sector))
 
         # ------------------------------------------------------
-        # Assign same shape across all enduse for service sector
+        # Assign shape across enduse for service sector
         # ------------------------------------------------------
         for enduse in ss_enduses:
             #print("Enduse service: %s in sector %s", enduse, sector)
 
             # Select shape depending on enduse
-            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']: #TODO
+            if enduse in ['ss_water_heating', 'ss_space_heating', 'ss_other_gas']:
                 folder_path = os.path.join(
                     data['local_paths']['folder_raw_carbon_trust'],
                     "_all_gas")

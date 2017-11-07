@@ -198,9 +198,9 @@ def convert_capacity_assumption_to_service(
             # Efficiency of year when capacity is fully installed
             # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(
-                tech,
                 sim_param_new,
-                technologies,
+                technologies[tech]['eff_by'],
+                technologies[tech]['eff_ey'],
                 other_enduse_mode_info,
                 technologies[tech]['eff_achieved'],
                 technologies[tech]['diff_method'])
@@ -219,9 +219,9 @@ def convert_capacity_assumption_to_service(
             fuel_capacity_installed = switch['fuel_capacity_installed']
 
             tech_eff_ey = tech_related.calc_eff_cy(
-                technology_install,
                 sim_param_new,
-                technologies,
+                technologies[technology_install]['eff_by'],
+                technologies[technology_install]['eff_ey'],
                 other_enduse_mode_info,
                 technologies[technology_install]['eff_achieved'],
                 technologies[technology_install]['diff_method'])

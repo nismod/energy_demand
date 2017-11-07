@@ -30,19 +30,21 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     """
     for end_use in tech_p_by:
         for fuel_type in tech_p_by[end_use]:
-
-            # TODO write explicit in assumptions: Test if any fueltype
-            # is specified with a technology.
-            # If yes, do not insert dummy technologies
-            # because in the fuel definition all technologies of all endueses need to be defined
-            crit_tech_defined_in_enduse = False
             all_defined_tech_in_fueltype = tech_p_by[end_use].values()
             for definition in all_defined_tech_in_fueltype:
-                if definition == {}:
-                    pass
-                else:
-                    crit_tech_defined_in_enduse = True
-                    continue
+
+                # TODO write explicit in assumptions: Test if any fueltype
+                # is specified with a technology.
+                # If yes, do not insert dummy technologies
+                # because in the fuel definition all technologies of all endueses need to be defined
+                crit_tech_defined_in_enduse = False
+                all_defined_tech_in_fueltype = tech_p_by[end_use].values()
+                for definition in all_defined_tech_in_fueltype:
+                    if definition == {}:
+                        pass
+                    else:
+                        crit_tech_defined_in_enduse = True
+                        continue
 
             # If an enduse has no defined technologies across all fueltypes
             if crit_tech_defined_in_enduse is False:
@@ -301,9 +303,9 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
     return technologies, temp_dependent_tech_list, heat_pumps
 
 def calc_eff_cy(
-        technology,
         sim_param,
-        technologies,
+        eff_by,
+        eff_ey,
         other_enduse_mode_info,
         tech_eff_achieved_f,
         diff_method
@@ -313,12 +315,12 @@ def calc_eff_cy(
 
     Arguments
     ----------
-    technology : str
-        Name of technology
     sim_param : dict
         Base simulation parameters
-    technologies : dict
-        Technologies
+    eff_by : dict
+        Base year efficiency
+    eff_ey : dict
+        End year efficiency
     other_enduse_mode_info : Dict
         diffusion information
     tech_eff_achieved_f : dict
@@ -343,8 +345,8 @@ def calc_eff_cy(
         theor_max_eff = diffusion.linear_diff(
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            technologies[technology]['eff_by'],
-            technologies[technology]['eff_ey'],
+            eff_by,
+            eff_ey,
             sim_param['sim_period_yrs'])
 
         # Consider actual achieved efficiency
@@ -361,11 +363,10 @@ def calc_eff_cy(
             other_enduse_mode_info['sig_steeppness'])
 
         # Differencey in efficiency change
-        efficiency_change = theor_max_eff * (
-            technologies[technology]['eff_ey'] - technologies[technology]['eff_by'])
+        efficiency_change = theor_max_eff * (eff_ey - eff_by)
 
         # Actual efficiency potential
-        eff_cy = technologies[technology]['eff_by'] + efficiency_change
+        eff_cy = eff_by + efficiency_change
 
         return eff_cy
 

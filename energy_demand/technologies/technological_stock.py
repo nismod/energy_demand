@@ -146,16 +146,26 @@ def create_tech_stock(
             tech_type = tech_related.get_tech_type(
                 technology_name, assumptions['tech_list'])
 
-            tech_obj = Technology(
-                technology_name,
-                assumptions,
-                sim_param,
-                lookups,
-                temp_by,
-                temp_cy,
-                t_base_heating_by,
-                t_base_heating_cy,
-                tech_type)
+            if tech_type == 'dummy_tech':
+                tech_obj = Technology(
+                    technology_name,
+                    tech_type)
+            else:
+                tech_obj = Technology(
+                    technology_name,
+                    tech_type,
+                    assumptions['technologies'][technology_name]['fuel_type'],
+                    assumptions['technologies'][technology_name]['eff_achieved'],
+                    assumptions['technologies'][technology_name]['diff_method'],
+                    assumptions['technologies'][technology_name]['eff_by'],
+                    assumptions['technologies'][technology_name]['eff_ey'],
+                    assumptions['other_enduse_mode_info'],
+                    sim_param,
+                    lookups,
+                    temp_by,
+                    temp_cy,
+                    t_base_heating_by,
+                    t_base_heating_cy)
 
             stock_technologies[(technology_name, enduse)] = tech_obj
 
@@ -183,19 +193,25 @@ class Technology(object):
 
     Notes
     -----
+    UPDATE
 
     """
     def __init__(
             self,
             tech_name,
-            assumptions,
-            sim_param,
-            lookups,
-            temp_by,
-            temp_cy,
-            t_base_heating,
-            t_base_heating_cy,
-            tech_type
+            tech_type,
+            tech_fueltype=None,
+            tech_eff_achieved=None,
+            tech_diff_method=None,
+            tech_eff_by=None,
+            tech_eff_ey=None,
+            other_enduse_mode_info=None,
+            sim_param=None,
+            lookups=None,
+            temp_by=None,
+            temp_cy=None,
+            t_base_heating_by=None,
+            t_base_heating_cy=None,
         ):
         """Contructor
         """
@@ -205,11 +221,11 @@ class Technology(object):
         else:
             self.tech_name = tech_name
             self.tech_type = tech_type
-            self.tech_fueltype = assumptions['technologies'][tech_name]['fuel_type']
+            self.tech_fueltype = tech_fueltype
             self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype)
-            #self.market_entry = assumptions['technologies'][tech_name]['market_entry'] #TODO: NOT NECESSARY
-            self.tech_eff_achieved_f = assumptions['technologies'][tech_name]['eff_achieved']
-            self.diff_method = assumptions['technologies'][tech_name]['diff_method']
+            #self.market_entry = assumptions['technologies'][tech_name]['market_entry']
+            self.tech_eff_achieved_f = tech_eff_achieved
+            self.diff_method = tech_diff_method
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
@@ -217,25 +233,25 @@ class Technology(object):
             if tech_type == 'heat_pump':
                 self.eff_by = tech_related.calc_hp_eff(
                     temp_by,
-                    assumptions['technologies'][tech_name]['eff_by'],
-                    t_base_heating)
+                    tech_eff_by, #technologies[tech_name]['eff_by'],
+                    t_base_heating_by)
 
                 self.eff_cy = tech_related.calc_hp_eff(
                     temp_cy,
                     tech_related.calc_eff_cy(
-                        tech_name,
                         sim_param,
-                        assumptions['technologies'],
-                        assumptions['other_enduse_mode_info'],
+                        tech_eff_by,
+                        tech_eff_ey,
+                        other_enduse_mode_info,
                         self.tech_eff_achieved_f,
                         self.diff_method),
                     t_base_heating_cy)
             else:
-                self.eff_by = assumptions['technologies'][tech_name]['eff_by']
+                self.eff_by = tech_eff_by
                 self.eff_cy = tech_related.calc_eff_cy(
-                    tech_name,
                     sim_param,
-                    assumptions['technologies'],
-                    assumptions['other_enduse_mode_info'],
+                    tech_eff_by,
+                    tech_eff_ey,
+                    other_enduse_mode_info,
                     self.tech_eff_achieved_f,
                     self.diff_method)

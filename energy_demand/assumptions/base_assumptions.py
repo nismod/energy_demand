@@ -143,7 +143,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['assump_diff_floorarea_pp'] = 1
 
     # Specific Energy Demand factors per dwelling type could be defined
-    # (e.g. per dwelling type or GVA class or residents....) #TODO
+    # (e.g. per dwelling type or GVA class or residents....)
 
     # Dwelling type distribution base year (fixed)
     # Source: Table 4c: Housing Stock Distribution by Type, UK Housing Energy Fact File
@@ -193,8 +193,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
             '2002': 0.05}}
 
     # TODO: Get assumptions for heat loss coefficient
-    # TODO: INCLUDE HAT LOSS COEFFICIEN ASSUMPTIONS
-    # TODO: Include refurbishment of houses --> Change percentage of age distribution of houses -->
+    # Include refurbishment of houses --> Change percentage of age distribution of houses -->
     # Which then again influences HLC
 
     # ============================================================
@@ -217,10 +216,28 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         'rs_cold': 0,
         'rs_wet': 0,
         'rs_consumer_electronics': 0,
-        'rs_home_computing': 0
+        'rs_home_computing': 0,
 
-        # TODO
+        # Service submodule
+        'ss_space_heating': 0,
+        'ss_water_heating': 0,
+        'ss_lighting': 0,
+        'ss_catering': 0,
+        'ss_computing': 0,
+        'ss_space_cooling': 0,
+        'ss_other_gas': 0,
+        'ss_other_electricity': 0,
 
+        # Industry submodule,
+        'is_high_temp_process': 0,
+        'is_low_temp_process': 0,
+        'is_drying_separation': 0,
+        'is_motors': 0,
+        'is_compressed_air': 0,
+        'is_lighting': 0,
+        'is_space_heating': 0,
+        'is_other': 0,
+        'is_refrigeration': 0
     }
 
     # ============================================================

@@ -16,7 +16,6 @@ from energy_demand.assumptions import base_assumptions
 from energy_demand.basic import date_prop
 from pkg_resources import Requirement, resource_filename
 
-
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
 

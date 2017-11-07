@@ -216,7 +216,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
         Data container
     raw_fuel_sectors_enduses ; dict
         Fuels
-    #TODO: DISAGGREGATE WITH OTHER DATA
+
     """
     is_fuel_disagg = {}
 
