@@ -80,12 +80,12 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
 
     return list(set(dummy_enduses))
 
-def calc_hp_eff(temp_yr, efficiency_intersect, t_base_heating):
+def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
     """Calculate efficiency according to temperature difference of base year
 
     Arguments
     ----------
-    temp_yr : array
+    temp_yh : array
         Temperatures for every hour in a year
     efficiency_intersect : float
         Y-value (Efficiency) at 10 degree difference
@@ -94,64 +94,65 @@ def calc_hp_eff(temp_yr, efficiency_intersect, t_base_heating):
 
     Return
     ------
-    eff_hp_yh : array
-        Efficiency for every hour in a year
+    av_eff_hp : float
+        Average eEfficiency for every hour in a year
 
     Note
     -----
     - For every hour the temperature difference is calculated  and the efficiency
       of the heat pump calculated based on efficiency assumptions
-    - The efficiency assumptions of the heat pump are taken from Staffell et al. (2012).
+
+    - The intersect at 10 degree temperature differences is for
+      ASHP about 6, for GSHP about 9 (Staffell et al. 2012).
+
+    - The efficiency assumptions of the heat pump are taken from Staffell et al. (2012), Fig. 9.
 
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
     """
     # Calculate temperature difference to t_base_heating
-    temp_difference_temp_yr = t_base_heating - temp_yr
-    temp_difference_temp_yr[temp_difference_temp_yr < 0] = 0 #Ignore all hours where no heating is necessary
+    temp_difference_temp_yh = t_base_heating - temp_yh
+
+    #Ignore all hours where no heating is necessary
+    temp_difference_temp_yh[temp_difference_temp_yh < 0] = 0
 
     # Calculate average efficiency of heat pumps over full year
-    eff_hp_yh = eff_heat_pump(temp_difference_temp_yr, efficiency_intersect)
+    av_eff_hp = eff_heat_pump(temp_difference_temp_yh, efficiency_intersect)
 
-    return float(eff_hp_yh)
+    return float(av_eff_hp)
 
 def eff_heat_pump(temp_diff, efficiency_intersect, m_slope=-.08, h_diff=10):
-    """Calculate efficiency of heat pump
+    """Calculate efficiency of heat pumps
 
     Arguments
     ----------
     temp_diff: array
         Temperature difference between base temperature and temperature
     efficiency_intersect : float,default=-0.08
-        Extrapolated intersect at temp diff of 10 degree (which is treated as efficiency)
+        Extrapolated intersect at temperature
+        difference of 10 degree (which is treated as efficiency)
     m_slope : float, default=10
-        Temperature dependency of heat pumps (slope) derived from Staffell et al. (2012)
+        Temperature dependency of heat pumps (slope)
     h_diff : float
         Temperature difference
 
     Return
     ------
-    efficiency_hp : array
-        Efficiency of heat pump
+    efficiency_hp_mean : array
+        Mean efficiency of heat pump
 
     Note
     ----
     Because the efficieny of heat pumps is temperature dependent, the efficiency needs to
     be calculated based on slope and intersect which is provided as input for temp difference 10
     and treated as efficiency
-
-    The intersect at temp differenc 10 is for ASHP about 6, for GSHP about 9
     """
     #efficiency_hp = m_slope * h_diff + (intersect + (-1 * m_slope * 10))
     #var_c = efficiency_intersect - (m_slope * h_diff)
-    #var_c = efficiency_intersect - (m_slope * h_diff)
     #efficiency_hp = m_slope * temp_diff + var_c
 
-    #SLOW
     efficiency_hp = m_slope * temp_diff + (efficiency_intersect - (m_slope * h_diff))
 
-    #FAST
-    #efficiency_hp = -.08 * temp_diff + (efficiency_intersect - (-0.8))
     # Calculate average efficiency over whole year
     efficiency_hp_mean = np.mean(efficiency_hp)
 
