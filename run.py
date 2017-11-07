@@ -54,9 +54,9 @@ class EDWrapper(SectorModel):
         -----
         `self.user_data` allows to pass data from before_model_run to main model
         """
-        self.user_data['data_path'] = '/vagrant/data_energy_demand'
-        self.processed_path = '/vagrant/data_energy_demand/_processdata'
-        self.result_path = '/vagrant/data_energy_demand/_result_data'
+        self.user_data['data_path'] = 'C:/DATA_NISMODII/data_energy_demand'
+        self.processed_path = 'C:/DATA_NISMODII/data_energy_demand/_processed_data'
+        self.result_path = 'C:/DATA_NISMODII/data_energy_demand/_result_data'
 
         data = {}
         data['print_criteria'] = False
