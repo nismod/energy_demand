@@ -139,8 +139,7 @@ def dummy_data_generation(data):
         ]
     # Load dummy LAC and pop
     dummy_pop_geocodes = load_LAC_geocodes_info(
-        data['local_paths']['path_dummy_regions']
-        )
+        data['local_paths']['path_dummy_regions'])
 
     regions = {}
     coord_dummy = {}

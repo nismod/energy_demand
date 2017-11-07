@@ -173,11 +173,11 @@ def tempo_spatial_validation(
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
+        os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'),
         calc_av_lp_modelled,
         calc_av_lp_real,
         calc_lp_modelled,
-        calc_lp_real,
-        os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))
+        calc_lp_real)
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak

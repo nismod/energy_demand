@@ -18,7 +18,7 @@ from energy_demand.basic import basic_functions
 def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, assumptions, sim_param, enduses):
     """Summary function to plot all results
 
-    
+
     """
     logging.info("... plotting results")
     ##pf.plot_load_curves_fueltype(results_every_year, data)
@@ -31,7 +31,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    for fueltype_str, fueltype_int in lookups['fueltype'].items():
+    '''for fueltype_str, fueltype_int in lookups['fueltype'].items():
 
         plot_seasonal_lf(
             fueltype_int,
@@ -114,19 +114,20 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
-
+    
     # ------------------------------------
     # Plot averaged per season an fueltype
-    # ------------------------------------
+    # ------------------------------------'''
     base_year = 2015
     for year in results_container['av_season_daytype_current_year'].keys():
-        for fueltype in results_container['av_season_daytype_current_year'].keys():
+        for fueltype in results_container['av_season_daytype_current_year'][year].keys():
             plot_load_profile_dh_multiple(
+                os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes__{}__{}.pdf'.format(year, fueltype)),
                 results_container['av_season_daytype_current_year'][year][fueltype], #d#MAYBE CURRENT YEAR
-                results_container['av_season_daytype_current_year'][base_year][fueltype], #BASEYEAR
-                results_container['season_daytype_current_year'][year][fueltype], #MAYBE CURRENT YEAR
-                results_container['season_daytype_current_year'][base_year][fueltype], #BASEYEAR
-                os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes__{}.pdf'.format(fueltype)))
+                results_container['av_season_daytype_current_year'][base_year][fueltype]#, #BASEYEAR
+                #results_container['season_daytype_current_year'][year][fueltype], #MAYBE CURRENT YEAR
+                #results_container['season_daytype_current_year'][base_year][fueltype] #BASEYEAR
+                )
     
     # Plot all enduses
     #plt_stacked_enduse(
@@ -653,7 +654,7 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
 
-def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_modelled, calc_lp_real, path_plot_fig):
+def plot_load_profile_dh_multiple(path_plot_fig, calc_av_lp_modelled, calc_av_lp_real, calc_lp_modelled=None, calc_lp_real=None):
     """Plotting average saisonal loads for each daytype
 
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
@@ -679,9 +680,10 @@ def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_
             # ------------------
             # Plot every single line
             # ------------------
-            for entry in range(len(calc_lp_real[season][daytype])):
-                plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', markersize=0.5, alpha=0.2)
-                plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', markersize=0.5, alpha=0.2)
+            if calc_lp_modelled != None:
+                for entry in range(len(calc_lp_real[season][daytype])):
+                    plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', markersize=0.5, alpha=0.2)
+                    plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', markersize=0.5, alpha=0.2)
 
             # -----------------
             # Axis
