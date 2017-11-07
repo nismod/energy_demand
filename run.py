@@ -1,6 +1,8 @@
 """The sector model wrapper for smif to run the energy demand model
 """
+import os
 import logging
+import configparser
 from datetime import date
 from collections import defaultdict
 from smif.model.sector_model import SectorModel
@@ -13,6 +15,7 @@ from energy_demand.read_write import data_loader
 from energy_demand.assumptions import base_assumptions
 from energy_demand.basic import date_prop
 from pkg_resources import Requirement, resource_filename
+
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016'
@@ -57,10 +60,6 @@ class EDWrapper(SectorModel):
         -----
         `self.user_data` allows to pass data from before_model_run to main model
         """
-        self.user_data['data_path'] = 'C:/DATA_NISMODII/data_energy_demand'
-        self.processed_path = 'C:/DATA_NISMODII/data_energy_demand/_processed_data'
-        self.result_path = 'C:/DATA_NISMODII/data_energy_demand/_result_data'
-
         data = {}
         data['print_criteria'] = False
 
@@ -68,6 +67,14 @@ class EDWrapper(SectorModel):
         # Paths
         # -----------------------------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
+
+        config = configparser.ConfigParser()
+        config.read(os.path.join(path_main, 'wrapperconfig.ini'))
+
+        self.user_data['data_path'] = config['PATHS']['path_local_data']# 'C:/DATA_NISMODII/data_energy_demand'
+        self.processed_path = config['PATHS']['path_processed_data'] #'C:/DATA_NISMODII/data_energy_demand/_processed_data'
+        self.result_path = config['PATHS']['path_result_data'] #'C:/DATA_NISMODII/data_energy_demand/_result_data'
+
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
