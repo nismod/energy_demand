@@ -164,17 +164,19 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     logging.debug("...calculate average data and plot per season and fueltype")
 
-    calc_av_lp_modelled = load_profile.calc_av_lp(
+    calc_av_lp_modelled, calc_lp_modelled = load_profile.calc_av_lp(
         ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']],
         data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
 
-    calc_av_lp_real = load_profile.calc_av_lp(
+    calc_av_lp_real, calc_lp_real = load_profile.calc_av_lp(
         indo_factoreddata, data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
         calc_av_lp_modelled,
         calc_av_lp_real,
+        calc_lp_modelled,
+        calc_lp_real,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))
 
     # ---------------------------------------------------

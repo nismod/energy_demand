@@ -115,7 +115,13 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_final.pdf"))
 
-
+    # ------------------------------------
+    # Plot averaged per season an fueltype
+    # ------------------------------------
+    '''plotting_results.plot_load_profile_dh_multiple(
+        results_container['av_season_daytype'], #MAYBE CURRENT YEAR
+        calc_av_lp_real, #MAYBE BASEYEAR
+        os.path.join(data['local_paths']['data_results_PDF'], 'validation_all_season_daytypes.pdf'))'''
     # 
     # Plot all enduses
     #plt_stacked_enduse(
@@ -642,7 +648,7 @@ def plt_fuels_peak_h(tot_fuel_y_max, data):
     plt.title("Fuels for peak hour in a year across all enduses")
     plt.show()
 
-def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, path_plot_fig):
+def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, calc_lp_modelled, calc_lp_real, path_plot_fig):
     """Plotting average saisonal loads for each daytype
 
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
@@ -658,10 +664,19 @@ def plot_load_profile_dh_multiple(calc_av_lp_modelled, calc_av_lp_real, path_plo
 
             plt.subplot(4, 2, plot_nr)
 
+            # ------------------
+            # Plot average
+            # ------------------
             x_values = range(24)
             plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real')
             plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled')
-
+            
+            # ------------------
+            # Plot every single line
+            # ------------------
+            for entry in range(len(calc_lp_real[season][daytype])):
+                plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', label='modelled', alpha='0.6')
+                plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', label='real', alpha='0.6')
             # -----------------
             # Axis
             # -----------------

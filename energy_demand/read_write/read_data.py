@@ -10,7 +10,7 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 
-def read_in_results(path_runs, lookups, reg_nrs):
+def read_in_results(path_runs, lookups):
     """Read in results from txt files and store into container all results
     """
     logging.info("... Reading in results")
@@ -21,7 +21,7 @@ def read_in_results(path_runs, lookups, reg_nrs):
     
 
     results_container['results_every_year'] = read_results_y(
-        lookups['fueltypes_nr'], reg_nrs, path_runs)
+        lookups['fueltypes_nr'], path_runs)
 
     results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
         lookups['fueltypes_nr'], path_runs)
@@ -40,7 +40,7 @@ def read_in_results(path_runs, lookups, reg_nrs):
     logging.info("... Reading in results finished")
     return results_container
 
-def read_results_y(fueltypes_nr, reg_nrs, path_to_folder):
+def read_results_y(fueltypes_nr, path_to_folder):
     """Read results
 
     Arguments
@@ -51,7 +51,7 @@ def read_results_y(fueltypes_nr, reg_nrs, path_to_folder):
         Number of regions
     path_to_folder : str
         Path to folder
-    
+
     Returns
     -------
     results = dict
@@ -61,7 +61,16 @@ def read_results_y(fueltypes_nr, reg_nrs, path_to_folder):
 
     all_txt_files_in_folder = os.listdir(path_to_folder)
 
-    # Iterate files in older
+    # Get number of regions (search largest fueltype_array_position)
+    reg_nrs = 0
+    for file_path in all_txt_files_in_folder:
+        file_path_split = file_path.split("__")
+        fueltype_array_position = int(file_path_split[2])
+
+        if fueltype_array_position > reg_nrs:
+            reg_nrs = fueltype_array_position
+
+    # Iterate files in folder
     for file_path in all_txt_files_in_folder:
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)

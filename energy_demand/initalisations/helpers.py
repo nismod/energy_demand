@@ -130,14 +130,14 @@ def get_nested_dict_key(nested_dict):
 
     return all_nested_keys
 
-def helper_set_same_eff_all_tech(technologies, eff_achieved_factor=1):
+def helper_set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
     """Helper function to assing same achieved efficiency
 
     Arguments
     ----------
     technologies : dict
         Technologies
-    eff_achieved_factor : float,default=1
+    tech_eff_achieved_f : float,default=1
         Factor showing the fraction of how much an efficiency is achieved
 
     Returns
@@ -146,6 +146,6 @@ def helper_set_same_eff_all_tech(technologies, eff_achieved_factor=1):
         Adapted technolog
     """
     for technology in technologies:
-        technologies[technology]['eff_achieved'] = eff_achieved_factor
+        technologies[technology]['eff_achieved'] = tech_eff_achieved_f
 
     return technologies

@@ -98,8 +98,6 @@ class TechStock(object):
             attribute_value = tech_object.tech_low_temp_fueltype
         elif attribute_to_get == 'tech_high_temp_fueltype':
             attribute_value = tech_object.tech_high_temp_fueltype
-        elif attribute_to_get == 'fueltypes_yh_p_cy':
-            attribute_value = tech_object.fueltypes_yh_p_cy
         elif attribute_to_get == 'fueltype_share_yh_all_h':
             attribute_value = tech_object.fueltype_share_yh_all_h
         else:
@@ -209,13 +207,9 @@ class Technology(object):
             self.tech_type = tech_type
             self.tech_fueltype = assumptions['technologies'][tech_name]['fuel_type']
             self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype)
-            self.market_entry = assumptions['technologies'][tech_name]['market_entry']
-            self.eff_achieved_factor = assumptions['technologies'][tech_name]['eff_achieved']
-            self.diff_method = assumptions['technologies'][tech_name]['diff_method']
-
-            # Shares of fueltype for every hour for single fueltype
-            self.fueltypes_yh_p_cy = np.full((
-                assumptions['model_yeardays_nrs'], 24), 1, dtype=float)
+            #self.market_entry = assumptions['technologies'][tech_name]['market_entry'] #TODO: NOT NECESSARY
+            self.tech_eff_achieved_f = assumptions['technologies'][tech_name]['eff_achieved']
+            self.diff_method = assumptions['technologies'][tech_name]['diff_method'] #TODO: NOT NECESSARY
 
             # --------------------------------------------------------------
             # Base and current year efficiencies depending on technology type
@@ -233,7 +227,7 @@ class Technology(object):
                         sim_param,
                         assumptions['technologies'],
                         assumptions['other_enduse_mode_info'],
-                        self.eff_achieved_factor,
+                        self.tech_eff_achieved_f,
                         self.diff_method),
                     t_base_heating_cy)
             else:
@@ -243,5 +237,5 @@ class Technology(object):
                     sim_param,
                     assumptions['technologies'],
                     assumptions['other_enduse_mode_info'],
-                    self.eff_achieved_factor,
+                    self.tech_eff_achieved_f,
                     self.diff_method)

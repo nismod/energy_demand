@@ -48,7 +48,7 @@ def test_LoadProfileStock():
     assert result_obj.stock_name == expected
 
     # -----
-    result_obj.add_load_profile(
+    result_obj.add_lp(
         unique_identifier="A123",
         technologies=['dummy_tech'],
         enduses=['cooking'],
@@ -67,7 +67,7 @@ def test_LoadProfileStock():
 
     # ---
     # -----
-    result_obj.add_load_profile(
+    result_obj.add_lp(
         unique_identifier="A123",
         technologies=['dummy_tech'],
         enduses=['cooking'],
@@ -121,3 +121,30 @@ def test_LoadProfile():
     
 
     assert result_obj.enduses == ['heating']
+
+'''def test_calc_av_lp():
+
+    model_yeardays_daytype = ['weekend', 'workday'] #
+
+    seasons = {}
+    seasons['winter'] = list(
+        range(
+            date_prop.date_to_yearday(year_to_model, 12, 1),
+            date_prop.date_to_yearday(year_to_model, 12, 31))) + list(
+                range(
+                    date_prop.date_to_yearday(year_to_model, 1, 1),
+                    date_prop.date_to_yearday(year_to_model, 2, 28)))
+    seasons['spring'] = list(range(
+        date_prop.date_to_yearday(year_to_model, 3, 1),
+        date_prop.date_to_yearday(year_to_model, 5, 31)))
+    seasons['summer'] = list(range(
+        date_prop.date_to_yearday(year_to_model, 6, 1),
+        date_prop.date_to_yearday(year_to_model, 8, 31)))
+    seasons['autumn'] = list(range(
+        date_prop.date_to_yearday(year_to_model, 9, 1),
+        date_prop.date_to_yearday(year_to_model, 11, 30)))
+    
+    demand_yh = np.zeros((365, 24))
+
+
+    result = load_profile.calc_av_lp(demand_yh, seasons, model_yeardays_daytype)'''

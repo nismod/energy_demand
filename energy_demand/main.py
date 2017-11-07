@@ -6,6 +6,8 @@ Energy Demand Model
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
+
+
 '''
 import os
 import sys
@@ -194,14 +196,32 @@ if __name__ == "__main__":
 
             # Plot average loads
     ##'''
+
+
+
+    # ------------------
+    # Load necessary inputs for read in
+    # ------------------
+    #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+    data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data['lookups'] = data_loader.load_basic_lookups()
+
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
-        data['lookups'],
-        data['reg_nrs'])
+        data['lookups'])
 
+    # -------------
+    # Calculations
+    # -------------
+
+    '''results_container['av_season_daytype'] = load_profile.calc_av_lp(
+        ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']],
+        data['assumptions']['seasons'], data['assumptions']['model_yeardays_daytype'])
+    '''
+    
     # ------------------------------
     # Plotting results
     # ------------------------------

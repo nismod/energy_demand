@@ -21,7 +21,7 @@ class LoadProfileStock(object):
         self.dict_tuple_keys = {}
         self.enduses_in_stock = set([])
 
-    def add_load_profile(
+    def add_lp(
             self,
             unique_identifier,
             technologies,
@@ -311,7 +311,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
     non_regional_lp_stock = LoadProfileStock("non_regional_load_profiles")
 
     # Lighting (residential)
-    non_regional_lp_stock.add_load_profile(
+    non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_lighting'],
         enduses=['rs_lighting'],
@@ -321,7 +321,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_lighting']['shape_peak_dh'])
 
     # rs_cold (residential refrigeration)
-    non_regional_lp_stock.add_load_profile(
+    non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_cold'],
         enduses=['rs_cold'],
@@ -331,7 +331,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cold']['shape_peak_dh'])
 
     # rs_cooking
-    non_regional_lp_stock.add_load_profile(
+    non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_cooking'],
         enduses=['rs_cooking'],
@@ -341,7 +341,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         shape_peak_dh=tech_lp['rs_shapes_dh']['rs_cooking']['shape_peak_dh'])
 
     # rs_wet
-    non_regional_lp_stock.add_load_profile(
+    non_regional_lp_stock.add_lp(
         unique_identifier=uuid.uuid4(),
         technologies=assumptions['tech_list']['rs_wet'],
         enduses=['rs_wet'],
@@ -353,7 +353,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
     # -- dummy rs technologies (apply enduse sepcific shape)
     for enduse in assumptions['rs_dummy_enduses']:
         tech_list = helpers.get_nested_dict_key(assumptions['rs_fuel_tech_p_by'][enduse])
-        non_regional_lp_stock.add_load_profile(
+        non_regional_lp_stock.add_lp(
             unique_identifier=uuid.uuid4(),
             technologies=tech_list,
             enduses=[enduse],
@@ -366,7 +366,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
     for enduse in assumptions['ss_dummy_enduses']:
         tech_list = helpers.get_nested_dict_key(assumptions['ss_fuel_tech_p_by'][enduse])
         for sector in sectors['ss_sectors']:
-            non_regional_lp_stock.add_load_profile(
+            non_regional_lp_stock.add_lp(
                 unique_identifier=uuid.uuid4(),
                 technologies=tech_list,
                 enduses=[enduse],
@@ -400,7 +400,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         if enduse == "is_space_heating":
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
-                non_regional_lp_stock.add_load_profile(
+                non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
@@ -412,7 +412,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
-                non_regional_lp_stock.add_load_profile(
+                non_regional_lp_stock.add_lp(
                     unique_identifier=uuid.uuid4(),
                     technologies=tech_list,
                     enduses=[enduse],
@@ -440,6 +440,12 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
         season, daytype
 
     """
+    season_daytypes = {
+        'spring': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'summer': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'autumn': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
+        'winter': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))}}
+
     av_season_daytypes = {
         'spring': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
         'summer': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
@@ -460,20 +466,20 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
 
         # Add data as row to array
         new_data_dh = demand_yh[yearday]
-        existing_array = av_season_daytypes[season][daytype_yearday]
+        existing_array = season_daytypes[season][daytype_yearday]
 
         stacked_array = np.vstack([existing_array, new_data_dh])
 
         # Add to dict
-        av_season_daytypes[season][daytype_yearday] = stacked_array
+        season_daytypes[season][daytype_yearday] = stacked_array
 
     # -----------------------------
     # Calculate average of all dict
     # -----------------------------
-    for season, daytypes_data in av_season_daytypes.items():
+    for season, daytypes_data in season_daytypes.items():
         for daytype, daytpe_data in daytypes_data.items():
 
             # Calculate average over every hour in a day
             av_season_daytypes[season][daytype] = np.mean(daytpe_data, axis=0)
 
-    return av_season_daytypes
+    return av_season_daytypes, season_daytypes

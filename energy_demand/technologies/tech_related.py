@@ -305,7 +305,7 @@ def calc_eff_cy(
         sim_param,
         technologies,
         other_enduse_mode_info,
-        eff_achieved_factor,
+        tech_eff_achieved_f,
         diff_method
     ):
     """Calculate efficiency of current year based on efficiency
@@ -321,7 +321,7 @@ def calc_eff_cy(
         Technologies
     other_enduse_mode_info : Dict
         diffusion information
-    eff_achieved_factor : dict
+    tech_eff_achieved_f : dict
         Efficiency achievement factor (how much of the efficiency is achieved)
     diff_method : str
         Diffusion method
@@ -348,7 +348,7 @@ def calc_eff_cy(
             sim_param['sim_period_yrs'])
 
         # Consider actual achieved efficiency
-        eff_cy = theor_max_eff * eff_achieved_factor
+        eff_cy = theor_max_eff * tech_eff_achieved_f
 
         return eff_cy
 
