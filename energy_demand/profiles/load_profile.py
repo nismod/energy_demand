@@ -438,6 +438,13 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
         Yearday type of every year
     av_loadprofiles : dict
         season, daytype
+    
+    Returns
+    -------
+    av_season_daytypes : dict
+        Averaged lp
+    season_daytypes : dict
+        Not averaged lp
 
     """
     season_daytypes = {

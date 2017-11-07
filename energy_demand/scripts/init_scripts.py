@@ -52,7 +52,6 @@ def post_install_setup(args):
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-    
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -113,9 +112,8 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
         data = data_loader.dummy_data_generation(data)
+        
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
-    else:
-        pass
 
     # Initialise logger
     logger_setup.set_up_logger(os.path.join(

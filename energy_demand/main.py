@@ -165,6 +165,7 @@ if __name__ == "__main__":
         # -------------------------------------------
         logging.info("... Start writing results to file")
         path_runs = data['local_paths']['data_results_model_runs']
+
         write_data.write_supply_results(
             sim_yr, path_runs, supply_results, "supply_results")
         write_data.write_enduse_specific(

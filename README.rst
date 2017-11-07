@@ -91,7 +91,12 @@ run every time the model is run with different assumptions (Section 1.2).
 2. Running the model with smif
 ========================
 
-Describe...
+1. Set up the model as outlined in 1.1 'Model Set-Up'
+
+2. Install and set-up smif (see instructions `here <https://github.com/nismod/smif>`_)
+
+3. Run the the energy demand model for a scenario with 
+   the command: ``smif run NAME_SCENARIO``
 
 
 Literature

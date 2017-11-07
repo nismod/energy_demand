@@ -18,7 +18,7 @@ from pkg_resources import Requirement, resource_filename
 
 
 # must match smif project name for Local Authority Districts
-REGION_SET_NAME = 'lad_2016'
+REGION_SET_NAME = 'lad_2016' #TODO
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper

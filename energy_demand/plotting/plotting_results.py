@@ -118,16 +118,15 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     # ------------------------------------
     # Plot averaged per season an fueltype
     # ------------------------------------
-    '''base_year = 2015
-    for year, fueltype_data in results_container['av_season_daytype_current_year'].items():
+    base_year = 2015
+    for year in results_container['av_season_daytype_current_year'].keys():
         for fueltype in results_container['av_season_daytype_current_year'].keys():
             plot_load_profile_dh_multiple(
                 results_container['av_season_daytype_current_year'][year][fueltype], #d#MAYBE CURRENT YEAR
                 results_container['av_season_daytype_current_year'][base_year][fueltype], #BASEYEAR
                 results_container['season_daytype_current_year'][year][fueltype], #MAYBE CURRENT YEAR
                 results_container['season_daytype_current_year'][base_year][fueltype], #BASEYEAR
-                os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes__{}.pdf'.format(fueltype)))'''
-    
+                os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes__{}.pdf'.format(fueltype)))
     
     # Plot all enduses
     #plt_stacked_enduse(

@@ -5,7 +5,6 @@ from energy_demand.profiles import load_profile
 import sys
 import numpy as np
 
-
 def test_abs_to_rel():
     """Test
     """
@@ -122,29 +121,59 @@ def test_LoadProfile():
 
     assert result_obj.enduses == ['heating']
 
-'''def test_calc_av_lp():
+def test_calc_av_lp():
 
-    model_yeardays_daytype = ['weekend', 'workday'] #
+    model_yeardays_daytype = [
+        'holiday',
+        'workday',
+        'workday',
+        'workday',
 
+        'holiday',
+        'workday',
+        'workday',
+        'workday',
+
+        'holiday',
+        'workday',
+        'workday',
+        'workday',
+
+        'holiday',
+        'workday',
+        'workday',
+        'workday',
+        ] #
+
+    # Example with 16 days
     seasons = {}
-    seasons['winter'] = list(
-        range(
-            date_prop.date_to_yearday(year_to_model, 12, 1),
-            date_prop.date_to_yearday(year_to_model, 12, 31))) + list(
-                range(
-                    date_prop.date_to_yearday(year_to_model, 1, 1),
-                    date_prop.date_to_yearday(year_to_model, 2, 28)))
-    seasons['spring'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 3, 1),
-        date_prop.date_to_yearday(year_to_model, 5, 31)))
-    seasons['summer'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 6, 1),
-        date_prop.date_to_yearday(year_to_model, 8, 31)))
-    seasons['autumn'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 9, 1),
-        date_prop.date_to_yearday(year_to_model, 11, 30)))
+    seasons['winter'] = [0, 1, 2, 3]
+    seasons['spring'] = [4, 5, 6, 7]
+    seasons['summer'] = [8, 9, 10, 11]
+    seasons['autumn'] = [12, 13, 14, 15]
+
+    demand_yh = np.zeros((16, 24)) + 10
+
+    for i in range(4):
+        demand_yh[i] = 12
+
+    for i in range(4, 8):
+        demand_yh[i] = 10
+
+    # weekend
+    demand_yh[0] = 100
+    demand_yh[4] = 200
+
+    result_av, _ = load_profile.calc_av_lp(demand_yh, seasons, model_yeardays_daytype)
     
-    demand_yh = np.zeros((365, 24))
+    expected = {
+        'winter': {'workday': np.full((24), 12), 'holiday': np.full((24), 100)},
+        'spring': {'workday': np.full((24), 10), 'holiday': np.full((24), 200)},
+        'summer': {'workday': np.full((24), 12), 'holiday': np.full((24), 100)},
+        'autmn': {'workday': np.full((24), 10), 'holiday': np.full((24), 10)}
+        }
 
-
-    result = load_profile.calc_av_lp(demand_yh, seasons, model_yeardays_daytype)'''
+    np.testing.assert_array_equal(expected['winter']['workday'], result_av['winter']['workday'])
+    np.testing.assert_array_equal(expected['winter']['holiday'], result_av['winter']['holiday'])
+    np.testing.assert_array_equal(expected['spring']['workday'], result_av['spring']['workday'])
+    np.testing.assert_array_equal(expected['spring']['holiday'], result_av['spring']['holiday'])

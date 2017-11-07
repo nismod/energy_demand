@@ -54,7 +54,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Post-calculations
     # -------------
-    '''
+    #'''
     # Calculate average per season and fueltype for every fueltype
     av_season_daytype_current_year = {}
     season_daytype_current_year = {}
@@ -70,7 +70,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
             tot_across_all_reg_fueltype_reshape = tot_across_all_reg_fueltype.reshape((365, 24))
 
             calc_av, calc_lp = load_profile.calc_av_lp(
-                tot_across_all_reg_fueltype,
+                tot_across_all_reg_fueltype_reshape,
                 seasons,
                 model_yeardays_daytype)
 
@@ -79,7 +79,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
 
     results_container['av_season_daytype_current_year'] = av_season_daytype_current_year
     results_container['season_daytype_current_year'] = season_daytype_current_year
-    '''
+    #'''
     logging.info("... Reading in results finished")
     return results_container
 

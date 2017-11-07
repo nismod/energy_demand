@@ -65,7 +65,7 @@ def read_national_real_gas_data(path_to_csv):
 
         for row in read_lines:
             geocode = str.strip(row[3])
-            tot_consumption_unclean = row[10].strip()  
+            tot_consumption_unclean = row[10].strip()
 
             if tot_consumption_unclean == '-':
                 # No entry provided
