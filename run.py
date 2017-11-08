@@ -60,6 +60,8 @@ class EDWrapper(SectorModel):
         `self.user_data` allows to pass data from before_model_run to main model
         """
         data = {}
+        sim_param = {}
+
         data['print_criteria'] = False
 
         # -----------------------------
@@ -81,7 +83,6 @@ class EDWrapper(SectorModel):
         # ---------------------
         # Simulation parameters
         # ---------------------
-        sim_param = {}
         sim_param['base_yr'] = 2015 #REPLACE
         sim_param['end_yr'] = 2030 #REPLACE
         sim_param['curr_yr'] = sim_param['base_yr'] #REPLACE
@@ -104,18 +105,62 @@ class EDWrapper(SectorModel):
         # Obtain external scenario data
         # -----------------------------
 
-        # Population
+        # Population TODO: TEST IF ONLY BASE AND CY CAN BE INSERTED
         pop_array = self.get_scenario_data('population')
-        data['population'] = self.array_to_dict(pop_array)
-        self.user_data['population'] = self.array_to_dict(pop_array)
+        data['population'] = self.array_to_dict(pop_array['population'])
+        self.user_data['population'] = self.array_to_dict(pop_array['population'])
 
         # GVA
         gva_array = self.get_scenario_data('gva')
-        data['gva'] = self.array_to_dict(gva_array)
-        self.user_data['gva'] = self.array_to_dict(gva_array)
+        data['gva'] = self.array_to_dict(gva_array['gva'])
+        self.user_data['gva'] = self.array_to_dict(gva_array['gva'])
 
-        # Building stock related data
-        floor_array = self.get_scenario_data('floor_area')
+        '''# Building stock related data
+
+        # --Residential Floor Area
+        floor_array = self.get_scenario_data('floor_area_rs_detached_pre1930')
+        floor_array = self.get_scenario_data('floor_area_rs_detached_1930-1950')
+        floor_array = self.get_scenario_data('floor_area_rs_detached_1950-1970')
+        floor_array = self.get_scenario_data('floor_area_rs_detached_1950-1990')
+        floor_array = self.get_scenario_data('floor_area_rs_detached_newer2010')
+
+        floor_array = self.get_scenario_data('floor_area_rs_semi_detached_pre1930')
+        floor_array = self.get_scenario_data('floor_area_rs_semi_detached_1930-1950')
+        floor_array = self.get_scenario_data('floor_area_rs_semi_detached_1950-1970')
+        floor_array = self.get_scenario_data('floor_area_rs_semi_detached_1950-1990')
+        floor_array = self.get_scenario_data('floor_area_rs_semi_detached_newer2010')
+
+        floor_array = self.get_scenario_data('floor_area_rs_terrassed_pre1930')
+        floor_array = self.get_scenario_data('floor_area_rs_terrassed_1930-1950')
+        floor_array = self.get_scenario_data('floor_area_rs_terrassed_1950-1970')
+        floor_array = self.get_scenario_data('floor_area_rs_terrassed_1950-1990')
+        floor_array = self.get_scenario_data('floor_area_rs_terrassed_newer2010')
+
+        floor_array = self.get_scenario_data('floor_area_rs_flat_pre1930')
+        floor_array = self.get_scenario_data('floor_area_rs_flat_1930-1950')
+        floor_array = self.get_scenario_data('floor_area_rs_flat_1950-1970')
+        floor_array = self.get_scenario_data('floor_area_rs_flat_1950-1990')
+        floor_array = self.get_scenario_data('floor_area_rs_flat_newer2010')
+
+        floor_array = self.get_scenario_data('floor_area_rs_bungalow_pre1930')
+        floor_array = self.get_scenario_data('floor_area_rs_bungalow_1930-1950')
+        floor_array = self.get_scenario_data('floor_area_rs_bungalow_1950-1970')
+        floor_array = self.get_scenario_data('floor_area_rs_bungalow_1950-1990')
+        floor_array = self.get_scenario_data('floor_area_rs_bungalow_newer2010')
+        
+        # --Service
+        floor_array = self.get_scenario_data('floor_area_ss_community_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_education_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_emergency_pre1930') #not provided, calc % of rest
+        floor_array = self.get_scenario_data('floor_area_ss_health_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_hospitality_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_military_pre1930') #not provided, calc % of rest
+        floor_array = self.get_scenario_data('floor_area_ss_offices_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_retail_pre1930')
+        floor_array = self.get_scenario_data('floor_area_ss_storage_pre1930') #not provided, calc % of rest
+        floor_array = self.get_scenario_data('floor_area_ss_rest_pre1930') # assign 
+        #...
+        '''
         data['rs_floorarea'] = self.array_to_dict(floor_array)
         data['ss_floorarea'] = self.array_to_dict(floor_array)
         data['reg_floorarea_resid'] = self.array_to_dict(floor_array)

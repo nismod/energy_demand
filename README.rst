@@ -98,6 +98,8 @@ run every time the model is run with different assumptions (Section 1.2).
 3. Run the the energy demand model for a scenario with 
    the command: ``smif run NAME_SCENARIO``
 
+   For an overview of all possible scenario and their explanation,
+   see here `here <https://LINKTOBEDFINED.htm>`_
 
 Literature
 ========================

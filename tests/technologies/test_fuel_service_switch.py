@@ -57,10 +57,11 @@ def test_create_service_switch():
     results = fuel_service_switch.create_service_switch(
         enduses,
         capacity_switches,
-        assumptions,
+        assumptions['technologies'],
+        assumptions['other_enduse_mode_info'],
+        assumptions['rs_fuel_tech_p_by'],
         sim_param,
-        fuels,
-        'rs_fuel_tech_p_by')
+        fuels)
 
 
     # Fuel share boiler_gas
@@ -69,5 +70,4 @@ def test_create_service_switch():
     for entry in results:
         if entry['tech'] == 'boiler_gas':
             assert expected == entry['service_share_ey']
-
 

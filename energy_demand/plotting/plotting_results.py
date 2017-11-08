@@ -8,7 +8,6 @@ import matplotlib as mpl
 import matplotlib.patches as mpatches
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
-#import matplotlib.colors as colors #for color_name in colors.cnmaes:
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -22,7 +21,14 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     """
     logging.info("... plotting results")
     ##pf.plot_load_curves_fueltype(results_every_year, data)
-
+    
+    # All enduses
+    plt_stacked_enduse_sectors(
+        sim_param['sim_period'],
+        results_container['results_enduse_every_year'],
+        enduses['rs_all_enduses'], enduses['ss_all_enduses'], enduses['is_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_all_enduses_country.pdf"))
+    prnt(".")
     # ----------
     # Plot seasonal typical load profiles
     # ----------
@@ -115,12 +121,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
     
-    # All enduses
-    plt_stacked_enduse(
-        sim_param['sim_period'],
-        results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'] + enduses['ss_all_enduses'] + enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_all_enduses_country.pdf"))
+
 
     # ------------------------------------
     # Plot averaged per season an fueltype
@@ -413,12 +414,137 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
             y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
 
-    fig, ax = plt.subplots()
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+
+    ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
+    color_list = [
+        'darkturquoise', 'orange', 'firebrick',
+        'darkviolet', 'khaki', 'olive', 'darkseagreen',
+        'darkcyan', 'indianred', 'darkblue',
+        'orchid',
+        'gainsboro',
+        'mediumseagreen',
+        'lightgray',
+        'mediumturquoise',
+        'darksage',
+        'lemonchiffon',
+        'cadetblue',
+        'lightyellow',
+        'lavenderblush',
+        'coral',
+        'purple',
+        'aqua',
+        'mediumslateblue',
+        'darkorange',
+        'mediumaquamarine',
+        'darksalmon',
+        'beige']
 
     # ----------
     # Stack plot
     # ----------
-    stack_plot = ax.stackplot(x_data, y_data)
+    colors = tuple(color_list[len(x_data)])
+    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
+
+    # -------
+    # Legend
+    # -------
+    # Get color of stacks in stackplot
+    color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
+
+    plt.legend(
+        color_stackplots,
+        legend_entries,
+        ncol=2,
+        loc='best',
+        frameon=False)
+
+    # -------
+    # Axis
+    # -------
+    plt.xticks(years_simulated, years_simulated)
+
+    # -------
+    # Labels
+    # -------
+    plt.ylabel("energy demand [GWh per year]")
+    plt.xlabel("years")
+    plt.title("stacked energy demand for simulation years for whole UK")
+
+    # Tight layout
+    plt.tight_layout()
+    plt.margins(x=0)
+
+    # Save fig
+    plt.savefig(fig_name)
+    plt.close()
+
+def plt_stacked_enduse_sectors(sim_period, results_enduse_every_year, rs_enduses, ss_enduses, is_enduses, fig_name):
+    """Plots summarised endues for the three sectors
+
+    Arguments
+    ----------
+    data : dict
+        Data container
+    results_objects :
+
+    enduses_data :
+
+    Note
+    ----
+        -   Sum across all fueltypes
+
+    # INFO Cannot plot a single year?
+    """
+    years_simulated = sim_period
+
+    x_data = years_simulated
+    y_data = np.zeros((len(3), len(years_simulated)))
+
+    legend_entries = []
+
+    #for submodel in (rs_enduses, ss_enduses, is_enduses):
+
+    for fueltype_int, enduse in enumerate(rs_enduses):
+
+        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
+            y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
+
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+
+    ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
+    color_list = [
+        'darkturquoise', 'orange', 'firebrick',
+        'darkviolet', 'khaki', 'olive', 'darkseagreen',
+        'darkcyan', 'indianred', 'darkblue',
+        'orchid',
+        'gainsboro',
+        'mediumseagreen',
+        'lightgray',
+        'mediumturquoise',
+        'darksage',
+        'lemonchiffon',
+        'cadetblue',
+        'lightyellow',
+        'lavenderblush',
+        'coral',
+        'purple',
+        'aqua',
+        'mediumslateblue',
+        'darkorange',
+        'mediumaquamarine',
+        'darksalmon',
+        'beige']
+
+    # ----------
+    # Stack plot
+    # ----------
+    colors = tuple(color_list[len(x_data)])
+    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
 
     # -------
     # Legend

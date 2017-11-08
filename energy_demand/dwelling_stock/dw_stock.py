@@ -34,7 +34,11 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     # ----------------
     # Create residential dwelling stock
     # ----------------
-    # Create dwellings
+    # Create dwellings Residential
+    # Inputs Residential
+    #   - building_type/dwelling_type/dwellingtype_ageclass
+    #   - 
+
     rs_dw_stock = []
     dwelling_types = ["detached", "semi_detached"]
     age_classs = [1920, 1930, 1940] #Age categories
@@ -44,6 +48,8 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
 
             # Get pop of age class
             pop_dwtype_age_class = stock_pop[building_type][dwelling_type][age_class]
+            
+            # Get floor area of building type, dwelling_ype, age_class
             floor_area_dwtype_age_class = floor_area[building_type][dwelling_type][age_class]
 
             dwelling_obj = Dwelling(
@@ -67,16 +73,7 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     return dwelling_stock
 
 
-
-
-
-
-
-
-
-
-
-
+# ---------------------
 
 
 

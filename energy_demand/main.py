@@ -7,7 +7,7 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
-
+# TODOEnd year diffusion assumption
 '''
 import os
 import sys
