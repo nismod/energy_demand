@@ -109,8 +109,7 @@ if __name__ == "__main__":
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],
-        'population': data['population']
-        }
+        'population': data['population']}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -199,11 +198,6 @@ if __name__ == "__main__":
                 model_run_object.ed_fueltype_national_yh,
                 ed_fueltype_regs_yh,
                 model_run_object.tot_peak_enduses_fueltype)
-
-            # Plot average loads
-    ##'''
-
-
 
     # ------------------
     # Load necessary inputs for read in

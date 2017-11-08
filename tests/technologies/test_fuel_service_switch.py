@@ -63,11 +63,9 @@ def test_create_service_switch():
         sim_param,
         fuels)
 
-
     # Fuel share boiler_gas
     expected = 1 / (sum(fuels['heating'].values()) + fuel_capacity_installed) * fuel_capacity_installed
 
     for entry in results:
         if entry['tech'] == 'boiler_gas':
             assert expected == entry['service_share_ey']
-

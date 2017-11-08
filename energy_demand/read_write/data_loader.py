@@ -228,7 +228,6 @@ def load_local_paths(path):
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
             path, '_processed_data', 'assumptions_from_db'),
-
         'data_processed': os.path.join(
             path, '_processed_data'),
         'data_results': os.path.join(

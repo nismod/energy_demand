@@ -101,6 +101,10 @@ class EDWrapper(SectorModel):
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
 
+        # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
+        nr_of_modelled_regions = 10
+        data['lu_reg'] = data['lu_reg'][:nr_of_modelled_regions]
+        print(data['lu_reg'] )
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
