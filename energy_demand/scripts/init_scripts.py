@@ -262,3 +262,5 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         return fts_cont, sgs_cont, sd_cont
     else:
         return
+
+scenario_initalisation("C:/DATA_NISMODII/data_energy_demand")

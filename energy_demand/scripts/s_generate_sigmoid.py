@@ -94,8 +94,8 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 #print("Calculated value:  " + str(y_calculated))
                 #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                logging.debug("... Fitting measure in %: %s", fit_measure_in_percent)
-                logging.debug("... Fitting measure in %: %s", fit_measure_in_percent)
+                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
+                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
@@ -118,7 +118,8 @@ def tech_sigmoid_parameters(
         l_values,
         service_tech_by_p,
         service_tech_switched_p,
-        fuel_switches
+        fuel_switches,
+        service_switches #BELUGA
     ):
     """Calculate diffusion parameters based on energy service
     demand in base year and projected future energy service demand
@@ -135,7 +136,7 @@ def tech_sigmoid_parameters(
     crit_switch_service : bool
         Criteria whether sigmoid is calculated for service switch or not
     installed_tech : dict
-        Technologies for enduses with fuel switch
+        Technologies with fuel switch for enduse
     installed_tech : dict
         List with installed technologies in fuel switches
     l_values : dict
@@ -165,17 +166,23 @@ def tech_sigmoid_parameters(
     sigmoid_parameters = defaultdict(dict)
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
-    if installed_tech[enduse] == []:
-        logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech[enduse])
+    if installed_tech == []:
+        logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech)
     else:
-        for tech in installed_tech[enduse]:
+        for tech in installed_tech:
             logging.debug("... create sigmoid difufsion parameters %s %s", enduse, tech)
 
             # If service switch
             if crit_switch_service:
-                year_until_switched = data['sim_param']['end_yr'] # Year until service is switched
+                #year_until_switched = data['sim_param']['end_yr'] # Year until service is switched
+
+                #BELUGA AL NEW
+                for switch in service_switches:
+                    if switch['tech'] == tech:
+                        year_until_switched = switch['year_switch_ey']
+
                 market_entry = data['assumptions']['technologies'][tech]['market_entry']
-            else:
+            else: #fuel switch
 
                 # Get the most future year of the technology in the enduse which is switched to
                 year_until_switched = 0
@@ -195,7 +202,7 @@ def tech_sigmoid_parameters(
                 point_y_by = fit_assump_init # very small service share if market entry in a future year
             else: # If market entry before, set to 2015
                 point_x_by = data['sim_param']['base_yr']
-                point_y_by = service_tech_by_p[enduse][tech] # current service share
+                point_y_by = service_tech_by_p[tech] # current service share
 
                 #If the base year is the market entry year use a very small number
                 if point_y_by == 0:
@@ -203,7 +210,7 @@ def tech_sigmoid_parameters(
 
             # Future energy service demand (second point on sigmoid curve for fitting)
             point_x_projected = year_until_switched
-            point_y_projected = service_tech_switched_p[enduse][tech]
+            point_y_projected = service_tech_switched_p[tech]
 
             # Data of the two points
             xdata = np.array([point_x_by, point_x_projected])
@@ -226,15 +233,15 @@ def tech_sigmoid_parameters(
             sigmoid_parameters[tech]['l_parameter'] = l_values[enduse][tech]
 
             #plot sigmoid curve
-            #from energy_demand.plotting import plotting_program
-            # plotting_program.plotout_sigmoid_tech_diff(
-            #     l_values,
-            #     tech,
-            #     enduse,
-            #     xdata,
-            #     ydata,
-            #     fit_parameter,
-            #     True)
+            '''from energy_demand.plotting import plotting_program
+            plotting_program.plotout_sigmoid_tech_diff(
+                 l_values[enduse][tech],
+                 tech,
+                 enduse,
+                 xdata,
+                 ydata,
+                 fit_parameter,
+                 False)'''
 
     return sigmoid_parameters
 
@@ -594,11 +601,12 @@ def get_sig_diffusion(
             data,
             enduse,
             crit_switch_service,
-            installed_tech,
+            installed_tech[enduse],
             l_values_sig,
-            service_tech_by_p,
-            service_tech_switched_p,
-            fuel_switches)
+            service_tech_by_p[enduse],
+            service_tech_switched_p[enduse],
+            fuel_switches,
+            service_switches) #BELUGA
 
     return installed_tech, sig_param_tech
 
@@ -721,8 +729,7 @@ def run(data):
         data['assumptions']['rs_enduse_tech_maxL_by_p'],
         rs_service_fueltype_by_p,
         rs_service_tech_by_p,
-        data['assumptions']['rs_fuel_tech_p_by']
-        )
+        data['assumptions']['rs_fuel_tech_p_by'])
 
     # --Service
     ss_installed_tech, ss_sig_param_tech = get_sig_diffusion(
@@ -735,8 +742,7 @@ def run(data):
         data['assumptions']['ss_enduse_tech_maxL_by_p'],
         ss_service_fueltype_by_p,
         ss_service_tech_by_p,
-        data['assumptions']['ss_fuel_tech_p_by']
-        )
+        data['assumptions']['ss_fuel_tech_p_by'])
 
     # --Industry
     is_installed_tech, is_sig_param_tech = get_sig_diffusion(
@@ -749,8 +755,7 @@ def run(data):
         data['assumptions']['is_enduse_tech_maxL_by_p'],
         is_service_fueltype_by_p,
         is_service_tech_by_p,
-        data['assumptions']['is_fuel_tech_p_by']
-        )
+        data['assumptions']['is_fuel_tech_p_by'])
 
     # Write out to csv
     write_installed_tech(

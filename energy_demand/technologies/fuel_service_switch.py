@@ -266,11 +266,19 @@ def convert_capacity_assumption_to_service(
     service_switches_enduse = []
 
     for tech, service_tech_p in service_enduse_tech.items():
+
+        # BELUGA ALL NEW 
+        # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
+        for switch in capacity_switches:
+            #if switch['technology_install'] == tech:
+            year_switch_ey = switch['year_fuel_consumption_switched']
+            continue
+
         service_switches_enduse.append({
             'enduse': enduse,
             'tech': tech,
             'service_share_ey': service_tech_p,
-            'tech_assum_max': technologies[tech]['tech_assum_max_share'] }) #,
-            #'year_switch_ey': technologies[tech]['year_switch_ey']})
+            'tech_assum_max': technologies[tech]['tech_assum_max_share'],
+            'year_switch_ey': year_switch_ey})
 
     return service_switches_enduse

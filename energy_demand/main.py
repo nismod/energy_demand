@@ -8,6 +8,7 @@ https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
 # TODOEnd year diffusion assumption
+TODO Replace 'end_yr' everywhere
 '''
 import os
 import sys
