@@ -386,7 +386,15 @@ def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, s
 
     return l_values_sig
 
-def calc_service_fuel_switched(enduses, fuel_switches, service_fueltype_p, service_tech_by_p, fuel_tech_p_by, installed_tech_switches, switch_type):
+def calc_service_fuel_switched(
+        enduses,
+        fuel_switches,
+        service_fueltype_p,
+        service_tech_by_p,
+        fuel_tech_p_by,
+        installed_tech_switches,
+        switch_type
+    ):
     """Calculate energy service demand percentages after fuel switches
 
     Arguments

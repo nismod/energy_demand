@@ -70,6 +70,7 @@ def test_TechStock():
     all_technologies['boilerA']['diff_method'] = 'linear'
     all_technologies['boilerA']['eff_by'] = 1.0
     all_technologies['boilerA']['eff_ey'] = 1.0
+    all_technologies['boilerA']['year_eff_ey'] = 2020
 
     stock_obj = technological_stock.TechStock(
         stock_name="stock_name",

@@ -354,7 +354,7 @@ def calc_eff_cy(
             sim_param['curr_yr'],
             eff_by,
             eff_ey,
-            sim_period_yrs) #sim_param['sim_period_yrs'])
+            sim_period_yrs)
 
         # Consider actual achieved efficiency
         eff_cy = theor_max_eff * tech_eff_achieved_f
@@ -365,7 +365,7 @@ def calc_eff_cy(
         theor_max_eff = diffusion.sigmoid_diffusion(
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            sim_period_yrs, #sim_param['end_yr'], NEW
+            year_eff_ey,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
 
