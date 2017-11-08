@@ -24,6 +24,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     
     # All enduses
     plt_stacked_enduse_sectors(
+        lookups,
         sim_param['sim_period'],
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'], enduses['ss_all_enduses'], enduses['is_all_enduses'],
@@ -481,7 +482,7 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     plt.savefig(fig_name)
     plt.close()
 
-def plt_stacked_enduse_sectors(sim_period, results_enduse_every_year, rs_enduses, ss_enduses, is_enduses, fig_name):
+def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, rs_enduses, ss_enduses, is_enduses, fig_name):
     """Plots summarised endues for the three sectors
 
     Arguments
@@ -507,11 +508,22 @@ def plt_stacked_enduse_sectors(sim_period, results_enduse_every_year, rs_enduses
     legend_entries = []
 
     #for submodel in (rs_enduses, ss_enduses, is_enduses):
+    for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
+        
+        submodel = 0
+        for fueltype_int in range(lookups['fueltypes_nr']):
+            for enduse in rs_enduses:
+                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
 
-    for fueltype_int, enduse in enumerate(rs_enduses):
+        submodel = 1
+        for fueltype_int in range(lookups['fueltypes_nr']):
+            for enduse in ss_enduses:
+                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
 
-        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
-            y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
+        submodel = 2
+        for fueltype_int in range(lookups['fueltypes_nr']):
+            for enduse in is_enduses:
+                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -577,6 +589,7 @@ def plt_stacked_enduse_sectors(sim_period, results_enduse_every_year, rs_enduses
     plt.margins(x=0)
 
     # Save fig
+    plt.show()
     plt.savefig(fig_name)
     plt.close()
 

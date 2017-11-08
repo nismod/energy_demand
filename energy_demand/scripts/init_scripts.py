@@ -263,4 +263,4 @@ def scenario_initalisation(path_data_energy_demand, data=False):
     else:
         return
 
-scenario_initalisation("C:/DATA_NISMODII/data_energy_demand")
+#scenario_initalisation("C:/DATA_NISMODII/data_energy_demand")
