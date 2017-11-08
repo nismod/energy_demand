@@ -104,7 +104,7 @@ class EDWrapper(SectorModel):
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         nr_of_modelled_regions = 10
         data['lu_reg'] = data['lu_reg'][:nr_of_modelled_regions]
-        print(data['lu_reg'] )
+        print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
@@ -280,7 +280,7 @@ class EDWrapper(SectorModel):
 
         data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
         data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
-        data['assumptions']['rs_t_base_heating']['end_yr'] = data['rs_t_base_heating_ey']
+        data['assumptions']['rs_t_base_heating']['future_yr'] = data['rs_t_base_heating_ey']
         data['assumptions']['eff_achieving_factor'] = data['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition

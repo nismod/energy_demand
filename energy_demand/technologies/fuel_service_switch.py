@@ -202,7 +202,7 @@ def convert_capacity_assumption_to_service(
     sim_param_new = {}
     sim_param_new['base_yr'] = sim_param['base_yr']
     sim_param_new['curr_yr'] = capacity_switch['year_fuel_consumption_switched']
-    sim_param_new['end_yr'] = capacity_switch['year_fuel_consumption_switched']
+    #sim_param_new['end_yr'] = capacity_switch['year_fuel_consumption_switched']
     sim_param_new['sim_period_yrs'] = capacity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
 
     # ---------------------------------------------
@@ -213,12 +213,14 @@ def convert_capacity_assumption_to_service(
     for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
         for tech, fuel_share_by in tech_fuel_shares.items():
 
+            print("tech: " + str(tech))
             # Efficiency of year when capacity is fully installed
             # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
                 technologies[tech]['eff_by'],
                 technologies[tech]['eff_ey'],
+                technologies[tech]['year_eff_ey'],
                 other_enduse_mode_info,
                 technologies[tech]['eff_achieved'],
                 technologies[tech]['diff_method'])
@@ -240,6 +242,7 @@ def convert_capacity_assumption_to_service(
                 sim_param_new,
                 technologies[technology_install]['eff_by'],
                 technologies[technology_install]['eff_ey'],
+                technologies[technology_install]['year_eff_ey'],
                 other_enduse_mode_info,
                 technologies[technology_install]['eff_achieved'],
                 technologies[technology_install]['diff_method'])
@@ -263,10 +266,19 @@ def convert_capacity_assumption_to_service(
     service_switches_enduse = []
 
     for tech, service_tech_p in service_enduse_tech.items():
+
+        # BELUGA ALL NEW 
+        # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
+        for switch in capacity_switches:
+            #if switch['technology_install'] == tech:
+            year_switch_ey = switch['year_fuel_consumption_switched']
+            continue
+
         service_switches_enduse.append({
             'enduse': enduse,
             'tech': tech,
             'service_share_ey': service_tech_p,
-            'tech_assum_max': technologies[tech]['tech_assum_max_share']})
+            'tech_assum_max': technologies[tech]['tech_assum_max_share'],
+            'year_switch_ey': year_switch_ey})
 
     return service_switches_enduse

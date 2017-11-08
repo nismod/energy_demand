@@ -98,8 +98,7 @@ def read_assumption_sim_param(path_to_csv):
     assumptions['sim_period'] = range(
         int(assumptions['base_yr']),
         int(assumptions['end_yr']) + 1,
-        int(assumptions['sim_years_intervall'])
-        )
+        int(assumptions['sim_years_intervall']))
 
     # Redefine sim_period_yrs
     assumptions['list_dates'] = date_prop.fullyear_dates(

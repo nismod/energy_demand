@@ -84,7 +84,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         data['sim_param'],
         data['lu_reg'],
         data['temp_data'],
-        data['assumptions']['smart_meter_diff_params'],
+        data['assumptions']['base_temp_diff_params'],
         data['assumptions']['ss_t_base_heating'],
         data['reg_coord'],
         data['weather_stations'],)
@@ -93,7 +93,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         data['sim_param'],
         data['lu_reg'],
         data['temp_data'],
-        data['assumptions']['smart_meter_diff_params'],
+        data['assumptions']['base_temp_diff_params'],
         data['assumptions']['ss_t_base_cooling'],
         data['reg_coord'],
         data['weather_stations'])

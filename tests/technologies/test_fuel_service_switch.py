@@ -26,6 +26,7 @@ def test_create_service_switch():
                     'fueltype': 'oil',
                     'eff_by':  1.0,
                     'eff_ey':  1.0,
+                    'year_eff_ey': 2020,
                     'eff_achieved':	1.0,
                     'diff_method':	'linear',
                     'market_entry':	2010,
@@ -36,6 +37,7 @@ def test_create_service_switch():
                     'fueltype': 'gas',
                     'eff_by': 1.0,
                     'eff_ey':  1.0,
+                    'year_eff_ey': 2020,
                     'eff_achieved':	1.0,
                     'diff_method':	'linear',
                     'market_entry':	2010,
@@ -48,8 +50,7 @@ def test_create_service_switch():
 
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     fuel_by = {0: 0, 1: 10}
     fuels = {'heating': fuel_by}

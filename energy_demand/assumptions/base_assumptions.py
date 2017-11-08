@@ -16,10 +16,11 @@ def load_sim_param():
     """
     sim_param = {}
     sim_param['base_yr'] = 2015
-    sim_param['end_yr'] = 2030
+    ###sim_param['end_yr'] = 2030
+    sim_end_year = 2030
     sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+    sim_param['sim_period'] = range(sim_param['base_yr'], sim_end_year + 1, sim_param['sim_years_intervall'])
+    sim_param['sim_period_yrs'] = int(sim_end_year + 1 - sim_param['base_yr'])
     sim_param['curr_yr'] = sim_param['base_yr']
     sim_param['list_dates'] = date_prop.fullyear_dates(
         start=date(sim_param['base_yr'], 1, 1),
@@ -318,25 +319,26 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5} #replaced by rs_t_base_heating_ey
+        'future_yr': 15.5}
 
     assumptions['ss_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {
         'base_yr': 21.0,
-        'end_yr': 21.0}
+        'future_yr': 21.0}
 
     assumptions['ss_t_base_cooling'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     # Sigmoid parameters for diffusion of penetration of smart meters
     assumptions['base_temp_diff_params'] = {}
     assumptions['base_temp_diff_params']['sig_midpoint'] = 0
     assumptions['base_temp_diff_params']['sig_steeppness'] = 1
+    assumptions['base_temp_diff_params']['year_until_changed'] = 2060
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -360,6 +362,9 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['savings_smart_meter'] = {
 
+        # Year until changed
+        #'year_until_changed': 2050,
+
         # Residential
         'rs_cold': -0.03,
         'rs_cooking': -0.03,
@@ -380,6 +385,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['smart_meter_diff_params'] = {}
     assumptions['smart_meter_diff_params']['sig_midpoint'] = 0
     assumptions['smart_meter_diff_params']['sig_steeppness'] = 1
+    assumptions['smart_meter_diff_params']['year_until_changed'] = 2060
 
     # ============================================================
     # Heat recycling & Reuse
@@ -387,7 +393,8 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['heat_recovered'] = {
         'rs_space_heating': 0.0, # e.g. 0.2 = 20% reduction
         'ss_space_heating': 0.0,
-        'is_space_heating': 0.0}
+        'is_space_heating': 0.0,
+        'year_until_recovered': 2050}
 
     # ---------------------------------------------------------
     # General change in fuel consumption for specific enduses
@@ -402,6 +409,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # -------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
+        'year_until_changed': 2050,
         # Lighting: E.g. how much floor area / % (social change - how much
         # floor area is lighted (smart monitoring)) (smart-lighting)
         # Submodel Residential

@@ -255,11 +255,13 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
     # Calculate average efficiency of heat pump depending on installed ratio
     for fueltype in heat_pump_assump:
         av_eff_hps_by, av_eff_hps_ey, eff_achieved_av, market_entry_lowest = 0, 0, 0, 2200
+        av_year_eff_ey = 0
 
         for heat_pump_type in heat_pump_assump[fueltype]:
             share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
             eff_heat_pump_by = technologies[heat_pump_type]['eff_by']
             eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey']
+            av_year_eff_ey += technologies[heat_pump_type]['year_eff_ey']
             eff_achieved = technologies[heat_pump_type]['eff_achieved']
             market_entry = technologies[heat_pump_type]['market_entry']
             tech_assum_max_share = technologies[heat_pump_type]['tech_assum_max_share']
@@ -271,6 +273,9 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
             if market_entry < market_entry_lowest:
                 market_entry_lowest = market_entry
+
+        # Calculate average year until efficiency improvements are implemented
+        av_year_eff_ey = av_year_eff_ey / len(heat_pump_assump[fueltype])
 
         # Add average 'av_heat_pumps' to technology dict
         name_av_hp = "heat_pumps_{}".format(fueltype)
@@ -285,6 +290,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
         technologies[name_av_hp]['fuel_type'] = fueltype
         technologies[name_av_hp]['eff_by'] = av_eff_hps_by
         technologies[name_av_hp]['eff_ey'] = av_eff_hps_ey
+        technologies[name_av_hp]['year_eff_ey'] = av_year_eff_ey
         technologies[name_av_hp]['eff_achieved'] = eff_achieved_av
         technologies[name_av_hp]['diff_method'] = 'linear'
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
@@ -303,6 +309,7 @@ def calc_eff_cy(
         sim_param,
         eff_by,
         eff_ey,
+        year_eff_ey,
         other_enduse_mode_info,
         tech_eff_achieved_f,
         diff_method
@@ -318,6 +325,8 @@ def calc_eff_cy(
         Base year efficiency
     eff_ey : dict
         End year efficiency
+    year_eff_ey : int
+        Year for which the eff_ey is defined
     other_enduse_mode_info : Dict
         diffusion information
     tech_eff_achieved_f : dict
@@ -339,12 +348,13 @@ def calc_eff_cy(
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
+        sim_period_yrs = year_eff_ey - sim_param['base_yr'] + 1
         theor_max_eff = diffusion.linear_diff(
             sim_param['base_yr'],
             sim_param['curr_yr'],
             eff_by,
             eff_ey,
-            sim_param['sim_period_yrs'])
+            sim_period_yrs)
 
         # Consider actual achieved efficiency
         eff_cy = theor_max_eff * tech_eff_achieved_f
@@ -355,7 +365,7 @@ def calc_eff_cy(
         theor_max_eff = diffusion.sigmoid_diffusion(
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            sim_param['end_yr'],
+            year_eff_ey,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
 

@@ -7,7 +7,6 @@ def test_Technology():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     tech = technological_stock.Technology(
@@ -18,6 +17,7 @@ def test_Technology():
         tech_diff_method='linear',
         tech_eff_by=0.5,
         tech_eff_ey=1.0,
+        year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
         sim_param=sim_param,
         lookups={'fueltype': {'electricity': 2}},
@@ -37,6 +37,7 @@ def test_Technology():
         tech_diff_method='linear',
         tech_eff_by=0.5,
         tech_eff_ey=1.0,
+        year_eff_ey=2020,
         other_enduse_mode_info={'linear'},
         sim_param=sim_param,
         lookups={'fueltype': {'electricity': 2}},
@@ -59,7 +60,6 @@ def test_TechStock():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     all_technologies = {'boilerA': {}}
@@ -68,6 +68,7 @@ def test_TechStock():
     all_technologies['boilerA']['diff_method'] = 'linear'
     all_technologies['boilerA']['eff_by'] = 1.0
     all_technologies['boilerA']['eff_ey'] = 1.0
+    all_technologies['boilerA']['year_eff_ey'] = 2020
 
     stock_obj = technological_stock.TechStock(
         stock_name="stock_name",

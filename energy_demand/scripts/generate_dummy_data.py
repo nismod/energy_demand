@@ -10,8 +10,7 @@ def main():
     """
     data = dummy_data_generation({
         'sim_param': {
-            'base_yr': 2010,
-            'end_yr': 2050
+            'base_yr': 2010
         }
     })
     logging.debug(data)

@@ -21,16 +21,16 @@ def test_calc_eff_cy():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     other_enduse_mode_info = {
         'diff_method': 'linear'},
 
     out_value = tech_related.calc_eff_cy(
-        sim_param,
+        sim_param=sim_param,
         eff_by= 1.0,
         eff_ey= 2.0,
+        year_eff_ey=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
         diff_method='linear')
@@ -40,9 +40,10 @@ def test_calc_eff_cy():
     other_enduse_mode_info = {'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
 
     out_value = tech_related.calc_eff_cy(
-        sim_param,
+        sim_param=sim_param,
         eff_by= 1.0,
         eff_ey= 2.0,
+        year_eff_ey=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
         diff_method='sigmoid')
