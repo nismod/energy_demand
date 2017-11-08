@@ -1,5 +1,5 @@
 '''
-Energy Demand Model
+Energy Demand Model 
 ===================
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected

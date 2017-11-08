@@ -104,7 +104,7 @@ class EDWrapper(SectorModel):
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         nr_of_modelled_regions = 10
         data['lu_reg'] = data['lu_reg'][:nr_of_modelled_regions]
-        print(data['lu_reg'] )
+        print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------

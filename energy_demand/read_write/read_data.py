@@ -413,7 +413,8 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
                         'enduse': str(row[0]),
                         'tech': str(row[1]),
                         'service_share_ey': float(row[2]),
-                        'tech_assum_max_share': float(row[3])
+                        'tech_assum_max_share': float(row[3]),
+                        'year_switch_ey': float(row[4])
                     }
                 )
             except (KeyError, ValueError):
@@ -567,16 +568,17 @@ def read_technologies(path_to_csv):
                     'fuel_type': str(row[1]),
                     'eff_by': float(row[2]),
                     'eff_ey': float(row[3]),
-                    'eff_achieved': float(row[4]),
-                    'diff_method': str(row[5]),
-                    'market_entry': float(row[6]),
-                    'tech_list': str.strip(row[7]),
-                    'tech_assum_max_share': float(str.strip(row[8]))
+                    'year_eff_ey': float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
+                    'eff_achieved': float(row[5]),
+                    'diff_method': str(row[6]),
+                    'market_entry': float(row[7]),
+                    'tech_list': str.strip(row[8]),
+                    'tech_assum_max_share': float(str.strip(row[9]))
                 }
                 try:
-                    dict_tech_lists[str.strip(row[7])].append(technology)
+                    dict_tech_lists[str.strip(row[8])].append(technology)
                 except KeyError:
-                    dict_tech_lists[str.strip(row[7])] = [technology]
+                    dict_tech_lists[str.strip(row[8])] = [technology]
 
             except Exception as e:
                 logging.error(e)
