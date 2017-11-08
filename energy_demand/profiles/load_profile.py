@@ -378,7 +378,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
 
     # dummy is - Flat load profile
     shape_peak_dh, _, shape_peak_yd_factor, shape_non_peak_yd, shape_non_peak_yh = generic_shapes.flat_shape(
-        assumptions['model_yeardays_nrs'], )
+        assumptions['model_yeardays_nrs'])
 
     # If space heating, add load shapes for service sector
     shape_peak_dh_sectors_enduses = defaultdict(dict)
@@ -438,7 +438,7 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
         Yearday type of every year
     av_loadprofiles : dict
         season, daytype
-    
+
     Returns
     -------
     av_season_daytypes : dict

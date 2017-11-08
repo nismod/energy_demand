@@ -12,7 +12,9 @@ class TechStock(object):
     def __init__(
             self,
             stock_name,
-            assumptions,
+            all_technologies,
+            tech_list,
+            other_enduse_mode_info,
             sim_param,
             lookups,
             temp_by,
@@ -53,7 +55,9 @@ class TechStock(object):
 
         # Select only modelled yeardays
         self.stock_technologies = create_tech_stock(
-            assumptions,
+            all_technologies,
+            tech_list,
+            other_enduse_mode_info,
             sim_param,
             lookups,
             temp_by,
@@ -98,15 +102,15 @@ class TechStock(object):
             attribute_value = tech_object.tech_low_temp_fueltype
         elif attribute_to_get == 'tech_high_temp_fueltype':
             attribute_value = tech_object.tech_high_temp_fueltype
-        elif attribute_to_get == 'fueltype_share_yh_all_h':
-            attribute_value = tech_object.fueltype_share_yh_all_h
         else:
             sys.exit("Error: Attribute not found {}".format(attribute_to_get))
 
         return attribute_value
 
 def create_tech_stock(
-        assumptions,
+        all_technologies,
+        tech_list,
+        other_enduse_mode_info,
         sim_param,
         lookups,
         temp_by,
@@ -114,14 +118,18 @@ def create_tech_stock(
         t_base_heating_by,
         t_base_heating_cy,
         enduses,
-        technologies
+        enduse_technologies
     ):
     """Create technologies and add to dict with key_tuple
 
     Arguments
     ----------
-    assumptions : dict
-        Assumptions
+    all_technologies : dict
+        All technology assumptions
+    tech_list : list
+        Technology list
+    other_enduse_mode_info : dict
+        Diffusion info
     sim_param : dict
         Simulation parameter
     lookups : dict
@@ -136,15 +144,15 @@ def create_tech_stock(
         Base temperature current year
     enduses : list
         Enduses of technology stock
-    technologies : list
+    enduse_technologies : list
         Technologies of technology stock
     """
     stock_technologies = {}
 
     for enduse in enduses:
-        for technology_name in technologies[enduse]:
+        for technology_name in enduse_technologies[enduse]:
             tech_type = tech_related.get_tech_type(
-                technology_name, assumptions['tech_list'])
+                technology_name, tech_list)
 
             if tech_type == 'dummy_tech':
                 tech_obj = Technology(
@@ -154,12 +162,12 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    assumptions['technologies'][technology_name]['fuel_type'],
-                    assumptions['technologies'][technology_name]['eff_achieved'],
-                    assumptions['technologies'][technology_name]['diff_method'],
-                    assumptions['technologies'][technology_name]['eff_by'],
-                    assumptions['technologies'][technology_name]['eff_ey'],
-                    assumptions['other_enduse_mode_info'],
+                    all_technologies[technology_name]['fuel_type'],
+                    all_technologies[technology_name]['eff_achieved'],
+                    all_technologies[technology_name]['diff_method'],
+                    all_technologies[technology_name]['eff_by'],
+                    all_technologies[technology_name]['eff_ey'],
+                    other_enduse_mode_info,
                     sim_param,
                     lookups,
                     temp_by,
@@ -233,7 +241,7 @@ class Technology(object):
             if tech_type == 'heat_pump':
                 self.eff_by = tech_related.calc_hp_eff(
                     temp_by,
-                    tech_eff_by, #technologies[tech_name]['eff_by'],
+                    tech_eff_by,
                     t_base_heating_by)
 
                 self.eff_cy = tech_related.calc_hp_eff(

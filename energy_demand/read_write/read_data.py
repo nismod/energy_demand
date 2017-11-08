@@ -31,7 +31,8 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     results_container['results_enduse_every_year'] = read_enduse_specific_results_txt(
         lookups['fueltypes_nr'], path_runs)
 
-    results_container['tot_fuel_y_max'] = read_max_results(path_runs)
+    results_container['tot_peak_enduses_fueltype'] = read_max_results(
+        os.path.join(path_runs, "result_tot_peak_enduses_fueltype"))
 
     # -------------
     # Load factors
@@ -138,7 +139,7 @@ def read_results_yh(fueltypes_nr, path_to_folder):
 
     return results
 
-def read_max_results(path_to_folder):
+def read_max_results(path_enduse_specific_results):
     """Read max results
 
     Arguments
@@ -147,7 +148,6 @@ def read_max_results(path_to_folder):
         Path to folder
     """
     results = {}
-    path_enduse_specific_results = os.path.join(path_to_folder, "tot_fuel_max")
     all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
 
     # Iterate files

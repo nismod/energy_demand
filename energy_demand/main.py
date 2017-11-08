@@ -105,7 +105,12 @@ if __name__ == "__main__":
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
-    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
+
+    #Scenario data
+    data['scenario_data'] = {
+        'gva': data['gva'],
+        'population': data['population']
+        }
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -171,7 +176,7 @@ if __name__ == "__main__":
         write_data.write_enduse_specific(
             sim_yr, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(
-            sim_yr, path_runs, tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+            sim_yr, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_lf(
             path_runs, "result_reg_load_factor_y", [sim_yr], reg_load_factor_y, 'reg_load_factor_y')
         write_data.write_lf(

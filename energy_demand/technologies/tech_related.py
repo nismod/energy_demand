@@ -33,14 +33,11 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
             all_defined_tech_in_fueltype = tech_p_by[end_use].values()
             for definition in all_defined_tech_in_fueltype:
 
-                # TODO write explicit in assumptions: Test if any fueltype
-                # is specified with a technology.
-                # If yes, do not insert dummy technologies
-                # because in the fuel definition all technologies of all endueses need to be defined
                 crit_tech_defined_in_enduse = False
                 all_defined_tech_in_fueltype = tech_p_by[end_use].values()
                 for definition in all_defined_tech_in_fueltype:
                     if definition == {}:
+                        #crit_tech_defined_in_enduse = False #
                         pass
                     else:
                         crit_tech_defined_in_enduse = True
