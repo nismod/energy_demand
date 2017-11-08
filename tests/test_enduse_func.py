@@ -24,11 +24,11 @@ def test_get_crit_switch():
 
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     result = enduse_func.get_crit_switch(
         'heating', fuelswitches, sim_param, mode_constrained)
+    
     assert result == False
     
     mode_constrained = False
@@ -36,8 +36,7 @@ def test_get_crit_switch():
 
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     result2 = enduse_func.get_crit_switch(
         'heating', fuelswitches, sim_param, mode_constrained)

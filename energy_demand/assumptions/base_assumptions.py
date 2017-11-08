@@ -16,7 +16,7 @@ def load_sim_param():
     """
     sim_param = {}
     sim_param['base_yr'] = 2015
-    #sim_param['end_yr'] = 2030
+    ###sim_param['end_yr'] = 2030
     sim_end_year = 2030
     sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
     sim_param['sim_period'] = range(sim_param['base_yr'], sim_end_year + 1, sim_param['sim_years_intervall'])
@@ -319,25 +319,26 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['rs_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5} #replaced by rs_t_base_heating_ey
+        'future_yr': 15.5}
 
     assumptions['ss_t_base_heating'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {
         'base_yr': 21.0,
-        'end_yr': 21.0}
+        'future_yr': 21.0}
 
     assumptions['ss_t_base_cooling'] = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     # Sigmoid parameters for diffusion of penetration of smart meters
     assumptions['base_temp_diff_params'] = {}
     assumptions['base_temp_diff_params']['sig_midpoint'] = 0
     assumptions['base_temp_diff_params']['sig_steeppness'] = 1
+    assumptions['base_temp_diff_params']['year_until_changed'] = 2060
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()

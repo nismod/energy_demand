@@ -50,8 +50,7 @@ def test_create_service_switch():
 
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     fuel_by = {0: 0, 1: 10}
     fuels = {'heating': fuel_by}

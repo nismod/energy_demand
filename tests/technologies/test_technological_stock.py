@@ -7,7 +7,6 @@ def test_Technology():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     tech = technological_stock.Technology(
@@ -61,7 +60,6 @@ def test_TechStock():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     all_technologies = {'boilerA': {}}

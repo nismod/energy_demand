@@ -280,7 +280,7 @@ class EDWrapper(SectorModel):
 
         data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
         data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
-        data['assumptions']['rs_t_base_heating']['end_yr'] = data['rs_t_base_heating_ey']
+        data['assumptions']['rs_t_base_heating']['future_yr'] = data['rs_t_base_heating_ey']
         data['assumptions']['eff_achieving_factor'] = data['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition

@@ -21,7 +21,6 @@ def test_calc_eff_cy():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020,
-        'end_yr': 2020,
         'sim_period_yrs': 6}
 
     other_enduse_mode_info = {

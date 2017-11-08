@@ -48,16 +48,16 @@ def test_sigm_temp():
     assumptions['smart_meter_diff_params'] = {}
     assumptions['smart_meter_diff_params']['sig_midpoint'] = 0
     assumptions['smart_meter_diff_params']['sig_steeppness'] = 1
+    assumptions['smart_meter_diff_params']['year_until_changed'] = 2020
 
     end_yr_t_base = 13
     assumptions['rs_t_base_heating'] = {}
     assumptions['rs_t_base_heating']['base_yr'] = 15
-    assumptions['rs_t_base_heating']['end_yr'] = end_yr_t_base
+    assumptions['rs_t_base_heating']['future_yr'] = end_yr_t_base
 
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     result = hdd_cdd.sigm_temp(sim_param, assumptions['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
 
@@ -69,8 +69,7 @@ def test_get_hdd_country():
     """
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     weather_stations = {
         "weater_station_A": {
@@ -82,9 +81,11 @@ def test_get_hdd_country():
     temp_data = {
         "weater_station_A": np.zeros((365, 24)) + 12}
 
-    smart_meter_diff_params = {}
-    smart_meter_diff_params['sig_midpoint'] = 0
-    smart_meter_diff_params['sig_steeppness'] = 1
+    base_temp_diff_params = {}
+    base_temp_diff_params['sig_midpoint'] = 0
+    base_temp_diff_params['sig_steeppness'] = 1
+    base_temp_diff_params['year_until_changed'] = 2020
+    
 
     reg_coord = {
         "reg_A": {
@@ -96,13 +97,13 @@ def test_get_hdd_country():
 
     t_base_heating = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     result = hdd_cdd.get_hdd_country(
         sim_param,
         regions,
         temp_data,
-        smart_meter_diff_params,
+        base_temp_diff_params,
         t_base_heating,
         reg_coord,
         weather_stations)
@@ -119,8 +120,7 @@ def test_get_cdd_country():
     """
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'end_yr': 2020}
+        'curr_yr': 2020}
 
     weather_stations = {
         "weater_station_A": {
@@ -132,10 +132,10 @@ def test_get_cdd_country():
     temp_data = {
         "weater_station_A": np.zeros((365, 24)) + 20}
 
-    smart_meter_diff_params = {}
-    smart_meter_diff_params['sig_midpoint'] = 0
-    smart_meter_diff_params['sig_steeppness'] = 1
-    smart_meter_diff_params['year_until_changed'] = 2020
+    base_temp_diff_params = {}
+    base_temp_diff_params['sig_midpoint'] = 0
+    base_temp_diff_params['sig_steeppness'] = 1
+    base_temp_diff_params['year_until_changed'] = 2020
 
     reg_coord = {
         "reg_A": {
@@ -147,13 +147,13 @@ def test_get_cdd_country():
 
     t_base_heating = {
         'base_yr': 15.5,
-        'end_yr': 15.5}
+        'future_yr': 15.5}
 
     result = hdd_cdd.get_cdd_country(
         sim_param,
         regions,
         temp_data,
-        smart_meter_diff_params,
+        base_temp_diff_params,
         t_base_heating,
         reg_coord,
         weather_stations)

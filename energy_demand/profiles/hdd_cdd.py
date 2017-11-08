@@ -60,7 +60,7 @@ def get_hdd_country(
         sim_param,
         regions,
         temp_data,
-        smart_meter_diff_params,
+        diff_params,
         t_base,
         reg_coord,
         weather_stations
@@ -87,7 +87,7 @@ def get_hdd_country(
         temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(sim_param, smart_meter_diff_params, t_base)
+        t_base_heating_cy = sigm_temp(sim_param, diff_params, t_base)
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
 
@@ -99,7 +99,7 @@ def get_cdd_country(
         sim_param,
         regions,
         temp_data,
-        smart_meter_diff_params,
+        diff_params,
         t_base,
         reg_coord,
         weather_stations):
@@ -140,7 +140,7 @@ def get_cdd_country(
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(
             sim_param,
-            smart_meter_diff_params,
+            diff_params,
             t_base)
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
@@ -148,8 +148,9 @@ def get_cdd_country(
 
     return cdd_regions
 
-def sigm_temp(sim_param, smart_meter_diff_params, t_base):
-    """Calculate base temperature depending on sigmoid diff and location
+def sigm_temp(sim_param, diff_params, t_base):
+    """Calculate base temperature depending on sigmoid
+    diff and location
 
     Arguments
     ----------
@@ -172,17 +173,17 @@ def sigm_temp(sim_param, smart_meter_diff_params, t_base):
     This allows to model changes e.g. in thermal confort
     """
     # Base temperature of end year minus base temp of base year
-    t_base_diff = t_base['end_yr'] - t_base['base_yr']
+    t_base_diff = t_base['future_yr'] - t_base['base_yr']
 
-    year_until_changed = smart_meter_diff_params['year_until_changed']
+    year_until_changed = diff_params['year_until_changed']
 
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
         sim_param['base_yr'],
         sim_param['curr_yr'],
         year_until_changed, ###sim_param['end_yr'],
-        smart_meter_diff_params['sig_midpoint'],
-        smart_meter_diff_params['sig_steeppness'])
+        diff_params['sig_midpoint'],
+        diff_params['sig_steeppness'])
 
     # Temp diff until current year
     t_diff_cy = t_base_diff * t_base_frac
