@@ -86,7 +86,9 @@ class WeatherRegion(object):
         # -------------------
         self.is_tech_stock = technological_stock.TechStock(
             'is_tech_stock',
-            assumptions,
+            assumptions['technologies'],
+            assumptions['tech_list'],
+            assumptions['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
@@ -98,7 +100,9 @@ class WeatherRegion(object):
 
         self.rs_tech_stock = technological_stock.TechStock(
             'rs_tech_stock',
-            assumptions,
+            assumptions['technologies'],
+            assumptions['tech_list'],
+            assumptions['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
@@ -110,7 +114,9 @@ class WeatherRegion(object):
 
         self.ss_tech_stock = technological_stock.TechStock(
             'ss_tech_stock',
-            assumptions,
+            assumptions['technologies'],
+            assumptions['tech_list'],
+            assumptions['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
