@@ -153,20 +153,20 @@ def dummy_data_generation(data):
 
     # GVA
     gva_data = {}
-    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
+    for year in range(2015, 2101):
         gva_data[year] = {}
         for region_geocode in regions:
             gva_data[year][region_geocode] = 999
 
     # Population
-    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
+    for year in range(2015, 2101):
         _data = {}
         for reg_geocode in regions:
             _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
         pop_dummy[year] = _data
 
     # Residenital floor area
-    for year in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1):
+    for year in range(2015, 2101):
         rs_floorarea[year] = {}
         for region_geocode in regions:
             rs_floorarea[year][region_geocode] = 10000 #USE FLOOR AREA

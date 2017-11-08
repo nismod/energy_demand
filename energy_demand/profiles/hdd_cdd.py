@@ -174,11 +174,13 @@ def sigm_temp(sim_param, smart_meter_diff_params, t_base):
     # Base temperature of end year minus base temp of base year
     t_base_diff = t_base['end_yr'] - t_base['base_yr']
 
+    year_until_changed = smart_meter_diff_params['year_until_changed']
+
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
         sim_param['base_yr'],
         sim_param['curr_yr'],
-        sim_param['end_yr'],
+        year_until_changed, ###sim_param['end_yr'],
         smart_meter_diff_params['sig_midpoint'],
         smart_meter_diff_params['sig_steeppness'])
 

@@ -502,7 +502,7 @@ def plt_stacked_enduse_sectors(sim_period, results_enduse_every_year, rs_enduses
     print("years_simulated: " + str(years_simulated))
     x_data = years_simulated
     nr_submodels = 3
-    y_data = np.zeros(nr_submodels, years_simulated)
+    y_data = np.zeros((nr_submodels, years_simulated))
 
     legend_entries = []
 

@@ -135,6 +135,7 @@ def test_get_cdd_country():
     smart_meter_diff_params = {}
     smart_meter_diff_params['sig_midpoint'] = 0
     smart_meter_diff_params['sig_steeppness'] = 1
+    smart_meter_diff_params['year_until_changed'] = 2020
 
     reg_coord = {
         "reg_A": {
