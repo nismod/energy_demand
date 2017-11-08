@@ -137,7 +137,7 @@ class EnergyModel(object):
                 data['assumptions']['model_yearhours_nrs'],
                 data['assumptions']['model_yeardays_nrs'])
 
-            # Sum across all regions, enduses for peak hour
+            # Sum across all regions and calculate peak dh shape per fueltype
             tot_peak_enduses_fueltype = fuel_aggr(
                 tot_peak_enduses_fueltype,
                 'fuel_peak_dh',

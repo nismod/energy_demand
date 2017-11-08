@@ -67,18 +67,18 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
 
     return
 
-def write_max_results(sim_yr, path_result, model_results, filename):
-    """Store yearly model resul to txt
+def write_max_results(sim_yr, path_result, result_foldername, model_results, filename):
+    """Store yearly model resuls to txt
 
     Store numpy array to txt
     """
     # Create folder and subolder
     basic_functions.create_folder(path_result)
-    basic_functions.create_folder(path_result, "tot_fuel_max")
+    basic_functions.create_folder(path_result, result_foldername)
 
     # Write to txt
     path_file = os.path.join(
-        os.path.join(path_result, "tot_fuel_max"),
+        os.path.join(path_result, result_foldername),
         "{}__{}__{}".format(filename, sim_yr, ".txt"))
     np.savetxt(path_file, model_results, delimiter=',')
 

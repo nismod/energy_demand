@@ -177,7 +177,9 @@ def tempo_spatial_validation(
         calc_av_lp_modelled,
         calc_av_lp_real,
         calc_lp_modelled,
-        calc_lp_real)
+        calc_lp_real,
+        plot_peak=True,
+        plot_all_entries=True)
 
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
