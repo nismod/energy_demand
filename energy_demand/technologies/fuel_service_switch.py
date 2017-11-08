@@ -88,11 +88,28 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
     # Calculate service switches
     # -------------------------
     assumptions['rs_service_switches'] = create_service_switch(
-        rs_enduses_switch, capacity_switches, assumptions, sim_param, fuels['rs_fuel_raw_data_enduses'], 'rs_fuel_tech_p_by')
+        rs_enduses_switch,
+        capacity_switches,
+        assumptions['technologies'],
+        assumptions['other_enduse_mode_info'],
+        assumptions['rs_fuel_tech_p_by'],
+        sim_param,
+        fuels['rs_fuel_raw_data_enduses'])
     assumptions['ss_service_switches'] = create_service_switch(
-        ss_enduses_switch, capacity_switches, assumptions, sim_param, fuels['ss_fuel_raw_data_enduses'], 'ss_fuel_tech_p_by')
+        ss_enduses_switch,
+        capacity_switches,
+        assumptions['technologies'],
+        assumptions['other_enduse_mode_info'],
+        assumptions['ss_fuel_tech_p_by'],
+        sim_param, fuels['ss_fuel_raw_data_enduses'])
     assumptions['is_service_switches'] = create_service_switch(
-        is_enduses_switch, capacity_switches, assumptions, sim_param, fuels['is_fuel_raw_data_enduses'], 'is_fuel_tech_p_by')
+        is_enduses_switch,
+        capacity_switches,
+        assumptions['technologies'],
+        assumptions['other_enduse_mode_info'],
+        assumptions['is_fuel_tech_p_by'],
+        sim_param,
+        fuels['is_fuel_raw_data_enduses'])
 
     # Criteria that capacity switch is implemented
     assumptions['capacity_switch'] = True
@@ -102,10 +119,11 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
 def create_service_switch(
         enduses,
         capacity_switches,
-        assumptions,
+        technologies,
+        other_enduse_mode_info,
+        fuel_shares_enduse_by_dict,
         sim_param,
-        fuels,
-        fuel_shares_enduse_by_dict
+        fuels
     ):
     """Generate service switch based on capacity assumptions
 
@@ -128,17 +146,17 @@ def create_service_switch(
     for enduse in enduses:
         for capacity_switch in capacity_switches:
             if capacity_switch['enduse'] == enduse:
-                
+
                 # Convert
                 service_switches_enduse = convert_capacity_assumption_to_service(
                     enduse=enduse,
                     capacity_switches=capacity_switches,
-                    technologies=assumptions['technologies'],
+                    technologies=technologies,
                     capacity_switch=capacity_switch,
-                    fuel_shares_enduse_by=assumptions[fuel_shares_enduse_by_dict][enduse],
+                    fuel_shares_enduse_by=fuel_shares_enduse_by_dict[enduse],
                     fuel_enduse_y=fuels[enduse],
                     sim_param=sim_param,
-                    other_enduse_mode_info=assumptions['other_enduse_mode_info'])
+                    other_enduse_mode_info=other_enduse_mode_info)
 
                 # Add service switch
                 service_switches += service_switches_enduse

@@ -105,7 +105,12 @@ if __name__ == "__main__":
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     data = data_loader.dummy_data_generation(data)
-    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
+
+    #Scenario data
+    data['scenario_data'] = {
+        'gva': data['gva'],
+        'population': data['population']
+        }
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
