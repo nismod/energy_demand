@@ -322,6 +322,16 @@ class EDWrapper(SectorModel):
         data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
+        # ---------------------------------------------
+        # Create .ini file with simulation information
+        # ---------------------------------------------
+        '''write_data.write_simulation_inifile(
+            data['local_paths']['data_results'],
+            data['sim_param'],
+            data['enduses'],
+            data['assumptions'],
+            data['reg_nrs'])'''
+
         # ---------
         # Run model
         # ---------

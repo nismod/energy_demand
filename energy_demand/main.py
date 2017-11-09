@@ -213,8 +213,9 @@ if __name__ == "__main__":
     # ------------------
     # Load necessary inputs for read in
     # ------------------
-    data = {}
     #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+    
+    data = {}
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
 

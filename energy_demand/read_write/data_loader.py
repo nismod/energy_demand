@@ -19,8 +19,9 @@ def load_sim_param_ini(path):
 
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
+    reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
+
     sim_param = {}
-    sim_param['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['end_yr'] = int(config['SIM_PARAM']['end_yr'])
     sim_param['sim_years_intervall'] = int(config['SIM_PARAM']['sim_years_intervall'])
