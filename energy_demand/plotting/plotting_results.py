@@ -412,7 +412,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     legend_entries = []
     for fueltype_int, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
-
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
             y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
 
@@ -447,7 +446,7 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[len(x_data)])
+    colors = tuple(color_list[:len(x_data)])
     stack_plot = ax.stackplot(x_data, y_data, colors=colors)
 
     # -------

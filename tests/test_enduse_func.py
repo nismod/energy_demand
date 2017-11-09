@@ -456,8 +456,8 @@ def test_calc_lf_improvement():
     """
     base_yr = 2010
     curr_yr = 2015
-    sim_period_yrs = 11
-    sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr, 'sim_period_yrs': sim_period_yrs}
+
+    sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr}
     lf_improvement_ey = {'heating': 0.5} #50% improvement
 
     #all factors must be smaller than one
@@ -466,8 +466,8 @@ def test_calc_lf_improvement():
     loadfactor_yd_cy[0][1] = 0.4
     loadfactor_yd_cy[1][0] = 0.1
     loadfactor_yd_cy[1][1] = 0.3
-
-    result, crit = enduse_func.calc_lf_improvement('heating', sim_param, loadfactor_yd_cy, lf_improvement_ey)
+    year_until_change = 2025 
+    result, crit = enduse_func.calc_lf_improvement('heating', sim_param, loadfactor_yd_cy, year_until_change)
 
     expected = loadfactor_yd_cy + 0.25
 

@@ -348,13 +348,12 @@ def calc_eff_cy(
     """
     # Theoretical maximum efficiency potential if theoretical maximum is linearly calculated
     if diff_method == 'linear':
-        sim_period_yrs = year_eff_ey - sim_param['base_yr'] + 1
         theor_max_eff = diffusion.linear_diff(
             sim_param['base_yr'],
             sim_param['curr_yr'],
             eff_by,
             eff_ey,
-            sim_period_yrs)
+            year_eff_ey - sim_param['base_yr'] + 1)
 
         # Consider actual achieved efficiency
         eff_cy = theor_max_eff * tech_eff_achieved_f

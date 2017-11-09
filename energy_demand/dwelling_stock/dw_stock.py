@@ -241,7 +241,7 @@ def get_tot_pop(dwellings):
 
     return tot_pop
 
-def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp):
+def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp, year_until_changed):
     """Calculate future floor area per person depending
     on assumptions on final change and base year data
 
@@ -286,7 +286,7 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                     curr_yr,
                     1,
                     assump_final_diff_floorarea_pp,
-                    sim_param['sim_period_yrs'])
+                    year_until_changed - sim_param['base_yr'] + 1) #sim_param['sim_period_yrs'])
 
                 # Floor area per person of simulation year
                 floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
@@ -424,6 +424,7 @@ def ss_dw_stock(region, data, curr_yr):
         # Change in floor area up to end year
         if sector in data['assumptions']['ss_floorarea_change_ey_p']:
             change_floorarea_p_ey = data['assumptions']['ss_floorarea_change_ey_p'][sector]
+            year_until_changed = data['assumptions']['ss_floorarea_change_ey_p']['year_until_changed']
         else:
             sys.exit(
                 "Error: The ss building stock sector floor area assumption is not defined")
@@ -434,7 +435,7 @@ def ss_dw_stock(region, data, curr_yr):
             curr_yr,
             1.0,
             change_floorarea_p_ey,
-            data['sim_param']['sim_period_yrs'])
+            year_until_changed - data['sim_param']['base_yr'] + 1)
 
         floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
@@ -513,7 +514,8 @@ def rs_dw_stock(region, data, curr_yr):
         data['reg_floorarea_resid'],
         data['scenario_data']['population'][base_yr],
         data['sim_param'],
-        data['assumptions']['assump_diff_floorarea_pp'])
+        data['assumptions']['assump_diff_floorarea_pp'],
+        data['assumptions']['assump_diff_floorarea_pp_year_until_changed'])
 
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(

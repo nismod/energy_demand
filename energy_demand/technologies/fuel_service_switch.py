@@ -213,7 +213,6 @@ def convert_capacity_assumption_to_service(
     for fueltype, tech_fuel_shares in fuel_shares_enduse_by.items():
         for tech, fuel_share_by in tech_fuel_shares.items():
 
-            print("tech: " + str(tech))
             # Efficiency of year when capacity is fully installed
             # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(

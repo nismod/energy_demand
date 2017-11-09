@@ -16,7 +16,6 @@ def load_sim_param():
     """
     sim_param = {}
     sim_param['base_yr'] = 2015
-    ###sim_param['end_yr'] = 2030
     sim_end_year = 2030
     sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
     sim_param['sim_period'] = range(sim_param['base_yr'], sim_end_year + 1, sim_param['sim_years_intervall'])
@@ -142,6 +141,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
+    assumptions['assump_diff_floorarea_pp_year_until_changed'] = 2050
 
     # Specific Energy Demand factors per dwelling type could be defined
     # (e.g. per dwelling type or GVA class or residents....)
@@ -204,10 +204,12 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     #
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
-    assumptions['demand_management'] = {}
 
     # --Residential SubModel
     assumptions['demand_management'] = {
+
+        # Year until ld if implemented
+        'year_until_changed': 2050,
 
         # Residential submodule
         'rs_space_heating': 0,
@@ -283,6 +285,9 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
     # TODO: Project future demand based on seperate methodology
     assumptions['ss_floorarea_change_ey_p'] = {
+
+        'year_until_changed': 2050,
+
         'community_arts_leisure': 1,
         'education': 1,
         'emergency_services': 1,
@@ -311,6 +316,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         0, # October
         0, # November
         0] # December
+    assumptions['climate_change_temp_diff_year_until_changed'] = 2050
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     # ============================================================

@@ -332,7 +332,11 @@ class Enduse(object):
 
                     # Calculate current year load factors
                     lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
-                        enduse, sim_param, loadfactor_yd_cy, assumptions['demand_management'])
+                        enduse,
+                        sim_param,
+                        loadfactor_yd_cy,
+                        assumptions['demand_management'],
+                        assumptions['demand_management']['year_until_changed'])
 
                     if not peak_shift_crit:
                         self.fuel_yh = fuel_yh
@@ -358,7 +362,7 @@ class Enduse(object):
 
                         self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, year_until_changed):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -375,7 +379,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey):
                 sim_param['curr_yr'],
                 0,
                 1,
-                sim_param['sim_period_yrs'])
+                year_until_changed - sim_param['base_yr'] + 1) #sim_param['sim_period_yrs'])
 
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
@@ -1020,7 +1024,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
-                year_until_recovered, ###base_sim_param['end_yr'],
+                year_until_recovered,
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
@@ -1191,7 +1195,7 @@ def apply_specific_change(
                 sim_param['curr_yr'],
                 percent_by,
                 percent_ey,
-                year_until_changed - sim_param['base_yr'] + 1) # sim_param['sim_period_yrs'])
+                year_until_changed - sim_param['base_yr'] + 1)
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1199,7 +1203,7 @@ def apply_specific_change(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
-                year_until_changed, ####sim_param['end_yr'],
+                year_until_changed,
                 other_enduse_mode_info['sigmoid']['sig_midpoint'],
                 other_enduse_mode_info['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor

@@ -61,7 +61,8 @@ class WeatherRegion(object):
             temp_by,
             assumptions['yeardays_month_days'],
             assumptions['climate_change_temp_diff_month'],
-            sim_param)
+            sim_param,
+            assumptions['climate_change_temp_diff_year_until_changed'])
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
@@ -524,7 +525,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
 
-def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param):
+def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param, year_until_changed):
     """Change temperature data for every year depending
     on simple climate change assumptions
 
@@ -554,20 +555,8 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
             curr_yr=sim_param['curr_yr'],
             value_start=0,
             value_end=assumptions_temp_change[yearday_month], # added degrees
-            sim_years=sim_param['sim_period_yrs'])
+            sim_years= sim_param['base_yr'] - year_until_changed + 1) #sim_param['sim_period_yrs'])
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
-
-    # Iterate every month and substract
-    '''for yearday, yearday_month in enumerate(yeardays_month):
-        # Get linear diffusion of current year
-        lin_diff_factor = diffusion_technologies.linear_diff(
-            base_yr=sim_param['base_yr'],
-            curr_yr=sim_param['curr_yr'],
-            value_start=0,
-            value_end=assumptions_temp_change[yearday_month], # added degrees
-            sim_years=sim_param['sim_period_yrs'])
-
-        temp_climate_change[yearday] =  temp_data[yearday] + lin_diff_factor'''
 
     return temp_climate_change
