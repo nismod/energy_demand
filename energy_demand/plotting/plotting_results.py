@@ -589,7 +589,6 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
     fig.tight_layout()
 
     # Save fig
-    plt.show()
     plt.savefig(fig_name)
     plt.close()
 

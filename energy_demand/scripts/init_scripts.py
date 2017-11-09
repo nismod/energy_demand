@@ -16,6 +16,7 @@ from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
+from energy_demand.basic import date_prop
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -253,6 +254,7 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         sd_cont = {}
 
         data = s_disaggregation.disaggregate_base_demand(data)
+        print("FUEL DIAGG WORK=?")
         sd_cont['rs_fuel_disagg'] = data['rs_fuel_disagg']
         sd_cont['ss_fuel_disagg'] = data['ss_fuel_disagg']
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']

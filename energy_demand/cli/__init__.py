@@ -16,6 +16,7 @@ from energy_demand.read_write import read_data
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import basic_functions
+from energy_demand.basic import date_prop
 
 def init_scenario(args):
     """

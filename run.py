@@ -78,6 +78,7 @@ class EDWrapper(SectorModel):
 
         # Add to data container for scenario initialisation
         data['paths'] = data_loader.load_paths(path_main)
+        print("LOCAL PATH FOR SMIF: " + str(config['PATHS']['path_local_data']))
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # ---------------------
@@ -86,9 +87,9 @@ class EDWrapper(SectorModel):
         sim_param['base_yr'] = 2015 #REPLACE
         sim_param['end_yr'] = 2030 #REPLACE
         sim_param['curr_yr'] = sim_param['base_yr'] #REPLACE
-        sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-        sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-        sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+        #sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
+        #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
+        #sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
         sim_param['list_dates'] = date_prop.fullyear_dates(
             start=date(sim_param['base_yr'], 1, 1),
             end=date(sim_param['base_yr'], 12, 31))
@@ -99,12 +100,18 @@ class EDWrapper(SectorModel):
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REMOVE IF CORRECT DATA IN
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         nr_of_modelled_regions = 10
         data['lu_reg'] = data['lu_reg'][:nr_of_modelled_regions]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
+    
+        # =========DUMMY DATA
+        data = data_loader.dummy_data_generation(data)
+        # =========DUMMY DATA
+
+
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
@@ -119,6 +126,11 @@ class EDWrapper(SectorModel):
         data['gva'] = self.array_to_dict(gva_array['gva'])
         self.user_data['gva'] = self.array_to_dict(gva_array['gva'])
 
+        #Scenario data
+        data['scenario_data'] = {
+            'gva': data['gva'],
+            'population': data['population']}
+    
         '''# Building stock related data
 
         # --Residential Floor Area
@@ -164,12 +176,12 @@ class EDWrapper(SectorModel):
         floor_array = self.get_scenario_data('floor_area_ss_storage_pre1930') #not provided, calc % of rest
         floor_array = self.get_scenario_data('floor_area_ss_rest_pre1930') # assign 
         #...
-        '''
+        
         data['rs_floorarea'] = self.array_to_dict(floor_array)
         data['ss_floorarea'] = self.array_to_dict(floor_array)
         data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
         self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
-        self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
+        self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)'''
 
         # ---------------------
         # Energy demand specific input which needs to be read in
@@ -180,9 +192,13 @@ class EDWrapper(SectorModel):
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'], data['local_paths'], data['assumptions'])
-
+        
+        # Pass along to simulate()
+        self.user_data['temp_data'] = data['temp_data']
         # --------------------
         # Initialise scenario
         # --------------------
@@ -232,31 +248,42 @@ class EDWrapper(SectorModel):
         where ``value_array`` is a regions-by-intervals numpy array.
 
         """
-        self.user_data['data_path'] = '/vagrant/data_energy_demand'
+        data = {}
+
+        path_main = resource_filename(Requirement.parse("energy_demand"), "")
+
+        config = configparser.ConfigParser()
+        config.read(os.path.join(path_main, 'wrapperconfig.ini'))
+        #self.user_data['data_path'] = '/vagrant/data_energy_demand'
+
+        # Got two levels down
+        path, folder = os.path.split(path_main)
+        path_nismod, folder = os.path.split(path)
+        self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
+
 
         # ---------
         # Scenario data
         # ---------
-        data = {}
+        data['paths'] = data_loader.load_paths(path_main)
+        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+        
         data['print_criteria'] = False
-        data['rs_floorarea'] = self.user_data['rs_floor_area']
-        data['ss_floorarea'] = self.user_data['ss_floor_area']
-        data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
+        #data['rs_floorarea'] = self.user_data['rs_floor_area']
+        #data['ss_floorarea'] = self.user_data['ss_floor_area']
+        #data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
-            'population':  self.user_data['population']
-            }
+            'population':  self.user_data['population']}
 
         # ---------
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
-        path_main = resource_filename(Requirement.parse("energy_demand"), "")
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
 
-        data['paths'] = data_loader.load_paths(path_main)
-        data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
@@ -275,15 +302,18 @@ class EDWrapper(SectorModel):
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+        data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
-    
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths']) #REPLACE BY SMIF INPUT
 
-        data['assumptions']['assump_diff_floorarea_pp'] = data['assump_diff_floorarea_pp']
-        data['assumptions']['climate_change_temp_diff_month'] = data['climate_change_temp_diff_month']
-        data['assumptions']['rs_t_base_heating']['future_yr'] = data['rs_t_base_heating_ey']
-        data['assumptions']['eff_achieving_factor'] = data['eff_achieving_factor']
+        #REPLACE BY SMIF INPUT
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths'], data['local_paths'])
+
+        #data['assumptions']['assump_diff_floorarea_pp'] = data['assumptions']['assump_diff_floorarea_pp']
+        #data['assumptions']['climate_change_temp_diff_month'] = data['assumptions']['climate_change_temp_diff_month']
+        #data['assumptions']['rs_t_base_heating']['future_yr'] = data['assumptions']['rs_t_base_heating']['future_yr']
+        data['assumptions']['eff_achieving_factor'] = data['assumptions']['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions']) #Maybe write s_script
@@ -321,6 +351,13 @@ class EDWrapper(SectorModel):
         data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
         data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
+
+        # Copy from before_model_run()
+        data['regions'] = self.get_region_names(REGION_SET_NAME)
+
+        # =========DUMMY DATA
+        data = data_loader.dummy_data_generation(data)
+        # =========DUMMY DATA
 
         # ---------------------------------------------
         # Create .ini file with simulation information

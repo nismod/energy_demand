@@ -154,21 +154,25 @@ def load_basic_lookups():
 
     return lookups
 
-def get_dummy_coord_region(local_paths):
+def get_dummy_coord_region(lu_reg, local_paths):
     """create dummy coord and regions
     """
-    coord_dummy = {}
+    '''coord_dummy = {}
 
     # Load dummy LAC and pop
     dummy_pop_geocodes = load_LAC_geocodes_info(
         local_paths['path_dummy_regions'])
-
-    for geo_code, values in dummy_pop_geocodes.items():
-        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
-
+    for reg in lu_reg:
+        for geo_code, values in dummy_pop_geocodes.items():
+            if geo_code == reg:
+                coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
+                print(values)'''
+    coord_dummy = {}
+    for reg in lu_reg:
+        coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
     return coord_dummy
 
-def dummy_data_generation(data):
+def dummy_data_generation(data, regions=False):
     """REPLACE WITH NEWCASTLE DATA
     """
     data['all_sectors'] = [
@@ -184,40 +188,45 @@ def dummy_data_generation(data):
         'other'
         ]
     # Load dummy LAC and pop
-    dummy_pop_geocodes = load_LAC_geocodes_info(
-        data['local_paths']['path_dummy_regions'])
+    if regions is not False:
+        # =========== scrap all removed
+        data['lu_reg'] = regions
+        # GVA
 
-    regions = {}
-    coord_dummy = {}
-    pop_dummy = {}
-    rs_floorarea = {}
-    ss_floorarea_sector_by_dummy = {}
+        gva_data = {}
+        for year in range(2015, 2101):
+            gva_data[year] = {}
+            for region_geocode in regions:
+                gva_data[year][region_geocode] = 999
+        data['gva'] = gva_data
 
-    for geo_code, values in dummy_pop_geocodes.items():
-        regions[geo_code] = values['label']
-        coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
+        dummy_pop_geocodes = load_LAC_geocodes_info(
+            data['local_paths']['path_dummy_regions'])
+        # Population
+        pop_dummy = {}
+        for year in range(2015, 2101):
+            _data = {}
+            for reg_geocode in regions:
+                _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
+            pop_dummy[year] = _data
+        data['population'] = pop_dummy
 
-    # GVA
-    gva_data = {}
-    for year in range(2015, 2101):
-        gva_data[year] = {}
-        for region_geocode in regions:
-            gva_data[year][region_geocode] = 999
 
-    # Population
-    for year in range(2015, 2101):
-        _data = {}
-        for reg_geocode in regions:
-            _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
-        pop_dummy[year] = _data
+    print("___________________________")
+    print(data['lu_reg'])
+    regions = data['lu_reg']
+    data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
+
 
     # Residenital floor area
+    rs_floorarea = {}
     for year in range(2015, 2101):
         rs_floorarea[year] = {}
         for region_geocode in regions:
             rs_floorarea[year][region_geocode] = 10000 #USE FLOOR AREA
 
     # Dummy flor area
+    ss_floorarea_sector_by_dummy = {}
     for region_geocode in regions:
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in data['all_sectors']:
@@ -225,19 +234,15 @@ def dummy_data_generation(data):
 
     data['rs_floorarea'] = rs_floorarea
     data['ss_floorarea'] = ss_floorarea_sector_by_dummy
-    data['lu_reg'] = {}
-    for region_name in regions:
-        data['lu_reg'][region_name] = region_name
+
     data['reg_nrs'] = len(regions)
-
     data['reg_floorarea_resid'] = {}
-    for region_name in pop_dummy[data['sim_param']['base_yr']]:
+    
+    for region_name in data['lu_reg']:
         data['reg_floorarea_resid'][region_name] = 100000
-
-    data['gva'] = gva_data
+    
     data['input_regions'] = regions
-    data['population'] = pop_dummy
-    data['reg_coord'] = coord_dummy
+
     data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     return data

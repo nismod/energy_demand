@@ -107,7 +107,12 @@ if __name__ == "__main__":
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-    data = data_loader.dummy_data_generation(data)
+    
+    # ==========
+    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info(
+        data['local_paths']['path_dummy_regions'])
+    data = data_loader.dummy_data_generation(data, dummy_pop_geocodes)
+    # ==========
 
     #Scenario data
     data['scenario_data'] = {
@@ -210,6 +215,17 @@ if __name__ == "__main__":
                 ed_fueltype_regs_yh,
                 model_run_object.tot_peak_enduses_fueltype)
 
+
+
+
+
+
+
+
+
+
+
+
     # ------------------
     # Load necessary inputs for read in
     # ------------------
@@ -224,10 +240,6 @@ if __name__ == "__main__":
     
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-
-    # -----------
-    # Generate everything needed for plot
-    # ------------
 
     # --------------------------------------------
     # Reading in results from different model runs
