@@ -5,6 +5,61 @@ time related functionality
 from datetime import date
 from datetime import timedelta
 from isoweek import Week
+import numpy as np
+
+def get_model_yeardays_datype(year_to_model):
+    # --------------------------------------
+    # Calculate for all yeardays the daytype of base year
+    # --------------------------------------
+    list_dates = fullyear_dates(
+        start=date(year_to_model, 1, 1),
+        end=date(year_to_model, 12, 31))
+
+    model_yeardays_daytype = np.array(['workday']*365)
+    # Take respectve daily fuel curve depending on weekday or weekend
+    for array_day, date_yearday in enumerate(list_dates):
+        daytype = get_weekday_type(date_yearday)
+        if daytype == 'holiday':
+            model_yeardays_daytype[array_day] = 'holiday'
+
+    # Calculate month of dates
+    yeardays_month_days = {}
+    for i in range(12):
+        yeardays_month_days[i] = []
+
+    yeardays_month = []
+
+    # Get month type of yearday for every day
+    for yearday, date_object in enumerate(list_dates):
+        month_yearday = date_object.timetuple().tm_mon - 1
+        yeardays_month.append(month_yearday)
+        yeardays_month_days[month_yearday].append(yearday)
+
+    return model_yeardays_daytype, yeardays_month, yeardays_month_days
+
+def read_season(year_to_model):
+    """
+    """
+    # Full meteorological seasons
+    seasons = {}
+    seasons['winter'] = list(
+        range(
+            date_to_yearday(year_to_model, 12, 1),
+            date_to_yearday(year_to_model, 12, 31))) + list(
+                range(
+                    date_to_yearday(year_to_model, 1, 1),
+                    date_to_yearday(year_to_model, 2, 28)))
+    seasons['spring'] = list(range(
+        date_to_yearday(year_to_model, 3, 1),
+        date_to_yearday(year_to_model, 5, 31)))
+    seasons['summer'] = list(range(
+        date_to_yearday(year_to_model, 6, 1),
+        date_to_yearday(year_to_model, 8, 31)))
+    seasons['autumn'] = list(range(
+        date_to_yearday(year_to_model, 9, 1),
+        date_to_yearday(year_to_model, 11, 30)))
+    
+    return seasons
 
 '''def get_dates_week_nr(year, week_nr):
     """Get all dates from a ISO week_nr in a list

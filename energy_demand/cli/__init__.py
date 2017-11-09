@@ -50,6 +50,7 @@ def run_model(args):
     data['sim_param'] = base_assumptions.load_sim_param()
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

@@ -174,9 +174,8 @@ def tech_sigmoid_parameters(
 
             # If service switch
             if crit_switch_service:
-                #year_until_switched = ###data['sim_param']['end_yr'] # Year until service is switched
 
-                #BELUGA AL NEW
+                # Get year until switched
                 for switch in service_switches:
                     if switch['tech'] == tech:
                         year_until_switched = switch['year_switch_ey']

@@ -181,7 +181,7 @@ def sigm_temp(sim_param, diff_params, t_base):
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
         sim_param['base_yr'],
         sim_param['curr_yr'],
-        year_until_changed, ###sim_param['end_yr'],
+        year_until_changed,
         diff_params['sig_midpoint'],
         diff_params['sig_steeppness'])
 

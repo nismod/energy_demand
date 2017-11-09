@@ -2,7 +2,48 @@
 """
 import os
 import numpy as np
+import configparser
 from energy_demand.basic import basic_functions
+
+def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
+    """Write .ini file with simulation parameters
+
+    Arguments
+    ---------
+    path : str
+        Path to result foder
+    sim_param : dict
+        Contains all information necessary to plot results
+    """
+    path_ini_file = os.path.join(path, 'model_run_sim_param.ini')
+
+    config = configparser.ConfigParser()
+
+    config.add_section('SIM_PARAM') 
+    config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
+    config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
+    config['SIM_PARAM']['end_yr'] = str(sim_param['end_yr'])
+    config['SIM_PARAM']['sim_years_intervall'] = str(sim_param['sim_years_intervall'])
+    #config['SIM_PARAM']['simulated_years'] = str(simulated_years)
+
+    config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
+    config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])
+
+    # ----------------------------
+    # Other information to pass to plotting and summing function
+    # ----------------------------
+    config.add_section('ENDUSES')
+    config['ENDUSES']['rs_all_enduses'] = str(enduses['rs_all_enduses']) #convert list to string
+    config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
+    config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
+
+
+
+
+    with open(path_ini_file, 'w') as f:
+        config.write(f)
+
+    return
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
     """Write numpy array to txt file

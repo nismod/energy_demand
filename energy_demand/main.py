@@ -8,7 +8,6 @@ https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
 # TODOEnd year diffusion assumption
-TODO Replace 'end_yr' everywhere
 '''
 import os
 import sys
@@ -25,6 +24,7 @@ from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup
 from energy_demand.read_write import write_data
 from energy_demand.basic import basic_functions
+from energy_demand.basic import date_prop
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -102,6 +102,8 @@ if __name__ == "__main__":
     data['sim_param'] = base_assumptions.load_sim_param()
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
@@ -127,6 +129,14 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+
+    # Create .ini file with simulation information
+    write_data.write_simulation_inifile(
+        data['local_paths']['data_results'],
+        data['sim_param'],
+        data['enduses'],
+        data['assumptions'],
+        data['reg_nrs'])
 
     for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
@@ -203,11 +213,20 @@ if __name__ == "__main__":
     # ------------------
     # Load necessary inputs for read in
     # ------------------
+    data = {}
     #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    #data['assumptions']['seasons']
-    #data['assumptions']['model_yeardays_daytype']
+
+    # Simulation information is read in from .ini file for results
+    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
+    
+    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
+    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
+    # -----------
+    # Generate everything needed for plot
+    # ------------
 
     # --------------------------------------------
     # Reading in results from different model runs

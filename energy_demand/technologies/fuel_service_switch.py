@@ -202,7 +202,6 @@ def convert_capacity_assumption_to_service(
     sim_param_new = {}
     sim_param_new['base_yr'] = sim_param['base_yr']
     sim_param_new['curr_yr'] = capacity_switch['year_fuel_consumption_switched']
-    #sim_param_new['end_yr'] = capacity_switch['year_fuel_consumption_switched']
     sim_param_new['sim_period_yrs'] = capacity_switch['year_fuel_consumption_switched'] + 1 - sim_param['base_yr']
 
     # ---------------------------------------------

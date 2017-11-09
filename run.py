@@ -179,6 +179,7 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'], data['local_paths'], data['assumptions'])
 
@@ -273,6 +274,7 @@ class EDWrapper(SectorModel):
         # ED related stuff
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
     

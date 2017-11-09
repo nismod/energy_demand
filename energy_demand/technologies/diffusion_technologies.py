@@ -28,7 +28,7 @@ def linear_diff(base_yr, curr_yr, value_start, value_end, year_until_changed):
     """
     # Total number of simulated years
     sim_years = year_until_changed - base_yr  + 1
- 
+
     if curr_yr == base_yr or sim_years == 0 or value_end == value_start:
         fract_cy = value_start
     else:

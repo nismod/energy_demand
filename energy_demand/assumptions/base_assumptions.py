@@ -16,10 +16,10 @@ def load_sim_param():
     """
     sim_param = {}
     sim_param['base_yr'] = 2015
-    sim_end_year = 2030
+    sim_param['end_yr'] = 2030
     sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-    sim_param['sim_period'] = range(sim_param['base_yr'], sim_end_year + 1, sim_param['sim_years_intervall'])
-    sim_param['sim_period_yrs'] = int(sim_end_year + 1 - sim_param['base_yr'])
+    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
+    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
     sim_param['curr_yr'] = sim_param['base_yr']
     sim_param['list_dates'] = date_prop.fullyear_dates(
         start=date(sim_param['base_yr'], 1, 1),
@@ -57,24 +57,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         date_prop.date_to_yearday(year_to_model, 10, 12),
         date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
 
-    # Full meteorological seasons
-    assumptions['seasons'] = {}
-    assumptions['seasons']['winter'] = list(
-        range(
-            date_prop.date_to_yearday(year_to_model, 12, 1),
-            date_prop.date_to_yearday(year_to_model, 12, 31))) + list(
-                range(
-                    date_prop.date_to_yearday(year_to_model, 1, 1),
-                    date_prop.date_to_yearday(year_to_model, 2, 28)))
-    assumptions['seasons']['spring'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 3, 1),
-        date_prop.date_to_yearday(year_to_model, 5, 31)))
-    assumptions['seasons']['summer'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 6, 1),
-        date_prop.date_to_yearday(year_to_model, 8, 31)))
-    assumptions['seasons']['autumn'] = list(range(
-        date_prop.date_to_yearday(year_to_model, 9, 1),
-        date_prop.date_to_yearday(year_to_model, 11, 30)))
+
 
     # ------------
     # Modelled days
@@ -96,37 +79,6 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Nr of modelled hours
     assumptions['model_yearhours_nrs'] = len(assumptions['model_yeardays']) * 24
 
-    # --------------------------------------
-    # Calculate for all yeardays the daytype of base year
-    # --------------------------------------
-    list_dates = date_prop.fullyear_dates(
-        start=date(sim_param['base_yr'], 1, 1),
-        end=date(sim_param['base_yr'], 12, 31))
-
-    model_yeardays_daytype = np.array(['workday']*365)
-    # Take respectve daily fuel curve depending on weekday or weekend
-    for array_day, date_yearday in enumerate(list_dates):
-        daytype = date_prop.get_weekday_type(date_yearday)
-        if daytype == 'holiday':
-            model_yeardays_daytype[array_day] = 'holiday'
-
-    assumptions['model_yeardays_daytype'] = model_yeardays_daytype
-
-    # Calculate month of dates
-    yeardays_month_days = {}
-    for i in range(12):
-        yeardays_month_days[i] = []
-
-    yeardays_month = []
-
-    # Get month type of yearday for every day
-    for yearday, date_object in enumerate(list_dates):
-        month_yearday = date_object.timetuple().tm_mon - 1
-        yeardays_month.append(month_yearday)
-        yeardays_month_days[month_yearday].append(yearday)
-
-    assumptions['yeardays_month'] = yeardays_month
-    assumptions['yeardays_month_days'] = yeardays_month_days
     # ============================================================
     # If unconstrained mode (False), heat demand is provided per technology.
     # True:  Technologies are defined in ED model and fuel is provided

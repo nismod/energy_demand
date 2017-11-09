@@ -1278,12 +1278,12 @@ def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param, year_until
 
         # Year until changed
         year_until_changed = year_until_changed
-    
+
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
-            year_until_changed, ###base_sim_param['end_yr'],
+            year_until_changed,
             assumptions['smart_meter_diff_params']['sig_midpoint'],
             assumptions['smart_meter_diff_params']['sig_steeppness'])
 

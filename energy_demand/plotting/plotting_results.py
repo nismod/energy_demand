@@ -122,8 +122,6 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
-    
-
 
     # ------------------------------------
     # Plot averaged per season an fueltype

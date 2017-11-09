@@ -4,9 +4,54 @@ import os
 import csv
 import logging
 import numpy as np
+import configparser
+import ast
+from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
 from energy_demand.basic import conversions
+from energy_demand.basic import date_prop
+
+def load_sim_param_ini(path):
+    """Load simulation parameter run information
+    """
+    config = configparser.ConfigParser()
+
+    config.read(os.path.join(path, 'model_run_sim_param.ini'))
+
+    sim_param = {}
+    sim_param['reg_nrs'] = int(config['SIM_PARAM']['reg_nrs'])
+    sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
+    sim_param['end_yr'] = int(config['SIM_PARAM']['end_yr'])
+    sim_param['sim_years_intervall'] = int(config['SIM_PARAM']['sim_years_intervall'])
+    #sim_param['simulated_years'] = ast.literal_eval(config['SIM_PARAM']['simulated_years'])
+    
+    assumptions = {}
+    assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
+    assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
+
+    # -----------------
+    # Other information
+    # -----------------
+    enduses = {}
+    enduses['rs_all_enduses'] = ast.literal_eval(config['ENDUSES']['rs_all_enduses']) #convert string lists to list
+    enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
+    enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
+
+
+
+    # Some calculations
+    sim_param['sim_period'] = range(
+    sim_param['base_yr'],
+    sim_param['end_yr'] + 1,
+    sim_param['sim_years_intervall'])
+
+    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+    sim_param['list_dates'] = date_prop.fullyear_dates(
+        start=date(sim_param['base_yr'], 1, 1),
+        end=date(sim_param['base_yr'], 12, 31))
+
+    return sim_param, enduses, assumptions, reg_nrs
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file
