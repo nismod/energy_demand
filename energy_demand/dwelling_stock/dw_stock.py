@@ -286,7 +286,7 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
                     curr_yr,
                     1,
                     assump_final_diff_floorarea_pp,
-                    year_until_changed - sim_param['base_yr'] + 1) #sim_param['sim_period_yrs'])
+                    year_until_changed)
 
                 # Floor area per person of simulation year
                 floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
@@ -435,7 +435,7 @@ def ss_dw_stock(region, data, curr_yr):
             curr_yr,
             1.0,
             change_floorarea_p_ey,
-            year_until_changed - data['sim_param']['base_yr'] + 1)
+            year_until_changed)
 
         floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor

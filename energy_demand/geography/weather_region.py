@@ -539,6 +539,9 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
         Assumption on temperature change
     sim_param : dict
         Parameters for diffusion
+    year_until_changed : int
+        Year until change is fully implemented
+
     Returns
     -------
     temp_climate_change : dict
@@ -555,7 +558,7 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
             curr_yr=sim_param['curr_yr'],
             value_start=0,
             value_end=assumptions_temp_change[yearday_month], # added degrees
-            sim_years= sim_param['base_yr'] - year_until_changed + 1) #sim_param['sim_period_yrs'])
+            year_until_changed=year_until_changed)
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 

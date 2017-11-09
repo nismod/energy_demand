@@ -309,7 +309,7 @@ def calc_eff_cy(
         sim_param,
         eff_by,
         eff_ey,
-        year_eff_ey,
+        year_until_changed,
         other_enduse_mode_info,
         tech_eff_achieved_f,
         diff_method
@@ -325,7 +325,7 @@ def calc_eff_cy(
         Base year efficiency
     eff_ey : dict
         End year efficiency
-    year_eff_ey : int
+    year_until_changed : int
         Year for which the eff_ey is defined
     other_enduse_mode_info : Dict
         diffusion information
@@ -353,7 +353,7 @@ def calc_eff_cy(
             sim_param['curr_yr'],
             eff_by,
             eff_ey,
-            year_eff_ey - sim_param['base_yr'] + 1)
+            year_until_changed)
 
         # Consider actual achieved efficiency
         eff_cy = theor_max_eff * tech_eff_achieved_f
@@ -364,7 +364,7 @@ def calc_eff_cy(
         theor_max_eff = diffusion.sigmoid_diffusion(
             sim_param['base_yr'],
             sim_param['curr_yr'],
-            year_eff_ey,
+            year_until_changed,
             other_enduse_mode_info['sigmoid']['sig_midpoint'],
             other_enduse_mode_info['sigmoid']['sig_steeppness'])
 

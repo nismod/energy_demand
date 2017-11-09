@@ -466,8 +466,14 @@ def test_calc_lf_improvement():
     loadfactor_yd_cy[0][1] = 0.4
     loadfactor_yd_cy[1][0] = 0.1
     loadfactor_yd_cy[1][1] = 0.3
-    year_until_change = 2025 
-    result, crit = enduse_func.calc_lf_improvement('heating', sim_param, loadfactor_yd_cy, year_until_change)
+    year_until_change = 2020
+
+    result, crit = enduse_func.calc_lf_improvement(
+        'heating',
+        sim_param,
+        loadfactor_yd_cy,
+        lf_improvement_ey,
+        year_until_change)
 
     expected = loadfactor_yd_cy + 0.25
 

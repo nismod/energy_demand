@@ -77,7 +77,7 @@ def test_change_temp_climate():
     
     base_yr = 2010
     curr_yr = 2020
-    year_until_changed = 2025
+    year_until_changed = 2020
     sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr}
 
     result = weather_region.change_temp_climate(
@@ -89,3 +89,5 @@ def test_change_temp_climate():
 
     assert result[30][0] ==  5 + 2
     assert result[40][0] ==  10 + 3
+
+test_change_temp_climate()

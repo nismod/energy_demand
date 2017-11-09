@@ -379,7 +379,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, 
                 sim_param['curr_yr'],
                 0,
                 1,
-                year_until_changed - sim_param['base_yr'] + 1) #sim_param['sim_period_yrs'])
+                year_until_changed)
 
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
@@ -1195,7 +1195,7 @@ def apply_specific_change(
                 sim_param['curr_yr'],
                 percent_by,
                 percent_ey,
-                year_until_changed - sim_param['base_yr'] + 1)
+                year_until_changed)
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
