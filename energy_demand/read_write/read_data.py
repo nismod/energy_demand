@@ -362,7 +362,7 @@ def read_load_shapes_tech(path_to_csv):
         _headings = next(read_lines) # Skip first row
 
         for row in read_lines:
-            dh_shape = np.zeros(24)
+            dh_shape = np.zeros((24), dtype=float)
             for cnt, row_entry in enumerate(row[1:], 1):
                 dh_shape[int(_headings[cnt])] = float(row_entry)
 
@@ -621,7 +621,7 @@ def read_base_data_resid(path_to_csv):
                 lines.append(row)
 
             for i in _headings[1:]: # skip first
-                end_uses_dict[i] = np.zeros((len(lines)))
+                end_uses_dict[i] = np.zeros((len(lines)), dtype=float)
 
             for cnt_fueltype, row in enumerate(lines):
                 cnt = 1 #skip first
@@ -941,7 +941,7 @@ def read_txt_shape_peak_yd_factor(file_path):
 def read_txt_shape_non_peak_yd(file_path):
     """Read to txt. Array with shape
     """
-    out_dict = np.zeros((365))
+    out_dict = np.zeros((365), dtype=float)
     read_dict = json.load(open(file_path))
     read_dict_list = list(read_dict.values())
     for day, row in enumerate(read_dict_list):

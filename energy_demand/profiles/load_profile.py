@@ -448,16 +448,16 @@ def calc_av_lp(demand_yh, seasons, model_yeardays_daytype):
 
     """
     season_daytypes = {
-        'spring': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'summer': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'autumn': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'winter': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))}}
+        'spring': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'summer': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'autumn': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'winter': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)}}
 
     av_season_daytypes = {
-        'spring': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'summer': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'autumn': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))},
-        'winter': {'workday': np.zeros((0, 24)), 'holiday': np.zeros((0, 24))}}
+        'spring': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'summer': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'autumn': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)},
+        'winter': {'workday': np.zeros((0, 24), dtype=float), 'holiday': np.zeros((0, 24), dtype=float)}}
 
     for yearday, daytype_yearday in enumerate(model_yeardays_daytype):
 

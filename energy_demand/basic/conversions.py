@@ -3,6 +3,10 @@
 from collections import defaultdict
 import numpy as np
 
+def gwhperyear_to_gw(gwh_per_year):
+    gw = gwh_per_year / 8760
+    return gw
+
 def ktoe_to_gwh(ktoe):
     """Conversion of ktoe to gwh
 

@@ -462,7 +462,7 @@ def get_shape_every_day(tech, tech_lp, model_yeardays_daytype):
     lp_holiday = tech_lp[tech]['holiday'] / np.sum(tech_lp[tech]['holiday'])
     lp_workday = tech_lp[tech]['workday'] / np.sum(tech_lp[tech]['workday'])
 
-    load_profile_y_dh = np.zeros((365, 24))
+    load_profile_y_dh = np.zeros((365, 24), dtype=float)
 
     for day_array_nr, day_type in enumerate(model_yeardays_daytype):
         if day_type == 'holiday':

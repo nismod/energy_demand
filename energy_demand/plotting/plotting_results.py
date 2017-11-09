@@ -8,6 +8,7 @@ import matplotlib as mpl
 import matplotlib.patches as mpatches
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
+from matplotlib.patches import Rectangle
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -21,7 +22,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
     """
     logging.info("... plotting results")
     ##pf.plot_load_curves_fueltype(results_every_year, data)
-    
+
     # All enduses
     plt_stacked_enduse_sectors(
         lookups,
@@ -29,7 +30,7 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'], enduses['ss_all_enduses'], enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_all_enduses_country.pdf"))
-    prnt(".")
+
     # ----------
     # Plot seasonal typical load profiles
     # ----------
@@ -387,7 +388,7 @@ def plot_load_shape_yd_non_resid(daily_load_shape):
     plt.show()
 
 def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_name):
-    """Plots stacked end_use for a region
+    """Plots stacked energy demand
 
     Arguments
     ----------
@@ -472,7 +473,7 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # -------
     plt.ylabel("energy demand [GWh per year]")
     plt.xlabel("years")
-    plt.title("stacked energy demand for simulation years for whole UK")
+    plt.title("energy demand for years for whole UK")
 
     # Tight layout
     plt.tight_layout()
@@ -500,16 +501,17 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
     # INFO Cannot plot a single year?
     """
     years_simulated = sim_period
-    print("years_simulated: " + str(years_simulated))
     x_data = years_simulated
     nr_submodels = 3
     y_data = np.zeros((nr_submodels, len(years_simulated)))
 
-    legend_entries = []
+    # Set figure size
+    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
 
     #for submodel in (rs_enduses, ss_enduses, is_enduses):
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
-        
+
         submodel = 0
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in rs_enduses:
@@ -525,9 +527,7 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
             for enduse in is_enduses:
                 y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
 
-    # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
-    ax = fig.add_subplot(1, 1, 1)
+
 
     ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
     color_list = [
@@ -556,19 +556,22 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[len(x_data)])
+    colors = tuple(color_list[:len(x_data)])
     stack_plot = ax.stackplot(x_data, y_data, colors=colors)
 
-    # -------
-    # Legend
-    # -------
-    # Get color of stacks in stackplot
-    color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
+    # ------------
+    # Plot color legend with colors for every SUBMODEL
+    # ------------
+    recs = []
+    for color_nr in range(0, len(colors)):
+        recs.append(mpatches.Rectangle((0, 0), 1, 1, fc=colors[color_nr], alpha=1.0))
+
+    leg_labels = ['residential', 'service', 'industry']
 
     plt.legend(
-        color_stackplots,
-        legend_entries,
-        ncol=2,
+        recs,
+        leg_labels,
+        ncol=1,
         loc='best',
         frameon=False)
 
@@ -582,11 +585,11 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
     # -------
     plt.ylabel("energy demand [GWh per year]")
     plt.xlabel("years")
-    plt.title("stacked energy demand for simulation years for whole UK")
+    plt.title("UK ED per sector")
 
     # Tight layout
-    plt.tight_layout()
     plt.margins(x=0)
+    fig.tight_layout()
 
     # Save fig
     plt.show()
@@ -684,14 +687,14 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
 
     plt.ylabel("energy demand [GWh per hour]")
     plt.xlabel("days")
-    plt.title("Total yearly fuels of all enduses per fueltype for simulation year {} ".format(year_to_plot + 2050))
+    plt.title("Total yearly fuels of all enduses per fueltype for simulation year {}".format(year_to_plot + 2050))
 
     # Saving figure
     plt.savefig(fig_name)
     plt.close()
 
 def plt_fuels_enduses_y(results_resid, lookups, fig_name):
-    """Plot lines with total fuel demand for all enduses
+    """Plot lines with total energy demand for all enduses
     per fueltype over the simluation period
 
     Arguments

@@ -592,7 +592,7 @@ def fuel_regions_fueltype(
     for fueltype_nr in lookups['fueltype'].values():
         fuel_fueltype_regions[fueltype_nr][array_region_nr] += fuels[fueltype_nr].reshape(model_yearhours_nrs)
 
-    fuel_region = np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24))
+    fuel_region = np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float)
     for fueltype_nr in lookups['fueltype'].values():
         fuel_region[fueltype_nr] = fuels[fueltype_nr]
     return fuel_fueltype_regions, fuel_region
