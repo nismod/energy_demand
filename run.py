@@ -18,6 +18,7 @@ from pkg_resources import Requirement, resource_filename
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
+NR_OF_MODELLEd_REGIONS = 10
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -103,8 +104,7 @@ class EDWrapper(SectorModel):
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
-        nr_of_modelled_regions = 10
-        data['lu_reg'] = data['lu_reg'][:nr_of_modelled_regions]
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
     
         # =========DUMMY DATA
@@ -261,7 +261,6 @@ class EDWrapper(SectorModel):
         path_nismod, folder = os.path.split(path)
         self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
 
-
         # ---------
         # Scenario data
         # ---------
@@ -269,9 +268,6 @@ class EDWrapper(SectorModel):
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
         
         data['print_criteria'] = False
-        #data['rs_floorarea'] = self.user_data['rs_floor_area']
-        #data['ss_floorarea'] = self.user_data['ss_floor_area']
-        #data['reg_floorarea_resid'] = self.user_data['reg_floorarea_resid']
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
             'population':  self.user_data['population']}
@@ -280,9 +276,11 @@ class EDWrapper(SectorModel):
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
+
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
-
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+        print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
 
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
@@ -308,7 +306,7 @@ class EDWrapper(SectorModel):
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
 
         #REPLACE BY SMIF INPUT
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['local_paths'], data['local_paths'])
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
         #data['assumptions']['assump_diff_floorarea_pp'] = data['assumptions']['assump_diff_floorarea_pp']
         #data['assumptions']['climate_change_temp_diff_month'] = data['assumptions']['climate_change_temp_diff_month']

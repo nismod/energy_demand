@@ -241,7 +241,7 @@ def get_tot_pop(dwellings):
 
     return tot_pop
 
-def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp, year_until_changed):
+def get_floorare_pp(regions, floorarea, reg_pop_by, sim_param, assump_final_diff_floorarea_pp, year_until_changed):
     """Calculate future floor area per person depending
     on assumptions on final change and base year data
 
@@ -267,14 +267,14 @@ def get_floorare_pp(floorarea, reg_pop_by, sim_param, assump_final_diff_floorare
     """
     data_floorarea_pp = {}
 
-    for region, region_pop in reg_pop_by.items():
+    for region in regions:
         floor_area_pp = {}
 
-        if region_pop == 0:
+        if reg_pop_by[region] == 0:
             floorarea_pp_by = 0
         else:
             # Floor area per person of base year
-            floorarea_pp_by = floorarea[region] / region_pop
+            floorarea_pp_by = floorarea[region] / reg_pop_by[region]
 
         for curr_yr in sim_param['sim_period']:
             if curr_yr == sim_param['base_yr']:
@@ -511,6 +511,7 @@ def rs_dw_stock(region, data, curr_yr):
 
     # Get floor area per person for every simulation year
     data_floorarea_pp = get_floorare_pp(
+        data['lu_reg'],
         data['reg_floorarea_resid'],
         data['scenario_data']['population'][base_yr],
         data['sim_param'],

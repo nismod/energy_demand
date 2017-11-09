@@ -212,9 +212,6 @@ def dummy_data_generation(data, regions=False):
         data['population'] = pop_dummy
 
 
-    print("___________________________")
-    print(data['lu_reg'])
-    regions = data['lu_reg']
     data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
 

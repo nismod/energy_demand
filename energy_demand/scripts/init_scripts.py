@@ -114,8 +114,9 @@ def scenario_initalisation(path_data_energy_demand, data=False):
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-        data = data_loader.dummy_data_generation(data)
-        
+        dummy_pop_geocodes = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+        data = data_loader.dummy_data_generation(data, dummy_pop_geocodes)
+            
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
     # Initialise logger
