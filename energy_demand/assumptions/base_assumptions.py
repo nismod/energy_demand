@@ -22,20 +22,12 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions = {}
 
     # --------------------------------------
-    # Date selection for which model is run
-    # Store in list all dates which are modelled
+    # Basic configurations
     # --------------------------------------
     year_until_changed_all_things = 2050
+    assumptions['model_yeardays'] = list(range(365))  # Modelled days
 
-    # ------------
-    # Modelled days
-    # ------------
-    #a list with yearday values ranging between 1 and 364
-    assumptions['model_yeardays'] = list(range(365)) 
-
-    # ---------------------------------------
     # Calculate dates of modelled days
-    # ---------------------------------------
     assumptions['model_yeardays_date'] = []
     for yearday in assumptions['model_yeardays']:
         assumptions['model_yeardays_date'].append(
@@ -133,16 +125,14 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # --Residential SubModel
     assumptions['demand_management'] = {
 
-        # Parameter informations
-        'param_infos': [
-            {
-                "name": "demand_management_year_until_changed",
-                "absolute_range": "(10, 20)",
-                "description": "Year until demand management assumptions are fully realised",
-                "suggested_range": "(2015 - 2100)",
-                "default_value": '2050',
-                "units": 'years'
-        }],
+        # Parameters info
+        'param_infos': [{
+            "name": "demand_management_year_until_changed",
+            "absolute_range": "(10, 20)",
+            "description": "Year until demand management assumptions are fully realised",
+            "suggested_range": "(2015 - 2100)",
+            "default_value": '2050',
+            "units": 'years'}],
 
         # Year until ld if implemented
         'demand_management_year_until_changed': year_until_changed_all_things,
@@ -177,22 +167,19 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
             'is_lighting': 0,
             'is_space_heating': 0,
             'is_other': 0,
-            'is_refrigeration': 0
-        }
+            'is_refrigeration': 0}
     }
 
     # Helper function to create description of parameters for all enduses
-    for demand_name, dm_assump in assumptions['demand_management']['enduses_demand_managent'].items():
-
-         assumptions['demand_management']['param_infos'].append(
-             {
-                 "name": "demand_management_improvement_{}".format(demand_name),
-                 "absolute_range": "0, 100)",
-                 "description": "reduction in load factor for enduse {}".format(demand_name),
-                 "suggested_range": "(0, 100)",
-                 "default_value": '0',
-                 "units": '%'}
-         )
+    for demand_name, _ in assumptions['demand_management']['enduses_demand_managent'].items():
+        assumptions['demand_management']['param_infos'].append({
+            "name": "demand_management_improvement_{}".format(demand_name),
+            "absolute_range": "0, 100)",
+            "description": "reduction in load factor for enduse {}".format(demand_name),
+            "suggested_range": "(0, 100)",
+            "default_value": '0',
+            "units": '%'}
+        )
 
     # ============================================================
     #  Scenario drivers
@@ -255,8 +242,8 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Temperature changes for every month until end year for every month
     # =======================================
     assumptions['climate_change_temp_diff_month'] = {
-        
-        # Parameter informations
+
+        # Parameters info
         'param_infos': [
             {
                 "name": "climate_change_temp_diff_year_until_changed",
@@ -305,17 +292,14 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['rs_t_base_heating'] = {
 
-        # Parameter informations
-        'param_infos': [
-            {
-                "name": "rs_t_base_heating",
-                "absolute_range": "(10, 20)",
-                "description": "Base temperature assumption residential heating",
-                "suggested_range": "(13, 17)",
-                "default_value": '15.5',
-                "units": '°C'
-        }
-        ],
+        # Parameters info
+        'param_infos': [{
+            "name": "rs_t_base_heating",
+            "absolute_range": "(10, 20)",
+            "description": "Base temperature assumption residential heating",
+            "suggested_range": "(13, 17)",
+            "default_value": '15.5',
+            "units": '°C'}],
 
         # Values
         'base_yr': 15.5,
@@ -323,16 +307,14 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
     assumptions['ss_t_base_heating'] = {
 
-        # Parameter informations
-        'param_infos': [
-            {
-                "name": "ss_t_base_heating",
-                "absolute_range": "(10, 20)",
-                "description": "Base temperature assumption service sector heating",
-                "suggested_range": "(13, 17)",
-                "default_value": '15.5',
-                "units": '°C'
-        }],
+        # Parameters info
+        'param_infos': [{
+            "name": "ss_t_base_heating",
+            "absolute_range": "(10, 20)",
+            "description": "Base temperature assumption service sector heating",
+            "suggested_range": "(13, 17)",
+            "default_value": '15.5',
+            "units": '°C'}],
 
         'base_yr': 15.5,
         'future_yr': 15.5}
@@ -340,33 +322,28 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Cooling base temperature
     assumptions['rs_t_base_cooling'] = {
 
-        # Parameter informations
-        'param_infos': [
-            {
-                "name": "ss_t_base_heating",
-                "absolute_range": "(20, 25)",
-                "description": "Base temperature assumption residential sector cooling",
-                "suggested_range": "(13, 17)",
-                "default_value": '21',
-                "units": '°C',
-            }],
+        # Parameters info
+        'param_infos': [{
+            "name": "ss_t_base_heating",
+            "absolute_range": "(20, 25)",
+            "description": "Base temperature assumption residential sector cooling",
+            "suggested_range": "(13, 17)",
+            "default_value": '21',
+            "units": '°C'}],
 
         'base_yr': 21.0,
         'future_yr': 21.0}
 
     assumptions['ss_t_base_cooling'] = {
 
-        # Parameter informations
-        'param_infos': [
-            {
-                "name": "ss_t_base_cooling",
-                "absolute_range": "(20, 25)",
-                "description": "Base temperature assumption service sector cooling",
-                "suggested_range": "(13, 17)",
-                "default_value": '21',
-                "units": '°C'
-            }
-            ],
+        # Parameters info
+        'param_infos': [{
+            "name": "ss_t_base_cooling",
+            "absolute_range": "(20, 25)",
+            "description": "Base temperature assumption service sector cooling",
+            "suggested_range": "(13, 17)",
+            "default_value": '21',
+            "units": '°C'}],
 
         'base_yr': 21,
         'future_yr': 21}
@@ -392,27 +369,29 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['smart_meter_assump'] = {
 
-        # Parameter informations
-        'param_infos': [{
+        # Parameters info
+        'param_infos': [
+            {
                 "name": "smart_meter_p_future",
                 "absolute_range": "(0, 1)",
                 "description": "Population diffusion of smart meters",
                 "suggested_range": "(0, 100)",
                 "default_value": '0',
                 "units": '%'},
-                {
+            {
                 "name": "smart_meter_year_until_changed",
                 "absolute_range": "(0, 1)",
                 "description": "Year until smart meter assumption is implemented",
                 "suggested_range": "2015 - 2100",
                 "default_value": '2050',
                 "units": 'year'
-                }
+            }
         ],
 
-        # Fraction of population with smart meters
+        # Fraction of population with smart meters for base year
         'smart_meter_p_by': 0.1,
 
+        # Fraction of population for future year
         'smart_meter_p_future': 0.1,
 
         # Year until change is implemented
@@ -443,7 +422,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     }
 
     # Helper function to create description of parameters for all enduses
-    for enduse_name, saving_sm in assumptions['smart_meter_assump']['savings_smart_meter'].items():
+    for enduse_name, _ in assumptions['smart_meter_assump']['savings_smart_meter'].items():
         assumptions['smart_meter_assump']['param_infos'].append({
             "name": "smart_meter_improvement_{}".format(enduse_name),
             "absolute_range": "(0, 100)",
@@ -457,7 +436,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['heat_recovered'] = {
 
-        # Parameter informations
+        # Parameters info
         'param_infos': [
             {
                 "name": "rs_space_heating",
@@ -564,7 +543,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # --Assumption how much of technological efficiency is reached
     assumptions['eff_achieving_factor'] = {
 
-        # Parameter informations
+        # Parameters info
         'param_infos': [
             {
                 "name": "eff_achieving_factor",

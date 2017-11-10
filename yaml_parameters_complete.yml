@@ -6,151 +6,151 @@
   units: years
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_space_heating
   name: demand_management_improvement_rs_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_water_heating
   name: demand_management_improvement_rs_water_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_lighting
   name: demand_management_improvement_rs_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_cooking
   name: demand_management_improvement_rs_cooking
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_cold
   name: demand_management_improvement_rs_cold
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_wet
   name: demand_management_improvement_rs_wet
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_consumer_electronics
   name: demand_management_improvement_rs_consumer_electronics
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse rs_home_computing
   name: demand_management_improvement_rs_home_computing
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_space_heating
   name: demand_management_improvement_ss_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_water_heating
   name: demand_management_improvement_ss_water_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_lighting
   name: demand_management_improvement_ss_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_catering
   name: demand_management_improvement_ss_catering
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_computing
   name: demand_management_improvement_ss_computing
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_space_cooling
   name: demand_management_improvement_ss_space_cooling
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_other_gas
   name: demand_management_improvement_ss_other_gas
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse ss_other_electricity
   name: demand_management_improvement_ss_other_electricity
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_high_temp_process
   name: demand_management_improvement_is_high_temp_process
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_low_temp_process
   name: demand_management_improvement_is_low_temp_process
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_drying_separation
   name: demand_management_improvement_is_drying_separation
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_motors
   name: demand_management_improvement_is_motors
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_compressed_air
   name: demand_management_improvement_is_compressed_air
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_lighting
   name: demand_management_improvement_is_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_space_heating
   name: demand_management_improvement_is_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_other
   name: demand_management_improvement_is_other
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: Recuction in load factor for enduse 0
+  description: reduction in load factor for enduse is_refrigeration
   name: demand_management_improvement_is_refrigeration
   suggested_range: (0, 100)
   units: '%'
