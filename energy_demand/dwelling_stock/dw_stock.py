@@ -4,7 +4,6 @@ Generates a virtual dwelling stock
 """
 import sys
 import logging
-from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import diffusion_technologies
 
@@ -241,7 +240,15 @@ def get_tot_pop(dwellings):
 
     return tot_pop
 
-def get_floorare_pp(regions, floorarea, reg_pop_by, base_yr, sim_period, assump_final_diff_floorarea_pp, year_until_changed):
+def get_floorare_pp(
+        regions,
+        floorarea,
+        reg_pop_by,
+        base_yr,
+        sim_period,
+        assump_final_diff_floorarea_pp,
+        year_until_changed
+    ):
     """Calculate future floor area per person depending
     on assumptions on final change and base year data
 
@@ -297,15 +304,15 @@ def get_floorare_pp(regions, floorarea, reg_pop_by, base_yr, sim_period, assump_
 
     return data_floorarea_pp
 
-def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_ey, base_yr, sim_period, sim_period_yrs):
+def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr, sim_period):
     """Calculates the floor area per dwelling type for every year
 
     Arguments
     ----------
     dwtype_distr_by : dict
         Distribution of dwelling types base year
-    assump_dwtype_distr_ey : dict
-        Distribution of dwelling types end year
+    dwtype_floorarea_future : dict
+        Distribution of future dwelling types end year
     base_yr : list
         Simulation parameters
     sim_period : list
@@ -328,7 +335,6 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_ey, base_yr, sim
     dwtype_floor_area = {}
 
     for curr_yr in sim_period:
-        nr_sim_yrs = curr_yr - base_yr
 
         if curr_yr == base_yr:
             y_distr = dwtype_floorarea_by
@@ -337,18 +343,24 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_ey, base_yr, sim
 
             for dwtype in dwtype_floorarea_by:
                 val_by = dwtype_floorarea_by[dwtype]
-                val_ey = dwtype_floorarea_ey[dwtype]
-                diff_val = val_ey - val_by
+                val_future = dwtype_floorarea_future[dwtype]
 
-                # Calculate linear difference up to sim_yr
-                diff_y = diff_val / sim_period_yrs
-                y_distr[dwtype] = val_by + (diff_y * nr_sim_yrs)
+                year_until_changed = dwtype_floorarea_future['year_until_changed']
+
+                val_cy = diffusion_technologies.linear_diff(
+                    base_yr,
+                    curr_yr,
+                    val_by,
+                    val_future,
+                    year_until_changed)
+
+                y_distr[dwtype] = val_cy
 
         dwtype_floor_area[curr_yr] = y_distr
 
     return dwtype_floor_area
 
-def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_period, sim_period_yrs):
+def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_period):
     """Calculates the annual distribution of dwelling types
     based on assumption of base and end year distribution
 
@@ -356,7 +368,7 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_perio
     ----------
     dwtype_distr_by : dict
         Distribution of dwelling types base year
-    assump_dwtype_distr_ey : dict
+    assump_dwtype_distr_future : dict
         Distribution of dwelling types end year
     sim_param : list
         Simulation parameters
@@ -376,7 +388,6 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_perio
     dwtype_distr = {}
 
     for curr_yr in sim_period:
-        nr_sim_yrs = curr_yr - base_yr
 
         if curr_yr == base_yr:
             y_distr = dwtype_distr_by
@@ -385,12 +396,18 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_ey, base_yr, sim_perio
 
             for dwtype in dwtype_distr_by:
                 val_by = dwtype_distr_by[dwtype]
-                val_ey = assump_dwtype_distr_ey[dwtype]
-                diff_val = val_ey - val_by
+                val_future = assump_dwtype_distr_future[dwtype]
 
-                # Calculate linear difference up to sim_yr
-                diff_y = diff_val / sim_period_yrs
-                y_distr[dwtype] = val_by + (diff_y * nr_sim_yrs)
+                year_until_changed = assump_dwtype_distr_future['year_until_changed']
+
+                val_cy = diffusion_technologies.linear_diff(
+                    base_yr,
+                    curr_yr,
+                    val_by,
+                    val_future,
+                    year_until_changed)
+
+                y_distr[dwtype] = val_cy
 
         dwtype_distr[curr_yr] = y_distr
 
@@ -506,25 +523,23 @@ def rs_dw_stock(region, data, curr_yr):
     # Get changes in absolute floor area per dwelling type over time
     dwtype_floor_area = get_dwtype_floor_area(
         data['assumptions']['assump_dwtype_floorarea_by'],
-        data['assumptions']['assump_dwtype_floorarea_ey'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['sim_period'], 
-        data['sim_param']['sim_period_yrs'])
+        data['assumptions']['assump_dwtype_floorarea_future'],
+        base_yr,
+        data['sim_param']['sim_period'])
 
     # Get distribution of dwelling types of all simulation years
     dwtype_distr = get_dwtype_distr(
         data['assumptions']['assump_dwtype_distr_by'],
-        data['assumptions']['assump_dwtype_distr_ey'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['sim_period'], 
-        data['sim_param']['sim_period_yrs'])
+        data['assumptions']['assump_dwtype_distr_future'],
+        base_yr,
+        data['sim_param']['sim_period'])
 
     # Get floor area per person for every simulation year
     data_floorarea_pp = get_floorare_pp(
         data['lu_reg'],
         data['reg_floorarea_resid'],
         data['scenario_data']['population'][base_yr],
-        data['sim_param']['base_yr'],
+        base_yr,
         data['sim_param']['sim_period'],
         data['assumptions']['assump_diff_floorarea_pp'],
         data['assumptions']['assump_diff_floorarea_pp_year_until_changed'])

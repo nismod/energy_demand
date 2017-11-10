@@ -39,15 +39,11 @@ def load_sim_param_ini(path):
     enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
     enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
 
-
-
     # Some calculations
     sim_param['sim_period'] = range(
         sim_param['base_yr'],
         sim_param['end_yr'] + 1,
         sim_param['sim_years_intervall'])
-
-    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
 
     return sim_param, enduses, assumptions, reg_nrs
 

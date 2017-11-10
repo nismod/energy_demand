@@ -17,11 +17,11 @@ def test_get_tech_type():
     assert tech_related.get_tech_type('test_tech', tech_list) == 'regular_tech'
 
 def test_calc_eff_cy():
-    
+    """
+    """
     sim_param = {
         'base_yr': 2015,
-        'curr_yr': 2020,
-        'sim_period_yrs': 6}
+        'curr_yr': 2020}
 
     other_enduse_mode_info = {
         'diff_method': 'linear'},
@@ -37,7 +37,8 @@ def test_calc_eff_cy():
 
     assert out_value == 2.0
 
-    other_enduse_mode_info = {'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
+    other_enduse_mode_info = {
+        'sigmoid': {'sig_midpoint': 0,'sig_steeppness': 1}}
 
     out_value = tech_related.calc_eff_cy(
         sim_param=sim_param,

@@ -90,7 +90,6 @@ class EDWrapper(SectorModel):
         sim_param['curr_yr'] = sim_param['base_yr'] #REPLACE
         #sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-        #sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
 
         data['sim_param'] = sim_param
 
@@ -291,7 +290,6 @@ class EDWrapper(SectorModel):
 
         # Necessary update
         data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
-        data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
 
         # ED related stuff
         data['assumptions'] = base_assumptions.load_assumptions(

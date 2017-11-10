@@ -26,6 +26,20 @@ from energy_demand.basic import date_prop
     assert out_value == expected
 '''
 
+def test_get_model_yeardays_datype():
+    """testing
+    """
+    model_yeardays_daytype, yeardays_month, yeardays_month_days = date_prop.get_model_yeardays_datype(
+        year_to_model=2018)
+
+    assert model_yeardays_daytype[0] == 'workday'
+    assert model_yeardays_daytype[1] == 'workday'  
+    assert model_yeardays_daytype[2] == 'workday'
+    assert model_yeardays_daytype[3] == 'workday' 
+    assert model_yeardays_daytype[4] == 'workday'
+    assert model_yeardays_daytype[5] == 'holiday'
+    assert model_yeardays_daytype[6] == 'holiday'
+
 def test_get_month_from_yeraday():
     """testing
     """

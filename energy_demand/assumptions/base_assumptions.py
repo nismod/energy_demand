@@ -18,8 +18,8 @@ def load_sim_param():
     sim_param['base_yr'] = 2015
     sim_param['end_yr'] = 2030
     sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-    sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-    sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
+    #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
+    sim_param['sim_period'] = [2015, 2020, 2025]
     sim_param['curr_yr'] = sim_param['base_yr']
 
     return sim_param
@@ -107,7 +107,11 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
     # Dwelling type distribution end year
     # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
-    assumptions['assump_dwtype_distr_ey'] = {
+    assumptions['assump_dwtype_distr_future'] = {
+    
+        # Year until change is implemented
+        'year_until_changed': 2030,
+
         'semi_detached': 0.26,
         'terraced': 0.283,
         'flat': 0.203,
@@ -125,8 +129,12 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         'bungalow': 77}
 
     # Floor area per dwelling type
-    assumptions['assump_dwtype_floorarea_ey'] = {
-        'semi_detached': 96,
+    assumptions['assump_dwtype_floorarea_future'] = {
+
+        # Year until change is implemented
+        'year_until_changed': 2030,
+
+        'semi_detached': 200,
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,

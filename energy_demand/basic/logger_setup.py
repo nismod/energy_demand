@@ -31,8 +31,7 @@ def set_up_logger(path_log_file):
         filename=path_log_file,
         filemode='w', #'a, w'
         level=logging.DEBUG, #INFO, DEBUG, ERROR, CRITICAL
-        format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    )
+        format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
     # Necessary to add loggers in visual studio console
     logging.getLogger().addHandler(logging.StreamHandler())

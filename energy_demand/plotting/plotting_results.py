@@ -15,7 +15,15 @@ from matplotlib.patches import Rectangle
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
 
-def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, assumptions, sim_param, enduses):
+def run_all_plot_functions(
+        results_container,
+        reg_nrs,
+        lookups,
+        local_paths,
+        assumptions,
+        sim_param,
+        enduses
+    ):
     """Summary function to plot all results
 
 
@@ -122,19 +130,19 @@ def run_all_plot_functions(results_container, reg_nrs, lookups, local_paths, ass
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
-
+    print("--")
     # ------------------------------------
     # Plot averaged per season an fueltype
     # ------------------------------------
     base_year = 2015
-    for year in results_container['av_season_daytype_current_year'].keys():
-        for fueltype in results_container['av_season_daytype_current_year'][year].keys():
+    for year in results_container['av_season_daytype_cy'].keys():
+        for fueltype in results_container['av_season_daytype_cy'][year].keys():
             plot_load_profile_dh_multiple(
                 os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype)),
-                results_container['av_season_daytype_current_year'][year][fueltype], #d#MAYBE CURRENT YEAR
-                results_container['av_season_daytype_current_year'][base_year][fueltype], #BASEYEAR
-                results_container['season_daytype_current_year'][year][fueltype], #MAYBE CURRENT YEAR
-                results_container['season_daytype_current_year'][base_year][fueltype], #BASEYEAR
+                results_container['av_season_daytype_cy'][year][fueltype], #d#MAYBE CURRENT YEAR
+                results_container['av_season_daytype_cy'][base_year][fueltype], #BASEYEAR
+                results_container['season_daytype_cy'][year][fueltype], #MAYBE CURRENT YEAR
+                results_container['season_daytype_cy'][base_year][fueltype], #BASEYEAR
                 plot_peak=True,
                 plot_all_entries=False)
 

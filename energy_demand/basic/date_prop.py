@@ -16,6 +16,7 @@ def get_model_yeardays_datype(year_to_model):
         end=date(year_to_model, 12, 31))
 
     model_yeardays_daytype = np.array(['workday']*365)
+
     # Take respectve daily fuel curve depending on weekday or weekend
     for array_day, date_yearday in enumerate(list_dates):
         daytype = get_weekday_type(date_yearday)
