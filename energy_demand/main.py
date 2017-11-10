@@ -8,7 +8,7 @@ https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 
 # TODOEnd year diffusion assumption
-'''
+5'''
 import os
 import sys
 import logging
@@ -17,12 +17,11 @@ from pyinstrument import Profiler
 from energy_demand import energy_model
 from energy_demand.assumptions import base_assumptions
 from energy_demand.read_write import data_loader
-from energy_demand.read_write import read_data
 from energy_demand.basic import testing_functions as testing
 from energy_demand.validation import lad_validation
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup
-from energy_demand.read_write import write_data
+from energy_demand.read_write import write_data, read_data
 from energy_demand.basic import basic_functions
 from energy_demand.basic import date_prop
 
@@ -105,13 +104,23 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
-    data['assumptions'] = base_assumptions.load_assumptions(
+    # TODO: MOVE TO SCENARIO INIT
+    base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    
+    # Read parameters from yaml file
+    # ------------------------------
+    print("Read assumptions from file: " + str(data['paths']['yaml_parameters']))
+    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
-    data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
+    data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+
+    # ------------------------------
+
 
     # ==========
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])

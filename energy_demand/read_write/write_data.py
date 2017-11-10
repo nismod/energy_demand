@@ -4,6 +4,56 @@ import os
 import numpy as np
 import configparser
 from energy_demand.basic import basic_functions
+import yaml
+from yaml import Loader, Dumper
+import collections
+
+def dump(data, file_path):
+    """Write plain data to a file as yaml
+
+    Parameters
+    ----------
+    file_path : str
+        The path of the configuration file to write
+    data
+        Data to write (should be lists, dicts and simple values)
+    """
+    with open(file_path, 'w') as file_handle:
+        return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
+
+def write_yaml_param_complete(path_yaml, dict_to_dump):
+    """Write all assumption parameters to YAML
+    #TODO :ORDER
+    """
+    list_to_dump_complete = []
+
+    for dict_key, dict_values in dict_to_dump.items():
+        try:
+            parameter_infos = dict_values['param_infos']
+
+            for paramter_info in parameter_infos:
+                dict_to_dump_complete = {} #collections.OrderedDict()
+                dict_to_dump_complete['suggested_range'] = paramter_info['suggested_range']
+                dict_to_dump_complete['absolute_range'] = paramter_info['absolute_range']
+                dict_to_dump_complete['description'] = paramter_info['description']
+                dict_to_dump_complete['name'] = paramter_info['name']
+                dict_to_dump_complete['default_value'] = paramter_info['default_value']
+                dict_to_dump_complete['units'] = paramter_info['units']
+                list_to_dump_complete.append(dict_to_dump_complete)
+        except:
+            pass #not correctly formated assumption
+
+    # Dump list
+    dump(list_to_dump_complete, path_yaml)
+    return
+
+def write_yaml_param(path_yaml, dict_to_dump):
+    """Write all assumption parameters to YAML
+
+    """
+    with open(path_yaml, 'w') as file_handle:
+        yaml.dump(dict_to_dump, file_handle)
+    return
 
 def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
     """Write .ini file with simulation parameters

@@ -283,7 +283,7 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         sim_param,
         lu_reg,
         data['temp_data'],
-        data['assumptions']['smart_meter_diff_params'],
+        data['assumptions']['smart_meter_assump']['smart_meter_diff_params'],
         data['assumptions']['rs_t_base_heating'],
         data['reg_coord'],
         data['weather_stations'])

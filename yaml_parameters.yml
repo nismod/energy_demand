@@ -1,0 +1,939 @@
+assump_diff_floorarea_pp: 1
+assump_diff_floorarea_pp_year_until_changed: 2050
+assump_dwtype_distr_by: {bungalow: 0.088, detached: 0.166, flat: 0.203, semi_detached: 0.26,
+  terraced: 0.283}
+assump_dwtype_distr_future: {bungalow: 0.088, detached: 0.166, flat: 0.203, semi_detached: 0.26,
+  terraced: 0.283, year_until_changed: 2050}
+assump_dwtype_floorarea_by: {bungalow: 77, detached: 147, flat: 61, semi_detached: 96,
+  terraced: 82.5}
+assump_dwtype_floorarea_future: {bungalow: 77, detached: 147, flat: 61, semi_detached: 96,
+  terraced: 82.5, year_until_changed: 2050}
+base_temp_diff_params: {sig_midpoint: 0, sig_steeppness: 1, year_until_changed: 2050}
+capacity_switch: true
+climate_change_temp_diff_month:
+  climate_change_temp_diff_year_until_changed: 2050
+  param_infos:
+  - {absolute_range: 2015-2100, default_value: '2050', description: Year until climate
+      temperature changes are fully realised, name: climate_change_temp_diff_year_until_changed,
+    suggested_range: 2030 - 2100, units: year}
+  temps: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+demand_management:
+  demand_management_year_until_changed: 2050
+  enduses_demand_managent: {is_compressed_air: 0, is_drying_separation: 0, is_high_temp_process: 0,
+    is_lighting: 0, is_low_temp_process: 0, is_motors: 0, is_other: 0, is_refrigeration: 0,
+    is_space_heating: 0, rs_cold: 0, rs_consumer_electronics: 0, rs_cooking: 0, rs_home_computing: 0,
+    rs_lighting: 0, rs_space_heating: 0, rs_water_heating: 0, rs_wet: 0, ss_catering: 0,
+    ss_computing: 0, ss_lighting: 0, ss_other_electricity: 0, ss_other_gas: 0, ss_space_cooling: 0,
+    ss_space_heating: 0, ss_water_heating: 0}
+  param_infos:
+  - {absolute_range: '(10, 20)', default_value: '2050', description: Year until demand
+      management assumptions are fully realised, name: demand_management_year_until_changed,
+    suggested_range: (2015 - 2100), units: years}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_water_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_cooking, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_cold, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_wet, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_consumer_electronics,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_rs_home_computing,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_water_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_catering, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_computing, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_space_cooling, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_other_gas, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_ss_other_electricity,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_high_temp_process,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_low_temp_process,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_drying_separation,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_motors, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_compressed_air,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_other, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '0, 100)', default_value: '0', description: Recuction in load
+      factor for enduse 0, name: demand_management_improvement_is_refrigeration, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Jan, name: climate_change_temp_d_Jan, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Feb, name: climate_change_temp_d_Feb, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Mar, name: climate_change_temp_d_Mar, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Apr, name: climate_change_temp_d_Apr, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month May, name: climate_change_temp_d_May, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Jun, name: climate_change_temp_d_Jun, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Jul, name: climate_change_temp_d_Jul, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Aug, name: climate_change_temp_d_Aug, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Sep, name: climate_change_temp_d_Sep, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Oct, name: climate_change_temp_d_Oct, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Nov, name: climate_change_temp_d_Nov, suggested_range: '-5, 5', units: "\xB0C"}
+  - {absolute_range: '(-10, 10)', default_value: '0', description: Temperature change
+      for month Dec, name: climate_change_temp_d_Dec, suggested_range: '-5, 5', units: "\xB0C"}
+dwtype_age_distr:
+  2015: {'1918': 0.21, '1941': 0.36, '1977.5': 0.3, '1996.5': 0.08, '2002': 0.05}
+eff_achieving_factor:
+  factor_achieved: 1.0
+  param_infos:
+  - {absolute_range: '(0, 1)', default_value: '0', description: Fraction achieved
+      of efficiency improvements, name: eff_achieving_factor, suggested_range: '(0,
+      100)', units: '%'}
+enduse_overall_change_ey:
+  is_model: {is_compressed_air: 1, is_drying_separation: 1, is_high_temp_process: 1,
+    is_lighting: 1, is_low_temp_process: 1, is_motors: 1, is_other: 1, is_refrigeration: 1,
+    is_space_heating: 1}
+  rs_model: {rs_cold: 1, rs_consumer_electronics: 1, rs_cooking: 1, rs_home_computing: 1,
+    rs_lighting: 1, rs_space_heating: 1, rs_water_heating: 1, rs_wet: 1}
+  ss_model: {ss_catering: 1, ss_computing: 1, ss_cooling_ventilation: 1, ss_lighting: 1,
+    ss_other_electricity: 1, ss_other_gas: 1, ss_space_heating: 1, ss_water_heating: 1}
+  year_until_changed: 2050
+enduse_space_cooling: [rs_space_cooling, ss_space_cooling, is_space_cooling]
+enduse_space_heating: [rs_space_heating, rs_space_heating, is_space_heating]
+heat_pumps: [heat_pumps_hydrogen, heat_pumps_electricity, heat_pumps_gas]
+heat_recovered:
+  heat_recovered_year_until_changed: 2050
+  is_space_heating: 0.0
+  param_infos:
+  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
+      recycling for the residential sector, name: rs_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
+      recycling for the residential sector, name: ss_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
+      recycling for the industry sector, name: is_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  rs_space_heating: 0.0
+  ss_space_heating: 0.0
+installed_heat_pump:
+  electricity: {heat_pump_ASHP_electricity: 0.5, heat_pump_GSHP_electricity: 0.5}
+  gas: {heat_pump_ASHP_gas: 0.5, heat_pump_GSHP_gas: 0.5}
+  hydrogen: {heat_pump_ASHP_hydro: 0.5, heat_pump_GSHP_hydro: 0.5}
+is_dummy_enduses: [is_compressed_air, is_other, is_refrigeration, is_high_temp_process,
+  is_drying_separation, is_low_temp_process, is_motors, is_lighting]
+is_enduse_tech_maxL_by_p: {}
+is_fuel_switches:
+- {enduse: is_space_heating, enduse_fueltype_replace: 1, max_theoretical_switch: 1.0,
+  share_fuel_consumption_switched: 0.5, technology_install: boiler_electricity, year_fuel_consumption_switched: 2050.0}
+is_fuel_tech_p_by:
+  is_compressed_air:
+    0: {dummy_tech: 1.0}
+    1: &id001 {}
+    2: *id001
+    3: *id001
+    4: *id001
+    5: *id001
+    6: *id001
+    7: *id001
+  is_drying_separation:
+    0: {dummy_tech: 1.0}
+    1: &id002 {}
+    2: *id002
+    3: *id002
+    4: *id002
+    5: *id002
+    6: *id002
+    7: *id002
+  is_high_temp_process:
+    0: {dummy_tech: 1.0}
+    1: &id003 {}
+    2: *id003
+    3: *id003
+    4: *id003
+    5: *id003
+    6: *id003
+    7: *id003
+  is_lighting:
+    0: {dummy_tech: 1.0}
+    1: &id004 {}
+    2: *id004
+    3: *id004
+    4: *id004
+    5: *id004
+    6: *id004
+    7: *id004
+  is_low_temp_process:
+    0: {dummy_tech: 1.0}
+    1: &id005 {}
+    2: *id005
+    3: *id005
+    4: *id005
+    5: *id005
+    6: *id005
+    7: *id005
+  is_motors:
+    0: {dummy_tech: 1.0}
+    1: &id006 {}
+    2: *id006
+    3: *id006
+    4: *id006
+    5: *id006
+    6: *id006
+    7: *id006
+  is_other:
+    0: {dummy_tech: 1.0}
+    1: &id007 {}
+    2: *id007
+    3: *id007
+    4: *id007
+    5: *id007
+    6: *id007
+    7: *id007
+  is_refrigeration:
+    0: {dummy_tech: 1.0}
+    1: &id008 {}
+    2: *id008
+    3: *id008
+    4: *id008
+    5: *id008
+    6: *id008
+    7: *id008
+  is_space_heating:
+    0: {boiler_solid_fuel: 1.0}
+    1: {boiler_gas: 1.0}
+    2: {boiler_electricity: 0.5, heat_pumps_electricity: 0.5}
+    3: {boiler_oil: 1.0}
+    4: {boiler_heat_sold: 1.0}
+    5: {boiler_biomass: 1.0}
+    6: {boiler_hydrogen: 1.0}
+    7: {}
+is_service_switches: []
+is_share_service_tech_ey_p:
+  is_compressed_air: {}
+  is_drying_separation: {}
+  is_high_temp_process: {}
+  is_lighting: {}
+  is_low_temp_process: {}
+  is_motors: {}
+  is_other: {}
+  is_refrigeration: {}
+  is_space_heating: {}
+is_specified_tech_enduse_by:
+  is_compressed_air: [dummy_tech]
+  is_drying_separation: [dummy_tech]
+  is_high_temp_process: [dummy_tech]
+  is_lighting: [dummy_tech]
+  is_low_temp_process: [dummy_tech]
+  is_motors: [dummy_tech]
+  is_other: [dummy_tech]
+  is_refrigeration: [dummy_tech]
+  is_space_heating: [boiler_solid_fuel, boiler_gas, boiler_electricity, heat_pumps_electricity,
+    boiler_oil, boiler_heat_sold, boiler_biomass, boiler_hydrogen, heat_pumps_hydrogen,
+    heat_pumps_gas]
+mode_constrained: false
+model_yeardays: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+  19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
+  39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
+  59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
+  79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98,
+  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+  116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131,
+  132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147,
+  148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163,
+  164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
+  180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195,
+  196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
+  212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227,
+  228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243,
+  244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259,
+  260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275,
+  276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291,
+  292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307,
+  308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323,
+  324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339,
+  340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355,
+  356, 357, 358, 359, 360, 361, 362, 363, 364]
+model_yeardays_date: [2015-01-01, 2015-01-02, 2015-01-03, 2015-01-04, 2015-01-05,
+  2015-01-06, 2015-01-07, 2015-01-08, 2015-01-09, 2015-01-10, 2015-01-11, 2015-01-12,
+  2015-01-13, 2015-01-14, 2015-01-15, 2015-01-16, 2015-01-17, 2015-01-18, 2015-01-19,
+  2015-01-20, 2015-01-21, 2015-01-22, 2015-01-23, 2015-01-24, 2015-01-25, 2015-01-26,
+  2015-01-27, 2015-01-28, 2015-01-29, 2015-01-30, 2015-01-31, 2015-02-01, 2015-02-02,
+  2015-02-03, 2015-02-04, 2015-02-05, 2015-02-06, 2015-02-07, 2015-02-08, 2015-02-09,
+  2015-02-10, 2015-02-11, 2015-02-12, 2015-02-13, 2015-02-14, 2015-02-15, 2015-02-16,
+  2015-02-17, 2015-02-18, 2015-02-19, 2015-02-20, 2015-02-21, 2015-02-22, 2015-02-23,
+  2015-02-24, 2015-02-25, 2015-02-26, 2015-02-27, 2015-02-28, 2015-03-01, 2015-03-02,
+  2015-03-03, 2015-03-04, 2015-03-05, 2015-03-06, 2015-03-07, 2015-03-08, 2015-03-09,
+  2015-03-10, 2015-03-11, 2015-03-12, 2015-03-13, 2015-03-14, 2015-03-15, 2015-03-16,
+  2015-03-17, 2015-03-18, 2015-03-19, 2015-03-20, 2015-03-21, 2015-03-22, 2015-03-23,
+  2015-03-24, 2015-03-25, 2015-03-26, 2015-03-27, 2015-03-28, 2015-03-29, 2015-03-30,
+  2015-03-31, 2015-04-01, 2015-04-02, 2015-04-03, 2015-04-04, 2015-04-05, 2015-04-06,
+  2015-04-07, 2015-04-08, 2015-04-09, 2015-04-10, 2015-04-11, 2015-04-12, 2015-04-13,
+  2015-04-14, 2015-04-15, 2015-04-16, 2015-04-17, 2015-04-18, 2015-04-19, 2015-04-20,
+  2015-04-21, 2015-04-22, 2015-04-23, 2015-04-24, 2015-04-25, 2015-04-26, 2015-04-27,
+  2015-04-28, 2015-04-29, 2015-04-30, 2015-05-01, 2015-05-02, 2015-05-03, 2015-05-04,
+  2015-05-05, 2015-05-06, 2015-05-07, 2015-05-08, 2015-05-09, 2015-05-10, 2015-05-11,
+  2015-05-12, 2015-05-13, 2015-05-14, 2015-05-15, 2015-05-16, 2015-05-17, 2015-05-18,
+  2015-05-19, 2015-05-20, 2015-05-21, 2015-05-22, 2015-05-23, 2015-05-24, 2015-05-25,
+  2015-05-26, 2015-05-27, 2015-05-28, 2015-05-29, 2015-05-30, 2015-05-31, 2015-06-01,
+  2015-06-02, 2015-06-03, 2015-06-04, 2015-06-05, 2015-06-06, 2015-06-07, 2015-06-08,
+  2015-06-09, 2015-06-10, 2015-06-11, 2015-06-12, 2015-06-13, 2015-06-14, 2015-06-15,
+  2015-06-16, 2015-06-17, 2015-06-18, 2015-06-19, 2015-06-20, 2015-06-21, 2015-06-22,
+  2015-06-23, 2015-06-24, 2015-06-25, 2015-06-26, 2015-06-27, 2015-06-28, 2015-06-29,
+  2015-06-30, 2015-07-01, 2015-07-02, 2015-07-03, 2015-07-04, 2015-07-05, 2015-07-06,
+  2015-07-07, 2015-07-08, 2015-07-09, 2015-07-10, 2015-07-11, 2015-07-12, 2015-07-13,
+  2015-07-14, 2015-07-15, 2015-07-16, 2015-07-17, 2015-07-18, 2015-07-19, 2015-07-20,
+  2015-07-21, 2015-07-22, 2015-07-23, 2015-07-24, 2015-07-25, 2015-07-26, 2015-07-27,
+  2015-07-28, 2015-07-29, 2015-07-30, 2015-07-31, 2015-08-01, 2015-08-02, 2015-08-03,
+  2015-08-04, 2015-08-05, 2015-08-06, 2015-08-07, 2015-08-08, 2015-08-09, 2015-08-10,
+  2015-08-11, 2015-08-12, 2015-08-13, 2015-08-14, 2015-08-15, 2015-08-16, 2015-08-17,
+  2015-08-18, 2015-08-19, 2015-08-20, 2015-08-21, 2015-08-22, 2015-08-23, 2015-08-24,
+  2015-08-25, 2015-08-26, 2015-08-27, 2015-08-28, 2015-08-29, 2015-08-30, 2015-08-31,
+  2015-09-01, 2015-09-02, 2015-09-03, 2015-09-04, 2015-09-05, 2015-09-06, 2015-09-07,
+  2015-09-08, 2015-09-09, 2015-09-10, 2015-09-11, 2015-09-12, 2015-09-13, 2015-09-14,
+  2015-09-15, 2015-09-16, 2015-09-17, 2015-09-18, 2015-09-19, 2015-09-20, 2015-09-21,
+  2015-09-22, 2015-09-23, 2015-09-24, 2015-09-25, 2015-09-26, 2015-09-27, 2015-09-28,
+  2015-09-29, 2015-09-30, 2015-10-01, 2015-10-02, 2015-10-03, 2015-10-04, 2015-10-05,
+  2015-10-06, 2015-10-07, 2015-10-08, 2015-10-09, 2015-10-10, 2015-10-11, 2015-10-12,
+  2015-10-13, 2015-10-14, 2015-10-15, 2015-10-16, 2015-10-17, 2015-10-18, 2015-10-19,
+  2015-10-20, 2015-10-21, 2015-10-22, 2015-10-23, 2015-10-24, 2015-10-25, 2015-10-26,
+  2015-10-27, 2015-10-28, 2015-10-29, 2015-10-30, 2015-10-31, 2015-11-01, 2015-11-02,
+  2015-11-03, 2015-11-04, 2015-11-05, 2015-11-06, 2015-11-07, 2015-11-08, 2015-11-09,
+  2015-11-10, 2015-11-11, 2015-11-12, 2015-11-13, 2015-11-14, 2015-11-15, 2015-11-16,
+  2015-11-17, 2015-11-18, 2015-11-19, 2015-11-20, 2015-11-21, 2015-11-22, 2015-11-23,
+  2015-11-24, 2015-11-25, 2015-11-26, 2015-11-27, 2015-11-28, 2015-11-29, 2015-11-30,
+  2015-12-01, 2015-12-02, 2015-12-03, 2015-12-04, 2015-12-05, 2015-12-06, 2015-12-07,
+  2015-12-08, 2015-12-09, 2015-12-10, 2015-12-11, 2015-12-12, 2015-12-13, 2015-12-14,
+  2015-12-15, 2015-12-16, 2015-12-17, 2015-12-18, 2015-12-19, 2015-12-20, 2015-12-21,
+  2015-12-22, 2015-12-23, 2015-12-24, 2015-12-25, 2015-12-26, 2015-12-27, 2015-12-28,
+  2015-12-29, 2015-12-30, 2015-12-31]
+model_yeardays_nrs: 365
+model_yearhours_nrs: 8760
+other_enduse_mode_info:
+  diff_method: linear
+  sigmoid: {sig_midpoint: 0, sig_steeppness: 1}
+rs_dummy_enduses: [rs_home_computing, rs_consumer_electronics]
+rs_enduse_tech_maxL_by_p:
+  rs_space_heating: {boiler_biomass: 0.9, boiler_gas: 0.9, boiler_heat_sold: 0.9,
+    boiler_hydrogen: 0.9, boiler_oil: 0.9, boiler_solid_fuel: 0.9, heat_pumps_electricity: 0.9,
+    hybrid_gas_electricity: 0.9, secondary_heater_electricity: 0.9, stirling_micro_CHP: 0.9,
+    storage_heater_electricity: 0.9}
+rs_fuel_switches: []
+rs_fuel_tech_p_by:
+  rs_cold:
+    0: &id009 {}
+    1: *id009
+    2: {chest_freezer: 0.087, fridge_freezer: 0.588, refrigerator: 0.143, upright_freezer: 0.182}
+    3: *id009
+    4: *id009
+    5: *id009
+    6: *id009
+    7: *id009
+  rs_consumer_electronics:
+    0: {dummy_tech: 1.0}
+    1: &id010 {}
+    2: *id010
+    3: *id010
+    4: *id010
+    5: *id010
+    6: *id010
+    7: *id010
+  rs_cooking:
+    0: &id011 {}
+    1: *id011
+    2: {hob_electricity: 0.49, hob_induction_electricity: 0.0, oven_electricity: 0.51}
+    3: *id011
+    4: *id011
+    5: *id011
+    6: *id011
+    7: *id011
+  rs_home_computing:
+    0: {dummy_tech: 1.0}
+    1: &id012 {}
+    2: *id012
+    3: *id012
+    4: *id012
+    5: *id012
+    6: *id012
+    7: *id012
+  rs_lighting:
+    0: &id013 {}
+    1: *id013
+    2: {LED: 0.01, energy_saving_lighting_bulb: 0.32, fluorescent_strip_lightinging: 0.07,
+      halogen: 0.56, standard_lighting_bulb: 0.04}
+    3: *id013
+    4: *id013
+    5: *id013
+    6: *id013
+    7: *id013
+  rs_space_heating:
+    0: {boiler_solid_fuel: 1.0}
+    1: {boiler_gas: 0.98, stirling_micro_CHP: 0.02}
+    2: {heat_pumps_electricity: 0.04, secondary_heater_electricity: 0.56, storage_heater_electricity: 0.4}
+    3: {boiler_oil: 1.0}
+    4: {boiler_heat_sold: 1.0}
+    5: {boiler_biomass: 1.0}
+    6: {boiler_hydrogen: 1.0}
+    7: {}
+  rs_water_heating:
+    0: {boiler_solid_fuel: 1.0}
+    1: {boiler_gas: 1.0}
+    2: {boiler_electricity: 1.0}
+    3: {boiler_oil: 1.0}
+    4: {boiler_heat_sold: 1.0}
+    5: {boiler_biomass: 1.0}
+    6: {boiler_hydrogen: 1.0}
+    7: {}
+  rs_wet:
+    0: &id014 {}
+    1: *id014
+    2: {dishwasher: 0.22, tumble_dryer: 0.318, washer_dryer: 0.157, washing_machine: 0.305}
+    3: *id014
+    4: *id014
+    5: *id014
+    6: *id014
+    7: *id014
+rs_service_switches:
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - &id015 !!python/object/apply:numpy.dtype
+    args: [f8, 0, 1]
+    state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
+  - !!binary |
+    tMGHTsd3jz8=
+  tech: boiler_solid_fuel
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    51YZpOWT5z8=
+  tech: boiler_gas
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    9zupdk7Kjj8=
+  tech: stirling_micro_CHP
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    0uvXPH1/hD8=
+  tech: heat_pumps_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    ggqHUm84oj8=
+  tech: storage_heater_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    hNuJczWCqT8=
+  tech: secondary_heater_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    QX6qqHV1tD8=
+  tech: boiler_oil
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    t90cdrQTWj8=
+  tech: boiler_heat_sold
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    +8XakNRyrD8=
+  tech: boiler_biomass
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    Xtpj+1gfND8=
+  tech: boiler_hydrogen
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    tMGHTsd3jz8=
+  tech: boiler_solid_fuel
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    51YZpOWT5z8=
+  tech: boiler_gas
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    9zupdk7Kjj8=
+  tech: stirling_micro_CHP
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    0uvXPH1/hD8=
+  tech: heat_pumps_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    ggqHUm84oj8=
+  tech: storage_heater_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    hNuJczWCqT8=
+  tech: secondary_heater_electricity
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    QX6qqHV1tD8=
+  tech: boiler_oil
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    t90cdrQTWj8=
+  tech: boiler_heat_sold
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    +8XakNRyrD8=
+  tech: boiler_biomass
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+- enduse: rs_space_heating
+  service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id015
+  - !!binary |
+    Xtpj+1gfND8=
+  tech: boiler_hydrogen
+  tech_assum_max: 1.0
+  year_switch_ey: 2040.0
+rs_share_service_tech_ey_p:
+  rs_cold: {}
+  rs_consumer_electronics: {}
+  rs_cooking: {}
+  rs_home_computing: {}
+  rs_lighting: {}
+  rs_space_heating: {boiler_biomass: 0.0, boiler_gas: 0.1, boiler_heat_sold: 0.0,
+    boiler_hydrogen: 0.1, boiler_oil: 0.0, boiler_solid_fuel: 0.0, heat_pumps_electricity: 0.1,
+    hybrid_gas_electricity: 0.3, secondary_heater_electricity: 0.25, stirling_micro_CHP: 0.0,
+    storage_heater_electricity: 0.15}
+  rs_water_heating: {}
+  rs_wet: {}
+rs_specified_tech_enduse_by:
+  rs_cold: [chest_freezer, fridge_freezer, refrigerator, upright_freezer]
+  rs_consumer_electronics: [dummy_tech]
+  rs_cooking: [hob_electricity, oven_electricity, hob_induction_electricity]
+  rs_home_computing: [dummy_tech]
+  rs_lighting: [standard_lighting_bulb, halogen, fluorescent_strip_lightinging, energy_saving_lighting_bulb,
+    LED]
+  rs_space_heating: [boiler_solid_fuel, boiler_gas, stirling_micro_CHP, heat_pumps_electricity,
+    storage_heater_electricity, secondary_heater_electricity, boiler_oil, boiler_heat_sold,
+    boiler_biomass, boiler_hydrogen, heat_pumps_hydrogen, heat_pumps_gas]
+  rs_water_heating: [boiler_solid_fuel, boiler_gas, boiler_electricity, boiler_oil,
+    boiler_heat_sold, boiler_biomass, boiler_hydrogen]
+  rs_wet: [washing_machine, washer_dryer, dishwasher, tumble_dryer]
+rs_t_base_cooling:
+  base_yr: 21.0
+  future_yr: 21.0
+  param_infos:
+  - {absolute_range: '(20, 25)', default_value: '21', description: Base temperature
+      assumption residential sector cooling, name: ss_t_base_heating, suggested_range: '(13,
+      17)', units: "\xB0C"}
+rs_t_base_heating:
+  base_yr: 15.5
+  future_yr: 15.5
+  param_infos:
+  - {absolute_range: '(10, 20)', default_value: '15.5', description: Base temperature
+      assumption residential heating, name: rs_t_base_heating, suggested_range: '(13,
+      17)', units: "\xB0C"}
+scenario_drivers:
+  is_submodule:
+    is_compressed_air: [gva]
+    is_drying_separation: [gva]
+    is_high_temp_process: [gva]
+    is_lighting: [gva]
+    is_low_temp_process: [gva]
+    is_motors: [gva]
+    is_other: [gva]
+    is_refrigeration: [gva]
+    is_space_heating: [gva]
+  rs_submodule:
+    rs_cold: [population]
+    rs_consumer_electronics: [population]
+    rs_cooking: [population]
+    rs_home_computing: [population]
+    rs_lighting: [population, floorarea]
+    rs_space_heating: [floorarea, hlc]
+    rs_water_heating: [population]
+    rs_wet: [population]
+  ss_submodule:
+    ss_catering: []
+    ss_computing: []
+    ss_lighting: [floorarea]
+    ss_other_electricity: [floorarea]
+    ss_other_gas: [floorarea]
+    ss_space_cooling: [floorarea]
+    ss_space_heating: [floorarea]
+    ss_water_heating: []
+smart_meter_assump:
+  param_infos:
+  - {absolute_range: '(0, 1)', default_value: '0', description: Population diffusion
+      of smart meters, name: smart_meter_p_future, suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '2050', description: Year until smart
+      meter assumption is implemented, name: smart_meter_year_until_changed, suggested_range: 2015
+      - 2100, units: year}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_cold, name: smart_meter_improvement_rs_cold, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_cooking, name: smart_meter_improvement_rs_cooking, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_lighting, name: smart_meter_improvement_rs_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_wet, name: smart_meter_improvement_rs_wet, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_consumer_electronics, name: smart_meter_improvement_rs_consumer_electronics,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_home_computing, name: smart_meter_improvement_rs_home_computing,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse rs_space_heating, name: smart_meter_improvement_rs_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse ss_space_heating, name: smart_meter_improvement_ss_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Smart meter induced
+      savings for enduse is_space_heating, name: smart_meter_improvement_is_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
+  savings_smart_meter: {is_space_heating: -0.03, rs_cold: -0.03, rs_consumer_electronics: -0.03,
+    rs_cooking: -0.03, rs_home_computing: -0.03, rs_lighting: -0.03, rs_space_heating: -0.03,
+    rs_wet: -0.03, ss_space_heating: -0.03}
+  smart_meter_diff_params: {sig_midpoint: 0, sig_steeppness: 1}
+  smart_meter_p_by: 0.1
+  smart_meter_p_future: 0.1
+  smart_meter_year_until_changed: 2050
+ss_dummy_enduses: [ss_water_heating, ss_lighting, ss_computing, ss_catering, ss_other_electricity,
+  ss_cooling_ventilation, ss_other_gas]
+ss_enduse_tech_maxL_by_p: {}
+ss_floorarea_change_ey_p: {community_arts_leisure: 1, education: 1, emergency_services: 1,
+  health: 1, hospitality: 1, military: 1, offices: 1, other: 1, retail: 1, storage: 1,
+  year_until_changed: 2050}
+ss_fuel_switches: []
+ss_fuel_tech_p_by:
+  ss_catering:
+    0: {dummy_tech: 1.0}
+    1: &id016 {}
+    2: *id016
+    3: *id016
+    4: *id016
+    5: *id016
+    6: *id016
+    7: *id016
+  ss_computing:
+    0: {dummy_tech: 1.0}
+    1: &id017 {}
+    2: *id017
+    3: *id017
+    4: *id017
+    5: *id017
+    6: *id017
+    7: *id017
+  ss_cooling_ventilation:
+    0: {dummy_tech: 1.0}
+    1: &id018 {}
+    2: *id018
+    3: *id018
+    4: *id018
+    5: *id018
+    6: *id018
+    7: *id018
+  ss_lighting:
+    0: {dummy_tech: 1.0}
+    1: &id019 {}
+    2: *id019
+    3: *id019
+    4: *id019
+    5: *id019
+    6: *id019
+    7: *id019
+  ss_other_electricity:
+    0: {dummy_tech: 1.0}
+    1: &id020 {}
+    2: *id020
+    3: *id020
+    4: *id020
+    5: *id020
+    6: *id020
+    7: *id020
+  ss_other_gas:
+    0: {dummy_tech: 1.0}
+    1: &id021 {}
+    2: *id021
+    3: *id021
+    4: *id021
+    5: *id021
+    6: *id021
+    7: *id021
+  ss_space_heating:
+    0: {boiler_solid_fuel: 1.0}
+    1: {boiler_gas: 1.0}
+    2: {boiler_electricity: 1.0}
+    3: {boiler_oil: 1.0}
+    4: {boiler_heat_sold: 1.0}
+    5: {boiler_biomass: 1.0}
+    6: {boiler_hydrogen: 1.0}
+    7: {}
+  ss_water_heating:
+    0: {dummy_tech: 1.0}
+    1: &id022 {}
+    2: *id022
+    3: *id022
+    4: *id022
+    5: *id022
+    6: *id022
+    7: *id022
+ss_service_switches: []
+ss_share_service_tech_ey_p:
+  ss_catering: {}
+  ss_computing: {}
+  ss_cooling_ventilation: {}
+  ss_lighting: {}
+  ss_other_electricity: {}
+  ss_other_gas: {}
+  ss_space_heating: {}
+  ss_water_heating: {}
+ss_specified_tech_enduse_by:
+  ss_catering: [dummy_tech]
+  ss_computing: [dummy_tech]
+  ss_cooling_ventilation: [dummy_tech]
+  ss_lighting: [dummy_tech]
+  ss_other_electricity: [dummy_tech]
+  ss_other_gas: [dummy_tech]
+  ss_space_heating: [boiler_solid_fuel, boiler_gas, boiler_electricity, boiler_oil,
+    boiler_heat_sold, boiler_biomass, boiler_hydrogen, heat_pumps_hydrogen, heat_pumps_electricity,
+    heat_pumps_gas]
+  ss_water_heating: [dummy_tech]
+ss_t_base_cooling:
+  base_yr: 21
+  future_yr: 21
+  param_infos:
+  - {absolute_range: '(20, 25)', default_value: '21', description: Base temperature
+      assumption service sector cooling, name: ss_t_base_cooling, suggested_range: '(13,
+      17)', units: "\xB0C"}
+ss_t_base_heating:
+  base_yr: 15.5
+  future_yr: 15.5
+  param_infos:
+  - {absolute_range: '(10, 20)', default_value: '15.5', description: Base temperature
+      assumption service sector heating, name: ss_t_base_heating, suggested_range: '(13,
+      17)', units: "\xB0C"}
+tech_list:
+  enduse_water_heating: [rs_water_heating, ss_water_heating]
+  primary_heating_electricity: [storage_heater_electricity]
+  rs_cold: [chest_freezer, fridge_freezer, refrigerator, upright_freezer]
+  rs_cooking: [hob_electricity, oven_electricity, hob_induction_electricity]
+  rs_lighting: [halogen, standard_lighting_bulb, fluorescent_strip_lightinging, energy_saving_lighting_bulb,
+    LED]
+  rs_wet: [washing_machine, tumble_dryer, dishwasher, washer_dryer]
+  secondary_heating_electricity: [secondary_heater_electricity]
+  tech_heating_const: [boiler_solid_fuel, boiler_gas, boiler_electricity, boiler_oil,
+    boiler_biomass, boiler_hydrogen, boiler_condensing_gas, boiler_condensing_oil,
+    stirling_micro_CHP, fuel_cell_CHP, boiler_heat_sold]
+  tech_heating_temp_dep: [heat_pumps_hydrogen, heat_pumps_electricity, heat_pumps_gas]
+technologies:
+  LED: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.048, eff_ey: 0.048, fuel_type: electricity,
+    market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting, year_eff_ey: 2050.0}
+  boiler_biomass: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
+    fuel_type: biomass, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_condensing_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.85, eff_ey: 0.85,
+    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_condensing_oil: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.85, eff_ey: 0.85,
+    fuel_type: oil, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.99, eff_ey: 0.99,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7, fuel_type: gas,
+    market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_heat_sold: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.6, eff_ey: 0.6,
+    fuel_type: heat_sold, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_hydrogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
+    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_oil: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7, fuel_type: oil,
+    market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  boiler_solid_fuel: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.6, eff_ey: 0.6,
+    fuel_type: solid_fuel, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  chest_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.54, eff_ey: 0.54,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    year_eff_ey: 2050.0}
+  dishwasher: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.53, eff_ey: 0.53,
+    fuel_type: electricity, market_entry: 2018.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    year_eff_ey: 2050.0}
+  dummy_tech: {}
+  energy_saving_lighting_bulb: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.034,
+    eff_ey: 0.034, fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0,
+    tech_list: rs_lighting, year_eff_ey: 2050.0}
+  fluorescent_strip_lightinging: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.054,
+    eff_ey: 0.054, fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0,
+    tech_list: rs_lighting, year_eff_ey: 2050.0}
+  fridge_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.48, eff_ey: 0.48,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    year_eff_ey: 2050.0}
+  fuel_cell_CHP: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8, eff_ey: 0.8,
+    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  halogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.036, eff_ey: 0.036,
+    fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting,
+    year_eff_ey: 2050.0}
+  heat_pumps_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+  heat_pumps_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
+    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+  heat_pumps_hydrogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
+    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+  hob_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.9, eff_ey: 0.9,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cooking,
+    year_eff_ey: 2050.0}
+  hob_induction_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 1.3,
+    eff_ey: 1.3, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    tech_list: rs_cooking, year_eff_ey: 2050.0}
+  oven_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.65, eff_ey: 0.65,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cooking,
+    year_eff_ey: 2050.0}
+  refrigerator: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.48, eff_ey: 0.48,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    year_eff_ey: 2050.0}
+  secondary_heater_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8,
+    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    tech_list: secondary_heating_electricity, year_eff_ey: 2050.0}
+  standard_lighting_bulb: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.02, eff_ey: 0.02,
+    fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting,
+    year_eff_ey: 2050.0}
+  stirling_micro_CHP: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
+    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    year_eff_ey: 2050.0}
+  storage_heater_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8,
+    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    tech_list: primary_heating_electricity, year_eff_ey: 2050.0}
+  tumble_dryer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.81, eff_ey: 0.81,
+    fuel_type: electricity, market_entry: 2019.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    year_eff_ey: 2050.0}
+  upright_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.5, eff_ey: 0.5,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    year_eff_ey: 2050.0}
+  washer_dryer: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.0, eff_ey: 2.0,
+    fuel_type: electricity, market_entry: 2017.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    year_eff_ey: 2050.0}
+  washing_machine: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.46, eff_ey: 0.46,
+    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    year_eff_ey: 2050.0}
+test: test
+testing: true
+virtual_dwelling_stock: true

@@ -176,8 +176,9 @@ class EDWrapper(SectorModel):
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['assumptions'] = base_assumptions.load_assumptions(
+        base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
@@ -289,21 +290,18 @@ class EDWrapper(SectorModel):
 
 
         # ED related stuff
-        data['assumptions'] = base_assumptions.load_assumptions(
+        base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
 
-        #data['assumptions']['assump_diff_floorarea_pp'] = data['assumptions']['assump_diff_floorarea_pp']
-        #data['assumptions']['climate_change_temp_diff_month'] = data['assumptions']['climate_change_temp_diff_month']
-        #data['assumptions']['rs_t_base_heating']['future_yr'] = data['assumptions']['rs_t_base_heating']['future_yr']
-        data['assumptions']['eff_achieving_factor'] = data['assumptions']['eff_achieving_factor']
 
         # Update: Necessary updates after external data definition
-        data['assumptions'] = base_assumptions.update_assumptions(data['assumptions']) #Maybe write s_script
+        data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved']) #Maybe write s_script
 
         # -----------------------
         # Load data from scripts (replacing #data = read_data.load_script_data(data))

@@ -5,11 +5,20 @@ import sys
 import csv
 import json
 import logging
+import yaml
 from collections import defaultdict
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
+
+def read_param_yaml(path):
+    """
+    """
+    with open(path, 'r') as ymlfile:
+        parameter_dict = yaml.load(ymlfile)
+
+    return parameter_dict
 
 def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     """Read and post calculate

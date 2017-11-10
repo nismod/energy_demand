@@ -60,9 +60,9 @@ class WeatherRegion(object):
         temp_cy = change_temp_climate(
             temp_by,
             assumptions['yeardays_month_days'],
-            assumptions['climate_change_temp_diff_month'],
+            assumptions['climate_change_temp_diff_month']['temps'],
             sim_param,
-            assumptions['climate_change_temp_diff_year_until_changed'])
+            assumptions['climate_change_temp_diff_month']['climate_change_temp_diff_year_until_changed'])
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
