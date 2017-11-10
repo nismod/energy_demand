@@ -253,16 +253,14 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         s_disaggregation.run(data)
     else:
         sd_cont = {}
-
         data = s_disaggregation.disaggregate_base_demand(data)
-        print("FUEL DIAGG WORK=?")
+
         sd_cont['rs_fuel_disagg'] = data['rs_fuel_disagg']
         sd_cont['ss_fuel_disagg'] = data['ss_fuel_disagg']
         sd_cont['is_fuel_disagg'] = data['is_fuel_disagg']
 
     logging.info("... finished scenario_initalisation")
     print("... finished scenario_initalisation")
-
     if not run_locally:
         return fts_cont, sgs_cont, sd_cont
     else:

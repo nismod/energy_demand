@@ -91,9 +91,7 @@ class EDWrapper(SectorModel):
         #sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
         #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
         #sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
-        sim_param['list_dates'] = date_prop.fullyear_dates(
-            start=date(sim_param['base_yr'], 1, 1),
-            end=date(sim_param['base_yr'], 12, 31))
+
         data['sim_param'] = sim_param
 
         # -----------------------------
@@ -106,9 +104,9 @@ class EDWrapper(SectorModel):
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
-    
+
         # =========DUMMY DATA
-        data = data_loader.dummy_data_generation(data)
+        data = data_loader.dummy_data_generation(data, data['lu_reg'])
         # =========DUMMY DATA
 
 
@@ -178,9 +176,9 @@ class EDWrapper(SectorModel):
         #...
         
         data['rs_floorarea'] = self.array_to_dict(floor_array)
-        data['ss_floorarea'] = self.array_to_dict(floor_array)
+        #data['ss_floorarea'] = self.array_to_dict(floor_array)
         data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
-        self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
+        #self.user_data['ss_floorarea'] = self.array_to_dict(floor_array)
         self.user_data['reg_floorarea_resid'] = self.array_to_dict(floor_array)'''
 
         # ---------------------
@@ -194,17 +192,16 @@ class EDWrapper(SectorModel):
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
-        data['tech_lp'] = data_loader.load_data_profiles(
-            data['paths'], data['local_paths'], data['assumptions'])
+        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         
         # Pass along to simulate()
         self.user_data['temp_data'] = data['temp_data']
+
         # --------------------
         # Initialise scenario
         # --------------------
         self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
-            self.user_data['data_path'],
-            data)
+            self.user_data['data_path'], data)
 
     def initialise(self, initial_conditions):
         """
@@ -281,6 +278,7 @@ class EDWrapper(SectorModel):
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
+        print("A: " + str(data['lu_reg']))
 
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
@@ -294,7 +292,6 @@ class EDWrapper(SectorModel):
         # Necessary update
         data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
         data['sim_param']['sim_period_yrs'] = int(data['sim_param']['end_yr'] + 1 - data['sim_param']['base_yr'])
-        data['sim_param']['list_dates'] = date_prop.fullyear_dates(start=date(data['sim_param']['base_yr'], 1, 1), end=date(data['sim_param']['base_yr'], 12, 31))
 
         # ED related stuff
         data['assumptions'] = base_assumptions.load_assumptions(
@@ -351,10 +348,11 @@ class EDWrapper(SectorModel):
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
         # Copy from before_model_run()
-        data['regions'] = self.get_region_names(REGION_SET_NAME)
+        data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
 
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         # =========DUMMY DATA
-        data = data_loader.dummy_data_generation(data)
+        data = data_loader.dummy_data_generation(data, data['lu_reg'])
         # =========DUMMY DATA
 
         # ---------------------------------------------

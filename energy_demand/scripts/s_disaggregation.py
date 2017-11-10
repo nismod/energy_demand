@@ -154,6 +154,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
+    print("REGG: " + str(data['lu_reg']))
     for region_name in data['lu_reg']:
         ss_fuel_disagg[region_name] = defaultdict(dict)
         for sector in data['sectors']['ss_sectors']:
@@ -203,7 +204,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
-    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg="")
+    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
     return ss_fuel_disagg
 
 def is_disaggregate(data, raw_fuel_sectors_enduses):

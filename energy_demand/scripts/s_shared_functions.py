@@ -69,7 +69,7 @@ def create_txt_shapes(
 
     return
 
-def read_assumption_sim_param(path_to_csv):
+'''def read_assumption_sim_param(path_to_csv):
     """Read assumptions from dict
 
     Arguments
@@ -100,9 +100,5 @@ def read_assumption_sim_param(path_to_csv):
         int(assumptions['end_yr']) + 1,
         int(assumptions['sim_years_intervall']))
 
-    # Redefine sim_period_yrs
-    assumptions['list_dates'] = date_prop.fullyear_dates(
-        start=date(int(assumptions['base_yr']), 1, 1),
-        end=date(int(assumptions['base_yr']), 12, 31))
-
     return assumptions
+'''

@@ -24,16 +24,15 @@ def test_region_selection(ed_fueltype_regs_yh):
             _sum_day_selection += np.sum(region_fuel[: hours_modelled])
             len_dict = region_fuel.shape[0]
     
-    print("nr of dasy to sho {}  {}".format(hours_modelled, len_dict))
+    #print("nr of dasy to sho {}  {}".format(hours_modelled, len_dict))
 
     _sum_all = 0
     for fuels in ed_fueltype_regs_yh:
         for region_fuel in fuels:
             _sum_all += np.sum(region_fuel)
-    print("_sum_day_selection")
-    print(_sum_day_selection)
-    print("_sum_all: " + str(_sum_all))
-    
+    #print("_sum_day_selection")
+    ##print(_sum_day_selection)
+    #print("_sum_all: " + str(_sum_all))
     return
 
 def testing_fuel_tech_shares(fuel_tech_fueltype_p):

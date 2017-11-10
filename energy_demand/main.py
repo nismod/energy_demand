@@ -1,5 +1,5 @@
 '''
-Energy Demand Model 
+Energy Demand Model
 ===================
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected
@@ -109,9 +109,8 @@ if __name__ == "__main__":
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
     # ==========
-    dummy_pop_geocodes = data_loader.load_LAC_geocodes_info(
-        data['local_paths']['path_dummy_regions'])
-    data = data_loader.dummy_data_generation(data, dummy_pop_geocodes)
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+    data = data_loader.dummy_data_generation(data)
     # ==========
 
     #Scenario data
@@ -122,7 +121,7 @@ if __name__ == "__main__":
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
     logging.info("Nr of Regions " + str(data['reg_nrs']))
-    ##'''
+
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
@@ -143,7 +142,8 @@ if __name__ == "__main__":
         data['assumptions'],
         data['reg_nrs'])
 
-    for sim_yr in data['sim_param']['sim_period']:
+    for sim_yr in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall']):
+        #for sim_yr in data['sim_param']['sim_period']:
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.debug("SIMULATION RUN--------------:  " + str(sim_yr))

@@ -43,14 +43,11 @@ def load_sim_param_ini(path):
 
     # Some calculations
     sim_param['sim_period'] = range(
-    sim_param['base_yr'],
-    sim_param['end_yr'] + 1,
-    sim_param['sim_years_intervall'])
+        sim_param['base_yr'],
+        sim_param['end_yr'] + 1,
+        sim_param['sim_years_intervall'])
 
     sim_param['sim_period_yrs'] = int(sim_param['end_yr'] + 1 - sim_param['base_yr'])
-    sim_param['list_dates'] = date_prop.fullyear_dates(
-        start=date(sim_param['base_yr'], 1, 1),
-        end=date(sim_param['base_yr'], 12, 31))
 
     return sim_param, enduses, assumptions, reg_nrs
 
@@ -172,7 +169,7 @@ def get_dummy_coord_region(lu_reg, local_paths):
         coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
     return coord_dummy
 
-def dummy_data_generation(data, regions=False):
+def dummy_data_generation(data, regions=[]):
     """REPLACE WITH NEWCASTLE DATA
     """
     data['all_sectors'] = [
@@ -185,14 +182,14 @@ def dummy_data_generation(data, regions=False):
         'offices',
         'retail',
         'storage',
-        'other'
-        ]
-    # Load dummy LAC and pop
-    if regions is not False:
-        # =========== scrap all removed
-        data['lu_reg'] = regions
-        # GVA
+        'other']
 
+    # Load dummy LAC and pop
+    if regions == []:
+        regions = data['lu_reg']
+        # =========== scrap all removed
+
+        # GVA
         gva_data = {}
         for year in range(2015, 2101):
             gva_data[year] = {}
@@ -202,6 +199,7 @@ def dummy_data_generation(data, regions=False):
 
         dummy_pop_geocodes = load_LAC_geocodes_info(
             data['local_paths']['path_dummy_regions'])
+
         # Population
         pop_dummy = {}
         for year in range(2015, 2101):
@@ -211,16 +209,13 @@ def dummy_data_generation(data, regions=False):
             pop_dummy[year] = _data
         data['population'] = pop_dummy
 
-
-    data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
-
-
     # Residenital floor area
     rs_floorarea = {}
     for year in range(2015, 2101):
         rs_floorarea[year] = {}
         for region_geocode in regions:
-            rs_floorarea[year][region_geocode] = 10000 #USE FLOOR AREA
+            rs_floorarea[year][region_geocode] = 10000
+    data['rs_floorarea'] = rs_floorarea
 
     # Dummy flor area
     ss_floorarea_sector_by_dummy = {}
@@ -229,18 +224,15 @@ def dummy_data_generation(data, regions=False):
         for sector in data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
 
-    data['rs_floorarea'] = rs_floorarea
-    data['ss_floorarea'] = ss_floorarea_sector_by_dummy
+    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     data['reg_nrs'] = len(regions)
     data['reg_floorarea_resid'] = {}
-    
+
     for region_name in data['lu_reg']:
         data['reg_floorarea_resid'][region_name] = 100000
-    
-    data['input_regions'] = regions
 
-    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
     return data
 
