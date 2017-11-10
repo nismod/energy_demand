@@ -23,10 +23,8 @@ def load_sim_param_ini(path):
 
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
-    sim_param['end_yr'] = int(config['SIM_PARAM']['end_yr'])
-    sim_param['sim_years_intervall'] = int(config['SIM_PARAM']['sim_years_intervall'])
-    #sim_param['simulated_years'] = ast.literal_eval(config['SIM_PARAM']['simulated_years'])
-    
+    sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
+
     assumptions = {}
     assumptions['model_yearhours_nrs'] = int(config['SIM_PARAM']['model_yearhours_nrs'])
     assumptions['model_yeardays_nrs'] = int(config['SIM_PARAM']['model_yeardays_nrs'])
@@ -38,12 +36,6 @@ def load_sim_param_ini(path):
     enduses['rs_all_enduses'] = ast.literal_eval(config['ENDUSES']['rs_all_enduses']) #convert string lists to list
     enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
     enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
-
-    # Some calculations
-    sim_param['sim_period'] = range(
-        sim_param['base_yr'],
-        sim_param['end_yr'] + 1,
-        sim_param['sim_years_intervall'])
 
     return sim_param, enduses, assumptions, reg_nrs
 
@@ -617,7 +609,7 @@ def rs_collect_shapes_from_txts(txt_path, model_yeardays):
 
         # Select only modelled days (nr_of_days, 24)
         shape_non_peak_y_dh_selection = shape_non_peak_y_dh[[model_yeardays]]
-        shape_non_peak_yd_selection= shape_non_peak_yd[[model_yeardays]]
+        shape_non_peak_yd_selection = shape_non_peak_yd[[model_yeardays]]
 
         rs_shapes_dh[enduse] = {
             'shape_peak_dh': shape_peak_dh,

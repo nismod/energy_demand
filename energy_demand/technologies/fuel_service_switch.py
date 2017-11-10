@@ -264,10 +264,8 @@ def convert_capacity_assumption_to_service(
 
     for tech, service_tech_p in service_enduse_tech.items():
 
-        # BELUGA ALL NEW 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
         for switch in capacity_switches:
-            #if switch['technology_install'] == tech:
             year_switch_ey = switch['year_fuel_consumption_switched']
             continue
 

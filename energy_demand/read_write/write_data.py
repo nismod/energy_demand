@@ -22,9 +22,8 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
     config.add_section('SIM_PARAM') 
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
-    config['SIM_PARAM']['end_yr'] = str(sim_param['end_yr'])
-    config['SIM_PARAM']['sim_years_intervall'] = str(sim_param['sim_years_intervall'])
-    #config['SIM_PARAM']['simulated_years'] = str(simulated_years)
+
+    config['SIM_PARAM']['simulated_yrs'] = str(sim_param['simulated_yrs'])
 
     config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
     config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])

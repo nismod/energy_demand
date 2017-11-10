@@ -7,6 +7,20 @@ from datetime import timedelta
 from isoweek import Week
 import numpy as np
 
+# Weeks in middle of meteorological seasons
+'''winter_week = list(range(
+    date_prop.date_to_yearday(year_to_model, 1, 12),
+    date_prop.date_to_yearday(year_to_model, 1, 26))) #Jan
+spring_week = list(range(
+    date_prop.date_to_yearday(year_to_model, 5, 11),
+    date_prop.date_to_yearday(year_to_model, 5, 25))) #May
+summer_week = list(range(
+    date_prop.date_to_yearday(year_to_model, 7, 13),
+    date_prop.date_to_yearday(year_to_model, 7, 27))) #Jul
+autumn_week = list(range(
+    date_prop.date_to_yearday(year_to_model, 10, 12),
+    date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
+    
 def get_model_yeardays_datype(year_to_model):
     # --------------------------------------
     # Calculate for all yeardays the daytype of base year

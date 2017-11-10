@@ -61,7 +61,6 @@ class EDWrapper(SectorModel):
         `self.user_data` allows to pass data from before_model_run to main model
         """
         data = {}
-        sim_param = {}
 
         data['print_criteria'] = False
 
@@ -85,13 +84,10 @@ class EDWrapper(SectorModel):
         # ---------------------
         # Simulation parameters
         # ---------------------
-        sim_param['base_yr'] = 2015 #REPLACE
-        sim_param['end_yr'] = 2030 #REPLACE
-        sim_param['curr_yr'] = sim_param['base_yr'] #REPLACE
-        #sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-        #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-
-        data['sim_param'] = sim_param
+        data['sim_param'] = {}
+        data['sim_param']['base_yr'] = 2015 #REPLACE
+        data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
+        self.user_data['base_yr'] = data['sim_param']['base_yr']
 
         # -----------------------------
         # Region related informatiom
@@ -104,30 +100,24 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
 
-        # =========DUMMY DATA
         data = data_loader.dummy_data_generation(data, data['lu_reg'])
-        # =========DUMMY DATA
-
 
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
-
-        # Population TODO: TEST IF ONLY BASE AND CY CAN BE INSERTED
-        pop_array = self.get_scenario_data('population')
+        # Population
+        pop_array = self.get_scenario_data('population') #maybe only cy and by data
         data['population'] = self.array_to_dict(pop_array['population'])
-        self.user_data['population'] = self.array_to_dict(pop_array['population'])
 
         # GVA
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array['gva'])
-        self.user_data['gva'] = self.array_to_dict(gva_array['gva'])
 
         #Scenario data
         data['scenario_data'] = {
             'gva': data['gva'],
             'population': data['population']}
-    
+
         '''# Building stock related data
 
         # --Residential Floor Area
@@ -160,7 +150,7 @@ class EDWrapper(SectorModel):
         floor_array = self.get_scenario_data('floor_area_rs_bungalow_1950-1970')
         floor_array = self.get_scenario_data('floor_area_rs_bungalow_1950-1990')
         floor_array = self.get_scenario_data('floor_area_rs_bungalow_newer2010')
-        
+
         # --Service
         floor_array = self.get_scenario_data('floor_area_ss_community_pre1930')
         floor_array = self.get_scenario_data('floor_area_ss_education_pre1930')
@@ -173,7 +163,7 @@ class EDWrapper(SectorModel):
         floor_array = self.get_scenario_data('floor_area_ss_storage_pre1930') #not provided, calc % of rest
         floor_array = self.get_scenario_data('floor_area_ss_rest_pre1930') # assign 
         #...
-        
+
         data['rs_floorarea'] = self.array_to_dict(floor_array)
         #data['ss_floorarea'] = self.array_to_dict(floor_array)
         data['reg_floorarea_resid'] = self.array_to_dict(floor_array)
@@ -193,8 +183,12 @@ class EDWrapper(SectorModel):
 
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         
+        # ------------------------
         # Pass along to simulate()
+        # ------------------------
         self.user_data['temp_data'] = data['temp_data']
+        self.user_data['gva'] = self.array_to_dict(gva_array['gva'])
+        self.user_data['population'] = self.array_to_dict(pop_array['population'])
 
         # --------------------
         # Initialise scenario
@@ -250,19 +244,26 @@ class EDWrapper(SectorModel):
 
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
-        #self.user_data['data_path'] = '/vagrant/data_energy_demand'
 
-        # Got two levels down
+        # Go two levels down
         path, folder = os.path.split(path_main)
         path_nismod, folder = os.path.split(path)
         self.user_data['data_path'] = os.path.join(path_nismod, 'data_energy_demand')
+
+        # --------------------
+        # Simulation parameters
+        # --------------------
+        data['sim_param'] = {}
+        data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
+        data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
+        data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
 
         # ---------
         # Scenario data
         # ---------
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
-        
+
         data['print_criteria'] = False
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
@@ -279,17 +280,13 @@ class EDWrapper(SectorModel):
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
         print("A: " + str(data['lu_reg']))
 
+        #REPLACE BY SMIF INPUT
+        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
+
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-        # Simulation parameters
-        data['sim_param'] = base_assumptions.load_sim_param() #REPLACE
-        data['sim_param']['current_year'] = timestep
-        data['sim_param']['end_year'] = 2020 #REPLACE
-        data['sim_param']['sim_years_intervall'] = 1 #REPLACE
 
-        # Necessary update
-        data['sim_param']['sim_period'] = range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall'])
 
         # ED related stuff
         data['assumptions'] = base_assumptions.load_assumptions(
@@ -299,9 +296,6 @@ class EDWrapper(SectorModel):
 
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
-
-        #REPLACE BY SMIF INPUT
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
         #data['assumptions']['assump_diff_floorarea_pp'] = data['assumptions']['assump_diff_floorarea_pp']
         #data['assumptions']['climate_change_temp_diff_month'] = data['assumptions']['climate_change_temp_diff_month']

@@ -1,12 +1,7 @@
 """Function which are used in multiple scripts
 """
 import os
-import csv
-from datetime import date
-from datetime import timedelta
-from energy_demand.basic import date_prop
 import json
-import numpy as np
 
 def create_txt_shapes(
         end_use,
@@ -68,37 +63,3 @@ def create_txt_shapes(
             str(end_use) + str("__") + str('shape_non_peak_yd') + str('.txt')))
 
     return
-
-'''def read_assumption_sim_param(path_to_csv):
-    """Read assumptions from dict
-
-    Arguments
-    ----------
-    path_to_csv : str
-        Path to csv file with info
-
-    Return
-    -----
-    assumptions : dict
-        Assumptions
-    """
-    assumptions = {}
-
-    with open(path_to_csv, 'r') as csvfile:
-        read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(csvfile) # Skip headers
-
-        for row in read_lines:
-            try:
-                assumptions[str(row[0])] = float(row[1])
-            except ValueError:
-                assumptions[str(row[0])] = None
-
-    # Redefine sim_period_yrs
-    assumptions['sim_period'] = range(
-        int(assumptions['base_yr']),
-        int(assumptions['end_yr']) + 1,
-        int(assumptions['sim_years_intervall']))
-
-    return assumptions
-'''

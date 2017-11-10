@@ -26,6 +26,16 @@ from energy_demand.basic import date_prop
     assert out_value == expected
 '''
 
+def test_read_season():
+    """testing
+    """
+    result = date_prop.read_season(year_to_model=2018)
+
+    assert result['summer'][0] == 151 #2018 regular year, first of june julianday - 1 for python
+    assert result['autumn'][0] == 243 #2018 regular year, first of june julianday - 1 for python
+    assert result['winter'][0] == 334 #2018 regular year, first of june julianday - 1 for python
+    assert result['spring'][0] == 59 #2018 regular year, first of june julianday - 1 for python
+
 def test_get_model_yeardays_datype():
     """testing
     """

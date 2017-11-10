@@ -49,7 +49,11 @@ def post_install_setup(args):
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
-    data['sim_param'] = base_assumptions.load_sim_param()
+
+    data['sim_param'] = {}
+    data['sim_param']['base_yr'] = 2015
+    data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
+
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -109,13 +113,19 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
-        data['sim_param'] = base_assumptions.load_sim_param()
+        
+        data['sim_param'] = {}
+        data['sim_param']['base_yr'] = 2015
+        data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
+        data['sim_param']['curr_yr'] = 2015 #NEEDED
+
         data['assumptions'] = base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
-        dummy_pop_geocodes = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
-        data = data_loader.dummy_data_generation(data, dummy_pop_geocodes)
+
+        data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+        data = data_loader.dummy_data_generation(data)
             
         data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 

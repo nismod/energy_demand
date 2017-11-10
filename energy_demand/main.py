@@ -47,6 +47,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
+    print("SIMULATION YEARS: " + str(data['sim_param']['curr_yr']))
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data)
@@ -99,7 +100,11 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'] = base_assumptions.load_sim_param()
+
+    data['sim_param'] = {}
+    data['sim_param']['base_yr'] = 2015
+    data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
+
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -107,7 +112,7 @@ if __name__ == "__main__":
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-    
+
     # ==========
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
     data = data_loader.dummy_data_generation(data)
@@ -142,11 +147,10 @@ if __name__ == "__main__":
         data['assumptions'],
         data['reg_nrs'])
 
-    for sim_yr in range(data['sim_param']['base_yr'], data['sim_param']['end_yr'] + 1, data['sim_param']['sim_years_intervall']):
-        #for sim_yr in data['sim_param']['sim_period']:
+    for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
 
-        logging.debug("SIMULATION RUN--------------:  " + str(sim_yr))
+        logging.info("Simulation for year --------------:  " + str(sim_yr))
         fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
 
         #-------------PROFILER
@@ -230,7 +234,6 @@ if __name__ == "__main__":
     # Load necessary inputs for read in
     # ------------------
     #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
-    
     data = {}
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()

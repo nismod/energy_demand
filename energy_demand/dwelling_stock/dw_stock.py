@@ -525,14 +525,14 @@ def rs_dw_stock(region, data, curr_yr):
         data['assumptions']['assump_dwtype_floorarea_by'],
         data['assumptions']['assump_dwtype_floorarea_future'],
         base_yr,
-        data['sim_param']['sim_period'])
+        data['sim_param']['simulated_yrs'])
 
     # Get distribution of dwelling types of all simulation years
     dwtype_distr = get_dwtype_distr(
         data['assumptions']['assump_dwtype_distr_by'],
         data['assumptions']['assump_dwtype_distr_future'],
         base_yr,
-        data['sim_param']['sim_period'])
+        data['sim_param']['simulated_yrs'])
 
     # Get floor area per person for every simulation year
     data_floorarea_pp = get_floorare_pp(
@@ -540,7 +540,7 @@ def rs_dw_stock(region, data, curr_yr):
         data['reg_floorarea_resid'],
         data['scenario_data']['population'][base_yr],
         base_yr,
-        data['sim_param']['sim_period'],
+        data['sim_param']['simulated_yrs'],
         data['assumptions']['assump_diff_floorarea_pp'],
         data['assumptions']['assump_diff_floorarea_pp_year_until_changed'])
 

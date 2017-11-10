@@ -18,10 +18,3 @@
   suggested_range: (10, 18)
   default_value: 15.5
   units: degrees °C
-# Technology related parameters
-- name: eff_achieving_factor
-  description: How much of the potential efficiency improvements up to end year can be reaped
-  absolute_range: (0,1)
-  suggested_range: (0,1)
-  default_value: 0
-  units: percentage

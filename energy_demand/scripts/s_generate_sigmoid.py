@@ -119,7 +119,7 @@ def tech_sigmoid_parameters(
         service_tech_by_p,
         service_tech_switched_p,
         fuel_switches,
-        service_switches #BELUGA
+        service_switches
     ):
     """Calculate diffusion parameters based on energy service
     demand in base year and projected future energy service demand
@@ -605,7 +605,7 @@ def get_sig_diffusion(
             service_tech_by_p[enduse],
             service_tech_switched_p[enduse],
             fuel_switches,
-            service_switches) #BELUGA
+            service_switches)
 
     return installed_tech, sig_param_tech
 

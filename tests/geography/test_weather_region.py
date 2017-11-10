@@ -20,7 +20,8 @@ import os
     
     #{'base_yr': base_yr, 'curr_yr': curr_yr, 'sim_period_yrs': sim_period_yrs}
     #Load assumptions
-    data['sim_param'] = base_assumpitons.load_sim_param()
+
+
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
 

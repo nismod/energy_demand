@@ -1,8 +1,6 @@
 """All assumptions are either loaded in this file or definied here
 """
 import logging
-from datetime import date
-import numpy as np
 from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions as testing
@@ -10,19 +8,6 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
-
-def load_sim_param():
-    """Load sigmoid parameters: REPLACE
-    """
-    sim_param = {}
-    sim_param['base_yr'] = 2015
-    sim_param['end_yr'] = 2030
-    sim_param['sim_years_intervall'] = 5 # Make calculation only every X year
-    #sim_param['sim_period'] = range(sim_param['base_yr'], sim_param['end_yr'] + 1, sim_param['sim_years_intervall'])
-    sim_param['sim_period'] = [2015, 2020, 2025]
-    sim_param['curr_yr'] = sim_param['base_yr']
-
-    return sim_param
 
 def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     """All assumptions of the energy demand model are loaded and added to the data dictionary
@@ -39,29 +24,13 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Date selection for which model is run
     # Store in list all dates which are modelled
     # --------------------------------------
-    year_to_model = 2015
-
-    # Weeks in middle of meteorological seasons
-    '''winter_week = list(range(
-        date_prop.date_to_yearday(year_to_model, 1, 12),
-        date_prop.date_to_yearday(year_to_model, 1, 26))) #Jan
-    spring_week = list(range(
-        date_prop.date_to_yearday(year_to_model, 5, 11),
-        date_prop.date_to_yearday(year_to_model, 5, 25))) #May
-    summer_week = list(range(
-        date_prop.date_to_yearday(year_to_model, 7, 13),
-        date_prop.date_to_yearday(year_to_model, 7, 27))) #Jul
-    autumn_week = list(range(
-        date_prop.date_to_yearday(year_to_model, 10, 12),
-        date_prop.date_to_yearday(year_to_model, 10, 26))) #Oct'''
-
-
+    year_until_changed_all_things = 2050
 
     # ------------
     # Modelled days
     # ------------
-    #assumptions['model_yeardays'] = winter_week + spring_week + summer_week + autumn_week
-    assumptions['model_yeardays'] = list(range(365)) #a list with yearday values ranging between 1 and 364
+    #a list with yearday values ranging between 1 and 364
+    assumptions['model_yeardays'] = list(range(365)) 
 
     # ---------------------------------------
     # Calculate dates of modelled days
@@ -91,7 +60,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
-    assumptions['assump_diff_floorarea_pp_year_until_changed'] = 2050
+    assumptions['assump_diff_floorarea_pp_year_until_changed'] = year_until_changed_all_things
 
     # Specific Energy Demand factors per dwelling type could be defined
     # (e.g. per dwelling type or GVA class or residents....)
@@ -108,9 +77,9 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Dwelling type distribution end year
     # Source: Housing Energy Fact File, Table 4c: Housing Stock Distribution by Type
     assumptions['assump_dwtype_distr_future'] = {
-    
+
         # Year until change is implemented
-        'year_until_changed': 2030,
+        'year_until_changed': year_until_changed_all_things,
 
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -132,9 +101,9 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['assump_dwtype_floorarea_future'] = {
 
         # Year until change is implemented
-        'year_until_changed': 2030,
+        'year_until_changed': year_until_changed_all_things,
 
-        'semi_detached': 200,
+        'semi_detached': 96,
         'terraced': 82.5,
         'flat': 61,
         'detached': 147,
@@ -167,7 +136,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['demand_management'] = {
 
         # Year until ld if implemented
-        'year_until_changed': 2050,
+        'year_until_changed': year_until_changed_all_things,
 
         # Residential submodule
         'rs_space_heating': 0,
@@ -244,7 +213,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # TODO: Project future demand based on seperate methodology
     assumptions['ss_floorarea_change_ey_p'] = {
 
-        'year_until_changed': 2050,
+        'year_until_changed': year_until_changed_all_things,
 
         'community_arts_leisure': 1,
         'education': 1,
@@ -274,7 +243,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         0, # October
         0, # November
         0] # December
-    assumptions['climate_change_temp_diff_year_until_changed'] = 2050
+    assumptions['climate_change_temp_diff_year_until_changed'] = year_until_changed_all_things
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
 
     # ============================================================
@@ -302,7 +271,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['base_temp_diff_params'] = {}
     assumptions['base_temp_diff_params']['sig_midpoint'] = 0
     assumptions['base_temp_diff_params']['sig_steeppness'] = 1
-    assumptions['base_temp_diff_params']['year_until_changed'] = 2060
+    assumptions['base_temp_diff_params']['year_until_changed'] = year_until_changed_all_things
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -325,9 +294,6 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
     # Long term smart meter induced general savings, purley as a result of having a smart meter
     assumptions['savings_smart_meter'] = {
-
-        # Year until changed
-        #'year_until_changed': 2050,
 
         # Residential
         'rs_cold': -0.03,
@@ -373,7 +339,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # -------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
-        'year_until_changed': 2050,
+        'year_until_changed': year_until_changed_all_things,
         # Lighting: E.g. how much floor area / % (social change - how much
         # floor area is lighted (smart monitoring)) (smart-lighting)
         # Submodel Residential
@@ -486,7 +452,9 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions = fuel_service_switch.calc_service_switch_capacity(
         paths,
         enduses,
-        assumptions, fuels, sim_param)
+        assumptions,
+        fuels,
+        sim_param)
 
     # ========================================
     # Other: GENERATE DUMMY TECHNOLOGIES
@@ -539,7 +507,6 @@ def update_assumptions(assumptions):
     """
     assumptions['technologies'] = helpers.helper_set_same_eff_all_tech(
         assumptions['technologies'],
-        assumptions['eff_achieving_factor']
-        )
+        assumptions['eff_achieving_factor'])
 
     return assumptions

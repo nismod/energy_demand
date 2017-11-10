@@ -34,7 +34,7 @@ def run_all_plot_functions(
     # All enduses
     plt_stacked_enduse_sectors(
         lookups,
-        sim_param['sim_period'],
+        sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'], enduses['ss_all_enduses'], enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_all_enduses_country.pdf"))
@@ -112,25 +112,25 @@ def run_all_plot_functions(
     # ------------
     # Residential
     plt_stacked_enduse(
-        sim_param['sim_period'],
+        sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['rs_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
 
     # Service
     plt_stacked_enduse(
-        sim_param['sim_period'],
+        sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['ss_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_ss_countryl.pdf"))
 
     # Industry
     plt_stacked_enduse(
-        sim_param['sim_period'],
+        sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
-    print("--")
+
     # ------------------------------------
     # Plot averaged per season an fueltype
     # ------------------------------------

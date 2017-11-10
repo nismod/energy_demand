@@ -48,7 +48,11 @@ def run_model(args):
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-    data['sim_param'] = base_assumptions.load_sim_param()
+
+    data['sim_param'] = {}
+    data['sim_param']['base_yr'] = 2015
+    data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050] #[2015, 2020, 2025]
+
     data['assumptions'] = base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
