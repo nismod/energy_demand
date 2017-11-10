@@ -6,9 +6,7 @@ Energy Demand Model
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
-
-# TODOEnd year diffusion assumption
-5'''
+'''
 import os
 import sys
 import logging

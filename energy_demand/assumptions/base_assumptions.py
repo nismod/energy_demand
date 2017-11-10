@@ -24,7 +24,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # --------------------------------------
     # Basic configurations
     # --------------------------------------
-    year_until_changed_all_things = 2050
+    yr_until_changed_all_things = 2050
     assumptions['model_yeardays'] = list(range(365))  # Modelled days
 
     # Calculate dates of modelled days
@@ -51,7 +51,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
-    assumptions['assump_diff_floorarea_pp_year_until_changed'] = year_until_changed_all_things
+    assumptions['assump_diff_floorarea_pp_yr_until_changed'] = yr_until_changed_all_things
 
     # Specific Energy Demand factors per dwelling type could be defined
     # (e.g. per dwelling type or GVA class or residents....)
@@ -70,7 +70,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['assump_dwtype_distr_future'] = {
 
         # Year until change is implemented
-        'year_until_changed': year_until_changed_all_things,
+        'yr_until_changed': yr_until_changed_all_things,
 
         'semi_detached': 0.26,
         'terraced': 0.283,
@@ -92,7 +92,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['assump_dwtype_floorarea_future'] = {
 
         # Year until change is implemented
-        'year_until_changed': year_until_changed_all_things,
+        'yr_until_changed': yr_until_changed_all_things,
 
         'semi_detached': 96,
         'terraced': 82.5,
@@ -127,7 +127,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
 
         # Parameters info
         'param_infos': [{
-            "name": "demand_management_year_until_changed",
+            "name": "demand_management_yr_until_changed",
             "absolute_range": "(10, 20)",
             "description": "Year until demand management assumptions are fully realised",
             "suggested_range": "(2015 - 2100)",
@@ -135,7 +135,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
             "units": 'years'}],
 
         # Year until ld if implemented
-        'demand_management_year_until_changed': year_until_changed_all_things,
+        'demand_management_yr_until_changed': yr_until_changed_all_things,
 
         'enduses_demand_managent': {
             # Residential submodule
@@ -224,7 +224,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # TODO: Project future demand based on seperate methodology
     assumptions['ss_floorarea_change_ey_p'] = {
 
-        'year_until_changed': year_until_changed_all_things,
+        'yr_until_changed': yr_until_changed_all_things,
 
         'community_arts_leisure': 1,
         'education': 1,
@@ -246,7 +246,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         # Parameters info
         'param_infos': [
             {
-                "name": "climate_change_temp_diff_year_until_changed",
+                "name": "climate_change_temp_diff_yr_until_changed",
                 "absolute_range": "2015-2100",
                 "description": "Year until climate temperature changes are fully realised",
                 "suggested_range": "2030 - 2100",
@@ -269,7 +269,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
             0, # November
             0], # December
         
-        'climate_change_temp_diff_year_until_changed': year_until_changed_all_things
+        'climate_change_temp_diff_yr_until_changed': yr_until_changed_all_things
     }
 
     #assumptions['climate_change_temp_diff_month'] = [0] * 12 # No change
@@ -352,7 +352,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
         'sig_steeppness': 1,
-        'year_until_changed': year_until_changed_all_things}
+        'yr_until_changed': yr_until_changed_all_things}
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -379,7 +379,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
                 "default_value": '0',
                 "units": '%'},
             {
-                "name": "smart_meter_year_until_changed",
+                "name": "smart_meter_yr_until_changed",
                 "absolute_range": "(0, 1)",
                 "description": "Year until smart meter assumption is implemented",
                 "suggested_range": "2015 - 2100",
@@ -395,7 +395,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         'smart_meter_p_future': 0.1,
 
         # Year until change is implemented
-        'smart_meter_year_until_changed': year_until_changed_all_things,
+        'smart_meter_yr_until_changed': yr_until_changed_all_things,
 
         # Long term smart meter induced general savings, purley as a result of having a smart meter
         'savings_smart_meter': {
@@ -467,7 +467,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
         'rs_space_heating': 0.0, # e.g. 0.2 = 20% reduction
         'ss_space_heating': 0.0,
         'is_space_heating': 0.0,
-        'heat_recovered_year_until_changed': year_until_changed_all_things
+        'heat_recovered_yr_until_changed': yr_until_changed_all_things
     }
 
     # ---------------------------------------------------------
@@ -483,7 +483,7 @@ def load_assumptions(paths, enduses, lookups, fuels, sim_param):
     # -------------------------------------------------------
     assumptions['enduse_overall_change_ey'] = {
 
-        'year_until_changed': year_until_changed_all_things,
+        'yr_until_changed': yr_until_changed_all_things,
         # Lighting: E.g. how much floor area / % (social change - how much
         # floor area is lighted (smart monitoring)) (smart-lighting)
         # Submodel Residential

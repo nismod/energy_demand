@@ -247,7 +247,7 @@ def get_floorare_pp(
         base_yr,
         sim_period,
         assump_final_diff_floorarea_pp,
-        year_until_changed
+        yr_until_changed
     ):
     """Calculate future floor area per person depending
     on assumptions on final change and base year data
@@ -295,7 +295,7 @@ def get_floorare_pp(
                     curr_yr,
                     1,
                     assump_final_diff_floorarea_pp,
-                    year_until_changed)
+                    yr_until_changed)
 
                 # Floor area per person of simulation year
                 floor_area_pp[curr_yr] = floorarea_pp_by * lin_diff_factor
@@ -345,14 +345,14 @@ def get_dwtype_floor_area(dwtype_floorarea_by, dwtype_floorarea_future, base_yr,
                 val_by = dwtype_floorarea_by[dwtype]
                 val_future = dwtype_floorarea_future[dwtype]
 
-                year_until_changed = dwtype_floorarea_future['year_until_changed']
+                yr_until_changed = dwtype_floorarea_future['yr_until_changed']
 
                 val_cy = diffusion_technologies.linear_diff(
                     base_yr,
                     curr_yr,
                     val_by,
                     val_future,
-                    year_until_changed)
+                    yr_until_changed)
 
                 y_distr[dwtype] = val_cy
 
@@ -398,14 +398,14 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_p
                 val_by = dwtype_distr_by[dwtype]
                 val_future = assump_dwtype_distr_future[dwtype]
 
-                year_until_changed = assump_dwtype_distr_future['year_until_changed']
+                yr_until_changed = assump_dwtype_distr_future['yr_until_changed']
 
                 val_cy = diffusion_technologies.linear_diff(
                     base_yr,
                     curr_yr,
                     val_by,
                     val_future,
-                    year_until_changed)
+                    yr_until_changed)
 
                 y_distr[dwtype] = val_cy
 
@@ -447,7 +447,7 @@ def ss_dw_stock(region, data, curr_yr):
         # Change in floor area up to end year
         if sector in data['assumptions']['ss_floorarea_change_ey_p']:
             change_floorarea_p_ey = data['assumptions']['ss_floorarea_change_ey_p'][sector]
-            year_until_changed = data['assumptions']['ss_floorarea_change_ey_p']['year_until_changed']
+            yr_until_changed = data['assumptions']['ss_floorarea_change_ey_p']['yr_until_changed']
         else:
             sys.exit(
                 "Error: The ss building stock sector floor area assumption is not defined")
@@ -458,7 +458,7 @@ def ss_dw_stock(region, data, curr_yr):
             curr_yr,
             1.0,
             change_floorarea_p_ey,
-            year_until_changed)
+            yr_until_changed)
 
         floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
@@ -542,7 +542,7 @@ def rs_dw_stock(region, data, curr_yr):
         base_yr,
         data['sim_param']['simulated_yrs'],
         data['assumptions']['assump_diff_floorarea_pp'],
-        data['assumptions']['assump_diff_floorarea_pp_year_until_changed'])
+        data['assumptions']['assump_diff_floorarea_pp_yr_until_changed'])
 
     # Get fraction of total floorarea for every dwelling type
     floorarea_p = get_floorarea_dwtype_p(

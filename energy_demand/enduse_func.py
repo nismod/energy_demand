@@ -171,7 +171,7 @@ class Enduse(object):
                 enduse,
                 self.fuel_new_y,
                 assumptions['other_enduse_mode_info'],
-                assumptions['enduse_overall_change_ey']['year_until_changed'],
+                assumptions['enduse_overall_change_ey']['yr_until_changed'],
                 enduse_overall_change_ey,
                 sim_param)
             logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
@@ -335,7 +335,7 @@ class Enduse(object):
                         sim_param,
                         loadfactor_yd_cy,
                         assumptions['demand_management']['enduses_demand_managent'],
-                        assumptions['demand_management']['demand_management_year_until_changed'])
+                        assumptions['demand_management']['demand_management_yr_until_changed'])
 
                     if not peak_shift_crit:
                         self.fuel_yh = fuel_yh
@@ -361,7 +361,7 @@ class Enduse(object):
 
                         self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, year_until_changed):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, yr_until_changed):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -378,7 +378,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, 
                 sim_param['curr_yr'],
                 0,
                 1,
-                year_until_changed)
+                yr_until_changed)
 
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
@@ -1020,7 +1020,7 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
-                assumptions['heat_recovered']['heat_recovered_year_until_changed'],
+                assumptions['heat_recovered']['heat_recovered_yr_until_changed'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
                 assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
@@ -1134,7 +1134,7 @@ def apply_specific_change(
         enduse,
         fuel_y,
         other_enduse_mode_info,
-        year_until_changed,
+        yr_until_changed,
         enduse_overall_change_ey,
         sim_param
     ):
@@ -1176,7 +1176,7 @@ def apply_specific_change(
     percent_ey = enduse_overall_change_ey[enduse]
 
     # Year until change is applied
-    year_until_changed = year_until_changed
+    yr_until_changed = yr_until_changed
 
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
@@ -1191,7 +1191,7 @@ def apply_specific_change(
                 sim_param['curr_yr'],
                 percent_by,
                 percent_ey,
-                year_until_changed)
+                yr_until_changed)
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1199,7 +1199,7 @@ def apply_specific_change(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
-                year_until_changed,
+                yr_until_changed,
                 other_enduse_mode_info['sigmoid']['sig_midpoint'],
                 other_enduse_mode_info['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor
@@ -1276,7 +1276,7 @@ def apply_smart_metering(enduse, fuel_y, smart_meter_assump, base_sim_param):
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
-            smart_meter_assump['smart_meter_year_until_changed'],
+            smart_meter_assump['smart_meter_yr_until_changed'],
             smart_meter_assump['smart_meter_diff_params']['sig_midpoint'],
             smart_meter_assump['smart_meter_diff_params']['sig_steeppness'])
 

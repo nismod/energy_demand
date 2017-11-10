@@ -1,7 +1,7 @@
 - absolute_range: (10, 20)
   default_value: '2050'
   description: Year until demand management assumptions are fully realised
-  name: demand_management_year_until_changed
+  name: demand_management_yr_until_changed
   suggested_range: (2015 - 2100)
   units: years
 - absolute_range: 0, 100)
@@ -229,7 +229,7 @@
 - absolute_range: 2015-2100
   default_value: '2050'
   description: Year until climate temperature changes are fully realised
-  name: climate_change_temp_diff_year_until_changed
+  name: climate_change_temp_diff_yr_until_changed
   suggested_range: 2030 - 2100
   units: year
 - absolute_range: (10, 20)
@@ -265,7 +265,7 @@
 - absolute_range: (0, 1)
   default_value: '2050'
   description: Year until smart meter assumption is implemented
-  name: smart_meter_year_until_changed
+  name: smart_meter_yr_until_changed
   suggested_range: 2015 - 2100
   units: year
 - absolute_range: (0, 100)

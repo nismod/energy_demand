@@ -49,7 +49,7 @@ def test_sigm_temp():
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {}
     assumptions['smart_meter_assump']['smart_meter_diff_params']['sig_midpoint'] = 0
     assumptions['smart_meter_assump']['smart_meter_diff_params']['sig_steeppness'] = 1
-    assumptions['smart_meter_assump']['smart_meter_diff_params']['year_until_changed'] = 2020
+    yr_until_changed = 2020
 
     end_yr_t_base = 13
     assumptions['rs_t_base_heating'] = {}
@@ -60,7 +60,9 @@ def test_sigm_temp():
         'base_yr': 2015,
         'curr_yr': 2020}
 
-    result = hdd_cdd.sigm_temp(sim_param, assumptions['smart_meter_assump']['smart_meter_diff_params'], assumptions['rs_t_base_heating'])
+    result = hdd_cdd.sigm_temp(
+        sim_param, assumptions['smart_meter_assump']['smart_meter_diff_params'], assumptions['rs_t_base_heating'],
+        yr_until_changed)
 
     expected = end_yr_t_base
     assert result == expected
@@ -85,7 +87,7 @@ def test_get_hdd_country():
     base_temp_diff_params = {}
     base_temp_diff_params['sig_midpoint'] = 0
     base_temp_diff_params['sig_steeppness'] = 1
-    base_temp_diff_params['year_until_changed'] = 2020
+    base_temp_diff_params['yr_until_changed'] = 2020
     
 
     reg_coord = {
@@ -136,7 +138,7 @@ def test_get_cdd_country():
     base_temp_diff_params = {}
     base_temp_diff_params['sig_midpoint'] = 0
     base_temp_diff_params['sig_steeppness'] = 1
-    base_temp_diff_params['year_until_changed'] = 2020
+    base_temp_diff_params['yr_until_changed'] = 2020
 
     reg_coord = {
         "reg_A": {

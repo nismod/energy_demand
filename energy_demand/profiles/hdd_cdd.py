@@ -87,7 +87,11 @@ def get_hdd_country(
         temperatures = temp_data[closest_station_id]
 
         # Base temperature for base year
-        t_base_heating_cy = sigm_temp(sim_param, diff_params, t_base)
+        t_base_heating_cy = sigm_temp(
+            sim_param,
+            diff_params,
+            t_base,
+            diff_params['yr_until_changed'])
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
 
@@ -141,14 +145,15 @@ def get_cdd_country(
         t_base_heating_cy = sigm_temp(
             sim_param,
             diff_params,
-            t_base)
+            t_base,
+            diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
         cdd_regions[region_name] = np.sum(cdd_reg)
 
     return cdd_regions
 
-def sigm_temp(sim_param, diff_params, t_base):
+def sigm_temp(sim_param, diff_params, t_base, yr_until_changed):
     """Calculate base temperature depending on sigmoid
     diff and location
 
@@ -175,13 +180,13 @@ def sigm_temp(sim_param, diff_params, t_base):
     # Base temperature of end year minus base temp of base year
     t_base_diff = t_base['future_yr'] - t_base['base_yr']
 
-    year_until_changed = diff_params['year_until_changed']
+    #yr_until_changed = diff_params['yr_until_changed']
 
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
         sim_param['base_yr'],
         sim_param['curr_yr'],
-        year_until_changed,
+        yr_until_changed,
         diff_params['sig_midpoint'],
         diff_params['sig_steeppness'])
 

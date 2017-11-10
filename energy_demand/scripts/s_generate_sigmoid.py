@@ -178,17 +178,17 @@ def tech_sigmoid_parameters(
                 # Get year until switched
                 for switch in service_switches:
                     if switch['tech'] == tech:
-                        year_until_switched = switch['year_switch_ey']
+                        yr_until_switched = switch['year_switch_ey']
 
                 market_entry = data['assumptions']['technologies'][tech]['market_entry']
             else: #fuel switch
 
                 # Get the most future year of the technology in the enduse which is switched to
-                year_until_switched = 0
+                yr_until_switched = 0
                 for switch in fuel_switches:
                     if switch['enduse'] == enduse and switch['technology_install'] == tech:
-                        if year_until_switched < switch['year_fuel_consumption_switched']:
-                            year_until_switched = switch['year_fuel_consumption_switched']
+                        if yr_until_switched < switch['year_fuel_consumption_switched']:
+                            yr_until_switched = switch['year_fuel_consumption_switched']
 
                 market_entry = data['assumptions']['technologies'][tech]['market_entry']
 
@@ -208,7 +208,7 @@ def tech_sigmoid_parameters(
                     point_y_by = fit_assump_init
 
             # Future energy service demand (second point on sigmoid curve for fitting)
-            point_x_projected = year_until_switched
+            point_x_projected = yr_until_switched
             point_y_projected = service_tech_switched_p[tech]
 
             # Data of the two points
