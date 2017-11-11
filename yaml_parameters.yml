@@ -136,15 +136,96 @@ eff_achieving_factor:
   - {absolute_range: '(0, 1)', default_value: '0', description: Fraction achieved
       of efficiency improvements, name: eff_achieving_factor, suggested_range: '(0,
       100)', units: '%'}
-enduse_overall_change_ey:
-  is_model: {is_compressed_air: 1, is_drying_separation: 1, is_high_temp_process: 1,
+enduse_overall_change:
+  enduse_specific_change_yr_until_changed: 2050
+  enduses: {is_compressed_air: 1, is_drying_separation: 1, is_high_temp_process: 1,
     is_lighting: 1, is_low_temp_process: 1, is_motors: 1, is_other: 1, is_refrigeration: 1,
-    is_space_heating: 1}
-  rs_model: {rs_cold: 1, rs_consumer_electronics: 1, rs_cooking: 1, rs_home_computing: 1,
-    rs_lighting: 1, rs_space_heating: 1, rs_water_heating: 1, rs_wet: 1}
-  ss_model: {ss_catering: 1, ss_computing: 1, ss_cooling_ventilation: 1, ss_lighting: 1,
-    ss_other_electricity: 1, ss_other_gas: 1, ss_space_heating: 1, ss_water_heating: 1}
-  yr_until_changed: 2050
+    is_space_heating: 1, rs_cold: 1, rs_consumer_electronics: 1, rs_cooking: 1, rs_home_computing: 1,
+    rs_lighting: 1, rs_space_heating: 1, rs_water_heating: 1, rs_wet: 1, ss_catering: 1,
+    ss_computing: 1, ss_cooling_ventilation: 1, ss_lighting: 1, ss_other_electricity: 1,
+    ss_other_gas: 1, ss_space_heating: 1, ss_water_heating: 1}
+  other_enduse_mode_info:
+    diff_method: linear
+    sigmoid: {sig_midpoint: 0, sig_steeppness: 1}
+  param_infos:
+  - {absolute_range: '(0, 1)', default_value: '2050', description: Year until change
+      in enduse assumption is implemented, name: enduse_specific_change_yr_until_changed,
+    suggested_range: 2015 - 2100, units: year}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_space_heating, name: smart_meter_improvement_rs_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_water_heating, name: smart_meter_improvement_rs_water_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_lighting, name: smart_meter_improvement_rs_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_cooking, name: smart_meter_improvement_rs_cooking, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_cold, name: smart_meter_improvement_rs_cold, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_wet, name: smart_meter_improvement_rs_wet, suggested_range: '(0, 100)',
+    units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_consumer_electronics, name: smart_meter_improvement_rs_consumer_electronics,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change rs_home_computing, name: smart_meter_improvement_rs_home_computing, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_catering, name: smart_meter_improvement_ss_catering, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_computing, name: smart_meter_improvement_ss_computing, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_cooling_ventilation, name: smart_meter_improvement_ss_cooling_ventilation,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_space_heating, name: smart_meter_improvement_ss_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_water_heating, name: smart_meter_improvement_ss_water_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_lighting, name: smart_meter_improvement_ss_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_other_gas, name: smart_meter_improvement_ss_other_gas, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change ss_other_electricity, name: smart_meter_improvement_ss_other_electricity,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_high_temp_process, name: smart_meter_improvement_is_high_temp_process,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_low_temp_process, name: smart_meter_improvement_is_low_temp_process,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_drying_separation, name: smart_meter_improvement_is_drying_separation,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_motors, name: smart_meter_improvement_is_motors, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_compressed_air, name: smart_meter_improvement_is_compressed_air, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_lighting, name: smart_meter_improvement_is_lighting, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_space_heating, name: smart_meter_improvement_is_space_heating, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_other, name: smart_meter_improvement_is_other, suggested_range: '(0,
+      100)', units: '%'}
+  - {absolute_range: '(0, 100)', default_value: '0', description: Enduse specific
+      change is_refrigeration, name: smart_meter_improvement_is_refrigeration, suggested_range: '(0,
+      100)', units: '%'}
 enduse_space_cooling: [rs_space_cooling, ss_space_cooling, is_space_cooling]
 enduse_space_heating: [rs_space_heating, rs_space_heating, is_space_heating]
 heat_pumps: [heat_pumps_hydrogen, heat_pumps_electricity, heat_pumps_gas]
@@ -152,23 +233,23 @@ heat_recovered:
   heat_recovered_yr_until_changed: 2050
   is_space_heating: 0.0
   param_infos:
-  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
-      recycling for the residential sector, name: rs_space_heating, suggested_range: '(0,
-      100)', units: '%'}
-  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
-      recycling for the residential sector, name: ss_space_heating, suggested_range: '(0,
-      100)', units: '%'}
-  - {absolute_range: '(0, 1)', default_value: '0', description: Heat recovery and
-      recycling for the industry sector, name: is_space_heating, suggested_range: '(0,
-      100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0', description: Reduction in heat
+      because of heat recovery and recycling (residential sector), name: rs_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0', description: Reduction in heat
+      because of heat recovery and recycling (service sector), name: ss_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0', description: Reduction in heat
+      because of heat recovery and recycling (industry sector), name: is_space_heating,
+    suggested_range: '(0, 100)', units: '%'}
   rs_space_heating: 0.0
   ss_space_heating: 0.0
 installed_heat_pump:
   electricity: {heat_pump_ASHP_electricity: 0.5, heat_pump_GSHP_electricity: 0.5}
   gas: {heat_pump_ASHP_gas: 0.5, heat_pump_GSHP_gas: 0.5}
   hydrogen: {heat_pump_ASHP_hydro: 0.5, heat_pump_GSHP_hydro: 0.5}
-is_dummy_enduses: [is_low_temp_process, is_compressed_air, is_lighting, is_refrigeration,
-  is_motors, is_high_temp_process, is_drying_separation, is_other]
+is_dummy_enduses: [is_other, is_compressed_air, is_drying_separation, is_lighting,
+  is_refrigeration, is_high_temp_process, is_low_temp_process, is_motors]
 is_enduse_tech_maxL_by_p: {}
 is_fuel_switches:
 - {enduse: is_space_heating, enduse_fueltype_replace: 1, max_theoretical_switch: 1.0,
@@ -356,9 +437,6 @@ model_yeardays_date: [2015-01-01, 2015-01-02, 2015-01-03, 2015-01-04, 2015-01-05
   2015-12-29, 2015-12-30, 2015-12-31]
 model_yeardays_nrs: 365
 model_yearhours_nrs: 8760
-other_enduse_mode_info:
-  diff_method: linear
-  sigmoid: {sig_midpoint: 0, sig_steeppness: 1}
 rs_dummy_enduses: [rs_consumer_electronics, rs_home_computing]
 rs_enduse_tech_maxL_by_p:
   rs_space_heating: {boiler_biomass: 0.9, boiler_gas: 0.9, boiler_heat_sold: 0.9,
@@ -673,8 +751,8 @@ scenario_drivers:
     ss_water_heating: []
 smart_meter_assump:
   param_infos:
-  - {absolute_range: '(0, 1)', default_value: '0', description: Population diffusion
-      of smart meters, name: smart_meter_p_future, suggested_range: '(0, 100)', units: '%'}
+  - {absolute_range: '(0, 1)', default_value: '0.1', description: Population diffusion
+      of smart meters, name: smart_meter_p_future, suggested_range: '(10, 100)', units: '%'}
   - {absolute_range: '(0, 1)', default_value: '2050', description: Year until smart
       meter assumption is implemented, name: smart_meter_yr_until_changed, suggested_range: 2015
       - 2100, units: year}
@@ -712,8 +790,8 @@ smart_meter_assump:
   smart_meter_p_by: 0.1
   smart_meter_p_future: 0.1
   smart_meter_yr_until_changed: 2050
-ss_dummy_enduses: [ss_other_gas, ss_water_heating, ss_lighting, ss_other_electricity,
-  ss_computing, ss_cooling_ventilation, ss_catering]
+ss_dummy_enduses: [ss_catering, ss_water_heating, ss_other_gas, ss_other_electricity,
+  ss_lighting, ss_computing, ss_cooling_ventilation]
 ss_enduse_tech_maxL_by_p: {}
 ss_floorarea_change_ey_p: {community_arts_leisure: 1, education: 1, emergency_services: 1,
   health: 1, hospitality: 1, military: 1, offices: 1, other: 1, retail: 1, storage: 1,

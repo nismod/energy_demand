@@ -4,7 +4,6 @@ Testing s_generate_sigmoid
 import numpy as np
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
-from energy_demand.technologies import diffusion_technologies
 
 def test_tech_sigmoid_paramters():
     """testng

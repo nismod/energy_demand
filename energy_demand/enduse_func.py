@@ -73,7 +73,7 @@ class Enduse(object):
         Installed technologes for this enduse
     sig_param_tech : dict
         Sigmoid parameters
-    enduse_overall_change_ey : dict
+    enduse_overall_change : dict
         Assumptions related to overal change in endyear
     regional_lp_stock : object
         Load profile stock
@@ -119,7 +119,7 @@ class Enduse(object):
             tech_constant_share,
             installed_tech,
             sig_param_tech,
-            enduse_overall_change_ey,
+            enduse_overall_change,
             regional_lp_stock,
             dw_stock=False,
             reg_scen_drivers=None,
@@ -170,9 +170,8 @@ class Enduse(object):
             self.fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_new_y,
-                assumptions['other_enduse_mode_info'],
-                assumptions['enduse_overall_change_ey']['yr_until_changed'],
-                enduse_overall_change_ey,
+                enduse_overall_change,
+                enduse_overall_change['enduse_specific_change_yr_until_changed'],
                 sim_param)
             logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
@@ -1021,8 +1020,8 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
                 assumptions['heat_recovered']['heat_recovered_yr_until_changed'],
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
             heat_recovered_p_cy = sig_diff_factor * heat_recovered_p_by
 
@@ -1133,9 +1132,8 @@ def apply_scenario_drivers(
 def apply_specific_change(
         enduse,
         fuel_y,
-        other_enduse_mode_info,
+        enduse_overall_change,
         yr_until_changed,
-        enduse_overall_change_ey,
         sim_param
     ):
     """Calculates fuel based on assumed overall enduse specific fuel consumption changes
@@ -1148,8 +1146,6 @@ def apply_specific_change(
         Yearly fuel per fueltype
     assumptions : dict
         Assumptions
-    enduse_overall_change_ey : dict
-        Assumption of overall change in end year
 
     sim_param : dict
         Base simulation parameters
@@ -1173,14 +1169,11 @@ def apply_specific_change(
     """
     # Fuel consumption shares in base and end year
     percent_by = 1.0
-    percent_ey = enduse_overall_change_ey[enduse]
-
-    # Year until change is applied
-    yr_until_changed = yr_until_changed
+    percent_ey = enduse_overall_change['enduses'][enduse]
 
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
-    diffusion_choice = other_enduse_mode_info['diff_method']
+    diffusion_choice = enduse_overall_change['other_enduse_mode_info']['diff_method']
 
     if diff_fuel_consump != 0: # If change in fuel consumption
 
@@ -1200,8 +1193,8 @@ def apply_specific_change(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
                 yr_until_changed,
-                other_enduse_mode_info['sigmoid']['sig_midpoint'],
-                other_enduse_mode_info['sigmoid']['sig_steeppness'])
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor
 
         return fuel_y * change_cy

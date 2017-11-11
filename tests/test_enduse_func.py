@@ -503,7 +503,7 @@ def test_Enduse():
         tech_constant_share,
         installed_tech,
         sig_param_tech,
-        enduse_overall_change_ey,
+        enduse_overall_change,
         regional_lp_stock
         )'''
     pass

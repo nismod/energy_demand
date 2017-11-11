@@ -257,10 +257,10 @@
   suggested_range: (13, 17)
   units: "\xB0C"
 - absolute_range: (0, 1)
-  default_value: '0'
+  default_value: '0.1'
   description: Population diffusion of smart meters
   name: smart_meter_p_future
-  suggested_range: (0, 100)
+  suggested_range: (10, 100)
   units: '%'
 - absolute_range: (0, 1)
   default_value: '2050'
@@ -324,20 +324,178 @@
   units: '%'
 - absolute_range: (0, 1)
   default_value: '0'
-  description: Heat recovery and recycling for the residential sector
+  description: Reduction in heat because of heat recovery and recycling (residential
+    sector)
   name: rs_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: (0, 1)
   default_value: '0'
-  description: Heat recovery and recycling for the residential sector
+  description: Reduction in heat because of heat recovery and recycling (service sector)
   name: ss_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: (0, 1)
   default_value: '0'
-  description: Heat recovery and recycling for the industry sector
+  description: Reduction in heat because of heat recovery and recycling (industry
+    sector)
   name: is_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 1)
+  default_value: '2050'
+  description: Year until change in enduse assumption is implemented
+  name: enduse_specific_change_yr_until_changed
+  suggested_range: 2015 - 2100
+  units: year
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_space_heating
+  name: smart_meter_improvement_rs_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_water_heating
+  name: smart_meter_improvement_rs_water_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_lighting
+  name: smart_meter_improvement_rs_lighting
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_cooking
+  name: smart_meter_improvement_rs_cooking
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_cold
+  name: smart_meter_improvement_rs_cold
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_wet
+  name: smart_meter_improvement_rs_wet
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_consumer_electronics
+  name: smart_meter_improvement_rs_consumer_electronics
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change rs_home_computing
+  name: smart_meter_improvement_rs_home_computing
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_catering
+  name: smart_meter_improvement_ss_catering
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_computing
+  name: smart_meter_improvement_ss_computing
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_cooling_ventilation
+  name: smart_meter_improvement_ss_cooling_ventilation
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_space_heating
+  name: smart_meter_improvement_ss_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_water_heating
+  name: smart_meter_improvement_ss_water_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_lighting
+  name: smart_meter_improvement_ss_lighting
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_other_gas
+  name: smart_meter_improvement_ss_other_gas
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change ss_other_electricity
+  name: smart_meter_improvement_ss_other_electricity
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_high_temp_process
+  name: smart_meter_improvement_is_high_temp_process
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_low_temp_process
+  name: smart_meter_improvement_is_low_temp_process
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_drying_separation
+  name: smart_meter_improvement_is_drying_separation
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_motors
+  name: smart_meter_improvement_is_motors
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_compressed_air
+  name: smart_meter_improvement_is_compressed_air
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_lighting
+  name: smart_meter_improvement_is_lighting
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_space_heating
+  name: smart_meter_improvement_is_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_other
+  name: smart_meter_improvement_is_other
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Enduse specific change is_refrigeration
+  name: smart_meter_improvement_is_refrigeration
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: (0, 1)

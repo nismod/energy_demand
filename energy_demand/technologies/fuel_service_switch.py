@@ -91,7 +91,7 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
         rs_enduses_switch,
         capacity_switches,
         assumptions['technologies'],
-        assumptions['other_enduse_mode_info'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['rs_fuel_tech_p_by'],
         sim_param,
         fuels['rs_fuel_raw_data_enduses'])
@@ -99,14 +99,14 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
         ss_enduses_switch,
         capacity_switches,
         assumptions['technologies'],
-        assumptions['other_enduse_mode_info'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['ss_fuel_tech_p_by'],
         sim_param, fuels['ss_fuel_raw_data_enduses'])
     assumptions['is_service_switches'] = create_service_switch(
         is_enduses_switch,
         capacity_switches,
         assumptions['technologies'],
-        assumptions['other_enduse_mode_info'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['is_fuel_tech_p_by'],
         sim_param,
         fuels['is_fuel_raw_data_enduses'])
