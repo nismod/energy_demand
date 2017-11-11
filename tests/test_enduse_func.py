@@ -457,8 +457,7 @@ def test_calc_lf_improvement():
     base_yr = 2010
     curr_yr = 2015
 
-    sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr}
-    lf_improvement_ey = {'heating': 0.5} #50% improvement
+    lf_improvement_ey = {'demand_management_improvement__heating': 0.5} #50% improvement
 
     #all factors must be smaller than one
     loadfactor_yd_cy = np.zeros((2, 2)) #to fueltypes, two days
@@ -470,7 +469,8 @@ def test_calc_lf_improvement():
 
     result, crit = enduse_func.calc_lf_improvement(
         'heating',
-        sim_param,
+        base_yr,
+        curr_yr,
         loadfactor_yd_cy,
         lf_improvement_ey,
         yr_until_change)

@@ -331,7 +331,8 @@ class Enduse(object):
                     # Calculate current year load factors
                     lf_cy_improved_d, peak_shift_crit = calc_lf_improvement(
                         enduse,
-                        sim_param,
+                        sim_param['base_yr'],
+                        sim_param['curr_yr'],
                         loadfactor_yd_cy,
                         assumptions['demand_management']['enduses_demand_managent'],
                         assumptions['demand_management']['demand_management_yr_until_changed'])
@@ -360,7 +361,7 @@ class Enduse(object):
 
                         self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, yr_until_changed):
+def calc_lf_improvement(enduse, base_yr, curr_yr, loadfactor_yd_cy, lf_improvement_ey, yr_until_changed):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -368,19 +369,21 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, 
     """
     try:
         # Get assumed load shift
-        if lf_improvement_ey[enduse] == 0:
+        param_name = 'demand_management_improvement__{}'.format(enduse)
+        print(param_name)
+        if lf_improvement_ey[param_name] == 0:
             return False, False
         else:
             # Calculate linear diffusion of improvement of load management
             lin_diff_factor = diffusion_technologies.linear_diff(
-                sim_param['base_yr'],
-                sim_param['curr_yr'],
+                base_yr,
+                curr_yr,
                 0,
                 1,
                 yr_until_changed)
 
             # Current year load factor improvement
-            lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
+            lf_improvement_cy = lf_improvement_ey[param_name] * lin_diff_factor
 
             # Improve load factor
             lf_cy_improved_d = loadfactor_yd_cy + lf_improvement_cy

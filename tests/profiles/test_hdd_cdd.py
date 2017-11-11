@@ -53,15 +53,18 @@ def test_sigm_temp():
 
     end_yr_t_base = 13
     assumptions['rs_t_base_heating'] = {}
-    assumptions['rs_t_base_heating']['base_yr'] = 15
-    assumptions['rs_t_base_heating']['future_yr'] = end_yr_t_base
+    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15
+    assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'] = end_yr_t_base
 
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020}
 
     result = hdd_cdd.sigm_temp(
-        sim_param, assumptions['smart_meter_assump']['smart_meter_diff_params'], assumptions['rs_t_base_heating'],
+        sim_param,
+        assumptions['smart_meter_assump']['smart_meter_diff_params'],
+        assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+        assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
         yr_until_changed)
 
     expected = end_yr_t_base
@@ -98,16 +101,16 @@ def test_get_hdd_country():
             'latitude': 57.02999742,
             'longitude': -4.4}}
 
-    t_base_heating = {
-        'base_yr': 15.5,
-        'future_yr': 15.5}
+    t_base_heating_future_yr = 15.5
+    t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_hdd_country(
         sim_param,
         regions,
         temp_data,
         base_temp_diff_params,
-        t_base_heating,
+        t_base_heating_future_yr,
+        t_base_heating_base_yr,
         reg_coord,
         weather_stations)
     
@@ -148,16 +151,16 @@ def test_get_cdd_country():
             'latitude': 57.02999742,
             'longitude': -4.4}}
 
-    t_base_heating = {
-        'base_yr': 15.5,
-        'future_yr': 15.5}
+    t_base_heating_base_yr = 15.5
+    t_base_heating_future_yr = 15.5
 
     result = hdd_cdd.get_cdd_country(
         sim_param,
         regions,
         temp_data,
         base_temp_diff_params,
-        t_base_heating,
+        t_base_heating_base_yr,
+        t_base_heating_future_yr,
         reg_coord,
         weather_stations)
 

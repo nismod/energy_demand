@@ -179,6 +179,7 @@ class EDWrapper(SectorModel):
         base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
@@ -287,12 +288,11 @@ class EDWrapper(SectorModel):
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-
-
         # ED related stuff
         base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 

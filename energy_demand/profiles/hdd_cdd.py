@@ -61,7 +61,8 @@ def get_hdd_country(
         regions,
         temp_data,
         diff_params,
-        t_base,
+        t_base_fy,
+        t_base_cy,
         reg_coord,
         weather_stations
     ):
@@ -90,7 +91,8 @@ def get_hdd_country(
         t_base_heating_cy = sigm_temp(
             sim_param,
             diff_params,
-            t_base,
+            t_base_fy,
+            t_base_cy,
             diff_params['yr_until_changed'])
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
@@ -104,7 +106,8 @@ def get_cdd_country(
         regions,
         temp_data,
         diff_params,
-        t_base,
+        t_base_fy,
+        t_base_cy,
         reg_coord,
         weather_stations):
     """Calculate total number of cooling degree days in a region for the base year
@@ -145,7 +148,8 @@ def get_cdd_country(
         t_base_heating_cy = sigm_temp(
             sim_param,
             diff_params,
-            t_base,
+            t_base_fy,
+            t_base_cy,
             diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
@@ -153,7 +157,7 @@ def get_cdd_country(
 
     return cdd_regions
 
-def sigm_temp(sim_param, diff_params, t_base, yr_until_changed):
+def sigm_temp(sim_param, diff_params, t_future_yr, t_base_yr, yr_until_changed):
     """Calculate base temperature depending on sigmoid
     diff and location
 
@@ -178,7 +182,7 @@ def sigm_temp(sim_param, diff_params, t_base, yr_until_changed):
     This allows to model changes e.g. in thermal confort
     """
     # Base temperature of end year minus base temp of base year
-    t_base_diff = t_base['future_yr'] - t_base['base_yr']
+    t_base_diff = t_future_yr - t_base_yr
 
     #yr_until_changed = diff_params['yr_until_changed']
 
@@ -194,7 +198,7 @@ def sigm_temp(sim_param, diff_params, t_base, yr_until_changed):
     t_diff_cy = t_base_diff * t_base_frac
 
     # Add temp change to base year temp
-    t_base_cy = t_diff_cy + t_base['base_yr']
+    t_base_cy = t_diff_cy + t_base_yr
 
     return t_base_cy
 

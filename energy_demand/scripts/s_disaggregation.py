@@ -85,7 +85,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         data['lu_reg'],
         data['temp_data'],
         data['assumptions']['base_temp_diff_params'],
-        data['assumptions']['ss_t_base_heating'],
+        data['assumptions']['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+        data['assumptions']['ss_t_base_heating']['ss_t_base_heating_base_yr'],
         data['reg_coord'],
         data['weather_stations'],)
 
@@ -94,7 +95,8 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         data['lu_reg'],
         data['temp_data'],
         data['assumptions']['base_temp_diff_params'],
-        data['assumptions']['ss_t_base_cooling'],
+        data['assumptions']['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+        data['assumptions']['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
         data['reg_coord'],
         data['weather_stations'])
 
@@ -284,7 +286,8 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         lu_reg,
         data['temp_data'],
         data['assumptions']['base_temp_diff_params'], 
-        data['assumptions']['rs_t_base_heating'],
+        data['assumptions']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+        data['assumptions']['rs_t_base_heating']['rs_t_base_heating_base_yr'],
         data['reg_coord'],
         data['weather_stations'])
 

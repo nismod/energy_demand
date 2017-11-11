@@ -11,6 +11,7 @@ from energy_demand.technologies import technological_stock
 from energy_demand.profiles import load_profile
 from energy_demand.profiles import hdd_cdd
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.basic import basic_functions
 
 class WeatherRegion(object):
     """WeaterRegion
@@ -66,21 +67,45 @@ class WeatherRegion(object):
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'],
+            assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'],
+            assumptions['rs_t_base_cooling']['rs_t_base_cooling_future_yr'],
+            assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'], 
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
+            sim_param, assumptions['base_temp_diff_params'], 
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+            assumptions['base_temp_diff_params']['yr_until_changed'])
 
         # -------------------
         # Technology stock
@@ -94,7 +119,7 @@ class WeatherRegion(object):
             lookups,
             temp_by,
             temp_cy,
-            assumptions['ss_t_base_heating']['base_yr'],
+            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
             all_enduses['is_all_enduses'],
             ss_t_base_heating_cy,
             assumptions['is_specified_tech_enduse_by'])
@@ -108,7 +133,7 @@ class WeatherRegion(object):
             lookups,
             temp_by,
             temp_cy,
-            assumptions['rs_t_base_heating']['base_yr'],
+            assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
             all_enduses['rs_all_enduses'],
             rs_t_base_heating_cy,
             assumptions['rs_specified_tech_enduse_by'])
@@ -122,7 +147,7 @@ class WeatherRegion(object):
             lookups,
             temp_by,
             temp_cy,
-            assumptions['ss_t_base_heating']['base_yr'],
+            assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
             all_enduses['ss_all_enduses'],
             ss_t_base_heating_cy,
             assumptions['ss_specified_tech_enduse_by'])
@@ -551,13 +576,17 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
 
     # Iterate every month
     for yearday_month, month_yeardays in yeardays_month_days.items():
+        
+        month_str = basic_functions.get_month_from_int(yearday_month + 1)
+        param_name_month = "climate_change_temp_d__{}".format(month_str)
+        temp_fy = assumptions_temp_change[param_name_month]
 
         # Calculate monthly change in temperature
         lin_diff_factor = diffusion_technologies.linear_diff(
             base_yr=sim_param['base_yr'],
             curr_yr=sim_param['curr_yr'],
             value_start=0,
-            value_end=assumptions_temp_change[yearday_month], # added degrees
+            value_end=temp_fy, # added degrees TODO:
             yr_until_changed=yr_until_changed)
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor

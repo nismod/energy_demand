@@ -6,224 +6,224 @@
   units: years
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_space_heating
-  name: demand_management_improvement_rs_space_heating
+  description: reduction in load factor for enduse demand_management_improvement__rs_space_heating
+  name: demand_management_improvement__demand_management_improvement__rs_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_water_heating
-  name: demand_management_improvement_rs_water_heating
+  description: reduction in load factor for enduse demand_management_improvement__rs_water_heating
+  name: demand_management_improvement__demand_management_improvement__rs_water_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_lighting
-  name: demand_management_improvement_rs_lighting
+  description: reduction in load factor for enduse demand_management_improvement__rs_lighting
+  name: demand_management_improvement__demand_management_improvement__rs_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_cooking
-  name: demand_management_improvement_rs_cooking
+  description: reduction in load factor for enduse demand_management_improvement__rs_cooking
+  name: demand_management_improvement__demand_management_improvement__rs_cooking
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_cold
-  name: demand_management_improvement_rs_cold
+  description: reduction in load factor for enduse demand_management_improvement__rs_cold
+  name: demand_management_improvement__demand_management_improvement__rs_cold
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_wet
-  name: demand_management_improvement_rs_wet
+  description: reduction in load factor for enduse demand_management_improvement__rs_wet
+  name: demand_management_improvement__demand_management_improvement__rs_wet
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_consumer_electronics
-  name: demand_management_improvement_rs_consumer_electronics
+  description: reduction in load factor for enduse demand_management_improvement__rs_consumer_electronics
+  name: demand_management_improvement__demand_management_improvement__rs_consumer_electronics
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse rs_home_computing
-  name: demand_management_improvement_rs_home_computing
+  description: reduction in load factor for enduse demand_management_improvement__rs_home_computing
+  name: demand_management_improvement__demand_management_improvement__rs_home_computing
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_space_heating
-  name: demand_management_improvement_ss_space_heating
+  description: reduction in load factor for enduse demand_management_improvement__ss_space_heating
+  name: demand_management_improvement__demand_management_improvement__ss_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_water_heating
-  name: demand_management_improvement_ss_water_heating
+  description: reduction in load factor for enduse demand_management_improvement__ss_water_heating
+  name: demand_management_improvement__demand_management_improvement__ss_water_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_lighting
-  name: demand_management_improvement_ss_lighting
+  description: reduction in load factor for enduse demand_management_improvement__ss_lighting
+  name: demand_management_improvement__demand_management_improvement__ss_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_catering
-  name: demand_management_improvement_ss_catering
+  description: reduction in load factor for enduse demand_management_improvement__ss_catering
+  name: demand_management_improvement__demand_management_improvement__ss_catering
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_computing
-  name: demand_management_improvement_ss_computing
+  description: reduction in load factor for enduse demand_management_improvement__ss_computing
+  name: demand_management_improvement__demand_management_improvement__ss_computing
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_space_cooling
-  name: demand_management_improvement_ss_space_cooling
+  description: reduction in load factor for enduse demand_management_improvement__ss_space_cooling
+  name: demand_management_improvement__demand_management_improvement__ss_space_cooling
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_other_gas
-  name: demand_management_improvement_ss_other_gas
+  description: reduction in load factor for enduse demand_management_improvement__ss_other_gas
+  name: demand_management_improvement__demand_management_improvement__ss_other_gas
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse ss_other_electricity
-  name: demand_management_improvement_ss_other_electricity
+  description: reduction in load factor for enduse demand_management_improvement__ss_other_electricity
+  name: demand_management_improvement__demand_management_improvement__ss_other_electricity
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_high_temp_process
-  name: demand_management_improvement_is_high_temp_process
+  description: reduction in load factor for enduse demand_management_improvement__is_high_temp_process
+  name: demand_management_improvement__demand_management_improvement__is_high_temp_process
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_low_temp_process
-  name: demand_management_improvement_is_low_temp_process
+  description: reduction in load factor for enduse demand_management_improvement__is_low_temp_process
+  name: demand_management_improvement__demand_management_improvement__is_low_temp_process
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_drying_separation
-  name: demand_management_improvement_is_drying_separation
+  description: reduction in load factor for enduse demand_management_improvement__is_drying_separation
+  name: demand_management_improvement__demand_management_improvement__is_drying_separation
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_motors
-  name: demand_management_improvement_is_motors
+  description: reduction in load factor for enduse demand_management_improvement__is_motors
+  name: demand_management_improvement__demand_management_improvement__is_motors
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_compressed_air
-  name: demand_management_improvement_is_compressed_air
+  description: reduction in load factor for enduse demand_management_improvement__is_compressed_air
+  name: demand_management_improvement__demand_management_improvement__is_compressed_air
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_lighting
-  name: demand_management_improvement_is_lighting
+  description: reduction in load factor for enduse demand_management_improvement__is_lighting
+  name: demand_management_improvement__demand_management_improvement__is_lighting
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_space_heating
-  name: demand_management_improvement_is_space_heating
+  description: reduction in load factor for enduse demand_management_improvement__is_space_heating
+  name: demand_management_improvement__demand_management_improvement__is_space_heating
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_other
-  name: demand_management_improvement_is_other
+  description: reduction in load factor for enduse demand_management_improvement__is_other
+  name: demand_management_improvement__demand_management_improvement__is_other
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: 0, 100)
   default_value: '0'
-  description: reduction in load factor for enduse is_refrigeration
-  name: demand_management_improvement_is_refrigeration
+  description: reduction in load factor for enduse demand_management_improvement__is_refrigeration
+  name: demand_management_improvement__demand_management_improvement__is_refrigeration
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Jan
-  name: climate_change_temp_d_Jan
+  name: climate_change_temp_d__Jan
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Feb
-  name: climate_change_temp_d_Feb
+  name: climate_change_temp_d__Feb
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Mar
-  name: climate_change_temp_d_Mar
+  name: climate_change_temp_d__Mar
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Apr
-  name: climate_change_temp_d_Apr
+  name: climate_change_temp_d__Apr
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month May
-  name: climate_change_temp_d_May
+  name: climate_change_temp_d__May
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Jun
-  name: climate_change_temp_d_Jun
+  name: climate_change_temp_d__Jun
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Jul
-  name: climate_change_temp_d_Jul
+  name: climate_change_temp_d__Jul
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Aug
-  name: climate_change_temp_d_Aug
+  name: climate_change_temp_d__Aug
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Sep
-  name: climate_change_temp_d_Sep
+  name: climate_change_temp_d__Sep
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Oct
-  name: climate_change_temp_d_Oct
+  name: climate_change_temp_d__Oct
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Nov
-  name: climate_change_temp_d_Nov
+  name: climate_change_temp_d__Nov
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: (-10, 10)
   default_value: '0'
   description: Temperature change for month Dec
-  name: climate_change_temp_d_Dec
+  name: climate_change_temp_d__Dec
   suggested_range: -5, 5
   units: "\xB0C"
 - absolute_range: 2015-2100
@@ -235,7 +235,7 @@
 - absolute_range: (10, 20)
   default_value: '15.5'
   description: Base temperature assumption residential heating
-  name: rs_t_base_heating
+  name: rs_t_base_heating_future_yr
   suggested_range: (13, 17)
   units: "\xB0C"
 - absolute_range: (10, 20)
@@ -342,6 +342,12 @@
   name: is_space_heating
   suggested_range: (0, 100)
   units: '%'
+- absolute_range: (2015, 2100)
+  default_value: '2050'
+  description: Year until heat recyling is full implemented
+  name: heat_recovered_yr_until_changed
+  suggested_range: (2015, 2100)
+  units: year
 - absolute_range: (0, 1)
   default_value: '2050'
   description: Year until change in enduse assumption is implemented

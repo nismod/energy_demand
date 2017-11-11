@@ -102,14 +102,15 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
-    # TODO: MOVE TO SCENARIO INIT
+    #TODO: make that all fixed assumptions are only loaded
     base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     
     # Read parameters from yaml file
     # ------------------------------
-    print("Read assumptions from file: " + str(data['paths']['yaml_parameters']))
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+
+    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)

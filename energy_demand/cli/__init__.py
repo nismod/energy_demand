@@ -51,23 +51,22 @@ def run_model(args):
 
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
-    data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050] #[2015, 2020, 2025]
+    data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
     base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
 
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
+    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['paths'], data['assumptions'], data['sim_param'])
+
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    # =========DUMMY DATA
     data = data_loader.dummy_data_generation(data)
-    # =========DUMMY DATA
 
-    #SCENARIO DATA
     data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
 
     # In order to load these data, the initialisation scripts need to be run
