@@ -58,6 +58,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 ydata,
                 start_parameters)
 
+            #print("Fit parameters: %s", fit_parameter)
             '''logging.debug("Fit parameters: %s", fit_parameter)
             from energy_demand.plotting import plotting_program
             #plot sigmoid curve
@@ -77,9 +78,11 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                     fit_parameter[1] > fit_crit_a) or (
                         fit_parameter[1] < 0) or (
                             fit_parameter[0] == start_parameters[0]) or (
-                                fit_parameter[1] == start_parameters[1]):
+                                fit_parameter[1] == start_parameters[1]) or (
+                                    fit_parameter[0] == fit_parameter[1]): #NEW CRITERIA ADDED
 
                 cnt += 1
+                #print("...fitting iteration {}".format(fit_parameter))
                 if cnt >= len(start_param_list):
                     sys.exit("Error2: CURVE FITTING DID NOT WORK")
             else:
@@ -91,11 +94,11 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 y_calculated = diffusion_technologies.sigmoid_function(
                     xdata[1], l_value, *fit_parameter)
 
-                #print("Calculated value:  " + str(y_calculated))
+                print("Calculated value:  " + str(y_calculated))
                 #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
-                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
+                print("... Fitting measure in percent: %s", fit_measure_in_percent)
+                print("... Fitting measure in percent: %s", fit_measure_in_percent)
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
@@ -103,6 +106,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
 
         except RuntimeError:
             logging.debug("Unsuccessful fit %s", start_parameters[1])
+            logging.debug("Check whether start year is <= the year 2000")
             cnt += 1
 
             if cnt >= len(start_param_list):
@@ -111,7 +115,8 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
     return fit_parameter
 
 def tech_sigmoid_parameters(
-        data,
+        base_yr,
+        technologies,
         enduse,
         crit_switch_service,
         installed_tech,
@@ -129,15 +134,16 @@ def tech_sigmoid_parameters(
 
     Arguments
     ----------
-    data : dict
-        data
-    enduses : enduses
-        enduses
+    base_yr : dict
+        base year
+    technologies : dict
+        technologies
+    enduse : str
+        Enduse
     crit_switch_service : bool
         Criteria whether sigmoid is calculated for service switch or not
-    installed_tech : dict
-        Technologies with fuel switch for enduse
-    installed_tech : dict
+
+    installed_tech : list
         List with installed technologies in fuel switches
     l_values : dict
         L values for maximum possible diffusion of technologies
@@ -180,7 +186,7 @@ def tech_sigmoid_parameters(
                     if switch['tech'] == tech:
                         yr_until_switched = switch['year_switch_ey']
 
-                market_entry = data['assumptions']['technologies'][tech]['market_entry']
+                market_entry = technologies[tech]['market_entry']
             else: #fuel switch
 
                 # Get the most future year of the technology in the enduse which is switched to
@@ -190,17 +196,17 @@ def tech_sigmoid_parameters(
                         if yr_until_switched < switch['year_fuel_consumption_switched']:
                             yr_until_switched = switch['year_fuel_consumption_switched']
 
-                market_entry = data['assumptions']['technologies'][tech]['market_entry']
+                market_entry = technologies[tech]['market_entry']
 
             # --------
             # Test whether technology has the market entry before or after base year,
             # If afterwards, set very small number in market entry year
             # --------
-            if market_entry > data['sim_param']['base_yr']:
+            if market_entry > base_yr:
                 point_x_by = market_entry
-                point_y_by = fit_assump_init # very small service share if market entry in a future year
+                point_y_by = fit_assump_init 
             else: # If market entry before, set to 2015
-                point_x_by = data['sim_param']['base_yr']
+                point_x_by = base_yr
                 point_y_by = service_tech_by_p[tech] # current service share
 
                 #If the base year is the market entry year use a very small number
@@ -597,7 +603,8 @@ def get_sig_diffusion(
 
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech[enduse] = tech_sigmoid_parameters(
-            data,
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
             enduse,
             crit_switch_service,
             installed_tech[enduse],
