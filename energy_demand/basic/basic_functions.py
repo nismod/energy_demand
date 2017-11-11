@@ -115,3 +115,43 @@ def get_month_from_string(month_string):
         month = 12
 
     return int(month)
+
+def get_month_from_int(month_int):
+    """Convert string month to int month with Jan == 1
+
+    Argument
+    --------
+    month_string : str
+        Month given as a string
+
+    Returns
+    --------
+    month : int
+        Month as an integer (jan = 1, dez = 12)
+    """
+    if month_int == 1:
+        month_str = 'Jan'
+    elif month_int == 2:
+        month_str = 'Feb'
+    elif month_int == 3:
+        month_str = 'Mar'
+    elif month_int == 4:
+        month_str = 'Apr'
+    elif month_int == 5:
+        month_str = 'May'
+    elif month_int == 6:
+        month_str = 'Jun'
+    elif month_int == 7:
+        month_str = 'Jul'
+    elif month_int == 8:
+        month_str = 'Aug'
+    elif month_int == 9:
+        month_str = 'Sep'
+    elif month_int == 10:
+        month_str = 'Oct'
+    elif month_int == 11:
+        month_str = 'Nov'
+    elif month_int == 12:
+        month_str = 'Dec'
+
+    return str(month_str)

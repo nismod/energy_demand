@@ -2,7 +2,6 @@
 """
 from energy_demand.geography import weather_region
 import numpy as np
-import os
 
 '''def test_WeatherRegion():
 
@@ -22,9 +21,9 @@ import os
     #Load assumptions
 
 
-    data['assumptions'] = base_assumptions.load_assumptions(
+    base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-
+    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
 
     weather_region_obj = weather_region.WeatherRegion(
@@ -78,7 +77,7 @@ def test_change_temp_climate():
     
     base_yr = 2010
     curr_yr = 2020
-    year_until_changed = 2020
+    yr_until_changed = 2020
     sim_param = {'base_yr': base_yr, 'curr_yr': curr_yr}
 
     result = weather_region.change_temp_climate(
@@ -86,7 +85,7 @@ def test_change_temp_climate():
         yeardays_month_days,
         assumptions_temp_change,
         sim_param,
-        year_until_changed)
+        yr_until_changed)
 
     assert result[30][0] ==  5 + 2
     assert result[40][0] ==  10 + 3

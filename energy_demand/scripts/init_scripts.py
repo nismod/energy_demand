@@ -17,6 +17,7 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
 from energy_demand.basic import date_prop
+from energy_demand.read_write import read_data, write_data
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -54,10 +55,11 @@ def post_install_setup(args):
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
 
-    data['assumptions'] = base_assumptions.load_assumptions(
+    base_assumptions.load_assumptions(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
+    data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -119,10 +121,11 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
         data['sim_param']['curr_yr'] = 2015 #NEEDED
 
-        data['assumptions'] = base_assumptions.load_assumptions(
+        base_assumptions.load_assumptions(
             data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-        data['assumptions'] = base_assumptions.update_assumptions(data['assumptions'])
+        data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
 
         data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
         data = data_loader.dummy_data_generation(data)

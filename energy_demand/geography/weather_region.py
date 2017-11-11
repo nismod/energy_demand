@@ -60,27 +60,27 @@ class WeatherRegion(object):
         temp_cy = change_temp_climate(
             temp_by,
             assumptions['yeardays_month_days'],
-            assumptions['climate_change_temp_diff_month'],
+            assumptions['climate_change_temp_diff_month']['temps'],
             sim_param,
-            assumptions['climate_change_temp_diff_year_until_changed'])
+            assumptions['climate_change_temp_diff_month']['climate_change_temp_diff_yr_until_changed'])
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['rs_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_heating'], assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
-            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'])
+            sim_param, assumptions['base_temp_diff_params'], assumptions['ss_t_base_cooling'], assumptions['base_temp_diff_params']['yr_until_changed'])
 
         # -------------------
         # Technology stock
@@ -89,7 +89,7 @@ class WeatherRegion(object):
             'is_tech_stock',
             assumptions['technologies'],
             assumptions['tech_list'],
-            assumptions['other_enduse_mode_info'],
+            assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
@@ -103,7 +103,7 @@ class WeatherRegion(object):
             'rs_tech_stock',
             assumptions['technologies'],
             assumptions['tech_list'],
-            assumptions['other_enduse_mode_info'],
+            assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
@@ -117,7 +117,7 @@ class WeatherRegion(object):
             'ss_tech_stock',
             assumptions['technologies'],
             assumptions['tech_list'],
-            assumptions['other_enduse_mode_info'],
+            assumptions['enduse_overall_change']['other_enduse_mode_info'],
             sim_param,
             lookups,
             temp_by,
@@ -525,7 +525,7 @@ def ss_get_sector_enduse_shape(tech_lp, heating_shape, enduse, model_yeardays_nr
 
     return shape_yh_generic_tech, shape_y_dh_generic_tech
 
-def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param, year_until_changed):
+def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change, sim_param, yr_until_changed):
     """Change temperature data for every year depending
     on simple climate change assumptions
 
@@ -539,7 +539,7 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
         Assumption on temperature change
     sim_param : dict
         Parameters for diffusion
-    year_until_changed : int
+    yr_until_changed : int
         Year until change is fully implemented
 
     Returns
@@ -558,7 +558,7 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
             curr_yr=sim_param['curr_yr'],
             value_start=0,
             value_end=assumptions_temp_change[yearday_month], # added degrees
-            year_until_changed=year_until_changed)
+            yr_until_changed=yr_until_changed)
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor
 

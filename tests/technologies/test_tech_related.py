@@ -30,7 +30,7 @@ def test_calc_eff_cy():
         sim_param=sim_param,
         eff_by= 1.0,
         eff_ey= 2.0,
-        year_until_changed=2020,
+        yr_until_changed=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
         diff_method='linear')
@@ -44,7 +44,7 @@ def test_calc_eff_cy():
         sim_param=sim_param,
         eff_by= 1.0,
         eff_ey= 2.0,
-        year_until_changed=2020,
+        yr_until_changed=2020,
         other_enduse_mode_info=other_enduse_mode_info,
         tech_eff_achieved_f=1.0,
         diff_method='sigmoid')

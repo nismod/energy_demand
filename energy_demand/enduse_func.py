@@ -73,7 +73,7 @@ class Enduse(object):
         Installed technologes for this enduse
     sig_param_tech : dict
         Sigmoid parameters
-    enduse_overall_change_ey : dict
+    enduse_overall_change : dict
         Assumptions related to overal change in endyear
     regional_lp_stock : object
         Load profile stock
@@ -119,7 +119,7 @@ class Enduse(object):
             tech_constant_share,
             installed_tech,
             sig_param_tech,
-            enduse_overall_change_ey,
+            enduse_overall_change,
             regional_lp_stock,
             dw_stock=False,
             reg_scen_drivers=None,
@@ -162,18 +162,16 @@ class Enduse(object):
             self.fuel_new_y = apply_smart_metering(
                 enduse,
                 self.fuel_new_y,
-                assumptions,
-                sim_param,
-                assumptions['enduse_overall_change_ey']['year_until_changed'])
+                assumptions['smart_meter_assump'],
+                sim_param)
             logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific consumption change in %
             self.fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_new_y,
-                assumptions['other_enduse_mode_info'],
-                assumptions['enduse_overall_change_ey']['year_until_changed'],
-                enduse_overall_change_ey,
+                enduse_overall_change,
+                enduse_overall_change['enduse_specific_change_yr_until_changed'],
                 sim_param)
             logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
@@ -335,8 +333,8 @@ class Enduse(object):
                         enduse,
                         sim_param,
                         loadfactor_yd_cy,
-                        assumptions['demand_management'],
-                        assumptions['demand_management']['year_until_changed'])
+                        assumptions['demand_management']['enduses_demand_managent'],
+                        assumptions['demand_management']['demand_management_yr_until_changed'])
 
                     if not peak_shift_crit:
                         self.fuel_yh = fuel_yh
@@ -362,7 +360,7 @@ class Enduse(object):
 
                         self.fuel_peak_h = lp.calk_peak_h_dh(self.fuel_peak_dh)
 
-def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, year_until_changed):
+def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, yr_until_changed):
     """Calculate lf improvement depending on linear diffusion
 
     Test if lager than zero --> replace by one
@@ -379,7 +377,7 @@ def calc_lf_improvement(enduse, sim_param, loadfactor_yd_cy, lf_improvement_ey, 
                 sim_param['curr_yr'],
                 0,
                 1,
-                year_until_changed)
+                yr_until_changed)
 
             # Current year load factor improvement
             lf_improvement_cy = lf_improvement_ey[enduse] * lin_diff_factor
@@ -1014,9 +1012,6 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
         # Fraction of heat recovered until end_year
         heat_recovered_p_by = assumptions['heat_recovered'][enduse]
 
-        # Year until recovered
-        year_until_recovered =  assumptions['heat_recovered']['year_until_recovered']
-
         if heat_recovered_p_by == 0:
             return service
         else:
@@ -1024,9 +1019,9 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 base_sim_param['base_yr'],
                 base_sim_param['curr_yr'],
-                year_until_recovered,
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                assumptions['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                assumptions['heat_recovered']['heat_recovered_yr_until_changed'],
+                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
             heat_recovered_p_cy = sig_diff_factor * heat_recovered_p_by
 
@@ -1137,9 +1132,8 @@ def apply_scenario_drivers(
 def apply_specific_change(
         enduse,
         fuel_y,
-        other_enduse_mode_info,
-        year_until_changed,
-        enduse_overall_change_ey,
+        enduse_overall_change,
+        yr_until_changed,
         sim_param
     ):
     """Calculates fuel based on assumed overall enduse specific fuel consumption changes
@@ -1152,8 +1146,6 @@ def apply_specific_change(
         Yearly fuel per fueltype
     assumptions : dict
         Assumptions
-    enduse_overall_change_ey : dict
-        Assumption of overall change in end year
 
     sim_param : dict
         Base simulation parameters
@@ -1177,14 +1169,11 @@ def apply_specific_change(
     """
     # Fuel consumption shares in base and end year
     percent_by = 1.0
-    percent_ey = enduse_overall_change_ey[enduse]
-
-    # Year until change is applied
-    year_until_changed = year_until_changed
+    percent_ey = enduse_overall_change['enduses'][enduse]
 
     # Share of fuel consumption difference
     diff_fuel_consump = percent_ey - percent_by
-    diffusion_choice = other_enduse_mode_info['diff_method']
+    diffusion_choice = enduse_overall_change['other_enduse_mode_info']['diff_method']
 
     if diff_fuel_consump != 0: # If change in fuel consumption
 
@@ -1195,7 +1184,7 @@ def apply_specific_change(
                 sim_param['curr_yr'],
                 percent_by,
                 percent_ey,
-                year_until_changed)
+                yr_until_changed)
             change_cy = lin_diff_factor
 
         # Sigmoid diffusion up to cy
@@ -1203,9 +1192,9 @@ def apply_specific_change(
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
                 sim_param['base_yr'],
                 sim_param['curr_yr'],
-                year_until_changed,
-                other_enduse_mode_info['sigmoid']['sig_midpoint'],
-                other_enduse_mode_info['sigmoid']['sig_steeppness'])
+                yr_until_changed,
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
             change_cy = diff_fuel_consump * sig_diff_factor
 
         return fuel_y * change_cy
@@ -1248,7 +1237,7 @@ def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y,
 
     return fuel_new_y
 
-def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param, year_until_changed):
+def apply_smart_metering(enduse, fuel_y, smart_meter_assump, base_sim_param):
     """Calculate fuel savings depending on smart meter penetration
 
     Arguments
@@ -1257,8 +1246,8 @@ def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param, year_until
         Enduse
     fuel_y : array
         Yearly fuel per fueltype
-    assumptions : dict
-        assumptions
+    smart_meter_assump : dict
+        smart meter assumptions
     base_sim_param : dict
         Base simulation parameters
 
@@ -1274,25 +1263,22 @@ def apply_smart_metering(enduse, fuel_y, assumptions, base_sim_param, year_until
     - In the assumptions the maximum penetration and also the
         generally fuel savings for each enduse can be defined.
     """
-    if enduse in assumptions['savings_smart_meter']:
-
-        # Year until changed
-        year_until_changed = year_until_changed
+    if enduse in smart_meter_assump['savings_smart_meter']:
 
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
             base_sim_param['base_yr'],
             base_sim_param['curr_yr'],
-            year_until_changed,
-            assumptions['smart_meter_diff_params']['sig_midpoint'],
-            assumptions['smart_meter_diff_params']['sig_steeppness'])
+            smart_meter_assump['smart_meter_yr_until_changed'],
+            smart_meter_assump['smart_meter_diff_params']['sig_midpoint'],
+            smart_meter_assump['smart_meter_diff_params']['sig_steeppness'])
 
         # Smart Meter penetration (percentage of people having smart meters)
-        penetration_by = assumptions['smart_meter_p_by']
-        penetration_cy = assumptions['smart_meter_p_by'] + (
-            sigm_factor * (assumptions['smart_meter_p_ey'] - assumptions['smart_meter_p_by']))
+        penetration_by = smart_meter_assump['smart_meter_p_by']
+        penetration_cy = smart_meter_assump['smart_meter_p_by'] + (
+            sigm_factor * (smart_meter_assump['smart_meter_p_future'] - smart_meter_assump['smart_meter_p_by']))
 
-        savings = assumptions['savings_smart_meter'][enduse]
+        savings = smart_meter_assump['savings_smart_meter'][enduse]
         saved_fuel = fuel_y * (penetration_by - penetration_cy) * savings
         fuel_y = fuel_y - saved_fuel
 
