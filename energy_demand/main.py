@@ -106,11 +106,14 @@ if __name__ == "__main__":
     # ------------------------------
     # Assumptions
     # ------------------------------
+    # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
         data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+    
+    # Parameters defined within smif
     param_assumptions.load_param_assump(
         data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -131,7 +134,13 @@ if __name__ == "__main__":
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],
-        'population': data['population']}
+        'population': data['population'],
+        'floor_area': {
+            'rs_floorarea': data['rs_floorarea'],
+            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
+        }
+    
+    }
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")

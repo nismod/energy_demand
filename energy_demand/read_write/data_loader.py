@@ -140,18 +140,6 @@ def load_basic_lookups():
     return lookups
 
 def get_dummy_coord_region(lu_reg, local_paths):
-    """create dummy coord and regions
-    """
-    '''coord_dummy = {}
-
-    # Load dummy LAC and pop
-    dummy_pop_geocodes = load_LAC_geocodes_info(
-        local_paths['path_dummy_regions'])
-    for reg in lu_reg:
-        for geo_code, values in dummy_pop_geocodes.items():
-            if geo_code == reg:
-                coord_dummy[geo_code] = {'longitude': values['Y_cor'], 'latitude': values['X_cor']}
-                print(values)'''
     coord_dummy = {}
     for reg in lu_reg:
         coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
@@ -196,6 +184,8 @@ def dummy_data_generation(data, regions=[]):
                 _data[reg_geocode] = dummy_pop_geocodes[reg_geocode]['POP_JOIN']
             pop_dummy[year] = _data
         data['population'] = pop_dummy
+
+
 
     # Residenital floor area
     rs_floorarea = {}

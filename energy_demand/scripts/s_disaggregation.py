@@ -19,7 +19,19 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 Calculate future regional floor area demand based on GVA and pop projection
 
 '''
-def disaggregate_base_demand(data):
+def disaggregate_base_demand(
+        lu_reg,
+        sim_param,
+        fuels,
+        scenario_data,
+        assumptions,
+        reg_coord,
+        weather_stations,
+        temp_data,
+        sectors,
+        all_sectors,
+        enduses
+    ):
     """This function disaggregates fuel demand based on region specific parameters
     for the base year
 
@@ -51,27 +63,59 @@ def disaggregate_base_demand(data):
         return tot
 
     # Disaggregate residential submodel data
-    data['rs_fuel_disagg'] = rs_disaggregate(
-        data['lu_reg'],
-        data['sim_param'],
-        data,
-        data['fuels']['rs_fuel_raw_data_enduses'])
+    rs_fuel_disagg = rs_disaggregate(
+        lu_reg,
+        sim_param,
+        fuels['rs_fuel_raw_data_enduses'],
+        scenario_data,
+        assumptions,
+        reg_coord,
+        weather_stations,
+        temp_data)
 
     # Disaggregate service submodel data
-    data['ss_fuel_disagg'] = ss_disaggregate(data, data['fuels']['ss_fuel_raw_data_enduses'])
+    ss_fuel_disagg = ss_disaggregate(
+        fuels['ss_fuel_raw_data_enduses'],
+        assumptions,
+        scenario_data,
+        sim_param,
+        lu_reg,
+        reg_coord,
+        temp_data,
+        weather_stations,
+        enduses,
+        sectors,
+        all_sectors)
 
     # Disaggregate industry submodel data
-    data['is_fuel_disagg'] = is_disaggregate(data, data['fuels']['is_fuel_raw_data_enduses'])
+    is_fuel_disagg = is_disaggregate(
+        fuels['is_fuel_raw_data_enduses'],
+        lu_reg,
+        scenario_data,
+        enduses,
+        sectors)
 
     # Check if total fuel is the same before and after aggregation
     np.testing.assert_almost_equal(
-        sum_fuels_before(data['fuels']['rs_fuel_raw_data_enduses']),
-        sum_fuels_after(data['rs_fuel_disagg']),
+        sum_fuels_before(fuels['rs_fuel_raw_data_enduses']),
+        sum_fuels_after(rs_fuel_disagg),
         decimal=2, err_msg="")
 
-    return data
+    return rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg
 
-def ss_disaggregate(data, raw_fuel_sectors_enduses):
+def ss_disaggregate(
+        raw_fuel_sectors_enduses,
+        assumptions,
+        scenario_data,
+        sim_param,
+        lu_reg,
+        reg_coord,
+        temp_data,
+        weather_stations,
+        enduses,
+        sectors,
+        all_sectors
+    ): 
     """Disaggregate fuel for service submodel (per enduse and sector)
     """
     logging.debug("... disaggregate service demand")
@@ -81,34 +125,34 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # Calculate heating degree days for regions
     # ---------------------------------------
     ss_hdd_individ_region = hdd_cdd.get_hdd_country(
-        data['sim_param'],
-        data['lu_reg'],
-        data['temp_data'],
-        data['assumptions']['base_temp_diff_params'],
-        data['assumptions']['ss_t_base_heating']['ss_t_base_heating_future_yr'],
-        data['assumptions']['ss_t_base_heating']['ss_t_base_heating_base_yr'],
-        data['reg_coord'],
-        data['weather_stations'],)
+        sim_param,
+        lu_reg,
+        temp_data,
+        assumptions['base_temp_diff_params'],
+        assumptions['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+        assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+        reg_coord,
+        weather_stations)
 
     ss_cdd_individ_region = hdd_cdd.get_cdd_country(
-        data['sim_param'],
-        data['lu_reg'],
-        data['temp_data'],
-        data['assumptions']['base_temp_diff_params'],
-        data['assumptions']['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
-        data['assumptions']['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
-        data['reg_coord'],
-        data['weather_stations'])
+        sim_param,
+        lu_reg,
+        temp_data,
+        assumptions['base_temp_diff_params'],
+        assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+        assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
+        reg_coord,
+        weather_stations)
 
     # ---------------------------------------
     # Overall disaggregation factors per enduse and sector
     # ---------------------------------------
     # Total floor area for every enduse per sector
     national_floorarea_by_sector = {}
-    for sector in data['sectors']['ss_sectors']:
+    for sector in sectors['ss_sectors']:
         national_floorarea_by_sector[sector] = 0
-        for region in data['lu_reg']:
-            national_floorarea_by_sector[sector] += data['ss_sector_floor_area_by'][region][sector]
+        for region in lu_reg:
+            national_floorarea_by_sector[sector] += scenario_data['floor_area']['ss_sector_floor_area_by'][region][sector]
 
     f_ss_catering = {}
     f_ss_computing = {}
@@ -119,7 +163,7 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     f_ss_other_electricity = {}
     f_ss_other_gas = {}
 
-    for sector in data['all_sectors']:
+    for sector in all_sectors:
         f_ss_catering[sector] = 0
         f_ss_computing[sector] = 0
         f_ss_cooling_ventilation[sector] = 0
@@ -129,17 +173,17 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
         f_ss_other_electricity[sector] = 0
         f_ss_other_gas[sector] = 0
 
-        for region_name in data['lu_reg']:
+        for region_name in lu_reg:
 
             # HDD
             reg_hdd = ss_hdd_individ_region[region_name]
             reg_cdd = ss_cdd_individ_region[region_name]
 
             # Floor Area of sector
-            reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
+            reg_floor_area = scenario_data['floor_area']['ss_sector_floor_area_by'][region_name][sector]
 
             # Population
-            reg_pop = data['scenario_data']['population'][data['sim_param']['base_yr']][region_name]
+            reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
 
             #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -156,21 +200,20 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
-    print("REGG: " + str(data['lu_reg']))
-    for region_name in data['lu_reg']:
+    for region_name in lu_reg:
         ss_fuel_disagg[region_name] = defaultdict(dict)
-        for sector in data['sectors']['ss_sectors']:
-            for enduse in data['enduses']['ss_all_enduses']:
+        for sector in sectors['ss_sectors']:
+            for enduse in enduses['ss_all_enduses']:
 
                 # HDD
                 reg_hdd = ss_hdd_individ_region[region_name]
                 reg_cdd = ss_cdd_individ_region[region_name]
 
                 # Floor Area of sector
-                reg_floor_area = data['ss_sector_floor_area_by'][region_name][sector]
+                reg_floor_area = scenario_data['floor_area']['ss_sector_floor_area_by'][region_name][sector]
 
                 # Population
-                reg_pop = data['scenario_data']['population'][data['sim_param']['base_yr']][region_name]
+                reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
 
                 #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -201,15 +244,15 @@ def ss_disaggregate(data, raw_fuel_sectors_enduses):
             for enduse in ss_fuel_disagg[reg][sector]:
                 control_sum1 += np.sum(ss_fuel_disagg[reg][sector][enduse])
 
-    for sector in data['sectors']['ss_sectors']:
-        for enduse in data['enduses']['ss_all_enduses']:
+    for sector in sectors['ss_sectors']:
+        for enduse in enduses['ss_all_enduses']:
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
     np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
     return ss_fuel_disagg
 
-def is_disaggregate(data, raw_fuel_sectors_enduses):
+def is_disaggregate(raw_fuel_sectors_enduses, lu_reg, scenario_data, enduses, sectors): 
     """Disaggregate fuel for sector and enduses with floor
     area and GVA for sectors and enduses (IMPROVE)
 
@@ -224,21 +267,21 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
     is_fuel_disagg = {}
 
     national_floorarea_sector = 0
-    for region_name in data['lu_reg']:
-        national_floorarea_sector += sum(data['ss_sector_floor_area_by'][region_name].values())
+    for region_name in lu_reg:
+        national_floorarea_sector += sum(scenario_data['floor_area']['ss_sector_floor_area_by'][region_name].values())
 
     # Iterate regions
-    for region_name in data['lu_reg']:
+    for region_name in lu_reg:
         is_fuel_disagg[region_name] = defaultdict(dict)
 
         # Iterate sector
-        for sector in data['sectors']['is_sectors']:
+        for sector in sectors['is_sectors']:
 
             # Sector specifid info
-            reg_floorarea_sector = sum(data['ss_sector_floor_area_by'][region_name].values())
+            reg_floorarea_sector = sum(scenario_data['floor_area']['ss_sector_floor_area_by'][region_name].values())
 
             # Iterate enduse
-            for enduse in data['enduses']['is_all_enduses']:
+            for enduse in enduses['is_all_enduses']:
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
 
                 # ----------------------
@@ -252,7 +295,7 @@ def is_disaggregate(data, raw_fuel_sectors_enduses):
 
     return is_fuel_disagg
 
-def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
+def rs_disaggregate(lu_reg, sim_param, rs_national_fuel, scenario_data, assumptions, reg_coord, weather_stations, temp_data):
     """Disaggregate residential fuel demand
 
     Arguments
@@ -261,8 +304,6 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         Regions
     sim_param : dict
         Simulation parameters
-    data : dict
-        Data container
     rs_national_fuel : dict
         Fuel per enduse for residential submodel
 
@@ -284,12 +325,12 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
     rs_hdd_individ_region = hdd_cdd.get_hdd_country(
         sim_param,
         lu_reg,
-        data['temp_data'],
-        data['assumptions']['base_temp_diff_params'], 
-        data['assumptions']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
-        data['assumptions']['rs_t_base_heating']['rs_t_base_heating_base_yr'],
-        data['reg_coord'],
-        data['weather_stations'])
+        temp_data,
+        assumptions['base_temp_diff_params'], 
+        assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+        assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+        reg_coord,
+        weather_stations)
 
     # ---------------------------------------
     # Overall disaggregation factors per enduse
@@ -310,10 +351,10 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
         reg_hdd = rs_hdd_individ_region[region_name]
 
         # Floor Area across all sectors
-        reg_floor_area = data['rs_floorarea'][sim_param['base_yr']][region_name]
+        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][sim_param['base_yr']][region_name]
 
         # Population
-        reg_pop = data['scenario_data']['population'][sim_param['base_yr']][region_name]
+        reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
 
         #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -334,9 +375,9 @@ def rs_disaggregate(lu_reg, sim_param, data, rs_national_fuel):
     rs_fuel_disagg = defaultdict(dict)
 
     for region_name in lu_reg:
-        reg_pop = data['scenario_data']['population'][sim_param['base_yr']][region_name]
+        reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
         reg_hdd = rs_hdd_individ_region[region_name]
-        reg_floor_area = data['rs_floorarea'][sim_param['base_yr']][region_name]
+        reg_floor_area = scenario_data['floor_area']['rs_floorarea'][sim_param['base_yr']][region_name]
 
         #reg_hdd, reg_pop, reg_cdd, reg_floor_area = 100, 100, 100, 100
 
@@ -452,18 +493,29 @@ def run(data):
     logging.debug("... start script %s", os.path.basename(__file__))
 
     # Disaggregation
-    data = disaggregate_base_demand(data)
+    rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg = disaggregate_base_demand(
+        data['lu_reg'],
+        data['sim_param'],
+        data['fuels'],
+        data['scenario_data'],
+        data['assumptions'],
+        data['reg_coord'],
+        data['weather_stations'],
+        data['temp_data'],
+        data['sectors'],
+        data['all_sectors'],
+        data['enduses'])
 
     #Write to csv file disaggregated demand
     write_disagg_fuel(
         os.path.join(data['local_paths']['dir_disattregated'], 'rs_fuel_disagg.csv'),
-        data['rs_fuel_disagg'])
+        rs_fuel_disagg)
     write_disagg_fuel_sector(
         os.path.join(data['local_paths']['dir_disattregated'], 'ss_fuel_disagg.csv'),
-        data['ss_fuel_disagg'])
+        ss_fuel_disagg)
     write_disagg_fuel_sector(
         os.path.join(data['local_paths']['dir_disattregated'], 'is_fuel_disagg.csv'),
-        data['is_fuel_disagg'])
+        is_fuel_disagg)
 
     logging.debug("... finished script %s", os.path.basename(__file__))
     return

@@ -27,7 +27,7 @@ def test_assign_by_fuel_tech_p():
 
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
     param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(
         data['assumptions'], data['enduses'], data['lookups'])

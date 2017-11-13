@@ -57,7 +57,7 @@ def run_model(args):
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
     param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -69,7 +69,14 @@ def run_model(args):
     
     data = data_loader.dummy_data_generation(data)
 
-    data['scenario_data'] = {'gva': data['gva'], 'population': data['population']}
+    data['scenario_data'] = {
+        'gva': data['gva'],
+        'population': data['population'],
+        'floor_area': {
+            'rs_floorarea': data['rs_floorarea'],
+            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
+        }
+    }
 
     # In order to load these data, the initialisation scripts need to be run
     logging.info("... Load data from script calculations")

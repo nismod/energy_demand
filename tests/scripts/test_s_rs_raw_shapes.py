@@ -40,8 +40,7 @@ def test_assign_hes_data_to_year():
         nr_of_appliances=2,
         hes_data=hes_data,
         base_yr=2017)
-    print(result[0][0][0])
-    print(result[1][0][0])
+
     assert result[0][0][0] == 10 #daytype, month_python, appliances
     assert result[1][0][0] == 1
 

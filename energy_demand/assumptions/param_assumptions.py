@@ -386,12 +386,12 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
 
     assumptions['eff_achieving_factor']['factor_achieved'] = 1.0
 
-    assumptions['testing'] = True
     # -----------------------
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    write_data.write_yaml_param(paths['yaml_parameters'], assumptions)
+    #write_data.write_yaml_param(paths['yaml_parameters'], assumptions)
     write_data.write_yaml_param_complete(paths['yaml_parameters_complete'], assumptions)
 
+    assumptions['testing'] = True
     return

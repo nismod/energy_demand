@@ -509,7 +509,8 @@ def get_tech_installed(enduses, fuel_switches):
     return installed_tech
 
 def get_sig_diffusion(
-        data,
+        base_yr,
+        technologies,
         service_switches,
         fuel_switches,
         enduses,
@@ -603,8 +604,8 @@ def get_sig_diffusion(
 
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech[enduse] = tech_sigmoid_parameters(
-            data['sim_param']['base_yr'],
-            data['assumptions']['technologies'],
+            base_yr,
+            technologies,
             enduse,
             crit_switch_service,
             installed_tech[enduse],
@@ -726,7 +727,8 @@ def run(data):
 
     # --Residential
     rs_installed_tech, rs_sig_param_tech = get_sig_diffusion(
-        data,
+        data['sim_param']['base_yr'],
+        data['assumptions']['technologies'],
         data['assumptions']['rs_service_switches'],
         data['assumptions']['rs_fuel_switches'],
         data['enduses']['rs_all_enduses'],
@@ -739,7 +741,8 @@ def run(data):
 
     # --Service
     ss_installed_tech, ss_sig_param_tech = get_sig_diffusion(
-        data,
+        data['sim_param']['base_yr'],
+        data['assumptions']['technologies'],
         data['assumptions']['ss_service_switches'],
         data['assumptions']['ss_fuel_switches'],
         data['enduses']['ss_all_enduses'],
@@ -752,7 +755,8 @@ def run(data):
 
     # --Industry
     is_installed_tech, is_sig_param_tech = get_sig_diffusion(
-        data,
+        data['sim_param']['base_yr'],
+        data['assumptions']['technologies'],
         data['assumptions']['is_service_switches'],
         data['assumptions']['is_fuel_switches'],
         data['enduses']['is_all_enduses'],

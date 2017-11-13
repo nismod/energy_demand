@@ -370,7 +370,7 @@ def calc_lf_improvement(enduse, base_yr, curr_yr, loadfactor_yd_cy, lf_improveme
     try:
         # Get assumed load shift
         param_name = 'demand_management_improvement__{}'.format(enduse)
-        print(param_name)
+
         if lf_improvement_ey[param_name] == 0:
             return False, False
         else:
