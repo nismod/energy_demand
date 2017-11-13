@@ -158,35 +158,35 @@ class WeatherRegion(object):
         self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
         # --------HDD/CDD
-        rs_hdd_by, _ = hdd_cdd.get_reg_hdd(
+        self.rs_hdd_by, _ = hdd_cdd.get_reg_hdd(
             temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
-        rs_cdd_by, _ = hdd_cdd.get_reg_cdd(
+        self.rs_cdd_by, _ = hdd_cdd.get_reg_cdd(
             temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'])
-        rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
+        self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-        rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(
+        self.rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(
             temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'])
 
         # Climate change correction factors
         try:
             self.rs_heating_factor_y = np.nan_to_num(
-                1.0 / float(np.sum(rs_hdd_by))) * np.sum(rs_hdd_cy)
+                1.0 / float(np.sum(self.rs_hdd_by))) * np.sum(self.rs_hdd_cy)
             self.rs_cooling_factor_y = np.nan_to_num(
-                1.0 / float(np.sum(rs_cdd_by))) * np.sum(rs_cdd_cy)
+                1.0 / float(np.sum(self.rs_cdd_by))) * np.sum(self.rs_cdd_cy)
         except ZeroDivisionError:
             self.rs_heating_factor_y = 1
             self.rs_cooling_factor_y = 1
 
         # yd peak factors for heating and cooling
         # (Needss full year necessary of temp data to calc peak days)
-        rs_peak_yd_heating_factor = get_shape_peak_yd_factor(rs_hdd_cy)
+        rs_peak_yd_heating_factor = get_shape_peak_yd_factor(self.rs_hdd_cy)
         #rs_peak_yd_cooling_factor = get_shape_peak_yd_factor(rs_cdd_cy)
 
         # Heat pumps, non-peak
         rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
             tech_lp['rs_profile_hp_y_dh'], #NEW 'rs_lp_heating_hp_dh'
             self.rs_tech_stock,
-            rs_hdd_cy,
+            self.rs_hdd_cy,
             assumptions['model_yeardays'])
 
         # Cooling residential

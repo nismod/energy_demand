@@ -201,6 +201,15 @@ class EnergyModel(object):
         #-------------------
         testing.test_region_selection(self.ed_fueltype_regs_yh)
 
+        # ---
+        # Other charts
+        # ---
+        plot_HDD_chart = True
+        if plot_HDD_chart == True:
+            logging.info("plot figure HDD comparison")
+            from energy_demand.charts import figure_HHD_gas_demand
+            figure_HHD_gas_demand.main(region_names, weather_regions, data)
+
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
 

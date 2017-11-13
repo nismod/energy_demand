@@ -48,7 +48,7 @@ def run_model(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -63,7 +63,12 @@ def run_model(args):
 
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
-    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+    data['tech_lp'] = data_loader.load_data_profiles(
+        data['paths'],
+        data['local_paths'],
+        data['assumptions']['model_yeardays'], 
+        data['assumptions']['model_yeardays_daytype'])
+
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
     data = data_loader.dummy_data_generation(data)

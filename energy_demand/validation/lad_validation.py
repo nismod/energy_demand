@@ -16,7 +16,14 @@ from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
 
-def temporal_validation(local_paths, lookups, ed_fueltype_national_yh, val_elec_data_2015_indo, val_elec_data_2015_itsdo, indo_factoreddata):
+def temporal_validation(
+        local_paths,
+        lookups,
+        ed_fueltype_national_yh,
+        val_elec_data_2015_indo,
+        val_elec_data_2015_itsdo,
+        indo_factoreddata
+    ):
     """National hourly electricity data is validated with fuel of
     all regions for base year
 

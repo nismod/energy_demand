@@ -1,11 +1,17 @@
 """Read in model results and plot results
 """
+import logging
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 
-def run(local_data_path):
-    """
+def main(local_data_path):
+    """Read in all results and plot PDFs
+
+    Arguments
+    ----------
+    local_data_path : str
+        Path to results
     """
     # ------------------
     # Load necessary inputs for read in
@@ -15,7 +21,8 @@ def run(local_data_path):
     data['lookups'] = data_loader.load_basic_lookups()
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
+    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'] = data_loader.load_sim_param_ini(
+        data['local_paths']['data_results'])
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -41,7 +48,7 @@ def run(local_data_path):
         data['assumptions'],
         data['sim_param'],
         data['enduses'])
-    print("finished")
-    return
 
-run("C://Users//cenv0553//nismod//data_energy_demand")
+    logging.info("... finished reading and plotting results")
+
+main("C://Users//cenv0553//nismod//data_energy_demand")

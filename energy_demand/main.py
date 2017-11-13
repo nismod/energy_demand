@@ -11,19 +11,8 @@ import os
 import sys
 import logging
 import numpy as np
-from pyinstrument import Profiler
 from energy_demand import energy_model
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
-from energy_demand.read_write import data_loader
 from energy_demand.basic import testing_functions as testing
-from energy_demand.validation import lad_validation
-from energy_demand.plotting import plotting_results
-from energy_demand.basic import logger_setup
-from energy_demand.read_write import write_data, read_data
-from energy_demand.basic import basic_functions
-from energy_demand.basic import date_prop
-from energy_demand import read_and_plot_results
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -48,7 +37,6 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """
     fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
 
-    print("SIMULATION YEARS: " + str(data['sim_param']['curr_yr']))
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data)
@@ -67,7 +55,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("ele fueld diff:      " + str(round(
         fuel_in_elec - np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4)))
     print("================================================")
-    logging.debug("...finished energy demand model simulation")
+
+    logging.info("...finished running energy demand model simulation")
 
     return model_run_object
 
@@ -83,6 +72,23 @@ if __name__ == "__main__":
     else:
         local_data_path = sys.argv[1]
 
+    logging.info("... Finished running Energy Demand Model")
+
+
+    # -------------- SCRAP
+
+    # SCRAP
+    from pyinstrument import Profiler
+    from energy_demand.assumptions import non_param_assumptions
+    from energy_demand.assumptions import param_assumptions
+    from energy_demand.read_write import data_loader
+    from energy_demand.validation import lad_validation
+    from energy_demand.plotting import plotting_results
+    from energy_demand.basic import logger_setup
+    from energy_demand.read_write import write_data, read_data
+    from energy_demand.basic import basic_functions
+    from energy_demand.basic import date_prop
+    # SCRAP
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
@@ -92,7 +98,7 @@ if __name__ == "__main__":
     # Run settings
     instrument_profiler = True
     print_criteria = True
-    validation_criteria = True
+    validation_criteria = False
 
     # Load data
     data = {}
@@ -100,7 +106,7 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -115,18 +121,23 @@ if __name__ == "__main__":
     
     # Parameters defined within smif
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
+    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
-    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+
+    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
 
     # ------------------------------
+
+    # ==========
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
-    data = data_loader.dummy_data_generation(data)
+    #data = data_loader.dummy_data_generation(data)
+    data = data_loader.dummy_data_RUNLOCALLY(data)
 
     #Scenario data
     data['scenario_data'] = {
@@ -136,6 +147,7 @@ if __name__ == "__main__":
             'rs_floorarea': data['rs_floorarea'],
             'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
         }
+    
     }
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
@@ -234,11 +246,9 @@ if __name__ == "__main__":
                 ed_fueltype_regs_yh,
                 model_run_object.tot_peak_enduses_fueltype)
 
-    # ---------------------
-    # Read and plot results
-    # ---------------------
-    #read_and_plot_results.run(local_data_path)
-    '''# ------------------
+
+
+    # ------------------
     # Load necessary inputs for read in
     # ------------------
     #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
@@ -274,5 +284,5 @@ if __name__ == "__main__":
         data['assumptions'],
         data['sim_param'],
         data['enduses'])
-    '''
+
     logging.info("... Finished running Energy Demand Model")

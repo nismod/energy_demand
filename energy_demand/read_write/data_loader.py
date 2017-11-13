@@ -145,21 +145,9 @@ def get_dummy_coord_region(lu_reg, local_paths):
         coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
     return coord_dummy
 
-def dummy_data_generation(data, regions=[]):
-    """REPLACE WITH NEWCASTLE DATA
+def dummy_data_RUNLOCALLY(data, regions=[]):
     """
-    data['all_sectors'] = [
-        'community_arts_leisure',
-        'education',
-        'emergency_services',
-        'health',
-        'hospitality',
-        'military',
-        'offices',
-        'retail',
-        'storage',
-        'other']
-
+    """
     # Load dummy LAC and pop
     if regions == []:
         regions = data['lu_reg']
@@ -199,9 +187,51 @@ def dummy_data_generation(data, regions=[]):
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
+
     data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     data['reg_nrs'] = len(regions)
+    data['reg_floorarea_resid'] = {}
+
+    for region_name in data['lu_reg']:
+        data['reg_floorarea_resid'][region_name] = 100000
+
+    data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
+
+    return data
+
+def dummy_data_generation(data):
+    """REPLACE WITH NEWCASTLE DATA
+    """
+    data['all_sectors'] = [
+        'community_arts_leisure',
+        'education',
+        'emergency_services',
+        'health',
+        'hospitality',
+        'military',
+        'offices',
+        'retail',
+        'storage',
+        'other']
+
+    # Residenital floor area
+    rs_floorarea = {}
+    for year in range(2015, 2101):
+        rs_floorarea[year] = {}
+        for region_geocode in data['lu_reg']:
+            rs_floorarea[year][region_geocode] = 10000
+    data['rs_floorarea'] = rs_floorarea
+
+    # Dummy flor area
+    ss_floorarea_sector_by_dummy = {}
+    for region_geocode in data['lu_reg']:
+        ss_floorarea_sector_by_dummy[region_geocode] = {}
+        for sector in data['all_sectors']:
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
+    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+
+    data['reg_nrs'] = len(data['lu_reg'])
     data['reg_floorarea_resid'] = {}
 
     for region_name in data['lu_reg']:
@@ -401,7 +431,7 @@ def load_data_tech_profiles(tech_lp, paths):
     '''
     return tech_lp
 
-def load_data_profiles(paths, local_paths, assumptions):
+def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype):
     """Collect load profiles from txt files
 
     Arguments
@@ -420,10 +450,10 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
-        local_paths['rs_load_profile_txt'], assumptions['model_yeardays'])
+        local_paths['rs_load_profile_txt'], model_yeardays)
 
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
-        local_paths['ss_load_profile_txt'], assumptions['model_yeardays'])
+        local_paths['ss_load_profile_txt'], model_yeardays)
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
@@ -435,23 +465,23 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Heat pumps by Love
     tech_lp['rs_profile_hp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_hp_dh', tech_lp, model_yeardays_daytype)
 
     # Storage heater
     tech_lp['rs_profile_storage_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_storage_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_storage_heating_dh', tech_lp, model_yeardays_daytype)
 
     # Electric heating
     tech_lp['rs_profile_elec_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_second_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_second_heating_dh', tech_lp, model_yeardays_daytype)
 
     # Boilers
     tech_lp['rs_profile_boilers_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_boilers_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_boilers_dh', tech_lp, model_yeardays_daytype)
 
     # Micro CHP
     tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_CHP_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_CHP_dh', tech_lp, model_yeardays_daytype)
 
     return tech_lp
 
@@ -553,7 +583,19 @@ def load_fuels(paths, lookups):
     fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
     fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
 
-    return enduses, sectors, fuels
+    all_sectors = [
+        'community_arts_leisure',
+        'education',
+        'emergency_services',
+        'health',
+        'hospitality',
+        'military',
+        'offices',
+        'retail',
+        'storage',
+        'other']
+
+    return enduses, sectors, fuels, all_sectors
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files
