@@ -13,7 +13,8 @@ import logging
 import numpy as np
 from pyinstrument import Profiler
 from energy_demand import energy_model
-from energy_demand.assumptions import base_assumptions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader
 from energy_demand.basic import testing_functions as testing
 from energy_demand.validation import lad_validation
@@ -102,18 +103,23 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
-
+    # ------------------------------
     # Assumptions
     # ------------------------------
-    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+    param_assumptions.load_param_assump(
+        data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
+
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
-    data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
+    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+
 
     # ------------------------------
 
@@ -225,15 +231,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-
-
-
-
     # ------------------
     # Load necessary inputs for read in
     # ------------------
@@ -244,9 +241,11 @@ if __name__ == "__main__":
 
     # Simulation information is read in from .ini file for results
     data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
-    
+
+    # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
 
     # --------------------------------------------
     # Reading in results from different model runs

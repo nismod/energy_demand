@@ -1,7 +1,8 @@
 """
 """
 from energy_demand.assumptions import assumptions_fuel_shares
-from energy_demand.assumptions import base_assumptions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import param_assumptions
 from energy_demand.read_write import data_loader, read_data
 import os
 
@@ -23,10 +24,9 @@ def test_assign_by_fuel_tech_p():
 
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
     data['sim_param']['curr_yr'] = 2015
-    
-    base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
+
+    data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+    param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(

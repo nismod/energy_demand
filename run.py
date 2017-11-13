@@ -12,7 +12,8 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.read_write import read_data
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
-from energy_demand.assumptions import base_assumptions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.assumptions import param_assumptions
 from energy_demand.basic import date_prop
 from pkg_resources import Requirement, resource_filename
 
@@ -178,8 +179,8 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         
         # Assumptions
-        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
-        base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+        param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -291,18 +292,19 @@ class EDWrapper(SectorModel):
         # ED related stuff
 
         #Assumptions
-        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
-        base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+        param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
         
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
+
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
 
         # Update: Necessary updates after external data definition
-        data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved']) #Maybe write s_script
+        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved']) #Maybe write s_script
 
         # -----------------------
         # Load data from scripts (replacing #data = read_data.load_script_data(data))

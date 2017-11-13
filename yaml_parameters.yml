@@ -261,8 +261,8 @@ installed_heat_pump:
   electricity: {heat_pump_ASHP_electricity: 0.5, heat_pump_GSHP_electricity: 0.5}
   gas: {heat_pump_ASHP_gas: 0.5, heat_pump_GSHP_gas: 0.5}
   hydrogen: {heat_pump_ASHP_hydro: 0.5, heat_pump_GSHP_hydro: 0.5}
-is_dummy_enduses: [is_lighting, is_drying_separation, is_high_temp_process, is_compressed_air,
-  is_refrigeration, is_low_temp_process, is_motors, is_other]
+is_dummy_enduses: [is_refrigeration, is_low_temp_process, is_compressed_air, is_lighting,
+  is_high_temp_process, is_other, is_drying_separation, is_motors]
 is_enduse_tech_maxL_by_p: {}
 is_fuel_switches:
 - {enduse: is_space_heating, enduse_fueltype_replace: 1, max_theoretical_switch: 1.0,
@@ -450,7 +450,7 @@ model_yeardays_date: [2015-01-01, 2015-01-02, 2015-01-03, 2015-01-04, 2015-01-05
   2015-12-29, 2015-12-30, 2015-12-31]
 model_yeardays_nrs: 365
 model_yearhours_nrs: 8760
-rs_dummy_enduses: [rs_home_computing, rs_consumer_electronics]
+rs_dummy_enduses: [rs_consumer_electronics, rs_home_computing]
 rs_enduse_tech_maxL_by_p:
   rs_space_heating: {boiler_biomass: 0.9, boiler_gas: 0.9, boiler_heat_sold: 0.9,
     boiler_hydrogen: 0.9, boiler_oil: 0.9, boiler_solid_fuel: 0.9, heat_pumps_electricity: 0.9,
@@ -803,8 +803,8 @@ smart_meter_assump:
   smart_meter_p_by: 0.1
   smart_meter_p_future: 0.1
   smart_meter_yr_until_changed: 2050
-ss_dummy_enduses: [ss_other_gas, ss_computing, ss_other_electricity, ss_water_heating,
-  ss_lighting, ss_cooling_ventilation, ss_catering]
+ss_dummy_enduses: [ss_lighting, ss_other_gas, ss_other_electricity, ss_computing,
+  ss_catering, ss_water_heating, ss_cooling_ventilation]
 ss_enduse_tech_maxL_by_p: {}
 ss_floorarea_change_ey_p: {community_arts_leisure: 1, education: 1, emergency_services: 1,
   health: 1, hospitality: 1, military: 1, offices: 1, other: 1, retail: 1, storage: 1,

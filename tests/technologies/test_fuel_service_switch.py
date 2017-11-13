@@ -48,9 +48,7 @@ def test_create_service_switch():
         'rs_fuel_tech_p_by': {'heating': {0: {'boiler_gas': 0.0}, 1 :{'boiler_oil': 1.0}}}
     }
 
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+    base_yr = 2015
 
     fuel_by = {0: 0, 1: 10}
     fuels = {'heating': fuel_by}
@@ -61,7 +59,7 @@ def test_create_service_switch():
         assumptions['technologies'],
         assumptions['other_enduse_mode_info'],
         assumptions['rs_fuel_tech_p_by'],
-        sim_param,
+        base_yr,
         fuels)
 
     # Fuel share boiler_gas

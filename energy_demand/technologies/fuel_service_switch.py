@@ -35,7 +35,7 @@ def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
 
     return rel_share_service_tech_decr_by
 
-def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
+def calc_service_switch_capacity(paths, enduses, assumptions, fuels, base_yr):
     """Create service switch based on assumption on
     changes in installed fuel capacity. Service switch are calculated
     based on the assumed capacity installation (in absolute GW)
@@ -52,8 +52,8 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
         Assumptions
     fuels : dict
         Fuels
-    sim_param : dict
-        Simulation parameters
+    base_yr : dict
+        Base year
 
     Returns
     -------
@@ -93,7 +93,7 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['rs_fuel_tech_p_by'],
-        sim_param,
+        base_yr,
         fuels['rs_fuel_raw_data_enduses'])
     assumptions['ss_service_switches'] = create_service_switch(
         ss_enduses_switch,
@@ -101,14 +101,15 @@ def calc_service_switch_capacity(paths, enduses, assumptions, fuels, sim_param):
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['ss_fuel_tech_p_by'],
-        sim_param, fuels['ss_fuel_raw_data_enduses'])
+        base_yr,
+        fuels['ss_fuel_raw_data_enduses'])
     assumptions['is_service_switches'] = create_service_switch(
         is_enduses_switch,
         capacity_switches,
         assumptions['technologies'],
         assumptions['enduse_overall_change']['other_enduse_mode_info'],
         assumptions['is_fuel_tech_p_by'],
-        sim_param,
+        base_yr,
         fuels['is_fuel_raw_data_enduses'])
 
     # Criteria that capacity switch is implemented
@@ -122,7 +123,7 @@ def create_service_switch(
         technologies,
         other_enduse_mode_info,
         fuel_shares_enduse_by_dict,
-        sim_param,
+        base_yr,
         fuels
     ):
     """Generate service switch based on capacity assumptions
@@ -137,8 +138,8 @@ def create_service_switch(
         Assumptions
     fuels : dict
         Fuels
-    sim_param : dict
-        Simulation parameters
+    base_yr : dict
+        base year
     """
     # List to store service switches
     service_switches = []
@@ -155,7 +156,7 @@ def create_service_switch(
                     capacity_switch=capacity_switch,
                     fuel_shares_enduse_by=fuel_shares_enduse_by_dict[enduse],
                     fuel_enduse_y=fuels[enduse],
-                    sim_param=sim_param,
+                    base_yr=base_yr,
                     other_enduse_mode_info=other_enduse_mode_info)
 
                 # Add service switch
@@ -170,7 +171,7 @@ def convert_capacity_assumption_to_service(
         capacity_switch,
         fuel_shares_enduse_by,
         fuel_enduse_y,
-        sim_param,
+        base_yr,
         other_enduse_mode_info
     ):
     """Convert assumption about adding
@@ -200,7 +201,7 @@ def convert_capacity_assumption_to_service(
     4.  Write out as service switch
     """
     sim_param_new = {}
-    sim_param_new['base_yr'] = sim_param['base_yr']
+    sim_param_new['base_yr'] = base_yr #sim_param['base_yr']
     sim_param_new['curr_yr'] = capacity_switch['year_fuel_consumption_switched']
 
     # ---------------------------------------------

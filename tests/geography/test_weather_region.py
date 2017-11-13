@@ -1,12 +1,13 @@
 """
 """
 from energy_demand.geography import weather_region
+from energy_demand.assumptions import param_assumptions
 import numpy as np
 
 '''def test_WeatherRegion():
 
     from energy_demand.read_write import data_loader
-    from energy_demand.assumptions import base_assumptions
+    from energy_demand.assumptions import non_param_assumptions
     path_main = os.path.abspath("C://Users//cenv0553//nismod//models//energy_demand")
     path_main = os.path.join("")
 
@@ -21,7 +22,7 @@ import numpy as np
     #Load assumptions
 
 
-    base_assumptions.load_assumptions(
+    param_assumptions.load_param_assump(
         data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
