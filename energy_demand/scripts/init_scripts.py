@@ -160,6 +160,8 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
+    
+    basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
     # Create folders
     basic_functions.create_folder(data['local_paths']['data_results'])

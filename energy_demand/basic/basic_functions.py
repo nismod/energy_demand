@@ -57,7 +57,6 @@ def del_previous_results(path_folder, path_subfolder_keep):
             if path_subfolder != path_subfolder_keep:
                 shutil.rmtree(path_subfolder)
         logging.info("... deleted previous scenario results")
-        print(".. .deleted previous scenario results")
     else:
         pass
 

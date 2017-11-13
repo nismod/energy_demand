@@ -46,25 +46,27 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
+    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+
     print("SIMULATION YEARS: " + str(data['sim_param']['curr_yr']))
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data)
-    print("TTTTTTTTTTTTTTTTTTT")
-    logging.info("Fuel input:          " + str(fuel_in))
-    logging.info("================================================")
-    logging.info("Simulation year:     " + str(model_run_object.curr_yr))
-    logging.info("Number of regions    " + str(data['reg_nrs']))
-    logging.info("Fuel input:          " + str(fuel_in))
-    logging.info("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
-    logging.info("FUEL DIFFERENCE:     " + str(round(
+
+    print("Fuel input:          " + str(fuel_in))
+    print("================================================")
+    print("Simulation year:     " + str(model_run_object.curr_yr))
+    print("Number of regions    " + str(data['reg_nrs']))
+    print("Fuel input:          " + str(fuel_in))
+    print("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
+    print("FUEL DIFFERENCE:     " + str(round(
         (np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
-    logging.info("elec fuel in:        " + str(fuel_in_elec))
-    logging.info("elec fuel out:       " + str(np.sum(
+    print("elec fuel in:        " + str(fuel_in_elec))
+    print("elec fuel out:       " + str(np.sum(
         model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
-    logging.info("ele fueld diff:      " + str(round(
+    print("ele fueld diff:      " + str(round(
         fuel_in_elec - np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4)))
-    logging.info("================================================")
+    print("================================================")
     logging.debug("...finished energy demand model simulation")
 
     return model_run_object
@@ -235,7 +237,7 @@ if __name__ == "__main__":
     # ---------------------
     # Read and plot results
     # ---------------------
-    read_and_plot_results.run(local_data_path)
+    #read_and_plot_results.run(local_data_path)
     '''# ------------------
     # Load necessary inputs for read in
     # ------------------

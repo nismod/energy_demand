@@ -100,7 +100,6 @@ class EDWrapper(SectorModel):
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
 
 
-
         data = data_loader.dummy_data_generation(data, data['lu_reg']) #TODO REMOVE
 
         # -----------------------------
@@ -206,6 +205,9 @@ class EDWrapper(SectorModel):
             {'parameter_name': value_array}
 
         where ``value_array`` is a regions-by-intervals numpy array.
+
+        Returns
+        =======
 
         """
         data = {}
@@ -373,14 +375,10 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [timestep], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
-        logging.info("... Finished writing results to file")
-
-
-        #plotting?"C://Users//cenv0553//nismod//data_energy_demand"
-
         logging.info("... finished wrapper calculations")
         print("... finished wrapper calculations")
-        return supply_results
+        #return supply_results
+        return {'model_name': supply_results}
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function

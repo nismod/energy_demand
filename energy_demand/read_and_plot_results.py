@@ -1,6 +1,5 @@
 """Read in model results and plot results
 """
-import os
 from energy_demand.read_write import data_loader, read_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results

@@ -94,11 +94,9 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                 y_calculated = diffusion_technologies.sigmoid_function(
                     xdata[1], l_value, *fit_parameter)
 
-                print("Calculated value:  " + str(y_calculated))
-                #print("original value:    " + str(ydata[1]))
                 fit_measure_in_percent = (100.0 / ydata[1]) * y_calculated
-                print("... Fitting measure in percent: %s", fit_measure_in_percent)
-                print("... Fitting measure in percent: %s", fit_measure_in_percent)
+                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
+                logging.debug("... Fitting measure in percent: %s", fit_measure_in_percent)
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
