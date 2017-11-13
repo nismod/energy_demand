@@ -185,8 +185,6 @@ def dummy_data_generation(data, regions=[]):
             pop_dummy[year] = _data
         data['population'] = pop_dummy
 
-
-
     # Residenital floor area
     rs_floorarea = {}
     for year in range(2015, 2101):
@@ -201,7 +199,6 @@ def dummy_data_generation(data, regions=[]):
         ss_floorarea_sector_by_dummy[region_geocode] = {}
         for sector in data['all_sectors']:
             ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
-
     data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     data['reg_nrs'] = len(regions)

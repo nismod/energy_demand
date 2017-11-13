@@ -58,7 +58,7 @@ def post_install_setup(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -128,7 +128,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Assumptions
         data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-        param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -156,6 +156,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # --------------------------------------------
     # Delete processed data from former model runs
     # --------------------------------------------
+    logging.info("... delete previous model run results")
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
@@ -164,6 +165,7 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
+    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
 
     # s_fuel_to_service----------------------------------------------
     if run_locally is True: #TODO REMOVE

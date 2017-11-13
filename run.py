@@ -236,7 +236,7 @@ class EDWrapper(SectorModel):
 
         # Copy from before_model_run()
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] #TODO REMOVE
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
 
         # =========DUMMY DATA
         data = data_loader.dummy_data_generation(data, data['lu_reg']) #TODO REMOVE
@@ -264,6 +264,7 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
 
+        data['reg_nrs'] = len(data['lu_reg'])
         #REPLACE BY SMIF INPUT
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
@@ -333,15 +334,53 @@ class EDWrapper(SectorModel):
         # ---------
         # Run model
         # ---------
-        results = energy_demand_model(data)
+        model_run_object = energy_demand_model(data)
 
         # ------------------------------------
         # Write results output for supply
         # ------------------------------------
-        supply_results = results.ed_fueltype_regs_yh
+        supply_results = model_run_object.ed_fueltype_regs_yh
+
+        # -----------------
+        # Write to txt files
+        # -----------------
+        ed_fueltype_regs_yh = model_run_object.ed_fueltype_regs_yh
+        out_enduse_specific = model_run_object.tot_fuel_y_enduse_specific_h
+        tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
+        tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
+        ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
+
+        reg_load_factor_y = model_run_object.reg_load_factor_y
+        reg_load_factor_yd = model_run_object.reg_load_factor_yd
+        reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']
+        reg_load_factor_spring = model_run_object.reg_load_factor_seasons['spring']
+        reg_load_factor_summer = model_run_object.reg_load_factor_seasons['summer']
+        reg_load_factor_autumn = model_run_object.reg_load_factor_seasons['autumn']
+
+        # -------------------------------------------
+        # Write annual results to txt files
+        # -------------------------------------------
+        logging.info("... Start writing results to file")
+        path_runs = data['local_paths']['data_results_model_runs']
+
+        write_data.write_supply_results(timestep, path_runs, supply_results, "supply_results")
+        write_data.write_enduse_specific(timestep, path_runs, out_enduse_specific, "out_enduse_specific")
+        write_data.write_max_results(timestep, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
+        write_data.write_lf(path_runs, "result_reg_load_factor_y", [timestep], reg_load_factor_y, 'reg_load_factor_y')
+        write_data.write_lf(path_runs, "result_reg_load_factor_yd", [timestep], reg_load_factor_yd, 'reg_load_factor_yd')
+        write_data.write_lf(path_runs, "result_reg_load_factor_winter", [timestep], reg_load_factor_winter, 'reg_load_factor_winter')
+        write_data.write_lf(path_runs, "result_reg_load_factor_spring", [timestep], reg_load_factor_spring, 'reg_load_factor_spring')
+        write_data.write_lf(path_runs, "result_reg_load_factor_summer", [timestep], reg_load_factor_summer, 'reg_load_factor_summer')
+        write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
+
+        logging.info("... Finished writing results to file")
+
+
+        #plotting?"C://Users//cenv0553//nismod//data_energy_demand"
 
         logging.info("... finished wrapper calculations")
-        return results
+        print("... finished wrapper calculations")
+        return supply_results
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function
@@ -412,7 +451,6 @@ class EDWrapper(SectorModel):
         assumptions['demand_management']['demand_management_improvement__is_refrigeration' = self.get_SMIF_param('demand_management_improvement__is_refrigeration')
         '''
         # TODO: REMOVE param_assumptions.load_param_assump IF FULLY IMPLEMENTED
-        param_assumptions.load_param_assump(
-            data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
         return assumptions, data

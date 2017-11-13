@@ -36,8 +36,7 @@ def test_load_param_assump():
     sim_param_expected['simulated_yrs'] = [2015, 2020, 2025]
     sim_param_expected['curr_yr'] = 2015
     
-    #assumptions_expected = param_assumptions.load_param_assump( TODO
-    #   data['paths'], data['enduses'], data['lookups'], data['fuels'], sim_param_expected)
+    #assumptions_expected = param_assumptions.load_param_assump(data['paths'], data['enduses'])
 
     # Dummy test
     assert sim_param_expected['base_yr'] == 2015

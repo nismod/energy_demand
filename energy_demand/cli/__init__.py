@@ -56,8 +56,7 @@ def run_model(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -93,7 +92,7 @@ def run_model(args):
     results = energy_demand_model(data)
 
     logging.debug("... Result section")
-    
+
     results_every_year = [results]
 
     logging.debug("Finished energy demand model from command line execution")

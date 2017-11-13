@@ -493,7 +493,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
                 tech_constant_share=data['assumptions']['rs_tech_constant_share'][enduse_name],
                 installed_tech=data['assumptions']['rs_installed_tech'][enduse_name],
                 sig_param_tech=data['assumptions']['rs_sig_param_tech'],
-                enduse_overall_change=data['assumptions']['enduse_overall_change'], #['rs_model'],
+                enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.rs_load_profiles,
                 dw_stock=data['rs_dw_stock']
             )
@@ -546,7 +546,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 tech_constant_share=data['assumptions']['ss_tech_constant_share'][enduse_name],
                 installed_tech=data['assumptions']['ss_installed_tech'][enduse_name],
                 sig_param_tech=data['assumptions']['ss_sig_param_tech'],
-                enduse_overall_change=data['assumptions']['enduse_overall_change'], #['ss_model'],
+                enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.ss_load_profiles,
                 dw_stock=data['ss_dw_stock'])
 

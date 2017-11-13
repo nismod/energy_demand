@@ -121,7 +121,7 @@ def tempo_spatial_validation(
         data['reg_coord'],
         ed_fueltype_regs_yh,
         data['lookups']['fueltype']['electricity'],
-        ['electricity'],
+        'electricity',
         data['lu_reg'],
         national_elec_data,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_elec.pdf'))
