@@ -184,10 +184,10 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'] = 21.0
 
     # Sigmoid parameters for temperature
-    assumptions['base_temp_diff_params'] = {
+    '''assumptions['base_temp_diff_params'] = {
         'sig_midpoint': 0,
         'sig_steeppness': 1,
-        'yr_until_changed': yr_until_changed_all_things}
+        'yr_until_changed': yr_until_changed_all_things}'''
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -373,10 +373,10 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     # ============================================================
 
     # --Assumption how much of technological efficiency is reached
-    assumptions['eff_achieving_factor'] = {}
-    assumptions['eff_achieving_factor']['param_infos'] = [
+    assumptions['eff_achiev_f'] = {}
+    assumptions['eff_achiev_f']['param_infos'] = [
         {
-            "name": "eff_achieving_factor",
+            "name": "eff_achiev_f",
             "absolute_range": "(0, 1)",
             "description": "Fraction achieved of efficiency improvements",
             "suggested_range": "(0, 100)",
@@ -384,7 +384,7 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
             "units": '%'
         }]
 
-    assumptions['eff_achieving_factor']['factor_achieved'] = 1.0
+    assumptions['eff_achiev_f']['factor_achieved'] = 1.0
 
     # -----------------------
     # Create parameter file only with fully descried parameters

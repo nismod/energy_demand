@@ -140,11 +140,11 @@ demand_management:
       for month Dec, name: climate_change_temp_d__Dec, suggested_range: '-5, 5', units: "\xB0C"}
 dwtype_age_distr:
   2015: {'1918': 0.21, '1941': 0.36, '1977.5': 0.3, '1996.5': 0.08, '2002': 0.05}
-eff_achieving_factor:
+eff_achiev_f:
   factor_achieved: 1.0
   param_infos:
   - {absolute_range: '(0, 1)', default_value: '0', description: Fraction achieved
-      of efficiency improvements, name: eff_achieving_factor, suggested_range: '(0,
+      of efficiency improvements, name: eff_achiev_f, suggested_range: '(0,
       100)', units: '%'}
 enduse_overall_change:
   enduse_specific_change_yr_until_changed: 2050

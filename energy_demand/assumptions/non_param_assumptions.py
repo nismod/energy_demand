@@ -244,6 +244,15 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
             'sig_steeppness': 1}}
 
     # ============================================================
+    # Temperature diffusion parameters
+    # ============================================================
+    # Sigmoid parameters for temperature
+    assumptions['base_temp_diff_params'] = {
+        'sig_midpoint': 0,
+        'sig_steeppness': 1,
+        'yr_until_changed': yr_until_changed_all_things}
+
+    # ============================================================
     # Fuel Stock Definition
     # Provide for every fueltype of an enduse
     # the share of fuel which is used by technologies for the 

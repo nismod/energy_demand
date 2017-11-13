@@ -62,9 +62,6 @@ class EDWrapper(SectorModel):
         `self.user_data` allows to pass data from before_model_run to main model
         """
         data = {}
-
-        data['print_criteria'] = False
-
         # -----------------------------
         # Paths
         # -----------------------------
@@ -84,6 +81,8 @@ class EDWrapper(SectorModel):
         # ---------------------
         # Simulation parameters
         # ---------------------
+        data['print_criteria'] = False
+
         data['sim_param'] = {}
         data['sim_param']['base_yr'] = 2015 #REPLACE
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -99,6 +98,8 @@ class EDWrapper(SectorModel):
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
+
+
 
         data = data_loader.dummy_data_generation(data, data['lu_reg']) #TODO REMOVE
 
@@ -139,12 +140,12 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         
         # Assumptions
-        # Not defined within smif
         data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-        
-        # TODO: REMOVE param_assumptions.load_param_assump IF FULLY IMPLEMENTED
-        param_assumptions.load_param_assump(
-            data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+
+        # ------------------------
+        # Load all SMIF parameters and replace data dict
+        # ------------------------
+        data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data)
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -272,18 +273,10 @@ class EDWrapper(SectorModel):
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
         
-        # ----------------------------------------------
-        # Get model parameter assumptions from smif interface
-        # ----------------------------------------------
-        #TODO: REMOVE IF MODEL FULLY IMPLEMENTED. Replace individual paramters from smif interface
-        param_assumptions.load_param_assump(
-            data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-        
-        # Demand management
-        #data['assumptions']['demand_management'] = {}
-        #data['assumptions']['demand_management']['demand_management_yr_until_changed'] = self.get_model_parameter('demand_management_yr_until_changed')
-        #data['assumptions']['demand_management']['demand_management_improvement__rs_space_heating'] = self.get_model_parameter('demand_management_improvement__rs_space_heating')
-
+        # ------------------------
+        # Load all SMIF parameters and replace data dict
+        # ------------------------
+        data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data) #TODO: REMOVE DATA
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -291,10 +284,10 @@ class EDWrapper(SectorModel):
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
+            data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
         # -----------------------
-        # Load data from scripts (replacing #data = read_data.load_script_data(data))
+        # Load data from scripts
         # -----------------------
         # Insert from script calculations which are stored in memory
         data['temp_data'] = self.user_data['temp_data']
@@ -368,3 +361,58 @@ class EDWrapper(SectorModel):
             A scalar component generated from the simulation model results
         """
         pass
+
+    def load_all_smif_parameters(self, assumptions, data):
+        """Get all model parameters from smif and replace in data dict
+
+        Arguments
+        =========
+        assumptions : dict
+            Data container
+
+        Returns
+        =========
+        assumptions : dict
+            Assumptions container with added parameters
+        """
+        '''
+        assumptions['demand_management'] = {}
+        assumptions['demand_management']['demand_management_yr_until_changed'] = self.get_SMIF_param('demand_management_yr_until_changed')
+
+        assumptions['demand_management']['enduses_demand_managent'] = {}
+        #demand_management_improvement__ Residential submodule
+        assumptions['demand_management']['demand_management_improvement__rs_space_heating' = self.get_SMIF_param('demand_management_yr_until_changed')
+        assumptions['demand_management']['demand_management_improvement__rs_water_heating' = self.get_SMIF_param('demand_management_improvement__rs_water_heating')
+        assumptions['demand_management']['demand_management_improvement__rs_lighting' = self.get_SMIF_param('demand_management_improvement__rs_lighting')
+        assumptions['demand_management']['demand_management_improvement__rs_cooking' = self.get_SMIF_param('demand_management_improvement__rs_cooking')
+        assumptions['demand_management']['demand_management_improvement__rs_cold' = self.get_SMIF_param('demand_management_improvement__rs_cold')
+        assumptions['demand_management']['demand_management_improvement__rs_wet' = self.get_SMIF_param('demand_management_improvement__rs_wet')
+        assumptions['demand_management']['demand_management_improvement__rs_consumer_electronics' = self.get_SMIF_param('demand_management_improvement__rs_consumer_electronics')
+        assumptions['demand_management']['demand_management_improvement__rs_home_computing' = self.get_SMIF_param('demand_management_improvement__rs_home_computing')
+
+        # Service submodule
+        assumptions['demand_management']['demand_management_improvement__ss_space_heating' = self.get_SMIF_param('demand_management_improvement__ss_space_heating')
+        assumptions['demand_management']['demand_management_improvement__ss_water_heating' = self.get_SMIF_param('demand_management_improvement__ss_water_heating')
+        assumptions['demand_management']['demand_management_improvement__ss_lighting' = self.get_SMIF_param('demand_management_improvement__ss_lighting')
+        assumptions['demand_management']['demand_management_improvement__ss_catering' = self.get_SMIF_param('demand_management_improvement__ss_catering')
+        assumptions['demand_management']['demand_management_improvement__ss_computing' = self.get_SMIF_param('demand_management_improvement__ss_computing')
+        assumptions['demand_management']['demand_management_improvement__ss_space_cooling' = self.get_SMIF_param('demand_management_improvement__ss_space_cooling')
+        assumptions['demand_management']['demand_management_improvement__ss_other_gas' = self.get_SMIF_param('demand_management_improvement__ss_other_gas')
+        assumptions['demand_management']['demand_management_improvement__ss_other_electricity' = self.get_SMIF_param('demand_management_improvement__ss_other_electricity')
+
+        # Industry submodule
+        assumptions['demand_management']['demand_management_improvement__is_high_temp_process' = self.get_SMIF_param('demand_management_improvement__is_high_temp_process')
+        assumptions['demand_management']['demand_management_improvement__is_low_temp_process' = self.get_SMIF_param('demand_management_improvement__is_low_temp_process')
+        assumptions['demand_management']['demand_management_improvement__is_drying_separation' = self.get_SMIF_param('demand_management_improvement__is_drying_separation')
+        assumptions['demand_management']['demand_management_improvement__is_motors' = self.get_SMIF_param('demand_management_improvement__is_motors')
+        assumptions['demand_management']['demand_management_improvement__is_compressed_air' = self.get_SMIF_param('demand_management_improvement__is_compressed_air')
+        assumptions['demand_management']['demand_management_improvement__is_lighting' = self.get_SMIF_param('demand_management_improvement__is_lighting')
+        assumptions['demand_management']['demand_management_improvement__is_space_heating' = self.get_SMIF_param('demand_management_improvement__is_space_heating')
+        assumptions['demand_management']['demand_management_improvement__is_other' = self.get_SMIF_param('demand_management_improvement__is_other')
+        assumptions['demand_management']['demand_management_improvement__is_refrigeration' = self.get_SMIF_param('demand_management_improvement__is_refrigeration')
+        '''
+        # TODO: REMOVE param_assumptions.load_param_assump IF FULLY IMPLEMENTED
+        param_assumptions.load_param_assump(
+            data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+
+        return assumptions, data

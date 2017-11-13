@@ -507,6 +507,6 @@
 - absolute_range: (0, 1)
   default_value: '0'
   description: Fraction achieved of efficiency improvements
-  name: eff_achieving_factor
+  name: eff_achiev_f
   suggested_range: (0, 100)
   units: '%'
