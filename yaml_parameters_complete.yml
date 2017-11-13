@@ -1,3 +1,93 @@
+- absolute_range: (0, 1)
+  default_value: '0.1'
+  description: Population diffusion of smart meters
+  name: smart_meter_p_future
+  suggested_range: (10, 100)
+  units: '%'
+- absolute_range: (0, 1)
+  default_value: '2050'
+  description: Year until smart meter assumption is implemented
+  name: smart_meter_yr_until_changed
+  suggested_range: 2015 - 2100
+  units: year
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_cold
+  name: smart_meter_improvement_rs_cold
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_cooking
+  name: smart_meter_improvement_rs_cooking
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_lighting
+  name: smart_meter_improvement_rs_lighting
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_wet
+  name: smart_meter_improvement_rs_wet
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_consumer_electronics
+  name: smart_meter_improvement_rs_consumer_electronics
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_home_computing
+  name: smart_meter_improvement_rs_home_computing
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse rs_space_heating
+  name: smart_meter_improvement_rs_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse ss_space_heating
+  name: smart_meter_improvement_ss_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (0, 100)
+  default_value: '0'
+  description: Smart meter induced savings for enduse is_space_heating
+  name: smart_meter_improvement_is_space_heating
+  suggested_range: (0, 100)
+  units: '%'
+- absolute_range: (10, 20)
+  default_value: '15.5'
+  description: Base temperature assumption residential heating
+  name: rs_t_base_heating_future_yr
+  suggested_range: (13, 17)
+  units: "\xB0C"
+- absolute_range: (10, 20)
+  default_value: '15.5'
+  description: Base temperature assumption service sector heating
+  name: ss_t_base_heating
+  suggested_range: (13, 17)
+  units: "\xB0C"
+- absolute_range: (20, 25)
+  default_value: '21'
+  description: Base temperature assumption residential sector cooling
+  name: ss_t_base_heating
+  suggested_range: (13, 17)
+  units: "\xB0C"
+- absolute_range: (20, 25)
+  default_value: '21'
+  description: Base temperature assumption service sector cooling
+  name: ss_t_base_cooling
+  suggested_range: (13, 17)
+  units: "\xB0C"
 - absolute_range: (10, 20)
   default_value: '2050'
   description: Year until demand management assumptions are fully realised
@@ -230,98 +320,8 @@
   default_value: '2050'
   description: Year until climate temperature changes are fully realised
   name: climate_change_temp_diff_yr_until_changed
-  suggested_range: 2030 - 2100
+  suggested_range: (2030, 2100)
   units: year
-- absolute_range: (10, 20)
-  default_value: '15.5'
-  description: Base temperature assumption residential heating
-  name: rs_t_base_heating_future_yr
-  suggested_range: (13, 17)
-  units: "\xB0C"
-- absolute_range: (10, 20)
-  default_value: '15.5'
-  description: Base temperature assumption service sector heating
-  name: ss_t_base_heating
-  suggested_range: (13, 17)
-  units: "\xB0C"
-- absolute_range: (20, 25)
-  default_value: '21'
-  description: Base temperature assumption residential sector cooling
-  name: ss_t_base_heating
-  suggested_range: (13, 17)
-  units: "\xB0C"
-- absolute_range: (20, 25)
-  default_value: '21'
-  description: Base temperature assumption service sector cooling
-  name: ss_t_base_cooling
-  suggested_range: (13, 17)
-  units: "\xB0C"
-- absolute_range: (0, 1)
-  default_value: '0.1'
-  description: Population diffusion of smart meters
-  name: smart_meter_p_future
-  suggested_range: (10, 100)
-  units: '%'
-- absolute_range: (0, 1)
-  default_value: '2050'
-  description: Year until smart meter assumption is implemented
-  name: smart_meter_yr_until_changed
-  suggested_range: 2015 - 2100
-  units: year
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_cold
-  name: smart_meter_improvement_rs_cold
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_cooking
-  name: smart_meter_improvement_rs_cooking
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_lighting
-  name: smart_meter_improvement_rs_lighting
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_wet
-  name: smart_meter_improvement_rs_wet
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_consumer_electronics
-  name: smart_meter_improvement_rs_consumer_electronics
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_home_computing
-  name: smart_meter_improvement_rs_home_computing
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse rs_space_heating
-  name: smart_meter_improvement_rs_space_heating
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse ss_space_heating
-  name: smart_meter_improvement_ss_space_heating
-  suggested_range: (0, 100)
-  units: '%'
-- absolute_range: (0, 100)
-  default_value: '0'
-  description: Smart meter induced savings for enduse is_space_heating
-  name: smart_meter_improvement_is_space_heating
-  suggested_range: (0, 100)
-  units: '%'
 - absolute_range: (0, 1)
   default_value: '0'
   description: Reduction in heat because of heat recovery and recycling (residential
@@ -352,7 +352,7 @@
   default_value: '2050'
   description: Year until change in enduse assumption is implemented
   name: enduse_specific_change_yr_until_changed
-  suggested_range: 2015 - 2100
+  suggested_range: (2015, 2100)
   units: year
 - absolute_range: (0, 100)
   default_value: '0'

@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from energy_demand.profiles import hdd_cdd
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.plotting import plotting_program
-from energy_demand.read_write import data_loader
 
 # ----------------------------------
 # Read temp data and weather station

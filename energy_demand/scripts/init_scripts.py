@@ -55,10 +55,10 @@ def post_install_setup(args):
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
 
-    base_assumptions.load_assumptions(
-        data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    # Assumptions
+    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
+    base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
-    data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])
@@ -123,11 +123,10 @@ def scenario_initalisation(path_data_energy_demand, data=False):
         data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
         data['sim_param']['curr_yr'] = 2015 #NEEDED
 
-        base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-
+        # Assumptions
+        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
+        base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
-        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved'])

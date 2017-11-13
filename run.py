@@ -78,7 +78,7 @@ class EDWrapper(SectorModel):
 
         # Add to data container for scenario initialisation
         data['paths'] = data_loader.load_paths(path_main)
-        print("LOCAL PATH FOR SMIF: " + str(config['PATHS']['path_local_data']))
+
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # ---------------------
@@ -176,10 +176,12 @@ class EDWrapper(SectorModel):
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+        
+        # Assumptions
+        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
+        base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
-        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
+
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
@@ -275,12 +277,10 @@ class EDWrapper(SectorModel):
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
-
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
-        print("A: " + str(data['lu_reg']))
 
         #REPLACE BY SMIF INPUT
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
@@ -289,16 +289,17 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
         # ED related stuff
-        base_assumptions.load_assumptions(
-            data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+
+        #Assumptions
+        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['sim_param']['base_yr'], data['paths'])
+        base_assumptions.load_assumptions(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
         data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
-        data['assumptions'] = base_assumptions.load_non_parameter_assumptions(data['assumptions'], data['sim_param'])
+        
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
         data['weather_stations'], _ = data_loader.load_temp_data(data['local_paths'])
-
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = base_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achieving_factor']['factor_achieved']) #Maybe write s_script
