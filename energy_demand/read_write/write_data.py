@@ -10,18 +10,13 @@ import yaml
 from yaml import Loader, Dumper
 import collections
 
-def write_pop(path_result, pop_y):
-    """Write scenario population
+def write_pop(sim_yr, path_result, pop_y):
+    """Write scenario population for a year
     """
+    # Write to txt
+    path_file = os.path.join(path_result, "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
 
-    # Create folder for model simulation year
-    basic_functions.create_folder(path_result)
-    basic_functions.create_folder(path_result, "model_run_pop")
-
-     # Write to txt
-    for year, pop_y in model_results.items():
-        path_file = os.path.join(path_result, "model_run_pop__{}__{}".format(sim_yr, ".txt"))
-        np.savetxt(path_file, pop_y, delimiter=',')
+    np.savetxt(path_file, pop_y, delimiter=',')
 
     pass
 
@@ -52,10 +47,10 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
             csv_results.append(
                 basic_functions.array_to_dict(
                     results_container['load_factors_y'][year][fueltype], lu_reg))
-    
+
         # Add population
         field_names.append('pop_{}'.format(year))
-        csv_results.append(data['scenario_data']['population'][year])
+        csv_results.append(basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile_2011'],
@@ -69,14 +64,18 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
     field_names, csv_results = [], []
 
     # Iterate fueltpyes and years and add as attributes
-    for fueltype in range(lookups['fueltypes_nr']):
-        for year in results_container['results_every_year'].keys():
-
-            field_names.append('y_{}_{}'.format(year, fueltype))
+    for year in results_container['results_every_year'].keys():
+        for fueltype in range(lookups['fueltypes_nr']):
 
             # Calculate yearly sum
             yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
+
+            field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(basic_functions.array_to_dict(yearly_sum, lu_reg))
+
+        # Add population
+        field_names.append('pop_{}'.format(year))
+        csv_results.append(array_to_dict(data['scenario_data']['population'][year], lu_reg))
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile_2011'],
@@ -162,9 +161,7 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
     config.add_section('SIM_PARAM')
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
-
     config['SIM_PARAM']['simulated_yrs'] = str(sim_param['simulated_yrs'])
-
     config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
     config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])
 
@@ -182,7 +179,7 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
     with open(path_ini_file, 'w') as f:
         config.write(f)
 
-    return
+    pass
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
     """Write numpy array to txt file
@@ -205,7 +202,7 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
         path_file_fueltype = path_file + "__" + str(fueltype_nr) + "__" + ".txt"
         np.savetxt(path_file_fueltype, fuel_fueltype, delimiter=',')
 
-    return
+    pass
 
 def write_supply_results(sim_yr, path_result, model_results, file_name):
     """Store yearly model resul to txt
@@ -225,8 +222,7 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
 
         np.savetxt(path_file, fuel, delimiter=',')
 
-    # Read in with loadtxt
-    return
+    pass
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Store

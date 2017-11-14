@@ -163,6 +163,15 @@ class EDWrapper(SectorModel):
         self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
+        # ------
+        # Write other scenario data to txt files for this scenario run
+        # ------
+        for t_idx, timestep in enumerate(self.timesteps):
+            write_data.write_pop(
+                timestep,
+                data['local_paths']['data_results'],
+                pop_array['population'][t_idx])
+
     def initialise(self, initial_conditions):
         """
         """
@@ -401,11 +410,6 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [timestep], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
-        # ------
-        # Write other scenario data to txt files for this model run
-        # ------ 
-        write_data.write_pop(
-            data['local_paths']['data_results'], data['scenario_data']['population'][timestep])
         logging.info("... finished wrapper calculations")
 
         return {'model_name': supply_results}
