@@ -71,11 +71,13 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
             yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
 
             field_names.append('y_{}_{}'.format(year, fueltype))
-            csv_results.append(basic_functions.array_to_dict(yearly_sum, lu_reg))
+            csv_results.append(
+                basic_functions.array_to_dict(yearly_sum, lu_reg))
 
         # Add population
         field_names.append('pop_{}'.format(year))
-        csv_results.append(array_to_dict(data['scenario_data']['population'][year], lu_reg))
+        csv_results.append(
+            basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile_2011'],
@@ -121,26 +123,26 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     #
     #TODO :ORDER
     """
-    list_to_dump_complete = []
+    list_to_dump = []
 
     for dict_key, dict_values in dict_to_dump.items():
         try:
             parameter_infos = dict_values['param_infos']
 
             for paramter_info in parameter_infos:
-                dict_to_dump_complete = {} #collections.OrderedDict()
-                dict_to_dump_complete['suggested_range'] = paramter_info['suggested_range']
-                dict_to_dump_complete['absolute_range'] = paramter_info['absolute_range']
-                dict_to_dump_complete['description'] = paramter_info['description']
-                dict_to_dump_complete['name'] = paramter_info['name']
-                dict_to_dump_complete['default_value'] = paramter_info['default_value']
-                dict_to_dump_complete['units'] = paramter_info['units']
-                list_to_dump_complete.append(dict_to_dump_complete)
+                dump_dict = {} #collections.OrderedDict()
+                dump_dict['suggested_range'] = paramter_info['suggested_range']
+                dump_dict['absolute_range'] = paramter_info['absolute_range']
+                dump_dict['description'] = paramter_info['description']
+                dump_dict['name'] = paramter_info['name']
+                dump_dict['default_value'] = paramter_info['default_value']
+                dump_dict['units'] = paramter_info['units']
+                list_to_dump.append(dump_dict)
         except:
             pass #not correctly formated assumption
 
     # Dump list
-    dump(list_to_dump_complete, path_yaml)
+    dump(list_to_dump, path_yaml)
 
     return
 
@@ -219,7 +221,6 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
         path_file = os.path.join(
             path_result,
             "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
-
         np.savetxt(path_file, fuel, delimiter=',')
 
     pass
