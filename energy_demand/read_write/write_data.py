@@ -10,7 +10,22 @@ import yaml
 from yaml import Loader, Dumper
 import collections
 
-def create_shp_results(results_container, paths, lookups, lu_reg):
+def write_pop(path_result, pop_y):
+    """Write scenario population
+    """
+
+    # Create folder for model simulation year
+    basic_functions.create_folder(path_result)
+    basic_functions.create_folder(path_result, "model_run_pop")
+
+     # Write to txt
+    for year, pop_y in model_results.items():
+        path_file = os.path.join(path_result, "model_run_pop__{}__{}".format(sim_yr, ".txt"))
+        np.savetxt(path_file, pop_y, delimiter=',')
+
+    pass
+
+def create_shp_results(data, results_container, paths, lookups, lu_reg):
     """Create csv file and merge with shape
 
     Arguments
@@ -26,38 +41,33 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
     """
     logging.info("... create result shapefiles")
 
-    # Paths
-    path_out_shapefile = paths['data_results_shapefiles']
-
-    # Create folder
-    basic_functions.create_folder(path_out_shapefile)
-
-    # Generate csv from resultfile
-    field_names = []
-    csv_results = []
-
     # ------------------------------------
     # Create shapefile with load factors
     # ------------------------------------
-
+    field_names, csv_results = [], []
     # Iterate fueltpyes and years and add as attributes
-    for fueltype in range(lookups['fueltypes_nr']):
-        for year in results_container['load_factors_y'].keys():
-
+    for year in results_container['load_factors_y'].keys():
+        for fueltype in range(lookups['fueltypes_nr']):
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(
                 basic_functions.array_to_dict(
                     results_container['load_factors_y'][year][fueltype], lu_reg))
+    
+        # Add population
+        field_names.append('pop_{}'.format(year))
+        csv_results.append(data['scenario_data']['population'][year])
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile_2011'],
-        os.path.join(path_out_shapefile, 'lp_max_y'),
+        os.path.join(paths['data_results_shapefiles'], 'lp_max_y'),
         field_names,
         csv_results)
 
     # ------------------------------------
-    # Create shapefile with
+    # Create shapefile with yearly total fuel all enduses
     # ------------------------------------
+    field_names, csv_results = [], []
+
     # Iterate fueltpyes and years and add as attributes
     for fueltype in range(lookups['fueltypes_nr']):
         for year in results_container['results_every_year'].keys():
@@ -70,9 +80,10 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile_2011'],
-        os.path.join(path_out_shapefile, 'fuel_y'),
+        os.path.join(paths['data_results_shapefiles'], 'fuel_y'),
         field_names,
         csv_results)
+
     # ------------------------------------
     # Create shapefile with
     # ------------------------------------
@@ -80,7 +91,6 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
     # ------------------------------------
     # Create shapefile with
     # ------------------------------------
-    prnt(".")
     logging.info("... finished generating shapefiles")
 
 def dump(data, file_path):

@@ -401,8 +401,12 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [timestep], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
+        # ------
+        # Write other scenario data to txt files for this model run
+        # ------ 
+        write_data.write_pop(
+            data['local_paths']['data_results'], data['scenario_data']['population'][timestep])
         logging.info("... finished wrapper calculations")
-        print("... finished wrapper calculations")
 
         return {'model_name': supply_results}
 

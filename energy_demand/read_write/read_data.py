@@ -982,6 +982,25 @@ def read_lf_y(path_enduse_specific_results):
 
     return results
 
+def read_pop(path_enduse_specific_results):
+    """Read load factors from txt file
+    """
+    results = defaultdict(dict)
+
+    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
+
+    # Iterate files
+    for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
+        file_path_split = file_path.split("__")
+        txt_data = np.loadtxt(path_file_to_read, delimiter=',')
+        year = int(file_path_split[1])
+
+        # Add year if not already exists
+        results[year] = txt_data
+    
+    return results
+
 def read_capacity_installation(path_to_csv):
     """This function reads in service assumptions from csv file
 

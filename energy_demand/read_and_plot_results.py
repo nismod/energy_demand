@@ -26,9 +26,13 @@ def main(path_data_energy_demand):
     data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
     data['lookups'] = data_loader.load_basic_lookups()
 
-    # Del previous visulations and shapefiles
+    # ---------------
+    # Folder cleaning
+    # ---------------
     basic_functions.del_previous_setup(data['local_paths']['data_results_PDF'])
     basic_functions.del_previous_setup(data['local_paths']['data_results_shapefiles'])
+    basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
     data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(
@@ -37,6 +41,11 @@ def main(path_data_energy_demand):
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
+
+    # Read scenario data
+    data['scenario_data'] = {}
+    data['scenario_data']['population'] = read_data.read_pop(
+        os.path.join(data['local_paths']['data_results'], 'model_run_pop'))
 
     # --------------------------------------------
     # Reading in results from different model runs
@@ -51,6 +60,7 @@ def main(path_data_energy_demand):
     # Write results to CSV files and merge with shapefile
     # ----------------
     write_data.create_shp_results(
+        data,
         results_container,
         data['local_paths'],
         data['lookups'],

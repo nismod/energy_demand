@@ -31,23 +31,23 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     myshp = open(lad_geometry_shp_name + "shp", "rb")
     mydbf = open(lad_geometry_shp_name + "dbf", "rb")
 
-    r = shapefile.Reader(shp=myshp, dbf=mydbf)
+    record = shapefile.Reader(shp=myshp, dbf=mydbf)
 
     # Create a new shapefile in memory
-    w = shapefile.Writer()
+    writer = shapefile.Writer()
 
     # Copy over the existing fields
-    w.fields = list(r.fields)
+    writer.fields = list(record.fields)
 
     # --------------
     # Add new fields
     # --------------
     for field_name in field_names:
-        w.field(field_name, "F", decimal=10) #Float
+        writer.field(field_name, "F", decimal=10) #Float
 
     # Get position of field 'geo_code'
     position = 0
-    for field_name in r.fields[1:]:
+    for field_name in record.fields[1:]:
         if field_name[0] == 'geo_code':
             position_field_name = position
         else:
@@ -57,7 +57,7 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     # Join fields programatically
     # --------------------------
     # Loop through each record, add a column and get results
-    for rec in r.records():
+    for rec in record.records():
 
         # Get geocode for row
         geo_code = rec[position_field_name]
@@ -66,7 +66,6 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
         for result_per_field in csv_results:
 
             # Iterate result entries and add
-            #for _ in result_per_field:
             try:
                 result_csv = result_per_field[geo_code]
             except KeyError:
@@ -79,12 +78,12 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
             rec.append(result_csv)
 
         # Add the modified record to the new shapefile
-        w.records.append(rec)
+        writer.records.append(rec)
 
     # Copy over the geometry without any changes
-    w._shapes.extend(r.shapes())
+    writer._shapes.extend(record.shapes())
 
     # Save as a new shapefile (or write over the old one)
-    w.save(out_shape)
+    writer.save(out_shape)
     logging.info("... finished writing shp")
     return
