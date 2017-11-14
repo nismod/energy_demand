@@ -203,18 +203,6 @@ def dummy_data_RUNLOCALLY(data, regions=[]):
 def dummy_data_generation(data):
     """REPLACE WITH NEWCASTLE DATA
     """
-    data['all_sectors'] = [
-        'community_arts_leisure',
-        'education',
-        'emergency_services',
-        'health',
-        'hospitality',
-        'military',
-        'offices',
-        'retail',
-        'storage',
-        'other']
-
     # Residenital floor area
     rs_floorarea = {}
     for year in range(2015, 2101):

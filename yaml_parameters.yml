@@ -266,7 +266,7 @@ is_dummy_enduses: [is_refrigeration, is_low_temp_process, is_compressed_air, is_
 is_enduse_tech_maxL_by_p: {}
 is_fuel_switches:
 - {enduse: is_space_heating, enduse_fueltype_replace: 1, max_theoretical_switch: 1.0,
-  share_fuel_consumption_switched: 0.5, technology_install: boiler_electricity, year_fuel_consumption_switched: 2050.0}
+  share_fuel_consumption_switched: 0.5, technology_install: boiler_electricity, switch_yr: 2050.0}
 is_fuel_tech_p_by:
   is_compressed_air:
     0: {dummy_tech: 1.0}

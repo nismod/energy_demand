@@ -50,6 +50,7 @@ def main(path_data_energy_demand):
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
+    #TODO DO read in and plot in same step if memory is a problem
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['lookups'],

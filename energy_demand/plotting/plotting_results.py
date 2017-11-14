@@ -29,7 +29,6 @@ def run_all_plot_functions(
 
     """
     logging.info("... plotting results")
-    ##pf.plot_load_curves_fueltype(results_every_year, data)
 
     # All enduses
     plt_stacked_enduse_sectors(
@@ -175,12 +174,11 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     reg_nrs : int
         Number of region
     """
-    print("... plotting seasonal load factors")
+    logging.info("... plotting seasonal load factors")
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
-
-    ax = fig.add_subplot(1, 1, 1) # fig plot
+    ax = fig.add_subplot(1, 1, 1)
 
     # Settings
     color_list = {
@@ -208,8 +206,8 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
                 x_values_season_year,
                 y_values_season_year,
                 color=color_list[season],
-                linewidth=0.5,
-                alpha=0.7) #, label=season)
+                linewidth=0.2,
+                alpha=0.2) #, label=season)
 
     # ------------------------------------
     # Calculate average per season for all regions
@@ -229,13 +227,14 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
             years.append(int(year))
             average_season_year_years.append(np.mean(average_season_year))
 
-        # plot individual saisonal data point
+        # plot average
         plt.plot(
             years,
             average_season_year_years,
             color=color_list[season],
             linewidth=1,
-            linestyle='--') #, dashes=(5, 10))
+            linestyle='--',
+            alpha=1.0)
 
     # -----------------
     # Axis
@@ -267,7 +266,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     # ------------
     recs = []
     for color_nr in range(0, len(class_colours)):
-        recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=0.7))
+        recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=1.0))
 
     plt.legend(
         recs,
@@ -291,7 +290,7 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
     --------
 
     """
-    print("... plotting load factors")
+    logging.info("... plotting load factors")
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -327,7 +326,6 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
     major_interval = 10
     major_ticks = np.arange(base_yr, years[-1] + major_interval, major_interval)
     ax.set_xticks(major_ticks)
-    #ax.set_xlabel(major_ticks)
 
     # Minor ticks
     minor_interval = 5
@@ -340,58 +338,6 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
 
     plt.savefig(path_plot_fig)
     plt.close()
-
-def plot_x_days(all_hours_year, region, days):
-    """With input 2 dim array plot daily load
-    """
-
-    x_values = range(days * 24)
-    y_values = []
-
-    for day, daily_values in enumerate(all_hours_year[region].values()):
-
-        # ONLY PLOT HALF A YEAR
-        if day < days:
-            for hour in daily_values:
-                y_values.append(hour)
-
-    plt.plot(x_values, y_values)
-
-    plt.xlabel("Hours")
-    plt.ylabel("Energy demand [GW]")
-    plt.title("Energy Demand")
-    plt.legend(ncol=2, frameon=False)
-
-    plt.show()
-    plt.close()
-
-def plot_load_shape_yd(daily_load_shape):
-    """With input 2 dim array plot daily load"""
-
-    x_values = range(24)
-    y_values = list(daily_load_shape[:, 0] * 100) # to get percentages
-
-    plt.plot(x_values, y_values)
-
-    plt.xlabel("Hours")
-    plt.ylabel("Percentage of daily demand")
-    plt.title("Load curve of a day")
-    plt.legend(ncol=2, frameon=False)
-    
-    plt.show()
-    plt.close()
-
-def plot_load_shape_yd_non_resid(daily_load_shape):
-    """With input 2 dim array plot daily load"""
-
-    x_values = range(24)
-    y_values = list(daily_load_shape[:, 1]) # to get percentages
-
-    plt.plot(x_values, y_values)
-
-    plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
-    plt.legend(ncol=2, frameon=False)
-    plt.show()
 
 def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_name):
     """Plots stacked energy demand
@@ -461,12 +407,23 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # Get color of stacks in stackplot
     color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
 
-    plt.legend(
+    #BELUGA
+    '''plt.legend(
         color_stackplots,
         legend_entries,
         ncol=2,
         loc='best',
-        frameon=False)
+        frameon=False)'''
+
+    # Put a legend below current axis
+    ax.legend(
+        color_stackplots,
+        legend_entries,
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+        frameon=False,
+        shadow=True,
+        ncol=4)
 
     # -------
     # Axis
@@ -862,7 +819,15 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     fig.savefig(path_plot_fig)
     plt.close()
 
-def plot_load_profile_dh_multiple(path_plot_fig, calc_av_lp_modelled, calc_av_lp_real, calc_lp_modelled=None, calc_lp_real=None, plot_peak=False, plot_all_entries=False):
+def plot_load_profile_dh_multiple(
+        path_plot_fig,
+        calc_av_lp_modelled,
+        calc_av_lp_real,
+        calc_lp_modelled=None,
+        calc_lp_real=None,
+        plot_peak=False,
+        plot_all_entries=False
+    ):
     """Plotting average saisonal loads for each daytype
 
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
@@ -906,7 +871,7 @@ def plot_load_profile_dh_multiple(path_plot_fig, calc_av_lp_modelled, calc_av_lp
             # -----------------
             # Axis
             # -----------------
-            plt.ylim(0, 60)
+            plt.ylim(0, 120) #60
 
             # Tight layout
             plt.tight_layout()

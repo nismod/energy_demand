@@ -13,8 +13,6 @@ def test_region_selection(ed_fueltype_regs_yh):
     """function to see whether if only some days are selected
     the sum makes sense
     """
-    
-    print("FUEL FOR FIRST WEEK")
     modelled_days = 1
     hours_modelled = modelled_days * 24
     len_dict = 0

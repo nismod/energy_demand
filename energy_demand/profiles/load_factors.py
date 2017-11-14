@@ -122,7 +122,7 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
 
     # Caclualte yearly load factor for every fueltype
     with np.errstate(divide='ignore', invalid='ignore'):
-        load_factor_y = average_load_y / max_load_h * 100 #convert to percentage
+        load_factor_y = (average_load_y / max_load_h) * 100 #convert to percentage
     load_factor_y[np.isnan(load_factor_y)] = 0
 
     return load_factor_y
@@ -160,7 +160,7 @@ def calc_lf_season(seasons, fuel_region_yh, average_fuel_yd):
         # Unable local RuntimeWarning: divide by zero encountered
         with np.errstate(divide='ignore', invalid='ignore'):
             #season_lf = average_fuel_yd_season / max_load_yd_season
-            season_lf = average_fuel_yd_season / max_load_h_season * 100 #convert to percentage
+            season_lf = (average_fuel_yd_season / max_load_h_season) * 100 #convert to percentage
 
         # Replace
         season_lf[np.isinf(season_lf)] = 0
@@ -194,7 +194,7 @@ def calc_lf_d(fuel_yh, average_fuel_yd):
 
     # Unable local RuntimeWarning: divide by zero encountered
     with np.errstate(divide='ignore', invalid='ignore'):
-        daily_lf = average_fuel_yd / max_load_yd * 100 #convert to percentage
+        daily_lf = (average_fuel_yd / max_load_yd) * 100 #convert to percentage
 
     # Replace
     daily_lf[np.isinf(daily_lf)] = 0

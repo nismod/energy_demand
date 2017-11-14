@@ -40,7 +40,7 @@ def run_model(args):
     #Subfolder where module is installed
     path_main_data = resource_filename(Requirement.parse("energy_demand"), "data")
     path_main = os.path.join(path_main_data, '../')
-    local_data_path = args.data_folder 
+    local_data_path = args.data_folder
 
     # Load data
     data = {}

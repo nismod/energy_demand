@@ -57,10 +57,10 @@ def post_install_setup(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    
+
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
-    
-    data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+
+    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
@@ -125,6 +125,7 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
     # -------------------
     # s_fuel_to_servic

@@ -400,6 +400,19 @@ def compare_jan_jul(main_dict_dayyear_absolute):
     for h ,i in enumerate(jul_percent_of_jan):
         print("h: " + str(h) + "  %" + str(i) + "   Diff: " + str(100-i))
 
-    pf.plot_load_shape_yd_non_resid(jan)
+    plot_load_shape_yd_non_resid(jan)
     print("TEST: " + str(jan-jul))
+
+
+def plot_load_shape_yd_non_resid(daily_load_shape):
+    """With input 2 dim array plot daily load"""
+
+    x_values = range(24)
+    y_values = list(daily_load_shape[:, 1]) # to get percentages
+
+    plt.plot(x_values, y_values)
+
+    plt.xlabel("ABSOLUTE VALUES TEST NONRESID")
+    plt.legend(ncol=2, frameon=False)
+    plt.show()
 '''

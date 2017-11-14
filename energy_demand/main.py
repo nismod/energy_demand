@@ -3,6 +3,7 @@ Energy Demand Model
 ===================
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected
+- test if load factor is > 100
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
@@ -143,9 +144,7 @@ if __name__ == "__main__":
         'population': data['population'],
         'floor_area': {
             'rs_floorarea': data['rs_floorarea'],
-            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
-        }
-    
+            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}
     }
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
@@ -264,7 +263,7 @@ if __name__ == "__main__":
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
-    results_container = read_data.read_in_results(
+    '''results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
         data['lookups'],
         data['assumptions']['seasons'],
@@ -281,5 +280,5 @@ if __name__ == "__main__":
         data['assumptions'],
         data['sim_param'],
         data['enduses'])
-
+    '''
     logging.info("... Finished running Energy Demand Model")

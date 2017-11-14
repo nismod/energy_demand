@@ -18,7 +18,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
-NR_OF_MODELLEd_REGIONS = 10 #380
+NR_OF_MODELLEd_REGIONS = 30 #380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -98,6 +98,14 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
 
+        # ---------------------
+        # Energy demand specific input
+        # which need to generated or read in
+        # ---------------------
+        data['lookups'] = data_loader.load_basic_lookups()
+        data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
+        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+
         data = data_loader.dummy_data_generation(data) #TODO REMOVE
 
         # -----------------------------
@@ -123,13 +131,6 @@ class EDWrapper(SectorModel):
                 }
         }
 
-        # ---------------------
-        # Energy demand specific input
-        # which need to generated or read in
-        # ---------------------
-        data['lookups'] = data_loader.load_basic_lookups()
-        data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
         # Assumptions
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
@@ -143,6 +144,8 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
+
+        
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
@@ -249,6 +252,14 @@ class EDWrapper(SectorModel):
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_nrs'] = len(data['lu_reg'])
 
+        # ---------------
+        # Energy demand model related parameters
+        # ---------------
+        data['lookups'] = data_loader.load_basic_lookups()
+        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+        data['assumptions'] = non_param_assumptions.load_non_param_assump(
+            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+
         # =========DUMMY DATA
         data = data_loader.dummy_data_generation(data) #TODO REMOVE
         # =========DUMMY DATA
@@ -272,11 +283,7 @@ class EDWrapper(SectorModel):
         # ---------
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #TODO: REMOVE
 
-        # ED related stuff
-        data['lookups'] = data_loader.load_basic_lookups()
-        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+
 
         # ------------------------
         # Load all SMIF parameters and replace data dict

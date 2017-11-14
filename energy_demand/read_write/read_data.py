@@ -507,7 +507,7 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                         'enduse': str(row[0]),
                         'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
                         'technology_install': str(row[2]),
-                        'year_fuel_consumption_switched': float(row[3]),
+                        'switch_yr': float(row[3]),
                         'share_fuel_consumption_switched': float(row[4]),
                         'max_theoretical_switch': float(row[5])
                     }
@@ -1025,8 +1025,8 @@ def read_capacity_installation(path_to_csv):
                         'enduse': str(row[0]),
                         'technology_install': str(row[1]),
                         'market_entry': float(row[2]),
-                        'year_fuel_consumption_switched': float(row[3]),
-                        'fuel_capacity_installed':  float(row[4])
+                        'switch_yr': float(row[3]),
+                        'installed_capacity':  float(row[4])
                     }
                 )
             except (KeyError, ValueError):

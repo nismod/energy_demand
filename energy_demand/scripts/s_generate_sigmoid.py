@@ -82,9 +82,8 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
                                     fit_parameter[0] == fit_parameter[1]): #NEW CRITERIA ADDED
 
                 cnt += 1
-                #print("...fitting iteration {}".format(fit_parameter))
                 if cnt >= len(start_param_list):
-                    sys.exit("Error2: CURVE FITTING DID NOT WORK")
+                    logging.critical("Error2: CURVE FITTING DID NOT WORK")
             else:
                 successfull = True
 
@@ -100,7 +99,6 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
 
                 if fit_measure_in_percent < 99.0:
                     logging.critical("The sigmoid fitting is not good enough")
-                    sys.exit()
 
         except RuntimeError:
             logging.debug("Unsuccessful fit %s", start_parameters[1])
@@ -108,7 +106,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_a=200, fit_crit_b=0.
             cnt += 1
 
             if cnt >= len(start_param_list):
-                sys.exit("Sigmoid fit error: Try changing fit_crit_a and fit_crit_b")
+                logging.critical("Sigmoid fit error: Try changing fit_crit_a and fit_crit_b")
 
     return fit_parameter
 
@@ -191,8 +189,8 @@ def tech_sigmoid_parameters(
                 yr_until_switched = 0
                 for switch in fuel_switches:
                     if switch['enduse'] == enduse and switch['technology_install'] == tech:
-                        if yr_until_switched < switch['year_fuel_consumption_switched']:
-                            yr_until_switched = switch['year_fuel_consumption_switched']
+                        if yr_until_switched < switch['switch_yr']:
+                            yr_until_switched = switch['switch_yr']
 
                 market_entry = technologies[tech]['market_entry']
 
