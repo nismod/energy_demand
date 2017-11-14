@@ -833,7 +833,6 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
     # -
     # Axis
     # -
-
     base_yr = 2015
     major_interval = 10
     minor_interval = 5

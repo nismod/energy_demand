@@ -197,14 +197,14 @@ def tempo_spatial_validation(
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
 
     elec_national_data.compare_peak(
-        "validation_elec_peak_comparison_01.pdf",
+        "validation_elec_peak_comparison_peakday_yh.pdf",
         data['local_paths'],
         val_elec_data_2015_indo[peak_day],
         ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']][peak_day])
 
     logging.debug("...compare peak from max peak factors")
     elec_national_data.compare_peak(
-        "validation_elec_peak_comparison_02.pdf",
+        "validation_elec_peak_comparison_peak_shapes.pdf",
         data['local_paths'],
         val_elec_data_2015_indo[peak_day],
         tot_peak_enduses_fueltype[data['lookups']['fueltype']['electricity']])

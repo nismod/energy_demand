@@ -118,14 +118,12 @@ if __name__ == "__main__":
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
         data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    
+
     # Parameters defined within smif
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
-    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
@@ -172,7 +170,8 @@ if __name__ == "__main__":
         data['sim_param'],
         data['enduses'],
         data['assumptions'],
-        data['reg_nrs'])
+        data['reg_nrs'],
+        data['lu_reg'])
 
     for sim_yr in data['sim_param']['simulated_yrs']:
         data['sim_param']['curr_yr'] = sim_yr
@@ -247,7 +246,6 @@ if __name__ == "__main__":
                 model_run_object.tot_peak_enduses_fueltype)
 
 
-
     # ------------------
     # Load necessary inputs for read in
     # ------------------
@@ -257,12 +255,11 @@ if __name__ == "__main__":
     data['lookups'] = data_loader.load_basic_lookups()
 
     # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
+    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
 
     # Other information is read in
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-
 
     # --------------------------------------------
     # Reading in results from different model runs

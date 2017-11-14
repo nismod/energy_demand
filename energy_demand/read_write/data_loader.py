@@ -20,7 +20,7 @@ def load_sim_param_ini(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
-
+    lu_reg = ast.literal_eval(config['REGIONS']['lu_reg'])
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
@@ -37,7 +37,7 @@ def load_sim_param_ini(path):
     enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
     enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs
+    return sim_param, enduses, assumptions, reg_nrs, lu_reg
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file
@@ -277,6 +277,8 @@ def load_local_paths(path):
             path, '_processed_data'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'lad_shapefile_2011': os.path.join(
+            path, '_raw_data', 'C_LAD_geography', 'infuse_dist_lyr_2011.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
@@ -284,7 +286,7 @@ def load_local_paths(path):
         'path_sigmoid_data': os.path.join(
             path, '_processed_data', 'sigmoid_data'),
         'data_results_model_runs': os.path.join(
-            path, '_result_data', "model_run_results_txt"),
+            path, '_result_data', 'model_run_results_txt'),
         'dir_changed_weather_station_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
@@ -306,7 +308,9 @@ def load_local_paths(path):
         'dir_services': os.path.join(
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
-            path, '_result_data', 'PDF')}
+            path, '_result_data', 'PDF'),
+        'data_results_shapefiles': os.path.join(
+            path, '_result_data', 'result_shapefiles')}
 
     return paths
 

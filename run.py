@@ -20,7 +20,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
-NR_OF_MODELLEd_REGIONS = 380 #380
+NR_OF_MODELLEd_REGIONS = 10 #380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -126,31 +126,31 @@ class EDWrapper(SectorModel):
         }
 
         # ---------------------
-        # Energy demand specific input 
+        # Energy demand specific input
         # which need to generated or read in
         # ---------------------
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        
+
         # Assumptions
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-        
+
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'],
             data['local_paths'],
-            data['assumptions']['model_yeardays'], 
+            data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data)
-        
+
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -330,7 +330,8 @@ class EDWrapper(SectorModel):
             data['sim_param'],
             data['enduses'],
             data['assumptions'],
-            data['reg_nrs'])
+            data['reg_nrs'],
+            data['lu_reg'])
 
         # ---------
         # Run model
@@ -376,7 +377,7 @@ class EDWrapper(SectorModel):
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        validation_criteria = True
+        validation_criteria = False
         if validation_criteria and timestep == 2015:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],

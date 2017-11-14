@@ -16,6 +16,7 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_factors as lf
+from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -196,18 +197,17 @@ class EnergyModel(object):
         self.reg_load_factor_yd = reg_load_factor_yd
         self.reg_load_factor_seasons = reg_load_factor_seasons
 
-        #-------------------
+        # ------------------------------
         # TESTING
-        #-------------------
+        # ------------------------------
         testing.test_region_selection(self.ed_fueltype_regs_yh)
 
-        # ---
-        # Other charts
-        # ---
-        plot_HDD_chart = True
+        # ------------------------------
+        # Chart HDD * Pop vs actual gas demand
+        # ------------------------------
+        plot_HDD_chart = False
         if plot_HDD_chart == True:
             logging.info("plot figure HDD comparison")
-            from energy_demand.charts import figure_HHD_gas_demand
             figure_HHD_gas_demand.main(region_names, weather_regions, data)
 
 def simulate_region(region_name, data, weather_regions):

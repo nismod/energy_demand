@@ -8,12 +8,10 @@ National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
 Note: This could be improved by calculating the HDD for every region and multiplying
 by the population. This would take into consideration the different population
 """
-import os
 import logging
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-from energy_demand.profiles import hdd_cdd
 from energy_demand.scripts import s_raw_weather_data
 from energy_demand.plotting import plotting_program
 from energy_demand.geography.weather_station_location import get_closest_station
@@ -517,8 +515,8 @@ def main(region_names, weather_regions, data):
     font_additional_info = {'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
     plt.xlabel("National daily gas demand [GWh per day]")
     plt.ylabel("Heating degree days [mio]")
-    plt.title("Correlation between national gas demand and hdd (r_value:  {}".format(r_value), fontdict=font_additional_info)
-    plt.text(1, 0.55, "y = {} x + {}".format(slope, intercept), fontdict=font_additional_info)
+    plt.title("LAD HDD * LADPOP vs Gas_y_uk (r_value: {}".format(round(r_value, 3)), fontdict=font_additional_info)
+    #plt.text(10, 10, "y = {} x + {}".format(round(slope, 2), round(intercept, 2)), fontdict=font_additional_info)
 
     # Tight layout
     #plt.tight_layout()

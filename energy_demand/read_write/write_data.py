@@ -1,12 +1,70 @@
 """Functions which are writing data
 """
 import os
+import logging
 import numpy as np
 import configparser
 from energy_demand.basic import basic_functions
+from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
 import collections
+
+def create_shp_results(results_container, paths, lookups, lu_reg):
+    """Create csv file and merge with shape
+
+    Arguments
+    ---------
+    results_container
+    paths
+    lookups
+    lu_reg
+
+    """
+    logging.info("... create result shapefiles")
+
+    # Paths
+    path_out_shapefile = paths['data_results_shapefiles']
+
+    # Create folder
+    basic_functions.create_folder(path_out_shapefile)
+
+    # Generate csv from resultfile
+    field_names = []
+    csv_results = []
+
+    # ------------------------------------
+    # Create shapefile with load factors
+    # ------------------------------------
+
+    # Iterate fueltpyes and years and add as attributes
+    for fueltype in range(lookups['fueltypes_nr']):
+        for year in results_container['load_factors_y'].keys():
+
+            field_names.append('lp_max_y_{}_{}'.format(year, fueltype))
+            csv_results.append(
+                basic_functions.array_to_dict(
+                    results_container['load_factors_y'][year][fueltype], lu_reg))
+
+    write_shp.write_result_shapefile(
+        paths['lad_shapefile_2011'],
+        os.path.join(path_out_shapefile, 'lp_max_y'),
+        field_names,
+        csv_results)
+
+    # ------------------------------------
+    # Create shapefile with 
+    # ------------------------------------
+
+    # ------------------------------------
+    # Create shapefile with 
+    # ------------------------------------
+
+    # ------------------------------------
+    # Create shapefile with 
+    # ------------------------------------
+
+    logging.info("... finished generating shapefiles")
 
 def dump(data, file_path):
     """Write plain data to a file as yaml
@@ -55,7 +113,7 @@ def write_yaml_param(path_yaml, dict_to_dump):
         yaml.dump(dict_to_dump, file_handle)
     return
 
-def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
+def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
     """Write .ini file with simulation parameters
 
     Arguments
@@ -86,8 +144,8 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
     config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
     config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
 
-
-
+    config.add_section('REGIONS')
+    config['REGIONS']['lu_reg'] = str(lu_reg)
 
     with open(path_ini_file, 'w') as f:
         config.write(f)

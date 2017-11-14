@@ -34,6 +34,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Fuels
     # -------------
+    logging.info("... Reading in fuels")
     results_container['results_every_year'] = read_results_yh(
         lookups['fueltypes_nr'], path_runs)
 
@@ -46,6 +47,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Load factors
     # -------------
+    logging.info("... Reading in load factors")
     results_container['load_factors_y'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_y"))
     results_container['load_factors_yh'] = read_lf_y(
@@ -64,6 +66,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Post-calculations
     # -------------
+    logging.info("... generating post calculations with read results")
     # Calculate average per season and fueltype for every fueltype
     av_season_daytype_cy = {}
     season_daytype_cy = {}
@@ -130,6 +133,7 @@ def read_results_yh(fueltypes_nr, path_to_folder):
 
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:
+        logging.info("... file_path: " + str(file_path))
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")

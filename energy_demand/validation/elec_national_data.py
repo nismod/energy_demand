@@ -148,7 +148,12 @@ def compare_results(
     plt.show()
     plt.close()
 
-def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak_enduses_fueltype):
+def compare_peak(
+        name_fig,
+        local_paths,
+        validation_elec_data_2015_peak,
+        tot_peak_enduses_fueltype
+    ):
     """Compare peak electricity day with calculated peak energy demand
 
     Arguments
@@ -179,7 +184,7 @@ def compare_peak(name_fig, local_paths, validation_elec_data_2015_peak, tot_peak
     # Labelling
     plt.title("Peak day comparison", loc='left')
     plt.xlabel("Hours")
-    plt.ylabel("National electrictiy use [GWh / h]")
+    plt.ylabel("National electrictiy use [GWh per h]")
 
     # Tight layout
     plt.tight_layout()
