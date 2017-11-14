@@ -5,23 +5,30 @@ import logging
 from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
-from energy_demand.basic import logger_setup
+from energy_demand.basic import logger_setup, basic_functions
 
-def main(local_data_path):
+def main(path_data_energy_demand):
     """Read in all results and plot PDFs
 
     Arguments
     ----------
-    local_data_path : str
+    path_data_energy_demand : str
         Path to results
     """
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_plotting.log"))
+
+    # Set up logger
+    logger_setup.set_up_logger(os.path.join(path_data_energy_demand, "logging_plotting.log"))
+
     # ------------------
     # Load necessary inputs for read in
     # ------------------
     data = {}
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
+    data['local_paths'] = data_loader.load_local_paths(path_data_energy_demand)
     data['lookups'] = data_loader.load_basic_lookups()
+
+    # Del previous visulations and shapefiles
+    basic_functions.del_previous_setup(data['local_paths']['data_results_PDF'])
+    basic_functions.del_previous_setup(data['local_paths']['data_results_shapefiles'])
 
     # Simulation information is read in from .ini file for results
     data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(

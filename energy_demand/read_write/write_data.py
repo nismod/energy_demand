@@ -15,11 +15,14 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
 
     Arguments
     ---------
-    results_container
-    paths
-    lookups
-    lu_reg
-
+    results_container : dict
+        Data container
+    paths : dict
+        Paths
+    lookups : dict
+        Lookups
+    lu_reg : list
+        Region in a list with order how they are stored in result array
     """
     logging.info("... create result shapefiles")
 
@@ -41,7 +44,7 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
     for fueltype in range(lookups['fueltypes_nr']):
         for year in results_container['load_factors_y'].keys():
 
-            field_names.append('lp_max_y_{}_{}'.format(year, fueltype))
+            field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(
                 basic_functions.array_to_dict(
                     results_container['load_factors_y'][year][fueltype], lu_reg))
@@ -53,17 +56,31 @@ def create_shp_results(results_container, paths, lookups, lu_reg):
         csv_results)
 
     # ------------------------------------
-    # Create shapefile with 
+    # Create shapefile with
+    # ------------------------------------
+    # Iterate fueltpyes and years and add as attributes
+    for fueltype in range(lookups['fueltypes_nr']):
+        for year in results_container['results_every_year'].keys():
+
+            field_names.append('y_{}_{}'.format(year, fueltype))
+
+            # Calculate yearly sum
+            yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
+            csv_results.append(basic_functions.array_to_dict(yearly_sum, lu_reg))
+
+    write_shp.write_result_shapefile(
+        paths['lad_shapefile_2011'],
+        os.path.join(path_out_shapefile, 'fuel_y'),
+        field_names,
+        csv_results)
+    # ------------------------------------
+    # Create shapefile with
     # ------------------------------------
 
     # ------------------------------------
-    # Create shapefile with 
+    # Create shapefile with
     # ------------------------------------
-
-    # ------------------------------------
-    # Create shapefile with 
-    # ------------------------------------
-
+    prnt(".")
     logging.info("... finished generating shapefiles")
 
 def dump(data, file_path):
@@ -81,6 +98,18 @@ def dump(data, file_path):
 
 def write_yaml_param_complete(path_yaml, dict_to_dump):
     """Write all assumption parameters to YAML
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    dict_to_dump : dict
+        Dict which is written to YAML
+
+    Returns
+    -------
+
+    #
     #TODO :ORDER
     """
     list_to_dump_complete = []
@@ -103,14 +132,7 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
 
     # Dump list
     dump(list_to_dump_complete, path_yaml)
-    return
 
-def write_yaml_param(path_yaml, dict_to_dump):
-    """Write all assumption parameters to YAML
-
-    """
-    with open(path_yaml, 'w') as file_handle:
-        yaml.dump(dict_to_dump, file_handle)
     return
 
 def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
@@ -127,7 +149,7 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_
 
     config = configparser.ConfigParser()
 
-    config.add_section('SIM_PARAM') 
+    config.add_section('SIM_PARAM')
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
 

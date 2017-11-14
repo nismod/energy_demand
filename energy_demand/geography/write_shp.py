@@ -73,9 +73,10 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
                 # No results
                 result_csv = 0
                 logging.warning(
-                    "No value found for region '%s' in merging shapefile results", geo_code)
+                    "No result value for region '%s' in joining shapefile", geo_code)
 
-                rec.append(result_csv)
+            # Add specific fuel result
+            rec.append(result_csv)
 
         # Add the modified record to the new shapefile
         w.records.append(rec)

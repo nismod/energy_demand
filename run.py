@@ -9,11 +9,9 @@ from smif.model.sector_model import SectorModel
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.cli import run_model
 from energy_demand.dwelling_stock import dw_stock
-from energy_demand.read_write import read_data, write_data
+from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.main import energy_demand_model
-from energy_demand.read_write import data_loader
-from energy_demand.assumptions import non_param_assumptions
-from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import param_assumptions, non_param_assumptions
 from energy_demand.basic import date_prop
 from pkg_resources import Requirement, resource_filename
 from energy_demand.validation import lad_validation
@@ -254,7 +252,7 @@ class EDWrapper(SectorModel):
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
             'population':  self.user_data['population'],
-                'floor_area': {
+            'floor_area': {
                 'rs_floorarea': data['rs_floorarea'],
                 'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}
             }
@@ -270,7 +268,7 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-        
+
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -281,7 +279,7 @@ class EDWrapper(SectorModel):
         data['tech_lp'] = data_loader.load_data_profiles(
             data['paths'],
             data['local_paths'],
-            data['assumptions']['model_yeardays'], 
+            data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
 
         # Update: Necessary updates after external data definition
