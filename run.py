@@ -12,7 +12,7 @@ from energy_demand.dwelling_stock import dw_stock
 from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.main import energy_demand_model
 from energy_demand.assumptions import param_assumptions, non_param_assumptions
-from energy_demand.basic import date_prop
+from energy_demand.basic import date_prop, logger_setup
 from pkg_resources import Requirement, resource_filename
 from energy_demand.validation import lad_validation
 
@@ -227,6 +227,7 @@ class EDWrapper(SectorModel):
         # ------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
+        # Ini info
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
 
@@ -237,6 +238,10 @@ class EDWrapper(SectorModel):
 
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
+
+        # Logger
+        logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
+        #TODO: MAKE THAT LOGGING CAN BE CHANGED
 
         # --------------------
         # Simulation parameters
@@ -346,7 +351,7 @@ class EDWrapper(SectorModel):
             data['lu_reg'])
 
         # ---------
-        # Run model
+        # Run main model run function
         # ---------
 
         # Profiler
@@ -355,23 +360,20 @@ class EDWrapper(SectorModel):
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        logging.warning("--------------------")
+        logging.warning("--------SCRAP BELUGA------------")
         logging.warning(data['assumptions']['rs_fuel_switches'])
         logging.warning(data['assumptions']['rs_service_switches'])
         logging.warning(data['assumptions']['ss_fuel_switches'])
         logging.warning(data['assumptions']['ss_service_switches'])
         logging.warning(data['assumptions']['is_fuel_switches'])
         logging.warning(data['assumptions']['is_service_switches'])
-        prnt(".")
-        # Main model run function
+
         model_run_object = energy_demand_model(data)
 
         if instrument_profiler:
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
-
-
 
         # ------------------------------------
         # Write results output for supply

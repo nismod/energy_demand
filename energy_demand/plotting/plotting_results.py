@@ -767,7 +767,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # ----
     # Axis
     # ----
-    plt.xlim(xmin=0) #no upper limit to xmax
+    plt.ylim(ymin=0) #no upper limit to xmax
 
     # ------------
     # Plot legend

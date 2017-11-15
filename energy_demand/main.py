@@ -36,7 +36,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     ----
     This function is executed in the wrapper
     """
-    fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+    fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
 
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
@@ -48,13 +48,18 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("Number of regions    " + str(data['reg_nrs']))
     print("Fuel input:          " + str(fuel_in))
     print("Fuel output:         " + str(np.sum(model_run_object.ed_fueltype_national_yh)))
-    print("FUEL DIFFERENCE:     " + str(round(
-        (np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
+    print("FUEL DIFFERENCE:     " + str(round((np.sum(model_run_object.ed_fueltype_national_yh) - fuel_in), 4)))
+    print("--")
     print("elec fuel in:        " + str(fuel_in_elec))
-    print("elec fuel out:       " + str(np.sum(
-        model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
-    print("ele fueld diff:      " + str(round(
-        fuel_in_elec - np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4)))
+    print("elec fuel out:       " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']])))
+    print("ele fuel diff:       " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4) - fuel_in_elec))
+    print("--")
+    print("gas fuel in:         " + str(fuel_in_gas))
+    print("gas fuel out:        " + str(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']])))
+    print("gas diff:            " + str(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4) - fuel_in_gas))
+    print("--")
+    print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4))) * fuel_in_elec))
+    print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4))) * fuel_in_gas))
     print("================================================")
 
     logging.info("...finished running energy demand model simulation")
@@ -73,27 +78,21 @@ if __name__ == "__main__":
     else:
         local_data_path = sys.argv[1]
 
-    logging.info("... Finished running Energy Demand Model")
-
-
     # -------------- SCRAP
-
-    # SCRAP
     from pyinstrument import Profiler
-    from energy_demand.assumptions import non_param_assumptions
-    from energy_demand.assumptions import param_assumptions
+    from energy_demand.assumptions import non_param_assumptions, param_assumptions
     from energy_demand.read_write import data_loader
     from energy_demand.validation import lad_validation
-    from energy_demand.plotting import plotting_results
     from energy_demand.basic import logger_setup
     from energy_demand.read_write import write_data, read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
     # SCRAP
+
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
-    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_energy_demand.log"))
+    logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
     logging.info("... start local energy demand calculations")
 
     # Run settings

@@ -17,7 +17,8 @@ def main(path_data_energy_demand):
     """
 
     # Set up logger
-    logger_setup.set_up_logger(os.path.join(path_data_energy_demand, "logging_plotting.log"))
+    logger_setup.set_up_logger(
+        os.path.join(path_data_energy_demand, "logging_plotting.log"))
 
     # ------------------
     # Load necessary inputs for read in
