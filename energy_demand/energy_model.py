@@ -13,9 +13,7 @@ from energy_demand.geography.weather_region import WeatherRegion
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.geography.weather_station_location import get_closest_station
 from energy_demand.basic import testing_functions as testing
-from energy_demand.profiles import load_profile
-from energy_demand.initalisations import helpers
-from energy_demand.profiles import load_factors as lf
+from energy_demand.profiles import load_profile, load_factors
 from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyModel(object):
@@ -171,9 +169,9 @@ class EnergyModel(object):
             average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
             # Calculate load factors across all enduses
-            load_factor_y = lf.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
-            load_factor_yd = lf.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
-            load_factor_seasons = lf.calc_lf_season(
+            load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
+            load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
+            load_factor_seasons = load_factors.calc_lf_season(
                 data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
 
             # Copy regional load factors

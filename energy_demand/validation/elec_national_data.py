@@ -139,13 +139,13 @@ def compare_results(
     
     plt.title(title_left, loc='left')
 
-    plt.xlabel("Hours", fontsize=10)
-    plt.ylabel("National electrictiy use [GWh / h] for {}".format(title_left), fontsize=10)
+    plt.xlabel("hour", fontsize=10)
+    plt.ylabel("uk electrictiy use [GW] for {}".format(title_left), fontsize=10)
 
     plt.legend(frameon=False)
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-    plt.show()
+    #plt.show()
     plt.close()
 
 def compare_peak(
@@ -183,8 +183,8 @@ def compare_peak(
 
     # Labelling
     plt.title("Peak day comparison", loc='left')
-    plt.xlabel("Hours")
-    plt.ylabel("National electrictiy use [GWh per h]")
+    plt.xlabel("hours")
+    plt.ylabel("uk electrictiy use [GW]")
 
     # Tight layout
     plt.tight_layout()
@@ -192,7 +192,7 @@ def compare_peak(
 
     # Save fig
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-    plt.show()
+    #plt.show()
     plt.close()
 
 def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calculated):
@@ -229,10 +229,10 @@ def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calcula
     plt.xticks(range(1, 25), range(24))
     #plt.margins(x=0) #remove white space
 
-    plt.xlabel("Hour")
+    plt.xlabel("hour")
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
     plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-    plt.show()
+    #plt.show()
     plt.close()

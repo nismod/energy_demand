@@ -93,7 +93,8 @@ def disaggregate_base_demand(
         lu_reg,
         scenario_data,
         enduses,
-        sectors)
+        sectors,
+        sim_param)
 
     # Check if total fuel is the same before and after aggregation
     np.testing.assert_almost_equal(
@@ -115,7 +116,7 @@ def ss_disaggregate(
         enduses,
         sectors,
         all_sectors
-    ): 
+    ):
     """Disaggregate fuel for service submodel (per enduse and sector)
     """
     logging.debug("... disaggregate service demand")
@@ -234,8 +235,10 @@ def ss_disaggregate(
                 elif enduse == 'ss_other_gas':
                     reg_diasg_factor = reg_pop / f_ss_other_gas[sector]
 
+                DUMMY_reg_diasg_factor = reg_pop / sum(scenario_data['population'][sim_param['base_yr']].values())
                 # Disaggregate (fuel * factor)
-                ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
+                #ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
+                ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * DUMMY_reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
     control_sum1, control_sum2 = 0, 0
@@ -252,7 +255,14 @@ def ss_disaggregate(
     np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
     return ss_fuel_disagg
 
-def is_disaggregate(raw_fuel_sectors_enduses, lu_reg, scenario_data, enduses, sectors): 
+def is_disaggregate(
+        raw_fuel_sectors_enduses,
+        lu_reg,
+        scenario_data,
+        enduses,
+        sectors,
+        sim_param
+    ): 
     """Disaggregate fuel for sector and enduses with floor
     area and GVA for sectors and enduses (IMPROVE)
 
@@ -289,13 +299,26 @@ def is_disaggregate(raw_fuel_sectors_enduses, lu_reg, scenario_data, enduses, se
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
                 reg_disaggregation_factor = reg_floorarea_sector / national_floorarea_sector
 
+
+                DUMMY_reg_diasg_factor = scenario_data['population'][sim_param['base_yr']][region_name] / sum(scenario_data['population'][sim_param['base_yr']].values())
                 # Disaggregated national fuel
-                reg_fuel_sector_enduse = reg_disaggregation_factor * national_fuel_sector_by
+                #reg_fuel_sector_enduse = national_fuel_sector_by * reg_disaggregation_factor
+                reg_fuel_sector_enduse = national_fuel_sector_by * DUMMY_reg_diasg_factor
+                
                 is_fuel_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
 
     return is_fuel_disagg
 
-def rs_disaggregate(lu_reg, sim_param, rs_national_fuel, scenario_data, assumptions, reg_coord, weather_stations, temp_data):
+def rs_disaggregate(
+        lu_reg,
+        sim_param,
+        rs_national_fuel,
+        scenario_data,
+        assumptions,
+        reg_coord,
+        weather_stations,
+        temp_data
+    ):
     """Disaggregate residential fuel demand
 
     Arguments
@@ -402,8 +425,10 @@ def rs_disaggregate(lu_reg, sim_param, rs_national_fuel, scenario_data, assumpti
             else:
                 reg_diasg_factor = reg_pop / total_pop
 
+            DUMMY_reg_diasg_factor = reg_pop / total_pop
             # Disaggregate
-            rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+            #rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * reg_diasg_factor
+            rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * DUMMY_reg_diasg_factor
 
     return rs_fuel_disagg
 

@@ -18,7 +18,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
-NR_OF_MODELLEd_REGIONS = 10 #380
+NR_OF_MODELLEd_REGIONS = 380 #380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -397,8 +397,9 @@ class EDWrapper(SectorModel):
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
+        # TODO: MPVE TO PLOTTING BECAUSE OTHERWISE REPLACED
         # ------------------------------------------------
-        validation_criteria = False
+        validation_criteria = True
         if validation_criteria and timestep == 2015:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],

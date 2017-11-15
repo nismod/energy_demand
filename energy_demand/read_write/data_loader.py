@@ -40,7 +40,8 @@ def load_sim_param_ini(path):
     return sim_param, enduses, assumptions, reg_nrs, lu_reg
 
 def read_national_real_elec_data(path_to_csv):
-    """Read in national consumption from csv file
+    """Read in national consumption from csv file. The unit
+    in the original csv is in GWh per region per year.
 
     Arguments
     ---------

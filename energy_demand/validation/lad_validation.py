@@ -30,7 +30,7 @@ def temporal_validation(
     Arguments
     ---------
     local_paths :
-    lookups : 
+    lookups :
     ed_fueltype_national_yh, val_elec_data_2015_indo, val_elec_data_2015_itsdo
 
     # Validation of national electrictiy demand for base year
@@ -249,24 +249,50 @@ def spatial_validation(
     result_dict['modelled_elec_demand'] = {}
 
     # ------------
-    # Substraction demand for notheren ireland TODO
+    # Substraction demand for notheren ireland TODO MAYBE NOT BECAUSE PROVIDED PER REGION
+    # from gas data 
+    # https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/bulletins/annualmidyearpopulationestimates/mid2015
+    #TODO DESCRRIBE
     # ------------
-    #
     # e.g. proportionally to population
+    pop_northern_ireland_2015 =  1851600
+    pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
+    pop_tot = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
+
+    correction_factor = pop_wales_scotland_england_2015 / pop_tot
 
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
+    testsum_real = 0
+    testsum_modelled = 0
+    testsum_modelled_corrected = 0
     for region_array_nr, region_name in enumerate(lu_reg):
         for reg_geocode in reg_coord:
             if reg_geocode == region_name:
                 try:
                     # --Sub Regional Electricity demand
-                    result_dict['real_elec_demand'][reg_geocode] = national_elec_data[reg_geocode]
-                    result_dict['modelled_elec_demand'][reg_geocode] = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
-                except:
-                    logging.warning("Error Validation: No fuel is defined for region %s", reg_geocode)
+                    gw_per_region = conversions.gwhperyear_to_gw(national_elec_data[reg_geocode])
+                    testsum_real += gw_per_region
+                    result_dict['real_elec_demand'][reg_geocode] = gw_per_region
 
+                    # Convert GWh to GW
+                    gw_per_region = conversions.gwhperyear_to_gw(
+                        np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
+
+                    # Correct ECUK data with correction factor
+                    gw_per_region_corrected = correction_factor *  gw_per_region
+                    testsum_modelled += gw_per_region
+                    testsum_modelled_corrected += gw_per_region_corrected
+                    result_dict['modelled_elec_demand'][reg_geocode] = gw_per_region_corrected
+                except KeyError:
+                    logging.warning("No fuel is defined for region %s", reg_geocode)
+
+    print("compariosn: ")
+    print(testsum_real)
+    print(testsum_modelled)
+    print(testsum_modelled_corrected)
+    #prnt(".")
     # -----------------
     # Sort results according to size
     # -----------------
@@ -314,16 +340,23 @@ def spatial_validation(
     # Plot
     # ----------------------------------------------
     plt.plot(
-        x_values, y_real_elec_demand,
-        'ro', markersize=2, color='green', label='Sub-regional demand (real)')
+        x_values, 
+        y_real_elec_demand,
+        'ro', markersize=2,
+        color='green',
+        label='Sub regional demand (real)')
+
     plt.plot(
-        x_values, y_modelled_elec_demand,
-        'ro', markersize=2, color='red', label='Disaggregated demand (modelled)')
+        x_values,
+        y_modelled_elec_demand,
+        'ro',
+         markersize=2,
+         color='red',
+         label='Disaggregated demand (modelled)')
 
     # Limit
-    #print(sorted_dict_real_elec_demand[-1])
     #higher_x_to_plot = round(sorted_dict_real_elec_demand[-1][1], -3) #round to 1'000
-    plt.ylim(0, 3000)
+    plt.ylim(ymin=0)
     #plt.ylim(0, higher_x_to_plot)
 
     # -----------
@@ -339,12 +372,14 @@ def spatial_validation(
         fontdict=font_additional_info)
 
     plt.xlabel("Regions")
-    plt.ylabel("Sub-regional yearly {} demand [GW]".format(fueltype_str))
+    plt.ylabel("{} demand [GW]".format(fueltype_str))
 
     # --------
     # Legend
     # --------
-    plt.legend(frameon=False)
+    plt.legend(
+        prop={'family': 'arial','size': 8},
+        frameon=False)
 
     # Tight layout
     plt.margins(x=0)
