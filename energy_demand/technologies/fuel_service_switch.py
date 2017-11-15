@@ -202,7 +202,7 @@ def convert_capacity_assumption_to_service(
     """
     sim_param_new = {}
     sim_param_new['base_yr'] = base_yr #sim_param['base_yr']
-    sim_param_new['curr_yr'] = capacity_switch['year_fuel_consumption_switched']
+    sim_param_new['curr_yr'] = capacity_switch['switch_yr']
 
     # ---------------------------------------------
     # Calculate service per technolgies of by for ey
@@ -234,7 +234,7 @@ def convert_capacity_assumption_to_service(
     for switch in capacity_switches:
         if enduse == switch['enduse']:
             technology_install = switch['technology_install']
-            fuel_capacity_installed = switch['fuel_capacity_installed']
+            installed_capacity = switch['installed_capacity']
 
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
@@ -246,7 +246,7 @@ def convert_capacity_assumption_to_service(
                 technologies[technology_install]['diff_method'])
 
             # Convert fuel to service
-            installed_capacity_ey = fuel_capacity_installed * tech_eff_ey
+            installed_capacity_ey = installed_capacity * tech_eff_ey
 
             # Add cpacity
             service_enduse_tech[technology_install] += installed_capacity_ey
@@ -267,7 +267,7 @@ def convert_capacity_assumption_to_service(
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
         for switch in capacity_switches:
-            year_switch_ey = switch['year_fuel_consumption_switched']
+            year_switch_ey = switch['switch_yr']
             continue
 
         service_switches_enduse.append({

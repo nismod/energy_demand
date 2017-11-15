@@ -13,8 +13,6 @@ def test_region_selection(ed_fueltype_regs_yh):
     """function to see whether if only some days are selected
     the sum makes sense
     """
-    
-    print("FUEL FOR FIRST WEEK")
     modelled_days = 1
     hours_modelled = modelled_days * 24
     len_dict = 0
@@ -125,22 +123,26 @@ def test_function_fuel_sum(data):
     """
     fuel_in = 0
     fuel_in_elec = 0
+    fuel_in_gas = 0
 
     for region in data['rs_fuel_disagg']:
         for enduse in data['rs_fuel_disagg'][region]:
             fuel_in += np.sum(data['rs_fuel_disagg'][region][enduse])
             fuel_in_elec += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltype']['electricity']])
+            fuel_in_gas += np.sum(data['rs_fuel_disagg'][region][enduse][data['lookups']['fueltype']['gas']])
 
     for region in data['ss_fuel_disagg']:
         for sector in data['ss_fuel_disagg'][region]:
             for enduse in data['ss_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['ss_fuel_disagg'][region][sector][enduse])
                 fuel_in_elec += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
+                fuel_in_gas += np.sum(data['ss_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['gas']])
 
     for region in data['is_fuel_disagg']:
         for sector in data['is_fuel_disagg'][region]:
             for enduse in data['is_fuel_disagg'][region][sector]:
                 fuel_in += np.sum(data['is_fuel_disagg'][region][sector][enduse])
                 fuel_in_elec += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['electricity']])
+                fuel_in_gas += np.sum(data['is_fuel_disagg'][region][sector][enduse][data['lookups']['fueltype']['gas']])
 
-    return fuel_in, fuel_in_elec
+    return fuel_in, fuel_in_elec, fuel_in_gas

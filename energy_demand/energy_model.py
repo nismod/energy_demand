@@ -16,6 +16,7 @@ from energy_demand.basic import testing_functions as testing
 from energy_demand.profiles import load_profile
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_factors as lf
+from energy_demand.charts import figure_HHD_gas_demand
 
 class EnergyModel(object):
     """EnergyModel of a simulation yearly run
@@ -172,8 +173,8 @@ class EnergyModel(object):
             # Calculate load factors across all enduses
             load_factor_y = lf.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
             load_factor_yd = lf.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
-            load_factor_seasons = lf.calc_lf_season(data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
-            #Alternative MAYBE: workdays, monthly
+            load_factor_seasons = lf.calc_lf_season(
+                data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
 
             # Copy regional load factors
             for fueltype_nr in range(data['lookups']['fueltypes_nr']):
@@ -196,10 +197,18 @@ class EnergyModel(object):
         self.reg_load_factor_yd = reg_load_factor_yd
         self.reg_load_factor_seasons = reg_load_factor_seasons
 
-        #-------------------
+        # ------------------------------
         # TESTING
-        #-------------------
+        # ------------------------------
         testing.test_region_selection(self.ed_fueltype_regs_yh)
+
+        # ------------------------------
+        # Chart HDD * Pop vs actual gas demand
+        # ------------------------------
+        plot_HDD_chart = False
+        if plot_HDD_chart == True:
+            logging.info("plot figure HDD comparison")
+            figure_HHD_gas_demand.main(region_names, weather_regions, data)
 
 def simulate_region(region_name, data, weather_regions):
     """Run submodels for a single region, return aggregate results
@@ -493,7 +502,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
                 tech_constant_share=data['assumptions']['rs_tech_constant_share'][enduse_name],
                 installed_tech=data['assumptions']['rs_installed_tech'][enduse_name],
                 sig_param_tech=data['assumptions']['rs_sig_param_tech'],
-                enduse_overall_change=data['assumptions']['enduse_overall_change'], #['rs_model'],
+                enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.rs_load_profiles,
                 dw_stock=data['rs_dw_stock']
             )
@@ -546,7 +555,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 tech_constant_share=data['assumptions']['ss_tech_constant_share'][enduse_name],
                 installed_tech=data['assumptions']['ss_installed_tech'][enduse_name],
                 sig_param_tech=data['assumptions']['ss_sig_param_tech'],
-                enduse_overall_change=data['assumptions']['enduse_overall_change'], #['ss_model'],
+                enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 regional_lp_stock=region.ss_load_profiles,
                 dw_stock=data['ss_dw_stock'])
 

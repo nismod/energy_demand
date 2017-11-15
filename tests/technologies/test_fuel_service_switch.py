@@ -8,15 +8,15 @@ from energy_demand.scripts import s_generate_sigmoid
 def test_create_service_switch():
     """
     """
-    fuel_capacity_installed = 100
+    installed_capacity = 100
 
     enduses = ['heating']
     capacity_switches = [{
         'enduse': 'heating',
         'technology_install': 'boiler_gas',
         'market_entry': 2015,
-        'year_fuel_consumption_switched': 2020,
-        'fuel_capacity_installed': fuel_capacity_installed,
+        'switch_yr': 2020,
+        'installed_capacity': installed_capacity,
         'enduse_by_dict': 'rs_fuel_tech_p_by',
         'fuels': 'rs_fuel_raw_data_enduses'
     }]
@@ -63,7 +63,7 @@ def test_create_service_switch():
         fuels)
 
     # Fuel share boiler_gas
-    expected = 1 / (sum(fuels['heating'].values()) + fuel_capacity_installed) * fuel_capacity_installed
+    expected = 1 / (sum(fuels['heating'].values()) + installed_capacity) * installed_capacity
 
     for entry in results:
         if entry['tech'] == 'boiler_gas':

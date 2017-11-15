@@ -17,6 +17,28 @@ def rmse(predictions, targets):
     """
     return np.sqrt(((predictions - targets) ** 2).mean())
 
+def array_to_dict(result_array, lu_reg):
+    """Convert an array with regions to dict
+    with region as key
+
+    Arguments
+    ---------
+    result_array : array
+        Results in region_array
+    lu_reg : list
+        List with all regions (oder is the same)
+
+    Returns
+    --------
+    result_dict : dict
+        reg, value
+    """
+    result_dict = {}
+    for reg_array_nr, region_name in enumerate(lu_reg):
+        result_dict[region_name] = result_array[reg_array_nr]
+
+    return result_dict
+
 def create_folder(path_folder, name_subfolder=None):
     """Creates folder or subfolder
 
@@ -57,7 +79,6 @@ def del_previous_results(path_folder, path_subfolder_keep):
             if path_subfolder != path_subfolder_keep:
                 shutil.rmtree(path_subfolder)
         logging.info("... deleted previous scenario results")
-        print(".. .deleted previous scenario results")
     else:
         pass
 
@@ -72,7 +93,7 @@ def del_previous_setup(path_folder):
     if os.path.exists(path_folder):
         shutil.rmtree(path_folder, ignore_errors=True)
         logging.info("... deleted previous scenario results")
-        print("...Deleted previous scenario results")
+        print("... deleted previous scenario results")
     else:
         pass
 

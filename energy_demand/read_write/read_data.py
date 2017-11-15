@@ -5,15 +5,15 @@ import sys
 import csv
 import json
 import logging
-import yaml
 from collections import defaultdict
+import yaml
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
 
 def read_param_yaml(path):
-    """
+    """Read yaml parameters
     """
     with open(path, 'r') as ymlfile:
         parameter_dict = yaml.load(ymlfile)
@@ -24,8 +24,6 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     """Read and post calculate
     results from txt files
     and store into container
-
-
     """
     logging.info("... Reading in results")
 
@@ -34,6 +32,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Fuels
     # -------------
+    logging.info("... Reading in fuels")
     results_container['results_every_year'] = read_results_yh(
         lookups['fueltypes_nr'], path_runs)
 
@@ -46,6 +45,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Load factors
     # -------------
+    logging.info("... Reading in load factors")
     results_container['load_factors_y'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_y"))
     results_container['load_factors_yh'] = read_lf_y(
@@ -64,6 +64,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # -------------
     # Post-calculations
     # -------------
+    logging.info("... generating post calculations with read results")
     # Calculate average per season and fueltype for every fueltype
     av_season_daytype_cy = {}
     season_daytype_cy = {}
@@ -130,6 +131,7 @@ def read_results_yh(fueltypes_nr, path_to_folder):
 
     # Iterate files in folder
     for file_path in all_txt_files_in_folder:
+        logging.info("... file_path: " + str(file_path))
         try:
             path_file_to_read = os.path.join(path_to_folder, file_path)
             file_path_split = file_path.split("__")
@@ -505,7 +507,7 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                         'enduse': str(row[0]),
                         'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
                         'technology_install': str(row[2]),
-                        'year_fuel_consumption_switched': float(row[3]),
+                        'switch_yr': float(row[3]),
                         'share_fuel_consumption_switched': float(row[4]),
                         'max_theoretical_switch': float(row[5])
                     }
@@ -978,6 +980,25 @@ def read_lf_y(path_enduse_specific_results):
 
     return results
 
+def read_pop(path_enduse_specific_results):
+    """Read load factors from txt file
+    """
+    results = defaultdict(dict)
+
+    all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
+
+    # Iterate files
+    for file_path in all_txt_files_in_folder:
+        path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
+        file_path_split = file_path.split("__")
+        txt_data = np.loadtxt(path_file_to_read, delimiter=',')
+        year = int(file_path_split[1])
+
+        # Add year if not already exists
+        results[year] = txt_data
+
+    return results
+
 def read_capacity_installation(path_to_csv):
     """This function reads in service assumptions from csv file
 
@@ -1004,8 +1025,8 @@ def read_capacity_installation(path_to_csv):
                         'enduse': str(row[0]),
                         'technology_install': str(row[1]),
                         'market_entry': float(row[2]),
-                        'year_fuel_consumption_switched': float(row[3]),
-                        'fuel_capacity_installed':  float(row[4])
+                        'switch_yr': float(row[3]),
+                        'installed_capacity':  float(row[4])
                     }
                 )
             except (KeyError, ValueError):

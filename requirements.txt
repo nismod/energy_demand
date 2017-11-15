@@ -6,3 +6,4 @@ haversine
 scipy
 isoweek
 pyinstrument
+pyshp

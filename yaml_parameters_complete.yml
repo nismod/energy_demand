@@ -65,25 +65,25 @@
   suggested_range: (0, 100)
   units: '%'
 - absolute_range: (10, 20)
-  default_value: '15.5'
+  default_value: 15.5
   description: Base temperature assumption residential heating
   name: rs_t_base_heating_future_yr
   suggested_range: (13, 17)
   units: "\xB0C"
 - absolute_range: (10, 20)
-  default_value: '15.5'
+  default_value: 15.5
   description: Base temperature assumption service sector heating
   name: ss_t_base_heating
   suggested_range: (13, 17)
   units: "\xB0C"
 - absolute_range: (20, 25)
-  default_value: '21'
+  default_value: 21
   description: Base temperature assumption residential sector cooling
   name: ss_t_base_heating
   suggested_range: (13, 17)
   units: "\xB0C"
 - absolute_range: (20, 25)
-  default_value: '21'
+  default_value: 21
   description: Base temperature assumption service sector cooling
   name: ss_t_base_cooling
   suggested_range: (13, 17)

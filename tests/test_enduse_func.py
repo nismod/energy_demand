@@ -283,7 +283,7 @@ def test_fuel_switch():
         'enduse' : 'heating',
         'enduse_fueltype_replace' : fueltype_boilerA,
         'technology_install': 'boilerB',
-        'year_fuel_consumption_switched': end_yr,
+        'switch_yr': end_yr,
         'share_fuel_consumption_switched': share_fuel_consumption_switched,
         'max_theoretical_switch' : l_value}]
 
@@ -374,7 +374,7 @@ def test_fuel_switch():
         'enduse' : 'heating',
         'enduse_fueltype_replace' : fueltype_boilerA,
         'technology_install': 'boilerB',
-        'year_fuel_consumption_switched': end_yr,
+        'switch_yr': end_yr,
         'share_fuel_consumption_switched': share_fuel_consumption_switched,
         'max_theoretical_switch' : l_value}]
 

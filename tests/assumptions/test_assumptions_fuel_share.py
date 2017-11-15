@@ -16,7 +16,7 @@ def test_assign_by_fuel_tech_p():
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     #Load assumptions
     data['sim_param'] = {}
@@ -26,7 +26,7 @@ def test_assign_by_fuel_tech_p():
     data['sim_param']['curr_yr'] = 2015
 
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
 
     result = assumptions_fuel_shares.assign_by_fuel_tech_p(

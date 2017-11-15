@@ -1,12 +1,102 @@
 """Functions which are writing data
 """
 import os
+import logging
 import numpy as np
 import configparser
-from energy_demand.basic import basic_functions
+from energy_demand.basic import basic_functions, conversions
+from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
 import collections
+
+def write_pop(sim_yr, path_result, pop_y):
+    """Write scenario population for a year
+    """
+    path_file = os.path.join(
+        path_result,
+        "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
+
+    np.savetxt(path_file, pop_y, delimiter=',')
+
+    pass
+
+def create_shp_results(data, results_container, paths, lookups, lu_reg):
+    """Create csv file and merge with shape
+
+    Arguments
+    ---------
+    results_container : dict
+        Data container
+    paths : dict
+        Paths
+    lookups : dict
+        Lookups
+    lu_reg : list
+        Region in a list with order how they are stored in result array
+    """
+    logging.info("... create result shapefiles")
+
+    # ------------------------------------
+    # Create shapefile with load factors
+    # ------------------------------------
+    field_names, csv_results = [], []
+    # Iterate fueltpyes and years and add as attributes
+    for year in results_container['load_factors_y'].keys():
+        for fueltype in range(lookups['fueltypes_nr']):
+            field_names.append('y_{}_{}'.format(year, fueltype))
+            csv_results.append(
+                basic_functions.array_to_dict(
+                    results_container['load_factors_y'][year][fueltype], lu_reg))
+
+        # Add population
+        field_names.append('pop_{}'.format(year))
+        csv_results.append(basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
+
+    write_shp.write_result_shapefile(
+        paths['lad_shapefile_2011'],
+        os.path.join(paths['data_results_shapefiles'], 'lp_max_y'),
+        field_names,
+        csv_results)
+
+    # ------------------------------------
+    # Create shapefile with yearly total fuel all enduses
+    # ------------------------------------
+    field_names, csv_results = [], []
+
+    # Iterate fueltpyes and years and add as attributes
+    for year in results_container['results_every_year'].keys():
+        for fueltype in range(lookups['fueltypes_nr']):
+
+            # Calculate yearly sum
+            yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
+
+            # Conversion: Convert gwh per years to gw
+            yearly_sum_gw = conversions.gwhperyear_to_gw(yearly_sum)
+
+            field_names.append('y_{}_{}'.format(year, fueltype))
+            csv_results.append(
+                basic_functions.array_to_dict(yearly_sum_gw, lu_reg))
+
+        # Add population
+        field_names.append('pop_{}'.format(year))
+        csv_results.append(
+            basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
+
+    write_shp.write_result_shapefile(
+        paths['lad_shapefile_2011'],
+        os.path.join(paths['data_results_shapefiles'], 'fuel_y'),
+        field_names,
+        csv_results)
+
+    # ------------------------------------
+    # Create shapefile with
+    # ------------------------------------
+
+    # ------------------------------------
+    # Create shapefile with
+    # ------------------------------------
+    logging.info("... finished generating shapefiles")
 
 def dump(data, file_path):
     """Write plain data to a file as yaml
@@ -23,39 +113,44 @@ def dump(data, file_path):
 
 def write_yaml_param_complete(path_yaml, dict_to_dump):
     """Write all assumption parameters to YAML
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    dict_to_dump : dict
+        Dict which is written to YAML
+
+    Returns
+    -------
+
+    #
     #TODO :ORDER
     """
-    list_to_dump_complete = []
+    list_to_dump = []
 
     for dict_key, dict_values in dict_to_dump.items():
         try:
             parameter_infos = dict_values['param_infos']
 
             for paramter_info in parameter_infos:
-                dict_to_dump_complete = {} #collections.OrderedDict()
-                dict_to_dump_complete['suggested_range'] = paramter_info['suggested_range']
-                dict_to_dump_complete['absolute_range'] = paramter_info['absolute_range']
-                dict_to_dump_complete['description'] = paramter_info['description']
-                dict_to_dump_complete['name'] = paramter_info['name']
-                dict_to_dump_complete['default_value'] = paramter_info['default_value']
-                dict_to_dump_complete['units'] = paramter_info['units']
-                list_to_dump_complete.append(dict_to_dump_complete)
+                dump_dict = {} #collections.OrderedDict()
+                dump_dict['suggested_range'] = paramter_info['suggested_range']
+                dump_dict['absolute_range'] = paramter_info['absolute_range']
+                dump_dict['description'] = paramter_info['description']
+                dump_dict['name'] = paramter_info['name']
+                dump_dict['default_value'] = paramter_info['default_value']
+                dump_dict['units'] = paramter_info['units']
+                list_to_dump.append(dump_dict)
         except:
             pass #not correctly formated assumption
 
     # Dump list
-    dump(list_to_dump_complete, path_yaml)
+    dump(list_to_dump, path_yaml)
+
     return
 
-def write_yaml_param(path_yaml, dict_to_dump):
-    """Write all assumption parameters to YAML
-
-    """
-    with open(path_yaml, 'w') as file_handle:
-        yaml.dump(dict_to_dump, file_handle)
-    return
-
-def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
+def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
     """Write .ini file with simulation parameters
 
     Arguments
@@ -69,12 +164,10 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
 
     config = configparser.ConfigParser()
 
-    config.add_section('SIM_PARAM') 
+    config.add_section('SIM_PARAM')
     config['SIM_PARAM']['reg_nrs'] = str(reg_nrs)
     config['SIM_PARAM']['base_yr'] = str(sim_param['base_yr'])
-
     config['SIM_PARAM']['simulated_yrs'] = str(sim_param['simulated_yrs'])
-
     config['SIM_PARAM']['model_yearhours_nrs'] = str(assumptions['model_yearhours_nrs'])
     config['SIM_PARAM']['model_yeardays_nrs'] = str(assumptions['model_yeardays_nrs'])
 
@@ -86,13 +179,13 @@ def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs):
     config['ENDUSES']['ss_all_enduses'] = str(enduses['ss_all_enduses'])
     config['ENDUSES']['is_all_enduses'] = str(enduses['is_all_enduses'])
 
-
-
+    config.add_section('REGIONS')
+    config['REGIONS']['lu_reg'] = str(lu_reg)
 
     with open(path_ini_file, 'w') as f:
         config.write(f)
 
-    return
+    pass
 
 def write_lf(path_result_folder, path_new_folder, parameters, model_results, file_name):
     """Write numpy array to txt file
@@ -115,7 +208,7 @@ def write_lf(path_result_folder, path_new_folder, parameters, model_results, fil
         path_file_fueltype = path_file + "__" + str(fueltype_nr) + "__" + ".txt"
         np.savetxt(path_file_fueltype, fuel_fueltype, delimiter=',')
 
-    return
+    pass
 
 def write_supply_results(sim_yr, path_result, model_results, file_name):
     """Store yearly model resul to txt
@@ -132,11 +225,9 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
         path_file = os.path.join(
             path_result,
             "{}__{}__{}__{}".format(file_name, sim_yr, fueltype_nr, ".txt"))
-
         np.savetxt(path_file, fuel, delimiter=',')
 
-    # Read in with loadtxt
-    return
+    pass
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
     """Store

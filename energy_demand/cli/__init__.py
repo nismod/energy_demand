@@ -40,7 +40,7 @@ def run_model(args):
     #Subfolder where module is installed
     path_main_data = resource_filename(Requirement.parse("energy_demand"), "data")
     path_main = os.path.join(path_main_data, '../')
-    local_data_path = args.data_folder 
+    local_data_path = args.data_folder
 
     # Load data
     data = {}
@@ -48,7 +48,7 @@ def run_model(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -56,15 +56,19 @@ def run_model(args):
 
     # Assumptions
     data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-    param_assumptions.load_param_assump(data['paths'], data['assumptions'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
-    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
+    param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
-    data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
+    data['tech_lp'] = data_loader.load_data_profiles(
+        data['paths'],
+        data['local_paths'],
+        data['assumptions']['model_yeardays'], 
+        data['assumptions']['model_yeardays_daytype'])
+
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
     data = data_loader.dummy_data_generation(data)
@@ -89,11 +93,12 @@ def run_model(args):
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
     results = energy_demand_model(data)
 
     logging.debug("... Result section")
-    
+
     results_every_year = [results]
 
     logging.debug("Finished energy demand model from command line execution")

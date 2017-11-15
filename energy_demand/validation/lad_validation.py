@@ -16,7 +16,14 @@ from energy_demand.basic import date_prop
 from energy_demand import enduse_func
 from energy_demand.profiles import load_profile
 
-def temporal_validation(local_paths, lookups, ed_fueltype_national_yh, val_elec_data_2015_indo, val_elec_data_2015_itsdo, indo_factoreddata):
+def temporal_validation(
+        local_paths,
+        lookups,
+        ed_fueltype_national_yh,
+        val_elec_data_2015_indo,
+        val_elec_data_2015_itsdo,
+        indo_factoreddata
+    ):
     """National hourly electricity data is validated with fuel of
     all regions for base year
 
@@ -121,7 +128,7 @@ def tempo_spatial_validation(
         data['reg_coord'],
         ed_fueltype_regs_yh,
         data['lookups']['fueltype']['electricity'],
-        ['electricity'],
+        'electricity',
         data['lu_reg'],
         national_elec_data,
         os.path.join(data['local_paths']['data_results_PDF'], 'validation_spatial_elec.pdf'))
@@ -190,14 +197,14 @@ def tempo_spatial_validation(
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
 
     elec_national_data.compare_peak(
-        "validation_elec_peak_comparison_01.pdf",
+        "validation_elec_peak_comparison_peakday_yh.pdf",
         data['local_paths'],
         val_elec_data_2015_indo[peak_day],
         ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']][peak_day])
 
     logging.debug("...compare peak from max peak factors")
     elec_national_data.compare_peak(
-        "validation_elec_peak_comparison_02.pdf",
+        "validation_elec_peak_comparison_peak_shapes.pdf",
         data['local_paths'],
         val_elec_data_2015_indo[peak_day],
         tot_peak_enduses_fueltype[data['lookups']['fueltype']['electricity']])

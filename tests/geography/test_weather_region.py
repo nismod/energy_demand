@@ -22,8 +22,7 @@ import numpy as np
     #Load assumptions
 
 
-    param_assumptions.load_param_assump(
-        data['paths'], data['enduses'], data['lookups'], data['fuels'], data['sim_param'])
+    param_assumptions.load_param_assump(data['paths'], data['enduses'])
     data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions'])
 

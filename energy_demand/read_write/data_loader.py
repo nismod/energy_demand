@@ -20,7 +20,7 @@ def load_sim_param_ini(path):
     config.read(os.path.join(path, 'model_run_sim_param.ini'))
 
     reg_nrs = int(config['SIM_PARAM']['reg_nrs'])
-
+    lu_reg = ast.literal_eval(config['REGIONS']['lu_reg'])
     sim_param = {}
     sim_param['base_yr'] = int(config['SIM_PARAM']['base_yr'])
     sim_param['simulated_yrs'] = ast.literal_eval(config['SIM_PARAM']['simulated_yrs'])
@@ -37,7 +37,7 @@ def load_sim_param_ini(path):
     enduses['ss_all_enduses'] = ast.literal_eval(config['ENDUSES']['ss_all_enduses'])
     enduses['is_all_enduses'] = ast.literal_eval(config['ENDUSES']['is_all_enduses'])
 
-    return sim_param, enduses, assumptions, reg_nrs
+    return sim_param, enduses, assumptions, reg_nrs, lu_reg
 
 def read_national_real_elec_data(path_to_csv):
     """Read in national consumption from csv file
@@ -145,21 +145,9 @@ def get_dummy_coord_region(lu_reg, local_paths):
         coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
     return coord_dummy
 
-def dummy_data_generation(data, regions=[]):
-    """REPLACE WITH NEWCASTLE DATA
+def dummy_data_RUNLOCALLY(data, regions=[]):
     """
-    data['all_sectors'] = [
-        'community_arts_leisure',
-        'education',
-        'emergency_services',
-        'health',
-        'hospitality',
-        'military',
-        'offices',
-        'retail',
-        'storage',
-        'other']
-
+    """
     # Load dummy LAC and pop
     if regions == []:
         regions = data['lu_reg']
@@ -185,8 +173,6 @@ def dummy_data_generation(data, regions=[]):
             pop_dummy[year] = _data
         data['population'] = pop_dummy
 
-
-
     # Residenital floor area
     rs_floorarea = {}
     for year in range(2015, 2101):
@@ -205,6 +191,35 @@ def dummy_data_generation(data, regions=[]):
     data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
 
     data['reg_nrs'] = len(regions)
+    data['reg_floorarea_resid'] = {}
+
+    for region_name in data['lu_reg']:
+        data['reg_floorarea_resid'][region_name] = 100000
+
+    data['reg_coord'] = get_dummy_coord_region(data['lu_reg'], data['local_paths'])
+
+    return data
+
+def dummy_data_generation(data):
+    """REPLACE WITH NEWCASTLE DATA
+    """
+    # Residenital floor area
+    rs_floorarea = {}
+    for year in range(2015, 2101):
+        rs_floorarea[year] = {}
+        for region_geocode in data['lu_reg']:
+            rs_floorarea[year][region_geocode] = 10000
+    data['rs_floorarea'] = rs_floorarea
+
+    # Dummy flor area
+    ss_floorarea_sector_by_dummy = {}
+    for region_geocode in data['lu_reg']:
+        ss_floorarea_sector_by_dummy[region_geocode] = {}
+        for sector in data['all_sectors']:
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
+    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+
+    data['reg_nrs'] = len(data['lu_reg'])
     data['reg_floorarea_resid'] = {}
 
     for region_name in data['lu_reg']:
@@ -250,6 +265,8 @@ def load_local_paths(path):
             path, '_processed_data'),
         'data_results': os.path.join(
             path, '_result_data'),
+        'lad_shapefile_2011': os.path.join(
+            path, '_raw_data', 'C_LAD_geography', 'infuse_dist_lyr_2011.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(
@@ -257,7 +274,7 @@ def load_local_paths(path):
         'path_sigmoid_data': os.path.join(
             path, '_processed_data', 'sigmoid_data'),
         'data_results_model_runs': os.path.join(
-            path, '_result_data', "model_run_results_txt"),
+            path, '_result_data', 'model_run_results_txt'),
         'dir_changed_weather_station_data': os.path.join(
             path, '_processed_data', '_post_installation_data', 'weather_station_data'),
         'changed_weather_station_data': os.path.join(
@@ -279,7 +296,9 @@ def load_local_paths(path):
         'dir_services': os.path.join(
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
-            path, '_result_data', 'PDF')}
+            path, '_result_data', 'PDF'),
+        'data_results_shapefiles': os.path.join(
+            path, '_result_data', 'result_shapefiles')}
 
     return paths
 
@@ -404,7 +423,7 @@ def load_data_tech_profiles(tech_lp, paths):
     '''
     return tech_lp
 
-def load_data_profiles(paths, local_paths, assumptions):
+def load_data_profiles(paths, local_paths, model_yeardays, model_yeardays_daytype):
     """Collect load profiles from txt files
 
     Arguments
@@ -423,10 +442,10 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Load enduse load profiles
     tech_lp['rs_shapes_dh'], tech_lp['rs_shapes_yd'] = rs_collect_shapes_from_txts(
-        local_paths['rs_load_profile_txt'], assumptions['model_yeardays'])
+        local_paths['rs_load_profile_txt'], model_yeardays)
 
     tech_lp['ss_shapes_dh'], tech_lp['ss_shapes_yd'] = ss_collect_shapes_from_txts(
-        local_paths['ss_load_profile_txt'], assumptions['model_yeardays'])
+        local_paths['ss_load_profile_txt'], model_yeardays)
 
     # -- From Carbon Trust (service sector data) read out enduse specific shapes
     tech_lp['ss_all_tech_shapes_dh'], tech_lp['ss_all_tech_shapes_yd'] = ss_read_shapes_enduse_techs(
@@ -438,23 +457,23 @@ def load_data_profiles(paths, local_paths, assumptions):
 
     # Heat pumps by Love
     tech_lp['rs_profile_hp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_hp_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_hp_dh', tech_lp, model_yeardays_daytype)
 
     # Storage heater
     tech_lp['rs_profile_storage_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_storage_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_storage_heating_dh', tech_lp, model_yeardays_daytype)
 
     # Electric heating
     tech_lp['rs_profile_elec_heater_y_dh'] = get_shape_every_day(
-        'rs_lp_second_heating_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_second_heating_dh', tech_lp, model_yeardays_daytype)
 
     # Boilers
     tech_lp['rs_profile_boilers_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_boilers_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_boilers_dh', tech_lp, model_yeardays_daytype)
 
     # Micro CHP
     tech_lp['rs_profile_chp_y_dh'] = get_shape_every_day(
-        'rs_lp_heating_CHP_dh', tech_lp, assumptions['model_yeardays_daytype'])
+        'rs_lp_heating_CHP_dh', tech_lp, model_yeardays_daytype)
 
     return tech_lp
 
@@ -556,7 +575,19 @@ def load_fuels(paths, lookups):
     fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
     fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
 
-    return enduses, sectors, fuels
+    all_sectors = [
+        'community_arts_leisure',
+        'education',
+        'emergency_services',
+        'health',
+        'hospitality',
+        'military',
+        'offices',
+        'retail',
+        'storage',
+        'other']
+
+    return enduses, sectors, fuels, all_sectors
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files

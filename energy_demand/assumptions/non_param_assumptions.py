@@ -1,14 +1,12 @@
 """All assumptions are either loaded in this file or definied here
 """
 import logging
-from energy_demand.read_write import read_data, write_data
+from energy_demand.read_write import read_data
 from energy_demand.technologies import tech_related
-from energy_demand.basic import testing_functions as testing
+from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
-from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
-from energy_demand.basic import basic_functions
 
 def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     """Initialise assumptions and load all assumptions
@@ -317,21 +315,21 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # ============================================================
     # Helper functions
     # ============================================================
-    ##testing.testing_service_switch_insert(
+    ##testing_functions.testing_service_switch_insert(
     # assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing.testing_service_switch_insert(
+    ##testing_functions.testing_service_switch_insert(
     # assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
 
     # Test if fuel shares sum up to 1 within each fueltype
-    testing.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
-    testing.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
-    testing.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
+    testing_functions.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
+    testing_functions.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
+    testing_functions.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
 
-    testing.testing_tech_defined(
+    testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['rs_specified_tech_enduse_by'])
-    testing.testing_tech_defined(
+    testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
-    testing.testing_tech_defined(
+    testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
     
     return assumptions

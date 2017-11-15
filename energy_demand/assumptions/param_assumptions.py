@@ -13,7 +13,7 @@ from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.basic import basic_functions
 
-def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
+def load_param_assump(paths, assumptions):
     """All assumptions of the energy demand model
     are loaded and added to the data dictionary
 
@@ -35,47 +35,48 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     # ============================================================
     assumptions['demand_management'] = {}
     assumptions['demand_management']['param_infos'] = [{
-            "name": "demand_management_yr_until_changed",
-            "absolute_range": "(10, 20)",
-            "description": "Year until demand management assumptions are fully realised",
-            "suggested_range": "(2015 - 2100)",
-            "default_value": '2050',
-            "units": 'years'}]
+        "name": "demand_management_yr_until_changed",
+        "absolute_range": "(10, 20)",
+        "description": "Year until demand management assumptions are fully realised",
+        "suggested_range": "(2015 - 2100)",
+        "default_value": '2050',
+        "units": 'years'}]
 
     # Year until ld if implemented
     assumptions['demand_management']['demand_management_yr_until_changed'] = yr_until_changed_all_things
 
     assumptions['demand_management']['enduses_demand_managent'] = {
-            #demand_management_improvement__ Residential submodule
-            'demand_management_improvement__rs_space_heating': 0,
-            'demand_management_improvement__rs_water_heating': 0,
-            'demand_management_improvement__rs_lighting': 0,
-            'demand_management_improvement__rs_cooking': 0,
-            'demand_management_improvement__rs_cold': 0,
-            'demand_management_improvement__rs_wet': 0,
-            'demand_management_improvement__rs_consumer_electronics': 0,
-            'demand_management_improvement__rs_home_computing': 0,
 
-            # Service submodule
-            'demand_management_improvement__ss_space_heating': 0,
-            'demand_management_improvement__ss_water_heating': 0,
-            'demand_management_improvement__ss_lighting': 0,
-            'demand_management_improvement__ss_catering': 0,
-            'demand_management_improvement__ss_computing': 0,
-            'demand_management_improvement__ss_space_cooling': 0,
-            'demand_management_improvement__ss_other_gas': 0,
-            'demand_management_improvement__ss_other_electricity': 0,
+        #Residential submodule
+        'demand_management_improvement__rs_space_heating': 0,
+        'demand_management_improvement__rs_water_heating': 0,
+        'demand_management_improvement__rs_lighting': 0,
+        'demand_management_improvement__rs_cooking': 0,
+        'demand_management_improvement__rs_cold': 0,
+        'demand_management_improvement__rs_wet': 0,
+        'demand_management_improvement__rs_consumer_electronics': 0,
+        'demand_management_improvement__rs_home_computing': 0,
 
-            # Industry submodule
-            'demand_management_improvement__is_high_temp_process': 0,
-            'demand_management_improvement__is_low_temp_process': 0,
-            'demand_management_improvement__is_drying_separation': 0,
-            'demand_management_improvement__is_motors': 0,
-            'demand_management_improvement__is_compressed_air': 0,
-            'demand_management_improvement__is_lighting': 0,
-            'demand_management_improvement__is_space_heating': 0,
-            'demand_management_improvement__is_other': 0,
-            'demand_management_improvement__is_refrigeration': 0}
+        # Service submodule
+        'demand_management_improvement__ss_space_heating': 0,
+        'demand_management_improvement__ss_water_heating': 0,
+        'demand_management_improvement__ss_lighting': 0,
+        'demand_management_improvement__ss_catering': 0,
+        'demand_management_improvement__ss_computing': 0,
+        'demand_management_improvement__ss_space_cooling': 0,
+        'demand_management_improvement__ss_other_gas': 0,
+        'demand_management_improvement__ss_other_electricity': 0,
+
+        # Industry submodule
+        'demand_management_improvement__is_high_temp_process': 0,
+        'demand_management_improvement__is_low_temp_process': 0,
+        'demand_management_improvement__is_drying_separation': 0,
+        'demand_management_improvement__is_motors': 0,
+        'demand_management_improvement__is_compressed_air': 0,
+        'demand_management_improvement__is_lighting': 0,
+        'demand_management_improvement__is_space_heating': 0,
+        'demand_management_improvement__is_other': 0,
+        'demand_management_improvement__is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for demand_name, _ in assumptions['demand_management']['enduses_demand_managent'].items():
@@ -93,29 +94,29 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     # =======================================
     assumptions['climate_change_temp_diff_month'] = {}
     assumptions['climate_change_temp_diff_month']['param_infos'] = [
-            {
-                "name": "climate_change_temp_diff_yr_until_changed",
-                "absolute_range": "2015-2100",
-                "description": "Year until climate temperature changes are fully realised",
-                "suggested_range": "(2030, 2100)",
-                "default_value": '2050',
-                "units": 'year'
-            }
-        ]
+        {
+            "name": "climate_change_temp_diff_yr_until_changed",
+            "absolute_range": "2015-2100",
+            "description": "Year until climate temperature changes are fully realised",
+            "suggested_range": "(2030, 2100)",
+            "default_value": '2050',
+            "units": 'year'
+        }
+    ]
 
     assumptions['climate_change_temp_diff_month']['temps'] = {
-            'climate_change_temp_d__Jan': 0,
-            'climate_change_temp_d__Feb': 0,
-            'climate_change_temp_d__Mar': 0,
-            'climate_change_temp_d__Apr': 0,
-            'climate_change_temp_d__May': 0,
-            'climate_change_temp_d__Jun': 0,
-            'climate_change_temp_d__Jul': 0,
-            'climate_change_temp_d__Aug': 0,
-            'climate_change_temp_d__Sep': 0,
-            'climate_change_temp_d__Oct': 0,
-            'climate_change_temp_d__Nov': 0,
-            'climate_change_temp_d__Dec': 0}
+        'climate_change_temp_d__Jan': 0,
+        'climate_change_temp_d__Feb': 0,
+        'climate_change_temp_d__Mar': 0,
+        'climate_change_temp_d__Apr': 0,
+        'climate_change_temp_d__May': 0,
+        'climate_change_temp_d__Jun': 0,
+        'climate_change_temp_d__Jul': 0,
+        'climate_change_temp_d__Aug': 0,
+        'climate_change_temp_d__Sep': 0,
+        'climate_change_temp_d__Oct': 0,
+        'climate_change_temp_d__Nov': 0,
+        'climate_change_temp_d__Dec': 0}
     
     assumptions['climate_change_temp_diff_month']['climate_change_temp_diff_yr_until_changed'] = yr_until_changed_all_things
 
@@ -137,37 +138,36 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     # ============================================================
     # Parameters info
     assumptions['rs_t_base_heating']['param_infos'] = [{
-            "name": "rs_t_base_heating_future_yr",
-            "absolute_range": "(10, 20)",
-            "description": "Base temperature assumption residential heating",
-            "suggested_range": "(13, 17)",
-            "default_value": '15.5',
-            "units": '°C'}
-            ]
+        "name": "rs_t_base_heating_future_yr",
+        "absolute_range": "(10, 20)",
+        "description": "Base temperature assumption residential heating",
+        "suggested_range": "(13, 17)",
+        "default_value": assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+        "units": '°C'}]
 
     # Future base year temperature
     assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'] = 15.5
 
     # Parameters info
     assumptions['ss_t_base_heating']['param_infos'] = [{
-            "name": "ss_t_base_heating",
-            "absolute_range": "(10, 20)",
-            "description": "Base temperature assumption service sector heating",
-            "suggested_range": "(13, 17)",
-            "default_value": '15.5',
-            "units": '°C'}]
+        "name": "ss_t_base_heating",
+        "absolute_range": "(10, 20)",
+        "description": "Base temperature assumption service sector heating",
+        "suggested_range": "(13, 17)",
+        "default_value": assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
+        "units": '°C'}]
 
         # Future base year temperature
     assumptions['ss_t_base_heating']['ss_t_base_heating_future_yr'] = 15.5
 
     # Cooling base temperature
     assumptions['rs_t_base_cooling']['param_infos'] = [{
-            "name": "ss_t_base_heating",
-            "absolute_range": "(20, 25)",
-            "description": "Base temperature assumption residential sector cooling",
-            "suggested_range": "(13, 17)",
-            "default_value": '21',
-            "units": '°C'}]
+        "name": "ss_t_base_heating",
+        "absolute_range": "(20, 25)",
+        "description": "Base temperature assumption residential sector cooling",
+        "suggested_range": "(13, 17)",
+        "default_value": assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
+        "units": '°C'}]
 
     # Future base year temperature
     assumptions['rs_t_base_cooling']['rs_t_base_cooling_future_yr'] = 21.0
@@ -177,17 +177,11 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
         "absolute_range": "(20, 25)",
         "description": "Base temperature assumption service sector cooling",
         "suggested_range": "(13, 17)",
-        "default_value": '21',
+        "default_value": assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
         "units": '°C'}]
 
     # Future base year temperature
     assumptions['ss_t_base_cooling']['ss_t_base_cooling_future_yr'] = 21.0
-
-    # Sigmoid parameters for temperature
-    '''assumptions['base_temp_diff_params'] = {
-        'sig_midpoint': 0,
-        'sig_steeppness': 1,
-        'yr_until_changed': yr_until_changed_all_things}'''
 
     # Penetration of cooling devices
     # COLING_OENETRATION ()
@@ -390,7 +384,6 @@ def load_param_assump(paths, assumptions, enduses, lookups, fuels, sim_param):
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
-    #write_data.write_yaml_param(paths['yaml_parameters'], assumptions)
     write_data.write_yaml_param_complete(paths['yaml_parameters_complete'], assumptions)
 
     assumptions['testing'] = True
