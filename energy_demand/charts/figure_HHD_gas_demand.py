@@ -3,18 +3,18 @@
 Calculate HDD with weather data from a asingle weather station for the whole of the UK.abs
 Correlate HDD with national gas data.
 
-National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts
+National gas data source: National Grid (2015) Seasonal Normal Demand Forecasts¨
 
-Note: This could be improved by calculating the HDD for every region and multiplying
-by the population. This would take into consideration the different population
+http://www2.nationalgrid.com/UK/Industry-information/Gas-transmission-operational-data/Supplementary-Reports/
+
 """
 import logging
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
-from energy_demand.scripts import s_raw_weather_data
 from energy_demand.plotting import plotting_program
 from energy_demand.geography.weather_station_location import get_closest_station
+from energy_demand.basic import conversions
 
 def main(region_names, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
@@ -43,10 +43,9 @@ def main(region_names, weather_regions, data):
             # HDD
             reg_hdd_day = closest_weather_region.rs_hdd_by[day]
             reg_pop = data['scenario_data']['population'][base_yr][region_name] 
-            #logging.warning("POP  {}   {}  {}".format(reg_pop, reg_hdd_day, closest_weather_region))
+
             #Weighted HDD
             weighted_hdd = reg_hdd_day * reg_pop
-
             weighted_daily_HDD[reg_array][day] += weighted_hdd
 
     # Sum across regions
@@ -55,46 +54,12 @@ def main(region_names, weather_regions, data):
     # Convert to list
     weighted_daily_HDD = list(weighted_daily_HDD)
 
-    '''path_data_temp = os.path.abspath(
-        "C:\DATA_NISMODII\data_energy_demand\_raw_data\H-Met_office_weather_data\midas_wxhrly_201501-201512.csv")
-
-    path_data_stations = os.path.abspath(
-        "C:\DATA_NISMODII\data_energy_demand\_raw_data\H-Met_office_weather_data\excel_list_station_details.csv")
-
-    # Read temp data
-    temp_data_raw = s_raw_weather_data.read_weather_data_raw(path_data_temp, 9999)
-
-    # Clean raw temperature data
-    temp_data = s_raw_weather_data.clean_weather_data_raw(temp_data_raw, 9999)
-
-    # Weather stations
-    weather_stations = s_raw_weather_data.read_weather_stations_raw(path_data_stations, temp_data.keys())
-
-    # Temperature weather data weater station 
-    #593	ELMDON	WEST	MIDLANDS	COUNTY	01/01/1949	Current	52.4524	-1.74099	B26	3				--> slightly better correlation
-    station_ID_ELMDON = 593 #593
-    temperatures = temp_data[station_ID_ELMDON]
-
-    # Calculate average day temp
-    averag_day_temp = []
-    for day in temperatures:
-        averag_day_temp.append(np.mean(day))
-
-    # ----------------------------------
-    # Calculate HDD
-    # ----------------------------------
-    t_base_heating = 15.5 # Heating t_base temp
-
-    # HDD
-    hdd_reg = hdd_cdd.calc_hdd(t_base_heating, temperatures)
-
-    # Test if correlation with mean temp is better than with HDd
-    #hdd_reg = averag_day_temp
-    '''
     # -- Non daily metered gas demand in mcm == Residential heating gas 
     # demand for year 2015 (Jan - Dez --> Across two excel in orig file)
     # gas demand for 365 days
-    gas_demand_NDM_2015_2016 = [
+
+    # Unit: GWh per day
+    gas_demand_NDM_2015_2016_gwh = [
         2059.3346672,
         2170.0185108,
         2098.5700609,
@@ -462,6 +427,382 @@ def main(region_names, weather_regions, data):
         1997.4328038
         ]
 
+    # Total SND (includes IUK exports and storage injection)
+    gas_demand_TOTALSND_2015_2016 = [
+        3017,
+        3218,
+        3093,
+        3105,
+        3281,
+        3281,
+        3280,
+        3279,
+        3246,
+        3089,
+        3101,
+        3277,
+        3278,
+        3278,
+        3276,
+        3242,
+        3085,
+        3095,
+        3270,
+        3269,
+        3267,
+        3267,
+        3235,
+        3081,
+        3093,
+        3270,
+        3267,
+        3264,
+        3261,
+        3226,
+        3063,
+        3066,
+        3234,
+        3226,
+        3221,
+        3216,
+        3179,
+        3020,
+        3035,
+        3217,
+        3222,
+        3227,
+        3233,
+        3207,
+        3056,
+        3073,
+        3246,
+        3241,
+        3237,
+        3233,
+        3188,
+        3023,
+        3022,
+        3185,
+        3170,
+        3155,
+        3139,
+        3088,
+        2919,
+        2904,
+        3058,
+        3037,
+        3016,
+        2994,
+        2941,
+        2773,
+        2764,
+        2915,
+        2897,
+        2885,
+        2872,
+        2828,
+        2673,
+        2669,
+        2826,
+        2816,
+        2805,
+        2792,
+        2746,
+        2594,
+        2586,
+        2736,
+        2720,
+        2705,
+        2690,
+        2645,
+        2496,
+        2486,
+        2635,
+        2626,
+        2597,
+        2588,
+        2537,
+        2311,
+        2300,
+        2527,
+        2541,
+        2526,
+        2510,
+        2476,
+        2340,
+        2321,
+        2458,
+        2436,
+        2413,
+        2391,
+        2339,
+        2193,
+        2175,
+        2315,
+        2302,
+        2287,
+        2274,
+        2230,
+        2098,
+        2084,
+        2223,
+        2211,
+        2200,
+        2190,
+        2142,
+        1975,
+        1961,
+        2009,
+        2064,
+        2050,
+        2036,
+        2006,
+        1885,
+        1871,
+        2035,
+        2022,
+        2012,
+        2002,
+        1967,
+        1848,
+        1834,
+        1969,
+        1961,
+        1952,
+        1945,
+        1908,
+        1795,
+        1778,
+        1848,
+        1888,
+        1881,
+        1874,
+        1850,
+        1746,
+        1738,
+        1872,
+        1867,
+        1862,
+        1857,
+        1825,
+        1721,
+        1711,
+        1845,
+        1842,
+        1839,
+        1836,
+        1803,
+        1700,
+        1689,
+        1821,
+        1817,
+        1814,
+        1811,
+        1778,
+        1677,
+        1667,
+        1801,
+        1799,
+        1797,
+        1796,
+        1766,
+        1667,
+        1657,
+        1788,
+        1786,
+        1708,
+        1705,
+        1674,
+        1584,
+        1573,
+        1693,
+        1691,
+        1690,
+        1688,
+        1659,
+        1571,
+        1562,
+        1682,
+        1681,
+        1679,
+        1678,
+        1650,
+        1563,
+        1553,
+        1673,
+        1672,
+        1670,
+        1669,
+        1637,
+        1550,
+        1540,
+        1660,
+        1659,
+        1657,
+        1656,
+        1628,
+        1542,
+        1533,
+        1653,
+        1653,
+        1652,
+        1654,
+        1626,
+        1541,
+        1531,
+        1649,
+        1648,
+        1647,
+        1646,
+        1619,
+        1534,
+        1526,
+        1646,
+        1646,
+        1648,
+        1650,
+        1625,
+        1540,
+        1534,
+        1657,
+        1659,
+        1661,
+        1663,
+        1638,
+        1551,
+        1545,
+        1669,
+        1670,
+        1672,
+        1675,
+        1651,
+        1564,
+        1560,
+        1691,
+        1697,
+        1703,
+        1709,
+        1688,
+        1602,
+        1601,
+        1735,
+        1742,
+        1748,
+        1754,
+        1733,
+        1643,
+        1643,
+        1779,
+        1784,
+        1792,
+        1803,
+        1783,
+        1692,
+        1698,
+        1843,
+        1855,
+        1867,
+        2041,
+        2009,
+        1868,
+        1873,
+        2089,
+        2103,
+        2119,
+        2132,
+        2102,
+        1958,
+        1968,
+        2188,
+        2206,
+        2224,
+        2242,
+        2212,
+        2063,
+        2074,
+        2296,
+        2303,
+        2312,
+        2324,
+        2288,
+        2130,
+        2143,
+        2369,
+        2385,
+        2404,
+        2422,
+        2395,
+        2243,
+        2261,
+        2491,
+        2508,
+        2524,
+        2541,
+        2514,
+        2357,
+        2376,
+        2612,
+        2623,
+        2633,
+        2649,
+        2619,
+        2457,
+        2481,
+        2725,
+        2743,
+        2758,
+        2771,
+        2731,
+        2552,
+        2563,
+        2796,
+        2801,
+        2812,
+        2824,
+        2791,
+        2618,
+        2642,
+        2893,
+        2911,
+        2923,
+        2935,
+        2899,
+        2716,
+        2730,
+        2979,
+        2993,
+        3002,
+        3008,
+        2969,
+        2777,
+        2788,
+        3035,
+        3042,
+        3047,
+        3059,
+        3024,
+        2835,
+        2847,
+        3033,
+        3041,
+        3050,
+        2907,
+        2758,
+        2710,
+        2715,
+        2816,
+        2929,
+        2930,
+        2932,
+    ]
+    #gas_demand_NDM_2015_2016_gwh = gas_demand_TOTALSND_2015_2016
+
+    # -------------------------
+    # Convert GWh per day to GW
+    # -------------------------
+    # Conversions
+    gas_demand_NDM_2015_2016_gw = list(conversions.gewhperday_to_gw(np.array(gas_demand_NDM_2015_2016_gwh)))
+
     # ----------------
     # Linear regression
     # ----------------
@@ -469,9 +810,8 @@ def main(region_names, weather_regions, data):
         y = slope * x + intercept
         return y
 
-    #slope, intercept, r_value, p_value, std_err = stats.linregress(gas_demand_NDM_2015_2016, hdd_reg)
     slope, intercept, r_value, p_value, std_err = stats.linregress(
-        gas_demand_NDM_2015_2016,
+        gas_demand_NDM_2015_2016_gw,
         weighted_daily_HDD)
 
     logging.warning("Slope:         %s", str(slope))
@@ -486,40 +826,37 @@ def main(region_names, weather_regions, data):
     # Set figure size in cm
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    # plot points
-    #plt.plot(gas_demand_NDM_2015_2016, hdd_reg, 'ro', markersize=5, color='gray')
-
     plt.plot(
-        gas_demand_NDM_2015_2016,
+        gas_demand_NDM_2015_2016_gw,
         weighted_daily_HDD,
         'ro',
         markersize=3.5,
         color='gray')
 
-    # plot line
-    #plt.plot(gas_demand_NDM_2015_2016, hdd_reg, 'ro')
-
     # ---------------------
     # Plot regression line
     # ---------------------
-    x_plot = np.linspace(300, 2250, 500)
+    x_plot = np.linspace(10, 90, 500)
     y_plot = []
     for x in x_plot:
         y_plot.append(lin_func(x, slope, intercept))
 
-    plt.plot(x_plot, y_plot, color='k')
+    plt.xlim(0, 100)
+    plt.plot(
+        x_plot,
+        y_plot,
+        color='k')
 
     # ---------------------
     # Labelling
     # ---------------------
     font_additional_info = {'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    plt.xlabel("National daily gas demand [GWh per day]")
-    plt.ylabel("Heating degree days [mio]")
-    plt.title("LAD HDD * LADPOP vs Gas_y_uk (r_value: {}".format(round(r_value, 3)), fontdict=font_additional_info)
+    plt.xlabel("UK non daily metered gas demand [GW]")
+    plt.ylabel("HDD * POP [mio]")
+    plt.title("LAD_HDD * LAD_POP vs Gas_y_uk (r_value: {})".format(round(r_value, 3)), fontdict=font_additional_info)
     #plt.text(10, 10, "y = {} x + {}".format(round(slope, 2), round(intercept, 2)), fontdict=font_additional_info)
 
     # Tight layout
     #plt.tight_layout()
     plt.margins(x=0)
-
     plt.show()

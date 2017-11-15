@@ -3,7 +3,7 @@ Energy Demand Model
 ===================
 - run in constrained mode
 - run with same weather shape and same fuel input --> flat line expected
-- test if load factor is > 100
+- Test why lf in summer is higher than in winter
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller

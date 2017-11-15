@@ -18,7 +18,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
-NR_OF_MODELLEd_REGIONS = 30 #380
+NR_OF_MODELLEd_REGIONS = 10 #380
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -97,7 +97,7 @@ class EDWrapper(SectorModel):
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
-
+        
         # ---------------------
         # Energy demand specific input
         # which need to generated or read in
@@ -283,8 +283,6 @@ class EDWrapper(SectorModel):
         # ---------
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #TODO: REMOVE
 
-
-
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -357,6 +355,14 @@ class EDWrapper(SectorModel):
             profiler = Profiler(use_signal=False)
             profiler.start()
 
+        logging.warning("--------------------")
+        logging.warning(data['assumptions']['rs_fuel_switches'])
+        logging.warning(data['assumptions']['rs_service_switches'])
+        logging.warning(data['assumptions']['ss_fuel_switches'])
+        logging.warning(data['assumptions']['ss_service_switches'])
+        logging.warning(data['assumptions']['is_fuel_switches'])
+        logging.warning(data['assumptions']['is_service_switches'])
+        prnt(".")
         # Main model run function
         model_run_object = energy_demand_model(data)
 

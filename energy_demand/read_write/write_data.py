@@ -4,7 +4,7 @@ import os
 import logging
 import numpy as np
 import configparser
-from energy_demand.basic import basic_functions
+from energy_demand.basic import basic_functions, conversions
 from energy_demand.geography import write_shp
 import yaml
 from yaml import Loader, Dumper
@@ -13,8 +13,9 @@ import collections
 def write_pop(sim_yr, path_result, pop_y):
     """Write scenario population for a year
     """
-    # Write to txt
-    path_file = os.path.join(path_result, "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
+    path_file = os.path.join(
+        path_result,
+        "model_run_pop", "pop__{}__{}".format(sim_yr, ".txt"))
 
     np.savetxt(path_file, pop_y, delimiter=',')
 
@@ -70,9 +71,12 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
             # Calculate yearly sum
             yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
 
+            # Conversion: Convert gwh per years to gw
+            yearly_sum_gw = conversions.gwhperyear_to_gw(yearly_sum)
+
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(
-                basic_functions.array_to_dict(yearly_sum, lu_reg))
+                basic_functions.array_to_dict(yearly_sum_gw, lu_reg))
 
         # Add population
         field_names.append('pop_{}'.format(year))

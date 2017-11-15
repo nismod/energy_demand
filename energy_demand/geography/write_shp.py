@@ -56,6 +56,8 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     # --------------------------
     # Join fields programatically
     # --------------------------
+    missing_recors = set()
+
     # Loop through each record, add a column and get results
     for rec in record.records():
 
@@ -71,14 +73,19 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
             except KeyError:
                 # No results
                 result_csv = 0
-                logging.warning(
-                    "No result value for region '%s' in joining shapefile", geo_code)
+                missing_recors.add(geo_code)
 
             # Add specific fuel result
             rec.append(result_csv)
 
         # Add the modified record to the new shapefile
         writer.records.append(rec)
+
+    if missing_recors != []:
+        logging.warning(
+            "No result value for regions '%s' in joining shapefile", missing_recors)
+    else:
+        pass
 
     # Copy over the geometry without any changes
     writer._shapes.extend(record.shapes())

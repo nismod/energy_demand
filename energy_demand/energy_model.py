@@ -173,7 +173,8 @@ class EnergyModel(object):
             # Calculate load factors across all enduses
             load_factor_y = lf.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
             load_factor_yd = lf.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
-            load_factor_seasons = lf.calc_lf_season(data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
+            load_factor_seasons = lf.calc_lf_season(
+                data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
 
             # Copy regional load factors
             for fueltype_nr in range(data['lookups']['fueltypes_nr']):

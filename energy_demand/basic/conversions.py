@@ -3,7 +3,13 @@
 from collections import defaultdict
 import numpy as np
 
+def gewhperday_to_gw(gw_per_day):
+    gw = gw_per_day / 24
+    return gw
+
 def gwhperyear_to_gw(gwh_per_year):
+    """Convert annual gwh to gw
+    """
     gw = gwh_per_year / 8760
     return gw
 

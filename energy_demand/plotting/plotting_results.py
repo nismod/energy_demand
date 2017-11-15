@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 from energy_demand.plotting import plotting_program
-from energy_demand.basic import basic_functions
+from energy_demand.basic import basic_functions, conversions
 from matplotlib.patches import Rectangle
 
 # INFO
@@ -26,11 +26,12 @@ def run_all_plot_functions(
     ):
     """Summary function to plot all results
 
-
     """
     logging.info("... plotting results")
 
-    # All enduses
+    # ------------------------------
+    # Plot annual demand for enduses
+    # ------------------------------
     plt_stacked_enduse_sectors(
         lookups,
         sim_param['simulated_yrs'],
@@ -83,7 +84,7 @@ def run_all_plot_functions(
         lookups,
         os.path.join(
             local_paths['data_results_PDF'],
-            'fig_tot_all_enduse01.pdf'))
+            'y_fueltypes_all_enduses.pdf'))
 
     # --------------
     # Fuel week of base year
@@ -183,8 +184,8 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     # Settings
     color_list = {
         'winter': 'midnightblue',
-        'summer': 'darkgreen',
-        'spring': 'springgreen',
+        'summer': 'olive',
+        'spring': 'darkgreen',
         'autumn': 'gold'}
 
     classes = list(color_list.keys())
@@ -235,6 +236,14 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
             linewidth=1,
             linestyle='--',
             alpha=1.0)
+        
+        # Plot markers for average line
+        plt.plot(
+            years,
+            average_season_year_years,
+            color=color_list[season],
+            markersize=0.5,
+            marker='o')
 
     # -----------------
     # Axis
@@ -272,6 +281,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
         recs,
         classes,
         ncol=2,
+        prop={'family': 'arial','size': 8},
         loc='best',
         frameon=False)
 
@@ -306,7 +316,11 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
             x_values_year.append(year)
             y_values_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
 
-        plt.plot(x_values_year, y_values_year, color='grey')
+        plt.plot(
+            x_values_year,
+            y_values_year,
+            linewidth=0.2,
+            color='grey')
 
     # -----------------
     # Axis
@@ -339,7 +353,7 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
     plt.savefig(path_plot_fig)
     plt.close()
 
-def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_name):
+def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data, fig_name):
     """Plots stacked energy demand
 
     Arguments
@@ -356,8 +370,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
 
     # INFO Cannot plot a single year?
     """
-    years_simulated = sim_period
-
     x_data = years_simulated
     y_data = np.zeros((len(enduses_data), len(years_simulated)))
 
@@ -365,7 +377,11 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     for fueltype_int, enduse in enumerate(enduses_data):
         legend_entries.append(enduse)
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
-            y_data[fueltype_int][model_year] = np.sum(data_model_run[enduse])
+
+            # Conversion: Convert GWh per years to GW
+            yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse]))
+
+            y_data[fueltype_int][model_year] = yearly_sum_gw
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -407,7 +423,6 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # Get color of stacks in stackplot
     color_stackplots = [mpl.patches.Rectangle((0, 0), 0, 0, facecolor=pol.get_facecolor()[0]) for pol in stack_plot]
 
-    #BELUGA
     '''plt.legend(
         color_stackplots,
         legend_entries,
@@ -421,6 +436,7 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
         legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
+        prop={'family': 'arial','size': 8},
         frameon=False,
         shadow=True,
         ncol=4)
@@ -433,9 +449,9 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     # -------
     # Labels
     # -------
-    plt.ylabel("energy demand [GWh per year]")
-    plt.xlabel("years")
-    plt.title("energy demand for years for whole UK")
+    plt.ylabel("GW")
+    plt.xlabel("year")
+    plt.title("ED whole UK")
 
     # Tight layout
     plt.tight_layout()
@@ -445,8 +461,17 @@ def plt_stacked_enduse(sim_period, results_enduse_every_year, enduses_data, fig_
     plt.savefig(fig_name)
     plt.close()
 
-def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, rs_enduses, ss_enduses, is_enduses, fig_name):
-    """Plots summarised endues for the three sectors
+def plt_stacked_enduse_sectors(
+        lookups,
+        years_simulated,
+        results_enduse_every_year,
+        rs_enduses,
+        ss_enduses,
+        is_enduses,
+        fig_name
+    ):
+    """Plots summarised endues for the three sectors. Annual 
+    GWh are converted into GW.
 
     Arguments
     ----------
@@ -462,7 +487,6 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
 
     # INFO Cannot plot a single year?
     """
-    years_simulated = sim_period
     x_data = years_simulated
     nr_submodels = 3
     y_data = np.zeros((nr_submodels, len(years_simulated)))
@@ -477,18 +501,26 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
         submodel = 0
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in rs_enduses:
-                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
+
+                # Conversion: Convert gwh per years to gw
+                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                y_data[submodel][model_year] += yearly_sum_gw
 
         submodel = 1
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in ss_enduses:
-                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
+
+                # Conversion: Convert gwh per years to gw
+                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                y_data[submodel][model_year] += yearly_sum_gw
 
         submodel = 2
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in is_enduses:
-                y_data[submodel][model_year] += np.sum(data_model_run[enduse][fueltype_int])
 
+                # Conversion: Convert gwh per years to gw
+                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                y_data[submodel][model_year] += yearly_sum_gw
 
 
     ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
@@ -534,6 +566,7 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
         recs,
         leg_labels,
         ncol=1,
+        prop={'family': 'arial','size': 8},
         loc='best',
         frameon=False)
 
@@ -545,8 +578,8 @@ def plt_stacked_enduse_sectors(lookups, sim_period, results_enduse_every_year, r
     # -------
     # Labels
     # -------
-    plt.ylabel("energy demand [GWh per year]")
-    plt.xlabel("years")
+    plt.ylabel("GW")
+    plt.xlabel("year")
     plt.title("UK ED per sector")
 
     # Tight layout
@@ -601,8 +634,17 @@ def plot_load_curves_fueltype(results_objects, data, fig_name):
     plt.savefig(fig_name)
     plt.close()
 
-def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yeardays_nrs, year_to_plot, fig_name):
-    """Plots stacked end_use for all regions
+def plt_fuels_enduses_week(
+        results_resid,
+        lookups,
+        nr_of_h_to_plot,
+        model_yeardays_nrs,
+        year_to_plot,
+        fig_name
+    ):
+    """Plots stacked end_use for all regions. As
+    input GWh per h are provided, which cancels out to
+    GW.
 
     Input
     -----
@@ -642,13 +684,14 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
     for day in range(model_yeardays_nrs):
         x_tick_pos.append(day * 24)
     plt.xticks(x_tick_pos, days_to_plot, color='black')
+    
     plt.axis('tight')
 
     plt.legend(ncol=2, frameon=False)
 
-    plt.ylabel("energy demand [GWh per hour]")
-    plt.xlabel("days")
-    plt.title("Total yearly fuels of all enduses per fueltype for simulation year {}".format(year_to_plot + 2050))
+    plt.ylabel("GW")
+    plt.xlabel("day")
+    plt.title("tot annual ED, all enduses, fueltype {}".format(year_to_plot + 2050))
 
     # Saving figure
     plt.savefig(fig_name)
@@ -656,7 +699,8 @@ def plt_fuels_enduses_week(results_resid, lookups, nr_of_h_to_plot, model_yearda
 
 def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     """Plot lines with total energy demand for all enduses
-    per fueltype over the simluation period
+    per fueltype over the simluation period. Annual GWh
+    are converted into GW.
 
     Arguments
     ---------
@@ -682,12 +726,12 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
         # Read out fueltype specific max h load
         data_years = {}
         for year, data_year in results_resid.items():
-            tot_fuel_fueltype_y = np.sum(data_year[fueltype_int])
+            tot_gwh_fueltype_y = np.sum(data_year[fueltype_int])
 
-            # -------
-            # Conversion i necessary?? TODO
-            # -------
-            data_years[year] = tot_fuel_fueltype_y
+            #Conversion: Convert gwh per years to gw
+            yearly_sum_gw = conversions.gwhperyear_to_gw(tot_gwh_fueltype_y)
+
+            data_years[year] = yearly_sum_gw
 
         y_values_fueltype[fueltype_str] = data_years
 
@@ -720,21 +764,30 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
             color=color_line,
             label=fueltype_str)
 
+    # ----
+    # Axis
+    # ----
+    plt.xlim(xmin=0) #no upper limit to xmax
+
     # ------------
     # Plot legend
     # ------------
-    plt.legend(ncol=2, loc=2, frameon=False)
+    plt.legend(
+        ncol=2,
+        loc=2,
+        prop={'family': 'arial','size': 8},
+        frameon=False)
 
     # ---------
     # Labels
     # ---------
-    plt.ylabel("energy demand [GWh per year]")
-    plt.xlabel("years")
-    plt.title("total yearly fuels of all enduses per fueltype")
+    plt.ylabel("GW")
+    plt.xlabel("year")
+    plt.title("tot annual ED per fueltype")
 
     # Tight layout
     plt.tight_layout()
-    plt.margins(x=0)#ax.margins(x=0)
+    plt.margins(x=0)
 
     # Save fig
     plt.savefig(fig_name)
@@ -785,7 +838,10 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
         plt.plot(years, y_init[fueltype])
 
     # Legend
-    ax.legend(legend_entries)
+    ax.legend(
+        legend_entries,
+        prop={'family': 'arial','size': 8},
+        frameon=False)
 
     # -
     # Axis
@@ -800,15 +856,15 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
 
     # Minor ticks
     minor_ticks = np.arange(base_yr, years[-1] + minor_interval, minor_interval)
-    ax.set_xticks(minor_ticks, minor = True)
+    ax.set_xticks(minor_ticks, minor=True)
 
     plt.xlim(2015, years[-1])
 
     # --------
     # Labeling
     # --------
-    plt.ylabel("energy demand [GWh per hour]")
-    plt.xlabel("years")
+    plt.ylabel("GW")
+    plt.xlabel("year")
     plt.title("ED peak hour, y, all enduses and regions")
 
     # Tight layout
@@ -828,7 +884,8 @@ def plot_load_profile_dh_multiple(
         plot_peak=False,
         plot_all_entries=False
     ):
-    """Plotting average saisonal loads for each daytype
+    """Plotting average saisonal loads for each daytype. As an input
+    GWh is provided, which for each h is cancelled out to GW.
 
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
     """
@@ -847,8 +904,15 @@ def plot_load_profile_dh_multiple(
             # Plot average
             # ------------------
             x_values = range(24)
-            plt.plot(x_values, list(calc_av_lp_real[season][daytype]), color='green', label='real_by')
-            plt.plot(x_values, list(calc_av_lp_modelled[season][daytype]), color='red', label='modelled_future')
+            plt.plot(
+                x_values,
+                list(calc_av_lp_real[season][daytype]),
+                color='green', label='real_by')
+
+            plt.plot(
+                x_values,
+                list(calc_av_lp_modelled[season][daytype]),
+                color='red', label='modelled_future')
 
             # ------------------
             # Plot every single line
@@ -866,7 +930,12 @@ def plot_load_profile_dh_multiple(
                 # Get row with maximum hourly value
                 day_with_max_h = np.argmax(np.max(calc_lp_real[season][daytype], axis=1))
 
-                plt.plot(x_values, list(calc_lp_real[season][daytype][day_with_max_h]), color='orange', markersize=1.0, label='peak')
+                plt.plot(
+                    x_values,
+                    list(calc_lp_real[season][daytype][day_with_max_h]),
+                    color='orange',
+                    markersize=1.0,
+                    label='peak')
 
             # -----------------
             # Axis
@@ -891,12 +960,16 @@ def plot_load_profile_dh_multiple(
             plt.text(1, 0.55, "RMSE: {}".format(round(rmse, 2)), fontdict=font_additional_info)
             plt.title(title_info, loc='left', fontdict=font_additional_info)
             #plt.ylabel("hours")
-            #plt.ylabel("average electricity [GW] ")
+            #plt.ylabel("average electricity [GW]")
 
     # ------------
     # Plot legend
     # ------------
-    plt.legend(ncol=1, loc=2, fontsize=8, frameon=False)
+    plt.legend(
+        ncol=1,
+        loc=2,
+        prop={'family': 'arial','size': 8}, #fontsize=8,
+        frameon=False)
 
     # Tight layout
     plt.tight_layout()
