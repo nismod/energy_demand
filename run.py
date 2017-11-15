@@ -93,6 +93,7 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
+        data['reg_nrs'] = len(data['lu_reg'])
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
@@ -144,8 +145,6 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
-
-        
 
         # ------------------------
         # Load all SMIF parameters and replace data dict

@@ -87,13 +87,11 @@ if __name__ == "__main__":
     from energy_demand.read_write import write_data, read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
-    # SCRAP
 
     path_main = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     # Initialise logger
     logger_setup.set_up_logger(os.path.join(local_data_path, "logging_local_run.log"))
-    logging.info("... start local energy demand calculations")
 
     # Run settings
     instrument_profiler = True
@@ -107,7 +105,6 @@ if __name__ == "__main__":
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
     data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
-
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
@@ -131,11 +128,46 @@ if __name__ == "__main__":
 
 
     # ------------------------------
-
-    # ==========
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
-    #data = data_loader.dummy_data_generation(data)
-    data = data_loader.dummy_data_RUNLOCALLY(data)
+
+    # GVA
+    gva_data = {}
+    for year in range(2015, 2101):
+        gva_data[year] = {}
+        for region_geocode in data['lu_reg']:
+            gva_data[year][region_geocode] = 999
+    data['gva'] = gva_data
+
+    # Population
+    pop_dummy = {}
+    for year in range(2015, 2101):
+        _data = {}
+        for reg_geocode in data['lu_reg']:
+            _data[reg_geocode] = data['lu_reg'][reg_geocode]['POP_JOIN']
+        pop_dummy[year] = _data
+    data['population'] = pop_dummy
+
+    # Residenital floor area
+    rs_floorarea = {}
+    for year in range(2015, 2101):
+        rs_floorarea[year] = {}
+        for region_geocode in data['lu_reg']:
+            rs_floorarea[year][region_geocode] = 10000
+    data['rs_floorarea'] = rs_floorarea
+
+    # Dummy flor area
+    ss_floorarea_sector_by_dummy = {}
+    for region_geocode in data['lu_reg']:
+        ss_floorarea_sector_by_dummy[region_geocode] = {}
+        for sector in data['all_sectors']:
+            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
+
+    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    data['reg_nrs'] = len(data['lu_reg'])
+    data['reg_floorarea_resid'] = {}
+    for region_name in data['lu_reg']:
+        data['reg_floorarea_resid'][region_name] = 100000
+    data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
     #Scenario data
     data['scenario_data'] = {
@@ -143,8 +175,7 @@ if __name__ == "__main__":
         'population': data['population'],
         'floor_area': {
             'rs_floorarea': data['rs_floorarea'],
-            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}
-    }
+            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -175,7 +206,7 @@ if __name__ == "__main__":
         data['sim_param']['curr_yr'] = sim_yr
 
         logging.info("Simulation for year --------------:  " + str(sim_yr))
-        fuel_in, fuel_in_elec = testing.test_function_fuel_sum(data)
+        fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
 
         #-------------PROFILER
         if instrument_profiler:
@@ -231,53 +262,5 @@ if __name__ == "__main__":
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
         logging.info("... Finished writing results to file")
-        # ------------------------------------------------
-        # Validation base year: Hourly temporal validation
-        # ------------------------------------------------
-        if validation_criteria:
-            lad_validation.tempo_spatial_validation(
-                data['sim_param']['base_yr'],
-                data['assumptions']['model_yearhours_nrs'],
-                data,
-                model_run_object.ed_fueltype_national_yh,
-                ed_fueltype_regs_yh,
-                model_run_object.tot_peak_enduses_fueltype)
 
-
-    # ------------------
-    # Load necessary inputs for read in
-    # ------------------
-    #local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
-    data = {}
-    data['local_paths'] = data_loader.load_local_paths(local_data_path)
-    data['lookups'] = data_loader.load_basic_lookups()
-
-    # Simulation information is read in from .ini file for results
-    data['sim_param'], data['enduses'], data['assumptions'], data['reg_nrs'], data['lu_reg'] = data_loader.load_sim_param_ini(data['local_paths']['data_results'])
-
-    # Other information is read in
-    data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
-    data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-
-    # --------------------------------------------
-    # Reading in results from different model runs
-    # --------------------------------------------
-    '''results_container = read_data.read_in_results(
-        data['local_paths']['data_results_model_runs'],
-        data['lookups'],
-        data['assumptions']['seasons'],
-        data['assumptions']['model_yeardays_daytype'])
-
-    # ------------------------------
-    # Plotting results
-    # ------------------------------
-    plotting_results.run_all_plot_functions(
-        results_container,
-        data['reg_nrs'],
-        data['lookups'],
-        data['local_paths'],
-        data['assumptions'],
-        data['sim_param'],
-        data['enduses'])
-    '''
     logging.info("... Finished running Energy Demand Model")
