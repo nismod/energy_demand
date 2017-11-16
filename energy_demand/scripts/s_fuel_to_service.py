@@ -149,7 +149,6 @@ def sum_2_level_dict(two_level_dict):
 
     return tot_sum
 
-
 def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltypes):
     """Aggregated fuel for all sectors according to enduse
     """
@@ -306,7 +305,7 @@ def run(assumptions, lookups, fuels, enduses, local_paths):
         fuels_aggregated_across_sectors,
         assumptions['technologies'])
 
-    # INDUSTRY
+    # INDUSTRY #TODO REPLACE is_disaggregate_sectors
     fuels_aggregated_across_sectors = ss_sum_fuel_enduse_sectors(
         fuels['is_fuel_raw_data_enduses'],
         enduses['is_all_enduses'],

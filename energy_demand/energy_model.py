@@ -58,7 +58,7 @@ class EnergyModel(object):
         # --------------
         # Dwelling stock
         # --------------
-        if data['virtual_building_stock_criteria']:
+        if data['criterias']['virtual_building_stock_criteria']:
             logging.info("... Generate virtual dwelling stock for base year")
 
             data['rs_dw_stock'] = defaultdict(dict)
@@ -175,7 +175,10 @@ class EnergyModel(object):
             average_fuel_yd = np.mean(fuel_region_yh, axis=2)
 
             # Calculate load factors across all enduses
-            load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf 
+            load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf
+            #logging.warning("---fg-----------------------------")
+            #logging.warning(np.sum(fuel_region_yh))
+            #logging.warning(load_factor_y)
             load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
             load_factor_seasons = load_factors.calc_lf_season(
                 data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
@@ -209,8 +212,7 @@ class EnergyModel(object):
         # ------------------------------
         # Chart HDD * Pop vs actual gas demand
         # ------------------------------
-        plot_HDD_chart = False
-        if plot_HDD_chart == True:
+        if data['criterias']['plot_HDD_chart'] == True:
             logging.info("plot figure HDD comparison")
             figure_HHD_gas_demand.main(region_names, weather_regions, data)
 
@@ -231,7 +233,7 @@ def simulate_region(region_name, data, weather_regions):
     region_submodels : list
         All submodel objects
     """
-    logging.debug("Running model for region %s", region_name)
+    logging.debug("Running model for region %s  %s  %s", region_name, data['reg_coord'][region_name]['longitude'], data['reg_coord'][region_name]['latitude'])
 
     # Get closest weather station to `Region`
     closest_weather_region_name = get_closest_station(
@@ -240,6 +242,7 @@ def simulate_region(region_name, data, weather_regions):
         data['weather_stations'])
 
     closest_weather_region = weather_regions[closest_weather_region_name]
+    logging.debug("===============================Closest weather station: %s", closest_weather_region_name)
 
     region = Region(
         region_name=region_name,

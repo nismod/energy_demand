@@ -33,6 +33,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     # Fuels
     # -------------
     logging.info("... Reading in fuels")
+
     results_container['results_every_year'] = read_results_yh(
         lookups['fueltypes_nr'], path_runs)
 

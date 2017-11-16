@@ -18,8 +18,8 @@ from energy_demand.basic import date_prop, logger_setup
 from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
-REGION_SET_NAME = 'lad_2016' #TODO
-NR_OF_MODELLEd_REGIONS = 380 #380
+REGION_SET_NAME = 'lad_2016'
+NR_OF_MODELLEd_REGIONS = 20 #380
 PROFILER = False
 VALIDATION_CRITERIA = True
 
@@ -84,8 +84,8 @@ class EDWrapper(SectorModel):
         # ---------------------
         # Simulation parameters and criteria
         # ---------------------
-        data['print_criteria'] = False
-        data['virtual_building_stock_criteria'] = True
+        data['criterias']['plot_HDD_chart'] = False
+        data['criterias']['virtual_building_stock_criteria'] = True
 
         data['sim_param']['base_yr'] = 2015 #REPLACE
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -95,7 +95,7 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
+        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
         
 
@@ -249,9 +249,8 @@ class EDWrapper(SectorModel):
         # --------------------
         # Simulation parameters and criteria
         # --------------------
-        data['virtual_building_stock_criteria'] = True
-        data['print_criteria'] = False
-
+        data['criterias']['virtual_building_stock_criteria'] = True
+        data['criterias']['plot_HDD_chart'] = False
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif

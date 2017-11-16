@@ -521,7 +521,7 @@ def rs_dw_stock(region, data, curr_yr):
     """
     base_yr = data['sim_param']['base_yr']
 
-    if data['virtual_building_stock_criteria']:
+    if data['criterias']['virtual_building_stock_criteria']:
 
         # Get changes in absolute floor area per dwelling type over time
         dwtype_floor_area = get_dwtype_floor_area(

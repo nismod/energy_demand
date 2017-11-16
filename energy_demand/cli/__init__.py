@@ -46,7 +46,6 @@ def run_model(args):
 
     # Load data
     data = {}
-    data['print_criteria'] = True #Print criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()

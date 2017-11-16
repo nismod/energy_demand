@@ -95,14 +95,15 @@ if __name__ == "__main__":
 
     # Run settings
     instrument_profiler = True
-    print_criteria = True
     validation_criteria = False
     virtual_building_stock_criteria = True
 
     # Load data
     data = {}
-    data['print_criteria'] = print_criteria
-    data['virtual_building_stock_criteria'] = virtual_building_stock_criteria
+    data['criterias'] = {}
+    data['criterias']['plot_HDD_chart'] = False
+    data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
+
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -167,8 +168,7 @@ if __name__ == "__main__":
         'gva': data['gva'],
         'population': data['population'],
         'floor_area': {
-            'rs_floorarea_newcastle': data['rs_floorarea_newcastle'],
-            'ss_floorarea_sector_2015_virtual_bs': data['ss_floorarea_sector_2015_virtual_bs']}}
+            'rs_floorarea_newcastle': data['rs_floorarea_newcastle']}}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")
@@ -178,6 +178,9 @@ if __name__ == "__main__":
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
+    data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
+        data['local_paths']['path_folder_employment_statistics'])
+    prnt(".")
     #--------------------
     # Folder cleaning
     #--------------------
