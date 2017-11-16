@@ -45,10 +45,10 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     for field_name in field_names:
         writer.field(field_name, "F", decimal=10) #Float
 
-    # Get position of field 'geo_code'
+    # Get position of field 'name' #corresponds to LAD Geocode
     position = 0
     for field_name in record.fields[1:]:
-        if field_name[0] == 'geo_code':
+        if field_name[0] == 'name':
             position_field_name = position
         else:
             position += 1
