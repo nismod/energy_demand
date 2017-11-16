@@ -460,7 +460,7 @@ def ss_dw_stock(region, data, curr_yr):
             change_floorarea_p_ey,
             yr_until_changed)
 
-        floorarea_sector_by = data['ss_sector_floor_area_by'][region][sector]
+        floorarea_sector_by = data['ss_floorarea_sector_2015_virtual_bs'][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
         # create dwelling objects
@@ -513,61 +513,69 @@ def rs_dw_stock(region, data, curr_yr):
       based on floor area pp parameter. However, floor area
       could be read in by:
 
-      1.) Inserting `tot_floorarea_cy = data['rs_floorarea'][curr_yr]`
+      1.) Inserting `tot_floorarea_cy = data['rs_floorarea_2015_virtual_bs'][curr_yr]`
 
       2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
           with more specific information from real building stock model
     """
     base_yr = data['sim_param']['base_yr']
 
-    # Get changes in absolute floor area per dwelling type over time
-    dwtype_floor_area = get_dwtype_floor_area(
-        data['assumptions']['assump_dwtype_floorarea_by'],
-        data['assumptions']['assump_dwtype_floorarea_future'],
-        base_yr,
-        data['sim_param']['simulated_yrs'])
+    if data['virtual_building_stock_criteria']:
 
-    # Get distribution of dwelling types of all simulation years
-    dwtype_distr = get_dwtype_distr(
-        data['assumptions']['assump_dwtype_distr_by'],
-        data['assumptions']['assump_dwtype_distr_future'],
-        base_yr,
-        data['sim_param']['simulated_yrs'])
+        # Get changes in absolute floor area per dwelling type over time
+        dwtype_floor_area = get_dwtype_floor_area(
+            data['assumptions']['assump_dwtype_floorarea_by'],
+            data['assumptions']['assump_dwtype_floorarea_future'],
+            base_yr,
+            data['sim_param']['simulated_yrs'])
 
-    # Get floor area per person for every simulation year
-    data_floorarea_pp = get_floorare_pp(
-        data['lu_reg'],
-        data['reg_floorarea_resid'],
-        data['scenario_data']['population'][base_yr],
-        base_yr,
-        data['sim_param']['simulated_yrs'],
-        data['assumptions']['assump_diff_floorarea_pp'],
-        data['assumptions']['assump_diff_floorarea_pp_yr_until_changed'])
+        # Get distribution of dwelling types of all simulation years
+        dwtype_distr = get_dwtype_distr(
+            data['assumptions']['assump_dwtype_distr_by'],
+            data['assumptions']['assump_dwtype_distr_future'],
+            base_yr,
+            data['sim_param']['simulated_yrs'])
 
-    # Get fraction of total floorarea for every dwelling type
-    floorarea_p = get_floorarea_dwtype_p(
-        data['lookups']['dwtype'],
-        dwtype_floor_area,
-        dwtype_distr)
+        # Get floor area per person for every simulation year
+        data_floorarea_pp = get_floorare_pp(
+            data['lu_reg'],
+            data['rs_floorarea_2015_virtual_bs'],
+            data['scenario_data']['population'][base_yr],
+            base_yr,
+            data['sim_param']['simulated_yrs'],
+            data['assumptions']['assump_diff_floorarea_pp'],
+            data['assumptions']['assump_diff_floorarea_pp_yr_until_changed'])
 
-    floorarea_by = data['reg_floorarea_resid'][region]
-    population_by = data['scenario_data']['population'][base_yr][region]
+        # Get fraction of total floorarea for every dwelling type
+        floorarea_p = get_floorarea_dwtype_p(
+            data['lookups']['dwtype'],
+            dwtype_floor_area,
+            dwtype_distr)
 
-    if population_by != 0:
-        floorarea_pp_by = floorarea_by / population_by # [m2 / person]
+        floorarea_by = data['rs_floorarea_2015_virtual_bs'][region]
+        population_by = data['scenario_data']['population'][base_yr][region]
+
+        if population_by != 0:
+            floorarea_pp_by = floorarea_by / population_by # [m2 / person]
+        else:
+            floorarea_pp_by = 0
+
+        # Calculate new necessary floor area  per person of current year
+        floorarea_pp_cy = data_floorarea_pp[region][curr_yr]
+        population_cy = data['scenario_data']['population'][curr_yr][region]
+
+        # Calculate new floor area
+        tot_floorarea_cy = floorarea_pp_cy * population_cy
+    
     else:
-        floorarea_pp_by = 0
+        """
+        #If floor_area is read in from model, this would be here
+        
+        # NEWCASTLE
+        """
+        floorarea_by = data['rs_floorarea_newcastle'][curr_yr][region]
+        tot_floorarea_cy = data['rs_floorarea_newcastle'][curr_yr][region]
 
-    # Calculate new necessary floor area  per person of current year
-    floorarea_pp_cy = data_floorarea_pp[region][curr_yr]
-    population_cy = data['scenario_data']['population'][curr_yr][region]
-
-    # Calculate new floor area
-    tot_floorarea_cy = floorarea_pp_cy * population_cy
-    """
-    #If floor_area is read in from model, this would be here
-    tot_floorarea_cy = data['rs_floorarea'][curr_yr][region]
-    """
     new_floorarea_cy = tot_floorarea_cy - floorarea_by
 
     # Only calculate changing

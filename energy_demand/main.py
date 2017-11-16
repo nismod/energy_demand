@@ -97,10 +97,12 @@ if __name__ == "__main__":
     instrument_profiler = True
     print_criteria = True
     validation_criteria = False
+    virtual_building_stock_criteria = True
 
     # Load data
     data = {}
     data['print_criteria'] = print_criteria
+    data['virtual_building_stock_criteria'] = virtual_building_stock_criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -126,10 +128,12 @@ if __name__ == "__main__":
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+    data['reg_nrs'] = len(data['lu_reg'])
 
     # ------------------------------
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
-
+    data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+    
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
@@ -153,20 +157,9 @@ if __name__ == "__main__":
         rs_floorarea[year] = {}
         for region_geocode in data['lu_reg']:
             rs_floorarea[year][region_geocode] = 10000
-    data['rs_floorarea'] = rs_floorarea
+    data['rs_floorarea_newcastle'] = rs_floorarea
 
     # Dummy flor area
-    ss_floorarea_sector_by_dummy = {}
-    for region_geocode in data['lu_reg']:
-        ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in data['all_sectors']:
-            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
-
-    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
-    data['reg_nrs'] = len(data['lu_reg'])
-    data['reg_floorarea_resid'] = {}
-    for region_name in data['lu_reg']:
-        data['reg_floorarea_resid'][region_name] = 100000
     data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
 
     #Scenario data
@@ -174,8 +167,8 @@ if __name__ == "__main__":
         'gva': data['gva'],
         'population': data['population'],
         'floor_area': {
-            'rs_floorarea': data['rs_floorarea'],
-            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}}
+            'rs_floorarea_newcastle': data['rs_floorarea_newcastle'],
+            'ss_floorarea_sector_2015_virtual_bs': data['ss_floorarea_sector_2015_virtual_bs']}}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")

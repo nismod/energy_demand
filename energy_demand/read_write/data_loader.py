@@ -6,6 +6,7 @@ import logging
 import numpy as np
 import configparser
 import ast
+from collections import defaultdict
 from datetime import date
 from energy_demand.read_write import read_data
 from energy_demand.read_write import read_weather_data
@@ -146,31 +147,36 @@ def get_dummy_coord_region(lu_reg, local_paths):
         coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
     return coord_dummy
 
-def dummy_data_generation(data):
-    """REPLACE WITH NEWCASTLE DATA
+def virtual_building_datasets(lu_reg, all_sectors):
+    """Load necessary data for virtual building stock
+    in case the link to the building stock model in
+    Newcastle is not used
+
+    Arguments
+    ---------
+
     """
-    # Residenital floor area
-    rs_floorarea = {}
-    for year in range(2015, 2101):
-        rs_floorarea[year] = {}
-        for region_geocode in data['lu_reg']:
-            rs_floorarea[year][region_geocode] = 10000
-    data['rs_floorarea'] = rs_floorarea
+    # TODO: Read in floor area as m2 from somewhere
+    # TODO: Read in floor area as m2 per sector from somewhere
+    # --------------------------------------------------
+    # Floor area for residential buildings for base year
+    # --------------------------------------------------
+    rs_floorarea_2015_virtual_bs = {}
 
-    # Dummy flor area
-    ss_floorarea_sector_by_dummy = {}
-    for region_geocode in data['lu_reg']:
-        ss_floorarea_sector_by_dummy[region_geocode] = {}
-        for sector in data['all_sectors']:
-            ss_floorarea_sector_by_dummy[region_geocode][sector] = 10000
-    data['ss_sector_floor_area_by'] = ss_floorarea_sector_by_dummy
+    for reg_geocode in lu_reg:
+        rs_floorarea_2015_virtual_bs[reg_geocode] = 100000
 
-    data['reg_floorarea_resid'] = {}
+    # --------------------------------------------------
+    # Floor area for service sector buildings
+    # --------------------------------------------------
+    ss_floorarea_sector_by = defaultdict(dict)
+    for reg_geocode in lu_reg:
+        for sector in all_sectors:
+            ss_floorarea_sector_by[reg_geocode][sector] = 10000
 
-    for region_name in data['lu_reg']:
-        data['reg_floorarea_resid'][region_name] = 100000
+    ss_floorarea_sector_2015_virtual_bs = ss_floorarea_sector_by
 
-    return data
+    return rs_floorarea_2015_virtual_bs, ss_floorarea_sector_2015_virtual_bs
 
 def load_local_paths(path):
     """Create all local paths
@@ -240,6 +246,8 @@ def load_local_paths(path):
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
             path, '_result_data', 'PDF'),
+        'data_results_validation': os.path.join(
+            path, '_result_data', 'validation_PDF'),
         'data_results_shapefiles': os.path.join(
             path, '_result_data', 'result_shapefiles')}
 

@@ -6,6 +6,8 @@ from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from argparse import ArgumentParser
 import logging
+from collections import defaultdict
+
 import energy_demand
 from energy_demand.main import energy_demand_model
 from energy_demand.read_write import data_loader
@@ -71,14 +73,20 @@ def run_model(args):
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    data = data_loader.dummy_data_generation(data)
+    data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+
+    # Floor areas TODO LOAD FROM NEWCASTLE
+    rs_floorarea = defaultdict(dict)
+    for year in range(2015, 2101):
+        rs_floorarea[year] = {}
+        for region_geocode in data['lu_reg']:
+            rs_floorarea[year][region_geocode] = 10000
 
     data['scenario_data'] = {
         'gva': data['gva'],
         'population': data['population'],
         'floor_area': {
-            'rs_floorarea': data['rs_floorarea'],
-            'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
+            'rs_floorarea_newcastle': rs_floorarea
         }
     }
 

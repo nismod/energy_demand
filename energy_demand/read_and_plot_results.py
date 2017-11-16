@@ -6,6 +6,7 @@ from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup, basic_functions
+from energy_demand.validation import lad_validation
 
 def main(path_data_energy_demand):
     """Read in all results and plot PDFs
@@ -57,6 +58,19 @@ def main(path_data_energy_demand):
         data['lookups'],
         data['assumptions']['seasons'],
         data['assumptions']['model_yeardays_daytype'])
+
+    # ----------------
+    # Spatio temporal validation
+    # ----------------
+    validation_criteria = True
+    '''if validation_criteria and timestep == 2015:
+        lad_validation.tempo_spatial_validation(
+            data['sim_param']['base_yr'],
+            data['assumptions']['model_yearhours_nrs'],
+            data,
+            model_run_object.ed_fueltype_national_yh,
+            ed_fueltype_regs_yh,
+            model_run_object.tot_peak_enduses_fueltype)'''
 
     # ----------------
     # Write results to CSV files and merge with shapefile

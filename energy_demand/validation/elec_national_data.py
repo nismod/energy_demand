@@ -1,6 +1,5 @@
 """This scripts reads the national electricity data for the base year"""
 import os
-import sys
 import csv
 import logging
 import numpy as np
@@ -76,7 +75,7 @@ def read_raw_elec_2015_data(path_to_csv):
 
 def compare_results(
         name_fig,
-        local_paths,
+        path_result,
         y_real_array_INDO,
         y_real_array_ITSDO,
         y_factored_INDO,
@@ -144,13 +143,12 @@ def compare_results(
 
     plt.legend(frameon=False)
 
-    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
-    #plt.show()
+    plt.savefig(os.path.join(path_result, name_fig))
     plt.close()
 
 def compare_peak(
         name_fig,
-        local_paths,
+        path_result,
         validation_elec_data_2015_peak,
         tot_peak_enduses_fueltype
     ):
@@ -191,11 +189,11 @@ def compare_peak(
     plt.margins(x=0)
 
     # Save fig
-    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(path_result, name_fig))
     #plt.show()
     plt.close()
 
-def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calculated):
+def compare_results_hour_boxplots(name_fig, path_result, data_real, data_calculated):
     """Calculate differences for every hour and plot according to hour
     for the full year
     """
@@ -233,6 +231,6 @@ def compare_results_hour_boxplots(name_fig, local_paths, data_real, data_calcula
     #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
 
-    plt.savefig(os.path.join(local_paths['data_results_PDF'], name_fig))
+    plt.savefig(os.path.join(path_result, name_fig))
     #plt.show()
     plt.close()

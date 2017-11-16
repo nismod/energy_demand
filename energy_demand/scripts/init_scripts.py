@@ -17,7 +17,6 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
 from energy_demand.basic import date_prop
-from energy_demand.read_write import read_data
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -51,6 +50,7 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
+    #TODO NEEDED HERE?
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
@@ -126,6 +126,7 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
+    basic_functions.create_folder(data['local_paths']['data_results_validation'])
 
     # -------------------
     # s_fuel_to_servic
@@ -248,7 +249,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['temp_data'],
         data['sectors'],
         data['all_sectors'],
-        data['enduses'])
+        data['enduses'],
+        data['ss_floorarea_sector_2015_virtual_bs'])
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont

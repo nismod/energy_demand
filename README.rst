@@ -101,6 +101,12 @@ run every time the model is run with different assumptions (Section 1.2).
    For an overview of all possible scenario and their explanation,
    see here `here <https://LINKTOBEDFINED.htm>`_
 
+Other help
+==========
+To change the logger level of an individual sector model with smif, type:
+
+`smif -v run modelrun_id` or `smif -vv run modelrun_id`
+
 Literature
 ========================
 Baruah, P., Eyre, N., Qadrdan, M., Chaudry, M., Blainey, S., Hall, J. W., … Tran, M. (2014). Energy

@@ -6,6 +6,8 @@ import configparser
 from datetime import date
 from collections import defaultdict
 from smif.model.sector_model import SectorModel
+from pkg_resources import Requirement, resource_filename
+
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.cli import run_model
 from energy_demand.dwelling_stock import dw_stock
@@ -13,12 +15,13 @@ from energy_demand.read_write import read_data, write_data, data_loader
 from energy_demand.main import energy_demand_model
 from energy_demand.assumptions import param_assumptions, non_param_assumptions
 from energy_demand.basic import date_prop, logger_setup
-from pkg_resources import Requirement, resource_filename
 from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016' #TODO
 NR_OF_MODELLEd_REGIONS = 380 #380
+PROFILER = False
+VALIDATION_CRITERIA = True
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -60,7 +63,8 @@ class EDWrapper(SectorModel):
         -----
         `self.user_data` allows to pass data from before_model_run to main model
         """
-        data = {}
+        data = defaultdict(dict)
+
         # -----------------------------
         # Paths
         # -----------------------------
@@ -78,11 +82,11 @@ class EDWrapper(SectorModel):
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
         # ---------------------
-        # Simulation parameters
+        # Simulation parameters and criteria
         # ---------------------
         data['print_criteria'] = False
+        data['virtual_building_stock_criteria'] = True
 
-        data['sim_param'] = {}
         data['sim_param']['base_yr'] = 2015 #REPLACE
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
@@ -93,21 +97,22 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
-        data['reg_nrs'] = len(data['lu_reg'])
+        
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
-        
+
+        data['reg_nrs'] = len(data['lu_reg'])
         # ---------------------
-        # Energy demand specific input
-        # which need to generated or read in
+        # Energy demand specific input which need to generated or read in
         # ---------------------
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
-        data = data_loader.dummy_data_generation(data) #TODO REMOVE
+        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(
+            data['lu_reg'], data['all_sectors'])
 
         # -----------------------------
         # Obtain external scenario data
@@ -120,18 +125,21 @@ class EDWrapper(SectorModel):
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array['gva'])
 
-        # Floor areas
+        # Floor areas TODO LOAD FROM NEWCASTLE
+        rs_floorarea_newcastle = defaultdict(dict)#{}
+        for year in range(2015, 2101):
+            for region_geocode in data['lu_reg']:
+                rs_floorarea_newcastle[year][region_geocode] = 10000
 
         #Scenario data
         data['scenario_data'] = {
             'gva': data['gva'],
             'population': data['population'],
             'floor_area': {
-                'rs_floorarea': data['rs_floorarea'],
-                'ss_sector_floor_area_by': data['ss_sector_floor_area_by']
+                'rs_floorarea_newcastle': rs_floorarea_newcastle,
+                'ss_floorarea_sector_2015_virtual_bs': data['ss_floorarea_sector_2015_virtual_bs']
                 }
         }
-
 
         # Assumptions
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
@@ -219,7 +227,7 @@ class EDWrapper(SectorModel):
         =======
 
         """
-        data = {}
+        data = defaultdict(dict)
 
         # ------
         # Paths
@@ -243,9 +251,9 @@ class EDWrapper(SectorModel):
         #TODO: MAKE THAT LOGGING CAN BE CHANGED
 
         # --------------------
-        # Simulation parameters
+        # Simulation parameters and criteria
         # --------------------
-        data['sim_param'] = {}
+        data['virtual_building_stock_criteria'] = True
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
@@ -263,24 +271,8 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-
-        # =========DUMMY DATA
-        data = data_loader.dummy_data_generation(data) #TODO REMOVE
-        # =========DUMMY DATA
-
-        # ---------
-        # Scenario data
-        # ---------
-        data['print_criteria'] = False
-
-        data['scenario_data'] = {
-            'gva': self.user_data['gva'],
-            'population':  self.user_data['population'],
-            'floor_area': {
-                'rs_floorarea': data['rs_floorarea'],
-                'ss_sector_floor_area_by': data['ss_sector_floor_area_by']}
-            }
-
+        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors']) #TODO REMOVE
+    
         # ---------
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
@@ -291,6 +283,13 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data) #TODO: REMOVE DATA
+
+        # Floor areas TODO LOAD FROM NEWCASTLE, REPLACE
+        rs_floorarea = defaultdict(dict)#{}
+        for year in range(2015, 2101):
+            for region_geocode in data['lu_reg']:
+                rs_floorarea[year][region_geocode] = 10000
+
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
@@ -304,6 +303,20 @@ class EDWrapper(SectorModel):
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
+        # ---------
+        # Scenario data
+        # ---------
+        data['print_criteria'] = False
+
+        data['scenario_data'] = {
+            'gva': self.user_data['gva'],
+            'population':  self.user_data['population'],
+
+            # Only add newcastle floorarea here
+            'floor_area': {
+                'rs_floorarea_newcastle': rs_floorarea}
+            }
+    
         # -----------------------
         # Load data from scripts
         # -----------------------
@@ -354,8 +367,7 @@ class EDWrapper(SectorModel):
         # ---------
 
         # Profiler
-        instrument_profiler = False
-        if instrument_profiler:
+        if PROFILER:
             profiler = Profiler(use_signal=False)
             profiler.start()
 
@@ -369,7 +381,7 @@ class EDWrapper(SectorModel):
 
         model_run_object = energy_demand_model(data)
 
-        if instrument_profiler:
+        if PROFILER:
             profiler.stop()
             logging.debug("Profiler Results")
             print(profiler.output_text(unicode=True, color=True))
@@ -399,15 +411,22 @@ class EDWrapper(SectorModel):
         # Validation base year: Hourly temporal validation
         # TODO: MPVE TO PLOTTING BECAUSE OTHERWISE REPLACED
         # ------------------------------------------------
-        validation_criteria = True
-        if validation_criteria and timestep == 2015:
+
+        if VALIDATION_CRITERIA and timestep == 2015:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],
                 data['assumptions']['model_yearhours_nrs'],
-                data,
+                data['assumptions']['model_yeardays_nrs'],
+                data['scenario_data'],
                 model_run_object.ed_fueltype_national_yh,
                 ed_fueltype_regs_yh,
-                model_run_object.tot_peak_enduses_fueltype)
+                model_run_object.tot_peak_enduses_fueltype,
+                data['lookups'],
+                data['local_paths'],
+                data['lu_reg'],
+                data['reg_coord'],
+                data['assumptions']['seasons'],
+                data['assumptions']['model_yeardays_daytype'])
 
         # -------------------------------------------
         # Write annual results to txt files
