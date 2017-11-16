@@ -4,6 +4,7 @@ Script containing functions to calculate load factors and
 also peak shifting methods which are used to implement
 demand management
 """
+import logging
 import numpy as np
 
 def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):
@@ -113,10 +114,9 @@ def calc_lf_y(fuel_yh, average_fuel_yd):
     https://en.wikipedia.org/wiki/Load_factor_(electrical)
     """
     # Calculate average yearly fuel per fueltype
-    #average_fuel_yd = np.average(fuel_yh, axis=2)
     average_load_y = np.average(average_fuel_yd, axis=1)
 
-    # Calculate maximum hour in year
+    # Calculate maximum hour in every day of a year
     max_load_h_days = np.max(fuel_yh, axis=2)
     max_load_h = np.max(max_load_h_days, axis=1)
 

@@ -1,0 +1,31 @@
+The BEIS Sectors are matched with the following sectors as 
+outlined in is_disaggregate():
+
+Industry: All categories: Industry; measures:
+Industry: A Agriculture, forestry and fishing; measures:
+Industry: B Mining and quarrying; measures:
+Industry: C Manufacturing; measures:
+Industry: C10-12 Manufacturing: Food, beverages and tobacco; measures:
+Industry: C13-15 Manufacturing: Textiles, wearing apparel and leather and related products; measures:
+Industry: C16,17 Manufacturing: Wood, paper and paper products; measures:
+Industry: C19-22 Manufacturing: Chemicals, chemical products, rubber and plastic; measures:
+Industry: C23-25 Manufacturing: Low tech; measures:
+Industry: C26-30 Manufacturing: High tech; measures:
+Industry: C18, 31, 32 Manufacturing: Other; measures:
+Industry: D Electricity, gas, steam and air conditioning supply; measures:
+Industry: E Water supply, sewerage, waste management and remediation activities; measures:
+Industry: F Construction; measures:
+Industry: G Wholesale and retail trade; repair of motor vehicles and motor cycles; measures:
+Industry: H Transport and storage; measures:
+Industry: I Accommodation and food service activities; measures:
+Industry: J Information and communication; measures:
+Industry: K Financial and insurance activities; measures:
+Industry: L Real estate activities; measures:
+Industry: M Professional, scientific and technical activities; measures:
+Industry: N Administrative and support service activities; measures:
+Industry: O Public administration and defence; compulsory social security; measures:
+Industry: P Education; measures:
+Industry: Q Human health and social work activities; measures:
+Industry: R,S Arts, entertainment and recreation; other service activities; measures:
+Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use; measures:
+Industry: U Activities of extraterritorial organisations and bodies; measures

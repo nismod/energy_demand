@@ -156,7 +156,7 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions)
-            logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -164,7 +164,7 @@ class Enduse(object):
                 self.fuel_new_y,
                 assumptions['smart_meter_assump'],
                 sim_param)
-            logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -173,7 +173,7 @@ class Enduse(object):
                 enduse_overall_change,
                 enduse_overall_change['enduse_specific_change_yr_until_changed'],
                 sim_param)
-            logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # -------------------------------------------------------------------------------
             # Calculate new fuel demands after scenario drivers
@@ -187,7 +187,7 @@ class Enduse(object):
                 scenario_data['population'],
                 reg_scen_drivers,
                 sim_param)
-            logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # ----------------------------------
             # Hourly Disaggregation

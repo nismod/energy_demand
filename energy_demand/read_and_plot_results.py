@@ -60,19 +60,6 @@ def main(path_data_energy_demand):
         data['assumptions']['model_yeardays_daytype'])
 
     # ----------------
-    # Spatio temporal validation
-    # ----------------
-    validation_criteria = True
-    '''if validation_criteria and timestep == 2015:
-        lad_validation.tempo_spatial_validation(
-            data['sim_param']['base_yr'],
-            data['assumptions']['model_yearhours_nrs'],
-            data,
-            model_run_object.ed_fueltype_national_yh,
-            ed_fueltype_regs_yh,
-            model_run_object.tot_peak_enduses_fueltype)'''
-
-    # ----------------
     # Write results to CSV files and merge with shapefile
     # ----------------
     write_data.create_shp_results(

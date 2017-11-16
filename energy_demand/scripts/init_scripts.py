@@ -43,7 +43,6 @@ def post_install_setup(args):
 
     # Load data
     data = {}
-    data['print_criteria'] = True #Print criteria
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
@@ -125,9 +124,11 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
     basic_functions.create_folder(data['local_paths']['data_results_validation'])
 
+    # ---------------------------------------
     # Load local datasets for disaggregateion
-    #path_folder_employment_statistics
-
+    # ---------------------------------------
+    data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
+        data['local_paths']['path_folder_employment_statistics'])
 
     # -------------------
     # s_fuel_to_servic

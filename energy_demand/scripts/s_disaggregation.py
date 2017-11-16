@@ -93,11 +93,9 @@ def disaggregate_base_demand(
     is_fuel_disagg = is_disaggregate(
         fuels['is_fuel_raw_data_enduses'],
         lu_reg,
-        scenario_data,
         enduses,
         sectors,
-        sim_param,
-        ss_floorarea_sector_2015_virtual_bs)
+        scenario_data['employment_statistics'])
 
     # Check if total fuel is the same before and after aggregation
     np.testing.assert_almost_equal(
@@ -206,8 +204,9 @@ def ss_disaggregate(
     # Disaggregate according to enduse
     # ---------------------------------------
     scrap_tot_pop = 0
-    for reg in reg_lu:
-        scrap_top_pop += sum(scenario_data['population'][sim_param['base_yr']][reg]))
+    for region_name in lu_reg:
+        scrap_tot_pop += scenario_data['population'][sim_param['base_yr']][region_name]
+
     for region_name in lu_reg:
         ss_fuel_disagg[region_name] = defaultdict(dict)
         for sector in sectors['ss_sectors']:
@@ -268,54 +267,84 @@ def ss_disaggregate(
 def is_disaggregate(
         raw_fuel_sectors_enduses,
         lu_reg,
-        scenario_data,
         enduses,
         sectors,
-        sim_param,
-        ss_floorarea_sector_2015_virtual_bs
+        employment_statistics
     ): 
-    """Disaggregate fuel for sector and enduses with floor
-    area and GVA for sectors and enduses (IMPROVE)
+    """Disaggregate fuel for sector and enduses with
+    employment statistics
 
     Arguments
     ---------
-    data : dict
-        Data container
     raw_fuel_sectors_enduses ; dict
         Fuels
 
     """
     is_fuel_disagg = {}
 
-    national_floorarea_sector = 0
-    for region_name in lu_reg:
-        national_floorarea_sector += sum(ss_floorarea_sector_2015_virtual_bs[region_name].values())
+    # The BEIS sectors are matched with census data sectors
+    sectormatch_ecuk_with_census = {
+        'wood': 'C16,17',
+        'textiles': 'C13-15',
+        'chemicals': 'C19-22',
+        'printing': 'C',
+        'electrical_equipment':'C26-30',
+        'paper': 'C16,17',
+        'basic_metals': 'C',
+        'beverages': 'C10-12',
+        'pharmaceuticals': 'M',
+        'machinery': 'C26-30',
+        'water_collection_treatment': 'E',
+        'food_production': 'C10-12',
+        'rubber_plastics': 'C19-22',
+        'wearing_appeal': 'C13-15',
+        'other_transport_equipment': 'H',
+        'leather': 'C13-15',
+        'motor_vehicles': 'G',
+        'waste_collection': 'E',
+        'tobacco': 'C10-12',
+        'mining': 'B',
+        'other_manufacturing': 'C18,31,32',
+        'furniture': 'C',
+        'non_metallic_minearl_products': 'C',
+        'computer': 'C26-30',
+        'fabricated_metal_products': 'C'}
 
-    # Iterate regions
+    # ----------------------------------------
+    # Summarise national employment per sector
+    # ----------------------------------------
+    # Initialise dict
+    tot_national_sector_employment = {}
+    for sectors_reg in employment_statistics.values():
+        for sector in sectors_reg:
+            tot_national_sector_employment[sector] = 0
+        continue
+    for reg in lu_reg:
+        for employment_sector, employment in employment_statistics[reg].items():
+            tot_national_sector_employment[employment_sector] += employment
+
+    # --------------------------------------------------
+    # Disaggregate per region with employment statistics
+    # --------------------------------------------------
     for region_name in lu_reg:
         is_fuel_disagg[region_name] = defaultdict(dict)
 
         # Iterate sector
         for sector in sectors['is_sectors']:
 
-            # Sector specifid info
-            reg_floorarea_sector = sum(ss_floorarea_sector_2015_virtual_bs[region_name].values())
+            # Match sector
+            matched_sector = sectormatch_ecuk_with_census[sector]
 
             # Iterate enduse
             for enduse in enduses['is_all_enduses']:
-                national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
+                national_sector_employment = tot_national_sector_employment[matched_sector]
+                reg_sector_employment = employment_statistics[region_name][matched_sector]
 
-                # ----------------------
-                # Disaggregating factors
-                # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
-                reg_disaggregation_factor = reg_floorarea_sector / national_floorarea_sector
+                reg_disaggregation_factor = reg_sector_employment / national_sector_employment
 
-                DUMMY_reg_diasg_factor = scenario_data['population'][sim_param['base_yr']][region_name] / sum(scenario_data['population'][sim_param['base_yr']].values())
                 # Disaggregated national fuel
-                #reg_fuel_sector_enduse = national_fuel_sector_by * reg_disaggregation_factor
-                reg_fuel_sector_enduse = national_fuel_sector_by * DUMMY_reg_diasg_factor
-                
-                is_fuel_disagg[region_name][sector][enduse] = reg_fuel_sector_enduse
+                national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
+                is_fuel_disagg[region_name][sector][enduse] = national_fuel_sector_by * reg_disaggregation_factor
 
     return is_fuel_disagg
 

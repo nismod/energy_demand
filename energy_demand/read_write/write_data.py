@@ -54,7 +54,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         csv_results.append(basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
 
     write_shp.write_result_shapefile(
-        paths['lad_shapefile_2011'],
+        paths['lad_shapefile'],
         os.path.join(paths['data_results_shapefiles'], 'lp_max_y'),
         field_names,
         csv_results)
@@ -84,7 +84,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
             basic_functions.array_to_dict(data['scenario_data']['population'][year], lu_reg))
 
     write_shp.write_result_shapefile(
-        paths['lad_shapefile_2011'],
+        paths['lad_shapefile'],
         os.path.join(paths['data_results_shapefiles'], 'fuel_y'),
         field_names,
         csv_results)

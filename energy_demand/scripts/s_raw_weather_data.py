@@ -181,7 +181,8 @@ def clean_weather_data_raw(temp_stations, placeholder_value=999):
     return temp_stations_cleaned
 
 def read_weather_stations_raw(path_to_csv, stations_with_data):
-    """Read in weather stations from csv file for which temp data are provided
+    """Read in weather stations from csv
+    file for which temp data are provided
 
     Parameter
     ---------

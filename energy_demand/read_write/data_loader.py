@@ -206,7 +206,7 @@ def load_local_paths(path):
         'path_val_subnational_gas_data': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_folder_employment_statistics': os.path.join(
-            path, '_raw_data', 'b-census_data', 'employment_statistics_2011'),
+            path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
@@ -215,7 +215,7 @@ def load_local_paths(path):
             path, '_processed_data'),
         'data_results': os.path.join(
             path, '_result_data'),
-        'lad_shapefile_2011': os.path.join(
+        'lad_shapefile': os.path.join(
             path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
@@ -752,4 +752,69 @@ def load_LAC_geocodes_info(path_to_csv):
             # Add entry with geo_code
             data[row[0]] = values_line
 
+    return data
+
+def read_employment_statistics(path_to_csv):
+    """Read in employment statistics per LAD.
+
+    This dataset provides 2011 estimates that classify usual
+    residents aged 16 to 74 in employment the week before
+    the census in United Kingdom by industry.
+
+    Outputs
+    -------
+    data : dict
+        geocode, Nr_of_category
+
+    Infos
+    ------
+    Industry: All categories: Industry
+    Industry: A Agriculture, forestry and fishing
+    Industry: B Mining and quarrying
+    Industry: C Manufacturing
+    Industry: C10-12 Manufacturing: Food, beverages and tobacco
+    Industry: C13-15 Manufacturing: Textiles, wearing apparel and leather and related products
+    Industry: C16,17 Manufacturing: Wood, paper and paper products
+    Industry: C19-22 Manufacturing: Chemicals, chemical products, rubber and plastic
+    Industry: C23-25 Manufacturing: Low tech
+    Industry: C26-30 Manufacturing: High tech
+    Industry: C18, 31, 32 Manufacturing: Other
+    Industry: D Electricity, gas, steam and air conditioning supply
+    Industry: E Water supply, sewerage, waste management and remediation activities
+    Industry: F Construction
+    Industry: G Wholesale and retail trade; repair of motor vehicles and motor cycles
+    Industry: H Transport and storage
+    Industry: I Accommodation and food service activities
+    Industry: J Information and communication
+    Industry: K Financial and insurance activities
+    Industry: L Real estate activities
+    Industry: M Professional, scientific and technical activities
+    Industry: N Administrative and support service activities
+    Industry: O Public administration and defence; compulsory social security
+    Industry: P Education
+    Industry: Q Human health and social work activities
+    Industry: R,S Arts, entertainment and recreation; other service activities
+    Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use
+    Industry: U Activities of extraterritorial organisations and bodies
+    """
+    with open(path_to_csv, 'r') as csvfile:
+        lines = csv.reader(csvfile, delimiter=',')
+        _headings = next(lines) # Skip first row
+
+        data = defaultdict(dict)
+
+        for line in lines:
+            geocode = str.strip(line[2])
+
+            # Iterate fields and copy values
+            for heading in _headings[4:]:
+                heading_split = heading.split(":")
+                category_unclean = str.strip(heading_split[1])
+                category_full_name = str.strip(category_unclean.split(" ")[0]).replace(" ", "_")
+                
+                category_nr = category_full_name.split("_")[0]
+                #data[geocode][category_full_name] = float(line[4])
+                data[geocode][category_nr] = float(line[4])
+
+    logging.info("... loaded employment statistics")
     return data
