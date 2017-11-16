@@ -205,6 +205,9 @@ def ss_disaggregate(
     # ---------------------------------------
     # Disaggregate according to enduse
     # ---------------------------------------
+    scrap_tot_pop = 0
+    for reg in reg_lu:
+        scrap_top_pop += sum(scenario_data['population'][sim_param['base_yr']][reg]))
     for region_name in lu_reg:
         ss_fuel_disagg[region_name] = defaultdict(dict)
         for sector in sectors['ss_sectors']:
@@ -239,13 +242,16 @@ def ss_disaggregate(
                 elif enduse == 'ss_other_gas':
                     reg_diasg_factor = reg_pop / f_ss_other_gas[sector]
 
-                DUMMY_reg_diasg_factor = reg_pop / sum(scenario_data['population'][sim_param['base_yr']].values())
+                DUMMY_reg_diasg_factor = reg_pop / scrap_tot_pop
+
                 # Disaggregate (fuel * factor)
+                #print(DUMMY_reg_diasg_factor)
+
                 #ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_diasg_factor
                 ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * DUMMY_reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
-    control_sum1, control_sum2 = 0, 0
+    '''control_sum1, control_sum2 = 0, 0
     for reg in ss_fuel_disagg:
         for sector in ss_fuel_disagg[reg]:
             for enduse in ss_fuel_disagg[reg][sector]:
@@ -256,7 +262,7 @@ def ss_disaggregate(
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
-    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
+    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))'''
     return ss_fuel_disagg
 
 def is_disaggregate(
@@ -303,7 +309,6 @@ def is_disaggregate(
                 # Disaggregating factors
                 # TODO: IMPROVE. SHOW HOW IS DISAGGREGATED
                 reg_disaggregation_factor = reg_floorarea_sector / national_floorarea_sector
-
 
                 DUMMY_reg_diasg_factor = scenario_data['population'][sim_param['base_yr']][region_name] / sum(scenario_data['population'][sim_param['base_yr']].values())
                 # Disaggregated national fuel

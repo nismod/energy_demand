@@ -110,9 +110,7 @@ class EDWrapper(SectorModel):
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
-
-        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(
-            data['lu_reg'], data['all_sectors'])
+        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
 
         # -----------------------------
         # Obtain external scenario data
@@ -126,7 +124,7 @@ class EDWrapper(SectorModel):
         data['gva'] = self.array_to_dict(gva_array['gva'])
 
         # Floor areas TODO LOAD FROM NEWCASTLE
-        rs_floorarea_newcastle = defaultdict(dict)#{}
+        rs_floorarea_newcastle = defaultdict(dict)
         for year in range(2015, 2101):
             for region_geocode in data['lu_reg']:
                 rs_floorarea_newcastle[year][region_geocode] = 10000
@@ -137,7 +135,6 @@ class EDWrapper(SectorModel):
             'population': data['population'],
             'floor_area': {
                 'rs_floorarea_newcastle': rs_floorarea_newcastle,
-                'ss_floorarea_sector_2015_virtual_bs': data['ss_floorarea_sector_2015_virtual_bs']
                 }
         }
 
@@ -248,12 +245,13 @@ class EDWrapper(SectorModel):
 
         # Logger
         logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
-        #TODO: MAKE THAT LOGGING CAN BE CHANGED
 
         # --------------------
         # Simulation parameters and criteria
         # --------------------
         data['virtual_building_stock_criteria'] = True
+        data['print_criteria'] = False
+
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
@@ -271,7 +269,7 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors']) #TODO REMOVE
+        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
     
         # ---------
         # Replace data in data with data provided from wrapper or before_model_run
@@ -284,39 +282,32 @@ class EDWrapper(SectorModel):
         # ------------------------
         data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data) #TODO: REMOVE DATA
 
+        # floor_area[sector][building_type][dwelling_type][age_class]
         # Floor areas TODO LOAD FROM NEWCASTLE, REPLACE
-        rs_floorarea = defaultdict(dict)#{}
+        rs_floorarea_newcastle = defaultdict(dict)
         for year in range(2015, 2101):
             for region_geocode in data['lu_reg']:
-                rs_floorarea[year][region_geocode] = 10000
-
+                rs_floorarea_newcastle[year][region_geocode] = 10000
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-        data['tech_lp'] = data_loader.load_data_profiles(
-            data['paths'],
-            data['local_paths'],
-            data['assumptions']['model_yeardays'],
-            data['assumptions']['model_yeardays_daytype'])
+        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
 
         # Update: Necessary updates after external data definition
-        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
+        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
         # ---------
         # Scenario data
         # ---------
-        data['print_criteria'] = False
-
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
             'population':  self.user_data['population'],
 
             # Only add newcastle floorarea here
             'floor_area': {
-                'rs_floorarea_newcastle': rs_floorarea}
+                'rs_floorarea_newcastle': rs_floorarea_newcastle}
             }
-    
+
         # -----------------------
         # Load data from scripts
         # -----------------------
@@ -409,10 +400,8 @@ class EDWrapper(SectorModel):
 
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
-        # TODO: MPVE TO PLOTTING BECAUSE OTHERWISE REPLACED
         # ------------------------------------------------
-
-        if VALIDATION_CRITERIA and timestep == 2015:
+        if VALIDATION_CRITERIA and timestep == data['sim_param']['base_yr']:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],
                 data['assumptions']['model_yearhours_nrs'],

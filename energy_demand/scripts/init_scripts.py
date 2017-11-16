@@ -105,8 +105,6 @@ def scenario_initalisation(path_data_ed, data=False):
     print("... start running sceario_initialisation scripts")
     logging.info("... start running sceario_initialisation scripts")
 
-    #path_main = resource_filename(Requirement.parse("energy_demand"), "")
-
     # Initialise logger
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
@@ -117,7 +115,6 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.del_previous_results(
         data['local_paths']['data_processed'],
         data['local_paths']['path_post_installation_data'])
-
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
     # Create folders
@@ -127,6 +124,10 @@ def scenario_initalisation(path_data_ed, data=False):
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
     basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
     basic_functions.create_folder(data['local_paths']['data_results_validation'])
+
+    # Load local datasets for disaggregateion
+    #path_folder_employment_statistics
+
 
     # -------------------
     # s_fuel_to_servic

@@ -9,12 +9,12 @@ depending on scenaric assumptions.
 import logging
 from collections import defaultdict
 import numpy as np
-from energy_demand.basic import testing_functions as testing
-from energy_demand.initalisations import helpers as init
+
+from energy_demand.basic import testing_functions
+from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
-from energy_demand.technologies import diffusion_technologies
-from energy_demand.technologies import fuel_service_switch
+from energy_demand.technologies import diffusion_technologies, fuel_service_switch
 
 class Enduse(object):
     """Enduse Class (Residential, Service and Industry)
@@ -519,7 +519,7 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
         sim_param,
         mode_constrained)
 
-    testing.testing_switch_criteria(
+    testing_functions.testing_switch_criteria(
         crit_switch_fuel,
         crit_switch_service,
         enduse)
@@ -940,7 +940,7 @@ def fuel_to_service(
         Constrained version
         no efficiencies are considered, because not technology specific service calculation
         """
-        service_fueltype_tech = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
+        service_fueltype_tech = helpers.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
         # Calculate share of service
         for fueltype, tech_list in fuel_tech_p_by.items():
             for tech, fuel_share in tech_list.items():
@@ -957,7 +957,7 @@ def fuel_to_service(
     else:
         """Unconstrained version
         """
-        service_fueltype_tech = init.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
+        service_fueltype_tech = helpers.service_type_tech_by_p(lu_fueltypes, fuel_tech_p_by)
 
         # Calulate share of energy service per tech depending on fuel and efficiencies
         for fueltype, tech_list in fuel_tech_p_by.items():

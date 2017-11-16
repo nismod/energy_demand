@@ -8,8 +8,7 @@ import configparser
 import ast
 from collections import defaultdict
 from datetime import date
-from energy_demand.read_write import read_data
-from energy_demand.read_write import read_weather_data
+from energy_demand.read_write import read_data, read_weather_data
 from energy_demand.basic import conversions
 from energy_demand.basic import date_prop
 
@@ -206,6 +205,8 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
         'path_val_subnational_gas_data': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
+        'path_folder_employment_statistics': os.path.join(
+            path, '_raw_data', 'b-census_data', 'employment_statistics_2011'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
         'path_assumptions_db': os.path.join(
@@ -215,7 +216,7 @@ def load_local_paths(path):
         'data_results': os.path.join(
             path, '_result_data'),
         'lad_shapefile_2011': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'infuse_dist_lyr_2011.shp'),
+            path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(

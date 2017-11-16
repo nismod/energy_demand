@@ -400,77 +400,81 @@
   name: demand_management_improvement__demand_management_improvement__is_refrigeration
   suggested_range: (0, 100)
   units: '%'
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: &id001 !!python/tuple
+  - -10
+  - 10
+  default_value: 0
   description: Temperature change for month Jan
   name: climate_change_temp_d__Jan
-  suggested_range: -5, 5
+  suggested_range: &id002 !!python/tuple
+  - -5
+  - 5
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Feb
   name: climate_change_temp_d__Feb
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Mar
   name: climate_change_temp_d__Mar
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Apr
   name: climate_change_temp_d__Apr
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month May
   name: climate_change_temp_d__May
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Jun
   name: climate_change_temp_d__Jun
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Jul
   name: climate_change_temp_d__Jul
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Aug
   name: climate_change_temp_d__Aug
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Sep
   name: climate_change_temp_d__Sep
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Oct
   name: climate_change_temp_d__Oct
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Nov
   name: climate_change_temp_d__Nov
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
-- absolute_range: (-10, 10)
-  default_value: '0'
+- absolute_range: *id001
+  default_value: 0
   description: Temperature change for month Dec
   name: climate_change_temp_d__Dec
-  suggested_range: -5, 5
+  suggested_range: *id002
   units: "\xB0C"
 - absolute_range: 2015-2100
   default_value: '2050'

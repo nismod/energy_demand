@@ -62,13 +62,12 @@ def run_model(args):
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'],
         data['local_paths'],
-        data['assumptions']['model_yeardays'], 
+        data['assumptions']['model_yeardays'],
         data['assumptions']['model_yeardays_daytype'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

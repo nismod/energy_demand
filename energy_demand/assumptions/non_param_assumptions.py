@@ -57,8 +57,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # ============================================================
     # Dwelling stock related assumptions
     # ============================================================
-
-    assumptions['virtual_dwelling_stock'] = True #OR newcastle is loaded
+    #assumptions['virtual_dwelling_stock'] = True #OR newcastle is loaded
 
     # Change in floor area per person up to end_yr 1.0 = 100%
     # ASSUMPTION (if minus, check if new dwellings are needed)

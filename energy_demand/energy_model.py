@@ -7,6 +7,7 @@ import logging
 from collections import defaultdict
 #import concurrent.futures
 import numpy as np
+
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -57,7 +58,7 @@ class EnergyModel(object):
         # --------------
         # Dwelling stock
         # --------------
-        if data['assumptions']['virtual_dwelling_stock']:
+        if data['virtual_building_stock_criteria']:
             logging.info("... Generate virtual dwelling stock for base year")
 
             data['rs_dw_stock'] = defaultdict(dict)
@@ -72,11 +73,16 @@ class EnergyModel(object):
                 data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
             logging.info("... finished virtual dwelling stock for base year")
         else:
-
+            # -------------------------------------
+            # Create dwelling stock from NEWCASTLE
+            # -------------------------------------
             # Create dwelling stock from imported data from newcastle
-            #createNEWCASTLE_dwelling_stock()
-            #data['rs_dw_stock'][region_name][self.curr_yr]
-            #data['ss_dw_stock'][region_name][self.curr_yr]
+
+            #data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(
+            # self.curr_yr,
+            # region_name,
+            # )
+            #data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.createNEWCASTLE_dwelling_stock(self.curr_yr)
             pass
 
         # ---------------------------------------------

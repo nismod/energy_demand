@@ -125,10 +125,10 @@ def load_param_assump(paths, assumptions):
         assumptions['demand_management']['param_infos'].append(
             {
                 "name": "climate_change_temp_d__{}".format(month_str),
-                "absolute_range": "(-10, 10)",
+                "absolute_range": (-10, 10),
                 "description": "Temperature change for month {}".format(month_str),
-                "suggested_range": "-5, 5",
-                "default_value": '0',
+                "suggested_range": (-5, 5),
+                "default_value": 0,
                 "units": '°C'
             })
 

@@ -5,6 +5,7 @@ Generates a virtual dwelling stock
 import sys
 import logging
 import numpy as np
+
 from energy_demand.technologies import diffusion_technologies
 
 def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
@@ -37,11 +38,11 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
     # Inputs Residential
     #   - building_type/dwelling_type/dwellingtype_ageclass
     #   - 
-
-    rs_dw_stock = []
+    dw_stock = []
     dwelling_types = ["detached", "semi_detached"]
     age_classs = [1920, 1930, 1940] #Age categories
     building_type = "residential"
+
     for dwelling_type in dwelling_types:
         for age_class in age_classs:
 
@@ -62,11 +63,11 @@ def createNEWCASTLE_dwelling_stock(curr_yr, region, data, parameter_list):
                 age=age_class,
                 dwtype=dwelling_type,
                 gva=data['scenario_data']['gva'][curr_yr][region])
-            rs_dw_stock.append(dwelling_obj)
+            dw_stock.append(dwelling_obj)
 
     dwelling_stock = DwellingStock(
         region,
-        rs_dw_stock,
+        dw_stock,
         data['enduses']['rs_all_enduses'])
 
     return dwelling_stock
