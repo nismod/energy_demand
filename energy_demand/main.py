@@ -160,8 +160,9 @@ if __name__ == "__main__":
             rs_floorarea[year][region_geocode] = 10000
     data['rs_floorarea_newcastle'] = rs_floorarea
 
-    # Dummy flor area
-    data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths'])
+    data['coord_dummy'] = {}
+    for reg in data['lu_reg']:
+        data['coord_dummy'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
     #Scenario data
     data['scenario_data'] = {

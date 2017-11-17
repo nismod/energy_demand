@@ -142,12 +142,6 @@ def load_basic_lookups():
 
     return lookups
 
-def get_dummy_coord_region(lu_reg, local_paths):
-    coord_dummy = {}
-    for reg in lu_reg:
-        coord_dummy[reg] = {'longitude': 52.58, 'latitude': -1.091}
-    return coord_dummy
-
 def virtual_building_datasets(lu_reg, all_sectors):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in

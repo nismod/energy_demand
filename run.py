@@ -3,6 +3,7 @@
 import os
 import logging
 import configparser
+import numpy as np
 from datetime import date
 from collections import defaultdict
 from smif.model.sector_model import SectorModel
@@ -19,7 +20,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016'
-#NR_OF_MODELLEd_REGIONS = 380 #380
+NR_OF_MODELLEd_REGIONS = 10 #380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -88,12 +89,13 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
+        data['reg_coord'] = {}
+        for reg in data['lu_reg']:
+            data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
-        #data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
 
         data['reg_nrs'] = len(data['lu_reg'])
@@ -252,7 +254,7 @@ class EDWrapper(SectorModel):
 
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        #data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_nrs'] = len(data['lu_reg'])
 
@@ -269,8 +271,11 @@ class EDWrapper(SectorModel):
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
         # ---------
-        data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #TODO: REMOVE
-
+        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
+        data['reg_coord'] = {} #TODO: REMOVE
+        for reg in data['lu_reg']:
+            data['reg_coord'] [reg] = {'longitude': 52.58, 'latitude': -1.091}
+    
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -288,7 +293,8 @@ class EDWrapper(SectorModel):
         data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
 
         # Update: Necessary updates after external data definition
-        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
+        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
+            data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
 
         # ---------
         # Scenario data
@@ -376,7 +382,8 @@ class EDWrapper(SectorModel):
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
-
+        print("SCRAP:         ------------------- " + str(np.sum(ed_fueltype_national_yh[2])))
+        print("SCRAP:         ------------------- " + str(ed_fueltype_national_yh.shape))
         reg_load_factor_y = model_run_object.reg_load_factor_y
         reg_load_factor_yd = model_run_object.reg_load_factor_yd
         reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']

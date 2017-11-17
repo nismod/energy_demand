@@ -19,10 +19,10 @@ from energy_demand.profiles import load_profile
 def temporal_validation(
         local_paths,
         lookups,
-        ed_fueltype_national_yh,
-        indo_factoreddata,
-        val_elec_2015_indo,
-        val_elec_2015_itsdo
+        elec_ed_fueltype_national_yh,
+        elec_factored_yh,
+        elec_2015_indo,
+        elec_2015_itsdo
     ):
     """National hourly electricity data is validated with
     the summed modelled hourly demand for all regions.
@@ -36,8 +36,8 @@ def temporal_validation(
     local_paths :
     lookups :
     ed_fueltype_national_yh
-    val_elec_2015_indo
-    val_elec_2015_itsdo
+    elec_2015_indo
+    elec_2015_itsdo
     """
     # Select years to plot
     winter_week = list(range(
@@ -55,16 +55,16 @@ def temporal_validation(
     elec_national_data.compare_results(
         'validation_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
-        val_elec_2015_indo,
-        val_elec_2015_itsdo,
-        indo_factoreddata,
-        ed_fueltype_national_yh[lookups['fueltype']['electricity']],
+        elec_2015_indo,
+        elec_2015_itsdo,
+        elec_factored_yh,
+        elec_ed_fueltype_national_yh,
         'all_submodels',
         days_to_plot)
 
     logging.debug(
-        "FUEL gwh TOTAL  val_elec_2015_indo: {} val_elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_2015_indo), np.sum(val_elec_2015_itsdo), np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])))
-    logging.debug("FUEL ktoe TOTAL  val_elec_2015_indo: {} val_elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_2015_indo)/11.63, np.sum(val_elec_2015_itsdo)/11.63, np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])/11.63))
+        "FUEL gwh TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo), np.sum(elec_2015_itsdo), np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])))
+    logging.debug("FUEL ktoe TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo)/11.63, np.sum(elec_2015_itsdo)/11.63, np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])/11.63))
 
     return
 
@@ -141,17 +141,23 @@ def tempo_spatial_validation(
     # Temporal validation (hourly for national)
     # -------------------------------------------
     # Read validation data
-    val_elec_2015_indo, val_elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
-    indo_factoreddata = diff_factor_elec * val_elec_2015_indo
-    logging.info("... ed difference between modellend and real [percent] %s: ", (1 - indo_factoreddata) * 100)
+    elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
+    print("AAA: " + str(np.sum(elec_2015_indo)))
+    print("AAA: " + str(np.sum(elec_2015_itsdo)))
+    diff_factor_elec = np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']]) / np.sum(elec_2015_indo)
+    print("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
 
+    elec_factored_yh = diff_factor_elec * elec_2015_indo
+    print("===========info: {} {} {}".format(diff_factor_elec, np.sum(elec_factored_yh), np.sum(ed_fueltype_national_yh[2])))
+    print(np.sum(elec_factored_yh))
+    prnt(":")
     temporal_validation(
         local_paths,
         lookups,
-        ed_fueltype_national_yh,
-        indo_factoreddata,
-        val_elec_2015_indo,
-        val_elec_2015_itsdo)
+        ed_fueltype_national_yh[lookups['fueltype']['electricity']],
+        elec_factored_yh,
+        elec_2015_indo,
+        elec_2015_itsdo)
 
     # ---------------------------------------------------
     # Calculate average season and daytypes and plot
@@ -164,7 +170,7 @@ def tempo_spatial_validation(
         model_yeardays_daytype)
 
     calc_av_lp_real, calc_lp_real = load_profile.calc_av_lp(
-        indo_factoreddata,
+        elec_factored_yh,
         seasons,
         model_yeardays_daytype)
 
@@ -189,14 +195,14 @@ def tempo_spatial_validation(
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peakday_yh.pdf",
         local_paths['data_results_validation'],
-        val_elec_2015_indo[peak_day],
+        elec_2015_indo[peak_day],
         ed_fueltype_national_yh[lookups['fueltype']['electricity']][peak_day])
 
     logging.info("...compare peak from max peak factors")
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peak_shapes.pdf",
         local_paths['data_results_validation'],
-        val_elec_2015_indo[peak_day],
+        elec_2015_indo[peak_day],
         tot_peak_enduses_fueltype[lookups['fueltype']['electricity']])
 
     # ---------------------------------------------------
@@ -205,7 +211,7 @@ def tempo_spatial_validation(
     elec_national_data.compare_results_hour_boxplots(
         "validation_hourly_boxplots_electricity_01.pdf",
         local_paths['data_results_validation'],
-        val_elec_2015_indo,
+        elec_2015_indo,
         ed_fueltype_national_yh[lookups['fueltype']['electricity']])
 
     return
@@ -331,23 +337,28 @@ def spatial_validation(
     plt.plot(
         x_values,
         y_real_elec_demand,
-        'ro',
-        markersize=2,
-        color='green',
-        label='Sub regional demand (real)')
+        linestyle='None',
+        marker='o',
+        markersize=4,
+        fillstyle='full',
+        markeredgewidth=0.7,
+        color='black',
+        label='real')
 
     plt.plot(
         x_values,
         y_modelled_elec_demand,
-        'ro',
-        markersize=2,
-        color='red',
-        label='Disaggregated demand (modelled)')
+        marker='o',
+        linestyle='None',
+        markersize=4, #markerfacecoloralt markeredgecolor=''
+        markerfacecolor='whitesmoke',
+        fillstyle='none',
+        markeredgewidth=0.7,
+        color='black',
+        label='modelled')
 
     # Limit
-    #higher_x_to_plot = round(sorted_dict_real_elec_demand[-1][1], -3) #round to 1'000
     plt.ylim(ymin=0)
-    #plt.ylim(0, higher_x_to_plot)
 
     # -----------
     # Labelling
@@ -364,8 +375,8 @@ def spatial_validation(
         loc='left',
         fontdict=font_additional_info)
 
-    plt.xlabel("Regions")
-    plt.ylabel("{} demand [GW]".format(fueltype_str))
+    plt.xlabel("regions")
+    plt.ylabel("{} GW".format(fueltype_str))
 
     # --------
     # Legend
