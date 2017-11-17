@@ -176,9 +176,7 @@ class EnergyModel(object):
 
             # Calculate load factors across all enduses
             load_factor_y = load_factors.calc_lf_y(fuel_region_yh, average_fuel_yd) # Yearly lf
-            #logging.warning("---fg-----------------------------")
-            #logging.warning(np.sum(fuel_region_yh))
-            #logging.warning(load_factor_y)
+
             load_factor_yd = load_factors.calc_lf_d(fuel_region_yh, average_fuel_yd) # Daily lf
             load_factor_seasons = load_factors.calc_lf_season(
                 data['assumptions']['seasons'], fuel_region_yh, average_fuel_yd)
@@ -258,7 +256,7 @@ def simulate_region(region_name, data, weather_regions):
         region,
         data,
         data['enduses']['rs_all_enduses'])
-
+    
     # --------------------
     # Service SubModel
     # --------------------

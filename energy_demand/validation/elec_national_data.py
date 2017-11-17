@@ -9,8 +9,23 @@ from energy_demand.basic import conversions
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions
 
-def read_raw_elec_2015_data(path_to_csv):
-    """Read in national electricity values provided in MW and convert to GWh
+def read_raw_elec_2015(path_to_csv, year=2015):
+    """Read in national electricity values provided
+    in MW and convert to GWh
+
+    Arguments
+    ---------
+    path_to_csv : str
+        Path to csv file
+    year : int
+        Year of data
+
+    Returns
+    -------
+    elec_data_INDO : array
+        Hourly INDO electricity in GWh (INDO - National Demand)
+    elec_data_ITSDO : array
+        Hourly ITSDO electricity in GWh (Transmission System Demand)
 
     Note
     -----
@@ -24,15 +39,19 @@ def read_raw_elec_2015_data(path_to_csv):
     Source
     ------
     http://www2.nationalgrid.com/uk/Industry-information/electricity-transmission-operational-data/
-    """
-    year = 2015
+    For more information on INDO and ISTDO see DemandData Field Descriptions file:
+    http://www2.nationalgrid.com/WorkArea/DownloadAsset.aspx?id=8589934632
 
+    National Demand is calculated as a sum
+    of generation based on National Grid
+    operational generation metering
+    """
     elec_data_INDO = np.zeros((365, 24), dtype=float)
     elec_data_ITSDO = np.zeros((365, 24), dtype=float)
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        _headings = next(read_lines)
 
         hour = 0
         counter_half_hour = 0
@@ -48,8 +67,8 @@ def read_raw_elec_2015_data(path_to_csv):
                 counter_half_hour = 0
 
                 # Sum value of first and second half hour
-                hour_elec_demand_INDO = half_hour_demand_INDO + float(line[2]) # INDO - National Demand
-                hour_elec_demand_ITSDO = half_hour_demand_ITSDO + float(line[4]) # ITSDO - Transmission System Demand
+                hour_elec_demand_INDO = half_hour_demand_INDO + float(line[2]) 
+                hour_elec_demand_ITSDO = half_hour_demand_ITSDO + float(line[4]) 
 
                 # Convert MW to GWH (input is MW aggregated for two half
                 # hourly measurements, therfore divide by 0.5)

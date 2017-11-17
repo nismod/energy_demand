@@ -133,6 +133,11 @@ class Enduse(object):
         self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
+        '''if region_name == 'E06000053':
+            print(fuel)
+            print(scenario_data)
+            prnt(";")'''
+
         if np.sum(fuel) == 0: #If enduse has no fuel return empty shapes
             self.crit_flat_profile = True
             self.fuel_y = np.zeros((lookups['fueltypes_nr']), dtype=float)
@@ -276,7 +281,7 @@ class Enduse(object):
                         sim_param['curr_yr'])
                 else:
                     pass #No switch implemented
-                
+
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
                 # -------------------------------------------
@@ -528,8 +533,7 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
     try:
         if assumptions['capacity_switch'] and crit_switch_service:
             logging.warning(
-                "Warning: Capacity switch and service switch are installed simultaniously"
-                )
+                "Warning: Capacity switch and service switch are installed simultaniously")
     except KeyError:
         logging.debug("... no capacity and service switch defined simultaniously")
 
@@ -776,7 +780,6 @@ def calc_fuel_tech_yh(
 
 def calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained):
     """Calculate yearly fuel per technology (no load profile assigned).
-    
 
     Arguments
     -----------

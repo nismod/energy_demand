@@ -93,7 +93,6 @@ def del_previous_setup(path_folder):
     if os.path.exists(path_folder):
         shutil.rmtree(path_folder, ignore_errors=True)
         logging.info("... deleted previous scenario results")
-        print("... deleted previous scenario results")
     else:
         pass
 

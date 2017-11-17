@@ -20,31 +20,26 @@ def temporal_validation(
         local_paths,
         lookups,
         ed_fueltype_national_yh,
-        val_elec_data_2015_indo,
-        val_elec_data_2015_itsdo,
-        indo_factoreddata
+        indo_factoreddata,
+        val_elec_2015_indo,
+        val_elec_2015_itsdo
     ):
     """National hourly electricity data is validated with
-    the summed modelled hourly demand for all regions
+    the summed modelled hourly demand for all regions.
+    Because the total annual modelled and real demands
+    do not match (because of different data sources
+    and because Northern Ireland is not included in the
+    validation data) a correction factor is used.
 
     Arguments
     ---------
     local_paths :
     lookups :
-    ed_fueltype_national_yh, val_elec_data_2015_indo, val_elec_data_2015_itsdo
-
-    # Validation of national electrictiy demand for base year
-    # Compare total gas and electrictiy
-    # load with Elexon Data for Base year for different regions
-
-    Info
-    ----
-    It is not sure wheter notheren irleand is included. However does not matter
-    because shape is of interest. With correction factor, the shape gets corrected anyway
+    ed_fueltype_national_yh
+    val_elec_2015_indo
+    val_elec_2015_itsdo
     """
-    # -------------------------------
-    # Yeardays to plot for validation
-    # -------------------------------
+    # Select years to plot
     winter_week = list(range(
         date_prop.date_to_yearday(2015, 1, 12), date_prop.date_to_yearday(2015, 1, 19))) #Jan
     spring_week = list(range(
@@ -56,23 +51,20 @@ def temporal_validation(
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
     #days_to_plot = list(range(0, 365))
 
-    # ---------------------------
     # Hourly national electricity data
-    # ---------------------------
-    # Compare different models
     elec_national_data.compare_results(
-        'validation_weeks_selection.pdf',
+        'validation_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
-        val_elec_data_2015_indo,
-        val_elec_data_2015_itsdo,
+        val_elec_2015_indo,
+        val_elec_2015_itsdo,
         indo_factoreddata,
         ed_fueltype_national_yh[lookups['fueltype']['electricity']],
         'all_submodels',
         days_to_plot)
 
     logging.debug(
-        "FUEL gwh TOTAL  val_elec_data_2015_indo:  {} val_elec_data_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_indo), np.sum(val_elec_data_2015_itsdo), np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])))
-    logging.debug("FUEL ktoe TOTAL  val_elec_data_2015_indo: {} val_elec_data_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_data_2015_indo)/11.63, np.sum(val_elec_data_2015_itsdo)/11.63, np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])/11.63))
+        "FUEL gwh TOTAL  val_elec_2015_indo: {} val_elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_2015_indo), np.sum(val_elec_2015_itsdo), np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])))
+    logging.debug("FUEL ktoe TOTAL  val_elec_2015_indo: {} val_elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(val_elec_2015_indo)/11.63, np.sum(val_elec_2015_itsdo)/11.63, np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])/11.63))
 
     return
 
@@ -98,13 +90,13 @@ def tempo_spatial_validation(
     logging.info("... spatial validation")
 
     # -------------------------------------------
-    # Add electricity for transportation sector
+    # Add electricity and gas for transportation sector
     # -------------------------------------------
     fueltype_elec = lookups['fueltype']['electricity']
     fuel_elec_year_validation = 385
     fuel_national_tranport = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
-    #Elec demand from ECUK for transport sector
+    # Elec demand from ECUK for transport sector
     fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(fuel_elec_year_validation)
 
     # Create transport model (add flat shapes)
@@ -119,18 +111,13 @@ def tempo_spatial_validation(
 
         # Disaggregation factor for transport electricity
         factor_transport_reg = scenario_data['population'][base_yr][region] / sum(scenario_data['population'][base_yr].values())
-
         ed_fueltype_regs_yh[fueltype_elec][region_array_nr] += model_object_transport.fuel_yh[fueltype_elec].reshape(model_yearhours_nrs) * factor_transport_reg
 
     # -------------------------------------------
     # Spatial validation
     # -------------------------------------------
-    # Read national electricity data
-    national_elec_data = data_loader.read_national_real_elec_data(
-        local_paths['path_val_subnational_elec_data'])
-
-    national_gas_data = data_loader.read_national_real_gas_data(
-        local_paths['path_val_subnational_gas_data'])
+    subnational_elec = data_loader.read_national_real_elec_data(local_paths['path_val_subnational_elec'])
+    subnational_gas = data_loader.read_national_real_gas_data(local_paths['path_val_subnational_gas'])
 
     spatial_validation(
         reg_coord,
@@ -138,7 +125,7 @@ def tempo_spatial_validation(
         lookups['fueltype']['electricity'],
         'electricity',
         lu_reg,
-        national_elec_data,
+        subnational_elec,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'))
 
     spatial_validation(
@@ -147,44 +134,39 @@ def tempo_spatial_validation(
         lookups['fueltype']['gas'],
         'gas',
         lu_reg,
-        national_gas_data,
+        subnational_gas,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'))
 
     # -------------------------------------------
     # Temporal validation (hourly for national)
     # -------------------------------------------
-    val_elec_data_2015_indo, val_elec_data_2015_itsdo = elec_national_data.read_raw_elec_2015_data(
-        local_paths['path_val_nat_elec_data'])
-
-    diff_factor_td_ecuk_input = np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']]) / np.sum(val_elec_data_2015_indo)
-
-    indo_factoreddata = diff_factor_td_ecuk_input * val_elec_data_2015_indo
-
-    logging.debug("FACTOR: %s", diff_factor_td_ecuk_input)
-    logging.debug("Loaded validation data elec demand. ND:  %s  TSD: %s", np.sum(val_elec_data_2015_indo), np.sum(val_elec_data_2015_itsdo))
-    logging.debug("--ECUK Elec_demand  %s ", np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']]))
-    logging.debug("--ECUK Gas Demand   %s", np.sum(ed_fueltype_national_yh[lookups['fueltype']['gas']]))
-    logging.debug("CORRECTED DEMAND:  %s", np.sum(indo_factoreddata))
+    # Read validation data
+    val_elec_2015_indo, val_elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
+    indo_factoreddata = diff_factor_elec * val_elec_2015_indo
+    logging.info("... ed difference between modellend and real [percent] %s: ", (1 - indo_factoreddata) * 100)
 
     temporal_validation(
         local_paths,
         lookups,
         ed_fueltype_national_yh,
-        val_elec_data_2015_indo,
-        val_elec_data_2015_itsdo,
-        indo_factoreddata)
+        indo_factoreddata,
+        val_elec_2015_indo,
+        val_elec_2015_itsdo)
 
     # ---------------------------------------------------
-    # Calculate average season and daytypes and plot them
+    # Calculate average season and daytypes and plot
     # ---------------------------------------------------
-    logging.debug("...calculate average data and plot per season and fueltype")
+    logging.info("...calculate average data and plot per season and fueltype")
 
     calc_av_lp_modelled, calc_lp_modelled = load_profile.calc_av_lp(
         ed_fueltype_national_yh[lookups['fueltype']['electricity']],
-        seasons, model_yeardays_daytype)
+        seasons,
+        model_yeardays_daytype)
 
     calc_av_lp_real, calc_lp_real = load_profile.calc_av_lp(
-        indo_factoreddata, seasons, model_yeardays_daytype)
+        indo_factoreddata,
+        seasons,
+        model_yeardays_daytype)
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
@@ -199,7 +181,7 @@ def tempo_spatial_validation(
     # ---------------------------------------------------
     # Validation of national electrictiy demand for peak
     # ---------------------------------------------------
-    logging.debug("...compare peak from data")
+    logging.debug("...validation of peak data: compare peak with data")
 
     # Peak across all fueltypes WARNING: Fueltype specific
     peak_day = enduse_func.get_peak_day(ed_fueltype_national_yh)
@@ -207,14 +189,14 @@ def tempo_spatial_validation(
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peakday_yh.pdf",
         local_paths['data_results_validation'],
-        val_elec_data_2015_indo[peak_day],
+        val_elec_2015_indo[peak_day],
         ed_fueltype_national_yh[lookups['fueltype']['electricity']][peak_day])
 
-    logging.debug("...compare peak from max peak factors")
+    logging.info("...compare peak from max peak factors")
     elec_national_data.compare_peak(
         "validation_elec_peak_comparison_peak_shapes.pdf",
         local_paths['data_results_validation'],
-        val_elec_data_2015_indo[peak_day],
+        val_elec_2015_indo[peak_day],
         tot_peak_enduses_fueltype[lookups['fueltype']['electricity']])
 
     # ---------------------------------------------------
@@ -223,7 +205,7 @@ def tempo_spatial_validation(
     elec_national_data.compare_results_hour_boxplots(
         "validation_hourly_boxplots_electricity_01.pdf",
         local_paths['data_results_validation'],
-        val_elec_data_2015_indo,
+        val_elec_2015_indo,
         ed_fueltype_national_yh[lookups['fueltype']['electricity']])
 
     return
@@ -234,7 +216,7 @@ def spatial_validation(
         fueltype_int,
         fueltype_str,
         lu_reg,
-        national_elec_data,
+        subnational_elec,
         fig_name
     ):
     """Compare gas/elec demand for LADs
@@ -251,27 +233,10 @@ def spatial_validation(
     SOURCE OF LADS:
         - Data for northern ireland is not included in that, however in BEIS dataset!
     """
-    logging.debug("..Validation of spatial disaggregation")
+    logging.debug("... Validation of spatial disaggregation")
     result_dict = {}
-    result_dict['real_elec_demand'] = {}
-    result_dict['modelled_elec_demand'] = {}
-
-    # ------------
-    # Substraction demand for northern ireland proportionally
-    # to the population. The population data are taken from
-    # https://www.ons.gov.uk/peoplepopulationandcommunity
-    # populationandmigration/populationestimates/bulletins
-    # annualmidyearpopulationestimates/mid2015
-    #
-    # The reason to correct for norther ireland is becauss
-    # in the national electricity data, nothern ireland is
-    # not included. However, in BEIS, Northern ireland is included.
-    # ------------
-    pop_northern_ireland_2015 = 1851600
-    pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
-    pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
-
-    correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
+    result_dict['real_demand'] = {}
+    result_dict['modelled_demand'] = {}
 
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
@@ -279,22 +244,25 @@ def spatial_validation(
     for region_array_nr, region_name in enumerate(lu_reg):
         for reg_geocode in reg_coord:
             if reg_geocode == region_name:
+
                 try:
-                    # --Sub Regional Electricity demand
-                    gw_per_region_real = conversions.gwhperyear_to_gw(national_elec_data[reg_geocode])
-                    result_dict['real_elec_demand'][reg_geocode] = gw_per_region_real
+                    # Test wheter data is provided for LAD
+                    if subnational_elec[reg_geocode] == 0:
+                        # Ignore region
+                        pass
+                    else:
+                        # --Sub Regional Electricity demand
+                        gw_per_region_real = conversions.gwhperyear_to_gw(subnational_elec[reg_geocode])
+                        result_dict['real_demand'][reg_geocode] = gw_per_region_real
 
-                    # Convert GWh to GW
-                    gw_per_region_modelled = conversions.gwhperyear_to_gw(
-                        np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
+                        # Convert GWh to GW
+                        gw_per_region_modelled = conversions.gwhperyear_to_gw(
+                            np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
 
-                    # Correct ECUK data with correction factor
-                    gw_per_region_corrected = correction_factor * gw_per_region_modelled
-                    result_dict['modelled_elec_demand'][reg_geocode] = gw_per_region_corrected
+                        # Correct ECUK data with correction factor
+                        result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled
                 except KeyError:
                     logging.warning("No fuel is defined for region %s", reg_geocode)
-
-    #TODO: MAYBE CORRECT EVEN MORE BECAUSE THE TWO VALUES DO NOT MATCH PERFECTLY
 
     # --------------------
     # Calculate statistics
@@ -302,23 +270,27 @@ def spatial_validation(
     all_diff_real_modelled_p = []
 
     for reg_geocode in lu_reg:
-        real = result_dict['real_elec_demand'][reg_geocode]
-        modelled = result_dict['modelled_elec_demand'][reg_geocode]
-        diff_real_modelled_p = (100/real) * modelled
-        all_diff_real_modelled_p.append(diff_real_modelled_p)
+        try:
+            real = result_dict['real_demand'][reg_geocode]
+            modelled = result_dict['modelled_demand'][reg_geocode]
+
+            diff_real_modelled_p = (100/real) * modelled
+            all_diff_real_modelled_p.append(diff_real_modelled_p)
+        except KeyError:
+            pass
 
     d_real_modelled_p = np.mean(all_diff_real_modelled_p)
 
     # RMSE calculations
     rmse_value = basic_functions.rmse(
-        np.array(result_dict['modelled_elec_demand'].values()),
-        np.array(result_dict['real_elec_demand'].values()))
+        np.array(list(result_dict['modelled_demand'].values())),
+        np.array(list(result_dict['real_demand'].values())))
 
     # -----------------
     # Sort results according to size
     # -----------------
     sorted_dict_real_elec_demand = sorted(
-        result_dict['real_elec_demand'].items(),
+        result_dict['real_demand'].items(),
         key=operator.itemgetter(1))
 
     # -------------------------------------
@@ -334,13 +306,13 @@ def spatial_validation(
 
     labels = []
     for sorted_region in sorted_dict_real_elec_demand:
-        y_real_elec_demand.append(result_dict['real_elec_demand'][sorted_region[0]])
-        y_modelled_elec_demand.append(result_dict['modelled_elec_demand'][sorted_region[0]])
+        y_real_elec_demand.append(result_dict['real_demand'][sorted_region[0]])
+        y_modelled_elec_demand.append(result_dict['modelled_demand'][sorted_region[0]])
         logging.debug(
             "validation: %s %s diff: %s",
-            result_dict['real_elec_demand'][sorted_region[0]],
-            result_dict['modelled_elec_demand'][sorted_region[0]],
-            result_dict['modelled_elec_demand'][sorted_region[0]] - result_dict['real_elec_demand'][sorted_region[0]])
+            result_dict['real_demand'][sorted_region[0]],
+            result_dict['modelled_demand'][sorted_region[0]],
+            result_dict['modelled_demand'][sorted_region[0]] - result_dict['real_demand'][sorted_region[0]])
         labels.append(sorted_region)
 
     # --------
@@ -409,3 +381,25 @@ def spatial_validation(
     # Save fig
     plt.savefig(fig_name)
     plt.close()
+
+def correction_uk_northern_ireland_2015():
+    """Not used yet. TODO
+    """
+    # ------------
+    # Substraction demand for northern ireland proportionally
+    # to the population. The population data are taken from
+    # https://www.ons.gov.uk/peoplepopulationandcommunity
+    # populationandmigration/populationestimates/bulletins
+    # annualmidyearpopulationestimates/mid2015
+    #
+    # The reason to correct for norther ireland is becauss
+    # in the national electricity data, nothern ireland is
+    # not included. However, in BEIS, Northern ireland is included.
+    # ------------
+    pop_northern_ireland_2015 = 1851600
+    pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
+    pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
+
+    correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
+
+    return correction_factor

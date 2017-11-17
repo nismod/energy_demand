@@ -89,6 +89,9 @@ def read_national_real_gas_data(path_to_csv):
     -----
     Source: https://www.gov.uk/government/statistical-data-sets
     /gas-sales-and-numbers-of-customers-by-region-and-local-authority
+
+    If for a LAD no information is provided,
+    the energy demand is set to zero.
     """
     national_fuel_data = {}
     with open(path_to_csv, 'r') as csvfile:
@@ -100,8 +103,7 @@ def read_national_real_gas_data(path_to_csv):
             tot_consumption_unclean = row[10].strip()
 
             if tot_consumption_unclean == '-':
-                # No entry provided
-                total_consumption = 0
+                total_consumption = 0 # No entry provided
             else:
                 total_consumption = float(tot_consumption_unclean.replace(",", ""))
 
@@ -201,9 +203,9 @@ def load_local_paths(path):
             path, '_raw_data', 'H-Met_office_weather_data', 'excel_list_station_details.csv'),
         'path_val_nat_elec_data': os.path.join(
             path, '_raw_data', 'D-validation', '03_national_elec_demand_2015', 'elec_demand_2015.csv'),
-        'path_val_subnational_elec_data': os.path.join(
+        'path_val_subnational_elec': os.path.join(
             path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
-        'path_val_subnational_gas_data': os.path.join(
+        'path_val_subnational_gas': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
         'path_employment_statistics': os.path.join(
             path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
@@ -805,7 +807,6 @@ def read_employment_statistics(path_to_csv):
 
         for line in lines:
             geocode = str.strip(line[2])
-            print(geocode)
 
             # Iterate fields and copy values
             for counter, heading in enumerate(_headings[4:], 4):

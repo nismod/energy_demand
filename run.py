@@ -88,9 +88,7 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        #logging.warning(data['lu_reg'])
-        #logging.warning(len('lu_reg'))
-        #prnt("")
+
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
 

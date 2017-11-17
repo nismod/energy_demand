@@ -328,10 +328,7 @@ def test_fuel_switch():
     # for 20204: 0.0134 because of fit (which is not as good as 0.625)
     boilerA_cy = np.sum(expected["boilerA"])
     boilerB_cy = np.sum(expected["boilerB"])
-    '''print(boilerA_cy)
-    print(8760 * (1 - (0.5 + (0.134))))
-    print(boilerB_cy)
-    print(8760 * (0.5 + (0.134)))'''
+
     assert round(boilerA_cy, 0) == round(8760 * (1 - (0.5 + (0.134))), 0)
     assert round(boilerB_cy, 0) == round(8760 * (0.5 + (0.134)), 0)
 
