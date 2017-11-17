@@ -1,7 +1,6 @@
 """Reading raw data
 """
-import os
-import sys
+import os, sys
 import csv
 import json
 import logging
@@ -979,7 +978,7 @@ def read_lf_y(path_enduse_specific_results):
         # Add year if not already exists
         results[year][fueltype_int] = txt_data
 
-    return results
+    return dict(results)
 
 def read_pop(path_enduse_specific_results):
     """Read load factors from txt file
@@ -998,7 +997,7 @@ def read_pop(path_enduse_specific_results):
         # Add year if not already exists
         results[year] = txt_data
 
-    return results
+    return dict(results)
 
 def read_capacity_installation(path_to_csv):
     """This function reads in service assumptions from csv file

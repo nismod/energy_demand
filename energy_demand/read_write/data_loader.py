@@ -173,7 +173,7 @@ def virtual_building_datasets(lu_reg, all_sectors):
         for sector in all_sectors:
             ss_floorarea_sector_by[reg_geocode][sector] = 10000
 
-    ss_floorarea_sector_2015_virtual_bs = ss_floorarea_sector_by
+    ss_floorarea_sector_2015_virtual_bs = dict(ss_floorarea_sector_by)
 
     return rs_floorarea_2015_virtual_bs, ss_floorarea_sector_2015_virtual_bs
 
@@ -817,4 +817,4 @@ def read_employment_statistics(path_to_csv):
                 data[geocode][category_nr] = float(line[counter])
 
     logging.info("... loaded employment statistics")
-    return data
+    return dict(data)

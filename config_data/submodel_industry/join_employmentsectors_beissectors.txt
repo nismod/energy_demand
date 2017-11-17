@@ -11,7 +11,7 @@ Industry: C16,17 Manufacturing: Wood, paper and paper products; measures:
 Industry: C19-22 Manufacturing: Chemicals, chemical products, rubber and plastic; measures:
 Industry: C23-25 Manufacturing: Low tech; measures:
 Industry: C26-30 Manufacturing: High tech; measures:
-Industry: C18, 31, 32 Manufacturing: Other; measures:
+Industry: C18,31,32 Manufacturing: Other; measures:
 Industry: D Electricity, gas, steam and air conditioning supply; measures:
 Industry: E Water supply, sewerage, waste management and remediation activities; measures:
 Industry: F Construction; measures:

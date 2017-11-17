@@ -408,7 +408,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_yh=tech_lp['ss_shapes_dh'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_y_dh'] * tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_non_peak_yd'][:, np.newaxis],
                     sectors=[sector],
                     enduse_peak_yd_factor=tech_lp['ss_shapes_yd'][sectors['ss_sectors'][0]]["ss_space_heating"]['shape_peak_yd_factor'],
-                    shape_peak_dh=shape_peak_dh_sectors_enduses)
+                    shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
         else:
             tech_list = helpers.get_nested_dict_key(assumptions['is_fuel_tech_p_by'][enduse])
             for sector in sectors['is_sectors']:
@@ -420,7 +420,7 @@ def create_load_profile_stock(tech_lp, assumptions, sectors):
                     shape_yh=shape_non_peak_yh,
                     sectors=[sector],
                     enduse_peak_yd_factor=shape_peak_yd_factor,
-                    shape_peak_dh=shape_peak_dh_sectors_enduses)
+                    shape_peak_dh=dict(shape_peak_dh_sectors_enduses))
 
     return non_regional_lp_stock
 

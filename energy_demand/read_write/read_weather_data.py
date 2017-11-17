@@ -71,4 +71,4 @@ def read_yearly_weather_data_script_data(path_to_csv):
 
         temp_data[station_id][year] = txt_data
 
-    return temp_data
+    return dict(temp_data)

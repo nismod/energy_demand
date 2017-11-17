@@ -24,8 +24,8 @@ def temporal_validation(
         val_elec_data_2015_itsdo,
         indo_factoreddata
     ):
-    """National hourly electricity data is validated with fuel of
-    all regions for base year
+    """National hourly electricity data is validated with
+    the summed modelled hourly demand for all regions
 
     Arguments
     ---------
@@ -105,7 +105,7 @@ def tempo_spatial_validation(
     fuel_national_tranport = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
     #Elec demand from ECUK for transport sector
-    fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(fuel_elec_year_validation) 
+    fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(fuel_elec_year_validation)
 
     # Create transport model (add flat shapes)
     model_object_transport = generic_shapes.GenericFlatEnduse(
@@ -188,7 +188,7 @@ def tempo_spatial_validation(
 
     # Plot average daily loads
     plotting_results.plot_load_profile_dh_multiple(
-        os.path.join(local_paths['data_results_PDF'], 'validation_all_season_daytypes.pdf'),
+        os.path.join(local_paths['data_results_validation'], 'validation_all_season_daytypes.pdf'),
         calc_av_lp_modelled,
         calc_av_lp_real,
         calc_lp_modelled,
@@ -257,51 +257,66 @@ def spatial_validation(
     result_dict['modelled_elec_demand'] = {}
 
     # ------------
-    # Substraction demand for notheren ireland TODO MAYBE NOT BECAUSE PROVIDED PER REGION
-    # from gas data 
-    # https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/bulletins/annualmidyearpopulationestimates/mid2015
-    #TODO DESCRRIBE
+    # Substraction demand for northern ireland proportionally
+    # to the population. The population data are taken from
+    # https://www.ons.gov.uk/peoplepopulationandcommunity
+    # populationandmigration/populationestimates/bulletins
+    # annualmidyearpopulationestimates/mid2015
+    #
+    # The reason to correct for norther ireland is becauss
+    # in the national electricity data, nothern ireland is
+    # not included. However, in BEIS, Northern ireland is included.
     # ------------
-    # e.g. proportionally to population
-    pop_northern_ireland_2015 =  1851600
+    pop_northern_ireland_2015 = 1851600
     pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
-    pop_tot = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
+    pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
 
-    correction_factor = pop_wales_scotland_england_2015 / pop_tot
+    correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
 
     # -------------------------------------------
     # Match ECUK sub-regional demand with geocode
     # -------------------------------------------
-    testsum_real = 0
-    testsum_modelled = 0
-    testsum_modelled_corrected = 0
     for region_array_nr, region_name in enumerate(lu_reg):
         for reg_geocode in reg_coord:
             if reg_geocode == region_name:
                 try:
                     # --Sub Regional Electricity demand
-                    gw_per_region = conversions.gwhperyear_to_gw(national_elec_data[reg_geocode])
-                    testsum_real += gw_per_region
-                    result_dict['real_elec_demand'][reg_geocode] = gw_per_region
+                    gw_per_region_real = conversions.gwhperyear_to_gw(national_elec_data[reg_geocode])
+                    result_dict['real_elec_demand'][reg_geocode] = gw_per_region_real
 
                     # Convert GWh to GW
-                    gw_per_region = conversions.gwhperyear_to_gw(
+                    gw_per_region_modelled = conversions.gwhperyear_to_gw(
                         np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
 
                     # Correct ECUK data with correction factor
-                    gw_per_region_corrected = correction_factor *  gw_per_region
-                    testsum_modelled += gw_per_region
-                    testsum_modelled_corrected += gw_per_region_corrected
+                    gw_per_region_corrected = correction_factor * gw_per_region_modelled
                     result_dict['modelled_elec_demand'][reg_geocode] = gw_per_region_corrected
                 except KeyError:
                     logging.warning("No fuel is defined for region %s", reg_geocode)
 
+    #TODO: MAYBE CORRECT EVEN MORE BECAUSE THE TWO VALUES DO NOT MATCH PERFECTLY
+
+    # --------------------
+    # Calculate statistics
+    # --------------------
+    all_diff_real_modelled_p = []
+
+    for reg_geocode in lu_reg:
+        real = result_dict['real_elec_demand'][reg_geocode]
+        modelled = result_dict['modelled_elec_demand'][reg_geocode]
+        diff_real_modelled_p = (100/real) * modelled
+        all_diff_real_modelled_p.append(diff_real_modelled_p)
+
+    d_real_modelled_p = np.mean(all_diff_real_modelled_p)
+
+    # RMSE calculations
+    rmse_value = basic_functions.rmse(
+        np.array(result_dict['modelled_elec_demand'].values()),
+        np.array(result_dict['real_elec_demand'].values()))
 
     # -----------------
     # Sort results according to size
     # -----------------
-
-    # --Sorted sub regional electricity demand
     sorted_dict_real_elec_demand = sorted(
         result_dict['real_elec_demand'].items(),
         key=operator.itemgetter(1))
@@ -309,7 +324,6 @@ def spatial_validation(
     # -------------------------------------
     # Plot
     # -------------------------------------
-    # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(17, 10))
     ax = fig.add_subplot(1, 1, 1)
 
@@ -327,13 +341,7 @@ def spatial_validation(
             result_dict['real_elec_demand'][sorted_region[0]],
             result_dict['modelled_elec_demand'][sorted_region[0]],
             result_dict['modelled_elec_demand'][sorted_region[0]] - result_dict['real_elec_demand'][sorted_region[0]])
-
         labels.append(sorted_region)
-
-    # RMSE calculations
-    rmse_value = basic_functions.rmse(
-        np.array(y_modelled_elec_demand),
-        np.array(y_real_elec_demand))
 
     # --------
     # Axis
@@ -374,7 +382,10 @@ def spatial_validation(
     # -----------
     font_additional_info = {
         'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    title_info = ('RMSE: {}, Region Nr: {}'.format(rmse_value, len(y_real_elec_demand)))
+    title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}'.format(
+        round(rmse_value, 3),
+        round(d_real_modelled_p, 3),
+        len(y_real_elec_demand)))
 
     plt.title(
         title_info,

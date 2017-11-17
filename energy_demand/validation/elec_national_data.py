@@ -190,10 +190,14 @@ def compare_peak(
 
     # Save fig
     plt.savefig(os.path.join(path_result, name_fig))
-    #plt.show()
     plt.close()
 
-def compare_results_hour_boxplots(name_fig, path_result, data_real, data_calculated):
+def compare_results_hour_boxplots(
+        name_fig,
+        path_result,
+        data_real,
+        data_calculated
+    ):
     """Calculate differences for every hour and plot according to hour
     for the full year
     """
@@ -211,7 +215,6 @@ def compare_results_hour_boxplots(name_fig, path_result, data_real, data_calcula
             data_h_full_year[hour].append(diff_percent)
 
     fig = plt.figure()
-
     ax = fig.add_subplot(111)
 
     # Add a horizontal grid to the plot, but make it very light in color so we can use it for reading data values but not be distracting

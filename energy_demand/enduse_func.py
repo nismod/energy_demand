@@ -1542,7 +1542,7 @@ def convert_service_tech_to_p(service):
                 else:
                     out_dict[fueltype][tech] = service_fueltype_tech / tot_service_per_fueltype
 
-    return out_dict
+    return dict(out_dict)
 
 def convert_service_to_p(tot_service_y, service_fueltype_tech):
     """Calculate fraction of service for every technology

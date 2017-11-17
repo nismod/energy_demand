@@ -19,7 +19,7 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016'
-NR_OF_MODELLEd_REGIONS = 380 #380
+#NR_OF_MODELLEd_REGIONS = 380 #380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -45,7 +45,7 @@ class EDWrapper(SectorModel):
             for r_idx, region in enumerate(self.get_region_names(REGION_SET_NAME)):
                 output_dict[timestep][region] = input_array[t_idx, r_idx, 0]
 
-        return output_dict
+        return dict(output_dict)
 
     def before_model_run(self):
         """Runs prior to any ``simulate()`` step
@@ -88,11 +88,14 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
+        #logging.warning(data['lu_reg'])
+        #logging.warning(len('lu_reg'))
+        #prnt("")
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
+        #data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
 
         data['reg_nrs'] = len(data['lu_reg'])
@@ -251,7 +254,7 @@ class EDWrapper(SectorModel):
 
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
+        #data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
         data['reg_nrs'] = len(data['lu_reg'])
 
@@ -263,7 +266,7 @@ class EDWrapper(SectorModel):
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
         data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
-    
+
         # ---------
         # Replace data in data with data provided from wrapper or before_model_run
         # Write data from smif to data container from energy demand model
