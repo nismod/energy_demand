@@ -9,6 +9,7 @@ import matplotlib.patches as mpatches
 from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
 from matplotlib.patches import Rectangle
+from energy_demand.plotting import plotting_styles
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
@@ -122,7 +123,7 @@ def run_all_plot_functions(
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
         enduses['ss_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_ss_countryl.pdf"))
+        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
 
     # Industry
     plt_stacked_enduse(
@@ -233,17 +234,21 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
             years,
             average_season_year_years,
             color=color_list[season],
-            linewidth=1,
+            linewidth=0.5,
             linestyle='--',
-            alpha=1.0)
-        
+            alpha=1.0,
+            markersize=0.5,
+            marker='o',
+            label=season)
+
         # Plot markers for average line
-        plt.plot(
+        '''plt.plot(
             years,
             average_season_year_years,
             color=color_list[season],
             markersize=0.5,
-            marker='o')
+            linewidth=0.5,
+            marker='o')'''
 
     # -----------------
     # Axis
@@ -273,7 +278,12 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     # ------------
     # Plot color legend with colors for every season
     # ------------
-    recs = []
+    plt.legend(
+        ncol=2,
+        prop={'family': 'arial','size': 8},
+        loc='best',
+        frameon=False)
+    '''recs = []
     for color_nr in range(0, len(class_colours)):
         recs.append(mpatches.Rectangle((0,0), 1, 1, fc=class_colours[color_nr], alpha=1.0))
 
@@ -283,7 +293,7 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
         ncol=2,
         prop={'family': 'arial','size': 8},
         loc='best',
-        frameon=False)
+        frameon=False)'''
 
     # Tight layout
     plt.tight_layout()
@@ -753,14 +763,16 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
         'darkturquoise', 'orange', 'firebrick',
         'darkviolet', 'khaki', 'olive', 'darkseagreen',
         'darkcyan', 'indianred', 'darkblue']
+    linestyles = plotting_styles.linestyles()
 
-    for fueltype_str, fuel_fueltype_yrs in y_values_fueltype.items():
+    for counter, (fueltype_str, fuel_fueltype_yrs) in enumerate(y_values_fueltype.items()):
         color_line = str(color_list.pop())
 
         # plot line
         plt.plot(
             list(fuel_fueltype_yrs.keys()), #years
             list(fuel_fueltype_yrs.values()), #yearly data per fueltype
+            linestyle=linestyles[counter],
             color=color_line,
             label=fueltype_str)
 
@@ -832,10 +844,18 @@ def plt_fuels_peak_h(tot_fuel_dh_peak, lookups, path_plot_fig):
 
         y_init[fueltype] = data_over_years
 
+    # ----------
     # Plot lines
+    # ----------
+    linestyles = plotting_styles.linestyles()
+
     years = list(tot_fuel_dh_peak.keys())
     for fueltype, _ in enumerate(y_init):
-        plt.plot(years, y_init[fueltype])
+        plt.plot(
+            years,
+            y_init[fueltype],
+            linestyle=linestyles[fueltype],
+            linewidth=0.7)
 
     # Legend
     ax.legend(
@@ -907,17 +927,23 @@ def plot_load_profile_dh_multiple(
             plt.plot(
                 x_values,
                 list(calc_av_lp_real[season][daytype]),
-                color='green', label='real_by')
+                color='black',
+                label='real_by',
+                linestyle='-',
+                linewidth=0.5)
 
             plt.plot(
                 x_values,
                 list(calc_av_lp_modelled[season][daytype]),
-                color='red', label='modelled_future')
+                color='blue',
+                label='modelled_future',
+                linestyle='--',
+                linewidth=0.5)
 
             # ------------------
             # Plot every single line
             # ------------------
-            if plot_all_entries == True:
+            if plot_all_entries:
                 for entry in range(len(calc_lp_real[season][daytype])):
                     plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', markersize=0.5, alpha=0.2)
                     plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', markersize=0.5, alpha=0.2)
@@ -925,7 +951,7 @@ def plot_load_profile_dh_multiple(
             # --------------------
             # Get load shape within season with highetst houly load
             # --------------------
-            if plot_peak == True:
+            if plot_peak:
 
                 # Get row with maximum hourly value
                 day_with_max_h = np.argmax(np.max(calc_lp_real[season][daytype], axis=1))
@@ -935,7 +961,9 @@ def plot_load_profile_dh_multiple(
                     list(calc_lp_real[season][daytype][day_with_max_h]),
                     color='orange',
                     markersize=1.0,
-                    label='peak')
+                    label='peak',
+                    linestyle='-.',
+                    linewidth=0.5)
 
             # -----------------
             # Axis

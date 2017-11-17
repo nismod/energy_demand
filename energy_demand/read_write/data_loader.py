@@ -242,9 +242,9 @@ def load_local_paths(path):
         'dir_services': os.path.join(
             path, '_processed_data', 'services'),
         'data_results_PDF': os.path.join(
-            path, '_result_data', 'PDF'),
+            path, '_result_data', 'PDF_results'),
         'data_results_validation': os.path.join(
-            path, '_result_data', 'validation_PDF'),
+            path, '_result_data', 'PDF_validation'),
         'data_results_shapefiles': os.path.join(
             path, '_result_data', 'result_shapefiles')}
 

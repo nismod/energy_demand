@@ -37,6 +37,8 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     This function is executed in the wrapper
     """
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
+    print("VORHER Fuel input:          " + str(fuel_in))
+    print("VORHER elec fuel in:        " + str(fuel_in_elec))
 
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
@@ -160,9 +162,9 @@ if __name__ == "__main__":
             rs_floorarea[year][region_geocode] = 10000
     data['rs_floorarea_newcastle'] = rs_floorarea
 
-    data['coord_dummy'] = {}
+    data['reg_coord'] = {}
     for reg in data['lu_reg']:
-        data['coord_dummy'][reg] = {'longitude': 52.58, 'latitude': -1.091}
+        data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
     #Scenario data
     data['scenario_data'] = {

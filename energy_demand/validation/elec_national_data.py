@@ -133,10 +133,45 @@ def compare_results(
     #slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(y_real_indo), np.array(y_calculated))
 
     # plot points
-    plt.plot(x_data, y_real_indo, color='black', label='TD')
-    plt.plot(x_data, y_real_itsdo, color='grey', label='TSD')
-    plt.plot(x_data, y_real_indo_factored, color='green', label='TD_factored')
-    plt.plot(x_data, y_calculated, color='red', label='modelled')
+    #plt.plot(x_data, y_real_indo, color='black', label='indo')
+    #plt.plot(x_data, y_real_itsdo, color='grey', label='itsdo')
+    '''plt.plot(
+        x_data,
+        y_real_indo_factored,
+        color='green',
+        label='indo_factored')
+
+    plt.plot(
+        x_data,
+        y_calculated,
+        color='red',
+        label='modelled')'''
+
+    plt.plot(
+        x_data,
+        y_real_indo_factored,
+        label='indo_factored',
+        linestyle='-',
+        linewidth=0.5,
+        #marker='o',
+        #markersize=1,
+        fillstyle='full',
+        #markeredgewidth=0.7,
+        color='black')
+
+    plt.plot(
+        x_data,
+        y_calculated,
+        label='modelled',
+        linestyle='--',
+        linewidth=0.5,
+        #marker='o',
+        #markerfacecolor='blue',
+        #markersize=1,
+        fillstyle='full',
+        #markeredgewidth=0.7,
+        color='blue')
+
     #plt.plot(x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
     #plt.plot(x_data, y_calculated, color='white', fillstyle='none', markeredgewidth=0.5, marker='o', markersize=10, label='modelled')
 

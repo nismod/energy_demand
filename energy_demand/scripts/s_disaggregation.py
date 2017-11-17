@@ -141,7 +141,10 @@ def ss_disaggregate(
     if crit_limited_disagg:
         if crit_limited_disagg_pop:
 
-            pop_tot = sum(scenario_data['population'][sim_param['base_yr']].values())
+            #pop_tot = sum(scenario_data['population'][sim_param['base_yr']].values())
+            tot_pop = 0
+            for reg in lu_reg:
+                tot_pop += scenario_data['population'][sim_param['base_yr']][reg]
 
             for region_name in lu_reg:
                 reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
@@ -150,9 +153,7 @@ def ss_disaggregate(
                 for sector in sectors['ss_sectors']:
                     ss_fuel_disagg[region_name][sector] = {}
                     for enduse in enduses['ss_all_enduses']:
-                        ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * (reg_pop/pop_tot)
-
-        return ss_fuel_disagg
+                        ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * (reg_pop/tot_pop)
     else:
         # ---------------------------------------
         # Calculate heating degree days for regions
@@ -233,7 +234,10 @@ def ss_disaggregate(
         # ---------------------------------------
         # Disaggregate according to enduse
         # ---------------------------------------
-        scrap_tot_pop = sum(scenario_data['population'][sim_param['base_yr']].values())
+        scrap_tot_pop = 0
+        for reg in lu_reg:
+            scrap_tot_pop += scenario_data['population'][sim_param['base_yr']][reg]
+        #scrap_tot_pop = sum(scenario_data['population'][sim_param['base_yr']].values())
         for region_name in lu_reg:
             ss_fuel_disagg[region_name] = {}
             for sector in sectors['ss_sectors']:
@@ -278,7 +282,7 @@ def ss_disaggregate(
                     ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * DUMMY_reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
-    '''control_sum1, control_sum2 = 0, 0
+    control_sum1, control_sum2 = 0, 0
     for reg in ss_fuel_disagg:
         for sector in ss_fuel_disagg[reg]:
             for enduse in ss_fuel_disagg[reg][sector]:
@@ -289,7 +293,7 @@ def ss_disaggregate(
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
-    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))'''
+    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
     return ss_fuel_disagg
 
 def is_disaggregate(
@@ -316,7 +320,10 @@ def is_disaggregate(
     if crit_limited_disagg:
         if crit_limited_disagg_pop:
 
-            tot_pop = sum(scenario_data['population'][sim_param['base_yr']].values())
+            #tot_pop = sum(scenario_data['population'][sim_param['base_yr']].values())
+            tot_pop = 0
+            for reg in lu_reg:
+                tot_pop += scenario_data['population'][sim_param['base_yr']][reg]
             # Disaggregate only with population
             for region_name in lu_reg:
                 is_fuel_disagg[region_name] = {}
@@ -437,13 +444,16 @@ def rs_disaggregate(
     if crit_limited_disagg:
         if crit_limited_disagg_pop:
 
-            pop_tot = sum(scenario_data['population'][sim_param['base_yr']].values())
+            #pop_tot = sum(scenario_data['population'][sim_param['base_yr']].values())
+            tot_pop = 0
+            for reg in lu_reg:
+                tot_pop += scenario_data['population'][sim_param['base_yr']][reg]
 
             for region_name in lu_reg:
                 reg_pop = scenario_data['population'][sim_param['base_yr']][region_name]
 
                 for enduse in rs_national_fuel:
-                    rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * (reg_pop / pop_tot)
+                    rs_fuel_disagg[region_name][enduse] = rs_national_fuel[enduse] * (reg_pop / tot_pop)
 
             return rs_fuel_disagg
     else:

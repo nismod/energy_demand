@@ -63,8 +63,9 @@ def temporal_validation(
         days_to_plot)
 
     logging.debug(
-        "FUEL gwh TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo), np.sum(elec_2015_itsdo), np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])))
-    logging.debug("FUEL ktoe TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo)/11.63, np.sum(elec_2015_itsdo)/11.63, np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']])/11.63))
+        "FUEL gwh TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo), np.sum(elec_2015_itsdo), elec_ed_fueltype_national_yh))
+    logging.debug(
+        "FUEL ktoe TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo)/11.63, np.sum(elec_2015_itsdo)/11.63, elec_ed_fueltype_national_yh/11.63))
 
     return
 
@@ -142,15 +143,12 @@ def tempo_spatial_validation(
     # -------------------------------------------
     # Read validation data
     elec_2015_indo, elec_2015_itsdo = elec_national_data.read_raw_elec_2015(local_paths['path_val_nat_elec_data'])
-    print("AAA: " + str(np.sum(elec_2015_indo)))
-    print("AAA: " + str(np.sum(elec_2015_itsdo)))
+
     diff_factor_elec = np.sum(ed_fueltype_national_yh[lookups['fueltype']['electricity']]) / np.sum(elec_2015_indo)
-    print("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
+    logging.info("... ed difference between modellend and real [percent] %s: ", (1 - diff_factor_elec) * 100)
 
     elec_factored_yh = diff_factor_elec * elec_2015_indo
-    print("===========info: {} {} {}".format(diff_factor_elec, np.sum(elec_factored_yh), np.sum(ed_fueltype_national_yh[2])))
-    print(np.sum(elec_factored_yh))
-    prnt(":")
+
     temporal_validation(
         local_paths,
         lookups,
@@ -351,7 +349,7 @@ def spatial_validation(
         marker='o',
         linestyle='None',
         markersize=4, #markerfacecoloralt markeredgecolor=''
-        markerfacecolor='whitesmoke',
+        markerfacecolor='blue', #whitesmoke
         fillstyle='none',
         markeredgewidth=0.7,
         color='black',
@@ -410,7 +408,6 @@ def correction_uk_northern_ireland_2015():
     pop_northern_ireland_2015 = 1851600
     pop_wales_scotland_england_2015 = 3099100 + 5373000 + 54786300
     pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
-
     correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
 
     return correction_factor
