@@ -19,9 +19,8 @@ from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_2016'
-NR_OF_MODELLEd_REGIONS = 20 #380
+NR_OF_MODELLEd_REGIONS = 380 #380
 PROFILER = False
-VALIDATION_CRITERIA = True
 
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
@@ -81,12 +80,6 @@ class EDWrapper(SectorModel):
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
 
-        # ---------------------
-        # Simulation parameters and criteria
-        # ---------------------
-        data['criterias']['plot_HDD_chart'] = False
-        data['criterias']['virtual_building_stock_criteria'] = True
-
         data['sim_param']['base_yr'] = 2015 #REPLACE
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
@@ -97,11 +90,10 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = data_loader.get_dummy_coord_region(data['lu_reg'], data['local_paths']) #REMOVE IF CORRECT DATA IN
-        
 
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
-        print("Modelled for a nuamer of regions: " + str(len(data['lu_reg'])))
+        logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
 
         data['reg_nrs'] = len(data['lu_reg'])
         # ---------------------
@@ -134,8 +126,7 @@ class EDWrapper(SectorModel):
             'gva': data['gva'],
             'population': data['population'],
             'floor_area': {
-                'rs_floorarea_newcastle': rs_floorarea_newcastle,
-                }
+                'rs_floorarea_newcastle': rs_floorarea_newcastle}
         }
 
         # Assumptions
@@ -168,7 +159,8 @@ class EDWrapper(SectorModel):
         # Initialise scenario
         # --------------------
         self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
-            self.user_data['data_path'], data)
+            self.user_data['data_path'],
+            data)
 
         # ------
         # Write other scenario data to txt files for this scenario run
@@ -251,6 +243,8 @@ class EDWrapper(SectorModel):
         # --------------------
         data['criterias']['virtual_building_stock_criteria'] = True
         data['criterias']['plot_HDD_chart'] = False
+        data['criterias']['validation_criteria'] = True
+
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition
         data['sim_param']['curr_yr'] = timestep                  # Read in current year from smif
         data['sim_param']['simulated_yrs'] = self.timesteps      # Read in all simulated years from smif
@@ -361,14 +355,6 @@ class EDWrapper(SectorModel):
             profiler = Profiler(use_signal=False)
             profiler.start()
 
-        logging.warning("--------SCRAP BELUGA------------")
-        logging.warning(data['assumptions']['rs_fuel_switches'])
-        logging.warning(data['assumptions']['rs_service_switches'])
-        logging.warning(data['assumptions']['ss_fuel_switches'])
-        logging.warning(data['assumptions']['ss_service_switches'])
-        logging.warning(data['assumptions']['is_fuel_switches'])
-        logging.warning(data['assumptions']['is_service_switches'])
-
         model_run_object = energy_demand_model(data)
 
         if PROFILER:
@@ -400,7 +386,7 @@ class EDWrapper(SectorModel):
         # ------------------------------------------------
         # Validation base year: Hourly temporal validation
         # ------------------------------------------------
-        if VALIDATION_CRITERIA and timestep == data['sim_param']['base_yr']:
+        if data['criterias']['validation_criteria'] == True and timestep == data['sim_param']['base_yr']:
             lad_validation.tempo_spatial_validation(
                 data['sim_param']['base_yr'],
                 data['assumptions']['model_yearhours_nrs'],

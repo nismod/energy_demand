@@ -205,7 +205,7 @@ def load_local_paths(path):
             path, '_raw_data', 'D-validation', '01_subnational_elec_demand', 'data_2015_elec.csv'),
         'path_val_subnational_gas_data': os.path.join(
             path, '_raw_data', 'D-validation', '02_subnational_gas_demand', 'data_2015_gas.csv'),
-        'path_folder_employment_statistics': os.path.join(
+        'path_employment_statistics': os.path.join(
             path, '_raw_data', 'b-census_data', 'employment_statistics_2011_LAD', 'LAD_prior_2015.csv'),
         'path_dummy_regions': os.path.join(
             path, '_raw_data', 'B-census_data', 'regions_local_area_districts', '_quick_and_dirty_spatial_disaggregation', 'infuse_dist_lyr_2011_saved.csv'),
@@ -805,16 +805,16 @@ def read_employment_statistics(path_to_csv):
 
         for line in lines:
             geocode = str.strip(line[2])
+            print(geocode)
 
             # Iterate fields and copy values
-            for heading in _headings[4:]:
+            for counter, heading in enumerate(_headings[4:], 4):
                 heading_split = heading.split(":")
                 category_unclean = str.strip(heading_split[1])
                 category_full_name = str.strip(category_unclean.split(" ")[0]).replace(" ", "_")
-                
                 category_nr = category_full_name.split("_")[0]
-                #data[geocode][category_full_name] = float(line[4])
-                data[geocode][category_nr] = float(line[4])
+
+                data[geocode][category_nr] = float(line[counter])
 
     logging.info("... loaded employment statistics")
     return data

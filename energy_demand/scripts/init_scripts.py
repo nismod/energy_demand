@@ -128,7 +128,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Load local datasets for disaggregateion
     # ---------------------------------------
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
-        data['local_paths']['path_folder_employment_statistics'])
+        data['local_paths']['path_employment_statistics'])
 
     # -------------------
     # s_fuel_to_servic

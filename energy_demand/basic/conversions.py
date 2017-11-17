@@ -149,7 +149,7 @@ def convert_fueltypes_sectors_ktoe_gwh(fuel_dict):
 
     Returns
     -------
-    fuel_converted : array
+    fuel_converted : dict
         Array with converted fuel per fueltype
     """
     fuel_converted = defaultdict(dict)
@@ -159,4 +159,4 @@ def convert_fueltypes_sectors_ktoe_gwh(fuel_dict):
             fuel_converted[enduse][sector] = np.apply_along_axis(
                 func1d=ktoe_to_gwh, axis=0, arr=fuels)
 
-    return fuel_converted
+    return dict(fuel_converted)

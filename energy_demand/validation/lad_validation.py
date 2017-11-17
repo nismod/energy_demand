@@ -296,15 +296,10 @@ def spatial_validation(
                 except KeyError:
                     logging.warning("No fuel is defined for region %s", reg_geocode)
 
-    print("compariosn: ")
-    print(testsum_real)
-    print(testsum_modelled)
-    print(testsum_modelled_corrected)
-    #prnt(".")
+
     # -----------------
     # Sort results according to size
     # -----------------
-    result_dict['modelled_elec_demand_sorted'] = {}
 
     # --Sorted sub regional electricity demand
     sorted_dict_real_elec_demand = sorted(
@@ -327,6 +322,12 @@ def spatial_validation(
     for sorted_region in sorted_dict_real_elec_demand:
         y_real_elec_demand.append(result_dict['real_elec_demand'][sorted_region[0]])
         y_modelled_elec_demand.append(result_dict['modelled_elec_demand'][sorted_region[0]])
+        logging.debug(
+            "validation: %s %s diff: %s",
+            result_dict['real_elec_demand'][sorted_region[0]],
+            result_dict['modelled_elec_demand'][sorted_region[0]],
+            result_dict['modelled_elec_demand'][sorted_region[0]] - result_dict['real_elec_demand'][sorted_region[0]])
+
         labels.append(sorted_region)
 
     # RMSE calculations
@@ -348,9 +349,10 @@ def spatial_validation(
     # Plot
     # ----------------------------------------------
     plt.plot(
-        x_values, 
+        x_values,
         y_real_elec_demand,
-        'ro', markersize=2,
+        'ro',
+        markersize=2,
         color='green',
         label='Sub regional demand (real)')
 
@@ -358,9 +360,9 @@ def spatial_validation(
         x_values,
         y_modelled_elec_demand,
         'ro',
-         markersize=2,
-         color='red',
-         label='Disaggregated demand (modelled)')
+        markersize=2,
+        color='red',
+        label='Disaggregated demand (modelled)')
 
     # Limit
     #higher_x_to_plot = round(sorted_dict_real_elec_demand[-1][1], -3) #round to 1'000

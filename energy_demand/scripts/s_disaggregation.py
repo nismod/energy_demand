@@ -341,7 +341,15 @@ def is_disaggregate(
                 reg_sector_employment = employment_statistics[region_name][matched_sector]
 
                 reg_disaggregation_factor = reg_sector_employment / national_sector_employment
-
+                logging.warning(
+                    " info: {} {}  {}  {}  {}   {} ".format(
+                        region_name,
+                        sector,
+                        enduse,
+                        reg_disaggregation_factor, 
+                        national_sector_employment,
+                        reg_sector_employment))
+                
                 # Disaggregated national fuel
                 national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
                 is_fuel_disagg[region_name][sector][enduse] = national_fuel_sector_by * reg_disaggregation_factor

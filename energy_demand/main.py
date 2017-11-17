@@ -178,10 +178,20 @@ if __name__ == "__main__":
     logging.info("... Load data from script calculations")
     data = read_data.load_script_data(data)
 
+
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
-        data['local_paths']['path_folder_employment_statistics'])
-    prnt(".")
-    #--------------------
+        data['local_paths']['path_employment_statistics'])
+    print(data['scenario_data']['employment_statistics'])
+    print("----")
+    for i, j in data['scenario_data']['employment_statistics'].items():
+        print("  {}   {}".format(i, j))
+    print(data['scenario_data']['employment_statistics']['E0700200'])
+    print(data['scenario_data']['employment_statistics']['95WW'])
+    print("_-")
+    print(data['scenario_data']['employment_statistics']['95W'])
+    prnt(":")
+
+    #-------------------
     # Folder cleaning
     #--------------------
     logging.info("... delete previous model run results")
