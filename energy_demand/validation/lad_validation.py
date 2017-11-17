@@ -49,9 +49,10 @@ def temporal_validation(
     autumn_week = list(range(
         date_prop.date_to_yearday(2015, 10, 12), date_prop.date_to_yearday(2015, 10, 19))) #Oct
     days_to_plot = winter_week + spring_week + summer_week + autumn_week
-    #days_to_plot = list(range(0, 365))
 
-    # Hourly national electricity data
+    # ----------------
+    # Plot four weeks
+    # ----------------
     elec_national_data.compare_results(
         'validation_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
@@ -62,10 +63,19 @@ def temporal_validation(
         'all_submodels',
         days_to_plot)
 
-    logging.debug(
-        "FUEL gwh TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo), np.sum(elec_2015_itsdo), elec_ed_fueltype_national_yh))
-    logging.debug(
-        "FUEL ktoe TOTAL  elec_2015_indo: {} elec_2015_itsdo: {}  MODELLED DATA:  {} ".format(np.sum(elec_2015_indo)/11.63, np.sum(elec_2015_itsdo)/11.63, elec_ed_fueltype_national_yh/11.63))
+    # ----------------
+    # Plot a full year
+    # ----------------
+    days_to_plot = list(range(0, 365))
+    elec_national_data.compare_results(
+        'validation_electricity_weeks_selection.pdf',
+        local_paths['data_results_validation'],
+        elec_2015_indo,
+        elec_2015_itsdo,
+        elec_factored_yh,
+        elec_ed_fueltype_national_yh,
+        'all_submodels',
+        days_to_plot)
 
     return
 
@@ -337,9 +347,9 @@ def spatial_validation(
         y_real_elec_demand,
         linestyle='None',
         marker='o',
-        markersize=4,
+        markersize=2,
         fillstyle='full',
-        markeredgewidth=0.7,
+        markeredgewidth=0.2,
         color='black',
         label='real')
 
@@ -348,10 +358,10 @@ def spatial_validation(
         y_modelled_elec_demand,
         marker='o',
         linestyle='None',
-        markersize=4, #markerfacecoloralt markeredgecolor=''
+        markersize=2, #markerfacecoloralt markeredgecolor=''
         markerfacecolor='blue', #whitesmoke
         fillstyle='none',
-        markeredgewidth=0.7,
+        markeredgewidth=0.2,
         color='black',
         label='modelled')
 

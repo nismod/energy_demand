@@ -134,6 +134,7 @@ def ss_disaggregate(
         crit_limited_disagg_pop
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
+    TODO: So far only disaggregated with 
     """
     logging.debug("... disaggregate service demand")
     ss_fuel_disagg = {}

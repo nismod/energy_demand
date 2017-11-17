@@ -203,7 +203,7 @@ def compare_results(
 def compare_peak(
         name_fig,
         path_result,
-        validation_elec_data_2015_peak,
+        validation_elec_2015_peak,
         tot_peak_enduses_fueltype
     ):
     """Compare peak electricity day with calculated peak energy demand
@@ -212,7 +212,7 @@ def compare_peak(
     ---------
     name_fig :
     local_paths :
-    validation_elec_data_2015_peak :
+    validation_elec_2015_peak :
     tot_peak_enduses_fueltype :
     """
     logging.debug("...compare elec peak results")
@@ -222,16 +222,28 @@ def compare_peak(
     # -------------------------------
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    plt.plot(range(24), tot_peak_enduses_fueltype, color='red', label='modelled')
+    plt.plot(
+        range(24),
+        tot_peak_enduses_fueltype,
+        color='black',
+        linestyle='-',
+        linewidth=0.5,
+        label='modelled')
     #plt.plot(range(24), validation_elec_data_2015[max_day], color='green', label='real')
-    plt.plot(range(24), validation_elec_data_2015_peak, color='green', label='real')
+    plt.plot(
+        range(24),
+        validation_elec_2015_peak,
+        color='blue',
+        linestyle='--',
+        linewidth=0.5,
+        label='real')
 
     # Y-axis ticks
     plt.xlim(0, 25)
     plt.yticks(range(0, 90, 10))
 
     # Legend
-    plt.legend()
+    plt.legend(frameon=False)
 
     # Labelling
     plt.title("Peak day comparison", loc='left')
@@ -252,8 +264,8 @@ def compare_results_hour_boxplots(
         data_real,
         data_calculated
     ):
-    """Calculate differences for every hour and plot according to hour
-    for the full year
+    """Calculate differences for everyhour and plot according
+    to hour for the full year
     """
     data_h_full_year = {}
     for i in range(24):
@@ -286,9 +298,7 @@ def compare_results_hour_boxplots(
     #plt.margins(x=0) #remove white space
 
     plt.xlabel("hour")
-    #plt.ylabel("Modelled electricity difference (real-modelled) [GWh / h]")
     plt.ylabel("Modelled electricity difference (real-modelled) [%]")
-
+    
     plt.savefig(os.path.join(path_result, name_fig))
-    #plt.show()
     plt.close()
