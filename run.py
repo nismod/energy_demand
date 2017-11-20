@@ -274,8 +274,8 @@ class EDWrapper(SectorModel):
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = {} #TODO: REMOVE
         for reg in data['lu_reg']:
-            data['reg_coord'] [reg] = {'longitude': 52.58, 'latitude': -1.091}
-    
+            data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
+
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------

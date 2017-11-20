@@ -539,13 +539,13 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
 
     return mode_constrained, crit_switch_fuel, crit_switch_service
 
-def get_crit_switch(enduse, fuelswitches, sim_param, mode_constrained):
+def get_crit_switch(enduse, switches, sim_param, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
     ----------
-    fuelswitches : dict
-        All fuel switches
+    switches : dict
+        All switches
     sim_param : float
         Base Arguments
     mode_constrained : bool
@@ -558,8 +558,8 @@ def get_crit_switch(enduse, fuelswitches, sim_param, mode_constrained):
     if sim_param['base_yr'] == sim_param['curr_yr'] or mode_constrained is True:
         return False
     else:
-        for fuelswitch in fuelswitches:
-            if fuelswitch['enduse'] == enduse:
+        for switch in switches:
+            if switch.enduse == enduse:
                 return True
 
         return False
@@ -1460,14 +1460,14 @@ def fuel_switch(
 
         # Get shares of fuel which are switched with the installed technology
         for switch in fuel_switches:
-            if switch['enduse'] == enduse and switch['technology_install']:
-                fueltype_to_replace = switch['enduse_fueltype_replace']
+            if switch.enduse == enduse and switch.technology_install:
+                fueltype_to_replace = switch.enduse_fueltype_replace
 
                 # Add replaced fueltype
                 fueltypes_replaced.append(fueltype_to_replace)
 
                 # Share of service demand per fueltype * fraction of fuel switched
-                tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch['fuel_share_switched_ey']
+                tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch.fuel_share_switched_ey
 
         # Get fueltypes affected by installed technology
         for fueltype in fueltypes_replaced:
@@ -1477,9 +1477,9 @@ def fuel_switch(
 
             # Find fuel switch where this fueltype is replaced
             for switch in fuel_switches:
-                if (switch['enduse'] == enduse and
-                    switch['technology_install'] == tech_installed and
-                    switch['enduse_fueltype_replace'] == fueltype):
+                if (switch.enduse == enduse and
+                    switch.technology_install == tech_installed and
+                    switch.enduse_fueltype_replace == fueltype):
 
                     # Service reduced for this fueltype
                     # (service technology cy sigmoid diff *  % of heat demand within fueltype)
@@ -1487,7 +1487,7 @@ def fuel_switch(
                         reduction_service_fueltype = 0
                     else:
                         # share of total service of fueltype * share of replaced fuel
-                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype] * switch['fuel_share_switched_ey'] / tot_service_tech_instal_p
+                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype] * switch.fuel_share_switched_ey / tot_service_tech_instal_p
 
                         reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break

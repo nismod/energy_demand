@@ -176,8 +176,8 @@ def tech_sigmoid_parameters(
 
                 # Get year until switched
                 for switch in service_switches:
-                    if switch['technology_install'] == tech:
-                        yr_until_switched = switch['switch_yr']
+                    if switch.technology_install == tech:
+                        yr_until_switched = switch.switch_yr
 
                 market_entry = technologies[tech]['market_entry']
             else: #fuel switch
@@ -185,9 +185,9 @@ def tech_sigmoid_parameters(
                 # Get the most future year of the technology in the enduse which is switched to
                 yr_until_switched = 0
                 for switch in fuel_switches:
-                    if switch['enduse'] == enduse and switch['technology_install'] == tech:
-                        if yr_until_switched < switch['switch_yr']:
-                            yr_until_switched = switch['switch_yr']
+                    if switch.enduse == enduse and switch.technology_install == tech:
+                        if yr_until_switched < switch.switch_yr:
+                            yr_until_switched = switch.switch_yr
 
                 market_entry = technologies[tech]['market_entry']
 
@@ -345,7 +345,14 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
 
     return popt
 
-def tech_l_sigmoid(enduses, fuel_switches, installed_tech, service_fueltype_p, service_tech_by_p, fuel_tech_p_by):
+def tech_l_sigmoid(
+        enduses,
+        fuel_switches,
+        installed_tech,
+        service_fueltype_p,
+        service_tech_by_p,
+        fuel_tech_p_by
+    ):
     """Calculate L value for every installed technology with maximum theoretical replacement value
 
     Arguments
@@ -436,10 +443,10 @@ def calc_service_fuel_switched(
 
     for enduse in enduses:
         for fuel_switch in fuel_switches:
-            if fuel_switch['enduse'] == enduse:
+            if fuel_switch.enduse == enduse:
 
-                tech_install = fuel_switch['technology_install']
-                fueltype_tech_replace = fuel_switch['enduse_fueltype_replace']
+                tech_install = fuel_switch.technology_install
+                fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
 
                 # Check if installed technology is considered for fuelswitch
                 if tech_install in installed_tech_switches[enduse]:
@@ -450,10 +457,10 @@ def calc_service_fuel_switched(
                     # Service demand per fueltype that will be switched
                     if switch_type == 'max_switch':
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                        change_service_fueltype_p = orig_service_p * fuel_switch['max_theoretical_switch']
+                        change_service_fueltype_p = orig_service_p * fuel_switch.max_theoretical_switch
                     elif switch_type == 'actual_switch':
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                        change_service_fueltype_p = orig_service_p * fuel_switch['fuel_share_switched_ey']
+                        change_service_fueltype_p = orig_service_p * fuel_switch.fuel_share_switched_ey
 
                     # ---Service addition
                     service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
@@ -492,8 +499,8 @@ def get_tech_installed(enduses, fuel_switches):
         installed_tech[enduse] = set([])
 
     for switch in fuel_switches:
-        enduse_fuelswitch = switch['enduse']
-        installed_tech[enduse_fuelswitch].add(switch['technology_install'])
+        enduse_fuelswitch = switch.enduse
+        installed_tech[enduse_fuelswitch].add(switch.technology_install)
 
     # Convert set to lists
     for enduse in installed_tech:

@@ -1,6 +1,7 @@
 """Reading raw data
 """
-import os, sys
+import sys
+import os
 import csv
 import json
 import logging
@@ -10,6 +11,56 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
+
+class CapacitySwitch(object):
+    """TODO
+    """
+    def __init__(
+            self,
+            enduse,
+            technology_install,
+            switch_yr,
+            installed_capacity
+            ):
+
+        self.enduse = enduse
+        self.technology_install = technology_install
+        self.switch_yr = switch_yr
+        self.installed_capacity = installed_capacity
+
+class FuelSwitch(object):
+    """TODO
+    """
+    def __init__(
+            self,
+            enduse,
+            enduse_fueltype_replace,
+            technology_install,
+            switch_yr,
+            fuel_share_switched_ey
+            ):
+
+        self.enduse = enduse
+        self.enduse_fueltype_replace = enduse_fueltype_replace
+        self.technology_install = technology_install
+        self.switch_yr = switch_yr
+        self.fuel_share_switched_ey = fuel_share_switched_ey
+
+class ServiceSwitch(object):
+    """TODO
+    """
+    def __init__(
+            self,
+            enduse,
+            technology_install,
+            service_share_ey,
+            switch_yr
+            ):
+
+        self.enduse = enduse
+        self.technology_install = technology_install
+        self.service_share_ey = service_share_ey
+        self.switch_yr = switch_yr
 
 def read_param_yaml(path):
     """Read yaml parameters
@@ -334,7 +385,7 @@ def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
 
     Arguments
-    ----------
+    ----------class
     path_to_csv : str
         Path to csv file
 
@@ -417,30 +468,30 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         for row in read_lines:
             try:
                 service_switches.append(
-                    {
-                        'enduse': str(row[0]),
-                        'technology_install': str(row[1]),
-                        'service_share_ey': float(row[2]),
-                        'switch_yr': float(row[3])
-                    }
+                    ServiceSwitch(
+                        enduse=str(row[0]),
+                        technology_install=str(row[1]),
+                        service_share_ey=float(row[2]),
+                        switch_yr=float(row[3])
+                    )
                 )
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
     # Group all entries according to enduse
     all_enduses = []
-    for line in service_switches:
-        enduse = line['enduse']
+    for switch in service_switches:
+        enduse = switch.enduse
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_ey_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        for line in service_switches:
-            if line['enduse'] == enduse:
-                tech = line['technology_install']
-                enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
+        for switch in service_switches:
+            if switch.enduse == enduse:
+                tech = switch.technology_install
+                enduse_tech_ey_p[enduse][tech] = switch.service_share_ey
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -472,7 +523,8 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     return enduse_tech_ey_p, service_switches
 
 def read_fuel_switches(path_to_csv, enduses, lookups):
-    """This function reads in from CSV file defined fuel switch assumptions
+    """This function reads in from CSV file defined fuel
+    switch assumptions
 
     Arguments
     ----------
@@ -490,22 +542,28 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
     """
     service_switches = []
 
-    # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        _headings = next(read_lines)
 
         for row in read_lines:
             try:
-                service_switches.append(
+                '''service_switches.append(
                     {
                         'enduse': str(row[0]),
                         'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
                         'technology_install': str(row[2]),
                         'switch_yr': float(row[3]),
-                        'fuel_share_switched_ey': float(row[4]),
-                        'max_theoretical_switch': float(row[5])
+                        'fuel_share_switched_ey': float(row[4])
                     }
+                    '''
+                service_switches.append(
+                    FuelSwitch(
+                        enduse=str(row[0]),
+                        enduse_fueltype_replace=lookups['fueltype'][str(row[1])],
+                        technology_install=str(row[2]),
+                        switch_yr=float(row[3]),
+                        fuel_share_switched_ey=float(row[4]))
                 )
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
@@ -513,34 +571,35 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
-    for element in service_switches:
-        if element['fuel_share_switched_ey'] > element['max_theoretical_switch']:
-            sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
+    for obj in service_switches:
+        #TODO: WRITE TEST FROM TECHNOLOGIES
+        #if obj['fuel_share_switched_ey'] > obj['max_theoretical_switch']:
+        #    sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(obj['enduse'], obj['enduse_fueltype_replace']))
 
-        if element['fuel_share_switched_ey'] == 0:
+        if obj.fuel_share_switched_ey == 0:
             sys.exit("The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
 
     # Test if more than 100% per fueltype is switched
-    for element in service_switches:
-        enduse = element['enduse']
-        fuel_type = element['enduse_fueltype_replace']
+    for obj in service_switches:
+        enduse = obj.enduse
+        fuel_type = obj.enduse_fueltype_replace
 
         tot_share_fueltype_switched = 0
         # Do check for every entry
-        for element_iter in service_switches:
-            if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
+        for obj_iter in service_switches:
+            if enduse == obj_iter.enduse and fuel_type == obj_iter.enduse_fueltype_replace:
                 # Found same fueltypes which is switched
-                tot_share_fueltype_switched += element_iter['fuel_share_switched_ey']
+                tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
 
         if tot_share_fueltype_switched > 1.0:
             sys.exit("The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
     # Test whether defined enduse exist
-    for element in service_switches:
-        if element['enduse'] in enduses['ss_all_enduses'] or element['enduse'] in enduses['rs_all_enduses'] or element['enduse'] in enduses['is_all_enduses']:
+    for obj in service_switches:
+        if obj.enduse in enduses['ss_all_enduses'] or obj.enduse in enduses['rs_all_enduses'] or obj.enduse in enduses['is_all_enduses']:
             pass
         else:
-            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
+            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(obj['enduse']))
 
     return service_switches
 
@@ -1016,14 +1075,13 @@ def read_capacity_installation(path_to_csv):
         for row in read_lines:
             try:
                 service_switches.append(
-                    {
-                        'enduse': str(row[0]),
-                        'technology_install': str(row[1]),
-                        #'market_entry': float(row[2]),
-                        'switch_yr': float(row[2]),
-                        'installed_capacity':  float(row[3])
-                    }
+                    CapacitySwitch(
+                        enduse=str(row[0]),
+                        technology_install=str(row[1]),
+                        switch_yr=float(row[2]),
+                        installed_capacity= float(row[3]))
                 )
+
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

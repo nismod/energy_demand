@@ -84,7 +84,7 @@ def calc_service_switch_capacity(
     enduses_switch = set([])
 
     for switch in capacity_switches:
-        enduses_switch.add(switch['enduse'])
+        enduses_switch.add(switch.enduse)
 
     # -------------------------
     # Calculate service switches
@@ -132,7 +132,7 @@ def create_service_switch(
 
     for enduse in enduses:
         for capacity_switch in capacity_switches:
-            if capacity_switch['enduse'] == enduse:
+            if capacity_switch.enduse == enduse:
 
                 # Convert
                 service_switches_enduse = convert_capacity_assumption_to_service(
@@ -218,9 +218,9 @@ def convert_capacity_assumption_to_service(
     # -------------------------------------------
     #If technology exists, add service
     for switch in capacity_switches:
-        if enduse == switch['enduse']:
-            technology_install = switch['technology_install']
-            installed_capacity = switch['installed_capacity']
+        if enduse == switch.enduse:
+            technology_install = switch.technology_install
+            installed_capacity = switch.installed_capacity
 
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
@@ -253,7 +253,7 @@ def convert_capacity_assumption_to_service(
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
         for switch in capacity_switches:
-            switch_yr = switch['switch_yr']
+            switch_yr = switch.switch_yr
             continue
 
         service_switches_enduse.append({
