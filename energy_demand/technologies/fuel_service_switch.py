@@ -152,8 +152,8 @@ def create_service_switch(
                 service_switches_enduse = convert_capacity_assumption_to_service(
                     enduse=enduse,
                     capacity_switches=capacity_switches,
-                    technologies=technologies,
                     capacity_switch=capacity_switch,
+                    technologies=technologies,
                     fuel_shares_enduse_by=fuel_shares_enduse_by_dict[enduse],
                     fuel_enduse_y=fuels[enduse],
                     base_yr=base_yr,
@@ -167,8 +167,8 @@ def create_service_switch(
 def convert_capacity_assumption_to_service(
         enduse,
         capacity_switches,
-        technologies,
         capacity_switch,
+        technologies,
         fuel_shares_enduse_by,
         fuel_enduse_y,
         base_yr,
