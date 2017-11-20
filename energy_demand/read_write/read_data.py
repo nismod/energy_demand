@@ -1024,9 +1024,9 @@ def read_capacity_installation(path_to_csv):
                     {
                         'enduse': str(row[0]),
                         'technology_install': str(row[1]),
-                        'market_entry': float(row[2]),
-                        'switch_yr': float(row[3]),
-                        'installed_capacity':  float(row[4])
+                        #'market_entry': float(row[2]),
+                        'switch_yr': float(row[2]),
+                        'installed_capacity':  float(row[3])
                     }
                 )
             except (KeyError, ValueError):

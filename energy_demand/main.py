@@ -8,7 +8,6 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 '''
-#TODO: REMOVE MARKET_ENTRY FROM CAPACITY INSTALLATION
 import os
 import sys
 import logging
