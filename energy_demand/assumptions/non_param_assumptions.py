@@ -284,11 +284,27 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # Scenaric capacity switches
     # Warning: Overwrites other switches
     # ============================================================
-    assumptions = fuel_service_switch.calc_service_switch_capacity(
-        paths,
-        enduses,
-        assumptions,
-        fuels,
+    assumptions['rs_service_switches'], assumptions['capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        paths['rs_path_capacity_installation'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['rs_fuel_raw_data_enduses'],
+        assumptions['rs_fuel_tech_p_by'],
+        base_yr)
+    assumptions['ss_service_switches'], assumptions['capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        paths['ss_path_capacity_installation'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['ss_fuel_raw_data_enduses'],
+        assumptions['ss_fuel_tech_p_by'],
+        base_yr)
+
+    assumptions['is_service_switches'], assumptions['capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        paths['is_path_capacity_installation'],
+        assumptions['technologies'],
+        assumptions['enduse_overall_change']['other_enduse_mode_info'],
+        fuels['is_fuel_raw_data_enduses'],
+        assumptions['is_fuel_tech_p_by'],
         base_yr)
 
     # ========================================

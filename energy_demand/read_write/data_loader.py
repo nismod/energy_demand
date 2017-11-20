@@ -292,8 +292,12 @@ def load_paths(path):
             path, 'config_data', 'submodel_industry', 'switches_industry_scenaric.csv'),
 
         # Path to capacity installations
-        'path_capacity_installation': os.path.join(
-            path, 'config_data', 'assumptions_capacity_installations.csv'),
+        'rs_path_capacity_installation': os.path.join(
+            path, 'config_data', 'rs_assumptions_capacity_installations.csv'),
+        'ss_path_capacity_installation': os.path.join(
+            path, 'config_data', 'ss_assumptions_capacity_installations.csv'),
+        'is_path_capacity_installation': os.path.join(
+            path, 'config_data', 'is_assumptions_capacity_installations.csv'),
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),
@@ -792,6 +796,38 @@ def read_employment_statistics(path_to_csv):
     Industry: R,S Arts, entertainment and recreation; other service activities
     Industry: T Activities of households as employers; undifferentiated goods - and services - producing activities of households for own use
     Industry: U Activities of extraterritorial organisations and bodies
+    
+    Data preparation
+    ----------------
+    All LAD geocodes of northern ireland get replaced as follows:
+
+    95AA
+    95BB
+    95CC
+    95DD
+    95EE
+    95FF
+    95GG
+    95HH
+    95II
+    95JJ
+    95KK
+    95LL
+    95MM
+    95NN
+    95OO
+    95PP
+    95QQ
+    95RR
+    95SS
+    95TT
+    95UU
+    95VV
+    95WW
+    95XX
+    95YY
+    95ZZ
+
     """
     with open(path_to_csv, 'r') as csvfile:
         lines = csv.reader(csvfile, delimiter=',')

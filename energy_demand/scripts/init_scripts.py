@@ -101,7 +101,6 @@ def scenario_initalisation(path_data_ed, data=False):
     path_data_ed : str
         Path to the energy demand data folder
     """
-    print("... start running sceario_initialisation scripts")
     logging.info("... start running sceario_initialisation scripts")
 
     # Initialise logger
