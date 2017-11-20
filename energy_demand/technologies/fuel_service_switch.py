@@ -253,14 +253,14 @@ def convert_capacity_assumption_to_service(
 
         # WARNING: MUST BE THE SAME YEAR FOR ALL CAPACITY SWITCHES
         for switch in capacity_switches:
-            year_switch_ey = switch['switch_yr']
+            switch_yr = switch['switch_yr']
             continue
 
         service_switches_enduse.append({
             'enduse': enduse,
-            'tech': tech,
+            'technology_install': tech,
             'service_share_ey': service_tech_p,
-            'tech_assum_max': technologies[tech]['tech_assum_max_share'],
-            'year_switch_ey': year_switch_ey})
+            'tech_assum_max': technologies[tech]['tech_max_share'],
+            'switch_yr': switch_yr})
 
     return service_switches_enduse

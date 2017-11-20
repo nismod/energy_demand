@@ -395,8 +395,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     -------
     enduse_tech_ey_p : dict
         Technologies per enduse for endyear in p
-    tech_maxl_by_p : dict
-        Maximum service per technology which can be switched
     service_switches : dict
         Service switches
 
@@ -410,7 +408,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     """
     service_switches = []
     enduse_tech_ey_p = {}
-    tech_maxl_by_p = {}
     service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     with open(path_to_csv, 'r') as csvfile:
@@ -422,10 +419,9 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
                 service_switches.append(
                     {
                         'enduse': str(row[0]),
-                        'tech': str(row[1]),
+                        'technology_install': str(row[1]),
                         'service_share_ey': float(row[2]),
-                        'tech_assum_max_share': float(row[3]),
-                        'year_switch_ey': float(row[4])
+                        'switch_yr': float(row[3])
                     }
                 )
             except (KeyError, ValueError):
@@ -438,15 +434,13 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_ey_p[enduse] = {}
-            tech_maxl_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
         for line in service_switches:
             if line['enduse'] == enduse:
-                tech = line['tech']
+                tech = line['technology_install']
                 enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
-                tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -456,12 +450,13 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
             for tech in specified_tech_enduse_by[enduse]:
                 if tech not in enduse_tech_ey_p[enduse]:
                     sys.exit("No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
-
+    
+    # TODO: WRITE TEST AND TEST IF IN TECHNOLOGY DEFINITION CONTRADICTION
     # Test if more service is provided as input than possible to maximum switch
-    for entry in service_switches:
-        if entry['service_share_ey'] > entry['tech_assum_max_share']:
-            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
-
+    '''for entry in service_switches:
+        if entry['service_share_ey'] > entry['tech_max_share']:
+            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['technology_install']))
+    '''
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in enduse_tech_ey_p:
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
@@ -474,7 +469,7 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
 
-    return enduse_tech_ey_p, tech_maxl_by_p, service_switches
+    return enduse_tech_ey_p, service_switches
 
 def read_fuel_switches(path_to_csv, enduses, lookups):
     """This function reads in from CSV file defined fuel switch assumptions
@@ -508,7 +503,7 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
                         'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
                         'technology_install': str(row[2]),
                         'switch_yr': float(row[3]),
-                        'share_fuel_consumption_switched': float(row[4]),
+                        'fuel_share_switched_ey': float(row[4]),
                         'max_theoretical_switch': float(row[5])
                     }
                 )
@@ -519,10 +514,10 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
     for element in service_switches:
-        if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
+        if element['fuel_share_switched_ey'] > element['max_theoretical_switch']:
             sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
 
-        if element['share_fuel_consumption_switched'] == 0:
+        if element['fuel_share_switched_ey'] == 0:
             sys.exit("The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
 
     # Test if more than 100% per fueltype is switched
@@ -535,7 +530,7 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
         for element_iter in service_switches:
             if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
                 # Found same fueltypes which is switched
-                tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
+                tot_share_fueltype_switched += element_iter['fuel_share_switched_ey']
 
         if tot_share_fueltype_switched > 1.0:
             sys.exit("The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
@@ -584,7 +579,7 @@ def read_technologies(path_to_csv):
                     'diff_method': str(row[6]),
                     'market_entry': float(row[7]),
                     'tech_list': str.strip(row[8]),
-                    'tech_assum_max_share': float(str.strip(row[9]))
+                    'tech_max_share': float(str.strip(row[9]))
                 }
                 try:
                     dict_tech_lists[str.strip(row[8])].append(technology)

@@ -1467,7 +1467,7 @@ def fuel_switch(
                 fueltypes_replaced.append(fueltype_to_replace)
 
                 # Share of service demand per fueltype * fraction of fuel switched
-                tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch['share_fuel_consumption_switched']
+                tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch['fuel_share_switched_ey']
 
         # Get fueltypes affected by installed technology
         for fueltype in fueltypes_replaced:
@@ -1487,7 +1487,7 @@ def fuel_switch(
                         reduction_service_fueltype = 0
                     else:
                         # share of total service of fueltype * share of replaced fuel
-                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype] * switch['share_fuel_consumption_switched'] / tot_service_tech_instal_p
+                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype] * switch['fuel_share_switched_ey'] / tot_service_tech_instal_p
 
                         reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
                     break

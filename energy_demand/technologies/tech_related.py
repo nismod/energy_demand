@@ -264,7 +264,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
             av_year_eff_ey += technologies[heat_pump_type]['year_eff_ey']
             eff_achieved = technologies[heat_pump_type]['eff_achieved']
             market_entry = technologies[heat_pump_type]['market_entry']
-            tech_assum_max_share = technologies[heat_pump_type]['tech_assum_max_share']
+            tech_max_share = technologies[heat_pump_type]['tech_max_share']
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
@@ -294,7 +294,7 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
         technologies[name_av_hp]['eff_achieved'] = eff_achieved_av
         technologies[name_av_hp]['diff_method'] = 'linear'
         technologies[name_av_hp]['market_entry'] = market_entry_lowest
-        technologies[name_av_hp]['tech_assum_max_share'] = tech_assum_max_share
+        technologies[name_av_hp]['tech_max_share'] = tech_max_share
 
         heat_pumps.append(name_av_hp)
 

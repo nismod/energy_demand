@@ -19,7 +19,7 @@ def test_tech_sigmoid_paramters():
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
         fuel_switches=[{'enduse': 'heating', 'technology_install': 'boilerA', 'switch_yr': 2050}],
-        service_switches=[{'tech': 'boilerA', 'year_switch_ey': 2050}])
+        service_switches=[{'technology_install': 'boilerA', 'switch_yr': 2050}])
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
@@ -38,7 +38,7 @@ def test_tech_sigmoid_paramters():
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
         fuel_switches=[{'enduse': 'heating', 'technology_install': 'boilerA', 'switch_yr': 2050}],
-        service_switches=[{'tech': 'boilerA', 'year_switch_ey': 2050}])
+        service_switches=[{'technology_install': 'boilerA', 'switch_yr': 2050}])
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])

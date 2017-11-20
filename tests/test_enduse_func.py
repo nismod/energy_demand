@@ -254,10 +254,10 @@ def test_fuel_switch():
     
     fueltype_boilerA = 0
     fueltype_boilerB = 1
-    share_fuel_consumption_switched = 0.5
+    fuel_share_switched_ey = 0.5
     l_value = 1.0
 
-    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * share_fuel_consumption_switched)
+    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * fuel_share_switched_ey)
     share_boilerB_ey = 1 - share_boilerA_ey
 
     installed_tech = ['boilerB']
@@ -284,7 +284,7 @@ def test_fuel_switch():
         'enduse_fueltype_replace' : fueltype_boilerA,
         'technology_install': 'boilerB',
         'switch_yr': end_yr,
-        'share_fuel_consumption_switched': share_fuel_consumption_switched,
+        'fuel_share_switched_ey': fuel_share_switched_ey,
         'max_theoretical_switch' : l_value}]
 
     fuel_tech_p_by = {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}} #share of fuels
@@ -342,10 +342,10 @@ def test_fuel_switch():
     
     fueltype_boilerA = 0
     fueltype_boilerB = 1
-    share_fuel_consumption_switched = 0.5
+    fuel_share_switched_ey = 0.5
     l_value = 1.0
 
-    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * share_fuel_consumption_switched)
+    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * fuel_share_switched_ey)
     share_boilerB_ey = 1 - share_boilerA_ey
 
     installed_tech = ['boilerB']
@@ -372,7 +372,7 @@ def test_fuel_switch():
         'enduse_fueltype_replace' : fueltype_boilerA,
         'technology_install': 'boilerB',
         'switch_yr': end_yr,
-        'share_fuel_consumption_switched': share_fuel_consumption_switched,
+        'fuel_share_switched_ey': fuel_share_switched_ey,
         'max_theoretical_switch' : l_value}]
 
     fuel_tech_p_by = {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}} #share of fuels
