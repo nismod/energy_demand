@@ -12,6 +12,56 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
 
+class TechnologyData(object):
+    """Class to store technology related
+    data
+
+    Arguments
+    ---------
+    fuel_type : str
+        Fueltype of technology
+    eff_by : str
+        Efficiency of technology in base year
+    eff_ey : str
+        Efficiency of technology in future year
+    year_eff_ey : int
+        Future year when eff_ey is fully realised
+    eff_achieved : float
+        Factor of how much of the efficienc future
+        efficiency is achieved
+    diff_method : float
+        Differentiation method
+    market_entry : int,default=2015
+        Year when technology comes on the market
+    tech_list : list
+        List where technology is part of
+    tech_max_share : float
+        Maximum theoretical fraction of how much
+        this indivdual technology can contribute
+        to total energy service of its enduse
+    """
+    def __init__(
+            self,
+            fuel_type=None,
+            eff_by=None,
+            eff_ey=None,
+            year_eff_ey=None,
+            eff_achieved=None,
+            diff_method=None,
+            market_entry=2015,
+            tech_list=None,
+            tech_max_share=None
+        ):
+        self.fuel_type = fuel_type
+        self.eff_by = eff_by
+        self.eff_ey = eff_ey
+        self.year_eff_ey = year_eff_ey
+        self.eff_achieved = eff_achieved
+        self.diff_method = diff_method
+        self.market_entry = market_entry
+        self.tech_list = tech_list
+        self.tech_max_share = tech_max_share
+
 class CapacitySwitch(object):
     """Capacity switch class for storing
     switches
@@ -293,7 +343,7 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
             results[year] = {}
         try:
             results[year][enduse]
-        except:
+        except KeyError:
             results[year][enduse] = np.zeros((fueltypes_nr, 365, 24), dtype=float)
 
         # Add year if not already exists
@@ -422,7 +472,7 @@ def read_csv_float(path_to_csv):
     """This function reads in CSV files and skips header row.
 
     Arguments
-    ----------class
+    ----------
     path_to_csv : str
         Path to csv file
 
@@ -639,45 +689,6 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
             sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(obj['enduse']))
 
     return service_switches
-
-class TechnologyData(object):
-    """Class to store technology related
-    data
-
-    Arguments
-    ---------
-    enduse : str
-        Enduse of affected switch
-    enduse_fueltype_replace : str
-        Fueltype which is beeing switched from
-    technology_install : str
-        Installed technology
-    switch_yr : int
-        Year until switch is fully realised
-    fuel_share_switched_ey : float
-        Switched fuel share
-    """
-    def __init__(
-            self,
-            fuel_type=None,
-            eff_by=None,
-            eff_ey=None,
-            year_eff_ey=None,
-            eff_achieved=None,
-            diff_method=None,
-            market_entry=None,
-            tech_list=None,
-            tech_max_share=None
-        ):
-        self.fuel_type = fuel_type
-        self.eff_by = eff_by
-        self.eff_ey = eff_ey
-        self.year_eff_ey = year_eff_ey
-        self.eff_achieved = eff_achieved
-        self.diff_method = diff_method
-        self.market_entry = market_entry
-        self.tech_list = tech_list
-        self.tech_max_share = tech_max_share
 
 def read_technologies(path_to_csv):
     """Read in technology definition csv file
@@ -1131,7 +1142,8 @@ def read_pop(path_enduse_specific_results):
     return dict(results)
 
 def read_capacity_installation(path_to_csv):
-    """This function reads in service assumptions from csv file
+    """This function reads in service assumptions
+    from csv file
 
     Arguments
     ----------
@@ -1156,9 +1168,7 @@ def read_capacity_installation(path_to_csv):
                         enduse=str(row[0]),
                         technology_install=str(row[1]),
                         switch_yr=float(row[2]),
-                        installed_capacity= float(row[3]))
-                )
-
+                        installed_capacity= float(row[3])))
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

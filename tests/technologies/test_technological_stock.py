@@ -84,5 +84,3 @@ def test_TechStock():
 
     assert stock_obj.stock_name == "stock_name"
     assert stock_obj.get_tech_attr('heating', 'boilerA', 'eff_by') == 1.0
-
-test_TechStock()
