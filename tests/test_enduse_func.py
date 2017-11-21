@@ -4,6 +4,7 @@ import numpy as np
 from energy_demand import enduse_func
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.plotting import plotting_program
+from energy_demand.read_write import read_data
 
 '''def test_calc_fuel_tech_yh():
     
@@ -20,7 +21,11 @@ def test_get_crit_switch():
     """
     """
     mode_constrained = True
-    fuelswitches = [{'enduse': 'heating'}]
+
+    fuelswitches = [read_data.FuelSwitch(
+        enduse='heating'
+    )]
+
 
     sim_param = {
         'base_yr': 2015,
@@ -32,7 +37,6 @@ def test_get_crit_switch():
     assert result == False
     
     mode_constrained = False
-    fuelswitches = [{'enduse': 'heating'}]
 
     sim_param = {
         'base_yr': 2015,
@@ -254,10 +258,10 @@ def test_fuel_switch():
     
     fueltype_boilerA = 0
     fueltype_boilerB = 1
-    share_fuel_consumption_switched = 0.5
+    fuel_share_switched_ey = 0.5
     l_value = 1.0
 
-    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * share_fuel_consumption_switched)
+    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * fuel_share_switched_ey)
     share_boilerB_ey = 1 - share_boilerA_ey
 
     installed_tech = ['boilerB']
@@ -279,14 +283,14 @@ def test_fuel_switch():
         fueltype_boilerA: 1.0,
         fueltype_boilerB: 1.0} #share of fuels
 
-    fuel_switches = [{
-        'enduse' : 'heating',
-        'enduse_fueltype_replace' : fueltype_boilerA,
-        'technology_install': 'boilerB',
-        'switch_yr': end_yr,
-        'share_fuel_consumption_switched': share_fuel_consumption_switched,
-        'max_theoretical_switch' : l_value}]
-
+    fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        enduse_fueltype_replace=fueltype_boilerA,
+        technology_install='boilerB',
+        switch_yr=end_yr,
+        fuel_share_switched_ey=fuel_share_switched_ey
+    )]
+    
     fuel_tech_p_by = {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}} #share of fuels
 
     # ----- Calculate sigmoids
@@ -323,8 +327,8 @@ def test_fuel_switch():
         service_fueltype_cy_p,
         fuel_switches,
         fuel_tech_p_by,
-        curr_yr
-        )
+        curr_yr)
+
     # for 20204: 0.0134 because of fit (which is not as good as 0.625)
     boilerA_cy = np.sum(expected["boilerA"])
     boilerB_cy = np.sum(expected["boilerB"])
@@ -339,13 +343,13 @@ def test_fuel_switch():
 
     share_boilerA_by = 0.5
     share_boilerB_by = 1 - share_boilerA_by
-    
+
     fueltype_boilerA = 0
     fueltype_boilerB = 1
-    share_fuel_consumption_switched = 0.5
+    fuel_share_switched_ey = 0.5
     l_value = 1.0
 
-    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * share_fuel_consumption_switched)
+    share_boilerA_ey = share_boilerA_by - (share_boilerA_by * fuel_share_switched_ey)
     share_boilerB_ey = 1 - share_boilerA_ey
 
     installed_tech = ['boilerB']
@@ -367,13 +371,13 @@ def test_fuel_switch():
         fueltype_boilerA: 1.0,
         fueltype_boilerB: 1.0} #share of fuels
 
-    fuel_switches = [{
-        'enduse' : 'heating',
-        'enduse_fueltype_replace' : fueltype_boilerA,
-        'technology_install': 'boilerB',
-        'switch_yr': end_yr,
-        'share_fuel_consumption_switched': share_fuel_consumption_switched,
-        'max_theoretical_switch' : l_value}]
+    fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        enduse_fueltype_replace=fueltype_boilerA,
+        technology_install='boilerB',
+        switch_yr=end_yr,
+        fuel_share_switched_ey=fuel_share_switched_ey
+    )]
 
     fuel_tech_p_by = {0: {'boilerA': 1.0}, 1: {'boilerB': 1.0}} #share of fuels
 
@@ -413,7 +417,7 @@ def test_fuel_switch():
         fuel_tech_p_by,
         curr_yr
         )
-    #
+
     boilerA_cy = np.sum(expected["boilerA"])
     boilerB_cy = np.sum(expected["boilerB"])
     assert round(boilerA_cy, 0) == 8760 * 0.25

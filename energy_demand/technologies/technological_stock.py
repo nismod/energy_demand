@@ -1,7 +1,6 @@
 """Functions related to the technological stock
 """
 import sys
-import numpy as np
 from energy_demand.technologies import tech_related
 
 class TechStock(object):
@@ -162,12 +161,12 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    all_technologies[technology_name]['fuel_type'],
-                    all_technologies[technology_name]['eff_achieved'],
-                    all_technologies[technology_name]['diff_method'],
-                    all_technologies[technology_name]['eff_by'],
-                    all_technologies[technology_name]['eff_ey'],
-                    all_technologies[technology_name]['year_eff_ey'],
+                    all_technologies[technology_name].fuel_type,
+                    all_technologies[technology_name].eff_achieved,
+                    all_technologies[technology_name].diff_method,
+                    all_technologies[technology_name].eff_by,
+                    all_technologies[technology_name].eff_ey,
+                    all_technologies[technology_name].year_eff_ey,
                     other_enduse_mode_info,
                     sim_param,
                     lookups,

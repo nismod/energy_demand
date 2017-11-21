@@ -1,1 +1,3 @@
-enduse,technology_install,market_entry,swich_yr,fuel_capacity_installed,fuel_shares enduse_by_dict
+enduse,technology_install,swich_yr,installed_capacity
+rs_space_heating,boiler_gas,2040,40
+rs_space_heating,boiler_hydrogen,2040,100

@@ -276,7 +276,8 @@ def spatial_validation(
                         # Correct ECUK data with correction factor
                         result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled
                 except KeyError:
-                    logging.warning("No fuel is defined for region %s", reg_geocode)
+                    logging.warning(
+                        "Sub-national spatial validation: No fuel is availalbe for region %s", reg_geocode)
 
     # --------------------
     # Calculate statistics

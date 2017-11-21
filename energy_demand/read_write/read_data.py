@@ -1,6 +1,7 @@
 """Reading raw data
 """
-import os, sys
+import sys
+import os
 import csv
 import json
 import logging
@@ -10,6 +11,143 @@ import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
+
+class TechnologyData(object):
+    """Class to store technology related
+    data
+
+    Arguments
+    ---------
+    fuel_type : str
+        Fueltype of technology
+    eff_by : str
+        Efficiency of technology in base year
+    eff_ey : str
+        Efficiency of technology in future year
+    year_eff_ey : int
+        Future year when eff_ey is fully realised
+    eff_achieved : float
+        Factor of how much of the efficienc future
+        efficiency is achieved
+    diff_method : float
+        Differentiation method
+    market_entry : int,default=2015
+        Year when technology comes on the market
+    tech_list : list
+        List where technology is part of
+    tech_max_share : float
+        Maximum theoretical fraction of how much
+        this indivdual technology can contribute
+        to total energy service of its enduse
+    """
+    def __init__(
+            self,
+            fuel_type=None,
+            eff_by=None,
+            eff_ey=None,
+            year_eff_ey=None,
+            eff_achieved=None,
+            diff_method=None,
+            market_entry=2015,
+            tech_list=None,
+            tech_max_share=None
+        ):
+        self.fuel_type = fuel_type
+        self.eff_by = eff_by
+        self.eff_ey = eff_ey
+        self.year_eff_ey = year_eff_ey
+        self.eff_achieved = eff_achieved
+        self.diff_method = diff_method
+        self.market_entry = market_entry
+        self.tech_list = tech_list
+        self.tech_max_share = tech_max_share
+
+class CapacitySwitch(object):
+    """Capacity switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    technology_install : str
+        Installed technology
+    switch_yr : int
+        Year until capacity installation is fully realised
+    installed_capacity : float
+        Installed capacity in GWh
+    """
+    def __init__(
+            self,
+            enduse,
+            technology_install,
+            switch_yr,
+            installed_capacity
+        ):
+
+        self.enduse = enduse
+        self.technology_install = technology_install
+        self.switch_yr = switch_yr
+        self.installed_capacity = installed_capacity
+
+class FuelSwitch(object):
+    """Fuel switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    enduse_fueltype_replace : str
+        Fueltype which is beeing switched from
+    technology_install : str
+        Installed technology
+    switch_yr : int
+        Year until switch is fully realised
+    fuel_share_switched_ey : float
+        Switched fuel share
+    """
+    def __init__(
+            self,
+            enduse=None,
+            enduse_fueltype_replace=None,
+            technology_install=None,
+            switch_yr=None,
+            fuel_share_switched_ey=None
+        ):
+
+        self.enduse = enduse
+        self.enduse_fueltype_replace = enduse_fueltype_replace
+        self.technology_install = technology_install
+        self.switch_yr = switch_yr
+        self.fuel_share_switched_ey = fuel_share_switched_ey
+
+class ServiceSwitch(object):
+    """Service switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    technology_install : str
+        Installed technology
+    service_share_ey : float
+        Service share of installed technology in future year
+    switch_yr : int
+        Year until switch is fully realised
+    """
+    def __init__(
+            self,
+            enduse=None,
+            technology_install=None,
+            service_share_ey=None,
+            switch_yr=None
+        ):
+        self.enduse = enduse
+        self.technology_install = technology_install
+        self.service_share_ey = service_share_ey
+        self.switch_yr = switch_yr
 
 def read_param_yaml(path):
     """Read yaml parameters
@@ -205,7 +343,7 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
             results[year] = {}
         try:
             results[year][enduse]
-        except:
+        except KeyError:
             results[year][enduse] = np.zeros((fueltypes_nr, 365, 24), dtype=float)
 
         # Add year if not already exists
@@ -395,8 +533,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     -------
     enduse_tech_ey_p : dict
         Technologies per enduse for endyear in p
-    tech_maxl_by_p : dict
-        Maximum service per technology which can be switched
     service_switches : dict
         Service switches
 
@@ -410,7 +546,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     """
     service_switches = []
     enduse_tech_ey_p = {}
-    tech_maxl_by_p = {}
     service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     with open(path_to_csv, 'r') as csvfile:
@@ -420,33 +555,30 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         for row in read_lines:
             try:
                 service_switches.append(
-                    {
-                        'enduse': str(row[0]),
-                        'tech': str(row[1]),
-                        'service_share_ey': float(row[2]),
-                        'tech_assum_max_share': float(row[3]),
-                        'year_switch_ey': float(row[4])
-                    }
+                    ServiceSwitch(
+                        enduse=str(row[0]),
+                        technology_install=str(row[1]),
+                        service_share_ey=float(row[2]),
+                        switch_yr=float(row[3])
+                    )
                 )
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
     # Group all entries according to enduse
     all_enduses = []
-    for line in service_switches:
-        enduse = line['enduse']
+    for switch in service_switches:
+        enduse = switch.enduse
         if enduse not in all_enduses:
             all_enduses.append(enduse)
             enduse_tech_ey_p[enduse] = {}
-            tech_maxl_by_p[enduse] = {}
 
     # Iterate all endusese and assign all lines
     for enduse in all_enduses:
-        for line in service_switches:
-            if line['enduse'] == enduse:
-                tech = line['tech']
-                enduse_tech_ey_p[enduse][tech] = line['service_share_ey']
-                tech_maxl_by_p[enduse][tech] = line['tech_assum_max_share']
+        for switch in service_switches:
+            if switch.enduse == enduse:
+                tech = switch.technology_install
+                enduse_tech_ey_p[enduse][tech] = switch.service_share_ey
 
     # ------------------------------------------------
     # Testing wheter the provided inputs make sense
@@ -456,12 +588,13 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
             for tech in specified_tech_enduse_by[enduse]:
                 if tech not in enduse_tech_ey_p[enduse]:
                     sys.exit("No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
-
+    
+    # TODO: WRITE TEST AND TEST IF IN TECHNOLOGY DEFINITION CONTRADICTION
     # Test if more service is provided as input than possible to maximum switch
-    for entry in service_switches:
-        if entry['service_share_ey'] > entry['tech_assum_max_share']:
-            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['tech']))
-
+    '''for entry in service_switches:
+        if entry['service_share_ey'] > entry['tech_max_share']:
+            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['technology_install']))
+    '''
     # Test if service of all provided technologies sums up to 100% in the end year
     for enduse in enduse_tech_ey_p:
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
@@ -474,10 +607,11 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
 
-    return enduse_tech_ey_p, tech_maxl_by_p, service_switches
+    return enduse_tech_ey_p, service_switches
 
 def read_fuel_switches(path_to_csv, enduses, lookups):
-    """This function reads in from CSV file defined fuel switch assumptions
+    """This function reads in from CSV file defined fuel
+    switch assumptions
 
     Arguments
     ----------
@@ -495,22 +629,28 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
     """
     service_switches = []
 
-    # Read CSV file
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
-        _headings = next(read_lines) # Skip first row
+        _headings = next(read_lines)
 
         for row in read_lines:
             try:
-                service_switches.append(
+                '''service_switches.append(
                     {
                         'enduse': str(row[0]),
                         'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
                         'technology_install': str(row[2]),
                         'switch_yr': float(row[3]),
-                        'share_fuel_consumption_switched': float(row[4]),
-                        'max_theoretical_switch': float(row[5])
+                        'fuel_share_switched_ey': float(row[4])
                     }
+                    '''
+                service_switches.append(
+                    FuelSwitch(
+                        enduse=str(row[0]),
+                        enduse_fueltype_replace=lookups['fueltype'][str(row[1])],
+                        technology_install=str(row[2]),
+                        switch_yr=float(row[3]),
+                        fuel_share_switched_ey=float(row[4]))
                 )
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
@@ -518,34 +658,35 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
     # -------------------------------------------------
     # Testing wheter the provided inputs make sense
     # -------------------------------------------------
-    for element in service_switches:
-        if element['share_fuel_consumption_switched'] > element['max_theoretical_switch']:
-            sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(element['enduse'], element['enduse_fueltype_replace']))
+    for obj in service_switches:
+        #TODO: WRITE TEST FROM TECHNOLOGIES
+        #if obj['fuel_share_switched_ey'] > obj['max_theoretical_switch']:
+        #    sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(obj['enduse'], obj['enduse_fueltype_replace']))
 
-        if element['share_fuel_consumption_switched'] == 0:
+        if obj.fuel_share_switched_ey == 0:
             sys.exit("The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
 
     # Test if more than 100% per fueltype is switched
-    for element in service_switches:
-        enduse = element['enduse']
-        fuel_type = element['enduse_fueltype_replace']
+    for obj in service_switches:
+        enduse = obj.enduse
+        fuel_type = obj.enduse_fueltype_replace
 
         tot_share_fueltype_switched = 0
         # Do check for every entry
-        for element_iter in service_switches:
-            if enduse == element_iter['enduse'] and fuel_type == element_iter['enduse_fueltype_replace']:
+        for obj_iter in service_switches:
+            if enduse == obj_iter.enduse and fuel_type == obj_iter.enduse_fueltype_replace:
                 # Found same fueltypes which is switched
-                tot_share_fueltype_switched += element_iter['share_fuel_consumption_switched']
+                tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
 
         if tot_share_fueltype_switched > 1.0:
             sys.exit("The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
 
     # Test whether defined enduse exist
-    for element in service_switches:
-        if element['enduse'] in enduses['ss_all_enduses'] or element['enduse'] in enduses['rs_all_enduses'] or element['enduse'] in enduses['is_all_enduses']:
+    for obj in service_switches:
+        if obj.enduse in enduses['ss_all_enduses'] or obj.enduse in enduses['rs_all_enduses'] or obj.enduse in enduses['is_all_enduses']:
             pass
         else:
-            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(element['enduse']))
+            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(obj['enduse']))
 
     return service_switches
 
@@ -575,17 +716,18 @@ def read_technologies(path_to_csv):
         for row in read_lines:
             technology = row[0]
             try:
-                dict_technologies[technology] = {
-                    'fuel_type': str(row[1]),
-                    'eff_by': float(row[2]),
-                    'eff_ey': float(row[3]),
-                    'year_eff_ey': float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
-                    'eff_achieved': float(row[5]),
-                    'diff_method': str(row[6]),
-                    'market_entry': float(row[7]),
-                    'tech_list': str.strip(row[8]),
-                    'tech_assum_max_share': float(str.strip(row[9]))
-                }
+                dict_technologies[technology] = TechnologyData(
+                    fuel_type=str(row[1]),
+                    eff_by=float(row[2]),
+                    eff_ey=float(row[3]),
+                    year_eff_ey=float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
+                    eff_achieved=float(row[5]),
+                    diff_method=str(row[6]),
+                    market_entry=float(row[7]),
+                    tech_list=str.strip(row[8]),
+                    tech_max_share=float(str.strip(row[9]))
+                )
+
                 try:
                     dict_tech_lists[str.strip(row[8])].append(technology)
                 except KeyError:
@@ -1000,7 +1142,8 @@ def read_pop(path_enduse_specific_results):
     return dict(results)
 
 def read_capacity_installation(path_to_csv):
-    """This function reads in service assumptions from csv file
+    """This function reads in service assumptions
+    from csv file
 
     Arguments
     ----------
@@ -1021,14 +1164,11 @@ def read_capacity_installation(path_to_csv):
         for row in read_lines:
             try:
                 service_switches.append(
-                    {
-                        'enduse': str(row[0]),
-                        'technology_install': str(row[1]),
-                        'market_entry': float(row[2]),
-                        'switch_yr': float(row[3]),
-                        'installed_capacity':  float(row[4])
-                    }
-                )
+                    CapacitySwitch(
+                        enduse=str(row[0]),
+                        technology_install=str(row[1]),
+                        switch_yr=float(row[2]),
+                        installed_capacity= float(row[3])))
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

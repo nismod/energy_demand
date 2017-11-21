@@ -146,6 +146,6 @@ def helper_set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
         Adapted technolog
     """
     for technology in technologies:
-        technologies[technology]['eff_achieved'] = tech_eff_achieved_f
+        technologies[technology].eff_achieved = tech_eff_achieved_f
 
     return technologies

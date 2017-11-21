@@ -283,6 +283,8 @@ def ss_disaggregate(
                     ss_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * DUMMY_reg_diasg_factor
 
     # TESTING Check if total fuel is the same before and after aggregation
+
+    #print(ss_fuel_disagg)
     control_sum1, control_sum2 = 0, 0
     for reg in ss_fuel_disagg:
         for sector in ss_fuel_disagg[reg]:
@@ -294,7 +296,11 @@ def ss_disaggregate(
             control_sum2 += np.sum(raw_fuel_sectors_enduses[sector][enduse])
 
     #The loaded floor area must correspond to provided fuel sectors numers
-    np.testing.assert_almost_equal(control_sum1, control_sum2, decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
+    np.testing.assert_almost_equal(
+        control_sum1,
+        control_sum2,
+        decimal=2, err_msg=" {}  {}".format(control_sum1, control_sum2))
+
     return ss_fuel_disagg
 
 def is_disaggregate(

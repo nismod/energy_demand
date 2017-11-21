@@ -2,13 +2,10 @@
 Energy Demand Model
 ===================
 - run in constrained mode
-- run with same weather shape and same fuel input --> flat line expected
-- Test why lf in summer is higher than in winter
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 '''
-#TODO: REMOVE MARKET_ENTRY FROM CAPACITY INSTALLATION
 import os
 import sys
 import logging
@@ -85,9 +82,9 @@ if __name__ == "__main__":
     from pyinstrument import Profiler
     from energy_demand.assumptions import non_param_assumptions, param_assumptions
     from energy_demand.read_write import data_loader
-    from energy_demand.validation import lad_validation
     from energy_demand.basic import logger_setup
-    from energy_demand.read_write import write_data, read_data
+    from energy_demand.read_write import write_data
+    from energy_demand.read_write import read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
 
@@ -137,7 +134,7 @@ if __name__ == "__main__":
 
     # ------------------------------
     data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
-    
+
     # GVA
     gva_data = {}
     for year in range(2015, 2101):

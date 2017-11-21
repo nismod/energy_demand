@@ -266,7 +266,7 @@ is_dummy_enduses: [is_refrigeration, is_low_temp_process, is_compressed_air, is_
 is_enduse_tech_maxL_by_p: {}
 is_fuel_switches:
 - {enduse: is_space_heating, enduse_fueltype_replace: 1, max_theoretical_switch: 1.0,
-  share_fuel_consumption_switched: 0.5, technology_install: boiler_electricity, switch_yr: 2050.0}
+  fuel_share_switched_ey: 0.5, technology_install: boiler_electricity, switch_yr: 2050.0}
 is_fuel_tech_p_by:
   is_compressed_air:
     0: {dummy_tech: 1.0}
@@ -541,7 +541,7 @@ rs_service_switches:
     tMGHTsd3jz8=
   tech: boiler_solid_fuel
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -549,7 +549,7 @@ rs_service_switches:
     51YZpOWT5z8=
   tech: boiler_gas
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -557,7 +557,7 @@ rs_service_switches:
     9zupdk7Kjj8=
   tech: stirling_micro_CHP
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -565,7 +565,7 @@ rs_service_switches:
     0uvXPH1/hD8=
   tech: heat_pumps_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -573,7 +573,7 @@ rs_service_switches:
     ggqHUm84oj8=
   tech: storage_heater_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -581,7 +581,7 @@ rs_service_switches:
     hNuJczWCqT8=
   tech: secondary_heater_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -589,7 +589,7 @@ rs_service_switches:
     QX6qqHV1tD8=
   tech: boiler_oil
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -597,7 +597,7 @@ rs_service_switches:
     t90cdrQTWj8=
   tech: boiler_heat_sold
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -605,7 +605,7 @@ rs_service_switches:
     +8XakNRyrD8=
   tech: boiler_biomass
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -613,7 +613,7 @@ rs_service_switches:
     Xtpj+1gfND8=
   tech: boiler_hydrogen
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -621,7 +621,7 @@ rs_service_switches:
     tMGHTsd3jz8=
   tech: boiler_solid_fuel
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -629,7 +629,7 @@ rs_service_switches:
     51YZpOWT5z8=
   tech: boiler_gas
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -637,7 +637,7 @@ rs_service_switches:
     9zupdk7Kjj8=
   tech: stirling_micro_CHP
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -645,7 +645,7 @@ rs_service_switches:
     0uvXPH1/hD8=
   tech: heat_pumps_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -653,7 +653,7 @@ rs_service_switches:
     ggqHUm84oj8=
   tech: storage_heater_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -661,7 +661,7 @@ rs_service_switches:
     hNuJczWCqT8=
   tech: secondary_heater_electricity
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -669,7 +669,7 @@ rs_service_switches:
     QX6qqHV1tD8=
   tech: boiler_oil
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -677,7 +677,7 @@ rs_service_switches:
     t90cdrQTWj8=
   tech: boiler_heat_sold
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -685,7 +685,7 @@ rs_service_switches:
     +8XakNRyrD8=
   tech: boiler_biomass
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 - enduse: rs_space_heating
   service_share_ey: !!python/object/apply:numpy.core.multiarray.scalar
   - *id015
@@ -693,7 +693,7 @@ rs_service_switches:
     Xtpj+1gfND8=
   tech: boiler_hydrogen
   tech_assum_max: 1.0
-  year_switch_ey: 2040.0
+  switch_yr: 2040.0
 rs_share_service_tech_ey_p:
   rs_cold: {}
   rs_consumer_electronics: {}
@@ -933,97 +933,97 @@ tech_list:
   tech_heating_temp_dep: [heat_pumps_hydrogen, heat_pumps_electricity, heat_pumps_gas]
 technologies:
   LED: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.048, eff_ey: 0.048, fuel_type: electricity,
-    market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting, year_eff_ey: 2050.0}
+    market_entry: 2010.0, tech_max_share: 1.0, tech_list: rs_lighting, year_eff_ey: 2050.0}
   boiler_biomass: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
-    fuel_type: biomass, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: biomass, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_condensing_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.85, eff_ey: 0.85,
-    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: gas, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_condensing_oil: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.85, eff_ey: 0.85,
-    fuel_type: oil, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: oil, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.99, eff_ey: 0.99,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7, fuel_type: gas,
-    market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_heat_sold: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.6, eff_ey: 0.6,
-    fuel_type: heat_sold, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: heat_sold, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_hydrogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
-    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: hydrogen, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_oil: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7, fuel_type: oil,
-    market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   boiler_solid_fuel: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.6, eff_ey: 0.6,
-    fuel_type: solid_fuel, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: solid_fuel, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   chest_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.54, eff_ey: 0.54,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cold,
     year_eff_ey: 2050.0}
   dishwasher: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.53, eff_ey: 0.53,
-    fuel_type: electricity, market_entry: 2018.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    fuel_type: electricity, market_entry: 2018.0, tech_max_share: 1.0, tech_list: rs_wet,
     year_eff_ey: 2050.0}
   dummy_tech: {}
   energy_saving_lighting_bulb: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.034,
-    eff_ey: 0.034, fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0,
+    eff_ey: 0.034, fuel_type: electricity, market_entry: 2010.0, tech_max_share: 1.0,
     tech_list: rs_lighting, year_eff_ey: 2050.0}
   fluorescent_strip_lightinging: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.054,
-    eff_ey: 0.054, fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0,
+    eff_ey: 0.054, fuel_type: electricity, market_entry: 2010.0, tech_max_share: 1.0,
     tech_list: rs_lighting, year_eff_ey: 2050.0}
   fridge_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.48, eff_ey: 0.48,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cold,
     year_eff_ey: 2050.0}
   fuel_cell_CHP: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8, eff_ey: 0.8,
-    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: hydrogen, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   halogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.036, eff_ey: 0.036,
-    fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting,
+    fuel_type: electricity, market_entry: 2010.0, tech_max_share: 1.0, tech_list: rs_lighting,
     year_eff_ey: 2050.0}
   heat_pumps_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, year_eff_ey: 2050.0}
   heat_pumps_gas: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
-    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+    fuel_type: gas, market_entry: 2015.0, tech_max_share: 1.0, year_eff_ey: 2050.0}
   heat_pumps_hydrogen: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.25, eff_ey: 2.25,
-    fuel_type: hydrogen, market_entry: 2015.0, tech_assum_max_share: 1.0, year_eff_ey: 2050.0}
+    fuel_type: hydrogen, market_entry: 2015.0, tech_max_share: 1.0, year_eff_ey: 2050.0}
   hob_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.9, eff_ey: 0.9,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cooking,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cooking,
     year_eff_ey: 2050.0}
   hob_induction_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 1.3,
-    eff_ey: 1.3, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    eff_ey: 1.3, fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0,
     tech_list: rs_cooking, year_eff_ey: 2050.0}
   oven_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.65, eff_ey: 0.65,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cooking,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cooking,
     year_eff_ey: 2050.0}
   refrigerator: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.48, eff_ey: 0.48,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cold,
     year_eff_ey: 2050.0}
   secondary_heater_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8,
-    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0,
     tech_list: secondary_heating_electricity, year_eff_ey: 2050.0}
   standard_lighting_bulb: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.02, eff_ey: 0.02,
-    fuel_type: electricity, market_entry: 2010.0, tech_assum_max_share: 1.0, tech_list: rs_lighting,
+    fuel_type: electricity, market_entry: 2010.0, tech_max_share: 1.0, tech_list: rs_lighting,
     year_eff_ey: 2050.0}
   stirling_micro_CHP: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.7, eff_ey: 0.7,
-    fuel_type: gas, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: tech_heating_const,
+    fuel_type: gas, market_entry: 2015.0, tech_max_share: 1.0, tech_list: tech_heating_const,
     year_eff_ey: 2050.0}
   storage_heater_electricity: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.8,
-    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0,
+    eff_ey: 0.8, fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0,
     tech_list: primary_heating_electricity, year_eff_ey: 2050.0}
   tumble_dryer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.81, eff_ey: 0.81,
-    fuel_type: electricity, market_entry: 2019.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    fuel_type: electricity, market_entry: 2019.0, tech_max_share: 1.0, tech_list: rs_wet,
     year_eff_ey: 2050.0}
   upright_freezer: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.5, eff_ey: 0.5,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_cold,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_cold,
     year_eff_ey: 2050.0}
   washer_dryer: {diff_method: linear, eff_achieved: 1.0, eff_by: 2.0, eff_ey: 2.0,
-    fuel_type: electricity, market_entry: 2017.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    fuel_type: electricity, market_entry: 2017.0, tech_max_share: 1.0, tech_list: rs_wet,
     year_eff_ey: 2050.0}
   washing_machine: {diff_method: linear, eff_achieved: 1.0, eff_by: 0.46, eff_ey: 0.46,
-    fuel_type: electricity, market_entry: 2015.0, tech_assum_max_share: 1.0, tech_list: rs_wet,
+    fuel_type: electricity, market_entry: 2015.0, tech_max_share: 1.0, tech_list: rs_wet,
     year_eff_ey: 2050.0}
 test: test
 testing: true

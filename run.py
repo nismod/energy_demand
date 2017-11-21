@@ -19,8 +19,8 @@ from energy_demand.basic import date_prop, logger_setup
 from energy_demand.validation import lad_validation
 
 # must match smif project name for Local Authority Districts
-REGION_SET_NAME = 'lad_2016'
-NR_OF_MODELLEd_REGIONS = 380 #380
+REGION_SET_NAME = 'lad_uk_2016'
+NR_OF_MODELLEd_REGIONS = 391 #380 uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -274,8 +274,8 @@ class EDWrapper(SectorModel):
         #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = {} #TODO: REMOVE
         for reg in data['lu_reg']:
-            data['reg_coord'] [reg] = {'longitude': 52.58, 'latitude': -1.091}
-    
+            data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
+
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------

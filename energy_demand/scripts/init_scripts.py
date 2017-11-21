@@ -101,7 +101,6 @@ def scenario_initalisation(path_data_ed, data=False):
     path_data_ed : str
         Path to the energy demand data folder
     """
-    print("... start running sceario_initialisation scripts")
     logging.info("... start running sceario_initialisation scripts")
 
     # Initialise logger
@@ -203,7 +202,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['rs_all_enduses'],
         sgs_cont['rs_tech_increased_service'],
         data['assumptions']['rs_share_service_tech_ey_p'],
-        data['assumptions']['rs_enduse_tech_maxL_by_p'],
         rs_service_fueltype_by_p,
         rs_service_tech_by_p,
         data['assumptions']['rs_fuel_tech_p_by'])
@@ -217,7 +215,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         sgs_cont['ss_tech_increased_service'],
         data['assumptions']['ss_share_service_tech_ey_p'],
-        data['assumptions']['ss_enduse_tech_maxL_by_p'],
         ss_service_fueltype_by_p,
         ss_service_tech_by_p,
         data['assumptions']['ss_fuel_tech_p_by'])
@@ -231,7 +228,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         sgs_cont['is_tech_increased_service'],
         data['assumptions']['is_share_service_tech_ey_p'],
-        data['assumptions']['is_enduse_tech_maxL_by_p'],
         is_service_fueltype_by_p,
         is_service_tech_by_p,
         data['assumptions']['is_fuel_tech_p_by'])

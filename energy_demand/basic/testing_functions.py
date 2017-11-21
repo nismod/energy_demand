@@ -101,8 +101,8 @@ def testing_service_switch_insert(tech_stock_definition, switches):
         #get all switches
         switches_enduse_tech_defined = []
         for switch in switches:
-            if switch['enduse'] == enduse:
-                switches_enduse_tech_defined.append(switch['tech'])
+            if switch.enduse == enduse:
+                switches_enduse_tech_defined.append(switch.technology_install)
 
         if len(switches) >= 1:
             # Test if all defined tech are defined in switch

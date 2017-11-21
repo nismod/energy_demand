@@ -1,2 +1,2 @@
-enduse,enduse_fueltype_replace,technology_install,switch_yr,share_fuel_consumption_switched,max_theoretical_switch
+enduse,enduse_fueltype_replace,technology_install,switch_yr,fuel_share_switched_ey
 ss_space_heating,gas,boiler_electricity,2050,0.5,1
