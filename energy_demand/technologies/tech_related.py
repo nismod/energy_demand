@@ -3,6 +3,7 @@
 import logging
 import numpy as np
 from energy_demand.technologies import diffusion_technologies as diffusion
+from energy_demand.read_write import read_data
 
 def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
     """Define dummy technologies. Where no specific technologies are
@@ -52,7 +53,7 @@ def insert_dummy_tech(technologies, tech_p_by, all_specified_tech_enduse_by):
                     tech_p_by[end_use][fuel_type] = {"dummy_tech": 1.0}
 
                     # Insert dummy tech
-                    technologies['dummy_tech'] = {}
+                    technologies['dummy_tech'] = read_data.TechnologyData()
 
     return tech_p_by, all_specified_tech_enduse_by, technologies
 
@@ -259,12 +260,12 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
         for heat_pump_type in heat_pump_assump[fueltype]:
             share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
-            eff_heat_pump_by = technologies[heat_pump_type]['eff_by']
-            eff_heat_pump_ey = technologies[heat_pump_type]['eff_ey']
-            av_year_eff_ey += technologies[heat_pump_type]['year_eff_ey']
-            eff_achieved = technologies[heat_pump_type]['eff_achieved']
-            market_entry = technologies[heat_pump_type]['market_entry']
-            tech_max_share = technologies[heat_pump_type]['tech_max_share']
+            eff_heat_pump_by = technologies[heat_pump_type].eff_by
+            eff_heat_pump_ey = technologies[heat_pump_type].eff_ey
+            av_year_eff_ey += technologies[heat_pump_type].year_eff_ey
+            eff_achieved = technologies[heat_pump_type].eff_achieved
+            market_entry = technologies[heat_pump_type].market_entry
+            tech_max_share = technologies[heat_pump_type].tech_max_share
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
@@ -286,15 +287,17 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
         temp_dependent_tech_list.append(name_av_hp)
 
         # Add new averaged technology
-        technologies[name_av_hp] = {}
-        technologies[name_av_hp]['fuel_type'] = fueltype
-        technologies[name_av_hp]['eff_by'] = av_eff_hps_by
-        technologies[name_av_hp]['eff_ey'] = av_eff_hps_ey
-        technologies[name_av_hp]['year_eff_ey'] = av_year_eff_ey
-        technologies[name_av_hp]['eff_achieved'] = eff_achieved_av
-        technologies[name_av_hp]['diff_method'] = 'linear'
-        technologies[name_av_hp]['market_entry'] = market_entry_lowest
-        technologies[name_av_hp]['tech_max_share'] = tech_max_share
+        technologies[name_av_hp] = read_data.TechnologyData(
+            fuel_type=fueltype,
+            eff_by=av_eff_hps_by,
+            eff_ey=av_eff_hps_ey,
+            year_eff_ey=av_year_eff_ey,
+            eff_achieved=eff_achieved_av,
+            diff_method='linear',
+            market_entry=market_entry_lowest,
+            tech_list='tech_heating_temp_dep',
+            tech_max_share=tech_max_share
+        )
 
         heat_pumps.append(name_av_hp)
 
@@ -410,61 +413,3 @@ def generate_ashp_gshp_split(split_factor):
     }
 
     return installed_heat_pump
-
-'''def get_average_eff_by(tech_low_temp, tech_high_temp, assump_service_share_low_tech, assumptions):
-    """Calculate average efficiency for base year of hybrid technologies for
-    overall national energy service calculation
-
-    Arguments
-    ----------
-    tech_low_temp : str
-        Technology for lower temperatures
-    tech_high_temp : str
-        Technology for higher temperatures
-    assump_service_share_low_tech : float
-        Assumption about the overall share of the service provided
-        by the technology used for lower temperatures
-        (needs to be between 1.0 and 0)
-    assumptions : dict
-        Assumptions
-
-    Returns
-    -------
-    av_eff : float
-        Average efficiency of hybrid tech
-
-    Note
-    -----
-    It is necssary to define an average efficiency of hybrid technologies to calcualte
-    the share of total energy service in base year for the whole country. Because
-    the input is fuel for the whole country, it is not possible to calculate the
-    share for individual regions
-    """
-    # The average is calculated for the 10 temp difference intercept
-    # because input for heat pumps is provided for 10 degree differences
-    average_h_diff_by = 10
-
-    # Service shares
-    service_low_temp_tech_p = assump_service_share_low_tech
-    service_high_temp_tech_p = 1 - assump_service_share_low_tech
-
-    # Efficiencies of technologies of hybrid tech
-    if tech_low_temp in assumptions['tech_list']['tech_heating_temp_dep']:
-        eff_tech_low_temp = eff_heat_pump(
-            temp_diff=average_h_diff_by,
-            efficiency_intersect=assumptions['technologies'][tech_low_temp]['eff_by'])
-    else:
-        eff_tech_low_temp = assumptions['technologies'][tech_low_temp]['eff_by']
-
-    if tech_high_temp in assumptions['tech_list']['tech_heating_temp_dep']:
-        eff_tech_high_temp = eff_heat_pump(
-            temp_diff=average_h_diff_by,
-            efficiency_intersect=assumptions['technologies'][tech_high_temp]['eff_by'])
-    else:
-        eff_tech_high_temp = assumptions['technologies'][tech_high_temp]['eff_by']
-
-    # Weighted average efficiency
-    av_eff = service_low_temp_tech_p * eff_tech_low_temp + service_high_temp_tech_p * eff_tech_high_temp
-
-    return av_eff
-'''

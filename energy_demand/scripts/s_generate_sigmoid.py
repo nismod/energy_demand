@@ -179,7 +179,7 @@ def tech_sigmoid_parameters(
                     if switch.technology_install == tech:
                         yr_until_switched = switch.switch_yr
 
-                market_entry = technologies[tech]['market_entry']
+                market_entry = technologies[tech].market_entry
             else: #fuel switch
 
                 # Get the most future year of the technology in the enduse which is switched to
@@ -189,7 +189,7 @@ def tech_sigmoid_parameters(
                         if yr_until_switched < switch.switch_yr:
                             yr_until_switched = switch.switch_yr
 
-                market_entry = technologies[tech]['market_entry']
+                market_entry = technologies[tech].market_entry
 
             # --------
             # Test whether technology has the market entry before or after base year,
@@ -348,6 +348,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
 def tech_l_sigmoid(
         enduses,
         fuel_switches,
+        technologies,
         installed_tech,
         service_fueltype_p,
         service_tech_by_p,
@@ -387,6 +388,7 @@ def tech_l_sigmoid(
                 tech_install_p = calc_service_fuel_switched(
                     enduses,
                     fuel_switches,
+                    technologies,
                     service_fueltype_p,
                     service_tech_by_p, # Percentage of service demands for every technology
                     fuel_tech_p_by,
@@ -401,6 +403,7 @@ def tech_l_sigmoid(
 def calc_service_fuel_switched(
         enduses,
         fuel_switches,
+        technologies,
         service_fueltype_p,
         service_tech_by_p,
         fuel_tech_p_by,
@@ -456,8 +459,10 @@ def calc_service_fuel_switched(
 
                     # Service demand per fueltype that will be switched
                     if switch_type == 'max_switch':
+
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                        change_service_fueltype_p = orig_service_p * fuel_switch.max_theoretical_switch
+                        print(technologies[tech_install].__dict__)
+                        change_service_fueltype_p = orig_service_p * technologies[tech_install].tech_max_share
                     elif switch_type == 'actual_switch':
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                         change_service_fueltype_p = orig_service_p * fuel_switch.fuel_share_switched_ey
@@ -583,6 +588,7 @@ def get_sig_diffusion(
             service_tech_switched_p = calc_service_fuel_switched(
                 enduses,
                 fuel_switches,
+                technologies,
                 service_fueltype_by_p,
                 service_tech_by_p,
                 fuel_tech_p_by,
@@ -593,6 +599,7 @@ def get_sig_diffusion(
             l_values_sig = tech_l_sigmoid(
                 enduses,
                 fuel_switches,
+                technologies,
                 installed_tech,
                 service_fueltype_by_p,
                 service_tech_by_p,

@@ -231,11 +231,11 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
                 if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
-                        efficiency_intersect=tech_stock[tech]['eff_by'])
+                        efficiency_intersect=tech_stock[tech].eff_by)
                 elif tech_type == 'dummy_tech':
                     eff_tech = 1
                 else:
-                    eff_tech = tech_stock[tech]['eff_by']
+                    eff_tech = tech_stock[tech].eff_by
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech

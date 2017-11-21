@@ -187,8 +187,8 @@ def convert_capacity_assumption_to_service(
     4.  Write out as service switch
     """
     sim_param_new = {}
-    sim_param_new['base_yr'] = base_yr #sim_param['base_yr']
-    sim_param_new['curr_yr'] = capacity_switch['switch_yr']
+    sim_param_new['base_yr'] = base_yr
+    sim_param_new['curr_yr'] = capacity_switch.switch_yr
 
     # ---------------------------------------------
     # Calculate service per technolgies of by for ey
@@ -202,12 +202,12 @@ def convert_capacity_assumption_to_service(
             # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
-                technologies[tech]['eff_by'],
-                technologies[tech]['eff_ey'],
-                technologies[tech]['year_eff_ey'],
+                technologies[tech].eff_by,
+                technologies[tech].eff_ey,
+                technologies[tech].year_eff_ey,
                 other_enduse_mode_info,
-                technologies[tech]['eff_achieved'],
-                technologies[tech]['diff_method'])
+                technologies[tech].eff_achieved,
+                technologies[tech].diff_method)
 
             # Convert to service
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
@@ -224,12 +224,12 @@ def convert_capacity_assumption_to_service(
 
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
-                technologies[technology_install]['eff_by'],
-                technologies[technology_install]['eff_ey'],
-                technologies[technology_install]['year_eff_ey'],
+                technologies[technology_install].eff_by,
+                technologies[technology_install].eff_ey,
+                technologies[technology_install].year_eff_ey,
                 other_enduse_mode_info,
-                technologies[technology_install]['eff_achieved'],
-                technologies[technology_install]['diff_method'])
+                technologies[technology_install].eff_achieved,
+                technologies[technology_install].diff_method)
 
             # Convert fuel to service
             installed_capacity_ey = installed_capacity * tech_eff_ey
@@ -256,11 +256,10 @@ def convert_capacity_assumption_to_service(
             switch_yr = switch.switch_yr
             continue
 
-        service_switches_enduse.append({
-            'enduse': enduse,
-            'technology_install': tech,
-            'service_share_ey': service_tech_p,
-            'tech_assum_max': technologies[tech]['tech_max_share'],
-            'switch_yr': switch_yr})
+        read_data.ServiceSwitch(
+            enduse=enduse,
+            technology_install=tech,
+            service_share_ey=service_tech_p,
+            switch_yr=switch_yr)
 
     return service_switches_enduse

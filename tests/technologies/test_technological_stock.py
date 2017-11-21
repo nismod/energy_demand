@@ -55,18 +55,18 @@ def test_Technology():
 
 def test_TechStock():
 
-
+    from energy_demand.read_write import read_data
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020}
 
-    all_technologies = {'boilerA': {}}
-    all_technologies['boilerA']['fuel_type'] = 'electricity'
-    all_technologies['boilerA']['eff_achieved'] = 1.0
-    all_technologies['boilerA']['diff_method'] = 'linear'
-    all_technologies['boilerA']['eff_by'] = 1.0
-    all_technologies['boilerA']['eff_ey'] = 1.0
-    all_technologies['boilerA']['year_eff_ey'] = 2020
+    all_technologies = {'boilerA': read_data.TechnologyData()}
+    all_technologies['boilerA'].fuel_type = 'electricity'
+    all_technologies['boilerA'].eff_achieved = 1.0
+    all_technologies['boilerA'].diff_method = 'linear'
+    all_technologies['boilerA'].eff_by = 1.0
+    all_technologies['boilerA'].eff_ey = 1.0
+    all_technologies['boilerA'].year_eff_ey = 2020
 
     stock_obj = technological_stock.TechStock(
         stock_name="stock_name",

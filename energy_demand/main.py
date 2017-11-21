@@ -83,7 +83,8 @@ if __name__ == "__main__":
     from energy_demand.assumptions import non_param_assumptions, param_assumptions
     from energy_demand.read_write import data_loader
     from energy_demand.basic import logger_setup
-    from energy_demand.read_write import write_data, read_data
+    from energy_demand.read_write import write_data
+    from energy_demand.read_write import read_data
     from energy_demand.basic import basic_functions
     from energy_demand.basic import date_prop
 

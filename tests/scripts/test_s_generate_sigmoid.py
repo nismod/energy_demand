@@ -4,48 +4,65 @@ Testing s_generate_sigmoid
 import numpy as np
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
+from energy_demand.read_write import read_data
 
 def test_tech_sigmoid_paramters():
     """testng
     """
+    from energy_demand.read_write import read_data
+
+    fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    service_switches = [read_data.ServiceSwitch(
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    technologies = {'boilerA': read_data.TechnologyData(
+        market_entry=1990)}
+
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         base_yr=2010,
-        technologies={'boilerA': {'market_entry': 1990}},
+        technologies=technologies,
         enduse='heating',
         crit_switch_service=True,
         installed_tech=['boilerA'],
         l_values={'heating': {'boilerA': 1.0}},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        fuel_switches=[{'enduse': 'heating', 'technology_install': 'boilerA', 'switch_yr': 2050}],
-        service_switches=[{'technology_install': 'boilerA', 'switch_yr': 2050}])
+        fuel_switches=fuel_switches,
+        service_switches=service_switches)
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
 
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
 
+    # ------------
+    technologies = {'boilerA': read_data.TechnologyData(
+        market_entry=1990)}
 
     assump_fy = 1.0
     result = s_generate_sigmoid.tech_sigmoid_parameters(
         base_yr=2010,
-        technologies={'boilerA': {'market_entry': 1990}},
+        technologies=technologies,
         enduse='heating',
         crit_switch_service=False,
         installed_tech=['boilerA'],
         l_values={'heating': {'boilerA': 1.0}},
         service_tech_by_p={'boilerA': 0.5, 'boilerB': 0.5},
         service_tech_switched_p={'boilerA': assump_fy, 'boilerB': 0},
-        fuel_switches=[{'enduse': 'heating', 'technology_install': 'boilerA', 'switch_yr': 2050}],
-        service_switches=[{'technology_install': 'boilerA', 'switch_yr': 2050}])
+        fuel_switches=fuel_switches,
+        service_switches=service_switches)
 
     y_calculated = diffusion_technologies.sigmoid_function(
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
 
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
 
-test_tech_sigmoid_paramters()
 def test_get_tech_future_service():
     """
     """
@@ -110,20 +127,20 @@ def test_calc_sigmoid_parameters2():
     assert round(y_calculated, 3) == round(ydata[1], 3)
 
 def test_get_tech_installed():
-
+    """"""
     enduses = ['heating', 'cooking']
     fuel_switches = [
-        {
-            'enduse' : 'heating',
-            'technology_install': 'boilerB'
-        },
-        {
-            'enduse' : 'heating',
-            'technology_install': 'boilerA'},
-        {
-            'enduse' : 'cooking',
-            'technology_install': 'techC'
-            }
+        read_data.FuelSwitch(
+            enduse='heating',
+            technology_install='boilerB'
+        ),
+        read_data.FuelSwitch(
+            enduse='heating',
+            technology_install='boilerA'),
+        read_data.FuelSwitch(
+            enduse='cooking',
+            technology_install='techC'
+        )
         ]
 
     result = s_generate_sigmoid.get_tech_installed(enduses, fuel_switches)

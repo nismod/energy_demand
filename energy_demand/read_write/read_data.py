@@ -13,7 +13,19 @@ from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
 
 class CapacitySwitch(object):
-    """TODO
+    """Capacity switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    technology_install : str
+        Installed technology
+    switch_yr : int
+        Year until capacity installation is fully realised
+    installed_capacity : float
+        Installed capacity in GWh
     """
     def __init__(
             self,
@@ -21,7 +33,7 @@ class CapacitySwitch(object):
             technology_install,
             switch_yr,
             installed_capacity
-            ):
+        ):
 
         self.enduse = enduse
         self.technology_install = technology_install
@@ -29,16 +41,30 @@ class CapacitySwitch(object):
         self.installed_capacity = installed_capacity
 
 class FuelSwitch(object):
-    """TODO
+    """Fuel switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    enduse_fueltype_replace : str
+        Fueltype which is beeing switched from
+    technology_install : str
+        Installed technology
+    switch_yr : int
+        Year until switch is fully realised
+    fuel_share_switched_ey : float
+        Switched fuel share
     """
     def __init__(
             self,
-            enduse,
-            enduse_fueltype_replace,
-            technology_install,
-            switch_yr,
-            fuel_share_switched_ey
-            ):
+            enduse=None,
+            enduse_fueltype_replace=None,
+            technology_install=None,
+            switch_yr=None,
+            fuel_share_switched_ey=None
+        ):
 
         self.enduse = enduse
         self.enduse_fueltype_replace = enduse_fueltype_replace
@@ -47,16 +73,27 @@ class FuelSwitch(object):
         self.fuel_share_switched_ey = fuel_share_switched_ey
 
 class ServiceSwitch(object):
-    """TODO
+    """Service switch class for storing
+    switches
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    technology_install : str
+        Installed technology
+    service_share_ey : float
+        Service share of installed technology in future year
+    switch_yr : int
+        Year until switch is fully realised
     """
     def __init__(
             self,
-            enduse,
-            technology_install,
-            service_share_ey,
-            switch_yr
-            ):
-
+            enduse=None,
+            technology_install=None,
+            service_share_ey=None,
+            switch_yr=None
+        ):
         self.enduse = enduse
         self.technology_install = technology_install
         self.service_share_ey = service_share_ey
@@ -603,6 +640,45 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
 
     return service_switches
 
+class TechnologyData(object):
+    """Class to store technology related
+    data
+
+    Arguments
+    ---------
+    enduse : str
+        Enduse of affected switch
+    enduse_fueltype_replace : str
+        Fueltype which is beeing switched from
+    technology_install : str
+        Installed technology
+    switch_yr : int
+        Year until switch is fully realised
+    fuel_share_switched_ey : float
+        Switched fuel share
+    """
+    def __init__(
+            self,
+            fuel_type=None,
+            eff_by=None,
+            eff_ey=None,
+            year_eff_ey=None,
+            eff_achieved=None,
+            diff_method=None,
+            market_entry=None,
+            tech_list=None,
+            tech_max_share=None
+        ):
+        self.fuel_type = fuel_type
+        self.eff_by = eff_by
+        self.eff_ey = eff_ey
+        self.year_eff_ey = year_eff_ey
+        self.eff_achieved = eff_achieved
+        self.diff_method = diff_method
+        self.market_entry = market_entry
+        self.tech_list = tech_list
+        self.tech_max_share = tech_max_share
+
 def read_technologies(path_to_csv):
     """Read in technology definition csv file
 
@@ -629,17 +705,18 @@ def read_technologies(path_to_csv):
         for row in read_lines:
             technology = row[0]
             try:
-                dict_technologies[technology] = {
-                    'fuel_type': str(row[1]),
-                    'eff_by': float(row[2]),
-                    'eff_ey': float(row[3]),
-                    'year_eff_ey': float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
-                    'eff_achieved': float(row[5]),
-                    'diff_method': str(row[6]),
-                    'market_entry': float(row[7]),
-                    'tech_list': str.strip(row[8]),
-                    'tech_max_share': float(str.strip(row[9]))
-                }
+                dict_technologies[technology] = TechnologyData(
+                    fuel_type=str(row[1]),
+                    eff_by=float(row[2]),
+                    eff_ey=float(row[3]),
+                    year_eff_ey=float(row[4]), #MAYBE: ADD DICT WITH INTERMEDIARY POINTS
+                    eff_achieved=float(row[5]),
+                    diff_method=str(row[6]),
+                    market_entry=float(row[7]),
+                    tech_list=str.strip(row[8]),
+                    tech_max_share=float(str.strip(row[9]))
+                )
+
                 try:
                     dict_tech_lists[str.strip(row[8])].append(technology)
                 except KeyError:
