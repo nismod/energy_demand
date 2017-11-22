@@ -63,7 +63,7 @@ class EDWrapper(SectorModel):
         -----
         `self.user_data` allows to pass data from before_model_run to main model
         """
-        data = defaultdict(dict)
+        data = defaultdict(dict, data)
 
         # -----------------------------
         # Paths
@@ -91,7 +91,7 @@ class EDWrapper(SectorModel):
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         reg_centroids = self.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
-   
+
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
@@ -147,8 +147,8 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions']['strategy_variables'] = self.load_all_smif_parameters(
-            data['paths']['yaml_parameters_complete'], data)
+        data['assumptions'] = self.load_all_smif_parameters(
+            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
 
         # ------------------------
         # Pass along to simulate()
@@ -270,8 +270,7 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_all_smif_parameters(
-            data['paths']['yaml_parameters_complete'],
-            data)
+            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
 
         # floor_area[sector][building_type][dwelling_type][age_class]
         # Floor areas TODO LOAD FROM NEWCASTLE, REPLACE
@@ -282,11 +281,15 @@ class EDWrapper(SectorModel):
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-        data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
+        data['tech_lp'] = data_loader.load_data_profiles(
+            data['paths'],
+            data['local_paths'],
+            data['assumptions']['model_yeardays'],
+            data['assumptions']['model_yeardays_daytype'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f']['factor_achieved'])
+            data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
 
         # ---------
         # Scenario data
@@ -441,7 +444,7 @@ class EDWrapper(SectorModel):
         """
         pass
 
-    def load_all_smif_parameters(self, path_all_strategy_params, data):
+    def load_all_smif_parameters(self, path_all_strategy_params, data, assumptions):
         """Get all model parameters from smif and replace in data dict
 
         Arguments
@@ -451,16 +454,18 @@ class EDWrapper(SectorModel):
             are defined
         data : dict
             Dict with all data
+        assumptions : dict
+            Assumptions
 
         Returns
         =========
-        strategy_variables : dict
-            All strategy variables {'name': value}
+        assumptions : dict
+            Assumptions with added strategy variables
         """
         strategy_variables = {}
         all_strategy_variables = []
 
-        # Read in full info of strategy variables
+        # Read in full info of strategy variables #TODO: LINK TO STRATEGY FILE IN RPOJECT
         full_variables = read_data.read_param_yaml(path_all_strategy_params)
 
         # Only copy name of strategy variables
@@ -475,7 +480,10 @@ class EDWrapper(SectorModel):
             # Del variable from dict
             del data[var_name]
 
-        return strategy_variables
+        # Add to assumptoins
+        assumptions['strategy_variables'] = strategy_variables
+
+        return assumptions
 
     def get_long_lat_decimal_degrees(self, reg_centroids):
         """Project coordinates from shapefile to get
@@ -510,6 +518,6 @@ class EDWrapper(SectorModel):
 
             reg_coord[centroid['properties']['name']] = {}
             reg_coord[centroid['properties']['name']]['longitude'] = long_dd
-            reg_coord[centroid['properties']['name']]['latidue'] = lat_dd
+            reg_coord[centroid['properties']['name']]['latitude'] = lat_dd
 
         return reg_coord

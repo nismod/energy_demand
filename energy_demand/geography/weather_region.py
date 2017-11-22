@@ -61,49 +61,49 @@ class WeatherRegion(object):
         temp_cy = change_temp_climate(
             temp_by,
             assumptions['yeardays_month_days'],
-            assumptions['strategy_variables']['climate_change_temp_diff_month']['temps'],
+            assumptions['strategy_variables'],
             sim_param,
-            assumptions['strategy_variables']['climate_change_temp_diff_month']['climate_change_temp_diff_yr_until_changed'])
+            assumptions['strategy_variables']['climate_change_temp_diff_yr_until_changed'])
 
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'],
-            assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+            assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
             assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
             assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_heating_by = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+            assumptions['strategy_variables']['rs_t_base_heating_future_yr'],
             assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         rs_t_base_cooling_by = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'],
-            assumptions['strategy_variables']['rs_t_base_cooling']['rs_t_base_cooling_future_yr'],
+            assumptions['strategy_variables']['rs_t_base_cooling_future_yr'],
             assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'], 
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+            assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
             assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_cy = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
             assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_heating_by = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['ss_t_base_heating']['ss_t_base_heating_future_yr'],
+            assumptions['strategy_variables']['ss_t_base_heating_future_yr'],
             assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
         ss_t_base_cooling_by = hdd_cdd.sigm_temp(
             sim_param, assumptions['base_temp_diff_params'], 
-            assumptions['strategy_variables']['ss_t_base_cooling']['ss_t_base_cooling_future_yr'],
+            assumptions['strategy_variables']['ss_t_base_cooling_future_yr'],
             assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
             assumptions['base_temp_diff_params']['yr_until_changed'])
 

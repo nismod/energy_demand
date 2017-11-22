@@ -37,9 +37,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['demand_management'] = {}
     assumptions['strategy_variables']['demand_management']['param_infos'] = [{
         "name": "demand_management_yr_until_changed",
-        "absolute_range": (10, 20),
+        "absolute_range": '(10, 20)',
         "description": "Year until demand management assumptions are fully realised",
-        "suggested_range": (2015, 2100),
+        "suggested_range": '(2015, 2100)',
         "default_value": 2050,
         "units": 'years'}]
 
@@ -49,45 +49,49 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['demand_management']['enduses_demand_managent'] = {
 
         #Residential submodule
-        'demand_management_improvement__rs_space_heating': 0,
-        'demand_management_improvement__rs_water_heating': 0,
-        'demand_management_improvement__rs_lighting': 0,
-        'demand_management_improvement__rs_cooking': 0,
-        'demand_management_improvement__rs_cold': 0,
-        'demand_management_improvement__rs_wet': 0,
-        'demand_management_improvement__rs_consumer_electronics': 0,
-        'demand_management_improvement__rs_home_computing': 0,
+        'rs_space_heating': 0,
+        'rs_water_heating': 0,
+        'rs_lighting': 0,
+        'rs_cooking': 0,
+        'rs_cold': 0,
+        'rs_wet': 0,
+        'rs_consumer_electronics': 0,
+        'rs_home_computing': 0,
 
         # Service submodule
-        'demand_management_improvement__ss_space_heating': 0,
-        'demand_management_improvement__ss_water_heating': 0,
-        'demand_management_improvement__ss_lighting': 0,
-        'demand_management_improvement__ss_catering': 0,
-        'demand_management_improvement__ss_computing': 0,
-        'demand_management_improvement__ss_space_cooling': 0,
-        'demand_management_improvement__ss_other_gas': 0,
-        'demand_management_improvement__ss_other_electricity': 0,
+        'ss_space_heating': 0,
+        'ss_water_heating': 0,
+        'ss_lighting': 0,
+        'ss_catering': 0,
+        'ss_computing': 0,
+        'ss_space_cooling': 0,
+        'ss_other_gas': 0,
+        'ss_other_electricity': 0,
 
         # Industry submodule
-        'demand_management_improvement__is_high_temp_process': 0,
-        'demand_management_improvement__is_low_temp_process': 0,
-        'demand_management_improvement__is_drying_separation': 0,
-        'demand_management_improvement__is_motors': 0,
-        'demand_management_improvement__is_compressed_air': 0,
-        'demand_management_improvement__is_lighting': 0,
-        'demand_management_improvement__is_space_heating': 0,
-        'demand_management_improvement__is_other': 0,
-        'demand_management_improvement__is_refrigeration': 0}
+        'is_high_temp_process': 0,
+        'is_low_temp_process': 0,
+        'is_drying_separation': 0,
+        'is_motors': 0,
+        'is_compressed_air': 0,
+        'is_lighting': 0,
+        'is_space_heating': 0,
+        'is_other': 0,
+        'is_refrigeration': 0}
 
     # Helper function to create description of parameters for all enduses
     for demand_name, _ in assumptions['strategy_variables']['demand_management']['enduses_demand_managent'].items():
         assumptions['strategy_variables']['demand_management']['param_infos'].append({
             "name": "demand_management_improvement__{}".format(demand_name),
-            "absolute_range": (0, 100),
+            "absolute_range": '(0, 100)',
             "description": "reduction in load factor for enduse {}".format(demand_name),
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": 0,
             "units": '%'})
+    # Helper to moe enduses_demand_managent one level down
+    for demand_name, value in assumptions['strategy_variables']['demand_management']['enduses_demand_managent'].items():
+        assumptions['strategy_variables']['demand_management']["demand_management_improvement__{}".format(demand_name)] = value
+    del assumptions['strategy_variables']['demand_management']['enduses_demand_managent'] 
 
     # =======================================
     # Climate Change assumptions
@@ -97,9 +101,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['climate_change_temp_diff_month']['param_infos'] = [
         {
             "name": "climate_change_temp_diff_yr_until_changed",
-            "absolute_range": (2015, 2100),
+            "absolute_range": '(2015, 2100)',
             "description": "Year until climate temperature changes are fully realised",
-            "suggested_range": (2030, 2100),
+            "suggested_range": '(2030, 2100)',
             "default_value": 2050,
             "units": 'year'
         }
@@ -118,21 +122,25 @@ def load_param_assump(paths, assumptions):
         'climate_change_temp_d__Oct': 0,
         'climate_change_temp_d__Nov': 0,
         'climate_change_temp_d__Dec': 0}
-    
+
     assumptions['strategy_variables']['climate_change_temp_diff_month']['climate_change_temp_diff_yr_until_changed'] = yr_until_changed_all_things
 
     for month_python, _ in enumerate(assumptions['strategy_variables']['climate_change_temp_diff_month']['temps']):
         month_str = basic_functions.get_month_from_int(month_python + 1)
-        assumptions['strategy_variables']['demand_management']['param_infos'].append(
+        assumptions['strategy_variables']['climate_change_temp_diff_month']['param_infos'].append(
             {
                 "name": "climate_change_temp_d__{}".format(month_str),
-                "absolute_range": (-10, 10),
+                "absolute_range": '(-10, 10)',
                 "description": "Temperature change for month {}".format(month_str),
-                "suggested_range": (-5, 5),
+                "suggested_range": '(-5, 5)',
                 "default_value": 0,
                 "units": '°C'
             })
 
+    # Helper function to move temps one level down
+    for enduse_name, value_param in assumptions['strategy_variables']['climate_change_temp_diff_month']['temps'].items():
+        assumptions['strategy_variables']['climate_change_temp_diff_month'][enduse_name] = value_param
+    del assumptions['strategy_variables']['climate_change_temp_diff_month']['temps']
     # ============================================================
     # Base temperature assumptions for heating and cooling demand
     # The diffusion is asumed to be linear
@@ -141,9 +149,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['rs_t_base_heating'] = {}
     assumptions['strategy_variables']['rs_t_base_heating']['param_infos'] = [{
         "name": "rs_t_base_heating_future_yr",
-        "absolute_range": (10, 20),
+        "absolute_range": '(10, 20)',
         "description": "Base temperature assumption residential heating",
-        "suggested_range": (13, 17),
+        "suggested_range": '(13, 17)',
         "default_value": assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
         "units": '°C'}]
 
@@ -154,9 +162,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['ss_t_base_heating'] = {}
     assumptions['strategy_variables']['ss_t_base_heating']['param_infos'] = [{
         "name": "ss_t_base_heating_future_yr",
-        "absolute_range": (10, 20),
+        "absolute_range": '(10, 20)',
         "description": "Base temperature assumption service sector heating",
-        "suggested_range": (13, 17),
+        "suggested_range": '(13, 17)',
         "default_value": assumptions['ss_t_base_heating']['ss_t_base_heating_base_yr'],
         "units": '°C'}]
 
@@ -167,9 +175,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['rs_t_base_cooling'] = {}
     assumptions['strategy_variables']['rs_t_base_cooling']['param_infos'] = [{
         "name": "rs_t_base_cooling_future_yr",
-        "absolute_range": (20, 25),
+        "absolute_range": '(20, 25)',
         "description": "Base temperature assumption residential sector cooling",
-        "suggested_range": (13, 17),
+        "suggested_range": '(13, 17)',
         "default_value": assumptions['rs_t_base_cooling']['rs_t_base_cooling_base_yr'],
         "units": '°C'}]
 
@@ -179,9 +187,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['ss_t_base_cooling'] = {}
     assumptions['strategy_variables']['ss_t_base_cooling']['param_infos'] = [{
         "name": "ss_t_base_cooling_future_yr",
-        "absolute_range": (20, 25),
+        "absolute_range": '(20, 25)',
         "description": "Base temperature assumption service sector cooling",
-        "suggested_range": (13, 17),
+        "suggested_range": '(13, 17)',
         "default_value": assumptions['ss_t_base_cooling']['ss_t_base_cooling_base_yr'],
         "units": '°C'}]
 
@@ -204,16 +212,16 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['smart_meter_assump']['param_infos'] = [
         {
             "name": "smart_meter_p_future",
-            "absolute_range": (0, 1),
+            "absolute_range": '(0, 1)',
             "description": "Population diffusion of smart meters",
-            "suggested_range": (10, 100),
+            "suggested_range": '(10, 100)',
             "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
             "units": '%'},
         {
             "name": "smart_meter_yr_until_changed",
-            "absolute_range": (0, 1),
+            "absolute_range": '(0, 1)',
             "description": "Year until smart meter assumption is implemented",
-            "suggested_range": (2015, 2100),
+            "suggested_range": '(2015, 2100)',
             "default_value": 2050,
             "units": 'year'
         }
@@ -247,11 +255,16 @@ def load_param_assump(paths, assumptions):
     for enduse_name, _ in assumptions['strategy_variables']['smart_meter_assump']['savings_smart_meter'].items():
         assumptions['strategy_variables']['smart_meter_assump']['param_infos'].append({
             "name": "smart_meter_improvement_{}".format(enduse_name),
-            "absolute_range": (0, 100),
+            "absolute_range": '(0, 100)',
             "description": "Smart meter induced savings for enduse {}".format(enduse_name),
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": '0',
             "units": '%'})
+    
+    # Helper function to move temps one level down
+    for enduse_name, value_param in assumptions['strategy_variables']['smart_meter_assump']['savings_smart_meter'].items():
+        assumptions['strategy_variables']['smart_meter_assump']["smart_meter_improvement_{}".format(enduse_name)] = value_param
+    del assumptions['strategy_variables']['smart_meter_assump']['savings_smart_meter']
 
     # ============================================================
     # Heat recycling & Reuse
@@ -259,44 +272,43 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['heat_recovered'] = {}
     assumptions['strategy_variables']['heat_recovered']['param_infos'] = [
         {
-            "name": "rs_space_heating",
-            "absolute_range": (0, 1),
+            "name": "heat_recoved__rs_space_heating",
+            "absolute_range": '(0, 1)',
             "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": 0,
             "units": '%'
         },
         {
-            "name": "ss_space_heating",
-            "absolute_range": (0, 1),
+            "name": "heat_recoved__ss_space_heating",
+            "absolute_range": '(0, 1)',
             "description": "Reduction in heat because of heat recovery and recycling (service sector)",
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": 0,
             "units": '%'
         },
         {
-            "name": "is_space_heating",
-            "absolute_range": (0, 1),
+            "name": "heat_recoved__is_space_heating",
+            "absolute_range": '(0, 1)',
             "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": 0,
             "units": '%'
         },
         {
             "name": "heat_recovered_yr_until_changed",
-            "absolute_range": (2015, 2100),
+            "absolute_range": '(2015, 2100)',
             "description": "Year until heat recyling is full implemented",
-            "suggested_range": (2015, 2100),
+            "suggested_range": '(2015, 2100)',
             "default_value": 2050,
             "units": 'year'
         },
     ]
 
     # Heat recycling assumptions (e.g. 0.2 = 20% reduction)
-    assumptions['strategy_variables']['heat_recovered'] = {}
-    assumptions['strategy_variables']['heat_recovered']['rs_space_heating'] = 0.0
-    assumptions['strategy_variables']['heat_recovered']['ss_space_heating'] = 0.0
-    assumptions['strategy_variables']['heat_recovered']['is_space_heating'] = 0.0
+    assumptions['strategy_variables']['heat_recovered']['heat_recoved__rs_space_heating'] = 0.0
+    assumptions['strategy_variables']['heat_recovered']['heat_recoved__ss_space_heating'] = 0.0
+    assumptions['strategy_variables']['heat_recovered']['heat_recoved__is_space_heating'] = 0.0
 
     # Year until recycling is fully realised
     assumptions['strategy_variables']['heat_recovered']['heat_recovered_yr_until_changed'] = yr_until_changed_all_things
@@ -316,9 +328,9 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['enduse_overall_change']['param_infos'] = [
         {
             "name": "enduse_specific_change_yr_until_changed",
-            "absolute_range": (0, 1),
+            "absolute_range": '(0, 1)',
             "description": "Year until change in enduse assumption is implemented",
-            "suggested_range": (2015, 2100),
+            "suggested_range": '(2015, 2100)',
             "default_value": 2050,
             "units": 'year'
         }
@@ -363,17 +375,17 @@ def load_param_assump(paths, assumptions):
     # Helper function to create description of parameters for all enduses
     for enduse_name, _ in assumptions['strategy_variables']['enduse_overall_change']['enduses'].items():
         assumptions['strategy_variables']['enduse_overall_change']['param_infos'].append({
-            "name": "smart_meter_improvement_{}".format(enduse_name),
-            "absolute_range": (0, 100),
+            "name": "enduse_change__{}".format(enduse_name),
+            "absolute_range": '(0, 100)',
             "description": "Enduse specific change {}".format(enduse_name),
-            "suggested_range": (0, 100),
+            "suggested_range": '(0, 100)',
             "default_value": 0,
             "units": '%'})
 
     # Helper function to delete ['enduses'] and add one level below
     for enduse_name, value_param in assumptions['strategy_variables']['enduse_overall_change']['enduses'].items():
         # Add parameter with different variablen ame
-        assumptions['strategy_variables']['enduse_overall_change']['enduse_change_{}'.format(enduse_name)] = value_param
+        assumptions['strategy_variables']['enduse_overall_change']['enduse_change__{}'.format(enduse_name)] = value_param
     del assumptions['strategy_variables']['enduse_overall_change']['enduses']
 
     # ============================================================
@@ -385,20 +397,32 @@ def load_param_assump(paths, assumptions):
     assumptions['strategy_variables']['eff_achiev_f']['param_infos'] = [
         {
             "name": "eff_achiev_f",
-            "absolute_range": (0, 1),
+            "absolute_range": '(0, 1)',
             "description": "Fraction achieved of efficiency improvements",
-            "suggested_range": (0, 100),
-            "default_value": 0,
+            "suggested_range": '(0, 100)',
+            "default_value": 1.0,
             "units": '%'
         }]
 
-    assumptions['strategy_variables']['eff_achiev_f']['factor_achieved'] = 1.0
+    assumptions['strategy_variables']['eff_achiev_f']['eff_achiev_f'] = 1.0
 
     # -----------------------
     # Create parameter file only with fully descried parameters
     # and write to yaml file
     # -----------------------
     write_data.write_yaml_param_complete(paths['yaml_parameters_complete'], assumptions['strategy_variables'])
+    
+    #-----------------------------
+    # Convert for local calculations. Add all into one dict
+    #-----------------------------
+    strategy_variables_one_dict = {}
+    for subcategory, entry in assumptions['strategy_variables'].items():
+        for param_info in entry['param_infos']:
+            strategy_variables_one_dict[param_info['name']] = entry[param_info['name']]
 
+    # Replace strategy variables
+    del assumptions['strategy_variables']
+    assumptions['strategy_variables'] = strategy_variables_one_dict
     assumptions['testing'] = True
+
     return
