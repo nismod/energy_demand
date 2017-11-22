@@ -422,7 +422,7 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
         logging.info("... finished wrapper calculations")
-
+        prnt(":")
         return {'model_name': supply_results}
 
     def extract_obj(self, results):
@@ -465,7 +465,8 @@ class EDWrapper(SectorModel):
         strategy_variables = {}
         all_strategy_variables = []
 
-        # Read in full info of strategy variables #TODO: LINK TO STRATEGY FILE IN RPOJECT
+        #TODO: LINK TO STRATEGY FILE IN RPOJECT
+        # Read in full info of strategy variables
         full_variables = read_data.read_param_yaml(path_all_strategy_params)
 
         # Only copy name of strategy variables

@@ -5,12 +5,6 @@ file
 """
 import logging
 from energy_demand.read_write import write_data
-from energy_demand.technologies import tech_related
-from energy_demand.basic import testing_functions as testing
-from energy_demand.assumptions import assumptions_fuel_shares
-from energy_demand.initalisations import helpers
-from energy_demand.basic import date_prop
-from energy_demand.technologies import fuel_service_switch
 from energy_demand.basic import basic_functions
 
 def load_param_assump(paths, assumptions):

@@ -1,6 +1,7 @@
 """Weather Station location
 """
 from haversine import haversine # Package to calculate distance between two long/lat points
+import logging
 
 def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
     """Calculate distance between two points
@@ -51,10 +52,20 @@ def get_closest_station(longitude_reg, latitude_reg, weather_stations):
         dist_to_station = calc_distance_two_points(
             longitude_reg,
             latitude_reg,
-            weather_stations[station_id]['station_latitude'],
-            weather_stations[station_id]['station_longitude'])
-
+            weather_stations[station_id]['station_longitude'],
+            weather_stations[station_id]['station_latitude'])
+        #logging.debug("dist.. " + str(dist_to_station))
         if dist_to_station < closest_dist:
-            closest_dist, closest_id = dist_to_station, station_id
+            closest_dist = dist_to_station
+            closest_id = station_id
 
+            '''logging.debug("--")
+            logging.debug("station long: " + str(weather_stations[station_id]['station_longitude']))
+            logging.debug("station lat : " + str(weather_stations[station_id]['station_latitude']))
+            logging.debug("long reg    : " + str(longitude_reg))
+            logging.debug("lat reg     : " + str(latitude_reg))
+            logging.debug("closest id  : " + str(closest_id))
+            logging.debug("closest dist: " + str(closest_dist))'''
+
+    #logging.debug("********************  " + str(closest_id))
     return closest_id

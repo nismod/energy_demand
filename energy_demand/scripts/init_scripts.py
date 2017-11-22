@@ -1,5 +1,5 @@
-"""Script functions which are executed after model installation and
-after each scenario definition
+"""Script functions which are executed after
+model installation and after each scenario definition
 """
 import os
 import logging
@@ -80,7 +80,7 @@ def post_install_setup(args):
     # Read in temperature data from raw files
     s_raw_weather_data.run(data)
 
-    # Read in residenital submodel shapes
+    # Read in residential submodel shapes
     s_rs_raw_shapes.run(data)
 
     # Read in service submodel shapes
