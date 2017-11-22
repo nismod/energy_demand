@@ -219,11 +219,10 @@ class EDWrapper(SectorModel):
         =======
 
         """
-        data = defaultdict(dict)
+        # Convert data to default dict
+        data = defaultdict(dict, data)
 
-        # ------
         # Paths
-        # ------
         path_main = resource_filename(Requirement.parse("energy_demand"), "")
 
         # Ini info

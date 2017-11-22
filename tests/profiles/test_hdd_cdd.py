@@ -171,7 +171,7 @@ def test_get_cdd_country():
     assert result['reg_A'] == expected['reg_A']
     assert result['reg_B'] == expected['reg_B']
 
-def test_get_reg_hdd():
+def test_calc_reg_hdd():
     """testing
     """
     t_base_heating = 15.5
@@ -180,12 +180,12 @@ def test_get_reg_hdd():
 
     model_yeardays = range(365)
 
-    result_hdd_d, result_shape = hdd_cdd.get_reg_hdd(temperatures, t_base_heating, model_yeardays)
+    result_hdd_d, result_shape = hdd_cdd.calc_reg_hdd(temperatures, t_base_heating, model_yeardays)
 
     assert np.sum(result_hdd_d) == (15.5 - 12) * 8760 / 24
     assert round(np.sum(result_shape), 3) == round(1.0, 3)
 
-def test_get_reg_cdd():
+def test_calc_reg_cdd():
     """testing
     """
     t_base_heating = 15.5
@@ -194,7 +194,7 @@ def test_get_reg_cdd():
 
     model_yeardays = range(365)
 
-    result_hdd_d, result_shape = hdd_cdd.get_reg_cdd(temperatures, t_base_heating, model_yeardays)
+    result_hdd_d, result_shape = hdd_cdd.calc_reg_cdd(temperatures, t_base_heating, model_yeardays)
 
     assert np.sum(result_hdd_d) == (20 - 15.5) * 8760 / 24
     assert round(np.sum(result_shape), 3) == round(1.0, 3)

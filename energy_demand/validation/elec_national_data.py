@@ -135,18 +135,6 @@ def compare_results(
     # plot points
     #plt.plot(x_data, y_real_indo, color='black', label='indo')
     #plt.plot(x_data, y_real_itsdo, color='grey', label='itsdo')
-    '''plt.plot(
-        x_data,
-        y_real_indo_factored,
-        color='green',
-        label='indo_factored')
-
-    plt.plot(
-        x_data,
-        y_calculated,
-        color='red',
-        label='modelled')'''
-
     plt.plot(
         x_data,
         y_real_indo_factored,

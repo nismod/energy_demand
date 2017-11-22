@@ -202,8 +202,9 @@ def sigm_temp(sim_param, diff_params, t_future_yr, t_base_yr, yr_until_changed):
 
     return t_base_cy
 
-def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
-    """Calculate hdd for every day and daily yd shape of heating demand
+def calc_reg_hdd(temperatures, t_base_heating, model_yeardays):
+    """Calculate hdd for every day and daily
+    yd shape of heating demand
 
     Arguments
     ----------
@@ -242,7 +243,7 @@ def get_reg_hdd(temperatures, t_base_heating, model_yeardays):
 
     return hdd_d, shape_hdd_d_selection
 
-def get_reg_cdd(temperatures, t_base_cooling, model_yeardays):
+def calc_reg_cdd(temperatures, t_base_cooling, model_yeardays):
     """Calculate CDD for every day and daily yd shape of cooling demand
 
     Arguments

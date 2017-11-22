@@ -158,13 +158,13 @@ class WeatherRegion(object):
         self.rs_load_profiles = load_profile.LoadProfileStock("rs_load_profiles")
 
         # --------HDD/CDD
-        self.rs_hdd_by, _ = hdd_cdd.get_reg_hdd(
+        self.rs_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, rs_t_base_heating_by, assumptions['model_yeardays'])
-        self.rs_cdd_by, _ = hdd_cdd.get_reg_cdd(
+        self.rs_cdd_by, _ = hdd_cdd.calc_reg_cdd(
             temp_by, rs_t_base_cooling_by, assumptions['model_yeardays'])
-        self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
+        self.rs_hdd_cy, rs_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-        self.rs_cdd_cy, _ = hdd_cdd.get_reg_cdd(
+        self.rs_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, rs_t_base_cooling_cy, assumptions['model_yeardays'])
 
         # Climate change correction factors
@@ -255,14 +255,14 @@ class WeatherRegion(object):
         self.ss_load_profiles = load_profile.LoadProfileStock("ss_load_profiles")
 
         # --------HDD/CDD
-        ss_hdd_by, _ = hdd_cdd.get_reg_hdd(
+        ss_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-        ss_cdd_by, _ = hdd_cdd.get_reg_cdd(
+        ss_cdd_by, _ = hdd_cdd.calc_reg_cdd(
             temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'])
 
-        ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
+        ss_hdd_cy, ss_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, rs_t_base_heating_cy, assumptions['model_yeardays'])
-        ss_cdd_cy, _ = hdd_cdd.get_reg_cdd(
+        ss_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'])
 
         try:
@@ -332,15 +332,15 @@ class WeatherRegion(object):
         self.is_load_profiles = load_profile.LoadProfileStock("is_load_profiles")
 
         # --------HDD/CDD
-        is_hdd_by, _ = hdd_cdd.get_reg_hdd(
+        is_hdd_by, _ = hdd_cdd.calc_reg_hdd(
             temp_by, ss_t_base_heating_by, assumptions['model_yeardays'])
-        is_cdd_by, _ = hdd_cdd.get_reg_cdd(
+        is_cdd_by, _ = hdd_cdd.calc_reg_cdd(
             temp_by, ss_t_base_cooling_by, assumptions['model_yeardays'])
 
         # Take same base temperature as for service sector
-        is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.get_reg_hdd(
+        is_hdd_cy, is_fuel_shape_heating_yd = hdd_cdd.calc_reg_hdd(
             temp_cy, ss_t_base_heating_cy, assumptions['model_yeardays'])
-        is_cdd_cy, _ = hdd_cdd.get_reg_cdd(
+        is_cdd_cy, _ = hdd_cdd.calc_reg_cdd(
             temp_cy, ss_t_base_cooling_cy, assumptions['model_yeardays'])
 
         try:

@@ -928,7 +928,7 @@ def plot_load_profile_dh_multiple(
                 x_values,
                 list(calc_av_lp_real[season][daytype]),
                 color='black',
-                label='real_by',
+                label='av_real_by',
                 linestyle='-',
                 linewidth=0.5)
 
@@ -936,7 +936,7 @@ def plot_load_profile_dh_multiple(
                 x_values,
                 list(calc_av_lp_modelled[season][daytype]),
                 color='blue',
-                label='modelled_future',
+                label='av_modelled',
                 linestyle='--',
                 linewidth=0.5)
 
@@ -945,11 +945,22 @@ def plot_load_profile_dh_multiple(
             # ------------------
             if plot_all_entries:
                 for entry in range(len(calc_lp_real[season][daytype])):
-                    plt.plot(x_values, list(calc_lp_real[season][daytype][entry]), color='red', markersize=0.5, alpha=0.2)
-                    plt.plot(x_values, list(calc_lp_modelled[season][daytype][entry]), color='green', markersize=0.5, alpha=0.2)
+                    plt.plot(
+                        x_values,
+                        list(calc_lp_real[season][daytype][entry]),
+                        color='black',
+                        markersize=0.5,
+                        alpha=0.2)
+
+                    plt.plot(
+                        x_values,
+                        list(calc_lp_modelled[season][daytype][entry]),
+                        color='blue',
+                        markersize=0.5,
+                        alpha=0.2)
 
             # --------------------
-            # Get load shape within season with highetst houly load
+            # Get load shape within season with highest houly load
             # --------------------
             if plot_peak:
 
@@ -959,12 +970,23 @@ def plot_load_profile_dh_multiple(
                 plt.plot(
                     x_values,
                     list(calc_lp_real[season][daytype][day_with_max_h]),
-                    color='orange',
+                    color='grey',
                     markersize=1.0,
-                    label='peak',
+                    label='real_peak',
                     linestyle='-.',
                     linewidth=0.5)
 
+                # Get row with maximum hourly value
+                day_with_max_h = np.argmax(np.max(calc_lp_modelled[season][daytype], axis=1))
+
+                plt.plot(
+                    x_values,
+                    list(calc_lp_modelled[season][daytype][day_with_max_h]),
+                    color='orange',
+                    markersize=1.0,
+                    label='modelled_peak',
+                    linestyle='-.',
+                    linewidth=0.5)
             # -----------------
             # Axis
             # -----------------

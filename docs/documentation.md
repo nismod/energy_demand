@@ -349,6 +349,10 @@ Data preparation of the raw input files was necessary:
 
 To calculate regional daily hourly load heating profiles, hourly temperature data are used from the UK Met Office (2015) and loaded for weather stations across the UK.
 
+### 12.5 Census data
+
+https://www.nomisweb.co.uk/census/2011/qs605uk.pdf
+
 **More information**
 - The data download link can be found [here](http://catalogue.ceda.ac.uk/uuid/916ac4bbc46f7685ae9a5e10451bae7c)
 - The station ID can be retreived [here](http://badc.nerc.ac.uk/cgi-bin/midas_stations/search_by_name.cgi.py?name=&minyear=&maxyear=)

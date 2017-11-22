@@ -9,7 +9,6 @@ depending on scenaric assumptions.
 import logging
 from collections import defaultdict
 import numpy as np
-
 from energy_demand.basic import testing_functions
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
@@ -129,7 +128,6 @@ class Enduse(object):
         """
         self.region_name = region_name
         self.enduse = enduse
-        self.sector = sector
         self.fuel_new_y = fuel
         self.crit_flat_profile = crit_flat_profile
 
@@ -180,9 +178,7 @@ class Enduse(object):
                 sim_param)
             #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
-            # -------------------------------------------------------------------------------
             # Calculate new fuel demands after scenario drivers
-            # -------------------------------------------------------------------------------
             self.fuel_new_y = apply_scenario_drivers(
                 enduse,
                 self.fuel_new_y,
@@ -256,7 +252,7 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    logging.debug("... Service switch is implemented " + str(self.enduse))
+                    logging.debug("... Service switch is implemented " + str(enduse))
                     service_tech_y_cy = service_switch(
                         enduse,
                         tot_service_y_cy,
@@ -267,7 +263,7 @@ class Enduse(object):
                         sig_param_tech,
                         sim_param['curr_yr'])
                 elif crit_switch_fuel:
-                    logging.debug("... fuel_switch is implemented " + str(self.enduse))
+                    logging.debug("... fuel_switch is implemented " + str(enduse))
                     service_tech_y_cy = fuel_switch(
                         enduse,
                         installed_tech,

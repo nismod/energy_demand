@@ -567,7 +567,7 @@ def rs_dw_stock(region, data, curr_yr):
 
         # Calculate new floor area
         tot_floorarea_cy = floorarea_pp_cy * population_cy
-    
+
     else:
         """
         #If floor_area is read in from model, this would be here

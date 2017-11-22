@@ -59,7 +59,7 @@ def test_LoadProfileStock():
 
     result = result_obj.enduses_in_stock
 
-    result2 = load_profile.get_all_enduses_in_stock(result_obj.load_profile_dict)
+    result2 = load_profile.get_stock_enduses(result_obj.load_profile_dict)
 
     assert result == ['cooking']
     assert result2 == ['cooking']

@@ -79,7 +79,7 @@ class LoadProfileStock(object):
             technologies)
 
         # Update enduses in stock
-        self.enduses_in_stock = get_all_enduses_in_stock(self.load_profile_dict)
+        self.enduses_in_stock = get_stock_enduses(self.load_profile_dict)
 
     def get_lp(self, enduse, sector, technology, shape):
         """Get shape for a certain technology, enduse and sector
@@ -163,9 +163,14 @@ def generate_key_lu_dict(dict_tuple_keys, unique_identifier, enduses, sectors, t
 
     return dict_tuple_keys
 
-def get_all_enduses_in_stock(load_profile_dict):
+def get_stock_enduses(load_profile_dict):
     """Update the list of the object with all
     enduses for which load profies are provided
+
+    Arguments
+    ---------
+    load_profile_dict : dict
+        All load profiles of load profile stock
     """
     all_enduses = set([])
     for profile_obj in load_profile_dict.values():
