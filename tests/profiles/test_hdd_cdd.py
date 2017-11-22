@@ -54,7 +54,7 @@ def test_sigm_temp():
     end_yr_t_base = 13
     assumptions['rs_t_base_heating'] = {}
     assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15
-    assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'] = end_yr_t_base
+    assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'] = end_yr_t_base
 
     sim_param = {
         'base_yr': 2015,
@@ -63,7 +63,7 @@ def test_sigm_temp():
     result = hdd_cdd.sigm_temp(
         sim_param,
         assumptions['smart_meter_assump']['smart_meter_diff_params'],
-        assumptions['rs_t_base_heating']['rs_t_base_heating_future_yr'],
+        assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
         assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
         yr_until_changed)
 

@@ -8,6 +8,7 @@ from datetime import date
 from collections import defaultdict
 from smif.model.sector_model import SectorModel
 from pkg_resources import Requirement, resource_filename
+from pyproj import Proj, transform
 
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.cli import run_model
@@ -26,7 +27,6 @@ PROFILER = False
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
-
     def array_to_dict(self, input_array):
         """Convert array to dict
 
@@ -48,7 +48,7 @@ class EDWrapper(SectorModel):
 
         return dict(output_dict)
 
-    def before_model_run(self):
+    def before_model_run(self, data=None):
         """Runs prior to any ``simulate()`` step
 
         Writes scenario data out into the scenario files
@@ -89,34 +89,34 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
-        data['reg_coord'] = {}
-        for reg in data['lu_reg']:
-            data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
-
+        reg_centroids = self.get_region_centroids(REGION_SET_NAME)
+        data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
+   
         # SCRAP REMOVE: ONLY SELECT NR OF MODELLED REGIONS
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         logging.info("Modelled for a number of regions: " + str(len(data['lu_reg'])))
-
         data['reg_nrs'] = len(data['lu_reg'])
+
         # ---------------------
         # Energy demand specific input which need to generated or read in
         # ---------------------
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
-        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(
+            data['paths'], data['lookups'])
+        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(
+            data['lu_reg'], data['all_sectors'])
 
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
         # Population
-        pop_array = self.get_scenario_data('population') #maybe only cy and by data
-        data['population'] = self.array_to_dict(pop_array['population'])
+        pop_array = self.get_scenario_data('population')
+        data['population'] = self.array_to_dict(pop_array)
 
         # GVA
         gva_array = self.get_scenario_data('gva')
-        data['gva'] = self.array_to_dict(gva_array['gva'])
+        data['gva'] = self.array_to_dict(gva_array)
 
         # Floor areas TODO LOAD FROM NEWCASTLE
         rs_floorarea_newcastle = defaultdict(dict)
@@ -135,7 +135,6 @@ class EDWrapper(SectorModel):
         # Assumptions
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
-
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
@@ -148,22 +147,22 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data)
+        data['assumptions']['strategy_variables'] = self.load_all_smif_parameters(
+            data['paths']['yaml_parameters_complete'], data)
 
         # ------------------------
         # Pass along to simulate()
         # ------------------------
         self.user_data['temp_data'] = data['temp_data']
         self.user_data['weather_stations'] = data['weather_stations']
-        self.user_data['gva'] = self.array_to_dict(gva_array['gva'])
-        self.user_data['population'] = self.array_to_dict(pop_array['population'])
+        self.user_data['gva'] = self.array_to_dict(gva_array)
+        self.user_data['population'] = self.array_to_dict(pop_array)
 
         # --------------------
         # Initialise scenario
         # --------------------
         self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
-            self.user_data['data_path'],
-            data)
+            self.user_data['data_path'], data)
 
         # ------
         # Write other scenario data to txt files for this scenario run
@@ -172,7 +171,7 @@ class EDWrapper(SectorModel):
             write_data.write_pop(
                 timestep,
                 data['local_paths']['data_results'],
-                pop_array['population'][t_idx])
+                pop_array[t_idx])
 
     def initialise(self, initial_conditions):
         """
@@ -254,7 +253,8 @@ class EDWrapper(SectorModel):
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
         data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
-        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME) #TO BE IMPLEMENTED BY THE SMIF GUYS
+        reg_centroids = self.get_region_centroids(REGION_SET_NAME)
+        data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
         data['reg_nrs'] = len(data['lu_reg'])
 
         # ---------------
@@ -266,19 +266,12 @@ class EDWrapper(SectorModel):
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
         data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
 
-        # ---------
-        # Replace data in data with data provided from wrapper or before_model_run
-        # Write data from smif to data container from energy demand model
-        # ---------
-        #data['reg_coord'] = regions.get_region_centroids(REGION_SET_NAME)
-        data['reg_coord'] = {} #TODO: REMOVE
-        for reg in data['lu_reg']:
-            data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
-
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions'], data = self.load_all_smif_parameters(data['assumptions'], data) #TODO: REMOVE DATA
+        data['assumptions'] = self.load_all_smif_parameters(
+            data['paths']['yaml_parameters_complete'],
+            data)
 
         # floor_area[sector][building_type][dwelling_type][age_class]
         # Floor areas TODO LOAD FROM NEWCASTLE, REPLACE
@@ -293,7 +286,7 @@ class EDWrapper(SectorModel):
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
+            data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f']['factor_achieved'])
 
         # ---------
         # Scenario data
@@ -448,56 +441,75 @@ class EDWrapper(SectorModel):
         """
         pass
 
-    def load_all_smif_parameters(self, assumptions, data):
+    def load_all_smif_parameters(self, path_all_strategy_params, data):
         """Get all model parameters from smif and replace in data dict
 
         Arguments
         =========
-        assumptions : dict
-            Data container
+        path_all_strategy_params : dict
+            Path to yaml file where all strategy variables
+            are defined
+        data : dict
+            Dict with all data
 
         Returns
         =========
-        assumptions : dict
-            Assumptions container with added parameters
+        strategy_variables : dict
+            All strategy variables {'name': value}
         """
-        '''
-        assumptions['demand_management'] = {}
-        assumptions['demand_management']['demand_management_yr_until_changed'] = self.get_SMIF_param('demand_management_yr_until_changed')
+        strategy_variables = {}
+        all_strategy_variables = []
 
-        assumptions['demand_management']['enduses_demand_managent'] = {}
-        #demand_management_improvement__ Residential submodule
-        assumptions['demand_management']['demand_management_improvement__rs_space_heating' = self.get_SMIF_param('demand_management_yr_until_changed')
-        assumptions['demand_management']['demand_management_improvement__rs_water_heating' = self.get_SMIF_param('demand_management_improvement__rs_water_heating')
-        assumptions['demand_management']['demand_management_improvement__rs_lighting' = self.get_SMIF_param('demand_management_improvement__rs_lighting')
-        assumptions['demand_management']['demand_management_improvement__rs_cooking' = self.get_SMIF_param('demand_management_improvement__rs_cooking')
-        assumptions['demand_management']['demand_management_improvement__rs_cold' = self.get_SMIF_param('demand_management_improvement__rs_cold')
-        assumptions['demand_management']['demand_management_improvement__rs_wet' = self.get_SMIF_param('demand_management_improvement__rs_wet')
-        assumptions['demand_management']['demand_management_improvement__rs_consumer_electronics' = self.get_SMIF_param('demand_management_improvement__rs_consumer_electronics')
-        assumptions['demand_management']['demand_management_improvement__rs_home_computing' = self.get_SMIF_param('demand_management_improvement__rs_home_computing')
+        # Read in full info of strategy variables
+        full_variables = read_data.read_param_yaml(path_all_strategy_params)
 
-        # Service submodule
-        assumptions['demand_management']['demand_management_improvement__ss_space_heating' = self.get_SMIF_param('demand_management_improvement__ss_space_heating')
-        assumptions['demand_management']['demand_management_improvement__ss_water_heating' = self.get_SMIF_param('demand_management_improvement__ss_water_heating')
-        assumptions['demand_management']['demand_management_improvement__ss_lighting' = self.get_SMIF_param('demand_management_improvement__ss_lighting')
-        assumptions['demand_management']['demand_management_improvement__ss_catering' = self.get_SMIF_param('demand_management_improvement__ss_catering')
-        assumptions['demand_management']['demand_management_improvement__ss_computing' = self.get_SMIF_param('demand_management_improvement__ss_computing')
-        assumptions['demand_management']['demand_management_improvement__ss_space_cooling' = self.get_SMIF_param('demand_management_improvement__ss_space_cooling')
-        assumptions['demand_management']['demand_management_improvement__ss_other_gas' = self.get_SMIF_param('demand_management_improvement__ss_other_gas')
-        assumptions['demand_management']['demand_management_improvement__ss_other_electricity' = self.get_SMIF_param('demand_management_improvement__ss_other_electricity')
+        # Only copy name of strategy variables
+        for var in full_variables:
+            all_strategy_variables.append(var['name'])
 
-        # Industry submodule
-        assumptions['demand_management']['demand_management_improvement__is_high_temp_process' = self.get_SMIF_param('demand_management_improvement__is_high_temp_process')
-        assumptions['demand_management']['demand_management_improvement__is_low_temp_process' = self.get_SMIF_param('demand_management_improvement__is_low_temp_process')
-        assumptions['demand_management']['demand_management_improvement__is_drying_separation' = self.get_SMIF_param('demand_management_improvement__is_drying_separation')
-        assumptions['demand_management']['demand_management_improvement__is_motors' = self.get_SMIF_param('demand_management_improvement__is_motors')
-        assumptions['demand_management']['demand_management_improvement__is_compressed_air' = self.get_SMIF_param('demand_management_improvement__is_compressed_air')
-        assumptions['demand_management']['demand_management_improvement__is_lighting' = self.get_SMIF_param('demand_management_improvement__is_lighting')
-        assumptions['demand_management']['demand_management_improvement__is_space_heating' = self.get_SMIF_param('demand_management_improvement__is_space_heating')
-        assumptions['demand_management']['demand_management_improvement__is_other' = self.get_SMIF_param('demand_management_improvement__is_other')
-        assumptions['demand_management']['demand_management_improvement__is_refrigeration' = self.get_SMIF_param('demand_management_improvement__is_refrigeration')
-        '''
-        # TODO: REMOVE param_assumptions.load_param_assump IF FULLY IMPLEMENTED
-        param_assumptions.load_param_assump(data['paths'], data['assumptions'])
+        for var_name in all_strategy_variables:
 
-        return assumptions, data
+            # Get variable from dict and reassign
+            strategy_variables[var_name] = data[var_name]
+
+            # Del variable from dict
+            del data[var_name]
+
+        return strategy_variables
+
+    def get_long_lat_decimal_degrees(self, reg_centroids):
+        """Project coordinates from shapefile to get
+        decimal degrees (from OSGB_1936_British_National_Grid to
+        WGS 84 projection). Info: #http://spatialreference.org/ref/epsg/wgs-84/
+
+        Arguments
+        ---------
+        reg_centroids : dict
+            Centroid information read in from shapefile via smif
+
+        Return
+        -------
+        reg_coord : dict
+            Contains long and latidue for every region in decimal degrees
+        """
+        reg_coord = {}
+        for centroid in reg_centroids:
+
+            # OSGB_1936_British_National_Grid
+            inProj = Proj(init='epsg:27700')
+
+            #WGS 84 projection
+            outProj = Proj(init='epsg:4326')
+
+            # Convert to decimal degrees
+            long_dd, lat_dd = transform(
+                inProj,
+                outProj,
+                centroid['geometry']['coordinates'][0], #longitude
+                centroid['geometry']['coordinates'][1]) #latitude
+
+            reg_coord[centroid['properties']['name']] = {}
+            reg_coord[centroid['properties']['name']]['longitude'] = long_dd
+            reg_coord[centroid['properties']['name']]['latidue'] = lat_dd
+
+        return reg_coord

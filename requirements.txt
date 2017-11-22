@@ -7,3 +7,4 @@ scipy
 isoweek
 pyinstrument
 pyshp
+pyproj

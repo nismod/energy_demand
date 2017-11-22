@@ -134,7 +134,7 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
             parameter_infos = dict_values['param_infos']
 
             for paramter_info in parameter_infos:
-                dump_dict = {} #collections.OrderedDict()
+                dump_dict = {}
                 dump_dict['suggested_range'] = paramter_info['suggested_range']
                 dump_dict['absolute_range'] = paramter_info['absolute_range']
                 dump_dict['description'] = paramter_info['description']

@@ -1,6 +1,5 @@
 """Weather Station location
 """
-import logging
 from haversine import haversine # Package to calculate distance between two long/lat points
 
 def calc_distance_two_points(long_from, lat_from, long_to, lat_to):
