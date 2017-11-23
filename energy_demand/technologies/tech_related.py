@@ -192,7 +192,10 @@ def get_fueltype_int(fueltypes, fueltype_string):
     fueltype_in_string : str
         Fueltype string
     """
-    return fueltypes[fueltype_string]
+    if fueltypes == None:
+        return None
+    else:
+        return fueltypes[fueltype_string]
 
 def get_tech_type(tech_name, tech_list):
     """Get technology type of technology
@@ -225,7 +228,7 @@ def get_tech_type(tech_name, tech_list):
 
     return tech_type
 
-def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump):
+def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump, fueltypes):
     """Delete all heat_pump from tech dict, define average new heat pump
     technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
 
@@ -296,7 +299,8 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
             diff_method='linear',
             market_entry=market_entry_lowest,
             tech_list='tech_heating_temp_dep',
-            tech_max_share=tech_max_share
+            tech_max_share=tech_max_share,
+            fueltypes=fueltypes
         )
 
         heat_pumps.append(name_av_hp)

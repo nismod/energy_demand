@@ -161,7 +161,7 @@ def create_tech_stock(
                 tech_obj = Technology(
                     technology_name,
                     tech_type,
-                    all_technologies[technology_name].fuel_type,
+                    all_technologies[technology_name].fuel_type_str,
                     all_technologies[technology_name].eff_achieved,
                     all_technologies[technology_name].diff_method,
                     all_technologies[technology_name].eff_by,

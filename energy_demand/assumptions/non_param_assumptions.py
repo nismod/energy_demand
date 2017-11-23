@@ -209,7 +209,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # Assumption related to technologies
     # ============================================================
     assumptions['technologies'], assumptions['tech_list'] = read_data.read_technologies(
-        paths['path_technologies'])
+        paths['path_technologies'],
+        lookups['fueltype'])
 
     # --Heat pumps   
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
@@ -221,7 +222,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         [],
         assumptions['technologies'],
-        assumptions['installed_heat_pump'])
+        assumptions['installed_heat_pump'],
+        lookups['fueltype'])
 
     # ============================================================
     # Enduse technology definition list

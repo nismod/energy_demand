@@ -50,9 +50,11 @@ class TechnologyData(object):
             diff_method=None,
             market_entry=2015,
             tech_list=None,
-            tech_max_share=None
+            tech_max_share=None,
+            fueltypes=None
         ):
-        self.fuel_type = fuel_type
+        self.fuel_type_str = fuel_type
+        self.fuel_type_int = tech_related.get_fueltype_int(fueltypes, fuel_type)
         self.eff_by = eff_by
         self.eff_ey = eff_ey
         self.year_eff_ey = year_eff_ey
@@ -690,7 +692,7 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
 
     return service_switches
 
-def read_technologies(path_to_csv):
+def read_technologies(path_to_csv, fueltypes):
     """Read in technology definition csv file
 
     Arguments
@@ -725,7 +727,8 @@ def read_technologies(path_to_csv):
                     diff_method=str(row[6]),
                     market_entry=float(row[7]),
                     tech_list=str.strip(row[8]),
-                    tech_max_share=float(str.strip(row[9])))
+                    tech_max_share=float(str.strip(row[9])),
+                    fueltypes=fueltypes)
                 try:
                     dict_tech_lists[str.strip(row[8])].append(technology)
                 except KeyError:
