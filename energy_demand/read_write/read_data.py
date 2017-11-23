@@ -873,7 +873,8 @@ def read_installed_tech(path_to_csv):
             except KeyError:
                 tech_installed[enduse] = []
 
-            if technology == "[]": # If no tech
+            # If no tech
+            if technology == "[]":
                 pass
             else:
                 tech_installed[enduse].append(technology)

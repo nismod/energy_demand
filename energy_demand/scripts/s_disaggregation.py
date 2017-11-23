@@ -460,6 +460,7 @@ def rs_disaggregate(
         total_pop += reg_pop
         total_pop_hdd += reg_pop * reg_floor_area
         total_floor_area += reg_floor_area
+        #TODO: GVA?
 
     # ---------------------------------------
     # Disaggregate according to enduse

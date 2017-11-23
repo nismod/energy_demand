@@ -61,7 +61,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     print("Diff elec %:         " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['electricity']]), 4))) * fuel_in_elec))
     print("Diff gas %:          " + str((1/(round(np.sum(model_run_object.ed_fueltype_national_yh[data['lookups']['fueltype']['gas']]), 4))) * fuel_in_gas))
     print("================================================")
-    
+
     logging.info("...finished running energy demand model simulation")
 
     return model_run_object

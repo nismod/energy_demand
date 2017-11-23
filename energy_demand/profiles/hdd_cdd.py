@@ -89,10 +89,12 @@ def get_hdd_country(
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(
-            sim_param,
-            diff_params,
             t_base_fy,
             t_base_cy,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
+            diff_params['sig_midpoint'],
+            diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
         hdd_reg = calc_hdd(t_base_heating_cy, temperatures)
@@ -146,10 +148,12 @@ def get_cdd_country(
 
         # Base temperature for base year
         t_base_heating_cy = sigm_temp(
-            sim_param,
-            diff_params,
             t_base_fy,
             t_base_cy,
+            sim_param['base_yr'],
+            sim_param['curr_yr'],
+            diff_params['sig_midpoint'],
+            diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
 
         cdd_reg = calc_cdd(t_base_heating_cy, temperatures)
@@ -157,7 +161,15 @@ def get_cdd_country(
 
     return cdd_regions
 
-def sigm_temp(sim_param, diff_params, t_future_yr, t_base_yr, yr_until_changed):
+def sigm_temp(
+        t_future_yr,
+        t_base_yr,
+        base_yr,
+        curr_yr,
+        sig_midpoint,
+        sig_steeppness,
+        yr_until_changed
+    ):
     """Calculate base temperature depending on sigmoid
     diff and location
 
@@ -184,15 +196,13 @@ def sigm_temp(sim_param, diff_params, t_future_yr, t_base_yr, yr_until_changed):
     # Base temperature of end year minus base temp of base year
     t_base_diff = t_future_yr - t_base_yr
 
-    #yr_until_changed = diff_params['yr_until_changed']
-
     # Sigmoid diffusion
     t_base_frac = diffusion_technologies.sigmoid_diffusion(
-        sim_param['base_yr'],
-        sim_param['curr_yr'],
+        base_yr,
+        curr_yr,
         yr_until_changed,
-        diff_params['sig_midpoint'],
-        diff_params['sig_steeppness'])
+        sig_midpoint,
+        sig_steeppness)
 
     # Temp diff until current year
     t_diff_cy = t_base_diff * t_base_frac

@@ -47,24 +47,21 @@ def test_sigm_temp():
     assumptions = {}
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {}
-    assumptions['smart_meter_assump']['smart_meter_diff_params']['sig_midpoint'] = 0
-    assumptions['smart_meter_assump']['smart_meter_diff_params']['sig_steeppness'] = 1
+    sig_midpoint = 0
+    sig_steeppness = 1
     yr_until_changed = 2020
 
     end_yr_t_base = 13
-    assumptions['rs_t_base_heating'] = {}
-    assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'] = 15
-    assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'] = end_yr_t_base
-
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+    rs_t_base_heating_base_yr = 15
+    rs_t_base_heating_future_yr = end_yr_t_base
 
     result = hdd_cdd.sigm_temp(
-        sim_param,
-        assumptions['smart_meter_assump']['smart_meter_diff_params'],
-        assumptions['strategy_variables']['rs_t_base_heating']['rs_t_base_heating_future_yr'],
-        assumptions['rs_t_base_heating']['rs_t_base_heating_base_yr'],
+        rs_t_base_heating_future_yr,
+        rs_t_base_heating_base_yr,
+        2015,
+        2020,
+        sig_midpoint,
+        sig_steeppness,
         yr_until_changed)
 
     expected = end_yr_t_base
