@@ -36,8 +36,5 @@ def set_up_logger(path_log_file):
     # Turn on/off logger
     logging.disable = False
     #logging.disable(logging.CRITICAL)
-    
-    #
-    #logging.setadditivity(False)
 
     logging.info("... logger is set up")

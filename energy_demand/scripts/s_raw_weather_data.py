@@ -247,13 +247,12 @@ def write_weather_data(path_to_txt, weather_data):
     weather_data : dict
         Weather data
     """
-    print("... start write_weather_data")
     logging.info("... start write_weather_data")
+
     for station_id in weather_data:
         file_name = os.path.join(path_to_txt, "tempdata__{}__{}".format(str(station_id), ".txt"))
         np.savetxt(file_name, weather_data[station_id], delimiter=',')
 
-    print("... finished write_weather_data")
     logging.info("... finished write_weather_data")
     return
 

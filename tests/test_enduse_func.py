@@ -446,7 +446,7 @@ def test_convert_service_tech_to_p():
         1: {'techC': 50, 'techD': 150}}
 
     expected = enduse_func.convert_service_tech_to_p(service)
-    print(expected)
+
     assert expected[0]['techA'] == 50.0 / 100
     assert expected[0]['techB'] == 50.0 / 100
     assert expected[1]['techC'] == 50.0 / 200

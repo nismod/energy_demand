@@ -459,9 +459,7 @@ def calc_service_fuel_switched(
 
                     # Service demand per fueltype that will be switched
                     if switch_type == 'max_switch':
-
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                        print(technologies[tech_install].__dict__)
                         change_service_fueltype_p = orig_service_p * technologies[tech_install].tech_max_share
                     elif switch_type == 'actual_switch':
                         # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
