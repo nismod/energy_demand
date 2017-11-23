@@ -725,14 +725,11 @@ def read_technologies(path_to_csv):
                     diff_method=str(row[6]),
                     market_entry=float(row[7]),
                     tech_list=str.strip(row[8]),
-                    tech_max_share=float(str.strip(row[9]))
-                )
-
+                    tech_max_share=float(str.strip(row[9])))
                 try:
                     dict_tech_lists[str.strip(row[8])].append(technology)
                 except KeyError:
                     dict_tech_lists[str.strip(row[8])] = [technology]
-
             except Exception as e:
                 logging.error(e)
                 logging.error("Error in technology loading table. Check if e.g. empty field")

@@ -448,7 +448,7 @@ def calc_service_fuel_switched(
     Implement changes in heat demand (all technolgies within
     a fueltypes are replaced proportionally)
     """
-    service_tech_switched_p = {} 
+    service_tech_switched_p = {}
 
     for enduse in enduses:
         service_tech_switched_p[enduse] = defaultdict(dict)
@@ -525,11 +525,12 @@ def get_sig_diffusion(
         enduses,
         tech_increased_service,
         service_tech_ey_p,
-        service_fueltype_by_p,
+        service_fueltype_p,
         service_tech_by_p,
         fuel_tech_p_by
     ):
-    """Calculates parameters for sigmoid diffusion of technologies which are switched to/installed.
+    """Calculates parameters for sigmoid diffusion of
+    technologies which are switched to/installed.
 
     Arguments
     ----------
@@ -545,7 +546,7 @@ def get_sig_diffusion(
         Technologies with increased service
     service_tech_ey_p : dict
         Fraction of service in end year
-    service_fueltype_by_p :
+    service_fueltype_p :
         Fraction of service per fueltype in base year
     service_tech_by_p :
         Fraction of service per technology in base year
@@ -569,19 +570,20 @@ def get_sig_diffusion(
         crit_switch_service = False
 
     installed_tech, sig_param_tech = {}, {}
+    l_values_sig = defaultdict(dict)
 
     for enduse in enduses:
         if crit_switch_service:
             """Sigmoid calculation in case of 'service switch'
             """
             # Tech with lager service shares in end year
-            installed_tech = tech_increased_service
+            installed_tech[enduse] = tech_increased_service
 
             # End year service shares (scenaric input)
             service_tech_switched_p = service_tech_ey_p
 
             # Maximum shares of each technology
-            l_values_sig = technologies['installed_tech']['tech_max_share']
+            l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
         else:
             """Sigmoid calculation in case of 'fuel switch'
             """
@@ -593,7 +595,7 @@ def get_sig_diffusion(
                 enduses,
                 fuel_switches,
                 technologies,
-                service_fueltype_by_p,
+                service_fueltype_p,
                 service_tech_by_p,
                 fuel_tech_p_by,
                 installed_tech,
@@ -605,7 +607,7 @@ def get_sig_diffusion(
                 fuel_switches,
                 technologies,
                 installed_tech,
-                service_fueltype_by_p,
+                service_fueltype_p,
                 service_tech_by_p,
                 fuel_tech_p_by)
 

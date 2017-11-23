@@ -38,7 +38,7 @@ def test_tech_sigmoid_paramters():
         2050, 1.0, result['boilerA']['midpoint'], result['boilerA']['steepness'])
 
     assert y_calculated >= (assump_fy - 0.02) and y_calculated <= assump_fy + 0.02
-
+    
     # ------------
     technologies = {'boilerA': read_data.TechnologyData(
         market_entry=1990)}
@@ -395,5 +395,94 @@ def test_tech_l_sigmoid():
         service_fueltype_p,
         service_tech_by_p,
         fuel_tech_p_by)
-
+    print(result)
     assert result['heating']['boilerB'] == 0.8
+
+
+def test_get_sig_diffusion():
+    """
+    """
+    base_yr = 2015
+    technologies = {
+        'boilerA': read_data.TechnologyData(
+            fuel_type='gas',
+            eff_by=0.5,
+            eff_ey=0.5,
+            year_eff_ey=2015,
+            eff_achieved=1.0,
+            diff_method='linear',
+            market_entry=1990,
+            tech_max_share=1.0),
+        'boilerC': read_data.TechnologyData(
+            fuel_type='gas',
+            eff_by=0.5,
+            eff_ey=0.5,
+            year_eff_ey=2015,
+            eff_achieved=1.0,
+            diff_method='linear',
+            market_entry=1990,
+            tech_max_share=0.9990),
+        'boilerB': read_data.TechnologyData(
+            fuel_type='electricity',
+            eff_by=0.5,
+            eff_ey=0.5,
+            year_eff_ey=2015,
+            eff_achieved=1.0,
+            diff_method='linear',
+            market_entry=1990,
+            tech_max_share=1.0)}
+    enduses = ['heating']
+    fuel_switches = [
+        read_data.FuelSwitch(
+            enduse='heating',
+            technology_install='boilerB',
+            switch_yr=2020,
+            enduse_fueltype_replace='gas',
+            fuel_share_switched_ey=1.0
+        )]
+
+    service_switches = []#[read_data.ServiceSwitch(technology_install='boilerA', switch_yr=2050)]
+    tech_increased_service = ['boilerA']
+    service_tech_ey_p = {'heating': {'boilerA': 0.6, 'boilerB': 0.4}}
+    service_fueltype_p = {'heating': {'gas':  1.0}}
+
+    '''result, sig_param = s_generate_sigmoid.get_sig_diffusion(
+        base_yr,
+        technologies,
+        service_switches,
+        fuel_switches,
+        enduses,
+        tech_increased_service,
+        service_tech_ey_p,
+        service_fueltype_p,
+        service_tech_by_p={'heating': {'boilerA': 1.0, 'boilerB': 0.0}},
+        fuel_tech_p_by={'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}})
+
+    assert result['heating'] == ['boilerB]
+
+    # -----'''
+    
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='boilerC',
+        service_share_ey=1.0,
+        switch_yr=2050)]
+
+    tech_increased_service = ['boilerC']
+    service_tech_ey_p = {'heating': {'boilerC': 1.0, 'boilerA': 0.0, 'boilerB': 0.0}}
+
+    result, sig_param = s_generate_sigmoid.get_sig_diffusion(
+        base_yr,
+        technologies,
+        service_switches,
+        fuel_switches,
+        enduses,
+        tech_increased_service,
+        service_tech_ey_p,
+        service_fueltype_p,
+        service_tech_by_p={'heating': {'boilerC': 1.0, 'boilerA': 0.0, 'boilerB': 0.0}},
+        fuel_tech_p_by={'heating': {'gas': {'boilerA': 0, 'boilerC': 1.0}, 'electricity': {'boilerB': 1.0}}})
+
+    #TODO: Possibly add more test
+
+    assert result['heating'] == ['boilerC']
