@@ -171,10 +171,7 @@ def test_is_ss_disaggregate():
         crit_limited_disagg_pop=False,
         crit_employment=True)
     
-    print(result)
     assert result['regA']['wood']['is_space_heating'] == 0
     assert round(result['regA']['textiles']['is_space_heating'], 3) == round(10.0/15.0 * 100,3) 
     assert result['regB']['wood']['is_space_heating'] == 100
     assert round(result['regB']['textiles']['is_space_heating'], 3)  == round(5.0/15.0 * 100, 3)
-
-test_is_ss_disaggregate()

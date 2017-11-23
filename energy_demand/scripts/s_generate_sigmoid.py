@@ -354,7 +354,8 @@ def tech_l_sigmoid(
         service_tech_by_p,
         fuel_tech_p_by
     ):
-    """Calculate L value for every installed technology with maximum theoretical replacement value
+    """Calculate L value (maximum possible theoretical market penetration)
+    for every installed technology with maximum theoretical replacement value
 
     Arguments
     ----------
@@ -362,11 +363,14 @@ def tech_l_sigmoid(
         List with enduses where fuel switches are defined
     assumptions : dict
         Assumptions
+    service_tech_by_p : dict
+        Percentage of service demands for every technology
 
     Returns
     -------
     l_values_sig : dict
-        L value for sigmoid diffusion of all technologies for which a switch is implemented
+        L value for sigmoid diffusion of all technologies
+        for which a switch is implemented
 
     Notes
     -----
@@ -384,13 +388,14 @@ def tech_l_sigmoid(
             # Iterite list with enduses where fuel switches are defined
             for technology in installed_tech[enduse]:
                 logging.debug("Technology: %s Enduse:  %s", technology, enduse)
+
                 # Calculate service demand for specific tech
                 tech_install_p = calc_service_fuel_switched(
                     enduses,
                     fuel_switches,
                     technologies,
                     service_fueltype_p,
-                    service_tech_by_p, # Percentage of service demands for every technology
+                    service_tech_by_p,
                     fuel_tech_p_by,
                     {str(enduse): [technology]},
                     'max_switch')
@@ -415,20 +420,22 @@ def calc_service_fuel_switched(
     Arguments
     ----------
     enduses : list
-        List with enduses where fuel switches are defined
+        List with enduses where with fuel switches
     fuel_switches : dict
         Fuel switches
+    technologies : dict
+        Technologies
     service_fueltype_p : dict
         Service demand per fueltype
     service_tech_by_p : dict
         Percentage of service demand per technology for base year
     fuel_tech_p_by : dict
-        Technologies in base year
-    fuel_tech_p_by : dict
         Fuel shares for each technology of an enduse
     installed_tech_switches : dict
         Technologies which are installed in fuel switches
-    switch_type :
+    switch_type : str
+        If either switch is for maximum theoretical switch
+        of with defined switch until end year
 
     Return
     ------
@@ -441,10 +448,13 @@ def calc_service_fuel_switched(
     Implement changes in heat demand (all technolgies within
     a fueltypes are replaced proportionally)
     """
-    #service_tech_switched_p = defaultdict(dict)
-    service_tech_switched_p = copy.deepcopy(service_tech_by_p)
+    # FUNKTservice_tech_switched_p = copy.deepcopy(service_tech_by_p)
+
+    # DINO
+    service_tech_switched_p = {} 
 
     for enduse in enduses:
+        service_tech_switched_p[enduse] = defaultdict(dict)
         for fuel_switch in fuel_switches:
             if fuel_switch.enduse == enduse:
 
@@ -458,24 +468,33 @@ def calc_service_fuel_switched(
                     orig_service_p = service_fueltype_p[enduse][fueltype_tech_replace]
 
                     # Service demand per fueltype that will be switched
+                    # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                     if switch_type == 'max_switch':
-                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                         change_service_fueltype_p = orig_service_p * technologies[tech_install].tech_max_share
                     elif switch_type == 'actual_switch':
-                        # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                         change_service_fueltype_p = orig_service_p * fuel_switch.fuel_share_switched_ey
 
                     # ---Service addition
-                    service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
-                    #service_tech_switched_p[enduse][tech_install] = service_tech_switched_p[enduse][tech_install] + change_service_fueltype_p
+                    #FUNKT service_tech_switched_p[enduse][tech_install] += change_service_fueltype_p
+                    ####service_tech_switched_p[enduse][tech_install] = service_tech_switched_p[enduse][tech_install] + change_service_fueltype_p
+
+                    # DINO
+                    service_tech_switched_p[enduse][tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_p
 
                     # Get all technologies which are replaced related to this fueltype
                     replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
 
                     # Calculate total energy service in this fueltype, Substract service demand for replaced technologies
                     for tech in replaced_tech_fueltype:
-                        service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
+                        #service_tech_switched_p[enduse][tech] -= change_service_fueltype_p * service_tech_by_p[enduse][tech]
 
+                        #BELUGA TODO TODO NEW TEST
+                        #service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - change_service_fueltype_p
+                        #FUNKT service_tech_switched_p[enduse][tech] -= change_service_fueltype_p
+
+                        #DINO
+                        service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - change_service_fueltype_p
+        
     return service_tech_switched_p
 
 def get_tech_installed(enduses, fuel_switches):

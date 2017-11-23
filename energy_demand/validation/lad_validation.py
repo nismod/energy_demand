@@ -137,7 +137,8 @@ def tempo_spatial_validation(
         'electricity',
         lu_reg,
         subnational_elec,
-        os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'))
+        os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
+        label_points=True)
 
     spatial_validation(
         reg_coord,
@@ -146,7 +147,8 @@ def tempo_spatial_validation(
         'gas',
         lu_reg,
         subnational_gas,
-        os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'))
+        os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
+        label_points=True)
 
     # -------------------------------------------
     # Temporal validation (hourly for national)
@@ -231,7 +233,8 @@ def spatial_validation(
         fueltype_str,
         lu_reg,
         subnational_elec,
-        fig_name
+        fig_name,
+        label_points=False
     ):
     """Compare gas/elec demand for LADs
 
@@ -329,7 +332,9 @@ def spatial_validation(
             result_dict['real_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]] - result_dict['real_demand'][sorted_region[0]])
-        labels.append(sorted_region)
+        
+        # Labels
+        labels.append(sorted_region[0]) #Add name
 
     # --------
     # Axis
@@ -373,6 +378,18 @@ def spatial_validation(
     # -----------
     # Labelling
     # -----------
+    if label_points:
+
+        # Add plots to electricity
+        for pos, txt in enumerate(labels):
+            #ax.annotate(txt, x_values[pos], y_modelled_elec_demand[pos])¨#if arrow wants to be added
+            ax.text(
+                x_values[pos],
+                y_modelled_elec_demand[pos],
+                txt, horizontalalignment="right",
+                verticalalignment="top",
+                fontsize=3)
+
     font_additional_info = {
         'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
     title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}'.format(

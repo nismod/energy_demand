@@ -463,22 +463,13 @@ class EDWrapper(SectorModel):
             Assumptions with added strategy variables
         """
         strategy_variables = {}
-        all_strategy_variables = []
 
-        #TODO: LINK TO STRATEGY FILE IN RPOJECT
-        # Read in full info of strategy variables
-        full_variables = read_data.read_param_yaml(path_all_strategy_params)
+        # Get all parameter names
+        all_strategy_variables = self.parameters.keys()
 
-        # Only copy name of strategy variables
-        for var in full_variables:
-            all_strategy_variables.append(var['name'])
-
+        # Get variable from dict and reassign and delete from data
         for var_name in all_strategy_variables:
-
-            # Get variable from dict and reassign
             strategy_variables[var_name] = data[var_name]
-
-            # Del variable from dict
             del data[var_name]
 
         # Add to assumptoins

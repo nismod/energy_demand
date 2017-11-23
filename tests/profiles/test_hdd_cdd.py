@@ -88,7 +88,6 @@ def test_get_hdd_country():
     base_temp_diff_params['sig_midpoint'] = 0
     base_temp_diff_params['sig_steeppness'] = 1
     base_temp_diff_params['yr_until_changed'] = 2020
-    
 
     reg_coord = {
         "reg_A": {
