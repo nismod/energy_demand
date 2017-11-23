@@ -70,9 +70,9 @@ def test_sigm_temp():
 def test_get_hdd_country():
     """testing
     """
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+
+    base_yr = 2015
+    curr_yr = 2020
 
     weather_stations = {
         "weater_station_A": {
@@ -102,7 +102,8 @@ def test_get_hdd_country():
     t_base_heating_base_yr = 15.5
 
     result = hdd_cdd.get_hdd_country(
-        sim_param,
+        base_yr,
+        curr_yr,
         regions,
         temp_data,
         base_temp_diff_params,
@@ -121,9 +122,9 @@ def test_get_hdd_country():
 def test_get_cdd_country():
     """testing
     """
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+
+    base_yr = 2015
+    curr_yr = 2020
 
     weather_stations = {
         "weater_station_A": {
@@ -152,7 +153,8 @@ def test_get_cdd_country():
     t_base_heating_future_yr = 15.5
 
     result = hdd_cdd.get_cdd_country(
-        sim_param,
+        base_yr,
+        curr_yr,
         regions,
         temp_data,
         base_temp_diff_params,

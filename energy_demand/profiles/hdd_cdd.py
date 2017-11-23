@@ -57,7 +57,8 @@ def calc_cdd(rs_t_base_cooling, temperatures):
     return cdd_d
 
 def get_hdd_country(
-        sim_param,
+        base_yr,
+        curr_yr,
         regions,
         temp_data,
         diff_params,
@@ -91,8 +92,8 @@ def get_hdd_country(
         t_base_heating_cy = sigm_temp(
             t_base_fy,
             t_base_cy,
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             diff_params['sig_midpoint'],
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])
@@ -104,7 +105,8 @@ def get_hdd_country(
     return hdd_regions
 
 def get_cdd_country(
-        sim_param,
+        base_yr,
+        curr_yr,
         regions,
         temp_data,
         diff_params,
@@ -150,8 +152,8 @@ def get_cdd_country(
         t_base_heating_cy = sigm_temp(
             t_base_fy,
             t_base_cy,
-            sim_param['base_yr'],
-            sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             diff_params['sig_midpoint'],
             diff_params['sig_steeppness'],
             diff_params['yr_until_changed'])

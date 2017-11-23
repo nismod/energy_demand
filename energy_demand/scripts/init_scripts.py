@@ -237,7 +237,8 @@ def scenario_initalisation(path_data_ed, data=False):
     sd_cont = {}
     sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['lu_reg'],
-        data['sim_param'],
+        data['sim_param']['base_yr'],
+        data['sim_param']['curr_yr'],
         data['fuels'],
         data['scenario_data'],
         data['assumptions'],
