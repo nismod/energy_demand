@@ -5,7 +5,6 @@ The main function executing all the submodels of the energy demand model
 """
 import logging
 from collections import defaultdict
-#import concurrent.futures
 import numpy as np
 
 import energy_demand.enduse_func as endusefunctions

@@ -1,5 +1,5 @@
-"""Script functions which are executed after model installation and
-after each scenario definition
+"""Script functions which are executed after
+model installation and after each scenario definition
 """
 import os
 import logging
@@ -59,10 +59,9 @@ def post_install_setup(args):
 
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
-    #data['assumptions'] = read_data.read_param_yaml(data['paths']['yaml_parameters'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['eff_achiev_f']['factor_achieved'])
+    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -81,7 +80,7 @@ def post_install_setup(args):
     # Read in temperature data from raw files
     s_raw_weather_data.run(data)
 
-    # Read in residenital submodel shapes
+    # Read in residential submodel shapes
     s_rs_raw_shapes.run(data)
 
     # Read in service submodel shapes

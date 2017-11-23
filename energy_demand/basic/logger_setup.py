@@ -31,7 +31,7 @@ def set_up_logger(path_log_file):
         format=('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
     # Necessary to add loggers in visual studio console
-    logging.getLogger().addHandler(logging.StreamHandler())
+    ##logging.getLogger().addHandler(logging.StreamHandler())
 
     # Turn on/off logger
     logging.disable = False

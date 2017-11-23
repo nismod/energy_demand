@@ -282,7 +282,7 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
 def run(assumptions, lookups, fuels, enduses, local_paths):
     """Function to run script
     """
-    logging.debug("... start script %s", os.path.basename(__file__))
+    logging.info("... start script %s", os.path.basename(__file__))
 
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
     rs_service_tech_by_p, rs_service_fueltype_tech_by_p, rs_service_fueltype_by_p = get_service_fueltype_tech(
@@ -347,5 +347,5 @@ def run(assumptions, lookups, fuels, enduses, local_paths):
         os.path.join(local_paths['dir_services'], 'is_service_fueltype_by_p.csv'),
         is_service_fueltype_by_p)
 
-    logging.debug("... finished script %s", os.path.basename(__file__))
+    logging.info("... finished script %s", os.path.basename(__file__))
     return

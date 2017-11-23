@@ -294,6 +294,7 @@ def spatial_validation(
         except KeyError:
             pass
 
+    # Calculate the average deviation between reald and modelled
     d_real_modelled_p = np.mean(all_diff_real_modelled_p)
 
     # RMSE calculations
@@ -324,7 +325,7 @@ def spatial_validation(
         y_real_elec_demand.append(result_dict['real_demand'][sorted_region[0]])
         y_modelled_elec_demand.append(result_dict['modelled_demand'][sorted_region[0]])
         logging.debug(
-            "validation: %s %s diff: %s",
+            "validation for LAD region: %s %s diff: %s",
             result_dict['real_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]] - result_dict['real_demand'][sorted_region[0]])
@@ -359,8 +360,8 @@ def spatial_validation(
         y_modelled_elec_demand,
         marker='o',
         linestyle='None',
-        markersize=2, #markerfacecoloralt markeredgecolor=''
-        markerfacecolor='blue', #whitesmoke
+        markersize=2,
+        markerfacecolor='blue',
         fillstyle='none',
         markeredgewidth=0.2,
         color='black',
@@ -384,7 +385,7 @@ def spatial_validation(
         loc='left',
         fontdict=font_additional_info)
 
-    plt.xlabel("regions")
+    plt.xlabel("UK regions (excluding northern ireland)")
     plt.ylabel("{} GW".format(fueltype_str))
 
     # --------
@@ -402,8 +403,8 @@ def spatial_validation(
     plt.savefig(fig_name)
     plt.close()
 
-def correction_uk_northern_ireland_2015():
-    """Not used yet. TODO
+'''def correction_uk_northern_ireland_2015():
+    """Not used yet
     """
     # ------------
     # Substraction demand for northern ireland proportionally
@@ -421,4 +422,4 @@ def correction_uk_northern_ireland_2015():
     pop_tot_uk = pop_northern_ireland_2015 + pop_wales_scotland_england_2015
     correction_factor = pop_wales_scotland_england_2015 / pop_tot_uk
 
-    return correction_factor
+    return correction_factor'''

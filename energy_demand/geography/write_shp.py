@@ -52,8 +52,7 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
             position_field_name = position
         else:
             position += 1
-    #print("position_field_name: " + str(position_field_name))
-    #print(field_names)
+
     # --------------------------
     # Join fields programatically
     # --------------------------
