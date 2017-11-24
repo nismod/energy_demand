@@ -164,10 +164,9 @@ def ss_sum_fuel_enduse_sectors(ss_fuel_raw_data_enduses, ss_enduses, nr_fueltype
 
     return aggregated_fuel_enduse
 
-def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, tech_stock):
-    """Calculate total energy service fractions.
-
-    This calculation converts fuels into energy services (e.g. heating
+def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, technologies):
+    """Calculate total energy service fractions per technology.
+    Tis calculation converts fuels into energy services (e.g. heating
     for fuel into heat demand) and then calculated how much an invidual
     technology contributes as a fraction of total energy service demand.
 
@@ -177,14 +176,16 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
 
     Arguments
     ----------
+    tech_list : list
+        Technologies
     lu_fueltypes : dict
         Fueltypes
     fuel_p_tech_by : dict
         Assumed fraction of fuel for each technology within a fueltype
     fuels : array
         Base year fuel demand
-    tech_stock : object
-        Technology stock of base year (region dependent)
+    technologies : object
+        Technology of base year (region dependent)
 
     Return
     ------
@@ -211,7 +212,7 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
         range(len(lu_fueltypes)))
 
     for enduse, fuel in fuels.items():
-        for fueltype, fuel_fueltype in enumerate(fuel):
+        for fueltype, fuel_fueltype in enumerate(fuel): #Iterate array
             tot_service_fueltype = 0
 
             for tech in fuel_p_tech_by[enduse][fueltype]:
@@ -231,11 +232,11 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
                 if tech_type == 'heat_pump':
                     eff_tech = tech_related.eff_heat_pump(
                         temp_diff=10,
-                        efficiency_intersect=tech_stock[tech].eff_by)
+                        efficiency_intersect=technologies[tech].eff_by)
                 elif tech_type == 'dummy_tech':
                     eff_tech = 1
                 else:
-                    eff_tech = tech_stock[tech].eff_by
+                    eff_tech = technologies[tech].eff_by
 
                 # Energy service of end use: Service == Fuel of technoloy * efficiency
                 service_fueltype_tech = fuel_tech * eff_tech

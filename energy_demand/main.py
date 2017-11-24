@@ -12,6 +12,7 @@ import logging
 import numpy as np
 from energy_demand import energy_model
 from energy_demand.basic import testing_functions as testing
+from energy_demand.technologies import fuel_service_switch
 
 def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     """Main function of energy demand model to calculate yearly demand
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     # ------------------------------
     # Parameters not defined within smif
     data['assumptions'] = non_param_assumptions.load_non_param_assump(
-        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
 
     # Parameters defined within smif
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
@@ -134,6 +135,33 @@ if __name__ == "__main__":
 
     # ------------------------------
     data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+
+    # Calculate all capacity switches
+    # ---------------------
+    data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['capacity_switches']['rs_capacity_switches'],
+        data['assumptions']['technologies'],
+        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+        data['fuels']['rs_fuel_raw_data_enduses'],
+        data['assumptions']['rs_fuel_tech_p_by'],
+        data['sim_param']['base_yr'])
+    
+    data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['capacity_switches']['ss_capacity_switches'],
+        data['assumptions']['technologies'],
+        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+        data['fuels']['ss_fuel_raw_data_enduses'],
+        data['assumptions']['ss_fuel_tech_p_by'],
+        data['sim_param']['base_yr'])
+    
+    data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['capacity_switches']['is_capacity_switches'],
+        data['assumptions']['technologies'],
+        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+        data['fuels']['is_fuel_raw_data_enduses'],
+        data['assumptions']['is_fuel_tech_p_by'],
+        data['sim_param']['base_yr'])
+    
 
     # GVA
     gva_data = {}

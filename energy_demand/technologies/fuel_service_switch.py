@@ -260,3 +260,4 @@ def convert_capacity_assumption_to_service(
         service_switches_enduse.append(service_switch)
 
     return service_switches_enduse
+

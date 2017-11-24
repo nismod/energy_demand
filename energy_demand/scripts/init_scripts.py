@@ -55,7 +55,8 @@ def post_install_setup(args):
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
 
     # Assumptions
-    data['assumptions'] = non_param_assumptions.load_non_param_assump(data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+    data['assumptions'] = non_param_assumptions.load_non_param_assump(
+        data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
 
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
 
@@ -129,7 +130,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['local_paths']['path_employment_statistics'])
 
     # -------------------
-    # s_fuel_to_servic
+    # Convert fuel to service (s_fuel_to_service)
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
@@ -167,7 +168,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['technologies'])
 
     # -------------------
-    # s_generate_sigmoid
+    # Generate sigmoid curves (s_generate_sigmoid)
     # -------------------
     sgs_cont = {}
 

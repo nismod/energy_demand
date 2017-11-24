@@ -15,7 +15,7 @@ class TechStock(object):
             tech_list,
             other_enduse_mode_info,
             sim_param,
-            lookups,
+            lu_fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -58,7 +58,7 @@ class TechStock(object):
             tech_list,
             other_enduse_mode_info,
             sim_param,
-            lookups,
+            lu_fueltypes,
             temp_by,
             temp_cy,
             t_base_heating_by,
@@ -111,7 +111,7 @@ def create_tech_stock(
         tech_list,
         other_enduse_mode_info,
         sim_param,
-        lookups,
+        lu_fueltypes,
         temp_by,
         temp_cy,
         t_base_heating_by,
@@ -150,8 +150,7 @@ def create_tech_stock(
 
     for enduse in enduses:
         for technology_name in enduse_technologies[enduse]:
-            tech_type = tech_related.get_tech_type(
-                technology_name, tech_list)
+            tech_type = tech_related.get_tech_type(technology_name, tech_list)
 
             if tech_type == 'dummy_tech':
                 tech_obj = Technology(
@@ -169,7 +168,7 @@ def create_tech_stock(
                     all_technologies[technology_name].year_eff_ey,
                     other_enduse_mode_info,
                     sim_param,
-                    lookups,
+                    lu_fueltypes,
                     temp_by,
                     temp_cy,
                     t_base_heating_by,
@@ -216,7 +215,7 @@ class Technology(object):
             year_eff_ey=None,
             other_enduse_mode_info=None,
             sim_param=None,
-            lookups=None,
+            lu_fueltypes=None,
             temp_by=None,
             temp_cy=None,
             t_base_heating_by=None,
@@ -231,7 +230,7 @@ class Technology(object):
             self.tech_name = tech_name
             self.tech_type = tech_type
             self.tech_fueltype = tech_fueltype
-            self.tech_fueltype_int = tech_related.get_fueltype_int(lookups['fueltype'], self.tech_fueltype)
+            self.tech_fueltype_int = tech_related.get_fueltype_int(lu_fueltypes, self.tech_fueltype)
             #self.market_entry = assumptions['technologies'][tech_name]['market_entry']
             self.tech_eff_achieved_f = tech_eff_achieved
             self.diff_method = tech_diff_method

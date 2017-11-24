@@ -8,7 +8,7 @@ from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
 from energy_demand.technologies import fuel_service_switch
 
-def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
+def load_non_param_assump(base_yr, paths, enduses, lookups):
     """Initialise assumptions and load all assumptions
     which are not defined as parameters for smif (e.g. base
     year values for assumptions)
@@ -266,11 +266,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # Scenaric fuel switches
     # ============================================================
     assumptions['rs_fuel_switches'] = read_data.read_fuel_switches(
-        paths['rs_path_fuel_switches'], enduses, lookups)
+        paths['rs_path_fuel_switches'], enduses, lookups['fueltype'])
     assumptions['ss_fuel_switches'] = read_data.read_fuel_switches(
-        paths['ss_path_fuel_switches'], enduses, lookups)
+        paths['ss_path_fuel_switches'], enduses, lookups['fueltype'])
     assumptions['is_fuel_switches'] = read_data.read_fuel_switches(
-        paths['is_path_fuel_switches'], enduses, lookups)
+        paths['is_path_fuel_switches'], enduses, lookups['fueltype'])
 
     # ============================================================
     # Scenaric service switches
@@ -287,31 +287,10 @@ def load_non_param_assump(base_yr, paths, enduses, lookups, fuels):
     # Warning: Overwrites other switches
     # ============================================================
     # Reading in assumptions on capacity installations from csv file
-    rs_capacity_switches = read_data.read_capacity_installation(paths['rs_path_capacity_installation'])
-    ss_capacity_switches = read_data.read_capacity_installation(paths['ss_path_capacity_installation'])
-    is_capacity_switches = read_data.read_capacity_installation(paths['is_path_capacity_installation'])
-
-    assumptions['rs_service_switches'], assumptions['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
-        rs_capacity_switches,
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['rs_fuel_raw_data_enduses'],
-        assumptions['rs_fuel_tech_p_by'],
-        base_yr)
-    assumptions['ss_service_switches'], assumptions['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
-        ss_capacity_switches,
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['ss_fuel_raw_data_enduses'],
-        assumptions['ss_fuel_tech_p_by'],
-        base_yr)
-    assumptions['is_service_switches'], assumptions['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
-        is_capacity_switches,
-        assumptions['technologies'],
-        assumptions['enduse_overall_change']['other_enduse_mode_info'],
-        fuels['is_fuel_raw_data_enduses'],
-        assumptions['is_fuel_tech_p_by'],
-        base_yr)
+    assumptions['capacity_switches'] = {}
+    assumptions['capacity_switches']['rs_capacity_switches'] = read_data.read_capacity_installation(paths['rs_path_capacity_installation'])
+    assumptions['capacity_switches']['ss_capacity_switches'] = read_data.read_capacity_installation(paths['ss_path_capacity_installation'])
+    assumptions['capacity_switches']['is_capacity_switches'] = read_data.read_capacity_installation(paths['is_path_capacity_installation'])
 
     # ========================================
     # Helper functions

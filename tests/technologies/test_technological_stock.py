@@ -74,7 +74,7 @@ def test_TechStock():
         tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['boilerA']},
         other_enduse_mode_info={'linear'},
         sim_param=sim_param,
-        lookups={'fueltype': {'electricity': 2}},
+        lu_fueltypes={'fueltype': {'electricity': 2}},
         temp_by=np.ones((365, 24)) + 10,
         temp_cy=np.ones((365, 24)) + 10,
         t_base_heating_by=15.5,

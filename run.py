@@ -13,11 +13,16 @@ from pyproj import Proj, transform
 from energy_demand.scripts.init_scripts import scenario_initalisation
 from energy_demand.cli import run_model
 from energy_demand.dwelling_stock import dw_stock
-from energy_demand.read_write import read_data, write_data, data_loader
+from energy_demand.read_write import read_data
+from energy_demand.read_write import write_data
+from energy_demand.read_write import data_loader
 from energy_demand.main import energy_demand_model
-from energy_demand.assumptions import param_assumptions, non_param_assumptions
-from energy_demand.basic import date_prop, logger_setup
+from energy_demand.assumptions import param_assumptions
+from energy_demand.assumptions import non_param_assumptions
+from energy_demand.basic import date_prop
+from energy_demand.basic import logger_setup
 from energy_demand.validation import lad_validation
+from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
@@ -133,9 +138,11 @@ class EDWrapper(SectorModel):
                 'rs_floorarea_newcastle': rs_floorarea_newcastle}
         }
 
+        # ------------
         # Assumptions
+        # ------------
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
@@ -145,6 +152,33 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
 
+        # ---------------------
+        # Calculate all capacity switches
+        # ---------------------
+        data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['capacity_switches']['rs_capacity_switches'],
+            data['assumptions']['technologies'],
+            data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+            data['fuels']['rs_fuel_raw_data_enduses'],
+            data['assumptions']['rs_fuel_tech_p_by'],
+            data['sim_param']['base_yr'])
+        
+        data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['capacity_switches']['ss_capacity_switches'],
+            data['assumptions']['technologies'],
+            data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+            data['fuels']['ss_fuel_raw_data_enduses'],
+            data['assumptions']['ss_fuel_tech_p_by'],
+            data['sim_param']['base_yr'])
+        
+        data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['capacity_switches']['is_capacity_switches'],
+            data['assumptions']['technologies'],
+            data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
+            data['fuels']['is_fuel_raw_data_enduses'],
+            data['assumptions']['is_fuel_tech_p_by'],
+            data['sim_param']['base_yr'])
+    
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -264,7 +298,7 @@ class EDWrapper(SectorModel):
         data['lookups'] = data_loader.load_basic_lookups()
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
-            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'], data['fuels'])
+            data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
         data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
 
         # ------------------------
