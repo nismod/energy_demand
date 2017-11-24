@@ -481,7 +481,7 @@ def calc_service_fuel_switched(
                     for tech in replaced_tech_fueltype:
                         fueltype_of_tech_replacing = technologies[tech].fuel_type_int
                         service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - (change_service_fueltype_p * fuel_tech_p_by[enduse][fueltype_of_tech_replacing][tech])
-        
+
     return service_tech_switched_p
 
 def get_tech_installed(enduses, fuel_switches):

@@ -18,7 +18,6 @@ from energy_demand.profiles import load_profile
 
 def temporal_validation(
         local_paths,
-        lookups,
         elec_ed_fueltype_national_yh,
         elec_factored_yh,
         elec_2015_indo,
@@ -163,7 +162,6 @@ def tempo_spatial_validation(
 
     temporal_validation(
         local_paths,
-        lookups,
         ed_fueltype_national_yh[lookups['fueltype']['electricity']],
         elec_factored_yh,
         elec_2015_indo,
@@ -332,9 +330,10 @@ def spatial_validation(
             result_dict['real_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]],
             result_dict['modelled_demand'][sorted_region[0]] - result_dict['real_demand'][sorted_region[0]])
-        
+
         # Labels
-        labels.append(sorted_region[0]) #Add name
+        geocode_lad = sorted_region[0]
+        labels.append(geocode_lad)
 
     # --------
     # Axis
@@ -409,7 +408,7 @@ def spatial_validation(
     # Legend
     # --------
     plt.legend(
-        prop={'family': 'arial','size': 8},
+        prop={'family': 'arial', 'size': 8},
         frameon=False)
 
     # Tight layout

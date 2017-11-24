@@ -16,8 +16,8 @@ Get correlation between regional GVA and (regional floor area/reg pop) of every 
 
 2. Step
 Calculate future regional floor area demand based on GVA and pop projection
-
 '''
+
 def disaggregate_base_demand(
         lu_reg,
         base_yr,
@@ -140,7 +140,7 @@ def ss_disaggregate(
         crit_limited_disagg_pop
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
-    TODO: So far only disaggregated with 
+    TODO: So far only disaggregated with
     """
     logging.debug("... disaggregate service demand")
     ss_fuel_disagg = {}
@@ -309,7 +309,7 @@ def is_disaggregate(
         tot_pop = 0
         for reg in lu_reg:
             tot_pop += scenario_data['population'][base_yr][reg]
-        
+
         for region_name in lu_reg:
             is_fuel_disagg[region_name] = {}
             reg_pop = scenario_data['population'][base_yr][region_name]
@@ -495,10 +495,10 @@ def rs_disaggregate(
                 logging.debug(" ... Disaggregation rss: populaton, hdd")
                 # -------------------
                 # Disaggregation with pop and hdd
-                # -------------------           
+                # -------------------
                 if enduse == 're_space_heating':
                     reg_diasg_factor = (reg_hdd * reg_pop) / total_pop_hdd
-                elif enduse =='rs_lighting':
+                elif enduse == 'rs_lighting':
                     reg_diasg_factor = reg_floor_area / total_floor_area
                 else:
                     reg_diasg_factor = reg_pop / total_pop
@@ -509,7 +509,7 @@ def rs_disaggregate(
                 # -------------------
                 if enduse == 'rs_space_heating':
                     reg_diasg_factor = (reg_hdd * reg_floor_area) / total_pop_hdd
-                elif enduse =='rs_lighting':
+                elif enduse == 'rs_lighting':
                     reg_diasg_factor = reg_floor_area / total_floor_area
                 else:
                     reg_diasg_factor = reg_pop / total_pop

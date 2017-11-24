@@ -637,15 +637,6 @@ def read_fuel_switches(path_to_csv, enduses, lookups):
 
         for row in read_lines:
             try:
-                '''service_switches.append(
-                    {
-                        'enduse': str(row[0]),
-                        'enduse_fueltype_replace': lookups['fueltype'][str(row[1])],
-                        'technology_install': str(row[2]),
-                        'switch_yr': float(row[3]),
-                        'fuel_share_switched_ey': float(row[4])
-                    }
-                    '''
                 service_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),

@@ -11,6 +11,7 @@ def init_nested_dict_brackets():
     expected = {"A": {1: {}, 2: {}}, "B": {1: {}, 2: {}}}
 
     assert result == expected
+    assert result[0] == expected[0]
 
 def test_init_nested_dict_zero():
     """Testing"""

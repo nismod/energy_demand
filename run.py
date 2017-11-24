@@ -89,6 +89,7 @@ class EDWrapper(SectorModel):
         # Region related informatiom
         # -----------------------------
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
+
         reg_centroids = self.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
 

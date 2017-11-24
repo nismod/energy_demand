@@ -5,6 +5,7 @@ import numpy as np
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.technologies import diffusion_technologies
 from energy_demand.read_write import read_data
+from energy_demand.technologies import tech_related
 
 def test_tech_sigmoid_paramters():
     """testng
@@ -149,10 +150,19 @@ def test_get_tech_installed():
     assert 'boilerB' in expected['heating']
     assert result['cooking'] == expected['cooking']
 
-
 def test_calc_service_fuel_switched():
     """
     """
+    fueltype_lookup = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'biomass': 5,
+        'hydrogen': 6,
+        'heat': 7}
+
     technologies = {
         'boilerA': read_data.TechnologyData(
             fuel_type='gas',
@@ -161,7 +171,8 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990),
+            market_entry=1990,
+            fueltypes=fueltype_lookup),
         'boilerB': read_data.TechnologyData(
             fuel_type='electricity',
             eff_by=0.5,
@@ -169,7 +180,8 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990),
+            market_entry=1990,
+            fueltypes=fueltype_lookup),
         'boilerC': read_data.TechnologyData(
             fuel_type='gas',
             eff_by=0.5,
@@ -177,7 +189,8 @@ def test_calc_service_fuel_switched():
             year_eff_ey=2015,
             eff_achieved=1.0,
             diff_method='linear',
-            market_entry=1990),}
+            market_entry=1990,
+            fueltypes=fueltype_lookup)}
 
     enduses = ['heating']
 
@@ -186,13 +199,13 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=1.0
         )]
 
-    service_fueltype_p = {'heating': {'gas': 1.0, 'electricity': 0.0}}
+    service_fueltype_p = {'heating': {1: 1.0, 2: 0.0}}
     service_tech_by_p = {'heating': {'boilerA': 1.0, 'boilerB': 0.0}}
-    fuel_tech_p_by  = {'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
@@ -215,13 +228,13 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
-    service_fueltype_p = {'heating': {'gas': 1.0, 'electricity': 0.0}}
+    service_fueltype_p = {'heating': {1: 1.0, 2: 0.0}}
     service_tech_by_p = {'heating': {'boilerA': 1.0, 'boilerB': 0.0}}
-    fuel_tech_p_by  = {'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by  = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
@@ -244,13 +257,13 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
-    service_fueltype_p = {'heating': {'gas': 0.5, 'electricity': 0.5}}
+    service_fueltype_p = {'heating': {1: 0.5, 2: 0.5}}
     service_tech_by_p = {'heating': {'boilerA': 0.5, 'boilerB': 0.5}}
-    fuel_tech_p_by  = {'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by  = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating': ['boilerB']}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
@@ -273,13 +286,13 @@ def test_calc_service_fuel_switched():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=3050,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5
         )]
 
-    service_fueltype_p = {'heating': {'gas': 0.5, 'electricity': 0.5}}
+    service_fueltype_p = {'heating': {1: 0.5, 2: 0.5}}
     service_tech_by_p = {'heating': {'boilerA': 0.25, 'boilerB': 0.5, 'boilerC': 0.25}}
-    fuel_tech_p_by  = {'heating': {'gas': {'boilerA': 0.5, 'boilerC': 0.5,}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by  = {'heating': {1: {'boilerA': 0.5, 'boilerC': 0.5,}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating': ['boilerB']}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
@@ -299,6 +312,15 @@ def test_calc_service_fuel_switched():
 def test_tech_l_sigmoid():
     """testing
     """
+    fueltype_lookup = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'biomass': 5,
+        'hydrogen': 6,
+        'heat': 7}
     technologies = {
         'boilerA': read_data.TechnologyData(
             fuel_type='gas',
@@ -308,7 +330,8 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0),
+            tech_max_share=1.0,
+            fueltypes=fueltype_lookup),
 
         'boilerB': read_data.TechnologyData(
             fuel_type='electricity',
@@ -318,7 +341,8 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0)
+            tech_max_share=1.0,
+            fueltypes=fueltype_lookup)
         }
 
     enduses = ['heating']
@@ -328,13 +352,13 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=1.0
         )]
 
-    service_fueltype_p = {'heating': {'gas': 1.0, 'electricity': 0.0}}
+    service_fueltype_p = {'heating': {1: 1.0, 2: 0.0}}
     service_tech_by_p = {'heating': {'boilerA': 1.0, 'boilerB': 0.0}}
-    fuel_tech_p_by  = {'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by  = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
@@ -358,7 +382,8 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0),
+            tech_max_share=1.0,
+            fueltypes=fueltype_lookup),
 
         'boilerB': read_data.TechnologyData(
             fuel_type='electricity',
@@ -368,7 +393,8 @@ def test_tech_l_sigmoid():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=0.8)
+            tech_max_share=0.8,
+            fueltypes=fueltype_lookup)
         }
 
     enduses = ['heating']
@@ -378,13 +404,13 @@ def test_tech_l_sigmoid():
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=0.5 #info lower than max
         )]
 
-    service_fueltype_p = {'heating': {'gas': 1.0, 'electricity': 0.0}}
+    service_fueltype_p = {'heating': {1: 1.0, 2: 0.0}}
     service_tech_by_p = {'heating': {'boilerA': 1.0, 'boilerB': 0.0}}
-    fuel_tech_p_by = {'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}}
+    fuel_tech_p_by = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
     installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.tech_l_sigmoid(
@@ -395,13 +421,22 @@ def test_tech_l_sigmoid():
         service_fueltype_p,
         service_tech_by_p,
         fuel_tech_p_by)
-    print(result)
+
     assert result['heating']['boilerB'] == 0.8
 
 
 def test_get_sig_diffusion():
     """
     """
+    fueltype_lookup = {
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'heat_sold': 4,
+        'biomass': 5,
+        'hydrogen': 6,
+        'heat': 7}
     base_yr = 2015
     technologies = {
         'boilerA': read_data.TechnologyData(
@@ -412,7 +447,8 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0),
+            tech_max_share=1.0,
+            fueltypes=fueltype_lookup),
         'boilerC': read_data.TechnologyData(
             fuel_type='gas',
             eff_by=0.5,
@@ -421,7 +457,8 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=0.9990),
+            tech_max_share=0.9990,
+            fueltypes=fueltype_lookup),
         'boilerB': read_data.TechnologyData(
             fuel_type='electricity',
             eff_by=0.5,
@@ -430,23 +467,24 @@ def test_get_sig_diffusion():
             eff_achieved=1.0,
             diff_method='linear',
             market_entry=1990,
-            tech_max_share=1.0)}
+            tech_max_share=1.0,
+            fueltypes=fueltype_lookup)}
     enduses = ['heating']
     fuel_switches = [
         read_data.FuelSwitch(
             enduse='heating',
             technology_install='boilerB',
             switch_yr=2020,
-            enduse_fueltype_replace='gas',
+            enduse_fueltype_replace=tech_related.get_fueltype_int(fueltype_lookup, 'gas'),
             fuel_share_switched_ey=1.0
         )]
 
-    service_switches = []#[read_data.ServiceSwitch(technology_install='boilerA', switch_yr=2050)]
+    service_switches = []
     tech_increased_service = ['boilerA']
     service_tech_ey_p = {'heating': {'boilerA': 0.6, 'boilerB': 0.4}}
-    service_fueltype_p = {'heating': {'gas':  1.0}}
+    service_fueltype_p = {'heating': {1:  1.0}}
 
-    '''result, sig_param = s_generate_sigmoid.get_sig_diffusion(
+    result, sig_param = s_generate_sigmoid.get_sig_diffusion(
         base_yr,
         technologies,
         service_switches,
@@ -456,12 +494,12 @@ def test_get_sig_diffusion():
         service_tech_ey_p,
         service_fueltype_p,
         service_tech_by_p={'heating': {'boilerA': 1.0, 'boilerB': 0.0}},
-        fuel_tech_p_by={'heating': {'gas': {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}})
+        fuel_tech_p_by={'heating': {1: {'boilerA': 1.0}, 'electricity': {'boilerB': 1.0}}})
 
-    assert result['heating'] == ['boilerB]
+    assert result['heating'] == ['boilerB']
 
-    # -----'''
-    
+    # -----
+
     service_switches = [read_data.ServiceSwitch(
         enduse='heating',
         technology_install='boilerC',
@@ -486,3 +524,4 @@ def test_get_sig_diffusion():
     #TODO: Possibly add more test
 
     assert result['heating'] == ['boilerC']
+test_calc_service_fuel_switched()
