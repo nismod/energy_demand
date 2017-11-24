@@ -36,11 +36,11 @@ def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
     return rel_share_service_tech_decr_by
 
 def calc_service_switch_capacity(
-        path,
+        capacity_switches,
         technologies,
         other_enduse_mode_info,
         fuels,
-        fuel_tech_p_by,
+        fuel_shares_enduse_by,
         base_yr
     ):
     """Create service switch based on assumption on
@@ -59,7 +59,7 @@ def calc_service_switch_capacity(
         TODO
     fuels : dict
         Fuels
-    fuel_tech_p_by : dict
+    fuel_shares_enduse_by : dict
         Fuel technology shares in base year
     base_yr : dict
         Base year
@@ -73,11 +73,6 @@ def calc_service_switch_capacity(
     -------
     Capacity switches overwrite existing service switches
     """
-    # --------------------------------
-    # Reading in assumptions on capacity installations from csv file
-    # --------------------------------
-    capacity_switches = read_data.read_capacity_installation(path)
-
     # -------------------------------------
     # Assign correct fuel shares and fuels
     # -------------------------------------
@@ -94,7 +89,7 @@ def calc_service_switch_capacity(
         capacity_switches,
         technologies,
         other_enduse_mode_info,
-        fuel_tech_p_by,
+        fuel_shares_enduse_by,
         base_yr,
         fuels)
 
@@ -108,7 +103,7 @@ def create_service_switch(
         capacity_switches,
         technologies,
         other_enduse_mode_info,
-        fuel_shares_enduse_by_dict,
+        fuel_shares_enduse_by,
         base_yr,
         fuels
     ):
@@ -140,7 +135,7 @@ def create_service_switch(
                     capacity_switches=capacity_switches,
                     capacity_switch=capacity_switch,
                     technologies=technologies,
-                    fuel_shares_enduse_by=fuel_shares_enduse_by_dict[enduse],
+                    fuel_shares_enduse_by=fuel_shares_enduse_by[enduse],
                     fuel_enduse_y=fuels[enduse],
                     base_yr=base_yr,
                     other_enduse_mode_info=other_enduse_mode_info)
@@ -209,7 +204,7 @@ def convert_capacity_assumption_to_service(
                 technologies[tech].eff_achieved,
                 technologies[tech].diff_method)
 
-            # Convert to service
+            # Convert to service #TODO: ERROR WHY DOUBLE
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
             service_enduse_tech[tech] = service_tech_ey_y
 
@@ -245,7 +240,7 @@ def convert_capacity_assumption_to_service(
         service_enduse_tech[tech] = service_tech / tot_service
 
     # -------------------------------------------
-    # Calculate to switch technology_install
+    # Add to switch of technology_install
     # -------------------------------------------
     service_switches_enduse = []
 
@@ -256,10 +251,12 @@ def convert_capacity_assumption_to_service(
             switch_yr = switch.switch_yr
             continue
 
-        read_data.ServiceSwitch(
+        service_switch = read_data.ServiceSwitch(
             enduse=enduse,
             technology_install=tech,
             service_share_ey=service_tech_p,
             switch_yr=switch_yr)
+
+        service_switches_enduse.append(service_switch)
 
     return service_switches_enduse

@@ -1160,7 +1160,7 @@ def read_capacity_installation(path_to_csv):
                         enduse=str(row[0]),
                         technology_install=str(row[1]),
                         switch_yr=float(row[2]),
-                        installed_capacity= float(row[3])))
+                        installed_capacity=float(row[3])))
             except (KeyError, ValueError):
                 sys.exit("Error in loading service switch: Check if provided data is complete (no emptly csv entries)")
 

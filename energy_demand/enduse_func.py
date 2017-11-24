@@ -523,7 +523,7 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
 
     # Test if capacity switch is implemented
     try:
-        if assumptions['capacity_switch'] and crit_switch_service:
+        if assumptions['crit_capacity_switch'] and crit_switch_service:
             logging.warning(
                 "Warning: Capacity switch and service switch are installed simultaniously")
     except KeyError:
