@@ -19,41 +19,54 @@ from energy_demand.basic import conversions
 def main(region_names, weather_regions, data):
     """Plot weighted HDD (HDD per Region & region pop)
     with national gas demand
+    Note
+    ----
+    Comparison with national demand is not perfect
+    because not all electricity use depends on hdd
     """
     base_yr = 2015
     # ----------------------------------
     # Read temp data and weather station
     # ----------------------------------
-    weighted_daily_HDD = np.zeros((len(region_names), 365))
+    weighted_daily_hdd = np.zeros((365))
+    #weighted_daily_hdd_pop = np.zeros((365))
 
-    for day in range(365):
-        for reg_array, region_name in enumerate(region_names):
+    for region_name in region_names:    
+        #logging.warning("==============reg_array " + str(region_name))
 
-            # Get closest weather station to `Region`
-            closest_weather_region_name = get_closest_station(
-                data['reg_coord'][region_name]['longitude'],
-                data['reg_coord'][region_name]['latitude'],
-                data['weather_stations'])
+        # Get closest weather station to `Region`
+        closest_weather_station = get_closest_station(
+            data['reg_coord'][region_name]['longitude'],
+            data['reg_coord'][region_name]['latitude'],
+            data['weather_stations'])
 
-            # Birmingham station
-            #closest_weather_region_name = '593'
+        #closest_weather_station = '593' # Birmingham station
+        closest_weather_region = weather_regions[closest_weather_station]
 
-            closest_weather_region = weather_regions[closest_weather_region_name]
+        reg_pop = data['scenario_data']['population'][base_yr][region_name] 
 
-            # HDD
+        ##logging.warning("REGPOP: " + str(reg_pop))
+        #logging.warning(closest_weather_region.weather_region_name)
+        #logging.warning(closest_weather_region.rs_hdd_by)
+        #logging.warning(np.sum(closest_weather_region.rs_hdd_by))
+
+        for day in range(365):
             reg_hdd_day = closest_weather_region.rs_hdd_by[day]
-            reg_pop = data['scenario_data']['population'][base_yr][region_name] 
 
-            #Weighted HDD
-            weighted_hdd = reg_hdd_day * reg_pop
-            weighted_daily_HDD[reg_array][day] += weighted_hdd
+            # ----------------------------
+            # Weighted HDD with population
+            # ----------------------------
+            # WEIGHT WITH POP / TWO OPTIONS
+            weighted_daily_hdd[day] += reg_hdd_day * reg_pop
+            #weighted_daily_hdd_pop[day] += reg_hdd_day * reg_pop
 
-    # Sum across regions
-    weighted_daily_HDD = np.sum(weighted_daily_HDD, axis=0)
-    
+    # -------------------------------
+    # Calculate sum of HDD across all regions for every day [reg][day] --> [day]
+    # -------------------------------
+
     # Convert to list
-    weighted_daily_HDD = list(weighted_daily_HDD)
-
+    weighted_daily_hdd = list(weighted_daily_hdd)
+    #weighted_daily_hdd_pop = list(weighted_daily_hdd_pop)
     # -- Non daily metered gas demand in mcm == Residential heating gas 
     # demand for year 2015 (Jan - Dez --> Across two excel in orig file)
     # gas demand for 365 days
@@ -793,9 +806,7 @@ def main(region_names, weather_regions, data):
         2816,
         2929,
         2930,
-        2932,
-    ]
-    #gas_demand_NDM_2015_2016_gwh = gas_demand_TOTALSND_2015_2016
+        2932]
 
     # -------------------------
     # Convert GWh per day to GW
@@ -812,26 +823,29 @@ def main(region_names, weather_regions, data):
 
     slope, intercept, r_value, p_value, std_err = stats.linregress(
         gas_demand_NDM_2015_2016_gw,
-        weighted_daily_HDD)
+        weighted_daily_hdd)
 
     logging.warning("Slope:         %s", str(slope))
     logging.warning("intercept:     %s", str(intercept))
     logging.warning("r_value:       %s", str(r_value))
     logging.warning("p_value:       %s", str(p_value))
     logging.warning("std_err:       %s", str(std_err))
-    logging.warning("sum:           %s", str(sum(weighted_daily_HDD)))
-    logging.warning("av:            %s", str(sum(weighted_daily_HDD) / len(weighted_daily_HDD)))
+    logging.warning("sum:           %s", str(sum(weighted_daily_hdd)))
+    logging.warning("av:            %s", str(sum(weighted_daily_hdd) / len(weighted_daily_hdd)))
     logging.warning("Nr of reg:     %s", str(len(region_names)))
+    logging.warning("nr of days (gray points): " + str(len(gas_demand_NDM_2015_2016_gw)))
+    logging.warning("Nr of days:    " + str(len(weighted_daily_hdd)))
 
     # Set figure size in cm
     plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    plt.plot(
+    # Points are days
+    plt.scatter(
         gas_demand_NDM_2015_2016_gw,
-        weighted_daily_HDD,
-        'ro',
-        markersize=3.5,
-        color='gray')
+        weighted_daily_hdd,
+        marker='o',
+        s=2.5, #MARKERSIZE
+        color='black')
 
     # ---------------------
     # Plot regression line
@@ -840,23 +854,20 @@ def main(region_names, weather_regions, data):
     y_plot = []
     for x in x_plot:
         y_plot.append(lin_func(x, slope, intercept))
+    plt.plot(x_plot, y_plot, color='black')
 
     plt.xlim(0, 100)
-    plt.plot(
-        x_plot,
-        y_plot,
-        color='k')
 
     # ---------------------
     # Labelling
     # ---------------------
     font_additional_info = {'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    plt.xlabel("UK non daily metered gas demand [GW]")
-    plt.ylabel("HDD * POP [mio]")
-    plt.title("LAD_HDD * LAD_POP vs Gas_y_uk (r_value: {})".format(round(r_value, 3)), fontdict=font_additional_info)
+    #plt.xlabel("UK non daily metered gas demand [GW]")
+    #plt.ylabel("HDD * POP [mio]")
+    plt.title("slope: {}, intercept: {}, r2: {})".format(round(slope, 3), round(intercept, 3), round(r_value, 3)), fontdict=font_additional_info)
     #plt.text(10, 10, "y = {} x + {}".format(round(slope, 2), round(intercept, 2)), fontdict=font_additional_info)
 
     # Tight layout
-    #plt.tight_layout()
+    plt.tight_layout()
     plt.margins(x=0)
     plt.show()

@@ -209,7 +209,7 @@ class EnergyModel(object):
         # ------------------------------
         # Chart HDD * Pop vs actual gas demand
         # ------------------------------
-        if data['criterias']['plot_HDD_chart'] == True:
+        if data['criterias']['plot_HDD_chart']:
             logging.info("plot figure HDD comparison")
             figure_HHD_gas_demand.main(region_names, weather_regions, data)
 
