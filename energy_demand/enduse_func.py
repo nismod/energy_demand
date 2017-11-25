@@ -162,7 +162,8 @@ class Enduse(object):
                 self.fuel_new_y,
                 assumptions['smart_meter_assump'],
                 assumptions['strategy_variables'],
-                sim_param)
+                sim_param['base_yr'],
+                sim_param['curr_yr'])
             #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific consumption change in %
@@ -1240,7 +1241,7 @@ def apply_climate_change(enduse, fuel_new_y, cooling_factor_y, heating_factor_y,
 
     return fuel_new_y
 
-def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_sim_param):
+def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr, curr_yr):
     """Calculate fuel savings depending on smart meter penetration
 
     Arguments
@@ -1270,8 +1271,8 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_sim
 
         # Sigmoid diffusion up to current year
         sigm_factor = diffusion_technologies.sigmoid_diffusion(
-            base_sim_param['base_yr'],
-            base_sim_param['curr_yr'],
+            base_yr,
+            curr_yr,
             sm_assump_strategy['smart_meter_yr_until_changed'],
             sm_assump['smart_meter_diff_params']['sig_midpoint'],
             sm_assump['smart_meter_diff_params']['sig_steeppness'])
@@ -1284,7 +1285,7 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_sim
         #savings = sm_assump_strategy['savings_smart_meter'][enduse]
         savings = sm_assump_strategy['smart_meter_improvement_{}'.format(enduse)]
 
-        saved_fuel = fuel_y * (penetration_by - penetration_cy) * savings
+        saved_fuel = fuel_y * (penetration_cy -penetration_by) * savings
         fuel_y = fuel_y - saved_fuel
 
         return fuel_y

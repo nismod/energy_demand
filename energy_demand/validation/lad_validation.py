@@ -137,7 +137,7 @@ def tempo_spatial_validation(
         lu_reg,
         subnational_elec,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
-        label_points=True)
+        label_points=False)
 
     spatial_validation(
         reg_coord,
@@ -147,7 +147,7 @@ def tempo_spatial_validation(
         lu_reg,
         subnational_gas,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
-        label_points=True)
+        label_points=False)
 
     # -------------------------------------------
     # Temporal validation (hourly for national)
@@ -296,7 +296,10 @@ def spatial_validation(
             pass
 
     # Calculate the average deviation between reald and modelled
-    d_real_modelled_p = np.mean(all_diff_real_modelled_p)
+    av_deviation_real_modelled = np.mean(all_diff_real_modelled_p)
+
+    # Calculate standard deviation
+    standard_dev_real_modelled = np.std(all_diff_real_modelled_p)
 
     # RMSE calculations
     rmse_value = basic_functions.rmse(
@@ -353,8 +356,9 @@ def spatial_validation(
         y_real_elec_demand,
         linestyle='None',
         marker='o',
-        markersize=2,
+        markersize=1.3,
         fillstyle='full',
+        markerfacecolor='grey',
         markeredgewidth=0.2,
         color='black',
         label='real')
@@ -364,10 +368,11 @@ def spatial_validation(
         y_modelled_elec_demand,
         marker='o',
         linestyle='None',
-        markersize=2,
-        markerfacecolor='blue',
+        markersize=1.3,
+        markerfacecolor='white',
         fillstyle='none',
-        markeredgewidth=0.2,
+        markeredgewidth=0.5,
+        markeredgecolor='blue',
         color='black',
         label='modelled')
 
@@ -385,16 +390,18 @@ def spatial_validation(
             ax.text(
                 x_values[pos],
                 y_modelled_elec_demand[pos],
-                txt, horizontalalignment="right",
+                txt,
+                horizontalalignment="right",
                 verticalalignment="top",
                 fontsize=3)
 
     font_additional_info = {
         'family': 'arial', 'color': 'black', 'weight': 'normal', 'size': 8}
-    title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}'.format(
+    title_info = ('RMSE: {}, d_real_model: {}, reg_nr: {}, std_dev: {}'.format(
         round(rmse_value, 3),
-        round(d_real_modelled_p, 3),
-        len(y_real_elec_demand)))
+        round(av_deviation_real_modelled, 3),
+        len(y_real_elec_demand),
+        round(standard_dev_real_modelled, 3)))
 
     plt.title(
         title_info,

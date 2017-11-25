@@ -66,9 +66,9 @@ def disaggregate_base_demand(
     # Factors to choose for disaggregation
     # -------------------------------------
     #If all false --> Full disaggregation
-    crit_limited_disagg_pop = True #if True: Only disaggregate with population
-    crit_limited_disagg_pop_hdd = False # If True: Disaggregate with pop and hdd
-    crit_employment = False # If false, only with pop
+    crit_limited_disagg_pop = True         # if True: Only disaggregate with population
+    crit_limited_disagg_pop_hdd = True     # If True: Disaggregate with pop and hdd
+    crit_employment = True                 # If false, only with pop
 
     # Disaggregate residential submodel data
     rs_fuel_disagg = rs_disaggregate(
@@ -227,7 +227,7 @@ def ss_disaggregate(
                 reg_floor_area = ss_floorarea_sector_2015_virtual_bs[region_name][sector]
                 reg_pop = scenario_data['population'][base_yr][region_name]
 
-                if crit_limited_disagg_pop:
+                if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
                     logging.debug(" ... Disaggregation ss: populaton")
                     # ----
                     # Only disaggregat with population
@@ -301,7 +301,7 @@ def is_disaggregate(
 
     """
     is_fuel_disagg = {}
-    if crit_limited_disagg_pop or not crit_employment:
+    if crit_limited_disagg_pop and not crit_employment:
         logging.debug(" ... Disaggregation is: Population")
         # ---
         # Disaggregate only with population
@@ -484,7 +484,7 @@ def rs_disaggregate(
 
         # Disaggregate fuel depending on end_use
         for enduse in rs_national_fuel:
-            if crit_limited_disagg_pop:
+            if crit_limited_disagg_pop and not crit_limited_disagg_pop_hdd:
                 logging.debug(" ... Disaggregation rss: populaton")
                 # ----------------------------------
                 # Only disaggregate with population
@@ -498,8 +498,6 @@ def rs_disaggregate(
                 # -------------------
                 if enduse == 're_space_heating':
                     reg_diasg_factor = (reg_hdd * reg_pop) / total_pop_hdd
-                elif enduse == 'rs_lighting':
-                    reg_diasg_factor = reg_floor_area / total_floor_area
                 else:
                     reg_diasg_factor = reg_pop / total_pop
             else:

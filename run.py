@@ -278,7 +278,7 @@ class EDWrapper(SectorModel):
         # Simulation parameters and criteria
         # --------------------
         data['criterias']['virtual_building_stock_criteria'] = True
-        data['criterias']['plot_HDD_chart'] = True
+        data['criterias']['plot_HDD_chart'] = False # plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = True
 
         data['sim_param']['base_yr'] = self.user_data['base_yr'] # Base year definition

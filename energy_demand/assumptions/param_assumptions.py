@@ -227,23 +227,24 @@ def load_param_assump(paths, assumptions):
     # Year until change is implemented
     assumptions['strategy_variables']['smart_meter_assump']['smart_meter_yr_until_changed'] = yr_until_changed_all_things
 
-    # Long term smart meter induced general savings, purley as a result of having a smart meter
+    # Long term smart meter induced general savings, purley as a result of having a smart meter 
+    # e.g. 0.03 --> 3% savings
     assumptions['strategy_variables']['smart_meter_assump']['savings_smart_meter'] = {
 
         # Residential
-        'rs_cold': -0.03,
-        'rs_cooking': -0.03,
-        'rs_lighting': -0.03,
-        'rs_wet': -0.03,
-        'rs_consumer_electronics': -0.03,
-        'rs_home_computing': -0.03,
-        'rs_space_heating': -0.03,
+        'rs_cold': 0.03,
+        'rs_cooking': 0.03,
+        'rs_lighting': 0.03,
+        'rs_wet': 0.03,
+        'rs_consumer_electronics': 0.03,
+        'rs_home_computing': 0.03,
+        'rs_space_heating': 0.03,
 
         # Service
-        'ss_space_heating': -0.03,
+        'ss_space_heating': 0.03,
 
         # Industry
-        'is_space_heating': -0.03}
+        'is_space_heating': 0.03}
 
     # Helper function to create description of parameters for all enduses
     for enduse_name, _ in assumptions['strategy_variables']['smart_meter_assump']['savings_smart_meter'].items():
