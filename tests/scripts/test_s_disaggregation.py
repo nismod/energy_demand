@@ -134,21 +134,20 @@ def test_is_ss_disaggregate():
 
     base_yr = 2015
     national_fuel = 100
-    raw_fuel_sectors_enduses = {'wood': {'is_space_heating': national_fuel},
-                                'textiles': {'is_space_heating': national_fuel}}
+    raw_fuel_sectors_enduses = {'mining': {'is_space_heating': national_fuel},
+                                'pharmaceuticals': {'is_space_heating': national_fuel}}
     lu_reg = ['regA', 'regB']
     enduses = {'is_all_enduses': ['is_space_heating']}
-    sectors = {'is_sectors': ['wood', 'textiles']}
+    sectors = {'is_sectors': ['mining', 'pharmaceuticals']}
 
     employment_statistics = {
-        'regA': {'C16,17': 0, 'C13-15': 10}, #wood, textiles
-        'regB': {'C16,17': 5, 'C13-15': 5}}
+        'regA': {'B': 0, 'M': 10}, #mining, pharmaceuticals
+        'regB': {'B': 5, 'M': 5}}
 
     scenario_data = {'population': {
         2015: {
             'regA': 10,
-            'regB': 10
-    }}}
+            'regB': 10}}}
 
     result = s_disaggregation.is_disaggregate(
         base_yr,
@@ -161,7 +160,7 @@ def test_is_ss_disaggregate():
         crit_limited_disagg_pop=True,
         crit_employment=False)
 
-    assert result['regA']['wood']['is_space_heating'] == 50
+    assert result['regA']['mining']['is_space_heating'] == 50
     # ----
     result = s_disaggregation.is_disaggregate(
         base_yr,
@@ -174,7 +173,7 @@ def test_is_ss_disaggregate():
         crit_limited_disagg_pop=False,
         crit_employment=True)
     
-    assert result['regA']['wood']['is_space_heating'] == 0
-    assert round(result['regA']['textiles']['is_space_heating'], 3) == round(10.0/15.0 * 100,3) 
-    assert result['regB']['wood']['is_space_heating'] == 100
-    assert round(result['regB']['textiles']['is_space_heating'], 3)  == round(5.0/15.0 * 100, 3)
+    assert result['regA']['mining']['is_space_heating'] == 0
+    assert round(result['regA']['pharmaceuticals']['is_space_heating'], 3) == round(10.0/15.0 * 100,3) 
+    assert result['regB']['mining']['is_space_heating'] == 100
+    assert round(result['regB']['pharmaceuticals']['is_space_heating'], 3)  == round(5.0/15.0 * 100, 3)

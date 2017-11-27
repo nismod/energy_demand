@@ -540,8 +540,6 @@ def test_apply_smart_metering():
 def test_fuel_to_service():
     """
     """
-    
-
     enduse = 'heating'
     fuel_new_y = {0: 2000}
     enduse_techs = ['techA']
@@ -559,7 +557,7 @@ def test_fuel_to_service():
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020}
-    
+
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
         all_technologies=technologies,
@@ -585,7 +583,39 @@ def test_fuel_to_service():
         mode_constrained=mode_constrained)
 
     assert service_tech['techA'] == 1000
+
+    # ---
+    fuel_new_y = {0: 0, 1:2000}
+    fuel_tech_p_by = {0 : {}, 1: {'techA': 1.0}}
+    lu_fueltypes = {'gas': 0, 'heat': 1}
+
+    tech_stock = technological_stock.TechStock(
+        stock_name="stock_name",
+        all_technologies=technologies,
+        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        other_enduse_mode_info={'linear'},
+        sim_param=sim_param,
+        lu_fueltypes=lu_fueltypes,
+        temp_by=np.ones((365, 24)) + 10,
+        temp_cy=np.ones((365, 24)) + 10,
+        t_base_heating_by=15.5,
+        potential_enduses=['heating'],
+        t_base_heating_cy=15.5,
+        enduse_technologies={'heating': ['techA']})
+
+    mode_constrained = True
+    tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p = enduse_func.fuel_to_service(
+        enduse=enduse,
+        fuel_new_y=fuel_new_y,
+        enduse_techs=enduse_techs,
+        fuel_tech_p_by=fuel_tech_p_by,
+        tech_stock=tech_stock,
+        lu_fueltypes=lu_fueltypes,
+        mode_constrained=mode_constrained)
+    
+    assert service_tech['techA'] == 2000
     #TODO ADD MORE TESTS
+
 
 def test_service_to_fuel():
 

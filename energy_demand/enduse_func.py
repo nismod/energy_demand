@@ -166,7 +166,7 @@ class Enduse(object):
                 sim_param['curr_yr'])
             #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
-            # --Enduse specific consumption change in %
+            # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
                 enduse,
                 self.fuel_new_y,

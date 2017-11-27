@@ -181,8 +181,37 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, 
 
 ### 6.2 Spatial disaggregation
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu mi placerat, ultricies urna id, pharetra dui. Mauris quis mi sit amet
 
+Employment data are used to improve industry related dissagregation: 
+
+    wood        
+    textiles       
+    chemicals       None
+    printing        None
+    electrical_equipment        None
+    paper       None
+    basic_metals        None
+    beverages       None
+    pharmaceuticals       None
+    machinery       None
+    water_collection_treatment        None
+    food_production       None
+    rubber_plastics       None
+    wearing_appeal        None
+    other_transport_equipment       None
+    leather       None
+    motor_vehicles        None
+    waste_collection        None
+    tobacco       None
+    mining        None
+    other_manufacturing       None
+    furniture       None
+    non_metallic_minearl_products       None
+    computer        None
+    fabricated_metal_products       None
+  
+Matching of ECUK and employment data
+      
 ## 10. Reading the code
 
 This section provides an overview of how to read the code.

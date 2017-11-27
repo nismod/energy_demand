@@ -67,9 +67,10 @@ def disaggregate_base_demand(
     # -------------------------------------
     #If all false --> Full disaggregation
     crit_limited_disagg_pop = True         # if True: Only disaggregate with population
-    crit_limited_disagg_pop_hdd = False     # If True: Disaggregate with pop and hdd
-    crit_employment = False                 # If false, only with pop
-    crit_full_disagg = False
+    crit_employment = True                 # If false, only with pop
+    crit_limited_disagg_pop_hdd = True     # If True: Disaggregate with pop and hdd
+
+    crit_full_disagg = False #TODO: FLOOR AREA DISAGGREGATION
 
     # Disaggregate residential submodel data
     rs_fuel_disagg = rs_disaggregate(
@@ -318,7 +319,7 @@ def is_disaggregate(
             is_fuel_disagg[region_name] = {}
             reg_pop = scenario_data['population'][base_yr][region_name]
 
-            reg_disagg_f = reg_pop/ tot_pop
+            reg_disagg_f = reg_pop / tot_pop
 
             for sector in sectors['is_sectors']:
                 is_fuel_disagg[region_name][sector] = {}
@@ -328,12 +329,18 @@ def is_disaggregate(
         return is_fuel_disagg
     elif crit_employment:
         logging.debug(" ... Disaggregation is: Employment statistics")
+        
+        # Calculate total population
+        tot_pop = 0
+        for reg in lu_reg:
+            tot_pop += scenario_data['population'][base_yr][reg]
+        
         # -----
         # Disaggregate with employment statistics
         # -----
         logging.info("___________________________ other data for disaggregation")
-        # The BEIS sectors are matched with census data sectors
-        sectormatch_ecuk_with_census = {
+        # The BEIS sectors are matched with census data sectors {ECUK industry sectors: 'Emplyoment sectors'}
+        '''sectormatch_ecuk_with_census = {
             'wood': 'C16,17',
             'textiles': 'C13-15',
             'chemicals': 'C19-22',
@@ -358,8 +365,36 @@ def is_disaggregate(
             'furniture': 'C',
             'non_metallic_minearl_products': 'C',
             'computer': 'C26-30',
-            'fabricated_metal_products': 'C'}
+            'fabricated_metal_products': 'C'}'''
 
+        sectormatch_ecuk_with_census = {
+            'mining': 'B',                  # Improvement
+            'food_production': 'C10-12',    # Improvement
+            'pharmaceuticals': 'M',         # Improvements
+            'computer': 'C26-30',           # Improvements
+            'leather': 'C13-15',            # Gas improve, electrectiy same
+            'wearing_appeal': 'C13-15',     # Improvements
+
+            'electrical_equipment': None,   # 'C26-30', #Streuung besser 
+            'wood': None,                   #Worse
+            'textiles': None,               #Worse
+            'chemicals': None,              #Worse better streuung
+            'printing': None,               #Streeung besser
+            'paper': None,                  #WORSE
+            'basic_metals': None,           #improve deviation
+            'beverages': None,
+            'fabricated_metal_products': None,
+            'other_manufacturing': None,
+            'furniture': None,
+            'machinery': None,                            # Improvements with M #BUT NOT REALLY CORRECT CLASSIFICATION
+            'water_collection_treatment': None,
+            'rubber_plastics': None, #not really, bessere Streeung
+            'other_transport_equipment': None,
+            'motor_vehicles': None,
+            'waste_collection': None, #about the same with F
+            'tobacco': None,
+            'non_metallic_minearl_products': None  #Worsen
+        }
         # ----------------------------------------
         # Summarise national employment per sector
         # ----------------------------------------
@@ -383,22 +418,31 @@ def is_disaggregate(
             for sector in sectors['is_sectors']:
                 is_fuel_disagg[region_name][sector] = {}
 
-                # Match sector
+                # ----------------------------------
+                # Try to match  with sector, otherwise disaggregate with population
+                # ----------------------------------
                 matched_sector = sectormatch_ecuk_with_census[sector]
 
-                # Iterate enduse
-                for enduse in enduses['is_all_enduses']:
-                    national_sector_employment = tot_national_sector_employment[matched_sector]
-                    reg_sector_employment = employment_statistics[region_name][matched_sector]
+                # Disaggregate with population
+                if matched_sector == None:
+                    for enduse in enduses['is_all_enduses']:
+                        reg_pop = scenario_data['population'][base_yr][region_name]
+                        
+                        reg_disag_factor = reg_pop / tot_pop
 
-                    try:
-                        reg_disag_factor = reg_sector_employment / national_sector_employment
-                    except ZeroDivisionError:
-                        reg_disag_factor = 0 #No employment for this sector for this region
+                        is_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_disag_factor
+                else:
+                    for enduse in enduses['is_all_enduses']:
+                        national_sector_employment = tot_national_sector_employment[matched_sector]
+                        reg_sector_employment = employment_statistics[region_name][matched_sector]
 
-                    # Disaggregated national fuel
-                    national_fuel_sector_by = raw_fuel_sectors_enduses[sector][enduse]
-                    is_fuel_disagg[region_name][sector][enduse] = national_fuel_sector_by * reg_disag_factor
+                        try:
+                            reg_disag_factor = reg_sector_employment / national_sector_employment
+                        except ZeroDivisionError:
+                            reg_disag_factor = 0 #No employment for this sector for this region
+
+                        # Disaggregated national fuel
+                        is_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_disag_factor
 
     return is_fuel_disagg
 
