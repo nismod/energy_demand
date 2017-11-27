@@ -46,7 +46,8 @@ def test_rs_disaggregate():
         weather_stations,
         temp_data,
         crit_limited_disagg_pop_hdd=True,
-        crit_limited_disagg_pop=False)
+        crit_limited_disagg_pop=False,
+        crit_full_disagg=False)
 
     assert result['regA']['rs_space_heating'] == national_fuel / 2
 
@@ -62,7 +63,8 @@ def test_rs_disaggregate():
         weather_stations,
         temp_data,
         crit_limited_disagg_pop_hdd=False,
-        crit_limited_disagg_pop=True)
+        crit_limited_disagg_pop=True,
+        crit_full_disagg=False)
 
     assert result['regA']['rs_space_heating'] == national_fuel / 2
 
@@ -122,7 +124,8 @@ def test_ss_disaggregate():
         all_sectors,
         ss_floorarea_sector_2015_virtual_bs,
         crit_limited_disagg_pop_hdd=False,
-        crit_limited_disagg_pop=True)
+        crit_limited_disagg_pop=True,
+        crit_full_disagg=False)
 
     assert result['regA']['sectorA']['ss_space_heating'] == national_fuel / 2
 

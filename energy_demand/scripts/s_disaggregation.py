@@ -67,8 +67,9 @@ def disaggregate_base_demand(
     # -------------------------------------
     #If all false --> Full disaggregation
     crit_limited_disagg_pop = True         # if True: Only disaggregate with population
-    crit_limited_disagg_pop_hdd = True     # If True: Disaggregate with pop and hdd
-    crit_employment = True                 # If false, only with pop
+    crit_limited_disagg_pop_hdd = False     # If True: Disaggregate with pop and hdd
+    crit_employment = False                 # If false, only with pop
+    crit_full_disagg = False
 
     # Disaggregate residential submodel data
     rs_fuel_disagg = rs_disaggregate(
@@ -82,7 +83,8 @@ def disaggregate_base_demand(
         weather_stations,
         temp_data,
         crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop)
+        crit_limited_disagg_pop,
+        crit_full_disagg)
 
     # Disaggregate service submodel data
     ss_fuel_disagg = ss_disaggregate(
@@ -100,7 +102,8 @@ def disaggregate_base_demand(
         all_sectors,
         ss_floorarea_sector_2015_virtual_bs,
         crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop)
+        crit_limited_disagg_pop,
+        crit_full_disagg)
 
     # Disaggregate industry submodel data with employment statistics
     is_fuel_disagg = is_disaggregate(
@@ -137,7 +140,8 @@ def ss_disaggregate(
         all_sectors,
         ss_floorarea_sector_2015_virtual_bs,
         crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop
+        crit_limited_disagg_pop,
+        crit_full_disagg
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
     TODO: So far only disaggregated with
@@ -234,7 +238,7 @@ def ss_disaggregate(
                     # ----
                     reg_diasg_factor = reg_pop / tot_pop[sector]
 
-                elif crit_limited_disagg_pop_hdd:
+                elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
                     logging.debug(" ... Disaggregation ss: populaton, HDD")
                     # ----
                     # Only disaggregat with population and hdd and cdd
@@ -245,7 +249,7 @@ def ss_disaggregate(
                         reg_diasg_factor = (reg_pop * reg_hdd) / tot_pop_hdd[sector]
                     else:
                         reg_diasg_factor = reg_pop / tot_pop[sector]
-                else:
+                elif crit_full_disagg:
                     logging.debug(" ... Disaggregation ss: populaton, HDD, floor_area")
                     # ----
                     # disaggregat with pop, hdd/cdd, floor area
@@ -322,7 +326,7 @@ def is_disaggregate(
                     is_fuel_disagg[region_name][sector][enduse] = raw_fuel_sectors_enduses[sector][enduse] * reg_disagg_f
 
         return is_fuel_disagg
-    else:
+    elif crit_employment:
         logging.debug(" ... Disaggregation is: Employment statistics")
         # -----
         # Disaggregate with employment statistics
@@ -409,7 +413,8 @@ def rs_disaggregate(
         weather_stations,
         temp_data,
         crit_limited_disagg_pop_hdd,
-        crit_limited_disagg_pop
+        crit_limited_disagg_pop,
+        crit_full_disagg
     ):
     """Disaggregate residential fuel demand
 
@@ -491,7 +496,7 @@ def rs_disaggregate(
                 # ----------------------------------
                 reg_diasg_factor = reg_pop / total_pop
 
-            elif crit_limited_disagg_pop_hdd:
+            elif crit_limited_disagg_pop_hdd and not crit_full_disagg:
                 logging.debug(" ... Disaggregation rss: populaton, hdd")
                 # -------------------
                 # Disaggregation with pop and hdd
@@ -500,7 +505,7 @@ def rs_disaggregate(
                     reg_diasg_factor = (reg_hdd * reg_pop) / total_pop_hdd
                 else:
                     reg_diasg_factor = reg_pop / total_pop
-            else:
+            elif crit_full_disagg:
                 logging.debug(" ... Disaggregation rss: populaton, hdd, floor_area")
                 # -------------------
                 # Full disaggregation

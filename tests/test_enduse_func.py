@@ -642,7 +642,7 @@ def test_service_to_fuel():
         True)
 
     assert fuel_per_tech['techA'] == 100
-    assert fuel_new_y == np.array([0, 100])
+    assert fuel_new_y[1] == 100
 
 def test_apply_heat_recovery():
 

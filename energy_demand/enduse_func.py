@@ -237,11 +237,13 @@ class Enduse(object):
                     assumptions['enduse_overall_change'],
                     tot_service_y_cy,
                     'tot_service_y_cy',
-                    sim_param)
+                    sim_param['base_yr'],
+                    sim_param['curr_yr'])
 
                 service_tech_y_cy = apply_heat_recovery(
                     enduse,
-                    assumptions,
+                    assumptions['strategy_variables'],
+                    assumptions['enduse_overall_change'],
                     service_tech_y_cy,
                     'service_tech',
                     sim_param['base_yr'],
