@@ -736,7 +736,7 @@ def test_calc_fuel_tech_y():
         fuel_tech_y={'techA': 100},
         lookups=lookups,
         mode_constrained=True)
-    
+
     assert result[1] == 100
 
     result = enduse_func.calc_fuel_tech_y(
