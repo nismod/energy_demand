@@ -5,17 +5,7 @@ from energy_demand import enduse_func
 from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.plotting import plotting_program
 from energy_demand.read_write import read_data
-
-'''def test_calc_fuel_tech_yh():
-    
-    enduse_func.calc_fuel_tech_yh(
-        enduse='heating',
-        sector=,
-        enduse_techs,
-        enduse_fuel_tech,
-        tech_stock,
-        load_profiles)
-    pass'''
+from energy_demand.technologies import technological_stock
 
 def test_get_crit_switch():
     """
@@ -23,21 +13,17 @@ def test_get_crit_switch():
     mode_constrained = True
 
     fuelswitches = [read_data.FuelSwitch(
-        enduse='heating'
-    )]
-
-
+        enduse='heating')]
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020}
 
     result = enduse_func.get_crit_switch(
         'heating', fuelswitches, sim_param, mode_constrained)
-    
+
     assert result == False
     
     mode_constrained = False
-
     sim_param = {
         'base_yr': 2015,
         'curr_yr': 2020}
@@ -554,7 +540,7 @@ def test_apply_smart_metering():
 def test_fuel_to_service():
     """
     """
-    from energy_demand.technologies import technological_stock
+    
 
     enduse = 'heating'
     fuel_new_y = {0: 2000}
@@ -601,4 +587,163 @@ def test_fuel_to_service():
     assert service_tech['techA'] == 1000
     #TODO ADD MORE TESTS
 
-test_fuel_to_service()
+def test_service_to_fuel():
+
+    technologies = {'techA': read_data.TechnologyData()}
+    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].eff_achieved = 1.0
+    technologies['techA'].diff_method = 'linear'
+    technologies['techA'].eff_by = 0.5
+    technologies['techA'].eff_ey = 0.5
+    technologies['techA'].year_eff_ey = 2020
+
+    lu_fueltypes = {'gas': 0}
+
+    sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020}
+
+    tech_stock = technological_stock.TechStock(
+        stock_name="stock_name",
+        all_technologies=technologies,
+        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        other_enduse_mode_info={'linear'},
+        sim_param=sim_param,
+        lu_fueltypes=lu_fueltypes,
+        temp_by=np.ones((365, 24)) + 10,
+        temp_cy=np.ones((365, 24)) + 10,
+        t_base_heating_by=15.5,
+        potential_enduses=['heating'],
+        t_base_heating_cy=15.5,
+        enduse_technologies={'heating': ['techA']})
+
+    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
+
+    fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
+        "heating",
+        {'techA': 100},
+        tech_stock,
+        lookups,
+        False)
+
+    assert fuel_per_tech['techA'] == 200
+    assert fuel_new_y == np.array([200])
+
+    # ----
+
+    lu_fueltypes = {'gas': 0, 'heat': 1}
+    lookups = {'fueltype': lu_fueltypes, 'fueltypes_nr': len(lu_fueltypes)}
+
+    fuel_new_y, fuel_per_tech = enduse_func.service_to_fuel(
+        "heating",
+        {'techA': 100},
+        tech_stock,
+        lookups,
+        True)
+
+    assert fuel_per_tech['techA'] == 100
+    assert fuel_new_y == np.array([0, 100])
+
+def test_apply_heat_recovery():
+
+    other_enduse_mode_info = {}
+    other_enduse_mode_info['other_enduse_mode_info'] = {}
+    other_enduse_mode_info['other_enduse_mode_info']['sigmoid'] = {}
+    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_midpoint'] = 0
+    other_enduse_mode_info['other_enduse_mode_info']['sigmoid']['sig_steeppness'] = 1
+
+    result = enduse_func.apply_heat_recovery(
+        enduse='heating',
+        strategy_variables={'heat_recoved__heating': 0.5, 'heat_recovered_yr_until_changed': 2020},
+        enduse_overall_change=other_enduse_mode_info,
+        service=100,
+        crit_dict='tot_service_y_cy',
+        base_yr=2015,
+        curr_yr=2020)
+
+    assert result == 50
+
+    result = enduse_func.apply_heat_recovery(
+        enduse='heating',
+        strategy_variables={'heat_recoved__heating': 0.5, 'heat_recovered_yr_until_changed': 2020},
+        enduse_overall_change=other_enduse_mode_info,
+        service={'techA': 100},
+        crit_dict='service_tech',
+        base_yr=2015,
+        curr_yr=2020)
+
+    assert result == {'techA': 50}
+
+def test_apply_climate_chante():
+
+    assumptions = {}
+    assumptions['enduse_space_heating'] = ['heating']
+    assumptions['enduse_space_cooling'] = ['cooling']
+
+    result = enduse_func.apply_climate_change(
+        enduse='heating',
+        fuel_new_y=200,
+        cooling_factor_y=1.5,
+        heating_factor_y=1.5,
+        assumptions=assumptions)
+    
+    assert result == 300
+    result = enduse_func.apply_climate_change(
+        enduse='cooling',
+        fuel_new_y=200,
+        cooling_factor_y=1.5,
+        heating_factor_y=1.5,
+        assumptions=assumptions)
+
+    assert result == 300
+
+def test_calc_fuel_tech_y():
+
+    technologies = {'techA': read_data.TechnologyData()}
+    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].eff_achieved = 1.0
+    technologies['techA'].diff_method = 'linear'
+    technologies['techA'].eff_by = 0.5
+    technologies['techA'].eff_ey = 0.5
+    technologies['techA'].year_eff_ey = 2020
+    lu_fueltypes = {'gas': 0}
+
+    sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020}
+    
+    tech_stock = technological_stock.TechStock(
+        stock_name="stock_name",
+        all_technologies=technologies,
+        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        other_enduse_mode_info={'linear'},
+        sim_param=sim_param,
+        lu_fueltypes=lu_fueltypes,
+        temp_by=np.ones((365, 24)) + 10,
+        temp_cy=np.ones((365, 24)) + 10,
+        t_base_heating_by=15.5,
+        potential_enduses=['heating'],
+        t_base_heating_cy=15.5,
+        enduse_technologies={'heating': ['techA']})
+    
+    lookups = {}
+    lookups['fueltype'] = {'heat': 1, 'gas': 0}
+    lookups['fueltypes_nr'] = 2
+
+    result = enduse_func.calc_fuel_tech_y(
+        enduse='heating',
+        tech_stock=tech_stock,
+        fuel_tech_y={'techA': 100},
+        lookups=lookups,
+        mode_constrained=True)
+    
+    assert result[1] == 100
+
+    result = enduse_func.calc_fuel_tech_y(
+        enduse='heating',
+        tech_stock=tech_stock,
+        fuel_tech_y={'techA': 100},
+        lookups=lookups,
+        mode_constrained=False)
+
+    assert result[0] == 100

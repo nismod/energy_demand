@@ -233,7 +233,8 @@ class Enduse(object):
                 # ------------------------------------
                 tot_service_y_cy = apply_heat_recovery(
                     enduse,
-                    assumptions,
+                    assumptions['strategy_variables'],
+                    assumptions['enduse_overall_change'],
                     tot_service_y_cy,
                     'tot_service_y_cy',
                     sim_param)
@@ -243,7 +244,8 @@ class Enduse(object):
                     assumptions,
                     service_tech_y_cy,
                     'service_tech',
-                    sim_param)
+                    sim_param['base_yr'],
+                    sim_param['curr_yr'])
 
                 # --------------------------------
                 # Switches (service or fuel)
@@ -983,7 +985,7 @@ def fuel_to_service(
 
     return tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p
 
-def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param):
+def apply_heat_recovery(enduse, strategy_variables, enduse_overall_change, service, crit_dict, base_yr, curr_yr):
     """Reduce heating demand according to assumption on heat reuse
 
     Arguments
@@ -1008,21 +1010,19 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
     """
     try:
 
-        #if enduse in assumptions['strategy_variables']['heat_recovered']:
-
         # Fraction of heat recovered until end_year
-        heat_recovered_p_by = assumptions['strategy_variables']["heat_recoved__{}".format(enduse)]
+        heat_recovered_p_by = strategy_variables["heat_recoved__{}".format(enduse)]
 
         if heat_recovered_p_by == 0:
             return service
         else:
             # Fraction of heat recovered in current year
             sig_diff_factor = diffusion_technologies.sigmoid_diffusion(
-                base_sim_param['base_yr'],
-                base_sim_param['curr_yr'],
-                assumptions['strategy_variables']['heat_recovered_yr_until_changed'],
-                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
-                assumptions['enduse_overall_change']['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
+                base_yr,
+                curr_yr,
+                strategy_variables['heat_recovered_yr_until_changed'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_midpoint'],
+                enduse_overall_change['other_enduse_mode_info']['sigmoid']['sig_steeppness'])
 
             heat_recovered_p_cy = sig_diff_factor * heat_recovered_p_by
 
@@ -1037,8 +1037,6 @@ def apply_heat_recovery(enduse, assumptions, service, crit_dict, base_sim_param)
                 service_reduced = service * (1.0 - heat_recovered_p_cy)
 
             return service_reduced
-    #else:
-    #    return service
     except:
         # no recycling defined
         return service
