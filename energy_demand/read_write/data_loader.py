@@ -133,10 +133,10 @@ def load_basic_lookups():
         'gas': 1,
         'electricity': 2,
         'oil': 3,
-        'heat_sold': 4,
-        'biomass': 5,
-        'hydrogen': 6,
-        'heat': 7}
+        'biomass': 4,
+        'hydrogen': 5,
+        'heat': 6
+        }
 
     lookups['fueltypes_nr'] = int(len(lookups['fueltype']))
 

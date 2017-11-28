@@ -902,7 +902,8 @@ def plot_load_profile_dh_multiple(
         calc_lp_modelled=None,
         calc_lp_real=None,
         plot_peak=False,
-        plot_all_entries=False
+        plot_all_entries=False,
+        plot_max_min_polygon=True
     ):
     """Plotting average saisonal loads for each daytype. As an input
     GWh is provided, which for each h is cancelled out to GW.
@@ -911,11 +912,18 @@ def plot_load_profile_dh_multiple(
     """
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
-    ax = fig.add_subplot(nrows=4, ncols=2)
+    nrows = 4
+    ncols = 2
+    ax = fig.add_subplot(nrows=nrows, ncols=ncols)
 
     plot_nr = 0
+
+    row = -1
     for season in calc_av_lp_modelled:
+        row += 1
+        col = -1
         for daytype in calc_av_lp_modelled[season]:
+            col += 1
             plot_nr += 1
 
             plt.subplot(4, 2, plot_nr)
@@ -959,6 +967,36 @@ def plot_load_profile_dh_multiple(
                         markersize=0.5,
                         alpha=0.2)
 
+            # ----------
+            # Plot max_min range polygons
+            # ----------
+            if plot_max_min_polygon:
+                
+                min_max_polygon = []
+                upper_boundary = []
+                lower_bdoundary = []
+                for hour in range(24):
+                    min_max_x = hour
+
+                    # Get min and max of all entries for hour¨
+                    min_y = np.min(calc_lp_real[season][daytype][:, hour], axis=0)
+                    max_y = np.max(calc_lp_real[season][daytype][:, hour], axis=0)
+
+                    min_max_polygon.append((min_max_x, min_y))
+                    min_max_polygon.append((min_max_x, max_y))
+
+                    upper_boundary.append((min_max_x, min_y))
+                    lower_bdoundary.append((min_max_x, max_y))
+
+                polygon = plt.Polygon(
+                    min_max_polygon,
+                    fill='True',
+                    color='red',
+                    alpha=0.4)
+
+                ax[row, col].add_patch(polygon)
+                #axes.autoscale_view()
+
             # --------------------
             # Get load shape within season with highest houly load
             # --------------------
@@ -991,6 +1029,7 @@ def plot_load_profile_dh_multiple(
             # Axis
             # -----------------
             plt.ylim(0, 120) #60
+            plt.xlim(0, 23)
 
             # Tight layout
             plt.tight_layout()

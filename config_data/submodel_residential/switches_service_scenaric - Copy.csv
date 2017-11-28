@@ -6,7 +6,6 @@ rs_space_heating,boiler_hydrogen,0.1,2050
 rs_space_heating,storage_heater_electricity,0.15,2050
 rs_space_heating,secondary_heater_electricity,0.25,2050
 rs_space_heating,boiler_oil,0,2050
-rs_space_heating,boiler_heat_sold,0,2050
 rs_space_heating,boiler_solid_fuel,0,2050
 rs_space_heating,heat_pumps_electricity,0.1,2050
 rs_space_heating,stirling_micro_CHP,0,2050

@@ -42,7 +42,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     fuel_nr_oil = lookups['fueltype']['oil']
     fuel_nr_elec = lookups['fueltype']['electricity']
     fuel_nr_gas = lookups['fueltype']['gas']
-    fuel_nr_heat_sold = lookups['fueltype']['heat_sold']
     fuel_nr_biomass = lookups['fueltype']['biomass']
     fuel_nr_hydrogen = lookups['fueltype']['hydrogen']
     fuel_nr_solid_fuel = lookups['fueltype']['solid_fuel']
@@ -99,9 +98,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0}
 
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_heat_sold] = {
-        'boiler_heat_sold': 1.0}
-
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_biomass] = {
         'boiler_biomass': 1.0}
 
@@ -120,9 +116,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_heat_sold] = {
-        'boiler_heat_sold': 1.0}
 
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_biomass] = {
         'boiler_biomass': 1.0}
@@ -172,9 +165,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0}
 
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_heat_sold] = {
-        'boiler_heat_sold': 1.0}
-
     ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_biomass] = {
         'boiler_biomass': 1.0}
 
@@ -202,9 +192,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
     is_fuel_tech_p_by['is_space_heating'][fuel_nr_oil] = {
         'boiler_oil': 1.0}
-
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_heat_sold] = {
-        'boiler_heat_sold': 1.0}
 
     is_fuel_tech_p_by['is_space_heating'][fuel_nr_biomass] = {
         'boiler_biomass': 1.0}
