@@ -64,12 +64,12 @@ class EnergyModel(object):
             data['ss_dw_stock'] = defaultdict(dict)
             for region_name in region_names:
                 data['rs_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.rs_dw_stock(
-                    region_name, data, data['sim_param']['base_yr'])
+                    region_name, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
                 data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
-                    region_name, data, data['sim_param']['base_yr'])
+                    region_name, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
 
-                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr)
-                data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr)
+                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr,data['sim_param']['base_yr'])
+                data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr, data['sim_param']['base_yr'])
             logging.info("... finished virtual dwelling stock for base year")
         else:
             # -------------------------------------

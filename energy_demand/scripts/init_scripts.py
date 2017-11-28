@@ -248,8 +248,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['temp_data'],
         data['sectors'],
         data['all_sectors'],
-        data['enduses'],
-        data['ss_floorarea_sector_2015_virtual_bs'])
+        data['enduses'])
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont

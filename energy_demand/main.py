@@ -113,6 +113,32 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
+
+    # Load dumpmpy data
+
+    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+    
+    # GVA
+    gva_data = {}
+    for year in range(2015, 2101):
+        gva_data[year] = {}
+        for region_geocode in data['lu_reg']:
+            gva_data[year][region_geocode] = 999
+    data['gva'] = gva_data
+
+    # Population
+    pop_dummy = {}
+    for year in range(2015, 2101):
+        _data = {}
+        for reg_geocode in data['lu_reg']:
+            _data[reg_geocode] = data['lu_reg'][reg_geocode]['POP_JOIN']
+        pop_dummy[year] = _data
+    data['population'] = pop_dummy
+
+    data['reg_coord'] = {}
+    for reg in data['lu_reg']:
+        data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
+
     # ------------------------------
     # Assumptions
     # ------------------------------
@@ -130,11 +156,14 @@ if __name__ == "__main__":
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
+    
     data['reg_nrs'] = len(data['lu_reg'])
 
     # ------------------------------
-    data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+    if data['criterias']['virtual_building_stock_criteria']:
+        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'], data)
+    else:
+        pass
 
     # Calculate all capacity switches
     # ---------------------
@@ -163,41 +192,15 @@ if __name__ == "__main__":
         data['sim_param']['base_yr'])
     
 
-    # GVA
-    gva_data = {}
-    for year in range(2015, 2101):
-        gva_data[year] = {}
-        for region_geocode in data['lu_reg']:
-            gva_data[year][region_geocode] = 999
-    data['gva'] = gva_data
 
-    # Population
-    pop_dummy = {}
-    for year in range(2015, 2101):
-        _data = {}
-        for reg_geocode in data['lu_reg']:
-            _data[reg_geocode] = data['lu_reg'][reg_geocode]['POP_JOIN']
-        pop_dummy[year] = _data
-    data['population'] = pop_dummy
-
-    # Residenital floor area
-    rs_floorarea = {}
-    for year in range(2015, 2101):
-        rs_floorarea[year] = {}
-        for region_geocode in data['lu_reg']:
-            rs_floorarea[year][region_geocode] = 10000
-    data['rs_floorarea_newcastle'] = rs_floorarea
-
-    data['reg_coord'] = {}
-    for reg in data['lu_reg']:
-        data['reg_coord'][reg] = {'longitude': 52.58, 'latitude': -1.091}
 
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],
         'population': data['population'],
         'floor_area': {
-            'rs_floorarea_newcastle': data['rs_floorarea_newcastle']}}
+            'rs_floorarea': rs_floorarea,
+            'ss_floorarea': ss_floorarea}}
 
     logging.info("Start Energy Demand Model with python version: " + str(sys.version))
     logging.info("Info model run")

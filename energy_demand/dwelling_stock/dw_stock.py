@@ -284,7 +284,7 @@ def get_floorare_pp(
             floorarea_pp_by = 0
         else:
             # Floor area per person of base year
-            floorarea_pp_by = floorarea[region] / reg_pop_by[region]
+            floorarea_pp_by = floorarea[base_yr][region] / reg_pop_by[region]
 
         for curr_yr in sim_period:
             if curr_yr == base_yr:
@@ -422,7 +422,7 @@ def get_dwtype_distr(dwtype_distr_by, assump_dwtype_distr_future, base_yr, sim_p
 
     return dwtype_distr
 
-def ss_dw_stock(region, data, curr_yr):
+def ss_dw_stock(region, data, curr_yr, base_yr):
     """Create dwelling stock for service sector
 
     Arguments
@@ -455,13 +455,13 @@ def ss_dw_stock(region, data, curr_yr):
 
         # Floor area of sector in current year considering linear diffusion
         lin_diff_factor = diffusion_technologies.linear_diff(
-            data['sim_param']['base_yr'],
+            base_yr,
             curr_yr,
             1.0,
             change_floorarea_p_ey,
             yr_until_changed)
 
-        floorarea_sector_by = data['ss_floorarea_sector_2015_virtual_bs'][region][sector]
+        floorarea_sector_by = data['scenario_data']['floor_area']['ss_floorarea'][base_yr][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor
 
         # create dwelling objects
@@ -484,7 +484,7 @@ def ss_dw_stock(region, data, curr_yr):
 
     return dwelling_stock
 
-def rs_dw_stock(region, data, curr_yr):
+def rs_dw_stock(region, data, curr_yr, base_yr):
     """Creates a virtual building stock for every year and region
 
     Arguments
@@ -514,13 +514,11 @@ def rs_dw_stock(region, data, curr_yr):
       based on floor area pp parameter. However, floor area
       could be read in by:
 
-      1.) Inserting `tot_floorarea_cy = data['rs_floorarea_2015_virtual_bs'][curr_yr]`
+      1.) Inserting `tot_floorarea_cy = data['rs_floorarea'][curr_yr]`
 
       2.) Replacing 'dwtype_floor_area', 'dwtype_distr' and 'data_floorarea_pp'
           with more specific information from real building stock model
     """
-    base_yr = data['sim_param']['base_yr']
-
     if data['criterias']['virtual_building_stock_criteria']:
 
         # Get changes in absolute floor area per dwelling type over time
@@ -540,7 +538,7 @@ def rs_dw_stock(region, data, curr_yr):
         # Get floor area per person for every simulation year
         data_floorarea_pp = get_floorare_pp(
             data['lu_reg'],
-            data['rs_floorarea_2015_virtual_bs'],
+            data['scenario_data']['floor_area']['rs_floorarea'],
             data['scenario_data']['population'][base_yr],
             base_yr,
             data['sim_param']['simulated_yrs'],
@@ -553,7 +551,7 @@ def rs_dw_stock(region, data, curr_yr):
             dwtype_floor_area,
             dwtype_distr)
 
-        floorarea_by = data['rs_floorarea_2015_virtual_bs'][region]
+        floorarea_by = data['scenario_data']['floor_area']['rs_floorarea'][base_yr][region]
         population_by = data['scenario_data']['population'][base_yr][region]
 
         if population_by != 0:
@@ -574,8 +572,8 @@ def rs_dw_stock(region, data, curr_yr):
         
         # NEWCASTLE
         """
-        floorarea_by = data['rs_floorarea_newcastle'][curr_yr][region]
-        tot_floorarea_cy = data['rs_floorarea_newcastle'][curr_yr][region]
+        floorarea_by = data['scenario_data']['floor_area']['rs_floorarea'][curr_yr][region]
+        tot_floorarea_cy = data['scenario_data']['floor_area']['rs_floorarea'][curr_yr][region]
 
     new_floorarea_cy = tot_floorarea_cy - floorarea_by
 

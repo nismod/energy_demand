@@ -142,7 +142,7 @@ def load_basic_lookups():
 
     return lookups
 
-def virtual_building_datasets(lu_reg, all_sectors):
+def virtual_building_datasets(lu_reg, all_sectors, data):
     """Load necessary data for virtual building stock
     in case the link to the building stock model in
     Newcastle is not used
@@ -156,22 +156,24 @@ def virtual_building_datasets(lu_reg, all_sectors):
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
-    rs_floorarea_2015_virtual_bs = {}
-
-    for reg_geocode in lu_reg:
-        rs_floorarea_2015_virtual_bs[reg_geocode] = 100000
+    rs_floorarea = defaultdict(dict)
+    for year in range(2015, 2101):
+        for region_geocode in lu_reg:
+            rs_floorarea[year][region_geocode] = data['population'][2015][region_geocode]
 
     # --------------------------------------------------
     # Floor area for service sector buildings
     # --------------------------------------------------
-    ss_floorarea_sector_by = defaultdict(dict)
-    for reg_geocode in lu_reg:
-        for sector in all_sectors:
-            ss_floorarea_sector_by[reg_geocode][sector] = 10000
+    ss_floorarea_sector_by = {}
+    for year in range(2015, 2101):
+        ss_floorarea_sector_by[year] = defaultdict(dict)
+        for reg_geocode in lu_reg:
+            for sector in all_sectors:
+                ss_floorarea_sector_by[year][reg_geocode][sector] = 10000
 
-    ss_floorarea_sector_2015_virtual_bs = dict(ss_floorarea_sector_by)
+    ss_floorarea = dict(ss_floorarea_sector_by)
 
-    return rs_floorarea_2015_virtual_bs, ss_floorarea_sector_2015_virtual_bs
+    return dict(rs_floorarea), dict(ss_floorarea)
 
 def load_local_paths(path):
     """Create all local paths

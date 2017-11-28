@@ -71,7 +71,7 @@ def run_model(args):
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'], data)
 
     # Floor areas TODO LOAD FROM NEWCASTLE
     rs_floorarea = defaultdict(dict)
@@ -84,7 +84,7 @@ def run_model(args):
         'gva': data['gva'],
         'population': data['population'],
         'floor_area': {
-            'rs_floorarea_newcastle': rs_floorarea
+            'rs_floorarea': rs_floorarea
         }
     }
 
