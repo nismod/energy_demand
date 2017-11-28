@@ -95,7 +95,8 @@ def compare_results(
         y_factored_indo,
         y_calculated_array,
         title_left,
-        days_to_plot
+        days_to_plot,
+        plot_crit=False
     ):
     """Compare national electrictiy demand data with model results
 
@@ -132,19 +133,16 @@ def compare_results(
     # R squared
     #slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(y_real_indo), np.array(y_calculated))
 
+    fig = plt.figure(figsize=plotting_program.cm2inch(16, 8))
+
     # plot points
-    #plt.plot(x_data, y_real_indo, color='black', label='indo')
-    #plt.plot(x_data, y_real_itsdo, color='grey', label='itsdo')
     plt.plot(
         x_data,
         y_real_indo_factored,
         label='indo_factored',
         linestyle='-',
         linewidth=0.5,
-        #marker='o',
-        #markersize=1,
         fillstyle='full',
-        #markeredgewidth=0.7,
         color='black')
 
     plt.plot(
@@ -153,11 +151,7 @@ def compare_results(
         label='modelled',
         linestyle='--',
         linewidth=0.5,
-        #marker='o',
-        #markerfacecolor='blue',
-        #markersize=1,
         fillstyle='full',
-        #markeredgewidth=0.7,
         color='blue')
 
     #plt.plot(x_data, y_real_indo_factored, color='gray', fillstyle='full', markeredgewidth=0.5, marker='o', markersize=10, label='TD_factored')
@@ -186,7 +180,12 @@ def compare_results(
     plt.legend(frameon=False)
 
     plt.savefig(os.path.join(path_result, name_fig))
-    plt.close()
+
+    if plot_crit:
+        plt.show()
+        plt.close()
+    else:
+        plt.close()
 
 def compare_peak(
         name_fig,

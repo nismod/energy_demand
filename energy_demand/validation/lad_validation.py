@@ -53,28 +53,30 @@ def temporal_validation(
     # Plot four weeks
     # ----------------
     elec_national_data.compare_results(
-        'validation_electricity_weeks_selection.pdf',
+        'validation_temporal_electricity_8760h.pdf',
         local_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
         elec_ed_fueltype_national_yh,
         'all_submodels',
-        days_to_plot)
+        days_to_plot,
+        plot_crit=True)
 
     # ----------------
     # Plot a full year
     # ----------------
     days_to_plot = list(range(0, 365))
     elec_national_data.compare_results(
-        'validation_electricity_weeks_selection.pdf',
+        'validation_temporal_electricity_weeks_selection.pdf',
         local_paths['data_results_validation'],
         elec_2015_indo,
         elec_2015_itsdo,
         elec_factored_yh,
         elec_ed_fueltype_national_yh,
         'all_submodels',
-        days_to_plot)
+        days_to_plot,
+        plot_crit=True)
 
     return
 

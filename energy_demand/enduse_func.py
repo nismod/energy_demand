@@ -296,7 +296,6 @@ class Enduse(object):
                 if self.crit_flat_profile: # NEW INSERTED AGAIN
                     self.fuel_y = calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
                 else:
-
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
@@ -305,7 +304,8 @@ class Enduse(object):
                         fuel_tech_y,
                         tech_stock,
                         load_profiles,
-                        lookups,
+                        lookups['fueltypes_nr'],
+                        lookups['fueltype'],
                         mode_constrained,
                         assumptions['model_yeardays_nrs'])
 
@@ -713,7 +713,8 @@ def calc_fuel_tech_yh(
         enduse_fuel_tech,
         tech_stock,
         load_profiles,
-        lookups,
+        fueltypes_nr,
+        lu_fueltypes,
         mode_constrained,
         model_yeardays_nrs
     ):
@@ -727,8 +728,10 @@ def calc_fuel_tech_yh(
         Technologies
     load_profiles : object
         Load profiles
-    lookups : dict
-        Fuel look-up table
+    fueltypes_nr : dict
+        Nr of fueltypes
+    lu_fueltypes : dict
+        Fueltypes lookup
     mode_constrained : bool
         Mode criteria
     model_yeardays_nrs : int
@@ -739,7 +742,7 @@ def calc_fuel_tech_yh(
     fuels_yh : array
         Fueltype storing hourly fuel for every fueltype (fueltype, model_yeardays_nrs, 24)
     """
-    fuels_yh = np.zeros((lookups['fueltypes_nr'], model_yeardays_nrs, 24), dtype=float)
+    fuels_yh = np.zeros((fueltypes_nr, model_yeardays_nrs, 24), dtype=float)
 
     if mode_constrained:
         for tech in enduse_techs:
@@ -751,7 +754,7 @@ def calc_fuel_tech_yh(
 
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
-            fuels_yh[lookups['fueltype']['heat']] += fuel_tech_yh
+            fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
     else:
         for tech in enduse_techs:
 

@@ -89,23 +89,23 @@ def test_eff_heat_pump():
 def test_get_fueltype_str():
     """Testing function
     """
-    fueltypes_lu = {'gas': 1}
+    lu_fueltypes = {'gas': 1}
     in_value = 1
     expected = 'gas'
 
     # call function
-    out_value = tech_related.get_fueltype_str(fueltypes_lu, in_value)
+    out_value = tech_related.get_fueltype_str(lu_fueltypes, in_value)
 
     assert out_value == expected
 
 def test_get_fueltype_int():
     """Testing function
     """
-    fueltypes_lu = {'gas': 1}
+    lu_fueltypes = {'gas': 1}
     in_value = 'gas'
     expected = 1
 
     # call function
-    out_value = tech_related.get_fueltype_int(fueltypes_lu, in_value)
+    out_value = tech_related.get_fueltype_int(lu_fueltypes, in_value)
 
     assert out_value == expected

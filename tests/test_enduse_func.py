@@ -6,6 +6,7 @@ from energy_demand.scripts import s_generate_sigmoid
 from energy_demand.plotting import plotting_program
 from energy_demand.read_write import read_data
 from energy_demand.technologies import technological_stock
+from energy_demand.profiles import load_profile
 
 def test_get_crit_switch():
     """
@@ -554,9 +555,7 @@ def test_fuel_to_service():
     technologies['techA'].year_eff_ey = 2020
     lu_fueltypes = {'gas': 0}
 
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+    sim_param = {'base_yr': 2015, 'curr_yr': 2020}
 
     tech_stock = technological_stock.TechStock(
         stock_name="stock_name",
@@ -615,7 +614,6 @@ def test_fuel_to_service():
     
     assert service_tech['techA'] == 2000
     #TODO ADD MORE TESTS
-
 
 def test_service_to_fuel():
 
@@ -777,3 +775,78 @@ def test_calc_fuel_tech_y():
         mode_constrained=False)
 
     assert result[0] == 100
+
+def test_calc_fuel_tech_yh():
+    """Testing
+    """
+    lu_fueltypes = {'gas': 0, 'heat': 1}
+
+    technologies = {'techA': read_data.TechnologyData()}
+    technologies['techA'].fuel_type_str = 'gas'
+    technologies['techA'].eff_achieved = 1.0
+    technologies['techA'].diff_method = 'linear'
+    technologies['techA'].eff_by = 0.5
+    technologies['techA'].eff_ey = 0.5
+    technologies['techA'].year_eff_ey = 2020
+
+    tech_stock = technological_stock.TechStock(
+        stock_name="stock_name",
+        all_technologies=technologies,
+        tech_list={'tech_heating_temp_dep': [], 'tech_heating_const': ['techA']},
+        other_enduse_mode_info={'linear'},
+        sim_param={'base_yr': 2015, 'curr_yr': 2020},
+        lu_fueltypes=lu_fueltypes,
+        temp_by=np.ones((365, 24)) + 10,
+        temp_cy=np.ones((365, 24)) + 10,
+        t_base_heating_by=15.5,
+        potential_enduses=['heating'],
+        t_base_heating_cy=15.5,
+        enduse_technologies={'heating': ['techA']})
+
+    lp_stock_obj = load_profile.LoadProfileStock("test_stock")
+
+    _a = np.zeros((365, 24))
+    _b = np.array(range(365))
+    shape_yh = _a + _b[:, np.newaxis]
+    shape_yh = shape_yh / float(np.sum(range(365)) * 24)
+
+    lp_stock_obj.add_lp(
+        unique_identifier="A123",
+        technologies=['techA'],
+        enduses=['heating'],
+        shape_yd=np.full((365,24), 1 / 365),
+        shape_yh=shape_yh,
+        sectors=['sectorA'],
+        enduse_peak_yd_factor=1.0/365,
+        shape_peak_dh=np.full((24), 1.0/24))
+
+    fuel = 200
+    results = enduse_func.calc_fuel_tech_yh(
+        enduse='heating',
+        sector='sectorA',
+        enduse_techs=['techA'],
+        enduse_fuel_tech={'techA': fuel},
+        tech_stock=tech_stock,
+        load_profiles=lp_stock_obj,
+        fueltypes_nr=2,
+        lu_fueltypes=lu_fueltypes,
+        mode_constrained=True,
+        model_yeardays_nrs=365)
+
+    assert results[1][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
+
+    # ---
+    results = enduse_func.calc_fuel_tech_yh(
+        enduse='heating',
+        sector='sectorA',
+        enduse_techs=['techA'],
+        enduse_fuel_tech={'techA': fuel},
+        tech_stock=tech_stock,
+        load_profiles=lp_stock_obj,
+        fueltypes_nr=2,
+        lu_fueltypes=lu_fueltypes,
+        mode_constrained=False,
+        model_yeardays_nrs=365)
+
+    assert results[0][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
+

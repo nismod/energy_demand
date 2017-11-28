@@ -70,7 +70,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     rs_fuel_tech_p_by['rs_cooking'][fuel_nr_elec] = {
         'hob_electricity': 0.49,
         'oven_electricity': 0.51,
-        'hob_induction_electricity': 0.0 # MAKE OWN ASSUMPTION
+        'hob_induction_electricity': 0.0 # TODO MAKE OWN ASSUMPTION
         }
 
     # ---rs_wet (calculated on the basis of EUCK Table 3.08)
@@ -146,14 +146,13 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56}
 
-    # Calculate what this means in fuel shares
+    # Calculate what this means in fuel shares TODO ?? WHAT IS THIS
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = service_share_input_to_fuel(
         total_share_fueltype=0.0572,
         tech_share_tot_service=tech_share_tot_service,
         tech_stock=assumptions['technologies'],
         assumptions=assumptions)
     '''
-
     assumptions['rs_fuel_tech_p_by'] = rs_fuel_tech_p_by
 
     # ------------------
@@ -221,9 +220,12 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['rs_fuel_tech_p_by'])
     assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['is_fuel_tech_p_by'])
 
-    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
-    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
-    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
+    assumptions['rs_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        assumptions['heat_pumps'], assumptions['rs_specified_tech_enduse_by'], 'rs_space_heating')
+    assumptions['ss_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        assumptions['heat_pumps'], assumptions['ss_specified_tech_enduse_by'], 'ss_space_heating')
+    assumptions['is_specified_tech_enduse_by'] = helpers.add_undef_techs(
+        assumptions['heat_pumps'], assumptions['is_specified_tech_enduse_by'], 'is_space_heating')
     assumptions['test'] = 'test'
 
     return assumptions

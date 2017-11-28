@@ -611,7 +611,7 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
 
     return enduse_tech_ey_p, service_switches
 
-def read_fuel_switches(path_to_csv, enduses, fueltypes_lu):
+def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
     """This function reads in from CSV file defined fuel
     switch assumptions
 
@@ -621,7 +621,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes_lu):
         Path to csv file
     enduses : dict
         Endues per submodel
-    fueltypes_lu : dict
+    lu_fueltypes : dict
         Look-ups
 
     Returns
@@ -640,7 +640,7 @@ def read_fuel_switches(path_to_csv, enduses, fueltypes_lu):
                 service_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),
-                        enduse_fueltype_replace=fueltypes_lu[str(row[1])],
+                        enduse_fueltype_replace=lu_fueltypes[str(row[1])],
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
                         fuel_share_switched_ey=float(row[4]))

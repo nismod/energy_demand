@@ -982,7 +982,7 @@ def plot_load_profile_dh_multiple(
                 plt.plot(
                     x_values,
                     list(calc_lp_modelled[season][daytype][day_with_max_h]),
-                    color='orange', 
+                    color='blue', 
                     markersize=1.0,
                     label='modelled_peak',
                     linestyle='-.',

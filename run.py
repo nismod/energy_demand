@@ -178,7 +178,7 @@ class EDWrapper(SectorModel):
             data['fuels']['is_fuel_raw_data_enduses'],
             data['assumptions']['is_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
-    
+
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -299,7 +299,11 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
-        data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'])
+        
+        # Load base year virtuald dwelling stock properties
+        if data['criterias']['virtual_building_stock_criteria']:
+            data['rs_floorarea_2015_virtual_bs'], data['ss_floorarea_sector_2015_virtual_bs'] = data_loader.virtual_building_datasets(
+                data['lu_reg'], data['all_sectors'])
 
         # ------------------------
         # Load all SMIF parameters and replace data dict
