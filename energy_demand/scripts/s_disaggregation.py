@@ -660,7 +660,7 @@ def run(data):
         data['weather_stations'],
         data['temp_data'],
         data['sectors'],
-        data['all_sectors'],
+        data['sectors']['all_sectors'],
         data['enduses'])
 
     #Write to csv file disaggregated demand

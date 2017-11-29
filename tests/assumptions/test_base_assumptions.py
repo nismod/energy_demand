@@ -12,7 +12,7 @@ def test_load_non_param_assump():
     data = {}
     paths = data_loader.load_paths(path_main)
     lookups = data_loader.load_basic_lookups()
-    enduses, sectors, _, _ = data_loader.load_fuels(paths, lookups)
+    enduses, _, _ = data_loader.load_fuels(paths, lookups)
 
     non_param_assumptions.load_non_param_assump(2015, paths, enduses, lookups)
 
@@ -29,7 +29,7 @@ def test_load_param_assump():
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], data['all_sectors']= data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     
     sim_param_expected = {}
     sim_param_expected['base_yr'] = 2015

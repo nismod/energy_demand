@@ -49,7 +49,7 @@ def run_model(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
@@ -70,7 +70,7 @@ def run_model(args):
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
     
-    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'], data)
+    data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
 
     # Floor areas TODO LOAD FROM NEWCASTLE
     rs_floorarea = defaultdict(dict)

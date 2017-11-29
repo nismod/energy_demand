@@ -47,7 +47,7 @@ def post_install_setup(args):
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
     #TODO NEEDED HERE?
@@ -262,6 +262,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # Disaggregate
     # -------------------
     sd_cont = {}
+    print(data['sectors']['all_sectors'])
     sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['lu_reg'],
         data['sim_param']['base_yr'],
@@ -273,7 +274,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['weather_stations'],
         data['temp_data'],
         data['sectors'],
-        data['all_sectors'],
+        data['sectors']['all_sectors'],
         data['enduses'])
 
     logging.info("... finished scenario_initalisation")

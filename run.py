@@ -113,30 +113,26 @@ class EDWrapper(SectorModel):
         # ---------------------
         data['lookups'] = data_loader.load_basic_lookups()
         data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
-        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
             data['paths'], data['lookups'])
 
         # -----------------------------
         # Obtain external scenario data
         # -----------------------------
-        # Population
         pop_array = self.get_scenario_data('population')
         data['population'] = self.array_to_dict(pop_array)
 
-        # GVA
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array)
-
 
         # Get building related data
         if data['criterias']['virtual_building_stock_criteria']:
             rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
-                data['lu_reg'], data['all_sectors'], data)
+                data['lu_reg'], data['sectors']['all_sectors'], data)
         else:
             pass
             # Floor areas TODO LOAD FROM NEWCASTLE
             #rs_floorarea = defaultdict(dict)
-
             #ss_floorarea = defaultdict(dict)
 
         #Scenario data
@@ -164,7 +160,8 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays_daytype'])
 
         # ---------------------
-        # Calculate all capacity switches
+        # Convert capacity switches to 
+        # service switches
         # ---------------------
         data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
             data['assumptions']['rs_service_switches'],
@@ -208,6 +205,7 @@ class EDWrapper(SectorModel):
         self.user_data['population'] = self.array_to_dict(pop_array)
         self.user_data['rs_floorarea'] = rs_floorarea
         self.user_data['ss_floorarea'] = ss_floorarea
+
         # --------------------
         # Initialise scenario
         # --------------------
@@ -215,7 +213,7 @@ class EDWrapper(SectorModel):
             self.user_data['data_path'], data)
 
         # ------
-        # Write other scenario data to txt files for this scenario run
+        # Write population scenario data to txt files for this scenario run
         # ------
         for t_idx, timestep in enumerate(self.timesteps):
             write_data.write_pop(
@@ -290,7 +288,7 @@ class EDWrapper(SectorModel):
         logger_setup.set_up_logger(os.path.join(data['local_paths']['data_results'], "logger_smif_run.log"))
 
         # --------------------
-        # Simulation parameters and criteria
+        # Get simulation parameters from before_model_run()
         # --------------------
         data['criterias'] = self.user_data['criterias']
 
@@ -300,7 +298,7 @@ class EDWrapper(SectorModel):
 
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions #TODO: REMOVE
         reg_centroids = self.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
         data['reg_nrs'] = len(data['lu_reg'])
@@ -309,7 +307,7 @@ class EDWrapper(SectorModel):
         # Energy demand model related parameters
         # ---------------
         data['lookups'] = data_loader.load_basic_lookups()
-        data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+        data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
     

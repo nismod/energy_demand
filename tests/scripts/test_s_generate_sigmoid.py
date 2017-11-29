@@ -69,10 +69,10 @@ def test_get_tech_future_service():
     service_tech_ey_p = {'heating':{'techA': 0.6, 'techB': 0.4}}
     tech_increased_service, tech_decreased_share, tech_constant_share = s_generate_sigmoid.get_tech_future_service(
         service_tech_by_p, service_tech_ey_p)
-
-    assert tech_increased_service ==  {'heating': ['techB']}
-    assert tech_decreased_share ==  {'heating': ['techA']}
-    assert tech_constant_share == {'heating': []}
+    #TODO: TEST
+    assert tech_increased_service ==  {'heating': {'techB': 0.3}}
+    assert tech_decreased_share ==  {'heating': {'techA': 0.7}}
+    assert tech_constant_share == {'heating': {}}
 
 def test_calc_sigmoid_parameters():
     """Testing
@@ -480,7 +480,7 @@ def test_get_sig_diffusion():
         )]
 
     service_switches = []
-    tech_increased_service = ['boilerA']
+    tech_increased_service = {'heating': ['boilerA']}
     service_tech_ey_p = {'heating': {'boilerA': 0.6, 'boilerB': 0.4}}
     service_fueltype_p = {'heating': {1:  1.0}}
 
@@ -506,7 +506,7 @@ def test_get_sig_diffusion():
         service_share_ey=1.0,
         switch_yr=2050)]
 
-    tech_increased_service = ['boilerC']
+    tech_increased_service = {'heating': ['boilerC']}
     service_tech_ey_p = {'heating': {'boilerC': 1.0, 'boilerA': 0.0, 'boilerB': 0.0}}
 
     result, sig_param = s_generate_sigmoid.get_sig_diffusion(
@@ -524,4 +524,4 @@ def test_get_sig_diffusion():
     #TODO: Possibly add more test
 
     assert result['heating'] == ['boilerC']
-test_calc_service_fuel_switched()
+test_get_sig_diffusion()

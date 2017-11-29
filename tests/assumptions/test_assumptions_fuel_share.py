@@ -16,7 +16,7 @@ def test_assign_by_fuel_tech_p():
     data = {}
     data['paths'] = data_loader.load_paths(path_main)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
 
     #Load assumptions
     data['sim_param'] = {}

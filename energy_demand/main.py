@@ -111,7 +111,7 @@ if __name__ == "__main__":
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
     data['lookups'] = data_loader.load_basic_lookups()
-    data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
+    data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['all_sectors'], data)
+        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
     else:
         pass
 

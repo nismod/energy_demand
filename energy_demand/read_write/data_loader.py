@@ -529,7 +529,7 @@ def load_fuels(paths, lookups):
     fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
     fuels['is_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(is_fuel_raw_data_enduses)
 
-    all_sectors = [
+    sectors['all_sectors'] = [
         'community_arts_leisure',
         'education',
         'emergency_services',
@@ -541,7 +541,7 @@ def load_fuels(paths, lookups):
         'storage',
         'other']
 
-    return enduses, sectors, fuels, all_sectors
+    return enduses, sectors, fuels
 
 def rs_collect_shapes_from_txts(txt_path, model_yeardays):
     """All pre-processed load shapes are read in from .txt files

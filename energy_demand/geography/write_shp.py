@@ -50,6 +50,7 @@ def write_result_shapefile(lad_geometry_shp, out_shape, field_names, csv_results
     for field_name in record.fields[1:]:
         if field_name[0] == 'name':
             position_field_name = position
+            break
         else:
             position += 1
 

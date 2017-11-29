@@ -80,7 +80,12 @@ def test_ss_disaggregate():
 
     scenario_data = {
         'population': {2015: {'regA': 10, 'regB': 10}},
-        'floor_area': {'ss_floorarea_newcastle': {2015: {'regA': 10, 'regB': 10}}},
+        'floor_area': {
+            'ss_floorarea_newcastle': {
+                2015: {'regA': 10, 'regB': 10}},
+            'ss_floorarea' :{
+                 2015: {'regA': {'sectorA': 100}, 'regB': {'sectorA': 100}}}
+            },
         }
 
     assumptions = {
@@ -105,9 +110,7 @@ def test_ss_disaggregate():
     sectors = {'ss_sectors': ['sectorA']}
     all_sectors = ['sectorA']
 
-    ss_floorarea = {
-        'regA': {'sectorA': 100},
-        'regB': {'sectorA': 100}}
+
 
     result = s_disaggregation.ss_disaggregate(
         raw_fuel_sectors_enduses,
@@ -122,7 +125,6 @@ def test_ss_disaggregate():
         enduses,
         sectors,
         all_sectors,
-        ss_floorarea,
         crit_limited_disagg_pop_hdd=False,
         crit_limited_disagg_pop=True,
         crit_full_disagg=False)
