@@ -78,8 +78,6 @@ def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, s
         tech_not_assigned_by_p = {}
         for tech in specified_tech_enduse_by[enduse]:
             if tech not in assigned_technologies:
-                print(tech)
-                print(service_tech_by_p[enduse])
                 tech_not_assigned_by_p[tech] = service_tech_by_p[enduse][tech]
 
         # convert to percentage

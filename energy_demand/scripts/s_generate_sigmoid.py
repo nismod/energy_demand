@@ -282,23 +282,27 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p):
             tech_constant_share[enduse] = []
         else:
             print("fff: " + str(enduse))
-            tech_increased_service[enduse] = []
-            tech_decreased_share[enduse] = []
-            tech_constant_share[enduse] = []
+            tech_increased_service[enduse] = {} # []
+            tech_decreased_share[enduse] = {} # []
+            tech_constant_share[enduse] = {} # []
 
             # Calculate fuel for each tech
-            for tech in service_tech_by_p[enduse]:
+            for tech, tech_ey_p in service_tech_by_p[enduse].items():
                 print("tech: " + str(tech))
                 print(service_tech_by_p[enduse][tech])
                 print(service_tech_ey_p[enduse][tech])
                 # If future larger share
                 if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]:
-                    tech_increased_service[enduse].append(tech)
+                   # tech_increased_service[enduse].append(tech)
+                   tech_increased_service[enduse][tech] = tech_ey_p
                 # If future smaller service share
                 elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]:
-                    tech_decreased_share[enduse].append(tech)
+                    #tech_decreased_share[enduse].append(tech)
+                    tech_decreased_share[enduse][tech] = tech_ey_p
                 else:
-                    tech_constant_share[enduse].append(tech)
+                    #tech_constant_share[enduse].append(tech)
+                    tech_constant_share[enduse][tech] = tech_ey_p
+
                 print(tech_increased_service[enduse])
                 print(tech_decreased_share[enduse])
                 print(tech_constant_share[enduse])
@@ -593,7 +597,14 @@ def get_sig_diffusion(
             else:
 
                 # Maximum shares of each technology
-                l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
+                print("..") 
+                print(installed_tech[enduse])
+                
+                for tech in installed_tech[enduse]:
+                    print(technologies[tech].tech_max_share)
+                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share
+
+                #l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
         else:
             """Sigmoid calculation in case of 'fuel switch'
             """

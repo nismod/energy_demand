@@ -29,6 +29,7 @@ def run_all_plot_functions(
 
     """
     logging.info("... plotting results")
+    print.info("... plotting results")
 
     # ------------------------------
     # Plot annual demand for enduses
@@ -162,6 +163,7 @@ def run_all_plot_functions(
     # -
     #     #tot_fuel_y_enduse_specific_h
     # -
+    print("finisthed plotting")
     return
 
 def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs, path_plot_fig):
