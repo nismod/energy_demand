@@ -13,6 +13,8 @@ from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
 from energy_demand.scripts import s_disaggregation
 from energy_demand.read_write import data_loader
+from energy_demand.technologies import fuel_service_switch
+from energy_demand.scripts import init_scripts
 
 class TechnologyData(object):
     """Class to store technology related
@@ -363,77 +365,44 @@ def load_script_data(data):
     data : dict
         Data container
     """
-    local_path = data['local_paths']['path_sigmoid_data']
-    dir_services_path = data['local_paths']['dir_services']
+    fts_cont, sgs_cont, sd_cont, switches_cont = init_scripts.scenario_initalisation(
+            data['paths']['path_main'], data)
+    
+    data['assumptions']['rs_service_tech_by_p'] = fts_cont['rs_service_tech_by_p']
+    data['assumptions']['ss_service_tech_by_p'] = fts_cont['ss_service_tech_by_p']
+    data['assumptions']['is_service_tech_by_p'] = fts_cont['is_service_tech_by_p']
+    data['assumptions']['rs_service_fueltype_by_p'] = fts_cont['rs_service_fueltype_by_p']
+    data['assumptions']['ss_service_fueltype_by_p'] = fts_cont['ss_service_fueltype_by_p']
+    data['assumptions']['is_service_fueltype_by_p'] = fts_cont['is_service_fueltype_by_p']
+    data['assumptions']['rs_service_fueltype_tech_by_p'] = fts_cont['rs_service_fueltype_tech_by_p']
+    data['assumptions']['ss_service_fueltype_tech_by_p'] = fts_cont['ss_service_fueltype_tech_by_p']
+    data['assumptions']['is_service_fueltype_tech_by_p'] = fts_cont['is_service_fueltype_tech_by_p']
+    data['assumptions']['rs_tech_increased_service'] = sgs_cont['rs_tech_increased_service']
+    data['assumptions']['ss_tech_increased_service'] = sgs_cont['ss_tech_increased_service']
+    data['assumptions']['is_tech_increased_service'] = sgs_cont['is_tech_increased_service']
+    data['assumptions']['rs_tech_decreased_share'] = sgs_cont['rs_tech_decreased_share']
+    data['assumptions']['ss_tech_decreased_share'] = sgs_cont['ss_tech_decreased_share']
+    data['assumptions']['is_tech_decreased_share'] = sgs_cont['is_tech_decreased_share']
+    data['assumptions']['rs_tech_constant_share'] = sgs_cont['rs_tech_constant_share']
+    data['assumptions']['ss_tech_constant_share'] = sgs_cont['ss_tech_constant_share']
+    data['assumptions']['is_tech_constant_share'] = sgs_cont['is_tech_constant_share']
+    data['assumptions']['rs_sig_param_tech'] = sgs_cont['rs_sig_param_tech']
+    data['assumptions']['ss_sig_param_tech'] = sgs_cont['ss_sig_param_tech']
+    data['assumptions']['is_sig_param_tech'] = sgs_cont['is_sig_param_tech']
+    data['assumptions']['rs_installed_tech'] = sgs_cont['rs_installed_tech']
+    data['assumptions']['ss_installed_tech'] = sgs_cont['ss_installed_tech']
+    data['assumptions']['is_installed_tech'] = sgs_cont['is_installed_tech']
+    data['rs_fuel_disagg'] = sd_cont['rs_fuel_disagg']
+    data['ss_fuel_disagg'] = sd_cont['ss_fuel_disagg']
+    data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
 
-    # Read in Services (from script data)
-    data['assumptions']['rs_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'rs_service_tech_by_p.csv'))
-    data['assumptions']['ss_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'ss_service_tech_by_p.csv'))
-    data['assumptions']['is_service_tech_by_p'] = read_service_tech_by_p(os.path.join(dir_services_path, 'is_service_tech_by_p.csv'))
-    data['assumptions']['rs_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'rs_service_fueltype_by_p.csv'))
-    data['assumptions']['ss_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'ss_service_fueltype_by_p.csv'))
-    data['assumptions']['is_service_fueltype_by_p'] = read_service_fueltype_by_p(os.path.join(dir_services_path, 'is_service_fueltype_by_p.csv'))
-    data['assumptions']['rs_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'rs_service_fueltype_tech_by_p.csv'))
-    data['assumptions']['ss_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'ss_service_fueltype_tech_by_p.csv'))
-    data['assumptions']['is_service_fueltype_tech_by_p'] = read_service_fueltype_tech_by_p(os.path.join(dir_services_path, 'is_service_fueltype_tech_by_p.csv'))
+    data['assumptions']['rs_service_switches'] = switches_cont['rs_service_switches']
+    data['assumptions']['ss_service_switches'] = switches_cont['ss_service_switches']
+    data['assumptions']['is_service_switches'] = switches_cont['is_service_switches']
 
-    # Read technologies with more, less and constant service based on service switch assumptions (from script data)
-    data['assumptions']['rs_tech_increased_service'] = read_installed_tech(os.path.join(local_path, 'rs_tech_increased_service.csv'))
-    data['assumptions']['ss_tech_increased_service'] = read_installed_tech(os.path.join(local_path, 'ss_tech_increased_service.csv'))
-    data['assumptions']['is_tech_increased_service'] = read_installed_tech(os.path.join(local_path, 'is_tech_increased_service.csv'))
-
-    data['assumptions']['rs_tech_decreased_share'] = read_installed_tech(os.path.join(local_path, 'rs_tech_decreased_share.csv'))
-    data['assumptions']['ss_tech_decreased_share'] = read_installed_tech(os.path.join(local_path, 'ss_tech_decreased_share.csv'))
-    data['assumptions']['is_tech_decreased_share'] = read_installed_tech(os.path.join(local_path, 'is_tech_decreased_share.csv'))
-
-    data['assumptions']['rs_tech_constant_share'] = read_installed_tech(os.path.join(local_path, 'rs_tech_constant_share.csv'))
-    data['assumptions']['ss_tech_constant_share'] = read_installed_tech(os.path.join(local_path, 'ss_tech_constant_share.csv'))
-    data['assumptions']['is_tech_constant_share'] = read_installed_tech(os.path.join(local_path, 'is_tech_constant_share.csv'))
-
-    # Read in sigmoid technology diffusion parameters (from script data)
-    data['assumptions']['rs_sig_param_tech'] = read_sig_param_tech(os.path.join(local_path, 'rs_sig_param_tech.csv'))
-    data['assumptions']['ss_sig_param_tech'] = read_sig_param_tech(os.path.join(local_path, 'ss_sig_param_tech.csv'))
-    data['assumptions']['is_sig_param_tech'] = read_sig_param_tech(os.path.join(local_path, 'is_sig_param_tech.csv'))
-
-    # Read in installed technologies (from script data)
-    data['assumptions']['rs_installed_tech'] = read_installed_tech(os.path.join(local_path, 'rs_installed_tech.csv'))
-    data['assumptions']['ss_installed_tech'] = read_installed_tech(os.path.join(local_path, 'ss_installed_tech.csv'))
-    data['assumptions']['is_installed_tech'] = read_installed_tech(os.path.join(local_path, 'is_installed_tech.csv'))
-
-    # Read data after apply climate change (from script data)
-    data['temp_data'] = read_weather_data.read_weather_data_script_data(
-        data['local_paths']['dir_raw_weather_data'])
-
-    # Disaggregation: Load disaggregated fuel per enduse and sector
-    print("rrd")
-    print(data['local_paths']['data_processed_disaggregated'])
-    '''data['rs_fuel_disagg'] = read_disaggregated_fuel(
-        os.path.join(data['local_paths']['data_processed_disaggregated'], 'rs_fuel_disagg.csv'),
-        data['lookups']['fueltypes_nr'])
-    data['ss_fuel_disagg'] = read_disaggregated_fuel_sector(
-        os.path.join(data['local_paths']['data_processed_disaggregated'], 'ss_fuel_disagg.csv'),
-        data['lookups']['fueltypes_nr'])
-    data['is_fuel_disagg'] = read_disaggregated_fuel_sector(
-        os.path.join(data['local_paths']['data_processed_disaggregated'], 'is_fuel_disagg.csv'),
-        data['lookups']['fueltypes_nr'])'''
-    #'''
-    data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
-        data['local_paths']['path_employment_statistics'])
-
-    data['rs_fuel_disagg'], data['ss_fuel_disagg'], data['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
-        data['lu_reg'],
-        2015,
-        2015,
-        data['fuels'],
-        data['scenario_data'],
-        data['assumptions'],
-        data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
-        data['sectors'],
-        data['all_sectors'],
-        data['enduses'])
-    #'''
+    data['assumptions']['rs_share_service_tech_ey_p'] = switches_cont['rs_share_service_tech_ey_p']
+    data['assumptions']['ss_share_service_tech_ey_p'] = switches_cont['ss_share_service_tech_ey_p']
+    data['assumptions']['is_share_service_tech_ey_p'] = switches_cont['is_share_service_tech_ey_p']
     return data
 
 def read_csv_data_service(path_to_csv, fueltypes_nr):

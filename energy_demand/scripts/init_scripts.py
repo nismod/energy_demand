@@ -188,7 +188,9 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['is_specified_tech_enduse_by'],
         fts_cont['is_service_tech_by_p'])
 
-    # Write all end shares of full switches
+    # -------------------------------------
+    # Autocomplete service switches : TODO: MORE INFOWrite all end shares of full switches
+    # -------------------------------------
     data['assumptions']['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'])
@@ -202,9 +204,6 @@ def scenario_initalisation(path_data_ed, data=False):
     switches_cont['ss_share_service_tech_ey_p'] = data['assumptions']['ss_share_service_tech_ey_p']
     switches_cont['is_share_service_tech_ey_p'] = data['assumptions']['is_share_service_tech_ey_p']
 
-
-    print("---dfffffff-----")
-    print(data['assumptions']['rs_share_service_tech_ey_p'])
     # -------------------
     # Generate sigmoid curves (s_generate_sigmoid)
     # -------------------

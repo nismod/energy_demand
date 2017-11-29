@@ -6,6 +6,7 @@ Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # REMOVE HYBRID
+# Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 """ 
 import os
 import sys
@@ -112,6 +113,7 @@ if __name__ == "__main__":
     data['enduses'], data['sectors'], data['fuels'], data['all_sectors'] = data_loader.load_fuels(data['paths'], data['lookups'])
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
+    data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
 
 

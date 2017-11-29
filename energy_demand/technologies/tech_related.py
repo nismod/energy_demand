@@ -410,10 +410,6 @@ def generate_ashp_gshp_split(split_factor):
             'heat_pump_ASHP_electricity': ashp_fraction,
             'heat_pump_GSHP_electricity': gshp_fraction
             }
-        #'gas': {
-        #    'heat_pump_ASHP_gas': ashp_fraction,
-        #    'heat_pump_GSHP_gas': gshp_fraction
-        #     },
     }
 
     return installed_heat_pump
