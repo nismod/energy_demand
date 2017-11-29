@@ -73,7 +73,7 @@ class EDWrapper(SectorModel):
         # Criterias        
         data['criterias']['virtual_building_stock_criteria'] = True
         data['criterias']['plot_HDD_chart'] = False # plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = True
+        data['criterias']['validation_criteria'] = False #IF want to plot validation: True
 
         # -----------------------------
         # Paths
@@ -343,6 +343,10 @@ class EDWrapper(SectorModel):
                 'rs_floorarea': self.user_data['rs_floorarea'],
                 'ss_floorarea': self.user_data['ss_floorarea']}
             }
+        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['gva'][2015].values())))
+        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['population'][2015].values())))
+        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['gva'][2045].values())))
+        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['population'][2045].values())))
 
         # -----------------------
         # Load data from scripts

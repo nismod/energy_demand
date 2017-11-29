@@ -154,7 +154,8 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions)
-            #logging.debug("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -164,7 +165,8 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 sim_param['base_yr'],
                 sim_param['curr_yr'])
-            #logging.debug("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -173,7 +175,8 @@ class Enduse(object):
                 enduse_overall_change,
                 assumptions['strategy_variables'],
                 sim_param)
-            #logging.debug("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -185,7 +188,8 @@ class Enduse(object):
                 scenario_data['population'],
                 reg_scen_drivers,
                 sim_param)
-            #logging.debug("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -290,6 +294,7 @@ class Enduse(object):
                     mode_constrained)
 
                 self.fuel_y = self.fuel_new_y
+                print("... Fuel traing X: " + str(np.sum(self.fuel_new_y)))
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------

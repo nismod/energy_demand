@@ -374,7 +374,7 @@ def load_param_assump(paths, assumptions):
             "absolute_range": (0, 100),
             "description": "Enduse specific change {}".format(enduse_name),
             "suggested_range": (0, 100),
-            "default_value": 0,
+            "default_value": 1,
             "units": '%'})
 
     # Helper function to delete ['enduses'] and add one level below

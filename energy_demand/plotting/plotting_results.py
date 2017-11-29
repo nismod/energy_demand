@@ -10,11 +10,21 @@ from energy_demand.plotting import plotting_program
 from energy_demand.basic import basic_functions, conversions
 from matplotlib.patches import Rectangle
 from energy_demand.plotting import plotting_styles
+from energy_demand.technologies import tech_related
 
 # INFO
 # https://stackoverflow.com/questions/35099130/change-spacing-of-dashes-in-dashed-line-in-matplotlib
 # https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781849513265/4/ch04lvl1sec56/using-a-logarithmic-scale
 # Setting x labels: https://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
+
+def order_polygon(upper_boundary, lower_bdoundary):
+    """create correct sorting to draw filled polygon"""
+    min_max_polygon=[]
+    for pnt in upper_boundary:
+        min_max_polygon.append(pnt)
+    for pnt in reversed(lower_bdoundary):
+        min_max_polygon.append(pnt)
+    return min_max_polygon
 
 def run_all_plot_functions(
         results_container,
@@ -29,7 +39,7 @@ def run_all_plot_functions(
 
     """
     logging.info("... plotting results")
-    print.info("... plotting results")
+    print("... plotting results")
 
     # ------------------------------
     # Plot annual demand for enduses
@@ -49,8 +59,8 @@ def run_all_plot_functions(
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    for fueltype_str, fueltype_int in lookups['fueltype'].items():
-
+    #for fueltype_str, fueltype_int in lookups['fueltype'].items():
+    for fueltype_str, fueltype_int in lookups['fueltype'].items()[:2]:
         plot_seasonal_lf(
             fueltype_int,
             fueltype_str,
@@ -138,13 +148,15 @@ def run_all_plot_functions(
     # ------------------------------------
     base_year = 2015
     for year in results_container['av_season_daytype_cy'].keys():
-        for fueltype in results_container['av_season_daytype_cy'][year].keys():
+        for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
+            fueltype_str = tech_related.get_fueltype_int(lookups['fueltype'], fueltype_int)
+            
             plot_load_profile_dh_multiple(
-                os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype)),
-                results_container['av_season_daytype_cy'][year][fueltype], #d#MAYBE CURRENT YEAR
-                results_container['av_season_daytype_cy'][base_year][fueltype], #BASEYEAR
-                results_container['season_daytype_cy'][year][fueltype], #MAYBE CURRENT YEAR
-                results_container['season_daytype_cy'][base_year][fueltype], #BASEYEAR
+                os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
+                results_container['av_season_daytype_cy'][year][fueltype_int], #d#MAYBE CURRENT YEAR
+                results_container['av_season_daytype_cy'][base_year][fueltype_int], #BASEYEAR
+                results_container['season_daytype_cy'][year][fueltype_int], #MAYBE CURRENT YEAR
+                results_container['season_daytype_cy'][base_year][fueltype_int], #BASEYEAR
                 plot_peak=True,
                 plot_all_entries=False,
                 plot_figure=False,
@@ -166,7 +178,15 @@ def run_all_plot_functions(
     print("finisthed plotting")
     return
 
-def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs, path_plot_fig):
+def plot_seasonal_lf(
+        fueltype_int,
+        fueltype_str,
+        load_factors_seasonal,
+        reg_nrs,
+        path_plot_fig,
+        plot_individ_lines=False,
+        plot_max_min_polygon=True
+    ):
     """Plot load factors per region for every year
 
     Arguments
@@ -194,26 +214,55 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
         'autumn': 'gold'}
 
     classes = list(color_list.keys())
-    class_colours = list(color_list.values())
+    #class_colours = list(color_list.values())
 
     # ------------
-    # Iterate regions and plot load factors
+    # Iterate regions and plot load factors for every region
     # ------------
-    for reg_nr in range(reg_nrs):
+    if plot_individ_lines:
+        for reg_nr in range(reg_nrs):
+            for season, lf_fueltypes_season in load_factors_seasonal.items():
+                x_values_season_year = []
+                y_values_season_year = []
+                for year, lf_fueltype_reg in lf_fueltypes_season.items():
+                    x_values_season_year.append(year)
+                    y_values_season_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
+
+                # plot individual saisonal data point
+                plt.plot(
+                    x_values_season_year,
+                    y_values_season_year,
+                    color=color_list[season],
+                    linewidth=0.2,
+                    alpha=0.2)
+  
+    # Plot min_max_area FRITZ
+    if plot_max_min_polygon:
+
         for season, lf_fueltypes_season in load_factors_seasonal.items():
-            x_values_season_year = []
-            y_values_season_year = []
-            for year, lf_fueltype_reg in lf_fueltypes_season.items():
-                x_values_season_year.append(year)
-                y_values_season_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
+            upper_boundary = []
+            lower_bdoundary = []
 
-            # plot individual saisonal data point
-            plt.plot(
-                x_values_season_year,
-                y_values_season_year,
+            for year_nr, lf_fueltype_reg in lf_fueltypes_season.items():
+
+                # Get min and max of all entries of year of all regions
+                min_y = np.min(lf_fueltype_reg[fueltype_int])
+                max_y = np.max(lf_fueltype_reg[fueltype_int])
+                upper_boundary.append((year_nr, min_y))
+                lower_bdoundary.append((year_nr, max_y))
+
+            # create correct sorting to draw filled polygon
+            min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+
+            polygon = plt.Polygon(
+                min_max_polygon,
                 color=color_list[season],
-                linewidth=0.2,
-                alpha=0.2) #, label=season)
+                alpha=0.2,
+                edgecolor=None,
+                linewidth=0,
+                fill='True')
+
+            ax.add_patch(polygon)
 
     # ------------------------------------
     # Calculate average per season for all regions
@@ -307,7 +356,15 @@ def plot_seasonal_lf(fueltype_int, fueltype_str, load_factors_seasonal, reg_nrs,
     plt.savefig(path_plot_fig)
     plt.close()
 
-def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig):
+def plot_lf_y(
+        fueltype_int,
+        fueltype_str,
+        load_factors_y,
+        reg_nrs,
+        path_plot_fig,
+        plot_individ_lines=False,
+        plot_max_min_polygon=True
+    ):
     """Plot load factors per region for every year
 
     Arguments
@@ -319,23 +376,49 @@ def plot_lf_y(fueltype_int, fueltype_str, load_factors_y, reg_nrs, path_plot_fig
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
 
-    ax = fig.add_subplot(1, 1, 1) # fig plot
+    ax = fig.add_subplot(1, 1, 1)
 
-    # Line plot for every region over years
-    for reg_nr in range(reg_nrs):
-        x_values_year = []
-        y_values_year = []
+    if plot_individ_lines:
+        # Line plot for every region over years
+        for reg_nr in range(reg_nrs):
+            x_values_year = []
+            y_values_year = []
 
-        for year, lf_fueltype_reg in load_factors_y.items():
-            x_values_year.append(year)
-            y_values_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
+            for year, lf_fueltype_reg in load_factors_y.items():
+                x_values_year.append(year)
+                y_values_year.append(lf_fueltype_reg[fueltype_int][reg_nr])
 
-        plt.plot(
-            x_values_year,
-            y_values_year,
-            linewidth=0.2,
-            color='grey')
+            plt.plot(
+                x_values_year,
+                y_values_year,
+                linewidth=0.2,
+                color='grey')
 
+    #HANS
+    if plot_max_min_polygon:
+        lower_bdoundary = []
+        upper_boundary = []
+
+        for year_nr, lf_fueltype_reg in load_factors_y.items():
+
+            # Get min and max of all entries of year of all regions
+            min_y = np.min(lf_fueltype_reg[fueltype_int])
+            max_y = np.max(lf_fueltype_reg[fueltype_int])
+            upper_boundary.append((year_nr, min_y))
+            lower_bdoundary.append((year_nr, max_y))
+
+        # create correct sorting to draw filled polygon
+        min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
+
+        polygon = plt.Polygon(
+            min_max_polygon,
+            color='grey',
+            alpha=0.2,
+            edgecolor=None,
+            linewidth=0,
+            fill='True')
+        
+        ax.add_patch(polygon)
     # -----------------
     # Axis
     # -----------------
@@ -992,10 +1075,7 @@ def plot_load_profile_dh_multiple(
                     lower_bdoundary.append((hour, max_y))
 
                 # create correct sorting to draw filled polygon
-                for pnt in upper_boundary:
-                    min_max_polygon.append(pnt)
-                for pnt in reversed(lower_bdoundary):
-                    min_max_polygon.append(pnt)
+                min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
@@ -1020,10 +1100,7 @@ def plot_load_profile_dh_multiple(
                     lower_bdoundary.append((hour, max_y))
 
                 # create correct sorting to draw filled polygon
-                for pnt in upper_boundary:
-                    min_max_polygon.append(pnt)
-                for pnt in reversed(lower_bdoundary):
-                    min_max_polygon.append(pnt)
+                min_max_polygon = order_polygon(upper_boundary, lower_bdoundary)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
@@ -1103,8 +1180,8 @@ def plot_load_profile_dh_multiple(
     plt.tight_layout()
     plt.margins(x=0)
 
-    #if plot_figure:
-    plt.show()
+    if plot_figure:
+        plt.show()
     
     # Save fig
     fig.savefig(path_plot_fig)

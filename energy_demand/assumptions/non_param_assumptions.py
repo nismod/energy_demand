@@ -275,11 +275,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Scenaric service switches
     # ============================================================
-    _, assumptions['rs_service_switches'] = read_data.read_service_switch(
+    assumptions['rs_service_switches'] = read_data.read_service_switch(
         paths['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
-    _,  assumptions['ss_service_switches'] = read_data.read_service_switch(
+    assumptions['ss_service_switches'] = read_data.read_service_switch(
         paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
-    _, assumptions['is_service_switches'] = read_data.read_service_switch(
+    assumptions['is_service_switches'] = read_data.read_service_switch(
         paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
     #TODO: WRITE HELPER FUNCTION WHICH MAKES THAT ALL NOT DEFINED TECHNOLOGIES ARE ADDEDS AS ZERO OR REDUCED PRPORTIONALLY TO BASE YEAR

@@ -557,30 +557,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
-    # Group all entries according to enduse
-    all_enduses = []
-    for switch in service_switches:
-        enduse = switch.enduse
-        if enduse not in all_enduses:
-            all_enduses.append(enduse)
-            enduse_tech_ey_p[enduse] = {}
-
-    # Iterate all endusese and assign all lines
-    for enduse in all_enduses:
-        for switch in service_switches:
-            if switch.enduse == enduse:
-                tech = switch.technology_install
-                enduse_tech_ey_p[enduse][tech] = switch.service_share_ey
-
-    # ------------------------------------------------
-    # Testing wheter the provided inputs make sense
-    # -------------------------------------------------
-    for enduse in specified_tech_enduse_by:
-        if enduse in service_switch_enduse_crit: #If switch is defined for this enduse
-            for tech in specified_tech_enduse_by[enduse]:
-                if tech not in enduse_tech_ey_p[enduse]:
-                    sys.exit("No end year service share is defined for technology '{}' for the enduse '{}' ".format(tech, enduse))
-    
     # TODO: WRITE TEST AND TEST IF IN TECHNOLOGY DEFINITION CONTRADICTION
     # Test if more service is provided as input than possible to maximum switch
     '''for entry in service_switches:
@@ -592,14 +568,7 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
             sys.exit("The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))'''
 
-    # ------------------------------------------------------
-    # Add all other enduses for which no switch is defined
-    # ------------------------------------------------------
-    for enduse in specified_tech_enduse_by:
-        if enduse not in enduse_tech_ey_p:
-            enduse_tech_ey_p[enduse] = {}
-
-    return enduse_tech_ey_p, service_switches
+    return service_switches
 
 def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
     """This function reads in from CSV file defined fuel

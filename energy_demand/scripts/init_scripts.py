@@ -216,8 +216,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['ss_service_tech_by_p'], data['assumptions']['ss_share_service_tech_ey_p'])
     sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
         fts_cont['is_service_tech_by_p'], data['assumptions']['is_share_service_tech_ey_p'])
-    #print(sgs_cont['rs_tech_constant_share'])
-    #prnt(".")
+
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
     # --Residential

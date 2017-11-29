@@ -295,11 +295,11 @@ def load_paths(path):
 
         # Path to capacity installations
         'rs_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_residential', 'rs_assumptions_capacity_installations.csv'),
+            path, 'config_data', 'submodel_residential', 'capacity_installations.csv'),
         'ss_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_service', 'ss_assumptions_capacity_installations.csv'),
+            path, 'config_data', 'submodel_service', 'capacity_installations.csv'),
         'is_path_capacity_installation': os.path.join(
-            path, 'config_data', 'submodel_industry', 'is_assumptions_capacity_installations.csv'),
+            path, 'config_data', 'submodel_industry', 'capacity_installations.csv'),
         # Paths to fuel raw data
         'rs_fuel_raw_data_enduses': os.path.join(
             path, 'config_data', 'submodel_residential', 'rs_fuel_data.csv'),

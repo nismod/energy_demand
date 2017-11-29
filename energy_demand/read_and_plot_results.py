@@ -6,7 +6,6 @@ from energy_demand.read_write import data_loader, read_data, write_data
 from energy_demand.basic import date_prop
 from energy_demand.plotting import plotting_results
 from energy_demand.basic import logger_setup, basic_functions
-from energy_demand.validation import lad_validation
 
 def main(path_data_energy_demand):
     """Read in all results and plot PDFs
@@ -16,6 +15,10 @@ def main(path_data_energy_demand):
     path_data_energy_demand : str
         Path to results
     """
+
+    # Write shapefiles
+    write_shapefiles = False
+
 
     # Set up logger
     logger_setup.set_up_logger(
@@ -62,12 +65,13 @@ def main(path_data_energy_demand):
     # ----------------
     # Write results to CSV files and merge with shapefile
     # ----------------
-    write_data.create_shp_results(
-        data,
-        results_container,
-        data['local_paths'],
-        data['lookups'],
-        data['lu_reg'])
+    if write_shapefiles:
+        write_data.create_shp_results(
+            data,
+            results_container,
+            data['local_paths'],
+            data['lookups'],
+            data['lu_reg'])
 
     # ------------------------------
     # Plotting results

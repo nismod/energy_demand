@@ -281,31 +281,18 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p):
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []
         else:
-            print("fff: " + str(enduse))
-            tech_increased_service[enduse] = {} # []
-            tech_decreased_share[enduse] = {} # []
-            tech_constant_share[enduse] = {} # []
+            tech_increased_service[enduse] = {}
+            tech_decreased_share[enduse] = {}
+            tech_constant_share[enduse] = {}
 
             # Calculate fuel for each tech
             for tech, tech_ey_p in service_tech_by_p[enduse].items():
-                print("tech: " + str(tech))
-                print(service_tech_by_p[enduse][tech])
-                print(service_tech_ey_p[enduse][tech])
-                # If future larger share
-                if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]:
-                   # tech_increased_service[enduse].append(tech)
+                if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]: #future larger
                    tech_increased_service[enduse][tech] = tech_ey_p
-                # If future smaller service share
-                elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]:
-                    #tech_decreased_share[enduse].append(tech)
+                elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]: #future smaller
                     tech_decreased_share[enduse][tech] = tech_ey_p
-                else:
-                    #tech_constant_share[enduse].append(tech)
+                else: #same
                     tech_constant_share[enduse][tech] = tech_ey_p
-
-                print(tech_increased_service[enduse])
-                print(tech_decreased_share[enduse])
-                print(tech_constant_share[enduse])
 
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
