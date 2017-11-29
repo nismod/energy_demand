@@ -403,6 +403,8 @@ def load_script_data(data):
         data['local_paths']['dir_raw_weather_data'])
 
     # Disaggregation: Load disaggregated fuel per enduse and sector
+    print("rrd")
+    print(data['local_paths']['data_processed_disaggregated'])
     data['rs_fuel_disagg'] = read_disaggregated_fuel(
         os.path.join(data['local_paths']['data_processed_disaggregated'], 'rs_fuel_disagg.csv'),
         data['lookups']['fueltypes_nr'])
@@ -598,9 +600,9 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
             sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['technology_install']))
     '''
     # Test if service of all provided technologies sums up to 100% in the end year
-    for enduse in enduse_tech_ey_p:
+    '''for enduse in enduse_tech_ey_p:
         if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
-            sys.exit("The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))
+            sys.exit("The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))'''
 
     # ------------------------------------------------------
     # Add all other enduses for which no switch is defined

@@ -3,6 +3,123 @@
 from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 
+def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
+    """
+    """
+    enduse_tech_ey_p = {}
+
+    all_enduses = []
+    for switch in service_switches:
+        enduse = switch.enduse
+        if enduse not in all_enduses:
+            all_enduses.append(enduse)
+            enduse_tech_ey_p[enduse] = {}
+
+    # Iterate all endusese and assign all lines
+    for enduse in all_enduses:
+        for switch in service_switches:
+            if switch.enduse == enduse:
+                enduse_tech_ey_p[enduse][switch.technology_install] = switch.service_share_ey
+
+    # ------------------------------------------------------
+    # Add all other enduses for which no switch is defined
+    # ------------------------------------------------------
+    for enduse in specified_tech_enduse_by:
+        if enduse not in enduse_tech_ey_p:
+            enduse_tech_ey_p[enduse] = {}
+
+    return enduse_tech_ey_p
+
+def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, service_tech_by_p):
+    """Helper function to add not defined technologies in switch
+    and set correct future year service share. If the defined
+    service switches do not sum up to 100% service,
+    the remaining service is distriputed proportionally
+    to all remaining technologies
+
+    Argument
+    --------
+    service_switches : dict
+        Defined service switches
+    specified_tech_enduse_by : dict
+        Specified technologies per enduse
+    fuel_tech_p_by : dict
+        Fuel assignement for base year
+
+    Returns
+    -------
+    rs_service_switches_new : dict
+        Added services switches which now in total sum up to 100%
+    """
+    service_switches_out = []
+
+    all_enduses_with_switches = set([])
+    # Get all enduses defined in switch
+    for switch in service_switches:
+        all_enduses_with_switches.add(switch.enduse)
+
+    all_enduses_with_switches = list(all_enduses_with_switches)
+
+    for enduse in all_enduses_with_switches:
+
+        # Get all switches with enduse
+        switches_enduse = []
+        assigned_service = 0
+        assigned_technologies = []
+
+        for switch in service_switches:
+            if switch.enduse == enduse:
+                assigned_service += switch.service_share_ey
+                assigned_technologies.append(switch.technology_install)
+                switches_enduse.append(switch)
+                switch_yr = switch.switch_yr
+
+        # Calculate relative proportion of not assigned tchnologies in base year 
+        tech_not_assigned_by_p = {}
+        for tech in specified_tech_enduse_by[enduse]:
+            if tech not in assigned_technologies:
+                print(tech)
+                print(service_tech_by_p[enduse])
+                tech_not_assigned_by_p[tech] = service_tech_by_p[enduse][tech]
+
+        # convert to percentage
+        tot_share_not_assigned = sum(tech_not_assigned_by_p.values())
+        for tech, share_by in tech_not_assigned_by_p.items():
+            tech_not_assigned_by_p[tech] = share_by / tot_share_not_assigned
+
+        # Calculate not defined share in switches
+        not_assigned_service = 1 - assigned_service
+
+        # Get all defined technologies in base year
+        for tech in specified_tech_enduse_by[enduse]:
+
+            if tech not in assigned_technologies:
+
+                if assigned_service == 1.0:
+                    switch_new = read_data.ServiceSwitch(
+                        enduse=enduse,
+                        technology_install=tech,
+                        service_share_ey=0,
+                        switch_yr=switch_yr)
+                    service_switches_out.append(switch_new)
+                else:
+                    # Reduce share proportionally
+                    tech_ey_p = tech_not_assigned_by_p[tech] * not_assigned_service
+
+                    switch_new = read_data.ServiceSwitch(
+                        enduse=enduse,
+                        technology_install=tech,
+                        service_share_ey=tech_ey_p,
+                        switch_yr=switch_yr)
+                    service_switches_out.append(switch_new)
+            else:
+                # If assigne,d copy to final switches
+                for switch in switches_enduse:
+                    if switch.technology_install == tech:
+                        service_switches_out.append(switch)
+
+    return service_switches_out
+
 def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
     """Iterate technologies with future reduced service
     demand (replaced tech) and calculate their relative
@@ -36,6 +153,7 @@ def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
     return rel_share_service_tech_decr_by
 
 def calc_service_switch_capacity(
+        service_switches,
         capacity_switches,
         technologies,
         other_enduse_mode_info,
@@ -80,23 +198,31 @@ def calc_service_switch_capacity(
 
     for switch in capacity_switches:
         enduses_switch.add(switch.enduse)
+    enduses_switch = list(enduses_switch)
 
-    # -------------------------
-    # Calculate service switches
-    # -------------------------
-    service_switches = create_service_switch(
-        enduses_switch,
-        capacity_switches,
-        technologies,
-        other_enduse_mode_info,
-        fuel_shares_enduse_by,
-        base_yr,
-        fuels)
+    if enduses_switch == []:
 
-    # Criteria that capacity switch is implemented
-    capacity_switch_crit = True
+        # Criteria that capacity switch is implemented
+        capacity_switch_crit = False
 
-    return service_switches, capacity_switch_crit
+        return service_switches, capacity_switch_crit
+    else:
+        # -------------------------
+        # Calculate service switches
+        # -------------------------
+        service_switches = create_service_switch(
+            enduses_switch,
+            capacity_switches,
+            technologies,
+            other_enduse_mode_info,
+            fuel_shares_enduse_by,
+            base_yr,
+            fuels)
+
+        # Criteria that capacity switch is implemented
+        capacity_switch_crit = True
+
+        return service_switches, capacity_switch_crit
 
 def create_service_switch(
         enduses,

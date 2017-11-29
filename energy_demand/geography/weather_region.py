@@ -208,7 +208,7 @@ class WeatherRegion(object):
 
         # Heat pumps, non-peak
         rs_fuel_shape_hp_yh, _ = get_fuel_shape_heating_hp_yh(
-            tech_lp['rs_profile_hp_y_dh'], #NEW 'rs_lp_heating_hp_dh'
+            tech_lp['rs_profile_hp_y_dh'],
             self.rs_tech_stock,
             self.rs_hdd_cy,
             assumptions['model_yeardays'])
@@ -481,10 +481,10 @@ def get_fuel_shape_heating_hp_yh(tech_lp, tech_stock, rs_hdd_cy, model_yeardays)
     """
     shape_yh_hp = np.zeros((365, 24), dtype=float)
     shape_y_dh = np.zeros((365, 24), dtype=float)
-
+    #TODO: BELUGA
     tech_eff = tech_stock.get_tech_attr(
         'rs_space_heating',
-        'heat_pumps_gas',
+        'heat_pumps_electricity', #'heat_pumps_gas',
         'eff_cy')
 
     # Convert daily service demand to fuel (fuel = Heat demand / efficiency)

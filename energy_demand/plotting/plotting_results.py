@@ -1005,8 +1005,6 @@ def plot_load_profile_dh_multiple(
 
                 axes.add_patch(polygon)
 
-                logging.warning(min_max_polygon)
-
                 # -----Draw modelled
                 min_max_polygon = []
                 upper_boundary = []

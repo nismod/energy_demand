@@ -17,6 +17,7 @@ from energy_demand.scripts import s_disaggregation
 from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
 from energy_demand.basic import date_prop
+from energy_demand.technologies import fuel_service_switch
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -167,29 +168,55 @@ def scenario_initalisation(path_data_ed, data=False):
         fuels_aggregated_across_sectors,
         data['assumptions']['technologies'])
 
+    # ---
+    # Complement switches ()
+    # --- TODO TEST
+    #'''
+    switches_cont = {}
+    switches_cont['rs_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+        data['assumptions']['rs_service_switches'],
+        data['assumptions']['rs_specified_tech_enduse_by'],
+        fts_cont['rs_service_tech_by_p'])
+
+    switches_cont['ss_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+        data['assumptions']['ss_service_switches'],
+        data['assumptions']['ss_specified_tech_enduse_by'],
+        fts_cont['ss_service_tech_by_p'])
+
+    switches_cont['is_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+        data['assumptions']['is_service_switches'],
+        data['assumptions']['is_specified_tech_enduse_by'],
+        fts_cont['is_service_tech_by_p'])
+
+    # Write all end shares of full switches
+    data['assumptions']['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
+        switches_cont['rs_service_switches'],
+        data['assumptions']['rs_specified_tech_enduse_by'])
+    data['assumptions']['ss_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
+        switches_cont['ss_service_switches'],
+        data['assumptions']['ss_specified_tech_enduse_by'])
+    data['assumptions']['is_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
+        switches_cont['is_service_switches'],
+        data['assumptions']['is_specified_tech_enduse_by'])
+    switches_cont['rs_share_service_tech_ey_p'] = data['assumptions']['rs_share_service_tech_ey_p']
+    switches_cont['ss_share_service_tech_ey_p'] = data['assumptions']['ss_share_service_tech_ey_p']
+    switches_cont['is_share_service_tech_ey_p'] = data['assumptions']['is_share_service_tech_ey_p']
+
+
+    print("---dfffffff-----")
+    print(data['assumptions']['rs_share_service_tech_ey_p'])
     # -------------------
     # Generate sigmoid curves (s_generate_sigmoid)
     # -------------------
     sgs_cont = {}
 
-    # Read in Services
-    rs_service_tech_by_p = fts_cont['rs_service_tech_by_p']
-    ss_service_tech_by_p = fts_cont['ss_service_tech_by_p']
-    is_service_tech_by_p = fts_cont['is_service_tech_by_p']
-    rs_service_fueltype_by_p = fts_cont['rs_service_fueltype_by_p']
-    ss_service_fueltype_by_p = fts_cont['ss_service_fueltype_by_p']
-    is_service_fueltype_by_p = fts_cont['is_service_fueltype_by_p']
-
     # Calculate technologies with more, less and constant service based on service switch assumptions
     sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        rs_service_tech_by_p,
-        data['assumptions']['rs_share_service_tech_ey_p'])
+        fts_cont['rs_service_tech_by_p'], data['assumptions']['rs_share_service_tech_ey_p'])
     sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        ss_service_tech_by_p,
-        data['assumptions']['ss_share_service_tech_ey_p'])
+        fts_cont['ss_service_tech_by_p'], data['assumptions']['ss_share_service_tech_ey_p'])
     sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        is_service_tech_by_p,
-        data['assumptions']['is_share_service_tech_ey_p'])
+        fts_cont['is_service_tech_by_p'], data['assumptions']['is_share_service_tech_ey_p'])
 
     # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
@@ -202,8 +229,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['rs_all_enduses'],
         sgs_cont['rs_tech_increased_service'],
         data['assumptions']['rs_share_service_tech_ey_p'],
-        rs_service_fueltype_by_p,
-        rs_service_tech_by_p,
+        fts_cont['rs_service_fueltype_by_p'],
+        fts_cont['rs_service_tech_by_p'],
         data['assumptions']['rs_fuel_tech_p_by'])
 
     # --Service
@@ -215,8 +242,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         sgs_cont['ss_tech_increased_service'],
         data['assumptions']['ss_share_service_tech_ey_p'],
-        ss_service_fueltype_by_p,
-        ss_service_tech_by_p,
+        fts_cont['ss_service_fueltype_by_p'],
+        fts_cont['ss_service_tech_by_p'],
         data['assumptions']['ss_fuel_tech_p_by'])
 
     # --Industry
@@ -228,8 +255,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         sgs_cont['is_tech_increased_service'],
         data['assumptions']['is_share_service_tech_ey_p'],
-        is_service_fueltype_by_p,
-        is_service_tech_by_p,
+        fts_cont['is_service_fueltype_by_p'],
+        fts_cont['is_service_tech_by_p'],
         data['assumptions']['is_fuel_tech_p_by'])
 
     # -------------------
@@ -251,4 +278,4 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses'])
 
     logging.info("... finished scenario_initalisation")
-    return fts_cont, sgs_cont, sd_cont
+    return fts_cont, sgs_cont, sd_cont, switches_cont

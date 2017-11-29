@@ -281,22 +281,27 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p):
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []
         else:
+            print("fff: " + str(enduse))
             tech_increased_service[enduse] = []
             tech_decreased_share[enduse] = []
             tech_constant_share[enduse] = []
 
             # Calculate fuel for each tech
             for tech in service_tech_by_p[enduse]:
-
+                print("tech: " + str(tech))
+                print(service_tech_by_p[enduse][tech])
+                print(service_tech_ey_p[enduse][tech])
                 # If future larger share
                 if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]:
                     tech_increased_service[enduse].append(tech)
-
                 # If future smaller service share
                 elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]:
                     tech_decreased_share[enduse].append(tech)
                 else:
                     tech_constant_share[enduse].append(tech)
+                print(tech_increased_service[enduse])
+                print(tech_decreased_share[enduse])
+                print(tech_constant_share[enduse])
 
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
@@ -576,14 +581,19 @@ def get_sig_diffusion(
         if crit_switch_service:
             """Sigmoid calculation in case of 'service switch'
             """
-            # Tech with lager service shares in end year
-            installed_tech[enduse] = tech_increased_service
 
             # End year service shares (scenaric input)
             service_tech_switched_p = service_tech_ey_p
 
-            # Maximum shares of each technology
-            l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
+            # Tech with lager service shares in end year
+            installed_tech[enduse] = tech_increased_service[enduse]
+
+            if tech_increased_service[enduse] == []:
+                pass
+            else:
+
+                # Maximum shares of each technology
+                l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
         else:
             """Sigmoid calculation in case of 'fuel switch'
             """

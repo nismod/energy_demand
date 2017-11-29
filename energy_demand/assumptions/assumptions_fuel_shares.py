@@ -50,7 +50,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # Residential subModel
     # ------------------
 
-    # ---Lighting (calculated on the basis of ECUK Table 3.08)
+    # ---rs_lighting (calculated on the basis of ECUK Table 3.08)
     rs_fuel_tech_p_by['rs_lighting'][fuel_nr_elec] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
@@ -89,8 +89,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
 
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
-        'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56}
+        'storage_heater_electricity': 0.40, #'storage_heater_electricity': 0.40,
+        'secondary_heater_electricity': 0.56} #'secondary_heater_electricity': 0.56
         # heat-pump share in uk #According to OFGEM 1.7 out of 4
         # mio households use storage heating == 42.5%..Hoever,
         # often more flats and more fuel poverty and some heatpumps,
@@ -102,7 +102,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_biomass': 1.0}
 
     rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_hydrogen] = {
-        'boiler_hydrogen': 1.0}
+        'boiler_hydrogen': 1.0,
+        'heat_pumps_hydrogen': 0.0}
 
     # ---Water heating
     rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_solid_fuel] = {
@@ -135,7 +136,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # Service share within a fueltype
     tech_share_tot_service = {
         'heat_pumps_electricity': 0.02,
-        'hybrid_gas_electricity': 0.02,
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56}
 

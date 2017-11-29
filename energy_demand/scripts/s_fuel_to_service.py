@@ -280,7 +280,7 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
     # Test if within fueltype always 100 energy service
     return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p
 
-def run(assumptions, lookups, fuels, enduses, local_paths):
+'''def run(assumptions, lookups, fuels, enduses, local_paths):
     """Function to run script
     """
     logging.info("... start script %s", os.path.basename(__file__))
@@ -350,3 +350,4 @@ def run(assumptions, lookups, fuels, enduses, local_paths):
 
     logging.info("... finished script %s", os.path.basename(__file__))
     return
+'''

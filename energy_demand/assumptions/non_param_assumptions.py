@@ -212,7 +212,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         paths['path_technologies'],
         lookups['fueltype'])
 
-    # --Heat pumps   
+    # --Heat pumps
     # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
     split_hp_ashp_gshp = 0.5
     assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
@@ -254,7 +254,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Fuel Stock Definition
     # Provide for every fueltype of an enduse
-    # the share of fuel which is used by technologies for the 
+    # the share of fuel which is used by technologies for the
     # base year
     # ============================================================
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
@@ -275,13 +275,20 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Scenaric service switches
     # ============================================================
-    assumptions['rs_share_service_tech_ey_p'], assumptions['rs_service_switches'] = read_data.read_service_switch(
+    _, assumptions['rs_service_switches'] = read_data.read_service_switch(
         paths['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
-    assumptions['ss_share_service_tech_ey_p'],  assumptions['ss_service_switches'] = read_data.read_service_switch(
+    _,  assumptions['ss_service_switches'] = read_data.read_service_switch(
         paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
-    assumptions['is_share_service_tech_ey_p'], assumptions['is_service_switches'] = read_data.read_service_switch(
+    _, assumptions['is_service_switches'] = read_data.read_service_switch(
         paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
 
+    #TODO: WRITE HELPER FUNCTION WHICH MAKES THAT ALL NOT DEFINED TECHNOLOGIES ARE ADDEDS AS ZERO OR REDUCED PRPORTIONALLY TO BASE YEAR
+    '''assumptions['rs_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+        assumptions['rs_service_switches'],
+        assumptions['rs_specified_tech_enduse_by'],
+        assumptions['rs_fuel_tech_p_by'],
+        assumptions['technologies'])
+        '''
     # ============================================================
     # Scenaric capacity switches
     # Warning: Overwrites other switches

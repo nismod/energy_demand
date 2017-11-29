@@ -167,14 +167,16 @@ class EDWrapper(SectorModel):
         # Calculate all capacity switches
         # ---------------------
         data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['rs_service_switches'],
             data['assumptions']['capacity_switches']['rs_capacity_switches'],
             data['assumptions']['technologies'],
             data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
             data['fuels']['rs_fuel_raw_data_enduses'],
             data['assumptions']['rs_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
-        
+
         data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['ss_service_switches'],
             data['assumptions']['capacity_switches']['ss_capacity_switches'],
             data['assumptions']['technologies'],
             data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
@@ -183,19 +185,19 @@ class EDWrapper(SectorModel):
             data['sim_param']['base_yr'])
         
         data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+            data['assumptions']['is_service_switches'],
             data['assumptions']['capacity_switches']['is_capacity_switches'],
             data['assumptions']['technologies'],
             data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
             data['fuels']['is_fuel_raw_data_enduses'],
             data['assumptions']['is_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
-
+        
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_all_smif_parameters(
             data['paths']['yaml_parameters_complete'], data, data['assumptions'])
-
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -209,7 +211,7 @@ class EDWrapper(SectorModel):
         # --------------------
         # Initialise scenario
         # --------------------
-        self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'] = scenario_initalisation(
+        self.user_data['fts_cont'], self.user_data['sgs_cont'], self.user_data['sd_cont'], self.user_data['switches_cont'] = scenario_initalisation(
             self.user_data['data_path'], data)
 
         # ------
@@ -376,6 +378,14 @@ class EDWrapper(SectorModel):
         data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
+
+        data['assumptions']['rs_service_switches'] = self.user_data['switches_cont']['rs_service_switches']
+        data['assumptions']['ss_service_switches'] = self.user_data['switches_cont']['ss_service_switches']
+        data['assumptions']['is_service_switches'] = self.user_data['switches_cont']['is_service_switches']
+
+        data['assumptions']['rs_share_service_tech_ey_p'] = self.user_data['switches_cont']['rs_share_service_tech_ey_p']
+        data['assumptions']['ss_share_service_tech_ey_p'] = self.user_data['switches_cont']['ss_share_service_tech_ey_p']
+        data['assumptions']['is_share_service_tech_ey_p'] = self.user_data['switches_cont']['is_share_service_tech_ey_p']
         # ---------------------------------------------
         # Create .ini file with simulation information
         # ---------------------------------------------
@@ -461,7 +471,7 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
         logging.info("... finished wrapper calculations")
-        prnt(":")
+        #prnt(":")
         return {'model_name': supply_results}
 
     def extract_obj(self, results):

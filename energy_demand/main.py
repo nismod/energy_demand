@@ -5,6 +5,7 @@ Energy Demand Model
 Development checklist: https://nismod.github.io/docs/development-checklist.html
 https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
+# REMOVE HYBRID
 """ 
 import os
 import sys
@@ -165,9 +166,11 @@ if __name__ == "__main__":
     else:
         pass
 
+    # ---------------------
     # Calculate all capacity switches
     # ---------------------
     data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['rs_service_switches'],
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
@@ -176,6 +179,7 @@ if __name__ == "__main__":
         data['sim_param']['base_yr'])
     
     data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['ss_service_switches'],
         data['assumptions']['capacity_switches']['ss_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
@@ -184,6 +188,7 @@ if __name__ == "__main__":
         data['sim_param']['base_yr'])
     
     data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['is_service_switches'],
         data['assumptions']['capacity_switches']['is_capacity_switches'],
         data['assumptions']['technologies'],
         data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
