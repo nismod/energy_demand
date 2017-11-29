@@ -145,7 +145,9 @@ def run_all_plot_functions(
                 results_container['season_daytype_cy'][year][fueltype], #MAYBE CURRENT YEAR
                 results_container['season_daytype_cy'][base_year][fueltype], #BASEYEAR
                 plot_peak=True,
-                plot_all_entries=False)
+                plot_all_entries=False,
+                plot_figure=False,
+                max_y_to_plot=120)
 
     # ---------------------------------
     # Plot hourly peak loads over time for different fueltypes
@@ -903,21 +905,24 @@ def plot_load_profile_dh_multiple(
         calc_lp_real=None,
         plot_peak=False,
         plot_all_entries=False,
-        plot_max_min_polygon=True
+        plot_max_min_polygon=True,
+        plot_figure=False,
+        max_y_to_plot=60
     ):
     """Plotting average saisonal loads for each daytype. As an input
     GWh is provided, which for each h is cancelled out to GW.
 
     https://stackoverflow.com/questions/4325733/save-a-subplot-in-matplotlib
+    http://matthiaseisen.com/matplotlib/shapes/reg-polygon/
     """
-    # Set figure size
-    fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
     nrows = 4
     ncols = 2
+
+    # set size
+    fig = plt.figure(figsize=plotting_program.cm2inch(14, 25))
     ax = fig.add_subplot(nrows=nrows, ncols=ncols)
 
     plot_nr = 0
-
     row = -1
     for season in calc_av_lp_modelled:
         row += 1
@@ -926,7 +931,7 @@ def plot_load_profile_dh_multiple(
             col += 1
             plot_nr += 1
 
-            plt.subplot(4, 2, plot_nr)
+            axes = plt.subplot(4, 2, plot_nr)
 
             # ------------------
             # Plot average
@@ -966,36 +971,69 @@ def plot_load_profile_dh_multiple(
                         color='blue',
                         markersize=0.5,
                         alpha=0.2)
-
+            
             # ----------
             # Plot max_min range polygons
             # ----------
             if plot_max_min_polygon:
-                
+
+                # ----Draw real
                 min_max_polygon = []
                 upper_boundary = []
                 lower_bdoundary = []
-                for hour in range(24):
-                    min_max_x = hour
 
-                    # Get min and max of all entries for hour¨
+                # Get min and max of all entries for hour
+                for hour in range(24):
                     min_y = np.min(calc_lp_real[season][daytype][:, hour], axis=0)
                     max_y = np.max(calc_lp_real[season][daytype][:, hour], axis=0)
+                    upper_boundary.append((hour, min_y))
+                    lower_bdoundary.append((hour, max_y))
 
-                    min_max_polygon.append((min_max_x, min_y))
-                    min_max_polygon.append((min_max_x, max_y))
-
-                    upper_boundary.append((min_max_x, min_y))
-                    lower_bdoundary.append((min_max_x, max_y))
+                # create correct sorting to draw filled polygon
+                for pnt in upper_boundary:
+                    min_max_polygon.append(pnt)
+                for pnt in reversed(lower_bdoundary):
+                    min_max_polygon.append(pnt)
 
                 polygon = plt.Polygon(
                     min_max_polygon,
-                    fill='True',
-                    color='red',
-                    alpha=0.4)
+                    color='black',
+                    alpha=0.2,
+                    edgecolor=None,
+                    linewidth=0,
+                    fill='True')
 
-                ax[row, col].add_patch(polygon)
-                #axes.autoscale_view()
+                axes.add_patch(polygon)
+
+                logging.warning(min_max_polygon)
+
+                # -----Draw modelled
+                min_max_polygon = []
+                upper_boundary = []
+                lower_bdoundary = []
+
+                # Get min and max of all entries for hour
+                for hour in range(24):
+                    min_y = np.min(calc_lp_modelled[season][daytype][:, hour], axis=0)
+                    max_y = np.max(calc_lp_modelled[season][daytype][:, hour], axis=0)
+                    upper_boundary.append((hour, min_y))
+                    lower_bdoundary.append((hour, max_y))
+
+                # create correct sorting to draw filled polygon
+                for pnt in upper_boundary:
+                    min_max_polygon.append(pnt)
+                for pnt in reversed(lower_bdoundary):
+                    min_max_polygon.append(pnt)
+
+                polygon = plt.Polygon(
+                    min_max_polygon,
+                    color='blue',
+                    alpha=0.2,
+                    edgecolor=None,
+                    linewidth=0,
+                    fill='True')
+
+                axes.add_patch(polygon)
 
             # --------------------
             # Get load shape within season with highest houly load
@@ -1020,15 +1058,16 @@ def plot_load_profile_dh_multiple(
                 plt.plot(
                     x_values,
                     list(calc_lp_modelled[season][daytype][day_with_max_h]),
-                    color='blue', 
+                    color='blue',
                     markersize=1.0,
                     label='modelled_peak',
                     linestyle='-.',
                     linewidth=0.5)
+            
             # -----------------
             # Axis
             # -----------------
-            plt.ylim(0, 120) #60
+            plt.ylim(0, max_y_to_plot)
             plt.xlim(0, 23)
 
             # Tight layout
@@ -1057,16 +1096,20 @@ def plot_load_profile_dh_multiple(
     plt.legend(
         ncol=1,
         loc=2,
-        prop={'family': 'arial','size': 8}, #fontsize=8,
+        prop={'family': 'arial','size': 8},
         frameon=False)
 
     # Tight layout
     plt.tight_layout()
     plt.margins(x=0)
 
+    #if plot_figure:
+    plt.show()
+    
     # Save fig
     fig.savefig(path_plot_fig)
     plt.close()
+
 
 def plot_load_profile_dh(data_dh_real, data_dh_modelled, path_plot_fig):
     """plot daily profile
