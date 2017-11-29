@@ -105,11 +105,11 @@ def tempo_spatial_validation(
     # Add electricity and gas for transportation sector
     # -------------------------------------------
     fueltype_elec = lookups['fueltype']['electricity']
-    fuel_elec_year_validation = 385
+    fuel_ktoe_transport_2015 = 385
     fuel_national_tranport = np.zeros((lookups['fueltypes_nr']), dtype=float)
 
     # Elec demand from ECUK for transport sector
-    fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(fuel_elec_year_validation)
+    fuel_national_tranport[fueltype_elec] = conversions.ktoe_to_gwh(fuel_ktoe_transport_2015)
 
     # Create transport model (add flat shapes)
     model_object_transport = generic_shapes.GenericFlatEnduse(
@@ -271,12 +271,14 @@ def spatial_validation(
                         pass
                     else:
                         # --Sub Regional Electricity demand
-                        gw_per_region_real = conversions.gwhperyear_to_gw(subnational_elec[reg_geocode])
+                        #gw_per_region_real = conversions.gwhperyear_to_gw(subnational_elec[reg_geocode])
+                        gw_per_region_real = subnational_elec[reg_geocode]
                         result_dict['real_demand'][reg_geocode] = gw_per_region_real
 
                         # Convert GWh to GW
-                        gw_per_region_modelled = conversions.gwhperyear_to_gw(
-                            np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
+                        #gw_per_region_modelled = conversions.gwhperyear_to_gw(
+                        #    np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
+                        gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
                         # Correct ECUK data with correction factor
                         result_dict['modelled_demand'][reg_geocode] = gw_per_region_modelled

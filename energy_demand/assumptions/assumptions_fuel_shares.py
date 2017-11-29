@@ -26,9 +26,6 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
 
     Note
     ----
-    - For hybrid technologies, only assign electricity shares.
-      The other repsective fuel share gets calculated in
-      the function ``adapt_fuel_tech_p_by`` in the ``Enduse`` Class.
     - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
     """

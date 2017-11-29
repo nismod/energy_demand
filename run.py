@@ -70,10 +70,10 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict, data)
 
-        # Criterias        
-        data['criterias']['virtual_building_stock_criteria'] = True
-        data['criterias']['plot_HDD_chart'] = False # plotting of HDD vs gas chart
-        data['criterias']['validation_criteria'] = False #IF want to plot validation: True
+        # Criteria 
+        data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
+        data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
+        data['criterias']['validation_criteria'] = False                # True: Plot validation plots
 
         # -----------------------------
         # Paths
@@ -183,7 +183,7 @@ class EDWrapper(SectorModel):
             data['fuels']['ss_fuel_raw_data_enduses'],
             data['assumptions']['ss_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
-        
+
         data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
             data['assumptions']['is_service_switches'],
             data['assumptions']['capacity_switches']['is_capacity_switches'],
@@ -192,7 +192,7 @@ class EDWrapper(SectorModel):
             data['fuels']['is_fuel_raw_data_enduses'],
             data['assumptions']['is_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
-        
+
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
@@ -343,10 +343,6 @@ class EDWrapper(SectorModel):
                 'rs_floorarea': self.user_data['rs_floorarea'],
                 'ss_floorarea': self.user_data['ss_floorarea']}
             }
-        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['gva'][2015].values())))
-        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['population'][2015].values())))
-        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['gva'][2045].values())))
-        print("================SIMULATION YEAR INOF: " + str(sum(self.user_data['population'][2045].values())))
 
         # -----------------------
         # Load data from scripts

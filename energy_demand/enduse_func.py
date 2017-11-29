@@ -154,8 +154,8 @@ class Enduse(object):
                 cooling_factor_y,
                 heating_factor_y,
                 assumptions)
-            logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #logging.info("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train B: " + str(np.sum(self.fuel_new_y)))
 
             # --Change fuel consumption based on smart meter induced general savings
             self.fuel_new_y = apply_smart_metering(
@@ -165,8 +165,8 @@ class Enduse(object):
                 assumptions['strategy_variables'],
                 sim_param['base_yr'],
                 sim_param['curr_yr'])
-            logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #logging.info("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train C: " + str(np.sum(self.fuel_new_y)))
 
             # --Enduse specific fuel consumption change in %
             self.fuel_new_y = apply_specific_change(
@@ -175,8 +175,8 @@ class Enduse(object):
                 enduse_overall_change,
                 assumptions['strategy_variables'],
                 sim_param)
-            logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #logging.info("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train D: " + str(np.sum(self.fuel_new_y)))
 
             # Calculate new fuel demands after scenario drivers
             self.fuel_new_y = apply_scenario_drivers(
@@ -188,8 +188,8 @@ class Enduse(object):
                 scenario_data['population'],
                 reg_scen_drivers,
                 sim_param)
-            logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
-            print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #logging.info("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
+            #print("... Fuel train E: " + str(np.sum(self.fuel_new_y)))
 
             # ----------------------------------
             # Hourly Disaggregation
@@ -294,7 +294,7 @@ class Enduse(object):
                     mode_constrained)
 
                 self.fuel_y = self.fuel_new_y
-                print("... Fuel traing X: " + str(np.sum(self.fuel_new_y)))
+                #print("... Fuel traing X: " + str(np.sum(self.fuel_new_y)))
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
@@ -621,9 +621,9 @@ def calc_peak_tech_dh(
     - This function gets the hourly values of the peak day for every fueltype.
         The daily fuel is converted to dh for each technology.
 
-    - For some technology types (heat_pump and hybrid)
+    - For some technology types (heat_pump a)
         the dh peak day profile is not read in from technology
-        stock but from shape_yh of peak day (hybrid technologies).
+        stock but from shape_yh of peak day.
     """
     fuels_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
 
@@ -650,7 +650,7 @@ def calc_peak_tech_dh(
             # The 'shape_peak_dh'is not defined in technology stock because
             # in the 'Region' the peak day is not yet known
             # Therfore, the shape_yh is read in and with help of
-            # information on peak day the hybrid dh shape generated
+            # information on peak da
             tech_peak_dh = load_profile.get_lp(
                 enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
         else:
@@ -1300,7 +1300,7 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr,
 
     except:
         # not defined for this enduse
-        return fuel_y 
+        return fuel_y
 
 def service_switch(
         enduse,

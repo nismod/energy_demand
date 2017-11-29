@@ -73,7 +73,8 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
             yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
 
             # Conversion: Convert gwh per years to gw
-            yearly_sum_gw = conversions.gwhperyear_to_gw(yearly_sum)
+            #yearly_sum_gw = conversions.gwhperyear_to_gw(yearly_sum)
+            yearly_sum_gw = yearly_sum
 
             field_names.append('y_{}_{}'.format(year, fueltype))
             csv_results.append(

@@ -379,7 +379,7 @@ def load_param_assump(paths, assumptions):
 
     # Helper function to delete ['enduses'] and add one level below
     for enduse_name, value_param in assumptions['strategy_variables']['enduse_overall_change']['enduses'].items():
-        # Add parameter with different variablen ame
+        # Add parameter with different variablen name
         assumptions['strategy_variables']['enduse_overall_change']['enduse_change__{}'.format(enduse_name)] = value_param
     del assumptions['strategy_variables']['enduse_overall_change']['enduses']
 

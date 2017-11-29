@@ -3,18 +3,37 @@
 from collections import defaultdict
 import numpy as np
 
+def gwh_to_twh(gwh):
+    """Convert GWh to TWh
+
+    Arguments
+    ---------
+    gwh : float
+        GWh
+    
+    Returns
+    -------
+    twh : str
+        TWh
+    """
+    twh = gwh / 1000.0
+    return twh
+
 def gewhperday_to_gw(gw_per_day):
     gw = gw_per_day / 24
     return gw
 
 def gwhperyear_to_gw(gwh_per_year):
     """Convert annual gwh to gw
+    TODO
     """
     gw = gwh_per_year / 8760
     return gw
 
 def ktoe_to_gwh(ktoe):
-    """Conversion of ktoe to gwh
+    """Conversion of ktoe to gwh. As ECUK input
+    ktoe per year are provided, which are converted
+    into GWh per year.
 
     Arguments
     ----------

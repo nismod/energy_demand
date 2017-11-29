@@ -48,8 +48,11 @@ def run_all_plot_functions(
         lookups,
         sim_param['simulated_yrs'],
         results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'], enduses['ss_all_enduses'], enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_all_enduses_country.pdf"))
+        enduses['rs_all_enduses'],
+        enduses['ss_all_enduses'],
+        enduses['is_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'],
+        "stacked_all_enduses_country.pdf"))
 
     # ----------
     # Plot seasonal typical load profiles
@@ -59,8 +62,7 @@ def run_all_plot_functions(
     # ------------------------------------
     # Load factors per fueltype and region
     # ------------------------------------
-    #for fueltype_str, fueltype_int in lookups['fueltype'].items():
-    for fueltype_str, fueltype_int in lookups['fueltype'].items()[:2]:
+    for fueltype_str, fueltype_int in lookups['fueltype'].items():
         plot_seasonal_lf(
             fueltype_int,
             fueltype_str,
@@ -149,14 +151,13 @@ def run_all_plot_functions(
     base_year = 2015
     for year in results_container['av_season_daytype_cy'].keys():
         for fueltype_int in results_container['av_season_daytype_cy'][year].keys():
-            fueltype_str = tech_related.get_fueltype_int(lookups['fueltype'], fueltype_int)
-            
+            fueltype_str = tech_related.get_fueltype_str(lookups['fueltype'], fueltype_int)
             plot_load_profile_dh_multiple(
                 os.path.join(local_paths['data_results_PDF'], 'season_daytypes_by_cy_comparison__{}__{}.pdf'.format(year, fueltype_str)),
-                results_container['av_season_daytype_cy'][year][fueltype_int], #d#MAYBE CURRENT YEAR
-                results_container['av_season_daytype_cy'][base_year][fueltype_int], #BASEYEAR
-                results_container['season_daytype_cy'][year][fueltype_int], #MAYBE CURRENT YEAR
-                results_container['season_daytype_cy'][base_year][fueltype_int], #BASEYEAR
+                results_container['av_season_daytype_cy'][year][fueltype_int], #current year
+                results_container['av_season_daytype_cy'][base_year][fueltype_int], # base year
+                results_container['season_daytype_cy'][year][fueltype_int], #current year
+                results_container['season_daytype_cy'][base_year][fueltype_int], # base year
                 plot_peak=True,
                 plot_all_entries=False,
                 plot_figure=False,
@@ -476,9 +477,11 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
             # Conversion: Convert GWh per years to GW
-            yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse]))
+            #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse]))
+            yearly_sum_gw = np.sum(data_model_run[enduse])
+            yearly_sum_twh = conversions.gwh_to_twh(np.sum(data_model_run[enduse]))
 
-            y_data[fueltype_int][model_year] = yearly_sum_gw
+            y_data[fueltype_int][model_year] = yearly_sum_twh #yearly_sum_gw
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -511,7 +514,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[:len(x_data)])
+    colors = tuple(color_list[:len(enduses_data)])
     stack_plot = ax.stackplot(x_data, y_data, colors=colors)
 
     # -------
@@ -567,7 +570,7 @@ def plt_stacked_enduse_sectors(
         is_enduses,
         fig_name
     ):
-    """Plots summarised endues for the three sectors. Annual 
+    """Plots summarised endues for the three sectors. Annual
     GWh are converted into GW.
 
     Arguments
@@ -591,7 +594,14 @@ def plt_stacked_enduse_sectors(
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
     ax = fig.add_subplot(1, 1, 1)
-
+    '''print("AAAA")
+    all_enduses = rs_enduses + ss_enduses + is_enduses
+    for fueltype in range(lookups['fueltypes_nr']):
+        _scrap = 0
+        for enduse in all_enduses:
+            _scrap += np.sum(results_enduse_every_year[0][enduse][fueltype]) # vase year = 0
+        print('fueltype ' + str(fueltype) + "   sum: " + str(_scrap))
+    prnt(":")'''
     #for submodel in (rs_enduses, ss_enduses, is_enduses):
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
@@ -600,54 +610,38 @@ def plt_stacked_enduse_sectors(
             for enduse in rs_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
-                y_data[submodel][model_year] += yearly_sum_gw
+                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
+                yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
+                y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
 
         submodel = 1
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in ss_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
-                y_data[submodel][model_year] += yearly_sum_gw
+                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
+                yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
+                y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
 
         submodel = 2
         for fueltype_int in range(lookups['fueltypes_nr']):
             for enduse in is_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
-                y_data[submodel][model_year] += yearly_sum_gw
-
+                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+                yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
+                yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
+                y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
 
     ##import matplotlib.colors as colors #for color_name in colors.cnmaes:
-    color_list = [
-        'darkturquoise', 'orange', 'firebrick',
-        'darkviolet', 'khaki', 'olive', 'darkseagreen',
-        'darkcyan', 'indianred', 'darkblue',
-        'orchid',
-        'gainsboro',
-        'mediumseagreen',
-        'lightgray',
-        'mediumturquoise',
-        'darksage',
-        'lemonchiffon',
-        'cadetblue',
-        'lightyellow',
-        'lavenderblush',
-        'coral',
-        'purple',
-        'aqua',
-        'mediumslateblue',
-        'darkorange',
-        'mediumaquamarine',
-        'darksalmon',
-        'beige']
+    color_list = ['darkturquoise', 'orange', 'firebrick']
 
     # ----------
     # Stack plot
     # ----------
-    colors = tuple(color_list[:len(x_data)])
+    colors = tuple(color_list)
     stack_plot = ax.stackplot(x_data, y_data, colors=colors)
 
     # ------------
@@ -675,7 +669,7 @@ def plt_stacked_enduse_sectors(
     # -------
     # Labels
     # -------
-    plt.ylabel("GW")
+    plt.ylabel("TWh")
     plt.xlabel("year")
     plt.title("UK ED per sector")
 
@@ -826,9 +820,12 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
             tot_gwh_fueltype_y = np.sum(data_year[fueltype_int])
 
             #Conversion: Convert gwh per years to gw
-            yearly_sum_gw = conversions.gwhperyear_to_gw(tot_gwh_fueltype_y)
+            #yearly_sum_gw = conversions.gwhperyear_to_gw(tot_gwh_fueltype_y)
+            yearly_sum_gw = tot_gwh_fueltype_y
 
-            data_years[year] = yearly_sum_gw
+            yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
+
+            data_years[year] = yearly_sum_twh #yearly_sum_gw
 
         y_values_fueltype[fueltype_str] = data_years
 
@@ -880,7 +877,7 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
     # ---------
     # Labels
     # ---------
-    plt.ylabel("GW")
+    plt.ylabel("TWh")
     plt.xlabel("year")
     plt.title("tot annual ED per fueltype")
 
@@ -1026,15 +1023,15 @@ def plot_load_profile_dh_multiple(
                 x_values,
                 list(calc_av_lp_real[season][daytype]),
                 color='black',
-                label='av_real_by',
-                linestyle='-',
+                label='av_real or av by',
+                linestyle='--',
                 linewidth=0.5)
 
             plt.plot(
                 x_values,
                 list(calc_av_lp_modelled[season][daytype]),
                 color='blue',
-                label='av_modelled',
+                label='av_modelled or av cy',
                 linestyle='--',
                 linewidth=0.5)
 
@@ -1046,7 +1043,7 @@ def plot_load_profile_dh_multiple(
                     plt.plot(
                         x_values,
                         list(calc_lp_real[season][daytype][entry]),
-                        color='black',
+                        color='grey',
                         markersize=0.5,
                         alpha=0.2)
 
@@ -1056,7 +1053,7 @@ def plot_load_profile_dh_multiple(
                         color='blue',
                         markersize=0.5,
                         alpha=0.2)
-            
+
             # ----------
             # Plot max_min range polygons
             # ----------
@@ -1079,7 +1076,7 @@ def plot_load_profile_dh_multiple(
 
                 polygon = plt.Polygon(
                     min_max_polygon,
-                    color='black',
+                    color='grey',
                     alpha=0.2,
                     edgecolor=None,
                     linewidth=0,
@@ -1125,7 +1122,7 @@ def plot_load_profile_dh_multiple(
                     list(calc_lp_real[season][daytype][day_with_max_h]),
                     color='grey',
                     markersize=1.0,
-                    label='real_peak',
+                    label='real_peak or by peak',
                     linestyle='-.',
                     linewidth=0.5)
 
@@ -1137,10 +1134,10 @@ def plot_load_profile_dh_multiple(
                     list(calc_lp_modelled[season][daytype][day_with_max_h]),
                     color='blue',
                     markersize=1.0,
-                    label='modelled_peak',
+                    label='modelled_peak or cy peak',
                     linestyle='-.',
                     linewidth=0.5)
-            
+
             # -----------------
             # Axis
             # -----------------

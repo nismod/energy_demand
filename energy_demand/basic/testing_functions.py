@@ -61,38 +61,6 @@ def testing_tech_defined(technologies, all_tech_enduse):
             if tech not in technologies:
                 sys.exit("Error: The technology '{}' for which fuel was attributed is not defined in technology stock".format(tech))
 
-def testing_switch_technologies(hybrid_technologies, fuel_tech_p_by, share_service_tech_ey_p, technologies):
-    """Test if end_year service switch technology is
-    not assigned in base year and test if fuel share
-    of hybrid tech is assigned
-
-    Arguments
-    ----------
-    hybrid_technologies : list
-        Hybrid technologies
-    fuel_tech_p_by : dict
-        Fuel assigneement base year
-    share_service_tech_ey_p : dict
-        End year service fraction definition
-    technologies : dict
-        Technologies
-    """
-    for enduse, technology_enduse in share_service_tech_ey_p.items():
-
-        for technology in technology_enduse:
-
-            # Test if the fuel share of the hybrid technology is assigned
-            if technology in hybrid_technologies:
-                tech_high = hybrid_technologies[technology]['tech_high_temp']
-                fueltype_tech_high = technologies[tech_high]['fuel_type']
-                if technology not in fuel_tech_p_by[enduse][fueltype_tech_high].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
-            else:
-                tech_fueltype = technologies[technology]['fuel_type']
-
-                if technology not in fuel_tech_p_by[enduse][tech_fueltype].keys():
-                    sys.exit("Error: The defined technology '{}' in service switch is not defined in fuel technology stock assumptions".format(technology))
-
 def testing_service_switch_insert(tech_stock_definition, switches):
     """Test switches
     """

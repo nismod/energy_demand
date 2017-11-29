@@ -7,6 +7,7 @@ https://nismod.github.io/docs/
 https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # REMOVE HYBRID
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
+clean gwhperyear_to_gw
 """
 import os
 import sys
@@ -40,7 +41,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
     print("VORHER Fuel input:          " + str(fuel_in))
     print("VORHER elec fuel in:        " + str(fuel_in_elec))
-
+    #prnt(":")
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data)
@@ -115,12 +116,8 @@ if __name__ == "__main__":
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
     data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
-
-
-    # Load dumpmpy data
-
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
-    
+
     # GVA
     gva_data = {}
     for year in range(2015, 2101):
@@ -159,7 +156,6 @@ if __name__ == "__main__":
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
-    
     data['reg_nrs'] = len(data['lu_reg'])
 
     # ------------------------------
@@ -179,7 +175,7 @@ if __name__ == "__main__":
         data['fuels']['rs_fuel_raw_data_enduses'],
         data['assumptions']['rs_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
-    
+
     data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
         data['assumptions']['ss_service_switches'],
         data['assumptions']['capacity_switches']['ss_capacity_switches'],
@@ -188,7 +184,7 @@ if __name__ == "__main__":
         data['fuels']['ss_fuel_raw_data_enduses'],
         data['assumptions']['ss_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
-    
+
     data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
         data['assumptions']['is_service_switches'],
         data['assumptions']['capacity_switches']['is_capacity_switches'],
@@ -197,9 +193,6 @@ if __name__ == "__main__":
         data['fuels']['is_fuel_raw_data_enduses'],
         data['assumptions']['is_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
-    
-
-
 
     #Scenario data
     data['scenario_data'] = {

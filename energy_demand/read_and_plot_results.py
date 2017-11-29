@@ -17,7 +17,7 @@ def main(path_data_energy_demand):
     """
 
     # Write shapefiles
-    write_shapefiles = False
+    write_shapefiles = True
 
 
     # Set up logger
@@ -55,6 +55,7 @@ def main(path_data_energy_demand):
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
+    print("... start reading in model txt results")
     #TODO DO read in and plot in same step if memory is a problem
     results_container = read_data.read_in_results(
         data['local_paths']['data_results_model_runs'],
@@ -66,13 +67,14 @@ def main(path_data_energy_demand):
     # Write results to CSV files and merge with shapefile
     # ----------------
     if write_shapefiles:
+        print("... create shapefile")
         write_data.create_shp_results(
             data,
             results_container,
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
-
+    prnt(".")
     # ------------------------------
     # Plotting results
     # ------------------------------
