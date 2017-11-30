@@ -8,6 +8,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # REMOVE HYBRID
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 clean gwhperyear_to_gw
+# backcasting
 """
 import os
 import sys

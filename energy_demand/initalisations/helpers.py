@@ -130,7 +130,7 @@ def get_nested_dict_key(nested_dict):
 
     return all_nested_keys
 
-def helper_set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
+def set_same_eff_all_tech(technologies, tech_eff_achieved_f=1):
     """Helper function to assing same achieved efficiency
 
     Arguments

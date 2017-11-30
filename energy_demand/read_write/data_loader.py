@@ -214,7 +214,7 @@ def load_local_paths(path):
         'data_results': os.path.join(
             path, '_result_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
+            path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'), #TODO
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(

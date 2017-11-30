@@ -192,7 +192,7 @@ def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     logging.info("... Reading in load factors")
     results_container['load_factors_y'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_y"))
-    results_container['load_factors_yh'] = read_lf_y(
+    results_container['load_factors_yd'] = read_lf_y(
         os.path.join(path_runs, "result_reg_load_factor_yd"))
 
     results_container['load_factor_seasons'] = {}

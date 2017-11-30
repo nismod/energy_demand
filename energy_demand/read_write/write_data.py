@@ -56,7 +56,7 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
 
     write_shp.write_result_shapefile(
         paths['lad_shapefile'],
-        os.path.join(paths['data_results_shapefiles'], 'lp_max_y'),
+        os.path.join(paths['data_results_shapefiles'], 'lf_max_y'),
         field_names,
         csv_results)
 
@@ -71,9 +71,6 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
 
             # Calculate yearly sum
             yearly_sum = np.sum(results_container['results_every_year'][year][fueltype], axis=1)
-
-            # Conversion: Convert gwh per years to gw
-            #yearly_sum_gw = conversions.gwhperyear_to_gw(yearly_sum)
             yearly_sum_gw = yearly_sum
 
             field_names.append('y_{}_{}'.format(year, fueltype))
@@ -92,9 +89,9 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
         csv_results)
 
     # ------------------------------------
-    # Create shapefile with
+    # Create shapefile with peak demand in gwh
     # ------------------------------------
-
+    #TODO:
     # ------------------------------------
     # Create shapefile with
     # ------------------------------------

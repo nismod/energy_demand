@@ -26,7 +26,7 @@ from energy_demand.technologies import fuel_service_switch
 
 # must match smif project name for Local Authority Districts
 REGION_SET_NAME = 'lad_uk_2016'
-NR_OF_MODELLEd_REGIONS = 391 #380 uk: 391, england.: 380
+NR_OF_MODELLEd_REGIONS = 391 # uk: 391, england.: 380
 PROFILER = False
 
 class EDWrapper(SectorModel):
@@ -70,7 +70,7 @@ class EDWrapper(SectorModel):
         """
         data = defaultdict(dict, data)
 
-        # Criteria 
+        # Criteria
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
@@ -160,7 +160,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays_daytype'])
 
         # ---------------------
-        # Convert capacity switches to 
+        # Convert capacity switches to
         # service switches
         # ---------------------
         data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
@@ -424,8 +424,7 @@ class EDWrapper(SectorModel):
         tot_peak_enduses_fueltype = model_run_object.tot_peak_enduses_fueltype
         tot_fuel_y_max_enduses = model_run_object.tot_fuel_y_max_enduses
         ed_fueltype_national_yh = model_run_object.ed_fueltype_national_yh
-        print("SCRAP:         ------------------- " + str(np.sum(ed_fueltype_national_yh[2])))
-        print("SCRAP:         ------------------- " + str(ed_fueltype_national_yh.shape))
+
         reg_load_factor_y = model_run_object.reg_load_factor_y
         reg_load_factor_yd = model_run_object.reg_load_factor_yd
         reg_load_factor_winter = model_run_object.reg_load_factor_seasons['winter']

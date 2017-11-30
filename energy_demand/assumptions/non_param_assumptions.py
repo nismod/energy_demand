@@ -342,7 +342,7 @@ def update_assumptions(technologies, factor_achieved):
     This needs to be run everytime an assumption is changedf
 
     """
-    technologies = helpers.helper_set_same_eff_all_tech(
+    technologies = helpers.set_same_eff_all_tech(
         technologies,
         factor_achieved)
 

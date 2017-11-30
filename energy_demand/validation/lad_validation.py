@@ -131,6 +131,7 @@ def tempo_spatial_validation(
     subnational_elec = data_loader.read_national_real_elec_data(local_paths['path_val_subnational_elec'])
     subnational_gas = data_loader.read_national_real_gas_data(local_paths['path_val_subnational_gas'])
 
+    print("AAAAAAAAAAAA " + str(np.sum(subnational_elec.values())))
     spatial_validation(
         reg_coord,
         ed_fueltype_regs_yh,
@@ -139,7 +140,8 @@ def tempo_spatial_validation(
         lu_reg,
         subnational_elec,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_elec.pdf'),
-        label_points=False)
+        label_points=False,
+        plotshow=True)
 
     spatial_validation(
         reg_coord,
@@ -149,7 +151,8 @@ def tempo_spatial_validation(
         lu_reg,
         subnational_gas,
         os.path.join(local_paths['data_results_validation'], 'validation_spatial_gas.pdf'),
-        label_points=False)
+        label_points=False,
+        plotshow=True)
 
     # -------------------------------------------
     # Temporal validation (hourly for national)
@@ -236,7 +239,8 @@ def spatial_validation(
         lu_reg,
         subnational_elec,
         fig_name,
-        label_points=False
+        label_points=False,
+        plotshow=False
     ):
     """Compare gas/elec demand for LADs
 
@@ -276,8 +280,6 @@ def spatial_validation(
                         result_dict['real_demand'][reg_geocode] = gw_per_region_real
 
                         # Convert GWh to GW
-                        #gw_per_region_modelled = conversions.gwhperyear_to_gw(
-                        #    np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr]))
                         gw_per_region_modelled = np.sum(ed_fueltype_regs_yh[fueltype_int][region_array_nr])
 
                         # Correct ECUK data with correction factor
@@ -415,7 +417,7 @@ def spatial_validation(
         fontdict=font_additional_info)
 
     plt.xlabel("UK regions (excluding northern ireland)")
-    plt.ylabel("{} GW".format(fueltype_str))
+    plt.ylabel("{} [GWh]".format(fueltype_str))
 
     # --------
     # Legend
@@ -428,6 +430,8 @@ def spatial_validation(
     plt.margins(x=0)
     plt.tight_layout()
 
+    if plotshow:
+        plt.show()
     # Save fig
     plt.savefig(fig_name)
     plt.close()

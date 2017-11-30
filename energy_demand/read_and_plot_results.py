@@ -19,7 +19,6 @@ def main(path_data_energy_demand):
     # Write shapefiles
     write_shapefiles = True
 
-
     # Set up logger
     logger_setup.set_up_logger(
         os.path.join(path_data_energy_demand, "logging_plotting.log"))
@@ -51,7 +50,10 @@ def main(path_data_energy_demand):
     data['scenario_data'] = {}
     data['scenario_data']['population'] = read_data.read_pop(
         os.path.join(data['local_paths']['data_results'], 'model_run_pop'))
-
+    print(data['scenario_data']['population'][2015])
+    print("---")
+    #print(data['scenario_data']['population'][2015]['E06000048'])
+    #prnt(".")
     # --------------------------------------------
     # Reading in results from different model runs
     # --------------------------------------------
@@ -74,7 +76,7 @@ def main(path_data_energy_demand):
             data['local_paths'],
             data['lookups'],
             data['lu_reg'])
-    prnt(".")
+
     # ------------------------------
     # Plotting results
     # ------------------------------

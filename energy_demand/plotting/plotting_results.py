@@ -75,11 +75,12 @@ def run_all_plot_functions(
         plot_lf_y(
             fueltype_int,
             fueltype_str,
-            results_container['load_factors_yh'],
+            results_container['load_factors_yd'],
             reg_nrs,
             os.path.join(
-                local_paths['data_results_PDF'], 'lf_yh_{}.pdf'.format(fueltype_str)))
+                local_paths['data_results_PDF'], 'lf_yd_{}.pdf'.format(fueltype_str)))
 
+        # load_factors_yd = max daily value / average annual daily value
         plot_lf_y(
             fueltype_int,
             fueltype_str,
@@ -664,7 +665,15 @@ def plt_stacked_enduse_sectors(
     # -------
     # Axis
     # -------
-    plt.xticks(years_simulated, years_simulated)
+    base_yr, year_interval = 2015, 5
+    end_yr = list(years_simulated)
+
+    major_ticks = np.arange(
+        base_yr, end_yr[-1] + year_interval, year_interval)
+
+    plt.xticks(major_ticks, major_ticks)
+    plt.axis('tight')
+
 
     # -------
     # Labels
@@ -715,7 +724,7 @@ def plot_load_curves_fueltype(results_objects, data, fig_name):
 
     ax.legend(legend_entries)
 
-    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot)) #, color='red')
+    plt.xticks(range(nr_y_to_plot), range(2015, 2015 + nr_y_to_plot))
     plt.axis('tight')
 
     plt.ylabel("Percent %")

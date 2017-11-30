@@ -524,4 +524,3 @@ def test_get_sig_diffusion():
     #TODO: Possibly add more test
 
     assert result['heating'] == ['boilerC']
-test_get_sig_diffusion()
