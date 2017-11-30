@@ -160,10 +160,9 @@ class EDWrapper(SectorModel):
             data['assumptions']['model_yeardays_daytype'])
 
         # ---------------------
-        # Convert capacity switches to
-        # service switches
+        # Convert capacity switches to service switches
         # ---------------------
-        data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
             data['assumptions']['capacity_switches']['rs_capacity_switches'],
             data['assumptions']['technologies'],
@@ -172,7 +171,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['rs_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
             data['assumptions']['ss_service_switches'],
             data['assumptions']['capacity_switches']['ss_capacity_switches'],
             data['assumptions']['technologies'],
@@ -181,7 +180,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['ss_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+        data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
             data['assumptions']['is_service_switches'],
             data['assumptions']['capacity_switches']['is_capacity_switches'],
             data['assumptions']['technologies'],
@@ -193,8 +192,9 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions'] = self.load_all_smif_parameters(
+        data['assumptions'] = self.load_smif_parameters(
             data['paths']['yaml_parameters_complete'], data, data['assumptions'])
+
         # ------------------------
         # Pass along to simulate()
         # ------------------------
@@ -314,7 +314,7 @@ class EDWrapper(SectorModel):
         # ------------------------
         # Load all SMIF parameters and replace data dict
         # ------------------------
-        data['assumptions'] = self.load_all_smif_parameters(
+        data['assumptions'] = self.load_smif_parameters(
             data['paths']['yaml_parameters_complete'], data, data['assumptions'])
 
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
@@ -490,7 +490,7 @@ class EDWrapper(SectorModel):
         """
         pass
 
-    def load_all_smif_parameters(self, path_all_strategy_params, data, assumptions):
+    def load_smif_parameters(self, path_all_strategy_params, data, assumptions):
         """Get all model parameters from smif and replace in data dict
 
         Arguments

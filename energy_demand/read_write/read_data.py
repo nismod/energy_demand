@@ -155,14 +155,6 @@ class ServiceSwitch(object):
         self.service_share_ey = service_share_ey
         self.switch_yr = switch_yr
 
-'''def read_param_yaml(path):
-    """Read yaml parameters
-    """
-    with open(path, 'r') as ymlfile:
-        parameter_dict = yaml.load(ymlfile)
-
-    return parameter_dict'''
-
 def read_in_results(path_runs, lookups, seasons, model_yeardays_daytype):
     """Read and post calculate
     results from txt files

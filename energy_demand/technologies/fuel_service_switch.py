@@ -42,9 +42,9 @@ def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, s
     service_switches : dict
         Defined service switches
     specified_tech_enduse_by : dict
-        Specified technologies per enduse
-    fuel_tech_p_by : dict
-        Fuel assignement for base year
+        Specified technologies of an enduse
+    service_tech_by_p : dict
+        Share of service of technology in base year
 
     Returns
     -------
@@ -53,16 +53,17 @@ def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, s
     """
     service_switches_out = []
 
-    all_enduses_with_switches = set([])
+    # ---------------------------------
     # Get all enduses defined in switch
+    # ---------------------------------
+    all_enduses_with_switches = set([])
     for switch in service_switches:
         all_enduses_with_switches.add(switch.enduse)
-
     all_enduses_with_switches = list(all_enduses_with_switches)
 
     for enduse in all_enduses_with_switches:
 
-        # Get all switches with enduse
+        # Get all switches of this enduse
         switches_enduse = []
         assigned_service = 0
         assigned_technologies = []
@@ -74,7 +75,7 @@ def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, s
                 switches_enduse.append(switch)
                 switch_yr = switch.switch_yr
 
-        # Calculate relative proportion of not assigned tchnologies in base year 
+        # Calculate relative by proportion of not assigned tchnologies
         tech_not_assigned_by_p = {}
         for tech in specified_tech_enduse_by[enduse]:
             if tech not in assigned_technologies:
@@ -150,7 +151,7 @@ def get_service_rel_tech_decr_by(tech_decrease_service, service_tech_by_p):
 
     return rel_share_service_tech_decr_by
 
-def calc_service_switch_capacity(
+def capacity_installations(
         service_switches,
         capacity_switches,
         technologies,

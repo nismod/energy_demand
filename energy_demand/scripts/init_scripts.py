@@ -169,9 +169,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['technologies'])
 
     # ---
-    # Complement switches ()
-    # --- TODO TEST
-    #'''
+    # Autocomplement switches
+    # --- 
     switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
         data['assumptions']['rs_service_switches'],

@@ -168,7 +168,7 @@ if __name__ == "__main__":
     # ---------------------
     # Calculate all capacity switches
     # ---------------------
-    data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+    data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
         data['assumptions']['rs_service_switches'],
         data['assumptions']['capacity_switches']['rs_capacity_switches'],
         data['assumptions']['technologies'],
@@ -177,7 +177,7 @@ if __name__ == "__main__":
         data['assumptions']['rs_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
-    data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+    data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
         data['assumptions']['ss_service_switches'],
         data['assumptions']['capacity_switches']['ss_capacity_switches'],
         data['assumptions']['technologies'],
@@ -186,7 +186,7 @@ if __name__ == "__main__":
         data['assumptions']['ss_fuel_tech_p_by'],
         data['sim_param']['base_yr'])
 
-    data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.calc_service_switch_capacity(
+    data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
         data['assumptions']['is_service_switches'],
         data['assumptions']['capacity_switches']['is_capacity_switches'],
         data['assumptions']['technologies'],

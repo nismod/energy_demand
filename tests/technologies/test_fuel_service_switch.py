@@ -68,7 +68,7 @@ def test_create_service_switch():
         if entry.technology_install == 'boiler_gas':
             assert expected == entry.service_share_ey
 
-def test_calc_service_switch_capacity():
+def test_capacity_installations():
     """
     """
     other_enduse_mode_info = {
@@ -97,7 +97,7 @@ def test_calc_service_switch_capacity():
         )
     ]
 
-    result_service_switches, crit_switch = fuel_service_switch.calc_service_switch_capacity(
+    result_service_switches, crit_switch = fuel_service_switch.capacity_installations(
         service_switches=[],
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -145,7 +145,7 @@ def test_calc_service_switch_capacity():
             )
         ]
 
-    result_service_switches, crit_switch = fuel_service_switch.calc_service_switch_capacity(
+    result_service_switches, crit_switch = fuel_service_switch.capacity_installations(
         service_switches=result_service_switches,
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -160,3 +160,51 @@ def test_calc_service_switch_capacity():
         if switch.technology_install == 'techB':
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
     assert crit_switch == True
+
+def helper_reduce_service_switches():
+    """
+    """
+    service_switches = [read_data.ServiceSwitch(
+        'heating',
+        'techA',
+        0.5,
+        2020)]
+
+    specified_tech_enduse_by = {'heating': ['techA', 'techB']}
+    service_tech_by_p = {'heating': {'techA': 0.8, 'techB': 0.2}}
+
+    service_switches = fuel_service_switch.helper_reduce_service_switches(
+        service_switches=service_switches,
+        specified_tech_enduse_by=specified_tech_enduse_by,
+        service_tech_by_p=service_tech_by_p)
+    
+    for switch in service_switches:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.5
+        
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.5
+    #---
+
+    service_switches = [read_data.ServiceSwitch(
+        'heating',
+        'techA',
+        0.3,
+        2020)]
+
+    specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
+    service_tech_by_p = {'heating': {'techA': 0.6, 'techB': 0.2,'techC': 0.1}}
+
+    service_switches = fuel_service_switch.helper_reduce_service_switches(
+        service_switches=service_switches,
+        specified_tech_enduse_by=specified_tech_enduse_by,
+        service_tech_by_p=service_tech_by_p)
+    
+    for switch in service_switches:
+        if switch.technology_install == 'techA':
+            assert switch.service_share_ey == 0.3
+        
+        if switch.technology_install == 'techB':
+            assert switch.service_share_ey == 0.7 * (2.0 / 3.0)
+        if switch.technology_install == 'techC':
+            assert switch.service_share_ey == 0.7 * (1.0 / 3.0)
