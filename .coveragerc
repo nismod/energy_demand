@@ -1,4 +1,4 @@
 [run]
 omit =
     # omit everything in /usr
-    /charts/*
+    energy_demand/charts/*
