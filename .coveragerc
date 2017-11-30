@@ -1,4 +1,7 @@
+# .coveragerc to control coverage.py
+
 [run]
 omit =
+    *__init__*
     # omit everything in /usr
-    energy_demand/charts/*
+    */charts/*
