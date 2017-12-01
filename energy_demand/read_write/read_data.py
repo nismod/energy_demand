@@ -503,15 +503,17 @@ def read_load_shapes_tech(path_to_csv):
 
     return load_shapes_dh
 
-def read_service_switch(path_to_csv, specified_tech_enduse_by):
-    """This function reads in service assumptions from csv file
+def read_service_switch(path_to_csv, technologies):
+    """This function reads in service assumptions from csv file,
+    tests whether the maximum defined switch is larger than
+    possible for a technology,
 
     Arguments
     ----------
     path_to_csv : str
         Path to csv file
-    specified_tech_enduse_by : dict
-        Technologiey per enduse for base year
+    technologies : list
+        All technologies
 
     Returns
     -------
@@ -523,10 +525,6 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
     Notes
     -----
     The base year service shares are generated from technology stock definition
-    - skips header row
-    - It also test if plausible inputs
-    While not only loading in all rows, this function as well tests if
-    inputs are plausible (e.g. sum up to 100%)
     """
     service_switches = []
     enduse_tech_ey_p = {}
@@ -549,16 +547,12 @@ def read_service_switch(path_to_csv, specified_tech_enduse_by):
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no empty csv entries)")
 
-    # TODO: WRITE TEST AND TEST IF IN TECHNOLOGY DEFINITION CONTRADICTION
     # Test if more service is provided as input than possible to maximum switch
-    '''for entry in service_switches:
-        if entry['service_share_ey'] > entry['tech_max_share']:
-            sys.exit("More service switch is provided for tech '{}' in enduse '{}' than max possible".format(entry['enduse'], entry['technology_install']))
-    '''
-    # Test if service of all provided technologies sums up to 100% in the end year
-    '''for enduse in enduse_tech_ey_p:
-        if round(sum(enduse_tech_ey_p[enduse].values()), 2) != 1.0:
-            sys.exit("The provided ey service switch of enduse '{}' does not sum up to 1.0 (100%)".format(enduse))'''
+    for entry in service_switches:
+        if entry.service_share_ey > technologies[entry.technology_install].tech_max_share:
+            sys.exit(
+                "Input error: more service provided for tech '{}' in enduse '{}' than max possible".format(
+                    entry['enduse'], entry['technology_install']))
 
     return service_switches
 
@@ -580,7 +574,7 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
     dict_with_switches : dict
         All assumptions about fuel switches provided as input
     """
-    service_switches = []
+    fuel_switches = []
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
@@ -588,51 +582,47 @@ def read_fuel_switches(path_to_csv, enduses, lu_fueltypes):
 
         for row in read_lines:
             try:
-                service_switches.append(
+                fuel_switches.append(
                     FuelSwitch(
                         enduse=str(row[0]),
                         enduse_fueltype_replace=lu_fueltypes[str(row[1])],
                         technology_install=str(row[2]),
                         switch_yr=float(row[3]),
-                        fuel_share_switched_ey=float(row[4]))
-                )
+                        fuel_share_switched_ey=float(row[4])))
             except (KeyError, ValueError):
                 sys.exit("Check if provided data is complete (no emptly csv entries)")
 
-    # -------------------------------------------------
-    # Testing wheter the provided inputs make sense
-    # -------------------------------------------------
-    for obj in service_switches:
-        #TODO: WRITE TEST FROM TECHNOLOGIES
-        #if obj['fuel_share_switched_ey'] > obj['max_theoretical_switch']:
-        #    sys.exit("More fuel is switched than theorically possible for enduse '{}' and fueltype '{}".format(obj['enduse'], obj['enduse_fueltype_replace']))
 
+    # Testing wheter the provided inputs make sense
+    for obj in fuel_switches:
         if obj.fuel_share_switched_ey == 0:
-            sys.exit("The share of switched fuel needs to be bigger than than 0 (otherwise delete as this is the standard input)")
+            sys.exit(
+                "Input error: The share of switched fuel needs to be > 0. Delete {} from input".format(
+                    obj.technology_install))
 
     # Test if more than 100% per fueltype is switched
-    for obj in service_switches:
+    for obj in fuel_switches:
         enduse = obj.enduse
         fuel_type = obj.enduse_fueltype_replace
-
         tot_share_fueltype_switched = 0
-        # Do check for every entry
-        for obj_iter in service_switches:
+        for obj_iter in fuel_switches:
             if enduse == obj_iter.enduse and fuel_type == obj_iter.enduse_fueltype_replace:
-                # Found same fueltypes which is switched
                 tot_share_fueltype_switched += obj_iter.fuel_share_switched_ey
-
         if tot_share_fueltype_switched > 1.0:
-            sys.exit("The defined fuel switches are larger than 1.0 for enduse {} and fueltype {}".format(enduse, fuel_type))
+            sys.exit(
+                "Input error: The fuel switches are > 1.0 for enduse {} and fueltype {}".format(
+                    enduse, fuel_type))
 
     # Test whether defined enduse exist
-    for obj in service_switches:
+    for obj in fuel_switches:
         if obj.enduse in enduses['ss_all_enduses'] or obj.enduse in enduses['rs_all_enduses'] or obj.enduse in enduses['is_all_enduses']:
             pass
         else:
-            sys.exit("The defined enduse '{}' to switch fuel from is not defined...".format(obj['enduse']))
+            sys.exit(
+                "Input Error: The defined enduse '{}' to switch fuel from is not defined...".format(
+                    obj.enduse))
 
-    return service_switches
+    return fuel_switches
 
 def read_technologies(path_to_csv, fueltypes):
     """Read in technology definition csv file

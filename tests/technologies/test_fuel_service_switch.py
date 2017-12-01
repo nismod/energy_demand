@@ -161,7 +161,7 @@ def test_capacity_installations():
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
     assert crit_switch == True
 
-def helper_reduce_service_switches():
+def autocomplete_switches():
     """
     """
     service_switches = [read_data.ServiceSwitch(
@@ -173,7 +173,7 @@ def helper_reduce_service_switches():
     specified_tech_enduse_by = {'heating': ['techA', 'techB']}
     service_tech_by_p = {'heating': {'techA': 0.8, 'techB': 0.2}}
 
-    service_switches = fuel_service_switch.helper_reduce_service_switches(
+    service_switches = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
         service_tech_by_p=service_tech_by_p)
@@ -195,7 +195,7 @@ def helper_reduce_service_switches():
     specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
     service_tech_by_p = {'heating': {'techA': 0.6, 'techB': 0.2,'techC': 0.1}}
 
-    service_switches = fuel_service_switch.helper_reduce_service_switches(
+    service_switches = fuel_service_switch.autocomplete_switches(
         service_switches=service_switches,
         specified_tech_enduse_by=specified_tech_enduse_by,
         service_tech_by_p=service_tech_by_p)

@@ -276,11 +276,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # Scenaric service switches
     # ============================================================
     assumptions['rs_service_switches'] = read_data.read_service_switch(
-        paths['rs_path_service_switch'], assumptions['rs_specified_tech_enduse_by'])
+        paths['rs_path_service_switch'], assumptions['technologies'])
     assumptions['ss_service_switches'] = read_data.read_service_switch(
-        paths['ss_path_service_switch'], assumptions['ss_specified_tech_enduse_by'])
+        paths['ss_path_service_switch'], assumptions['technologies'])
     assumptions['is_service_switches'] = read_data.read_service_switch(
-        paths['is_path_industry_switch'], assumptions['is_specified_tech_enduse_by'])
+        paths['is_path_industry_switch'], assumptions['technologies'])
 
     # ============================================================
     # Scenaric capacity switches

@@ -43,7 +43,7 @@ def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
 
     return enduse_tech_ey_p
 
-def helper_reduce_service_switches(service_switches, specified_tech_enduse_by, service_tech_by_p):
+def autocomplete_switches(service_switches, specified_tech_enduse_by, service_tech_by_p):
     """Helper function to add not defined technologies in switch
     and set correct future year service share. If the defined
     service switches do not sum up to 100% service,

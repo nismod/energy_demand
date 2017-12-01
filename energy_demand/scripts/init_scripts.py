@@ -172,17 +172,17 @@ def scenario_initalisation(path_data_ed, data=False):
     # Autocomplement switches
     # --- 
     switches_cont = {}
-    switches_cont['rs_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+    switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['rs_service_switches'],
         data['assumptions']['rs_specified_tech_enduse_by'],
         fts_cont['rs_service_tech_by_p'])
 
-    switches_cont['ss_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+    switches_cont['ss_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['ss_service_switches'],
         data['assumptions']['ss_specified_tech_enduse_by'],
         fts_cont['ss_service_tech_by_p'])
 
-    switches_cont['is_service_switches'] = fuel_service_switch.helper_reduce_service_switches(
+    switches_cont['is_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['is_service_switches'],
         data['assumptions']['is_specified_tech_enduse_by'],
         fts_cont['is_service_tech_by_p'])

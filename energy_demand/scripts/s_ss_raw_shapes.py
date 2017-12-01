@@ -9,8 +9,6 @@ from energy_demand.read_write import read_data
 from energy_demand.basic import date_prop
 from energy_demand.scripts import s_shared_functions
 from energy_demand.profiles import load_profile
-#from collections import defaultdict
-#import logging
 
 def dict_init_carbon_trust():
     """Helper function to initialise dict
@@ -402,7 +400,6 @@ def compare_jan_jul(main_dict_dayyear_absolute):
 
     plot_load_shape_yd_non_resid(jan)
     print("TEST: " + str(jan-jul))
-
 
 def plot_load_shape_yd_non_resid(daily_load_shape):
     """With input 2 dim array plot daily load"""
