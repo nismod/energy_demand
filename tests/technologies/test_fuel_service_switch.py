@@ -208,3 +208,20 @@ def helper_reduce_service_switches():
             assert switch.service_share_ey == 0.7 * (2.0 / 3.0)
         if switch.technology_install == 'techC':
             assert switch.service_share_ey == 0.7 * (1.0 / 3.0)
+
+def test_get_share_service_tech_ey():
+    """testing"""
+
+    service_switches = [read_data.ServiceSwitch(
+        'heating',
+        'techA',
+        0.3,
+        2020)]
+
+    specified_tech_enduse_by = {'heating': ['techA', 'techB', 'techC']}
+
+    result = fuel_service_switch.get_share_service_tech_ey(
+        service_switches=service_switches,
+        specified_tech_enduse_by=specified_tech_enduse_by)
+    
+    assert result['heating']['techA'] == 0.3

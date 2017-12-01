@@ -1,9 +1,10 @@
-# .coveragerc to control coverage.py
+# .coveragerc to control coverage.py (exmaple file: https://github.com/Geotab/mygeotab-python/blob/master/.coveragerc)
 [run]
 omit =
-    main.py
-    read_and_plot_results.py
     *__init__*
+    energy_demand/main.py
+    energy_demand/read_and_plot_results.py
+    energy_demand/geography/write_shp.py
     energy_demand/charts/*
     energy_demand/cli/*
     energy_demand/validation/*

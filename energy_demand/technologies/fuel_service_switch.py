@@ -4,7 +4,20 @@ from energy_demand.technologies import tech_related
 from energy_demand.read_write import read_data
 
 def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
-    """
+    """Get fraction of service for each technology
+    defined in a switch for the future year
+
+    Arguments
+    ---------
+    service_switches : list
+        Service switches
+    specified_tech_enduse_by : list
+        Technologies defined per enduse for base year
+    
+    Return
+    ------
+    enduse_tech_ey_p : dict
+        Enduse, share per technology in ey
     """
     enduse_tech_ey_p = {}
 
