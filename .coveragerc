@@ -1,11 +1,10 @@
 # .coveragerc to control coverage.py
 [run]
 omit =
+    main.py
+    read_and_plot_results.py
     *__init__*
-    charts/*
     energy_demand/charts/*
-    cli/*
-    validation/*
+    energy_demand/cli/*
     energy_demand/validation/*
-    plotting/*
-    plotting/validation/*
+    energy_demand/plotting/*
