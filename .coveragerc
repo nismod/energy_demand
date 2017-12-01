@@ -1,7 +1,9 @@
 # .coveragerc to control coverage.py
-
 [run]
-branch = True
 omit =
     *__init__*
     charts/*
+    energy/demand/charts/*
+    cli/*
+    validation/*
+    plotting/*
