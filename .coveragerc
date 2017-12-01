@@ -3,7 +3,9 @@
 omit =
     *__init__*
     charts/*
-    energy/demand/charts/*
+    energy_demand/charts/*
     cli/*
     validation/*
+    energy_demand/validation/*
     plotting/*
+    plotting/validation/*

@@ -478,7 +478,6 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
             # Conversion: Convert GWh per years to GW
-            #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse]))
             yearly_sum_gw = np.sum(data_model_run[enduse])
             yearly_sum_twh = conversions.gwh_to_twh(np.sum(data_model_run[enduse]))
 
@@ -611,7 +610,6 @@ def plt_stacked_enduse_sectors(
             for enduse in rs_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
                 yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
@@ -621,7 +619,7 @@ def plt_stacked_enduse_sectors(
             for enduse in ss_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
+
                 yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
@@ -631,7 +629,6 @@ def plt_stacked_enduse_sectors(
             for enduse in is_enduses:
 
                 # Conversion: Convert gwh per years to gw
-                #yearly_sum_gw = conversions.gwhperyear_to_gw(np.sum(data_model_run[enduse][fueltype_int]))
                 yearly_sum_gw = np.sum(data_model_run[enduse][fueltype_int])
                 yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)
                 y_data[submodel][model_year] += yearly_sum_twh #yearly_sum_gw
@@ -829,7 +826,6 @@ def plt_fuels_enduses_y(results_resid, lookups, fig_name):
             tot_gwh_fueltype_y = np.sum(data_year[fueltype_int])
 
             #Conversion: Convert gwh per years to gw
-            #yearly_sum_gw = conversions.gwhperyear_to_gw(tot_gwh_fueltype_y)
             yearly_sum_gw = tot_gwh_fueltype_y
 
             yearly_sum_twh = conversions.gwh_to_twh(yearly_sum_gw)

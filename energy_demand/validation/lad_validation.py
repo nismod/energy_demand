@@ -275,7 +275,6 @@ def spatial_validation(
                         pass
                     else:
                         # --Sub Regional Electricity demand
-                        #gw_per_region_real = conversions.gwhperyear_to_gw(subnational_elec[reg_geocode])
                         gw_per_region_real = subnational_elec[reg_geocode]
                         result_dict['real_demand'][reg_geocode] = gw_per_region_real
 
