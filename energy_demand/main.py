@@ -8,6 +8,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 # Calculate sigmoid for different regions
 # backcasting
+# Industry INFO about efficiencies & technologies
 """
 import os
 import sys

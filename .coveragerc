@@ -5,6 +5,7 @@ omit =
     energy_demand/main.py
     energy_demand/read_and_plot_results.py
     energy_demand/geography/write_shp.py
+    energy_demand/basic/logger_setup.py
     energy_demand/charts/*
     energy_demand/cli/*
     energy_demand/validation/*
