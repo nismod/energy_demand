@@ -1,13 +1,12 @@
 """Script to convert fuel to energy service
 """
-import os
 import logging
 import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
 
-def write_service_fueltype_by_p(path_to_txt, data):
+'''def write_service_fueltype_by_p(path_to_txt, data):
     """Write out function
 
     Arguments
@@ -80,7 +79,7 @@ def write_service_tech_by_p(path_to_txt, data):
                       )
 
     file.close()
-    return
+    return'''
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
