@@ -158,9 +158,9 @@ if __name__ == "__main__":
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-        data['assumptions'],
         data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['eff_achiev_f'])
+        data['assumptions']['strategy_variables']['eff_achiev_f'], 
+        data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 

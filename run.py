@@ -201,9 +201,9 @@ class EDWrapper(SectorModel):
         logging.info(data['assumptions']['strategy_variables'])
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions'],
             data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['eff_achiev_f'])
+            data['assumptions']['strategy_variables']['eff_achiev_f'],
+            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
         # ------------------------
         # Pass along to simulate()
@@ -337,9 +337,9 @@ class EDWrapper(SectorModel):
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions'],
             data['assumptions']['technologies'],
-            data['assumptions']['strategy_variables']['eff_achiev_f'])
+            data['assumptions']['strategy_variables']['eff_achiev_f'],
+            data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
         # ---------
         # Scenario data

@@ -295,9 +295,21 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     return assumptions
 
-def update_assumptions(assumptions, technologies, factor_achieved):
-    """Updates calculations based on assumptions
+def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
+    """Updates technology related properties based on
+    scenario assumptions. Calculate average efficiency of 
+    heat pumps depending on mix of GSHP and ASHP,
+    set the efficiency achieval factor of all factor according
+    to strategy assumptions
 
+    Parameters
+    ----------
+    technologies : dict
+        Technologies
+    factor_achieved : float
+        Factor achieved
+    split_hp_gshp_to_ashp_ey : float
+        Mix of GSHP and GSHP
     Note
     ----
     This needs to be run everytime an assumption is changedf
@@ -307,15 +319,14 @@ def update_assumptions(assumptions, technologies, factor_achieved):
         technologies,
         factor_achieved)
 
-
     # ----------
     # Calculate average efficiency of heat pumps
     # depending on fraction of GSHP to ASHP
     # ----------
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
-        assumptions['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+        split_hp_gshp_to_ashp_ey)
 
     technologies = tech_related.calc_av_heat_pump_eff_ey(
-        assumptions['technologies'], installed_heat_pump_ey)
+        technologies, installed_heat_pump_ey)
 
     return technologies
