@@ -76,6 +76,10 @@ class EDWrapper(SectorModel):
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
 
+        data['sim_param']['base_yr'] = 2015 #REPLACE
+        data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
+        self.user_data['base_yr'] = data['sim_param']['base_yr']
+
         # -----------------------------
         # Paths
         # -----------------------------
@@ -83,18 +87,12 @@ class EDWrapper(SectorModel):
 
         config = configparser.ConfigParser()
         config.read(os.path.join(path_main, 'wrapperconfig.ini'))
-
         self.user_data['data_path'] = config['PATHS']['path_local_data']
         self.processed_path = config['PATHS']['path_processed_data']
         self.result_path = config['PATHS']['path_result_data']
 
-        # Add to data container for scenario initialisation
         data['paths'] = data_loader.load_paths(path_main)
         data['local_paths'] = data_loader.load_local_paths(self.user_data['data_path'])
-
-        data['sim_param']['base_yr'] = 2015 #REPLACE
-        data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-        self.user_data['base_yr'] = data['sim_param']['base_yr']
 
         # -----------------------------
         # Region related informatiom
@@ -136,7 +134,9 @@ class EDWrapper(SectorModel):
             #rs_floorarea = defaultdict(dict)
             #ss_floorarea = defaultdict(dict)
 
-        #Scenario data
+        # --------------
+        # Scenario data
+        # --------------
         data['scenario_data'] = {
             'gva': data['gva'],
             'population': data['population'],
@@ -198,8 +198,7 @@ class EDWrapper(SectorModel):
             data,
             data['assumptions'])
 
-        logging.info(data['assumptions']['strategy_variables'])
-        # Update: Necessary updates after external data definition
+        # Update technologies after strategy definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
             data['assumptions']['technologies'],
             data['assumptions']['strategy_variables']['eff_achiev_f'],
@@ -320,13 +319,6 @@ class EDWrapper(SectorModel):
         data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(data['paths'], data['lookups'])
         data['assumptions'] = non_param_assumptions.load_non_param_assump(
             data['sim_param']['base_yr'], data['paths'], data['enduses'], data['lookups'])
-    
-        # ------------------------
-        # Load all SMIF parameters and replace data dict
-        # ------------------------
-        data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
-
         data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
         data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
         data['tech_lp'] = data_loader.load_data_profiles(
@@ -334,6 +326,12 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
+
+        # ------------------------
+        # Load all SMIF parameters and replace data dict
+        # ------------------------
+        data['assumptions'] = self.load_smif_parameters(
+            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -360,6 +358,7 @@ class EDWrapper(SectorModel):
         # Insert from script calculations which are stored in memory
         data['temp_data'] = self.user_data['temp_data']
         data['weather_stations'] = self.user_data['weather_stations']
+
         data['assumptions']['rs_service_tech_by_p'] = self.user_data['fts_cont']['rs_service_tech_by_p']
         data['assumptions']['ss_service_tech_by_p'] = self.user_data['fts_cont']['ss_service_tech_by_p']
         data['assumptions']['is_service_tech_by_p'] = self.user_data['fts_cont']['is_service_tech_by_p']
@@ -396,6 +395,7 @@ class EDWrapper(SectorModel):
         data['assumptions']['rs_share_service_tech_ey_p'] = self.user_data['switches_cont']['rs_share_service_tech_ey_p']
         data['assumptions']['ss_share_service_tech_ey_p'] = self.user_data['switches_cont']['ss_share_service_tech_ey_p']
         data['assumptions']['is_share_service_tech_ey_p'] = self.user_data['switches_cont']['is_share_service_tech_ey_p']
+
         # ---------------------------------------------
         # Create .ini file with simulation information
         # ---------------------------------------------

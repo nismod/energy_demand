@@ -8,7 +8,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Implement that e.g. 2015 - 2030 one technology and 2030 - 2050 another technology
 # Calculate sigmoid for different regions
 # backcasting
-# Industry INFO about efficiencies & technologies
+# Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 
 """
@@ -44,7 +44,7 @@ def energy_demand_model(data, fuel_in=0, fuel_in_elec=0):
     fuel_in, fuel_in_elec, fuel_in_gas = testing.test_function_fuel_sum(data)
     print("VORHER Fuel input:          " + str(fuel_in))
     print("VORHER elec fuel in:        " + str(fuel_in_elec))
-    #prnt(":")
+
     model_run_object = energy_model.EnergyModel(
         region_names=data['lu_reg'],
         data=data)

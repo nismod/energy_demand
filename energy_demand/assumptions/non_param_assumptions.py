@@ -50,9 +50,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     assumptions['assump_diff_floorarea_pp'] = 1
     assumptions['assump_diff_floorarea_pp_yr_until_changed'] = yr_until_changed_all_things
 
-    # Specific Energy Demand factors per dwelling type could be defined
-    # (e.g. per dwelling type or GVA class or residents....)
-
     # Dwelling type distribution base year (fixed)
     # Source: Table 4c: Housing Stock Distribution by Type, UK Housing Energy Fact File
     assumptions['assump_dwtype_distr_by'] = {
@@ -123,13 +120,13 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'rs_consumer_electronics': ['population'],
         'rs_home_computing': ['population']}
 
-    # --Servicse Submodel
+    # --Service Submodel
     assumptions['scenario_drivers']['ss_submodule'] = {
         'ss_space_heating': ['floorarea'],
-        'ss_water_heating': [],
+        'ss_water_heating': ['population'],
         'ss_lighting': ['floorarea'],
-        'ss_catering': [],
-        'ss_computing': [],
+        'ss_catering': ['population'],
+        'ss_computing': ['population'],
         'ss_space_cooling': ['floorarea'],
         'ss_other_gas': ['floorarea'],
         'ss_other_electricity': ['floorarea']}
@@ -149,7 +146,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Smart meter related base year assumptions
     # ============================================================
-    # Fraction of population with smart meters for base year
     assumptions['smart_meter_assump'] = {}
     assumptions['smart_meter_assump']['smart_meter_p_by'] = 0.1
     assumptions['smart_meter_assump']['smart_meter_diff_params'] = {
@@ -175,12 +171,11 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         paths['path_technologies'],
         lookups['fueltype'])
 
-    # --Heat pumps
-    # Share of installed heat pumps in base year (ASHP to GSHP)
+    # --Heat pumps. Share of installed heat pumps in base year (ASHP to GSHP)
     assumptions['split_hp_gshp_to_ashp_by'] = 0.1
     assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(assumptions['split_hp_gshp_to_ashp_by'])
 
-    # Add heat pumps to technologies TODO: Efficiency fo rey not correct becuase not defined as strategy
+    # Add heat pumps to technologies
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         [],
         assumptions['technologies'],
@@ -256,8 +251,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ========================================
     # Helper functions
     # ========================================
-
-    # Generate dummy technologies
     assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
         assumptions['technologies'], assumptions['rs_fuel_tech_p_by'], assumptions['rs_specified_tech_enduse_by'])
     assumptions['ss_fuel_tech_p_by'], assumptions['ss_specified_tech_enduse_by'], assumptions['technologies'] = tech_related.insert_dummy_tech(
@@ -276,12 +269,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Helper functions
     # ============================================================
-    ##testing_functions.testing_service_switch_insert(
-    # assumptions['ss_fuel_tech_p_by'], assumptions['rs_fuel_switches'])
-    ##testing_functions.testing_service_switch_insert(
-    # assumptions['ss_fuel_tech_p_by'], assumptions['ss_fuel_switches'])
-
-    # Test if fuel shares sum up to 1 within each fueltype
     testing_functions.testing_fuel_tech_shares(assumptions['rs_fuel_tech_p_by'])
     testing_functions.testing_fuel_tech_shares(assumptions['ss_fuel_tech_p_by'])
     testing_functions.testing_fuel_tech_shares(assumptions['is_fuel_tech_p_by'])
@@ -297,7 +284,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
 def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
     """Updates technology related properties based on
-    scenario assumptions. Calculate average efficiency of 
+    scenario assumptions. Calculate average efficiency of
     heat pumps depending on mix of GSHP and ASHP,
     set the efficiency achieval factor of all factor according
     to strategy assumptions
@@ -312,17 +299,14 @@ def update_assumptions(technologies, factor_achieved, split_hp_gshp_to_ashp_ey):
         Mix of GSHP and GSHP
     Note
     ----
-    This needs to be run everytime an assumption is changedf
-
+    This needs to be run everytime an assumption is changed
     """
+    # Assign same achieved efficiency factor for all technologies
     technologies = helpers.set_same_eff_all_tech(
         technologies,
         factor_achieved)
 
-    # ----------
-    # Calculate average efficiency of heat pumps
-    # depending on fraction of GSHP to ASHP
-    # ----------
+    # Calculate average eff of hp depending on fraction of GSHP to ASHP
     installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
         split_hp_gshp_to_ashp_ey)
 
