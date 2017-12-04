@@ -1152,7 +1152,8 @@ def apply_specific_change(
         enduse_overall_change_strategy,
         sim_param
     ):
-    """Calculates fuel based on assumed overall enduse specific fuel consumption changes
+    """Calculates fuel based on assumed overall enduse
+    specific fuel consumption changes
 
     Arguments
     ----------
@@ -1160,11 +1161,12 @@ def apply_specific_change(
         Enduse
     fuel_y : array
         Yearly fuel per fueltype
-    assumptions : dict
-        Assumptions
-
+    enduse_overall_change : dict
+        Info about how the enduse is overall changed (e.g. diff method)
+    enduse_overall_change_strategy : dict
+        Change in overall enduse for every enduse (percent ey)
     sim_param : dict
-        Base simulation parameters
+        Simulation parameters
 
     Returns
     -------

@@ -849,3 +849,26 @@ def test_calc_fuel_tech_yh():
 
     assert results[0][3][0] == 3.0 / float(np.sum(range(365)) * 24) * 200
 
+
+def test_apply_specific_change():
+
+    sim_param = {
+        'base_yr': 2015,
+        'curr_yr': 2020}
+
+    enduse_overall_change_strategy = {}
+    enduse_overall_change_strategy['enduse_change__{}'.format('heating')] = 2.0
+    enduse_overall_change_strategy['enduse_specific_change_yr_until_changed'] = 2020
+    enduse_overall_change = {}
+    enduse_overall_change['other_enduse_mode_info'] = {}
+    enduse_overall_change['other_enduse_mode_info']['diff_method'] = 'linear'
+
+    fuel_y = np.array([100])
+    result = enduse_func.apply_specific_change(
+        enduse='heating',
+        fuel_y=fuel_y,
+        enduse_overall_change=enduse_overall_change,
+        enduse_overall_change_strategy=enduse_overall_change_strategy,
+        sim_param=sim_param)
+
+    assert result == fuel_y * enduse_overall_change_strategy['enduse_change__heating']
