@@ -32,6 +32,24 @@ PROFILER = False
 class EDWrapper(SectorModel):
     """Energy Demand Wrapper
     """
+
+    def transfer_container_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
+        """Copy dict defined in before_model_run()
+        to simlate() function by copying key and 
+        values
+
+        Arguments
+        ---------
+        dict_to_copy_into : dict
+            Dict to copy values into
+        dict_to_pass_along : dict
+            Dictionary which needs to be copied and passed along
+        """
+        for key, value in dict_to_pass_along.items():
+            dict_to_copy_into[key] = value
+
+        return dict(dict_to_copy_into)
+
     def array_to_dict(self, input_array):
         """Convert array to dict
 
@@ -354,47 +372,17 @@ class EDWrapper(SectorModel):
 
         # -----------------------
         # Load data from scripts
-        # -----------------------
         # Insert from script calculations which are stored in memory
+        # -----------------------
         data['temp_data'] = self.user_data['temp_data']
         data['weather_stations'] = self.user_data['weather_stations']
-
-        data['assumptions']['rs_service_tech_by_p'] = self.user_data['fts_cont']['rs_service_tech_by_p']
-        data['assumptions']['ss_service_tech_by_p'] = self.user_data['fts_cont']['ss_service_tech_by_p']
-        data['assumptions']['is_service_tech_by_p'] = self.user_data['fts_cont']['is_service_tech_by_p']
-        data['assumptions']['rs_service_fueltype_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_by_p']
-        data['assumptions']['ss_service_fueltype_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_by_p']
-        data['assumptions']['is_service_fueltype_by_p'] = self.user_data['fts_cont']['is_service_fueltype_by_p']
-        data['assumptions']['rs_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['rs_service_fueltype_tech_by_p']
-        data['assumptions']['ss_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['ss_service_fueltype_tech_by_p']
-        data['assumptions']['is_service_fueltype_tech_by_p'] = self.user_data['fts_cont']['is_service_fueltype_tech_by_p']
-        data['assumptions']['rs_tech_increased_service'] = self.user_data['sgs_cont']['rs_tech_increased_service']
-        data['assumptions']['ss_tech_increased_service'] = self.user_data['sgs_cont']['ss_tech_increased_service']
-        data['assumptions']['is_tech_increased_service'] = self.user_data['sgs_cont']['is_tech_increased_service']
-        data['assumptions']['rs_tech_decreased_share'] = self.user_data['sgs_cont']['rs_tech_decreased_share']
-        data['assumptions']['ss_tech_decreased_share'] = self.user_data['sgs_cont']['ss_tech_decreased_share']
-        data['assumptions']['is_tech_decreased_share'] = self.user_data['sgs_cont']['is_tech_decreased_share']
-        data['assumptions']['rs_tech_constant_share'] = self.user_data['sgs_cont']['rs_tech_constant_share']
-        data['assumptions']['ss_tech_constant_share'] = self.user_data['sgs_cont']['ss_tech_constant_share']
-        data['assumptions']['is_tech_constant_share'] = self.user_data['sgs_cont']['is_tech_constant_share']
-        data['assumptions']['rs_sig_param_tech'] = self.user_data['sgs_cont']['rs_sig_param_tech']
-        data['assumptions']['ss_sig_param_tech'] = self.user_data['sgs_cont']['ss_sig_param_tech']
-        data['assumptions']['is_sig_param_tech'] = self.user_data['sgs_cont']['is_sig_param_tech']
-        data['assumptions']['rs_installed_tech'] = self.user_data['sgs_cont']['rs_installed_tech']
-        data['assumptions']['ss_installed_tech'] = self.user_data['sgs_cont']['ss_installed_tech']
-        data['assumptions']['is_installed_tech'] = self.user_data['sgs_cont']['is_installed_tech']
         data['rs_fuel_disagg'] = self.user_data['sd_cont']['rs_fuel_disagg']
         data['ss_fuel_disagg'] = self.user_data['sd_cont']['ss_fuel_disagg']
         data['is_fuel_disagg'] = self.user_data['sd_cont']['is_fuel_disagg']
 
-
-        data['assumptions']['rs_service_switches'] = self.user_data['switches_cont']['rs_service_switches']
-        data['assumptions']['ss_service_switches'] = self.user_data['switches_cont']['ss_service_switches']
-        data['assumptions']['is_service_switches'] = self.user_data['switches_cont']['is_service_switches']
-
-        data['assumptions']['rs_share_service_tech_ey_p'] = self.user_data['switches_cont']['rs_share_service_tech_ey_p']
-        data['assumptions']['ss_share_service_tech_ey_p'] = self.user_data['switches_cont']['ss_share_service_tech_ey_p']
-        data['assumptions']['is_share_service_tech_ey_p'] = self.user_data['switches_cont']['is_share_service_tech_ey_p']
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['fts_cont'])
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['sgs_cont'])
+        data['assumptions'] = self.transfer_container_to_simulate(data['assumptions'], self.user_data['switches_cont'])
 
         # ---------------------------------------------
         # Create .ini file with simulation information
