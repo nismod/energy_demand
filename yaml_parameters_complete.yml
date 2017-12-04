@@ -1,5 +1,15 @@
 - absolute_range: !!python/tuple
   - 0
+  - 100
+  default_value: 0.1
+  description: Relative GSHP (%) to GSHP+ASHP
+  name: split_hp_gshp_to_ashp_ey
+  suggested_range: !!python/tuple
+  - 0.1
+  - 0.5
+  units: '%'
+- absolute_range: !!python/tuple
+  - 0
   - 20
   default_value: 2050
   description: Year until demand management assumptions are fully realised

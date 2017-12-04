@@ -60,7 +60,9 @@ def run_model(args):
     param_assumptions.load_param_assump(data['paths'], data['assumptions'])
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
+    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
+         data['assumptions'], 
+         data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
 
     data['tech_lp'] = data_loader.load_data_profiles(
         data['paths'],

@@ -445,21 +445,46 @@ def ss_dw_stock(region, data, curr_yr, base_yr):
     dw_stock = []
     for sector in data['sectors']['ss_sectors']:
 
-        # Change in floor area up to end year
-        if sector in data['assumptions']['ss_floorarea_change_ey_p']:
-            change_floorarea_p_ey = data['assumptions']['ss_floorarea_change_ey_p'][sector]
-            yr_until_changed = data['assumptions']['ss_floorarea_change_ey_p']['yr_until_changed']
-        else:
-            sys.exit(
-                "Error: The ss building stock sector floor area assumption is not defined")
+        # If virtual building stock, change floor area proportionally to population
+        if data['criterias']['virtual_building_stock_criteria']:
+            base_yr = data['sim_param']['base_yr']
+            curr_yr = data['sim_param']['curr_yr']
+            pop_factor = data['scenario_data']['population'][curr_yr][region] / data['scenario_data']['population'][base_yr][region]
+            lin_diff_factor = pop_factor
+            '''
+            # Change in floor are for service submodel depending on sector
+            # (if no change set to 1, if e.g. 10% decrease change to 0.9)
+            assumptions['ss_floorarea_change_ey_p'] = {
 
-        # Floor area of sector in current year considering linear diffusion
-        lin_diff_factor = diffusion_technologies.linear_diff(
-            base_yr,
-            curr_yr,
-            1.0,
-            change_floorarea_p_ey,
-            yr_until_changed)
+                'yr_until_changed': yr_until_changed_all_things,
+
+                'community_arts_leisure': 1,
+                'education': 1,
+                'emergency_services': 1,
+                'health': 1,
+                'hospitality': 1,
+                'military': 1,
+                'offices': 1,
+                'retail': 1,
+                'storage': 1,
+                'other': 1}
+                '''
+        else:
+            # Change in floor area up to end year
+            if sector in data['assumptions']['ss_floorarea_change_ey_p']:
+                change_floorarea_p_ey = data['assumptions']['ss_floorarea_change_ey_p'][sector]
+                yr_until_changed = data['assumptions']['ss_floorarea_change_ey_p']['yr_until_changed']
+            else:
+                sys.exit(
+                    "Error: The ss building stock sector floor area assumption is not defined")
+            
+            # Floor area of sector in current year considering linear diffusion
+            lin_diff_factor = diffusion_technologies.linear_diff(
+                base_yr,
+                curr_yr,
+                1.0,
+                change_floorarea_p_ey,
+                yr_until_changed)
 
         floorarea_sector_by = data['scenario_data']['floor_area']['ss_floorarea'][base_yr][region][sector]
         floorarea_sector_cy = floorarea_sector_by * lin_diff_factor

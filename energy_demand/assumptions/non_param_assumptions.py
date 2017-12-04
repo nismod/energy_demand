@@ -6,7 +6,6 @@ from energy_demand.technologies import tech_related
 from energy_demand.basic import testing_functions, date_prop
 from energy_demand.assumptions import assumptions_fuel_shares
 from energy_demand.initalisations import helpers
-from energy_demand.technologies import fuel_service_switch
 
 def load_non_param_assump(base_yr, paths, enduses, lookups):
     """Initialise assumptions and load all assumptions
@@ -23,8 +22,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         Enduses
     lookups : dict
         Lookups
-    fuels : dict
-        Fuels
     """
     logging.debug("... load non parameter assumptions")
     assumptions = {}
@@ -32,17 +29,9 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     yr_until_changed_all_things = 2050 #TODO
 
     # ============================================================
-    # Model running mode (contrainsed or not constrained)
-    # ============================================================
-
-    # True:  Technologies are defined in ED model and fuel is provided
-    # False: Heat is delievered not per technologies
-    assumptions['mode_constrained'] = False
-
-    # ============================================================
     # Modelled yeardays (if model whole year, set to 365)
     # ============================================================
-    assumptions['model_yeardays'] = list(range(365))  # Modelled days
+    assumptions['model_yeardays'] = list(range(365))
 
     # Calculate dates of modelled days
     assumptions['model_yeardays_date'] = []
@@ -57,10 +46,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Dwelling stock related assumptions
     # ============================================================
-    #assumptions['virtual_dwelling_stock'] = True #OR newcastle is loaded
-
     # Change in floor area per person up to end_yr 1.0 = 100%
-    # ASSUMPTION (if minus, check if new dwellings are needed)
     assumptions['assump_diff_floorarea_pp'] = 1
     assumptions['assump_diff_floorarea_pp_yr_until_changed'] = yr_until_changed_all_things
 
@@ -89,8 +75,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 0.166,
         'bungalow': 0.088}
 
-    # Floor area per dwelling type
-    # Annex Table 3.1
+    # Floor area per dwelling type (Annex Table 3.1)
     # https://www.gov.uk/government/statistics/english-housing-survey-2014-to-2015-housing-stock-report
     assumptions['assump_dwtype_floorarea_by'] = {
         'semi_detached': 96,
@@ -111,39 +96,17 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         'detached': 147,
         'bungalow': 77}
 
-    # Assumption about age distribution
-    # Source: Housing Energy Fact Sheet
-    # Average builing age within age class, fraction
+    # Assumption about age distribution (Source: Housing Energy Fact Sheet)
+    # (Average builing age within age class, fraction)
     assumptions['dwtype_age_distr'] = {
         2015: {
-            '1918':0.21,
+            '1918' :0.21,
             '1941': 0.36,
             '1977.5': 0.3,
             '1996.5': 0.08,
             '2002': 0.05}}
 
-    # TODO: Get assumptions for heat loss coefficient
-    # Include refurbishment of houses --> Change percentage of age distribution of houses -->
-    # Which then again influences HLC
-    # Change in floor depending on sector (if no change set to 1, if e.g. 10% decrease change to 0.9)
-
-    # TODO: Project future demand based on seperate methodology
-    assumptions['ss_floorarea_change_ey_p'] = {
-
-        'yr_until_changed': yr_until_changed_all_things,
-
-        'community_arts_leisure': 1,
-        'education': 1,
-        'emergency_services': 1,
-        'health': 1,
-        'hospitality': 1,
-        'military': 1,
-        'offices': 1,
-        'retail': 1,
-        'storage': 1,
-        'other': 1}
-
-
+    # TODO: Improve assumptions for heat loss coefficient
     # ============================================================
     #  Scenario drivers
     # ============================================================
@@ -213,16 +176,15 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         lookups['fueltype'])
 
     # --Heat pumps
-    # Share of installed heat pumps (ASHP to GSHP) (0.7 e.g. 0.7 ASHP and 0.3 GSHP)
-    split_hp_ashp_gshp = 0.5
-    assumptions['installed_heat_pump'] = tech_related.generate_ashp_gshp_split(
-        split_hp_ashp_gshp)
+    # Share of installed heat pumps in base year (ASHP to GSHP)
+    assumptions['split_hp_gshp_to_ashp_by'] = 0.1
+    assumptions['installed_heat_pump_by'] = tech_related.generate_ashp_gshp_split(assumptions['split_hp_gshp_to_ashp_by'])
 
-    # Add heat pumps to technologies
+    # Add heat pumps to technologies TODO: Efficiency fo rey not correct becuase not defined as strategy
     assumptions['technologies'], assumptions['tech_list']['tech_heating_temp_dep'], assumptions['heat_pumps'] = tech_related.generate_heat_pump_from_split(
         [],
         assumptions['technologies'],
-        assumptions['installed_heat_pump'],
+        assumptions['installed_heat_pump_by'],
         lookups['fueltype'])
 
     # ============================================================
@@ -254,8 +216,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
     # ============================================================
     # Fuel Stock Definition
     # Provide for every fueltype of an enduse
-    # the share of fuel which is used by technologies for the
-    # base year
+    # the share of fuel which is used by technologies for thebase year
     # ============================================================
     assumptions = assumptions_fuel_shares.assign_by_fuel_tech_p(
         assumptions,
@@ -273,7 +234,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         paths['is_path_fuel_switches'], enduses, lookups['fueltype'])
 
     # ============================================================
-    # Scenaric service switches
+    # Read in scenaric service switches
     # ============================================================
     assumptions['rs_service_switches'] = read_data.read_service_switch(
         paths['rs_path_service_switch'], assumptions['technologies'])
@@ -283,7 +244,7 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         paths['is_path_industry_switch'], assumptions['technologies'])
 
     # ============================================================
-    # Scenaric capacity switches
+    # Read in scenaric capacity switches
     # Warning: Overwrites other switches
     # ============================================================
     # Reading in assumptions on capacity installations from csv file
@@ -331,10 +292,10 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
         assumptions['technologies'], assumptions['ss_specified_tech_enduse_by'])
     testing_functions.testing_tech_defined(
         assumptions['technologies'], assumptions['is_specified_tech_enduse_by'])
-    
+
     return assumptions
 
-def update_assumptions(technologies, factor_achieved):
+def update_assumptions(assumptions, technologies, factor_achieved):
     """Updates calculations based on assumptions
 
     Note
@@ -345,5 +306,16 @@ def update_assumptions(technologies, factor_achieved):
     technologies = helpers.set_same_eff_all_tech(
         technologies,
         factor_achieved)
+
+
+    # ----------
+    # Calculate average efficiency of heat pumps
+    # depending on fraction of GSHP to ASHP
+    # ----------
+    installed_heat_pump_ey = tech_related.generate_ashp_gshp_split(
+        assumptions['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+
+    technologies = tech_related.calc_av_heat_pump_eff_ey(
+        assumptions['technologies'], installed_heat_pump_ey)
 
     return technologies

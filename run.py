@@ -74,6 +74,7 @@ class EDWrapper(SectorModel):
         data['criterias']['virtual_building_stock_criteria'] = True     # True: Run virtual building stock model
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
+        data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
 
         # -----------------------------
         # Paths
@@ -158,7 +159,7 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
-
+    
         # ---------------------
         # Convert capacity switches to service switches
         # ---------------------
@@ -193,7 +194,16 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
+            data['paths']['yaml_parameters_complete'],
+            data,
+            data['assumptions'])
+
+        logging.info(data['assumptions']['strategy_variables'])
+        # Update: Necessary updates after external data definition
+        data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
+            data['assumptions'],
+            data['assumptions']['technologies'],
+            data['assumptions']['strategy_variables']['eff_achiev_f'])
 
         # ------------------------
         # Pass along to simulate()
@@ -327,7 +337,9 @@ class EDWrapper(SectorModel):
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-            data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
+            data['assumptions'],
+            data['assumptions']['technologies'],
+            data['assumptions']['strategy_variables']['eff_achiev_f'])
 
         # ---------
         # Scenario data
@@ -516,6 +528,7 @@ class EDWrapper(SectorModel):
         # Get variable from dict and reassign and delete from data
         for var_name in all_strategy_variables:
             strategy_variables[var_name] = data[var_name]
+            logging.info("Load strategy parameter: {}".format(var_name))
             del data[var_name]
 
         # Add to assumptoins

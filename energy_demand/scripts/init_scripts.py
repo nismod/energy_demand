@@ -63,7 +63,10 @@ def post_install_setup(args):
 
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
+    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
+         data['assumptions'],
+         data['assumptions']['technologies'],
+         data['assumptions']['strategy_variables']['eff_achiev_f'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -129,6 +132,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # ---------------------------------------
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
         data['local_paths']['path_employment_statistics'])
+
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
@@ -261,7 +265,6 @@ def scenario_initalisation(path_data_ed, data=False):
     # Disaggregate
     # -------------------
     sd_cont = {}
-    print(data['sectors']['all_sectors'])
     sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
         data['lu_reg'],
         data['sim_param']['base_yr'],

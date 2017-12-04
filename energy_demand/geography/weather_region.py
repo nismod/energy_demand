@@ -272,7 +272,7 @@ class WeatherRegion(object):
             shape_yd=rs_fuel_shape_heating_yd,
             shape_yh=rs_fuel_shape_hp_yh,
             enduse_peak_yd_factor=rs_peak_yd_heating_factor,
-            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday'] #  rs_lp_heating_hp_dh  #NEWrs_profile_hp_y_dh
+            shape_peak_dh=tech_lp['rs_lp_heating_hp_dh']['peakday']
             )
 
         #Service submodel

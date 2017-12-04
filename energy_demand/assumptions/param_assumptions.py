@@ -18,7 +18,26 @@ def load_param_assump(paths, assumptions):
     """
     logging.debug("... write assumptions to yaml file")
 
+    assumptions['strategy_variables'] = {}
+
     yr_until_changed_all_things = 2050 #TODO
+
+    # ----------------------
+    # Heat pump GASHP & ASHP fraction assumptions
+    # Relative GSHP (%) to GSHP+ASHP
+    # ----------------------
+    assumptions['strategy_variables']['split_hp_gshp_to_ashp_ey'] = {}
+    assumptions['strategy_variables']['split_hp_gshp_to_ashp_ey']['split_hp_gshp_to_ashp_ey'] = 0.5
+
+    assumptions['strategy_variables']['split_hp_gshp_to_ashp_ey']['param_infos'] = [
+            {
+                "name": "split_hp_gshp_to_ashp_ey",
+                "absolute_range": (0, 100),
+                "description": "Relative GSHP (%) to GSHP+ASHP",
+                "suggested_range": (assumptions['split_hp_gshp_to_ashp_by'], 0.5),
+                "default_value": assumptions['split_hp_gshp_to_ashp_by'],
+                "units": '%'
+            }]
 
     # ============================================================
     #  Demand management assumptions (daily demand shape)
@@ -27,7 +46,6 @@ def load_param_assump(paths, assumptions):
     #
     #  Example: 0.2 --> Improvement in load factor until ey
     # ============================================================
-    assumptions['strategy_variables'] = {}
     assumptions['strategy_variables']['demand_management'] = {}
     assumptions['strategy_variables']['demand_management']['param_infos'] = [{
         "name": "demand_management_yr_until_changed",

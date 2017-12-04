@@ -81,7 +81,8 @@ def get_enduses_with_dummy_tech(enduse_tech_p_by):
     return list(set(dummy_enduses))
 
 def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
-    """Calculate efficiency according to temperature difference of base year
+    """Calculate efficiency of heat pumps according to
+    temperature difference.
 
     Arguments
     ----------
@@ -99,13 +100,15 @@ def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
 
     Note
     -----
-    - For every hour the temperature difference is calculated  and the efficiency
+    - For every hour the temperature difference is calculated and the efficiency
       of the heat pump calculated based on efficiency assumptions
 
-    - The intersect at 10 degree temperature differences is for
-      ASHP about 6, for GSHP about 9 (Staffell et al. 2012).
-
-    - The efficiency assumptions of the heat pump are taken from Staffell et al. (2012), Fig. 9.
+    - The efficiency assumptions of the heat pump are taken from
+      Staffell et al. (2012). Expexted average efficiencies for
+      heating are expected to be for ASHP around 3.3 - 3.9, for
+      GSHP around 4.5 - 5.4.
+      For hot water, it is around 2.3 - 2.8 for ASHP and
+      3.1-3.8 for GSHP.
 
       Staffell, I., Brett, D., Brandon, N., & Hawkes, A. (2012). A review of domestic heat pumps.
       Energy & Environmental Science, 5(11), 9291. https://doi.org/10.1039/c2ee22653g
@@ -117,7 +120,9 @@ def calc_hp_eff(temp_yh, efficiency_intersect, t_base_heating):
     temp_difference_temp_yh[temp_difference_temp_yh < 0] = 0
 
     # Calculate average efficiency of heat pumps over full year
-    av_eff_hp = eff_heat_pump(temp_difference_temp_yh, efficiency_intersect)
+    av_eff_hp = eff_heat_pump(
+        temp_difference_temp_yh,
+        efficiency_intersect)
 
     return float(av_eff_hp)
 
@@ -228,6 +233,38 @@ def get_tech_type(tech_name, tech_list):
 
     return tech_type
 
+def calc_av_heat_pump_eff_ey(technologies, heat_pump_assump):
+    """Calculate end year average efficiency of 
+    heat pumps depending on split of heat pumps
+
+    Arguments
+    ---------
+    technologies : dict
+        Technologies
+
+    Return
+    ------
+    technologies : dict
+        Updated technologies
+    """
+    for fueltype in heat_pump_assump:
+        av_eff_hps_ey = 0
+
+        for heat_pump_type in heat_pump_assump[fueltype]:
+            share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
+            eff_heat_pump_ey = technologies[heat_pump_type].eff_ey
+
+            # Calc average values
+            av_eff_hps_ey += share_heat_pump * eff_heat_pump_ey
+
+        # Add average 'av_heat_pumps' to technology dict
+        name_av_hp = "heat_pumps_{}".format(fueltype)
+
+        # Add new averaged technology
+        technologies[name_av_hp].eff_ey = av_eff_hps_ey
+    
+    return technologies
+
 def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_pump_assump, fueltypes):
     """Delete all heat_pump from tech dict, define average new heat pump
     technologies 'av_heat_pump_fueltype' with efficiency depending on installed ratio
@@ -263,12 +300,14 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
 
         for heat_pump_type in heat_pump_assump[fueltype]:
             share_heat_pump = heat_pump_assump[fueltype][heat_pump_type]
+
             eff_heat_pump_by = technologies[heat_pump_type].eff_by
             eff_heat_pump_ey = technologies[heat_pump_type].eff_ey
-            av_year_eff_ey += technologies[heat_pump_type].year_eff_ey
             eff_achieved = technologies[heat_pump_type].eff_achieved
             market_entry = technologies[heat_pump_type].market_entry
             tech_max_share = technologies[heat_pump_type].tech_max_share
+
+            av_year_eff_ey += technologies[heat_pump_type].year_eff_ey
 
             # Calc average values
             av_eff_hps_by += share_heat_pump * eff_heat_pump_by
@@ -300,15 +339,14 @@ def generate_heat_pump_from_split(temp_dependent_tech_list, technologies, heat_p
             market_entry=market_entry_lowest,
             tech_list='tech_heating_temp_dep',
             tech_max_share=tech_max_share,
-            fueltypes=fueltypes
-        )
+            fueltypes=fueltypes)
 
         heat_pumps.append(name_av_hp)
 
     # Remove all heat pumps from tech dict
-    for fueltype in heat_pump_assump:
+    '''for fueltype in heat_pump_assump:
         for heat_pump_type in heat_pump_assump[fueltype]:
-            del technologies[heat_pump_type]
+            del technologies[heat_pump_type]'''
 
     return technologies, temp_dependent_tech_list, heat_pumps
 
@@ -383,8 +421,9 @@ def calc_eff_cy(
 
         return eff_cy
 
-def generate_ashp_gshp_split(split_factor):
-    """Assing split for each fueltype of heat pump technologies
+def generate_ashp_gshp_split(split_hp_gshp_ashp):
+    """Assing split for each fueltype of heat pump technologies,
+    i.e. the share of GSHP of all heat pumps
 
     Arguments
     ----------
@@ -395,13 +434,17 @@ def generate_ashp_gshp_split(split_factor):
 
     Returns
     --------
-    installed_heat_pump : dict
+    installed_heat_pump_by : dict
         Ditionary with split of heat pumps for every fueltype
-    """
-    ashp_fraction = split_factor
-    gshp_fraction = 1 - split_factor
 
-    installed_heat_pump = {
+    Example
+    ------
+    split_hp_ashp_gshp = 0.2 means that 80% are GSHP and 20% ASHP
+    """
+    gshp_fraction = split_hp_gshp_ashp
+    ashp_fraction = 1 - split_hp_gshp_ashp
+
+    installed_heat_pump_by = {
         'hydrogen': {
             'heat_pump_ASHP_hydro': ashp_fraction,
             'heat_pump_GSHP_hydro': gshp_fraction
@@ -412,4 +455,4 @@ def generate_ashp_gshp_split(split_factor):
             }
     }
 
-    return installed_heat_pump
+    return installed_heat_pump_by

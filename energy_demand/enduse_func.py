@@ -120,6 +120,7 @@ class Enduse(object):
             sig_param_tech,
             enduse_overall_change,
             regional_lp_stock,
+            criterias,
             dw_stock=False,
             reg_scen_drivers=None,
             crit_flat_profile=False,
@@ -217,6 +218,7 @@ class Enduse(object):
                 # Get enduse specific configurations
                 # ----
                 mode_constrained, crit_switch_fuel, crit_switch_service = get_enduse_configuration(
+                    criterias,
                     enduse, assumptions, sim_param, fuel_switches, service_switches)
 
                 # ------------------------------------
@@ -502,7 +504,7 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     else:
         return False
 
-def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, service_switches):
+def get_enduse_configuration(criterias, enduse, assumptions, sim_param, fuel_switches, service_switches):
     """Get enduse specific configuration
 
     Arguments
@@ -511,7 +513,7 @@ def get_enduse_configuration(enduse, assumptions, sim_param, fuel_switches, serv
     """
     mode_constrained = get_running_mode(
         enduse,
-        assumptions['mode_constrained'],
+        criterias['mode_constrained'],
         assumptions['enduse_space_heating'])
 
     crit_switch_fuel = get_crit_switch(

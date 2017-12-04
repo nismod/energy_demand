@@ -9,6 +9,8 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Calculate sigmoid for different regions
 # backcasting
 # Industry INFO about efficiencies & technologies
+# Cooling?
+
 """
 import os
 import sys
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     # Load data
     data = {}
     data['criterias'] = {}
+    data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
 
@@ -154,7 +157,11 @@ if __name__ == "__main__":
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
 
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
-    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(data['assumptions']['technologies'], data['assumptions']['strategy_variables']['eff_achiev_f'])
+    data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
+        data['assumptions'],
+        data['assumptions']['technologies'],
+        data['assumptions']['strategy_variables']['eff_achiev_f'])
+
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])
 
     data['reg_nrs'] = len(data['lu_reg'])
