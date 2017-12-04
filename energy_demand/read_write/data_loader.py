@@ -151,8 +151,9 @@ def virtual_building_datasets(lu_reg, all_sectors, data):
     ---------
 
     """
-    # TODO: Read in floor area as m2 from somewhere
-    # TODO: Read in floor area as m2 per sector from somewhere
+    # Read in floor area as m2 from somewhere
+    # Read in floor area as m2 per sector from somewhere
+
     # --------------------------------------------------
     # Floor area for residential buildings for base year
     # --------------------------------------------------
@@ -214,7 +215,7 @@ def load_local_paths(path):
         'data_results': os.path.join(
             path, '_result_data'),
         'lad_shapefile': os.path.join(
-            path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'), #TODO
+            path, '_raw_data', 'C_LAD_geography', 'lad_2016.shp'),
         'path_post_installation_data': os.path.join(
             path, '_processed_data', '_post_installation_data'),
         'data_processed_disaggregated': os.path.join(

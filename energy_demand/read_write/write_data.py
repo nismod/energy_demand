@@ -91,7 +91,8 @@ def create_shp_results(data, results_container, paths, lookups, lu_reg):
     # ------------------------------------
     # Create shapefile with peak demand in gwh
     # ------------------------------------
-    #TODO:
+    #
+
     # ------------------------------------
     # Create shapefile with
     # ------------------------------------
@@ -111,7 +112,7 @@ def dump(data, file_path):
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
 def write_yaml_param_complete(path_yaml, dict_to_dump):
-    """Write all assumption parameters to YAML
+    """Write all strategy variables to YAML file
 
     Arguments
     ----------
@@ -119,12 +120,6 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
         Path where yaml file is saved
     dict_to_dump : dict
         Dict which is written to YAML
-
-    Returns
-    -------
-
-    #
-    #TODO :ORDER
     """
     list_to_dump = []
 
@@ -146,8 +141,6 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
 
     # Dump list
     dump(list_to_dump, path_yaml)
-
-    return
 
 def write_simulation_inifile(path, sim_param, enduses, assumptions, reg_nrs, lu_reg):
     """Write .ini file with simulation parameters

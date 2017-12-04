@@ -1124,6 +1124,8 @@ def apply_scenario_drivers(
 
         fuel_y = fuel_y * factor_driver
     else:
+        """Scenario driver calculation based on dwelling stock
+        """
         # Test if enduse has a dwelling related scenario driver
         if hasattr(dw_stock[region_name][base_yr], enduse) and curr_yr != base_yr:
 

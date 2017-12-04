@@ -75,7 +75,6 @@ def run_model(args):
     
     data['rs_floorarea'], data['ss_floorarea'] = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
 
-    # Floor areas TODO LOAD FROM NEWCASTLE
     rs_floorarea = defaultdict(dict)
     for year in range(2015, 2101):
         rs_floorarea[year] = {}

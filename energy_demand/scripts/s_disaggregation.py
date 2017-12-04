@@ -68,8 +68,7 @@ def disaggregate_base_demand(
     crit_limited_disagg_pop = True         # if True: Only disaggregate with population
     crit_employment = True                 # If false, only with pop
     crit_limited_disagg_pop_hdd = True     # If True: Disaggregate with pop and hdd
-
-    crit_full_disagg = False #TODO: FLOOR AREA DISAGGREGATION
+    crit_full_disagg = False               #
 
     # Disaggregate residential submodel data
     rs_fuel_disagg = rs_disaggregate(
@@ -142,7 +141,6 @@ def ss_disaggregate(
         crit_full_disagg
     ):
     """Disaggregate fuel for service submodel (per enduse and sector)
-    TODO: So far only disaggregated with
     """
     logging.debug("... disaggregate service demand")
     ss_fuel_disagg = {}

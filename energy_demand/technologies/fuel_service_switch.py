@@ -13,7 +13,7 @@ def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
         Service switches
     specified_tech_enduse_by : list
         Technologies defined per enduse for base year
-    
+
     Return
     ------
     enduse_tech_ey_p : dict
@@ -186,7 +186,7 @@ def capacity_installations(
     technologies : dict
         Technologies
     other_enduse_mode_info : dict
-        TODO
+        Generic sigmoid diffusion information
     fuels : dict
         Fuels
     fuel_shares_enduse_by : dict
@@ -268,7 +268,7 @@ def create_service_switch(
             if capacity_switch.enduse == enduse:
 
                 # Convert
-                service_switches_enduse = convert_capacity_assumption_to_service(
+                service_switches_enduse = capacity_assumption_to_service(
                     enduse=enduse,
                     capacity_switches=capacity_switches,
                     capacity_switch=capacity_switch,
@@ -283,7 +283,7 @@ def create_service_switch(
 
     return service_switches
 
-def convert_capacity_assumption_to_service(
+def capacity_assumption_to_service(
         enduse,
         capacity_switches,
         capacity_switch,
@@ -293,7 +293,8 @@ def convert_capacity_assumption_to_service(
         base_yr,
         other_enduse_mode_info
     ):
-    """Convert assumption about adding
+    """Convert capacity assumption to service
+    switches
 
     Arguments
     ---------
@@ -324,7 +325,7 @@ def convert_capacity_assumption_to_service(
     sim_param_new['curr_yr'] = capacity_switch.switch_yr
 
     # ---------------------------------------------
-    # Calculate service per technolgies of by for ey
+    # Calculate service per technolgies for end year
     # ---------------------------------------------
     service_enduse_tech = {}
 
@@ -332,7 +333,6 @@ def convert_capacity_assumption_to_service(
         for tech, fuel_share_by in tech_fuel_shares.items():
 
             # Efficiency of year when capacity is fully installed
-            # Assumption: Standard sigmoid diffusion
             tech_eff_ey = tech_related.calc_eff_cy(
                 sim_param_new,
                 technologies[tech].eff_by,
@@ -342,15 +342,14 @@ def convert_capacity_assumption_to_service(
                 technologies[tech].eff_achieved,
                 technologies[tech].diff_method)
 
-            # Convert to service #TODO: ERROR WHY DOUBLE
+            # Convert to service (fuel * fuelshare * eff) TODO TEST
             service_tech_ey_y = fuel_enduse_y[fueltype] * fuel_share_by * tech_eff_ey
             service_enduse_tech[tech] = service_tech_ey_y
 
     # -------------------------------------------
-    # Calculate service for increased technologies
+    # Calculate service of installed capacity of increased technologies
     # -------------------------------------------
-    #If technology exists, add service
-    for switch in capacity_switches:
+    for switch in capacity_switches: #If technology exists, add service
         if enduse == switch.enduse:
             technology_install = switch.technology_install
             installed_capacity = switch.installed_capacity
@@ -364,7 +363,7 @@ def convert_capacity_assumption_to_service(
                 technologies[technology_install].eff_achieved,
                 technologies[technology_install].diff_method)
 
-            # Convert fuel to service
+            # Convert installed capacity to service
             installed_capacity_ey = installed_capacity * tech_eff_ey
 
             # Add cpacity
@@ -398,4 +397,3 @@ def convert_capacity_assumption_to_service(
         service_switches_enduse.append(service_switch)
 
     return service_switches_enduse
-

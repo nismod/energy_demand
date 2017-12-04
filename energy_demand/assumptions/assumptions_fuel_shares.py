@@ -6,7 +6,6 @@ different technologies are defined
 """
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
-from energy_demand.basic import testing_functions
 
 def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     """Assigning fuel share per enduse for different
@@ -28,175 +27,170 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     ----
     - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
+
+
+    Technologies can be defined for the following fueltypes:
+        'solid_fuel': 0,
+        'gas': 1,
+        'electricity': 2,
+        'oil': 3,
+        'biomass': 4,
+        'hydrogen': 5,
+        'heat': 6
     """
-    rs_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+    assumptions['rs_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['rs_all_enduses'], lookups['fueltypes_nr'])
-    ss_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+    assumptions['ss_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['ss_all_enduses'], lookups['fueltypes_nr'])
-    is_fuel_tech_p_by = helpers.init_fuel_tech_p_by(
+    assumptions['is_fuel_tech_p_by'] = helpers.init_fuel_tech_p_by(
         enduses['is_all_enduses'], lookups['fueltypes_nr'])
 
-    fuel_nr_oil = lookups['fueltype']['oil']
-    fuel_nr_elec = lookups['fueltype']['electricity']
-    fuel_nr_gas = lookups['fueltype']['gas']
-    fuel_nr_biomass = lookups['fueltype']['biomass']
-    fuel_nr_hydrogen = lookups['fueltype']['hydrogen']
-    fuel_nr_solid_fuel = lookups['fueltype']['solid_fuel']
+    # ====================
+    # Residential Submodel
+    # ====================
 
-    # ------------------
-    # Residential subModel
-    # ------------------
-
-    # ---rs_lighting (calculated on the basis of ECUK Table 3.08)
-    rs_fuel_tech_p_by['rs_lighting'][fuel_nr_elec] = {
+    # ---------------
+    # rs_lighting (calculated on the basis of ECUK Table 3.08)
+    # ---------------
+    assumptions['rs_fuel_tech_p_by']['rs_lighting'][lookups['fueltype']['electricity']] = {
         'standard_lighting_bulb': 0.04,
         'halogen': 0.56,
         'fluorescent_strip_lightinging' : 0.07,
         'energy_saving_lighting_bulb' : 0.32,
         'LED': 0.01}
 
-    # ---rs_cold (calculated on the basis of ECUK Table 3.08)
-    rs_fuel_tech_p_by['rs_cold'][fuel_nr_elec] = {
+    # ---------------
+    # rs_cold (calculated on the basis of ECUK Table 3.08)
+    # ---------------
+    assumptions['rs_fuel_tech_p_by']['rs_cold'][lookups['fueltype']['electricity']] = {
         'chest_freezer': 0.087,
         'fridge_freezer': 0.588,
         'refrigerator': 0.143,
         'upright_freezer': 0.182}
 
-    # ---rs_cooking (calculated on the basis of ECUK Table 3.08)
-    rs_fuel_tech_p_by['rs_cooking'][fuel_nr_elec] = {
-        'hob_electricity': 0.49,
-        'oven_electricity': 0.51,
-        'hob_induction_electricity': 0.0 # TODO MAKE OWN ASSUMPTION
+    # ---------------
+    # ---rs_cooking (calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
+    # ---------------
+    # use induction hobs)
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['electricity']] = {
+        'hob_electricity': 0.95,
+        'hob_induction_electricity': 0.05 # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
         }
 
+    assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['gas']] = {
+        'hob_gas': 1.0}
+
+    # ---------------
     # ---rs_wet (calculated on the basis of EUCK Table 3.08)
-    rs_fuel_tech_p_by['rs_wet'][fuel_nr_elec] = {
+    # ---------------
+    assumptions['rs_fuel_tech_p_by']['rs_wet'][lookups['fueltype']['electricity']] = {
         'washing_machine': 0.305,
         'washer_dryer': 0.157,
         'dishwasher': 0.220,
         'tumble_dryer': 0.318}
 
-    #---Space heating
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_solid_fuel] = {
+    # ---------------
+    # rs_space_heating
+    # ---------------
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
 
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_gas] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['oil']] = {
+        'boiler_oil': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['gas']] = {
         'boiler_gas': 0.98,
         'stirling_micro_CHP': 0.02}
 
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = {
+    # heat-pump share in uk #According to OFGEM 1.7 out of 4
+    # mio households use storage heating == 42.5%..Hoever,
+    # often more flats and more fuel poverty and some heatpumps,
+    # i.e. lower demands (e.g. redue certain percentage)
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['electricity']] = {
         'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
-        'storage_heater_electricity': 0.40, #'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56} #'secondary_heater_electricity': 0.56
-        # heat-pump share in uk #According to OFGEM 1.7 out of 4
-        # mio households use storage heating == 42.5%..Hoever,
-        # often more flats and more fuel poverty and some heatpumps,
-        # i.e. lower demands (e.g. redue certain percentage)
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_oil] = {
-        'boiler_oil': 1.0}
-
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_biomass] = {
-        'boiler_biomass': 1.0}
-
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_hydrogen] = {
-        'boiler_hydrogen': 1.0,
-        'heat_pumps_hydrogen': 0.0}
-
-    # ---Water heating
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_solid_fuel] = {
-        'boiler_solid_fuel': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_gas] = {
-        'boiler_gas': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_elec] = {
-        'boiler_electricity': 1.0}
-    #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_oil] = {
-        'boiler_oil': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_biomass] = {
-        'boiler_biomass': 1.0}
-
-    rs_fuel_tech_p_by['rs_water_heating'][fuel_nr_hydrogen] = {
-        'boiler_hydrogen': 1.0}
-
-    #TODO: Write function to test in case if a switch is defined,
-    # all technologies of base year are defined in switch
-    #testing_functions.test_defined_service_switch(rs_fuel_tech_p_by, )
-
-    # --------------
-    # ALTERNATIVE APPROCH BY ASSIGNIN SERVICE SHARES AND NOT FUEL SAHRES
-    # --------------
-    '''
-    TODO: IF XY MEGAWATT NEEDS TO BE PROVIDED
-    # Service share within a fueltype
-    tech_share_tot_service = {
-        'heat_pumps_electricity': 0.02,
         'storage_heater_electricity': 0.40,
         'secondary_heater_electricity': 0.56}
 
-    # Calculate what this means in fuel shares TODO ?? WHAT IS THIS
-    rs_fuel_tech_p_by['rs_space_heating'][fuel_nr_elec] = service_share_input_to_fuel(
-        total_share_fueltype=0.0572,
-        tech_share_tot_service=tech_share_tot_service,
-        tech_stock=assumptions['technologies'],
-        assumptions=assumptions)
-    '''
-    assumptions['rs_fuel_tech_p_by'] = rs_fuel_tech_p_by
-
-    # ------------------
-    # Service subModel - Fuel shares of technologies in enduse
-    # ------------------
-
-    # ---Space heating
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_solid_fuel] = {
-        'boiler_solid_fuel': 1.0}
-
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_gas] = {
-        'boiler_gas': 1.0}
-
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_elec] = {
-        'boiler_electricity': 1.0}
-
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_oil] = {
-        'boiler_oil': 1.0}
-
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_biomass] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    ss_fuel_tech_p_by['ss_space_heating'][fuel_nr_hydrogen] = {
+    assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['hydrogen']] = {
+        'boiler_hydrogen': 1.0,
+        'heat_pumps_hydrogen': 0.0}
+
+    # ---------------
+    # ---Water heating
+    # ---------------
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['solid_fuel']] = {
+        'boiler_solid_fuel': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['oil']] = {
+        'boiler_oil': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['gas']] = {
+        'boiler_gas': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['electricity']] = {
+        'boiler_electricity': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['biomass']] = {
+        'boiler_biomass': 1.0}
+
+    assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['hydrogen']] = {
+        'boiler_hydrogen': 1.0}
+
+    # ===================
+    # Service subModel - Fuel shares of technologies in enduse
+    # ===================
+
+    # ----------------
+    # Space heating
+    # ----------------
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['solid_fuel']] = {
+        'boiler_solid_fuel': 1.0}
+
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['gas']] = {
+        'boiler_gas': 1.0}
+
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['electricity']] = {
+        'boiler_electricity': 1.0}
+
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['oil']] = {
+        'boiler_oil': 1.0}
+
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['biomass']] = {
+        'boiler_biomass': 1.0}
+
+    assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['hydrogen']] = {
         'boiler_hydrogen': 1.0}
 
     assumptions['ss_specified_tech_enduse_by'] = helpers.get_def_techs(
-        ss_fuel_tech_p_by)
+        assumptions['ss_fuel_tech_p_by'])
 
-    assumptions['ss_fuel_tech_p_by'] = ss_fuel_tech_p_by
-
-    # ------------------
+    # ===================
     # Industry subModel  - Fuel shares of technologies in enduse
-    # ------------------
+    # ===================
 
-    # ---Space heating
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_solid_fuel] = {
+    # ----------------
+    # Space heating
+    # ----------------
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_gas] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['gas']] = {
         'boiler_gas': 1.0
         }
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_elec] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['electricity']] = {
         'boiler_electricity': 0.5,
         'heat_pumps_electricity': 0.5
         }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_oil] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['oil']] = {
         'boiler_oil': 1.0}
 
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_biomass] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['biomass']] = {
         'boiler_biomass': 1.0}
 
-    is_fuel_tech_p_by['is_space_heating'][fuel_nr_hydrogen] = {
+    assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['hydrogen']] = {
         'boiler_hydrogen': 1.0}
-
-    assumptions['is_fuel_tech_p_by'] = is_fuel_tech_p_by
 
     # ------------------
     # Helper functions
@@ -213,59 +207,3 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     assumptions['test'] = 'test'
 
     return assumptions
-
-def service_share_input_to_fuel(
-        total_share_fueltype,
-        tech_share_tot_service,
-        tech_stock,
-        assumptions
-    ):
-    """Convert service share to fuel share. As an input, provide share of
-    service per fueltype (e.g. in gas fueltype: 0.6 boilerA, 0.4, boilerB).
-
-    With help of assumption of share per fueltype ``total_share_fueltype``,
-    calculate fuel share.
-
-    Arguments
-    ----------
-    total_share_fueltype : dict
-        Shares of total service of this fueltype
-    tech_share_tot_service : dict
-        Service share of technologies of a fueltype
-        e.g. service_share_tech = {'tech_A': 0.4, 'tech_B': 0.6}
-    tech_stock : object
-        Technology stock
-    assumptions : dict
-        Assumptions
-
-    Returns
-    -------
-    fuel_share_tech_fueltype : dict
-        Fuel share per technology of a fueltype
-    """
-    fuel_share_tech_fueltype = {}
-
-    for technology, service_share_tech in tech_share_tot_service.items():
-
-        # Get by efficiency
-        tech_type = tech_related.get_tech_type(technology, assumptions['tech_list'])
-
-        if tech_type == 'heat_pump':
-            eff_tech_by = tech_related.eff_heat_pump(
-                temp_diff=10,
-                efficiency_intersect=tech_stock[technology]['eff_by'])
-        else:
-            eff_tech_by = tech_stock[technology]['eff_by']
-
-        # Convert total share of service to fuel share (service to fuel)
-        fueltype_tech_share = (total_share_fueltype * service_share_tech) / eff_tech_by
-
-        fuel_share_tech_fueltype[technology] = fueltype_tech_share
-
-    # Make that fuel shares sum up to 1
-    total_fuel = sum(fuel_share_tech_fueltype.values())
-
-    for tech, fuel in fuel_share_tech_fueltype.items():
-        fuel_share_tech_fueltype[tech] = fuel / total_fuel
-
-    return fuel_share_tech_fueltype

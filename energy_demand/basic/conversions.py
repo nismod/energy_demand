@@ -23,13 +23,6 @@ def gewhperday_to_gw(gw_per_day):
     gw = gw_per_day / 24
     return gw
 
-def gwhperyear_to_gw(gwh_per_year):
-    """Convert annual gwh to gw
-    TODO
-    """
-    gw = gwh_per_year / 8760
-    return gw
-
 def ktoe_to_gwh(ktoe):
     """Conversion of ktoe to gwh. As ECUK input
     ktoe per year are provided, which are converted

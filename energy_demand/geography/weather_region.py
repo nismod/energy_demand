@@ -602,14 +602,13 @@ def change_temp_climate(temp_data, yeardays_month_days, assumptions_temp_change,
     for yearday_month, month_yeardays in yeardays_month_days.items():
         month_str = basic_functions.get_month_from_int(yearday_month + 1)
         param_name_month = "climate_change_temp_d__{}".format(month_str)
-        temp_fy = assumptions_temp_change[param_name_month]
 
         # Calculate monthly change in temperature
         lin_diff_factor = diffusion_technologies.linear_diff(
             base_yr=sim_param['base_yr'],
             curr_yr=sim_param['curr_yr'],
             value_start=0,
-            value_end=temp_fy, # added degrees TODO:
+            value_end=assumptions_temp_change[param_name_month],
             yr_until_changed=yr_until_changed)
 
         temp_climate_change[month_yeardays] = temp_data[month_yeardays] + lin_diff_factor

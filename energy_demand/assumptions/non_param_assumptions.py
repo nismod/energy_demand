@@ -95,6 +95,8 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
 
     # Assumption about age distribution (Source: Housing Energy Fact Sheet)
     # (Average builing age within age class, fraction)
+    # Note: By changing this fraction, the number of refurbished houses can be
+    # be changed
     assumptions['dwtype_age_distr'] = {
         2015: {
             '1918' :0.21,
@@ -103,7 +105,6 @@ def load_non_param_assump(base_yr, paths, enduses, lookups):
             '1996.5': 0.08,
             '2002': 0.05}}
 
-    # TODO: Improve assumptions for heat loss coefficient
     # ============================================================
     #  Scenario drivers
     # ============================================================

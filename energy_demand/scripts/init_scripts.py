@@ -50,7 +50,6 @@ def post_install_setup(args):
     data['enduses'], data['sectors'], data['fuels'] = data_loader.load_fuels(
         data['paths'], data['lookups'])
 
-    #TODO NEEDED HERE?
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['simulated_yrs'] = [2015, 2020, 2025]
@@ -192,7 +191,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'])
 
     # -------------------------------------
-    # Autocomplete service switches : TODO: MORE INFOWrite all end shares of full switches
+    # Autocomplete service switches
     # -------------------------------------
     data['assumptions']['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],

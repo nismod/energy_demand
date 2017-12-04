@@ -94,7 +94,7 @@ class EDWrapper(SectorModel):
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
 
-        data['sim_param']['base_yr'] = 2015 #REPLACE
+        data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
         self.user_data['base_yr'] = data['sim_param']['base_yr']
 
@@ -148,7 +148,7 @@ class EDWrapper(SectorModel):
                 data['lu_reg'], data['sectors']['all_sectors'], data)
         else:
             pass
-            # Floor areas TODO LOAD FROM NEWCASTLE
+            # Load floor area from newcastle
             #rs_floorarea = defaultdict(dict)
             #ss_floorarea = defaultdict(dict)
 
@@ -325,7 +325,7 @@ class EDWrapper(SectorModel):
 
         # Region related information
         data['lu_reg'] = self.get_region_names(REGION_SET_NAME)
-        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS] # Select only certain number of regions #TODO: REMOVE
+        data['lu_reg'] = data['lu_reg'][:NR_OF_MODELLEd_REGIONS]
         reg_centroids = self.get_region_centroids(REGION_SET_NAME)
         data['reg_coord'] = self.get_long_lat_decimal_degrees(reg_centroids)
         data['reg_nrs'] = len(data['lu_reg'])

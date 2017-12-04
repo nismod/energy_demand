@@ -69,9 +69,9 @@ def test_get_tech_future_service():
     service_tech_ey_p = {'heating':{'techA': 0.6, 'techB': 0.4}}
     tech_increased_service, tech_decreased_share, tech_constant_share = s_generate_sigmoid.get_tech_future_service(
         service_tech_by_p, service_tech_ey_p)
-    #TODO: TEST
-    assert tech_increased_service ==  {'heating': {'techB': 0.3}}
-    assert tech_decreased_share ==  {'heating': {'techA': 0.7}}
+
+    assert tech_increased_service == {'heating': {'techB': 0.3}}
+    assert tech_decreased_share == {'heating': {'techA': 0.7}}
     assert tech_constant_share == {'heating': {}}
 
 def test_calc_sigmoid_parameters():
