@@ -468,7 +468,7 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
         logging.info("... finished wrapper calculations")
-        #prnt(":")
+
         return {'model_name': supply_results}
 
     def extract_obj(self, results):

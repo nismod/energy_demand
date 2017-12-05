@@ -21,7 +21,7 @@ to be stored in a local folder (`data_energy_demand`).
 Documentation
 ===================
 
-## 1. Overview
+## 1. Introduction
 
 
 The energy demand model of the ITRC-MISTRAL framework allows 
@@ -41,7 +41,21 @@ are defined and modelled where possible on a household level.
 The energy demand model integrates energy demands across
 all ITRC models and provides demands to the supply model.
 
-### 1.1. Energy demand simulation
+
+
+## 2. Overview of model and simulation approach
+
+![Model overview](../docs/documentation_images/000-model_overview.jpg)
+*Figure XY: Overview of modelled end uses and sectors*
+
+
+## 3. Main working steps
+
+The main working steps as outlined in Figure XY are explained
+
+### 3.1 Spatial disaggregation
+
+### 3.2 Annual demand simulation
 
 Total energy demand of a (simulation) year (![equation](https://latex.codecogs.com/gif.latex?ED_%7By%7D%5E%7Btot%7D "ED_{y}^{tot}"))is calculated over all regions (r), sectors (s), end-uses (e), technologies (t) and fuel-types (f) as follows:
 
@@ -93,15 +107,12 @@ For the residential and service sub-model, SD values are calculated based on a d
 
 *Table 1.1: End-use specific scenario drivers for energy demand*
 
-### 1.2 Main working flow
-
-Lorem ipsum...
 ![Image of model integration](../docs/documentation_images/004-ULM_main_classes.jpg)
 *Figure 3.1: Interaction*
 
-## 3. Model integration
+## XY. Model Interaction
 
-This section explains how the energy demand and energy supply model interact.
+
 
 ### 3.1 Energy supply and demand model
 
@@ -118,18 +129,15 @@ Lorem ipsum...
 
 ## 4. Generic Dwelling Stock Model
 
-A generic dwelling model is implemented in HIRE. Instead of modelling every individual building, a abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
+A generic dwelling model is implemented in HIRE which can be used in case no external dwelling stock model is available and can provide the necesarry ``dwelling`` inputs. However, instead of modelling every individual building, an abstracted dwelling respresentation of the the complete dwelling stock is modelled based on different simplified assumptions. The modelling steps are as follows for every ``Region`` (see Figure 4.1 for the detailed process flow):
 
-1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``).
-  The floor area per person can be changed over the simulation period.
+1. Based on base year total population and total floor area, the floor area per person is calculated (``floor_area_pp``). The floor area per person can be changed over the simulation period.
 
-2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated         for the simulation year (by substracting the existing floor area of the total new floor area).
+2. Based on the floor area per person and scenario population input, total necessary new and existing floor area is calculated for the simulation year (by substracting the existing floor area of the total new floor area).
 
-3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is
-   calculated.
+3. Based on assumptions on the dwelling type distribution (``assump_dwtype_distr``) the floor area per dwelling type is calculated.
 
-4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The
-   heat loss coefficient is calculated for every object.
+4. Based on assumptions on the age of the dwelling types, different ``Dwelling`` objects are generated. The heat loss coefficient is calculated for every object.
 
 5. Additional dwelling stock related properties can be added to the ``Dwelling`` objects which give
    indication of the energy demand and can be used for calculating the scenario drivers.
@@ -465,3 +473,5 @@ UK Met Office (2015): ‘MIDAS: UK hourly weather observation data’. Centre fo
 
 ###### Varia
 - https://www.codecogs.com/latex/eqneditor.php used for this documentation
+
+
