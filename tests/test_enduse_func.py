@@ -14,22 +14,17 @@ def test_get_crit_switch():
 
     fuelswitches = [read_data.FuelSwitch(
         enduse='heating')]
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
 
     result = enduse_func.get_crit_switch(
-        'heating', fuelswitches, sim_param, mode_constrained)
+        'heating', fuelswitches, 2015, 2020, mode_constrained)
 
     assert result == False
     
     mode_constrained = False
-    sim_param = {
-        'base_yr': 2015,
-        'curr_yr': 2020}
+
 
     result2 = enduse_func.get_crit_switch(
-        'heating', fuelswitches, sim_param, mode_constrained)
+        'heating', fuelswitches, 2015, 2020, mode_constrained)
     assert result2 == True
 
 def test_get_peak_day():
@@ -713,7 +708,7 @@ def test_apply_climate_chante():
         cooling_factor_y=1.5,
         heating_factor_y=1.5,
         assumptions=assumptions)
-    
+
     assert result == 300
     result = enduse_func.apply_climate_change(
         enduse='cooling',
@@ -872,3 +867,85 @@ def test_apply_specific_change():
         sim_param=sim_param)
 
     assert result == fuel_y * enduse_overall_change_strategy['enduse_change__heating']
+
+def test_get_enduse_configuration():
+
+    fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        enduse_fueltype_replace="",
+        technology_install='boilerB',
+        switch_yr=2020,
+        fuel_share_switched_ey=""
+    )]
+
+    service_switches = [read_data.ServiceSwitch(
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+        mode_constrained=True,
+        enduse='heating',
+        enduse_space_heating=['heating'],
+        crit_capacity_switch=True,
+        base_yr=2015,
+        curr_yr=2020,
+        fuel_switches=fuel_switches,
+        service_switches=service_switches)
+
+    assert mode_constrained == True
+
+    # If constrained mode, no switches
+    assert crit_switch_fuel == False
+    assert crit_switch_service == False
+   
+    # ---
+    fuel_switches = []
+
+    service_switches = [read_data.ServiceSwitch(
+        enduse='heating',
+        technology_install='boilerA',
+        switch_yr=2050)]
+
+    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+        mode_constrained=False,
+        enduse='heating',
+        enduse_space_heating=['heating'],
+        crit_capacity_switch=True,
+        base_yr=2015,
+        curr_yr=2020,
+        fuel_switches=fuel_switches,
+        service_switches=service_switches)
+
+    assert mode_constrained == False
+
+    # If constrained mode, no switches
+    assert crit_switch_fuel == False
+    assert crit_switch_service == True
+
+    # ---
+
+    fuel_switches = [read_data.FuelSwitch(
+        enduse='heating',
+        enduse_fueltype_replace="",
+        technology_install='boilerB',
+        switch_yr=2020,
+        fuel_share_switched_ey=""
+    )]
+
+    service_switches = []
+
+    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+        mode_constrained=False,
+        enduse='heating',
+        enduse_space_heating=['heating'],
+        crit_capacity_switch=True,
+        base_yr=2015,
+        curr_yr=2020,
+        fuel_switches=fuel_switches,
+        service_switches=service_switches)
+
+    assert mode_constrained == False
+
+    # If constrained mode, no switches
+    assert crit_switch_fuel == True
+    assert crit_switch_service == False

@@ -218,8 +218,14 @@ class Enduse(object):
                 # Get enduse specific configurations
                 # ----
                 mode_constrained, crit_switch_fuel, crit_switch_service = get_enduse_configuration(
-                    criterias,
-                    enduse, assumptions, sim_param, fuel_switches, service_switches)
+                    criterias['mode_constrained'],
+                    enduse,
+                    assumptions['enduse_space_heating'],
+                    assumptions['crit_capacity_switch'],
+                    sim_param['base_yr'],
+                    sim_param['curr_yr'],
+                    fuel_switches,
+                    service_switches)
 
                 # ------------------------------------
                 # Calculate regional energy service
@@ -504,7 +510,16 @@ def get_running_mode(enduse, mode_constrained, enduse_space_heating):
     else:
         return False
 
-def get_enduse_configuration(criterias, enduse, assumptions, sim_param, fuel_switches, service_switches):
+def get_enduse_configuration(
+        mode_constrained,
+        enduse,
+        enduse_space_heating,
+        crit_capacity_switch,
+        base_yr,
+        curr_yr,
+        fuel_switches,
+        service_switches
+    ):
     """Get enduse specific configuration
 
     Arguments
@@ -513,19 +528,21 @@ def get_enduse_configuration(criterias, enduse, assumptions, sim_param, fuel_swi
     """
     mode_constrained = get_running_mode(
         enduse,
-        criterias['mode_constrained'],
-        assumptions['enduse_space_heating'])
+        mode_constrained,
+        enduse_space_heating)
 
     crit_switch_fuel = get_crit_switch(
         enduse,
         fuel_switches,
-        sim_param,
+        base_yr,
+        curr_yr,
         mode_constrained)
 
     crit_switch_service = get_crit_switch(
         enduse,
         service_switches,
-        sim_param,
+        base_yr,
+        curr_yr,
         mode_constrained)
 
     testing_functions.testing_switch_criteria(
@@ -535,7 +552,7 @@ def get_enduse_configuration(criterias, enduse, assumptions, sim_param, fuel_swi
 
     # Test if capacity switch is implemented
     try:
-        if assumptions['crit_capacity_switch'] and crit_switch_service:
+        if crit_capacity_switch and crit_switch_service:
             logging.warning(
                 "Warning: Capacity switch and service switch are installed simultaniously")
     except KeyError:
@@ -543,7 +560,7 @@ def get_enduse_configuration(criterias, enduse, assumptions, sim_param, fuel_swi
 
     return mode_constrained, crit_switch_fuel, crit_switch_service
 
-def get_crit_switch(enduse, switches, sim_param, mode_constrained):
+def get_crit_switch(enduse, switches, base_yr, curr_yr, mode_constrained):
     """Test whether there is a switch (service or fuel)
 
     Arguments
@@ -559,7 +576,7 @@ def get_crit_switch(enduse, switches, sim_param, mode_constrained):
     ----
     If base year, no switches are implemented
     """
-    if sim_param['base_yr'] == sim_param['curr_yr'] or mode_constrained is True:
+    if base_yr == curr_yr or mode_constrained is True:
         return False
     else:
         for switch in switches:
