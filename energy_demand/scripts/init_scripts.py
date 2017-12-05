@@ -18,6 +18,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
 from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
+from energy_demand.geography import spatial_diffusion
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -110,7 +111,7 @@ def scenario_initalisation(path_data_ed, data=False):
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
-    # Delete processed data from former model runs
+    # Delete processed data from former model runs and create folders
     # --------------------------------------------
     logging.info("... delete previous model run results")
     basic_functions.del_previous_results(
@@ -118,7 +119,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['local_paths']['path_post_installation_data'])
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
-    # Create folders
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
@@ -132,6 +132,8 @@ def scenario_initalisation(path_data_ed, data=False):
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
         data['local_paths']['path_employment_statistics'])
 
+    # Regional diffusion characteristics
+    ##BELUGAdata['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(data['lu_reg'])
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
@@ -173,7 +175,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # ---
     # Autocomplement switches
-    # --- 
+    # ---
     switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['rs_service_switches'],

@@ -4,7 +4,6 @@ This script calculates the three parameters of a sigmoid diffusion
 for every technology which is diffused and has a larger service
 fraction at the model end year
 """
-import copy
 import logging
 from collections import defaultdict
 import numpy as np

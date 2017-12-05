@@ -213,11 +213,7 @@ def capacity_installations(
     enduses_switch = list(enduses_switch)
 
     if enduses_switch == []:
-
-        # Criteria that capacity switch is implemented
-        capacity_switch_crit = False
-
-        return service_switches, capacity_switch_crit
+        pass
     else:
         # -------------------------
         # Calculate service switches
@@ -231,10 +227,7 @@ def capacity_installations(
             base_yr,
             fuels)
 
-        # Criteria that capacity switch is implemented
-        capacity_switch_crit = True
-
-        return service_switches, capacity_switch_crit
+    return service_switches
 
 def create_service_switch(
         enduses,

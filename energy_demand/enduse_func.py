@@ -60,6 +60,8 @@ class Enduse(object):
         Fuel switches
     service_switches : list
         Service switches
+    capacity_switches : list
+        Capacity switches
     fuel_tech_p_by : dict
         Fuel tech assumtions in base year
     tech_increased_service : dict
@@ -221,7 +223,6 @@ class Enduse(object):
                     criterias['mode_constrained'],
                     enduse,
                     assumptions['enduse_space_heating'],
-                    assumptions['crit_capacity_switch'],
                     sim_param['base_yr'],
                     sim_param['curr_yr'],
                     fuel_switches,
@@ -514,7 +515,6 @@ def get_enduse_configuration(
         mode_constrained,
         enduse,
         enduse_space_heating,
-        crit_capacity_switch,
         base_yr,
         curr_yr,
         fuel_switches,
@@ -552,11 +552,11 @@ def get_enduse_configuration(
 
     # Test if capacity switch is implemented
     try:
-        if crit_capacity_switch and crit_switch_service:
+        if crit_switch_fuel and crit_switch_service:
             logging.warning(
-                "Warning: Capacity switch and service switch are installed simultaniously")
+                "Warning: Not possible to define fuel and service switch at the same time")
     except KeyError:
-        logging.debug("... no capacity and service switch defined simultaniously")
+        logging.debug("... no capacity and service switch defined")
 
     return mode_constrained, crit_switch_fuel, crit_switch_service
 

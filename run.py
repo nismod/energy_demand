@@ -180,8 +180,8 @@ class EDWrapper(SectorModel):
     
         # ---------------------
         # Convert capacity switches to service switches
-        # ---------------------
-        data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        # ---------------------   
+        data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
             data['assumptions']['capacity_switches']['rs_capacity_switches'],
             data['assumptions']['technologies'],
@@ -190,7 +190,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['rs_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        data['assumptions']['ss_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['ss_service_switches'],
             data['assumptions']['capacity_switches']['ss_capacity_switches'],
             data['assumptions']['technologies'],
@@ -199,7 +199,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['ss_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        data['assumptions']['is_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['is_service_switches'],
             data['assumptions']['capacity_switches']['is_capacity_switches'],
             data['assumptions']['technologies'],
