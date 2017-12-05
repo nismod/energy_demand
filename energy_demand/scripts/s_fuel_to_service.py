@@ -1,85 +1,9 @@
 """Script to convert fuel to energy service
 """
-import logging
 import warnings
 import numpy as np
 from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
-
-'''def write_service_fueltype_by_p(path_to_txt, data):
-    """Write out function
-
-    Arguments
-    ----------
-    path_to_txt : str
-        Path to txt file
-    data : dict
-        Data to write out
-    """
-    file = open(path_to_txt, "w")
-    file.write("{}, {}, {}".format(
-        'service', 'fueltype', 'service_p') + '\n')
-
-    for service, fueltypes in data.items():
-        for fueltype, service_p in fueltypes.items():
-            file.write(
-                "{}, {}, {}".format(
-                    service, fueltype, float(service_p)) + '\n')
-
-    file.close()
-    return
-
-def write_service_fueltype_tech_by_p(path_to_txt, data):
-    """Write out function
-
-    Arguments
-    ----------
-    path_to_txt : str
-        Path to txt file
-    data : dict
-        Data to write out
-    """
-    file = open(path_to_txt, "w")
-    file.write("{}, {}, {}, {}".format(
-        'service', 'fueltype', 'technology', 'service_p') + '\n'
-              )
-
-    for service, fueltype_tech in data.items():
-        for fueltype, tech_list in fueltype_tech.items():
-            if tech_list == {}:
-                file.write("{}, {}, {}, {}".format(
-                    service, fueltype, "None", 0) + '\n') #None and 0
-            else:
-                for tech, service_p in tech_list.items():
-                    file.write("{}, {}, {}, {}".format(
-                        service, fueltype, tech, float(service_p)) + '\n')
-
-    file.close()
-    return
-
-def write_service_tech_by_p(path_to_txt, data):
-    """Write out function
-
-    Arguments
-    ----------
-    path_to_txt : str
-        Path to txt file
-    data : dict
-        Data to write out
-    """
-    file = open(path_to_txt, "w")
-    file.write("{}, {}, {}".format(
-        'enduse', 'technology', 'service_p') + '\n'
-              )
-
-    for enduse, technologies in data.items():
-        for tech, service_p in technologies.items():
-            file.write("{}, {}, {}".format(
-                str.strip(enduse), str.strip(tech), float(service_p)) + '\n'
-                      )
-
-    file.close()
-    return'''
 
 def init_nested_dict_brackets(first_level_keys, second_level_keys):
     """Initialise a nested dictionary with two levels
