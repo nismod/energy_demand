@@ -132,8 +132,40 @@ def scenario_initalisation(path_data_ed, data=False):
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
         data['local_paths']['path_employment_statistics'])
 
+
+    # -------------------
+    # Disaggregate
+    # -------------------
+    sd_cont = {}
+    sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
+        data['lu_reg'],
+        data['sim_param']['base_yr'],
+        data['sim_param']['curr_yr'],
+        data['fuels'],
+        data['scenario_data'],
+        data['assumptions'],
+        data['reg_coord'],
+        data['weather_stations'],
+        data['temp_data'],
+        data['sectors'],
+        data['sectors']['all_sectors'],
+        data['enduses'])
+
+    #---------------------------
+
     # Regional diffusion characteristics
-    ##BELUGAdata['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(data['lu_reg'])
+    all_enduse = []
+    for l_enduse in data['enduses'].values():
+        all_enduse += l_enduse
+    data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
+        data['lu_reg'],
+        all_enduse)
+
+    data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
+        data['lu_reg'],
+        data['spatial_diffusion_index'],
+        [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
+
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
@@ -262,23 +294,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'],
         data['assumptions']['is_fuel_tech_p_by'])
 
-    # -------------------
-    # Disaggregate
-    # -------------------
-    sd_cont = {}
-    sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
-        data['lu_reg'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['curr_yr'],
-        data['fuels'],
-        data['scenario_data'],
-        data['assumptions'],
-        data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
-        data['sectors'],
-        data['sectors']['all_sectors'],
-        data['enduses'])
+
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont
