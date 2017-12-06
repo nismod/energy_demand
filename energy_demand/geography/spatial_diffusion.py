@@ -1,5 +1,22 @@
 """This file calculates spatial diffusion index
+
+Method to incorporate regional diffusion
+# -----------------------------------------
+
+1.  As an input provide national fuel share which is to be switched (or capacity installed or fuel switch). As defined already
+
+2.  Provide for every region a diffusion value (see excel)
+
+3.  Calculate for every region a diffusion index (see excel)
+
+4.  Normalised diffusion index with service fraction and multiply with total switched service of UK --> Regional service to switch (see excel)
+
+5.  Calculate diffusion parameters for region
+
+6.  Use regional diffusion parameters
+
 """
+
 from collections import defaultdict
 import numpy as np
 
@@ -104,3 +121,50 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
         np.testing.assert_almost_equal(sum(reg_fraction_multiplied_index[enduse].values()), 1, decimal=2)
 
     return reg_fraction_multiplied_index
+
+def calc_regional_services(service, uk_service_p, regions, spatial_factors, fuel_disaggregated, technologies):
+    """Calculate regional service_tech_ey_p
+
+    # Calculation national end use service to reduce : e.g. 40 % hp of uk --> service of heat pumps in ey?
+    
+    # Distribute this service according to spatial index
+
+    # Convert regional service reduction to ey % in region
+
+    """
+    reg_service_tech_p = {}
+    for enduse, techs_service_p in uk_service_p.items():
+        reg_service_tech_p[enduse] = {}
+
+        # Calculate national total enduse fuel
+        uk_enduse_fuel = 0
+        for region in regions:
+            print("  region   {}  fuel  {}".format(region, np.sum(fuel_disaggregated[region][enduse])))
+            uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
+
+
+        for tech, tech_service_p in techs_service_p.items():
+
+            # Calculate national enduse of technology
+            tech_fueltype = technologies[tech].fuel_type_int
+            uk_service_enduse = sum(service[enduse][tech_fueltype].values())
+            uk_service_tech = service[enduse][tech_fueltype][tech] * tech_service_p
+
+            # Distribute the service to reduce according to spatial factor
+            for region in regions:
+
+                # Calculate fraction of regional service
+                reg_diagg_f = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
+
+                reg_service_enduse = uk_service_enduse * reg_diagg_f
+
+                # Calculate regional service for technology
+                reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
+
+                # Calculate fraction of tech
+                if reg_service_tech == 0:
+                    reg_service_tech_p[enduse][tech] = 0
+                else:
+                    reg_service_tech_p[enduse][tech] = reg_service_tech / reg_service_enduse
+
+    return reg_service_tech_p

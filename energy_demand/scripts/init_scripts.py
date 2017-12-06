@@ -132,7 +132,6 @@ def scenario_initalisation(path_data_ed, data=False):
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
         data['local_paths']['path_employment_statistics'])
 
-
     # -------------------
     # Disaggregate
     # -------------------
@@ -151,29 +150,13 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
-    #---------------------------
-    # Calculate spatial explicit diffusion
-    #---------------------------
-
-    # Regional diffusion characteristics
-    all_enduse = []
-    for l_enduse in data['enduses'].values():
-        all_enduse += l_enduse
-    data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
-        data['lu_reg'],
-        all_enduse)
-
-    data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
-        data['lu_reg'],
-        data['spatial_diffusion_index'],
-        [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -186,7 +169,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] , ss_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
@@ -199,7 +182,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'], is_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
@@ -296,6 +279,47 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['is_fuel_tech_p_by'])
 
 
+    #---------------------------
+    # Calculate spatial explicit diffusion factors
+    #---------------------------
+    all_enduse = []
+    for l_enduse in data['enduses'].values():
+        all_enduse += l_enduse
+    data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
+        data['lu_reg'],
+        all_enduse)
+
+    data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
+        data['lu_reg'],
+        data['spatial_diffusion_index'],
+        [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
+
+    # ---------------
+    # Region specific reduction
+    # 
+    # ----------------
+    print(rs_service)
+    print("+++++++++++++")
+    print(fts_cont['rs_service_tech_by_p'])
+    print("----------")
+    print(data['assumptions']['rs_share_service_tech_ey_p'])
+    print("--")
+    print(sgs_cont['rs_sig_param_tech'])
+
+    reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
+        rs_service,
+        data['assumptions']['rs_share_service_tech_ey_p'],
+        data['lu_reg'],
+        data['spatial_diffusion_factor'],
+        sd_cont['rs_fuel_disagg'],
+        data['assumptions']['technologies'])
+    print("============")
+    print(reg_enduse_tech_p)
+
+    prnt(".")
+
+
+    # ----------------
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont

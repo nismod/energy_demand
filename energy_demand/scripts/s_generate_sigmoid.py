@@ -583,8 +583,7 @@ def get_sig_diffusion(
             else:
                 # Maximum shares of each technology
                 for tech in installed_tech[enduse]:
-                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share #BELUGA
-                #l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
+                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share
         else:
             """Sigmoid calculation in case of 'fuel switch'
             """
