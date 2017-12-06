@@ -296,16 +296,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # ---------------
     # Region specific reduction
-    # 
     # ----------------
-    print(rs_service)
-    print("+++++++++++++")
-    print(fts_cont['rs_service_tech_by_p'])
-    print("----------")
-    print(data['assumptions']['rs_share_service_tech_ey_p'])
-    print("--")
-    print(sgs_cont['rs_sig_param_tech'])
-
     reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
         rs_service,
         data['assumptions']['rs_share_service_tech_ey_p'],
