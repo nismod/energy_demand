@@ -152,6 +152,8 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses'])
 
     #---------------------------
+    # Calculate spatial explicit diffusion
+    #---------------------------
 
     # Regional diffusion characteristics
     all_enduse = []
@@ -165,7 +167,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['lu_reg'],
         data['spatial_diffusion_index'],
         [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
-
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)

@@ -10,7 +10,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # backcasting
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
-
+# convert documentation in rst?
 """
 import os
 import sys

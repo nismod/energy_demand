@@ -1,24 +1,23 @@
 """This file calculates spatial diffusion index
 """
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
 def calc_diff_index(regions, enduses):
     """Load or calculate spatial index e.g. based on urban/rural population
     """
     spatial_index = defaultdict(dict)
 
-    
     for enduse in enduses:
-        dummy_indeces = [1.2, 1.5]
-        cnt = 0
+        #dummy_indeces = [1.4, 2]
+        #cnt = 0
         for region in regions:
 
-            #dummy_index = 1 #TODO
-            dummy_index = dummy_indeces[cnt] #TODO
+            dummy_index = 1 #TODO
+            #dummy_index = dummy_indeces[cnt] #TODO
 
             spatial_index[enduse][region] = dummy_index
-            cnt += 1
+            #cnt += 1
 
     return dict(spatial_index)
 
@@ -56,7 +55,7 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
 
                 fuel_submodel = fuel_submodel_new
 
-            except:
+            except IndexError:
                 enduses = entries.keys()
                 break
 
@@ -92,8 +91,16 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
             for reg, fuel_p in regions_fuel_p.items():
                 reg_fraction_multiplied_index[enduse][reg] = fuel_p * spatial_diffusion_index[enduse][reg]
 
+    #-----------
+    # Normalize
+    #-----------
+    for enduse in reg_fraction_multiplied_index:
+        sum_enduse = sum(reg_fraction_multiplied_index[enduse].values())
+        for reg in reg_fraction_multiplied_index[enduse]:
+            reg_fraction_multiplied_index[enduse][reg] = reg_fraction_multiplied_index[enduse][reg] / sum_enduse
+
     # TEsting
     for enduse in reg_fraction_multiplied_index:
-        assert sum(reg_fraction_multiplied_index[enduse].values()) == 1
+        np.testing.assert_almost_equal(sum(reg_fraction_multiplied_index[enduse].values()), 1, decimal=2)
 
     return reg_fraction_multiplied_index
