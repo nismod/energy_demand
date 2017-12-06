@@ -26,15 +26,15 @@ def calc_diff_index(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        #dummy_indeces = [1.4, 2]
-        #cnt = 0
+        dummy_indeces = [1.4, 2]
+        cnt = 0
         for region in regions:
 
-            dummy_index = 1 #TODO
-            #dummy_index = dummy_indeces[cnt] #TODO
+            #dummy_index = 1 #TODO
+            dummy_index = dummy_indeces[cnt] #TODO
 
             spatial_index[enduse][region] = dummy_index
-            #cnt += 1
+            cnt += 1
 
     return dict(spatial_index)
 
@@ -86,11 +86,13 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
             # Total uk fuel of enduse
             tot_enduse_uk = 0
             for reg in regions:
-                tot_enduse_uk += fuel_submodel[reg][enduse]
+                print("enduse {}  reg {}  fuel {}".format(enduse, reg, np.sum(fuel_submodel[reg][enduse])))
+                tot_enduse_uk += np.sum(fuel_submodel[reg][enduse])
 
             # Calculate regional % of enduse
             for region in regions:
-                reg_enduse_p[enduse][region] = np.sum(fuel_submodel[reg][enduse]) / np.sum(tot_enduse_uk)
+
+                reg_enduse_p[enduse][region] = np.sum(fuel_submodel[region][enduse]) / tot_enduse_uk
 
             tot_reg_enduse_p = sum(reg_enduse_p[enduse].values())
 
@@ -132,6 +134,9 @@ def calc_regional_services(
     ):
     """Calculate regional service_tech_ey_p
 
+    Arguments
+    =========
+    
     # Calculation national end use service to reduce : e.g. 40 % hp of uk --> service of heat pumps in ey?
     
     # Distribute this service according to spatial index
@@ -142,45 +147,75 @@ def calc_regional_services(
     reg_service_tech_p = {}
     for enduse, techs_service_p in uk_service_p.items():
         reg_service_tech_p[enduse] = {}
-        _scrap_enduse_p = 0
+
         # Calculate national total enduse fuel
         uk_enduse_fuel = 0
         for region in regions:
             reg_service_tech_p[enduse][region] = {}
+            print("FUEL " + str(np.sum(fuel_disaggregated[region][enduse])))
             uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
+        
+        uk_service_enduse = 0
+        for fueltype in service[enduse]:
+            uk_service_enduse += sum(service[enduse][fueltype].values())
+        print(uk_service_enduse)
+        print("uk_service_enduse: " + str(uk_service_enduse))
 
+        _servicesum = 0
         for region in regions:
-
+            print("============== Region " + str(region))
+            print(np.sum(fuel_disaggregated[region][enduse]))
             # Calculate fraction of regional service
             reg_diagg_f = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
             print("reg_diagg_f: + " + str(reg_diagg_f))
+           
+            _sum_p_region = 0
             
-            for tech, tech_service_p in techs_service_p.items():
+            for tech, tech_service_ey_p in techs_service_p.items():
                 print("----tech  " + str(tech))
+
                 # Calculate national enduse of technology
                 tech_fueltype = technologies[tech].fuel_type_int
-                uk_service_enduse = sum(service[enduse][tech_fueltype].values())
-                uk_service_tech = service[enduse][tech_fueltype][tech] * tech_service_p
-                print("uk_service_enduse: " + str(uk_service_enduse))
-                # Distribute the service to reduce according to spatial factor
-                _scrap = 0
-                _scrap1 = 0
-            
 
+                #old
+                #uk_service_tech = service[enduse][tech_fueltype][tech] * tech_service_ey_p
+
+                uk_service_tech = tech_service_ey_p * uk_service_enduse
+
+                # Distribute the service to reduce according to spatial factor
                 reg_service_enduse = uk_service_enduse * reg_diagg_f
                 print("reg_service_enduse: " + str(reg_service_enduse))
-                # Calculate regional service for technology
-                reg_service_tech_spatial = uk_service_tech * spatial_factors[enduse][region]
 
-                reg_service_tech = reg_service_tech_spatial * reg_diagg_f
-                _scrap += reg_service_tech
+                # Calculate regional service for technology
+                if tech == 'heat_pumps_electricity':
+                    #TODO ONLY FOR HEAT PUMP SPECIAL
+                    reg_service_tech = uk_service_tech * spatial_factors[enduse][region] #* reg_diagg_f
+                else:
+                    reg_service_tech = uk_service_tech * 1
+
+                
+                #print(" =====reg_service_tech_spatial: " + str(reg_service_tech))
+                
                 # Calculate fraction of tech
                 if reg_service_tech == 0:
                     reg_service_tech_p[enduse][region][tech] = 0
                 else:
-                    _scrap1 += reg_service_tech / reg_service_enduse
-                    print("share " + str( reg_service_tech / reg_service_enduse))
-                    print("share 2: " + str(_scrap1))
-                    reg_service_tech_p[enduse][region][tech] = reg_service_tech / reg_service_enduse
+                    reg_service_tech_p[enduse][region][tech] = reg_service_tech #/ reg_service_enduse
 
+                    _sum_p_region += reg_service_tech / reg_service_enduse
+
+                #print("_sum_p_region: " + str(_sum_p_region))
+                _servicesum += reg_service_tech
+                #print("_servicesum_dd: " + str(_servicesum))
+
+            # Normalise in region
+            tot_service_reg_enduse = sum(reg_service_tech_p[enduse][region].values())
+            for tech, service_tech in reg_service_tech_p[enduse][region].items():
+                reg_service_tech_p[enduse][region][tech] = service_tech / tot_service_reg_enduse
+
+            print("==============================")
+            print("TOT REGIONA:     " + str(tot_service_reg_enduse))
+
+        print("_servicesum final: " + str(_servicesum))
+    #TODO: WHY GAS BOILER SO HIGH
     return reg_service_tech_p
