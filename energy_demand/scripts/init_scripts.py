@@ -306,10 +306,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['technologies'])
     print("============")
     print(reg_enduse_tech_p)
-
-    prnt(".")
-
-
     # ----------------
 
     logging.info("... finished scenario_initalisation")
