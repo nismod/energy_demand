@@ -18,6 +18,7 @@ from energy_demand.basic import basic_functions
 from energy_demand.basic import logger_setup
 from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
+from energy_demand.geography import spatial_diffusion
 
 def post_install_setup(args):
     """Run initialisation scripts
@@ -110,7 +111,7 @@ def scenario_initalisation(path_data_ed, data=False):
     logger_setup.set_up_logger(os.path.join(path_data_ed, "scenario_init.log"))
 
     # --------------------------------------------
-    # Delete processed data from former model runs
+    # Delete processed data from former model runs and create folders
     # --------------------------------------------
     logging.info("... delete previous model run results")
     basic_functions.del_previous_results(
@@ -118,7 +119,6 @@ def scenario_initalisation(path_data_ed, data=False):
         data['local_paths']['path_post_installation_data'])
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
 
-    # Create folders
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['dir_services'])
     basic_functions.create_folder(data['local_paths']['path_sigmoid_data'])
@@ -132,13 +132,31 @@ def scenario_initalisation(path_data_ed, data=False):
     data['scenario_data']['employment_statistics'] = data_loader.read_employment_statistics(
         data['local_paths']['path_employment_statistics'])
 
+    # -------------------
+    # Disaggregate
+    # -------------------
+    sd_cont = {}
+    sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
+        data['lu_reg'],
+        data['sim_param']['base_yr'],
+        data['sim_param']['curr_yr'],
+        data['fuels'],
+        data['scenario_data'],
+        data['assumptions'],
+        data['reg_coord'],
+        data['weather_stations'],
+        data['temp_data'],
+        data['sectors'],
+        data['sectors']['all_sectors'],
+        data['enduses'])
+
 
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -151,7 +169,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] , ss_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
@@ -164,7 +182,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'] = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'], is_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
@@ -173,7 +191,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # ---
     # Autocomplement switches
-    # --- 
+    # ---
     switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['rs_service_switches'],
@@ -260,23 +278,35 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'],
         data['assumptions']['is_fuel_tech_p_by'])
 
-    # -------------------
-    # Disaggregate
-    # -------------------
-    sd_cont = {}
-    sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg'] = s_disaggregation.disaggregate_base_demand(
+
+    #---------------------------
+    # Calculate spatial explicit diffusion factors
+    #---------------------------
+    all_enduse = []
+    for l_enduse in data['enduses'].values():
+        all_enduse += l_enduse
+    data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
         data['lu_reg'],
-        data['sim_param']['base_yr'],
-        data['sim_param']['curr_yr'],
-        data['fuels'],
-        data['scenario_data'],
-        data['assumptions'],
-        data['reg_coord'],
-        data['weather_stations'],
-        data['temp_data'],
-        data['sectors'],
-        data['sectors']['all_sectors'],
-        data['enduses'])
+        all_enduse)
+
+    data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
+        data['lu_reg'],
+        data['spatial_diffusion_index'],
+        [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
+
+    # ---------------
+    # Region specific reduction
+    # ----------------
+    reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
+        rs_service,
+        data['assumptions']['rs_share_service_tech_ey_p'],
+        data['lu_reg'],
+        data['spatial_diffusion_factor'],
+        sd_cont['rs_fuel_disagg'],
+        data['assumptions']['technologies'])
+    print("============")
+    print(reg_enduse_tech_p)
+    # ----------------
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont

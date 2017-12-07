@@ -4,7 +4,6 @@ Script containing functions to calculate load factors and
 also peak shifting methods which are used to implement
 demand management
 """
-import logging
 import numpy as np
 
 def peak_shaving_max_min(loadfactor_yd_cy_improved, average_yd, fuel_yh):

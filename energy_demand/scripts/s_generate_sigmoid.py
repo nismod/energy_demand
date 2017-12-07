@@ -4,7 +4,6 @@ This script calculates the three parameters of a sigmoid diffusion
 for every technology which is diffused and has a larger service
 fraction at the model end year
 """
-import copy
 import logging
 from collections import defaultdict
 import numpy as np
@@ -584,8 +583,7 @@ def get_sig_diffusion(
             else:
                 # Maximum shares of each technology
                 for tech in installed_tech[enduse]:
-                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share #BELUGA
-                #l_values_sig[enduse][installed_tech[enduse][0]] = technologies[installed_tech[enduse][0]].tech_max_share
+                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share
         else:
             """Sigmoid calculation in case of 'fuel switch'
             """

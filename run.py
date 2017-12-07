@@ -11,6 +11,7 @@ from pkg_resources import Requirement, resource_filename
 from pyproj import Proj, transform
 
 from energy_demand.scripts.init_scripts import scenario_initalisation
+from energy_demand.technologies import tech_related
 from energy_demand.cli import run_model
 from energy_demand.dwelling_stock import dw_stock
 from energy_demand.read_write import read_data
@@ -35,7 +36,7 @@ class EDWrapper(SectorModel):
 
     def transfer_container_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
         """Copy dict defined in before_model_run()
-        to simlate() function by copying key and 
+        to simlate() function by copying key and
         values
 
         Arguments
@@ -137,7 +138,8 @@ class EDWrapper(SectorModel):
         # Obtain external scenario data
         # -----------------------------
         pop_array = self.get_scenario_data('population')
-        data['population'] = self.array_to_dict(pop_array)
+        pop_dict = self.array_to_dict(pop_array)
+        data['population'][data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
 
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array)
@@ -177,11 +179,11 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
-    
+
         # ---------------------
         # Convert capacity switches to service switches
         # ---------------------
-        data['assumptions']['rs_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
             data['assumptions']['capacity_switches']['rs_capacity_switches'],
             data['assumptions']['technologies'],
@@ -190,7 +192,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['rs_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['ss_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        data['assumptions']['ss_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['ss_service_switches'],
             data['assumptions']['capacity_switches']['ss_capacity_switches'],
             data['assumptions']['technologies'],
@@ -199,7 +201,7 @@ class EDWrapper(SectorModel):
             data['assumptions']['ss_fuel_tech_p_by'],
             data['sim_param']['base_yr'])
 
-        data['assumptions']['is_service_switches'], data['assumptions']['crit_capacity_switch'] = fuel_service_switch.capacity_installations(
+        data['assumptions']['is_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['is_service_switches'],
             data['assumptions']['capacity_switches']['is_capacity_switches'],
             data['assumptions']['technologies'],
@@ -269,29 +271,22 @@ class EDWrapper(SectorModel):
         1. Get scenario data
 
         Population data is required as a nested dict::
-
             data[year][region_geocode]
 
         GVA is the same::
-
             data[year][region_geocode]
 
         Floor area::
-
             data[year][region_geoode][sector]
 
         2. Run initialise scenarios
         3. For each timestep, run the model
 
-        Data is provided to these methods in the format::
-
-            {'parameter_name': value_array}
-
-        where ``value_array`` is a regions-by-intervals numpy array.
-
         Returns
         =======
-
+        supply_results : dict
+            key: name defined in sector models
+                value: np.zeros((len(reg), len(intervals)) )
         """
         # Convert data to default dict
         data = defaultdict(dict, data)
@@ -360,9 +355,17 @@ class EDWrapper(SectorModel):
         # ---------
         # Scenario data
         # ---------
+        pop_by_cy = {}
+
+        #TODO: REPLACE DIRECTLY WITH BASE YEAR POP
+        pop_array = self.get_scenario_data('population')
+        pop_dict = self.array_to_dict(pop_array)
+        pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
+        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get only population of base year
+
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
-            'population':  self.user_data['population'],
+            'population': pop_by_cy, # self.user_data['population'],
 
             # Only add newcastle floorarea here
             'floor_area': {
@@ -414,7 +417,7 @@ class EDWrapper(SectorModel):
         # ------------------------------------
         # Write results output for supply
         # ------------------------------------
-        supply_results = model_run_object.ed_fueltype_regs_yh
+        supply_results_unprocessed = model_run_object.ed_fueltype_regs_yh
 
         # -----------------
         # Write to txt files
@@ -457,7 +460,7 @@ class EDWrapper(SectorModel):
         logging.info("... Start writing results to file")
         path_runs = data['local_paths']['data_results_model_runs']
 
-        write_data.write_supply_results(timestep, path_runs, supply_results, "supply_results")
+        write_data.write_supply_results(timestep, path_runs, supply_results_unprocessed, "supply_results_unprocessed")
         write_data.write_enduse_specific(timestep, path_runs, out_enduse_specific, "out_enduse_specific")
         write_data.write_max_results(timestep, path_runs, "result_tot_peak_enduses_fueltype", tot_peak_enduses_fueltype, "tot_peak_enduses_fueltype")
         write_data.write_lf(path_runs, "result_reg_load_factor_y", [timestep], reg_load_factor_y, 'reg_load_factor_y')
@@ -469,7 +472,17 @@ class EDWrapper(SectorModel):
 
         logging.info("... finished wrapper calculations")
 
-        return {'model_name': supply_results}
+        # --------------------------------
+        # Rewrite model results for supply model
+        # The keys are fueltype_str defined in the model configuration file,
+        # the values are arrays with region and intervals
+        # --------------------------------
+        supply_results = {}
+        for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
+            supply_results[fueltype_str] = supply_results_unprocessed[fueltype_int]
+
+        return supply_results
+
 
     def extract_obj(self, results):
         """Implement this method to return a scalar value objective function

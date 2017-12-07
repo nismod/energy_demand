@@ -97,7 +97,7 @@ def test_capacity_installations():
         )
     ]
 
-    result_service_switches, crit_switch = fuel_service_switch.capacity_installations(
+    result_service_switches = fuel_service_switch.capacity_installations(
         service_switches=[],
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -109,7 +109,6 @@ def test_capacity_installations():
     for switch in result_service_switches:
         if switch.technology_install == 'techA':
             assert switch.service_share_ey == 1.0
-    assert crit_switch == True
 
     #---------------
     
@@ -145,7 +144,7 @@ def test_capacity_installations():
             )
         ]
 
-    result_service_switches, crit_switch = fuel_service_switch.capacity_installations(
+    result_service_switches = fuel_service_switch.capacity_installations(
         service_switches=result_service_switches,
         capacity_switches=capacity_switches,
         technologies=technologies,
@@ -159,7 +158,6 @@ def test_capacity_installations():
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 250, 3)
         if switch.technology_install == 'techB':
             assert round(switch.service_share_ey, 3) == round((1 / (300)) * 50, 3)
-    assert crit_switch == True
 
 def autocomplete_switches():
     """

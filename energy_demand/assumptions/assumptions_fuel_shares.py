@@ -193,7 +193,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_hydrogen': 1.0}
 
     # ------------------
-    # Helper functions
+    # Get technologies of an enduse
     # ------------------
     assumptions['rs_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['rs_fuel_tech_p_by'])
     assumptions['is_specified_tech_enduse_by'] = helpers.get_def_techs(assumptions['is_fuel_tech_p_by'])
