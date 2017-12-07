@@ -282,28 +282,22 @@ def scenario_initalisation(path_data_ed, data=False):
     #---------------------------
     # Calculate spatial explicit diffusion factors
     #---------------------------
-    all_enduse = []
-    for l_enduse in data['enduses'].values():
-        all_enduse += l_enduse
     data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
         data['lu_reg'],
-        all_enduse)
+        data['enduses']['all_enduses'])
 
     data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
         data['lu_reg'],
         data['spatial_diffusion_index'],
         [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
 
-    # ---------------
-    # Region specific reduction
-    # ----------------
     reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
         rs_service,
         data['assumptions']['rs_share_service_tech_ey_p'],
         data['lu_reg'],
         data['spatial_diffusion_factor'],
         sd_cont['rs_fuel_disagg'],
-        data['assumptions']['technologies'])
+        ['heat_pumps_electricity'])
     print("============")
     print(reg_enduse_tech_p)
     # ----------------

@@ -541,6 +541,11 @@ def load_fuels(paths, lookups):
         'retail',
         'storage',
         'other']
+    
+    all_enduses = []
+    for enduse in enduses.values():
+        all_enduses += enduse
+    enduses['all_enduses'] = all_enduses
 
     return enduses, sectors, fuels
 
