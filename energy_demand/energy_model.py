@@ -219,7 +219,7 @@ class EnergyModel(object):
         self.reg_load_factor_seasons = reg_load_factor_seasons
         
         # Calculate averaged across regions
-        self.averaged_h = averaged_h
+        #self.averaged_h = averaged_h
 
         # ------------------------------
         # TESTING

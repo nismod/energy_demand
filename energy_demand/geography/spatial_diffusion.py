@@ -30,8 +30,8 @@ def calc_diff_index(regions, enduses):
         cnt = 0
         for region in regions:
 
-            #dummy_index = 1 #TODO
-            dummy_index = dummy_indeces[cnt] #TODO
+            dummy_index = 1 #TODO
+            #dummy_index = dummy_indeces[cnt] #TODO
 
             spatial_index[enduse][region] = dummy_index
             cnt += 1
