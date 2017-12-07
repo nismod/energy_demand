@@ -3,6 +3,7 @@ model installation and after each scenario definition
 """
 import os
 import logging
+import numpy as np
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 from energy_demand.read_write import data_loader
@@ -282,25 +283,59 @@ def scenario_initalisation(path_data_ed, data=False):
     #---------------------------
     # Calculate spatial explicit diffusion factors
     #---------------------------
-    data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
-        data['lu_reg'],
-        data['enduses']['all_enduses'])
+    spatial_exliclit_diffusion = True
+    if spatial_exliclit_diffusion:
+        data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
+            data['lu_reg'],
+            data['enduses']['all_enduses'])
 
-    data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
-        data['lu_reg'],
-        data['spatial_diffusion_index'],
-        [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
+        data['spatial_diffusion_factor'] = spatial_diffusion.calc_diff_factor(
+            data['lu_reg'],
+            data['spatial_diffusion_index'],
+            [sd_cont['rs_fuel_disagg'], sd_cont['ss_fuel_disagg'], sd_cont['is_fuel_disagg']])
 
-    reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-        rs_service,
-        data['assumptions']['rs_share_service_tech_ey_p'],
-        data['lu_reg'],
-        data['spatial_diffusion_factor'],
-        sd_cont['rs_fuel_disagg'],
-        ['heat_pumps_electricity'])
-    print("============")
-    print(reg_enduse_tech_p)
-    # ----------------
+        # Residential spatial explicit modelling
+        rs_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
+            rs_service,
+            data['assumptions']['rs_share_service_tech_ey_p'],
+            data['lu_reg'],
+            data['spatial_diffusion_factor'],
+            sd_cont['rs_fuel_disagg'],
+            ['heat_pumps_electricity'])
+
+        #TODOS FOR FULL IMPLEMENTATION
+        # ----------------------------
+        # Generate sigmoid curves (s_generate_sigmoid) for every region
+        # replace everyhwere in model with region specific sigmoid parameters
+        '''fuel_submodel_new = {}
+        for reg, entries in sd_cont['ss_fuel_disagg'].items():
+            enduses = []
+            fuel_submodel_new[reg] = {}
+            for sector in entries:
+                for enduse in entries[sector]:
+                    fuel_submodel_new[reg][enduse] = 0
+                    enduses.append(enduse)
+                break
+            for sector in entries:
+                for enduse in entries[sector]:
+                    fuel_submodel_new[reg][enduse] += np.sum(entries[sector][enduse])
+        
+        ss_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
+            rs_service,
+            data['assumptions']['ss_share_service_tech_ey_p'],
+            data['lu_reg'],
+            data['spatial_diffusion_factor'],
+            fuel_submodel_new,
+            ['heat_pumps_electricity'])
+        print(":..")
+        
+        is_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
+            rs_service,
+            data['assumptions']['is_share_service_tech_ey_p'],
+            data['lu_reg'],
+            data['spatial_diffusion_factor'],
+            sd_cont['is_fuel_disagg'],
+            ['heat_pumps_electricity'])'''
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont

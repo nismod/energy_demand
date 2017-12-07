@@ -525,6 +525,11 @@ def load_fuels(paths, lookups):
     is_fuel_raw_data_enduses, sectors['is_sectors'], enduses['is_all_enduses'] = read_data.read_csv_base_data_industry(
         paths['is_fuel_raw_data_enduses'], lookups['fueltypes_nr'], lookups['fueltype'])
 
+    all_enduses = []
+    for enduse in enduses.values():
+        all_enduses += enduse
+    enduses['all_enduses'] = all_enduses
+
     # Convert units
     fuels['rs_fuel_raw_data_enduses'] = conversions.convert_fueltypes_ktoe_GWh(rs_fuel_raw_data_enduses)
     fuels['ss_fuel_raw_data_enduses'] = conversions.convert_fueltypes_sectors_ktoe_gwh(ss_fuel_raw_data_enduses)
@@ -541,11 +546,6 @@ def load_fuels(paths, lookups):
         'retail',
         'storage',
         'other']
-    
-    all_enduses = []
-    for enduse in enduses.values():
-        all_enduses += enduse
-    enduses['all_enduses'] = all_enduses
 
     return enduses, sectors, fuels
 

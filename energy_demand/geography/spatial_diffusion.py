@@ -70,7 +70,7 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
         fuel_submodel_new = {}
         for reg, entries in fuel_submodel.items():
 
-            try:
+            try:   
                 enduses = []
                 fuel_submodel_new[reg] = {}
                 for sector in entries:

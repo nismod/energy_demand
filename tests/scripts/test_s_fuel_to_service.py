@@ -66,7 +66,7 @@ def test_get_service_fueltype_tech():
             'sig_midpoint': 0,
             'sig_steeppness': 1}}
 
-    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p, _ = s_fuel_to_service.get_service_fueltype_tech(
        tech_list=tech_list,
        lu_fueltypes=lu_fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -108,7 +108,7 @@ def test_get_service_fueltype_tech():
             'sig_midpoint': 0,
             'sig_steeppness': 1}}
 
-    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p, _ = s_fuel_to_service.get_service_fueltype_tech(
        tech_list=tech_list,
        lu_fueltypes=lu_fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
@@ -163,7 +163,7 @@ def test_get_service_fueltype_tech():
             'sig_midpoint': 0,
             'sig_steeppness': 1}}
 
-    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p = s_fuel_to_service.get_service_fueltype_tech(
+    service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p, _ = s_fuel_to_service.get_service_fueltype_tech(
        tech_list=tech_list,
        lu_fueltypes=lu_fueltypes,
        fuel_p_tech_by=fuel_p_tech_by,
