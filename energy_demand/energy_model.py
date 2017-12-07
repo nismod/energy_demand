@@ -175,13 +175,13 @@ class EnergyModel(object):
             # --------------------------------------
             # Calculate averaged hour profile per season
             # --------------------------------------
-            '''averaged_h = averaged_season_hourly(
+            averaged_h = averaged_season_hourly(
                 averaged_h,
                 fuel_region_yh,
                 array_nr_region,
                 data['lookups']['fueltype'].values(),
                 data['assumptions']['seasons'])
-            prin()'''
+
             # --------------------------------------
             # Regional load factor calculations
             # --------------------------------------
@@ -219,7 +219,7 @@ class EnergyModel(object):
         self.reg_load_factor_seasons = reg_load_factor_seasons
         
         # Calculate averaged across regions
-        #self.averaged_h = averaged_h
+        self.averaged_h = averaged_h
 
         # ------------------------------
         # TESTING
@@ -702,29 +702,38 @@ def sum_enduse_all_regions(
 
 def averaged_season_hourly(averaged_h, fuel_region_yh, array_nr_region, fueltypes, seasons):
     """Calculate averaged hourly values for each season
-    
+
     Arguments
     ---------
-    averaged_h :
-    fuel_region_yh
-    array_nr_region
-    fueltypes
+    averaged_h : dict
+        Averaged hours per season (season, fueltype, array_nr_reg, 24)
+    fuel_region_yh : array
+        Fuel of region (fueltype, yearday)
+    array_nr_region : int
+        Integer of region
+    fueltypes : dict
+        Fueltype lookup
     ed_fueltype_regs_yh : array
-        np.zeros((fueltypes_nr, reg_nrs, yearhours_nrs), dtype=float)
+       (fueltypes_nr, reg_nrs, yearhours_nrs)
 
-       'summer' : np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
+    Return
+    ------
+    averaged_h : dict
+        Averaged hourly value per season {season: array(fuetlype, region, 24)}
     """
     for fueltype in fueltypes:
         for season, yeardays_modelled in seasons.items():
             for yearday in yeardays_modelled:
-                
-                # Add value of hours
-                averaged_h[season][fueltype][array_nr_region] += fuel_region_yh[fueltype][array_nr_region][yearday]
-
+                averaged_h[season][fueltype][array_nr_region] += fuel_region_yh[fueltype][yearday]
 
     # Calculate average hourly values for every season
     for season, yeardays_modelled in seasons.items():
         for fueltype in fueltypes:
-            averaged_h[season][fueltype][array_nr_region] = averaged_h[fueltype][array_nr_region]/ len(yeardays_modelled)
+            averaged_h[season][fueltype][array_nr_region] = averaged_h[season][fueltype][array_nr_region] / len(yeardays_modelled)
+
+    '''tot_h_sum = 0
+    for yearday in seasons['summer']:
+        tot_h_sum += fuel_region_yh[1][yearday][0]
+    assert averaged_h['summer'][1][array_nr_region][0] * len(seasons['summer']) == tot_h_sum'''
 
     return averaged_h

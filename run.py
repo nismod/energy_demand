@@ -36,7 +36,7 @@ class EDWrapper(SectorModel):
 
     def transfer_container_to_simulate(self, dict_to_copy_into, dict_to_pass_along):
         """Copy dict defined in before_model_run()
-        to simlate() function by copying key and 
+        to simlate() function by copying key and
         values
 
         Arguments
@@ -138,7 +138,8 @@ class EDWrapper(SectorModel):
         # Obtain external scenario data
         # -----------------------------
         pop_array = self.get_scenario_data('population')
-        data['population'] = self.array_to_dict(pop_array)
+        pop_dict = self.array_to_dict(pop_array)
+        data['population'][data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
 
         gva_array = self.get_scenario_data('gva')
         data['gva'] = self.array_to_dict(gva_array)
@@ -178,10 +179,10 @@ class EDWrapper(SectorModel):
             data['local_paths'],
             data['assumptions']['model_yeardays'],
             data['assumptions']['model_yeardays_daytype'])
-    
+
         # ---------------------
         # Convert capacity switches to service switches
-        # ---------------------   
+        # ---------------------
         data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
             data['assumptions']['rs_service_switches'],
             data['assumptions']['capacity_switches']['rs_capacity_switches'],
@@ -354,9 +355,17 @@ class EDWrapper(SectorModel):
         # ---------
         # Scenario data
         # ---------
+        pop_by_cy = {}
+
+        #TODO: REPLACE DIRECTLY WITH BASE YEAR POP
+        pop_array = self.get_scenario_data('population')
+        pop_dict = self.array_to_dict(pop_array)
+        pop_by_cy[data['sim_param']['base_yr']] = pop_dict[2015] # Get only population of base year
+        pop_by_cy[data['sim_param']['curr_yr']] = pop_dict[data['sim_param']['curr_yr']] # Get only population of base year
+
         data['scenario_data'] = {
             'gva': self.user_data['gva'],
-            'population':  self.user_data['population'],
+            'population': pop_by_cy, # self.user_data['population'],
 
             # Only add newcastle floorarea here
             'floor_area': {
@@ -462,13 +471,14 @@ class EDWrapper(SectorModel):
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [timestep], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
         logging.info("... finished wrapper calculations")
-        
+
         # --------------------------------
-        # Rewrite model reulst for supply model
+        # Rewrite model results for supply model
+        # The keys are fueltype_str defined in the model configuration file,
+        # the values are arrays with region and intervals
         # --------------------------------
         supply_results = {}
         for fueltype_str, fueltype_int in data['lookups']['fueltype'].items():
-
             supply_results[fueltype_str] = supply_results_unprocessed[fueltype_int]
 
         return supply_results
