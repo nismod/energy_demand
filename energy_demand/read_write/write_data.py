@@ -111,6 +111,27 @@ def dump(data, file_path):
     with open(file_path, 'w') as file_handle:
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
+
+def write_yaml_param_scenario(path_yaml, dict_to_dump):
+    """Write all strategy variables to YAML file
+
+    Arguments
+    ----------
+    path_yaml : str
+        Path where yaml file is saved
+    dict_to_dump : dict
+        Dict which is written to YAML
+    """
+    list_to_dump = []
+
+    for dict_key, dict_value in dict_to_dump.items():
+            dump_dict = {}
+            dump_dict[dict_key] = dict_value
+            list_to_dump.append(dump_dict)
+
+    # Dump list
+    dump(list_to_dump, path_yaml)
+
 def write_yaml_param_complete(path_yaml, dict_to_dump):
     """Write all strategy variables to YAML file
 
@@ -124,7 +145,6 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     list_to_dump = []
 
     for dict_key, dict_values in dict_to_dump.items():
-        try:
             parameter_infos = dict_values['param_infos']
 
             for paramter_info in parameter_infos:
@@ -136,8 +156,6 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
                 dump_dict['default_value'] = paramter_info['default_value']
                 dump_dict['units'] = paramter_info['units']
                 list_to_dump.append(dump_dict)
-        except:
-            pass #not correctly formated assumption
 
     # Dump list
     dump(list_to_dump, path_yaml)

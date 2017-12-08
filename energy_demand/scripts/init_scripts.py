@@ -335,10 +335,11 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['rs_fuel_switches'],
             data['enduses']['rs_all_enduses'],
             sgs_cont['rs_tech_increased_service'],
-            switches_cont['rs_share_service_tech_ey_p'],
+            rs_reg_enduse_tech_p,
             fts_cont['rs_service_fueltype_by_p'],
             fts_cont['rs_service_tech_by_p'],
-            data['assumptions']['rs_fuel_tech_p_by'])'''
+            data['assumptions']['rs_fuel_tech_p_by'],
+            True)'''
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont

@@ -214,7 +214,7 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'],
+            data['paths']['yaml_parameters_default'],
             data,
             data['assumptions'])
 
@@ -344,7 +344,7 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
+            data['paths']['yaml_parameters_default'], data, data['assumptions'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -529,7 +529,7 @@ class EDWrapper(SectorModel):
         # Get variable from dict and reassign and delete from data
         for var_name in all_strategy_variables:
             strategy_variables[var_name] = data[var_name]
-            logging.info("Load strategy parameter: {}".format(var_name))
+            logging.info("Load strategy parameter: {}  {}".format(var_name, data[var_name]))
             del data[var_name]
 
         # Add to assumptoins
