@@ -94,6 +94,7 @@ class EDWrapper(SectorModel):
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['spatial_exliclit_diffusion'] = True          # True: Spatial explicit calculations
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']

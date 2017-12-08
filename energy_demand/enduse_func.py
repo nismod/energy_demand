@@ -268,6 +268,7 @@ class Enduse(object):
                 if crit_switch_service:
                     logging.debug("... Service switch is implemented " + str(enduse))
                     service_tech_y_cy = service_switch(
+                        region_name,
                         enduse,
                         tot_service_y_cy,
                         service_tech_cy_p,
@@ -275,10 +276,12 @@ class Enduse(object):
                         tech_decreased_share,
                         tech_constant_share,
                         sig_param_tech,
-                        sim_param['curr_yr'])
+                        sim_param['curr_yr'],
+                        criterias['spatial_exliclit_diffusion'])
                 elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(enduse))
                     service_tech_y_cy = fuel_switch(
+                        region_name,
                         enduse,
                         installed_tech,
                         sig_param_tech,
@@ -288,7 +291,8 @@ class Enduse(object):
                         service_fueltype_cy_p,
                         fuel_switches,
                         fuel_tech_p_by,
-                        sim_param['curr_yr'])
+                        sim_param['curr_yr'],
+                        criterias['spatial_exliclit_diffusion'])
                 else:
                     pass #No switch implemented
 
@@ -1326,6 +1330,7 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr,
         return fuel_y
 
 def service_switch(
+        region,
         enduse,
         tot_service_yh_cy,
         service_tech_by_p,
@@ -1333,7 +1338,8 @@ def service_switch(
         tech_decrease_service,
         tech_constant_service,
         sig_param_tech,
-        curr_yr
+        curr_yr,
+        spatial_exliclit_diffusion
     ):
     """Apply change in service depending on
     defined service switches.
@@ -1379,10 +1385,12 @@ def service_switch(
     # Calculate service for technology with increased service
     # ------------
     service_tech_incr_cy_p = get_service_diffusion(
+        region,
         enduse,
         tech_increase_service,
         sig_param_tech,
-        curr_yr)
+        curr_yr,
+        spatial_exliclit_diffusion)
     service_tech_cy_p.update(service_tech_incr_cy_p)
 
     # ------------
@@ -1419,6 +1427,7 @@ def service_switch(
     return service_tech_yh_cy
 
 def fuel_switch(
+        region,
         enduse,
         installed_tech,
         sig_param_tech,
@@ -1428,7 +1437,8 @@ def fuel_switch(
         service_fueltype_cy_p,
         fuel_switches,
         fuel_tech_p_by,
-        curr_yr
+        curr_yr,
+        spatial_exliclit_diffusion
     ):
     """Calulation of service by considering fuel switch assumptions.
     Based on  assumptions about shares of fuels which are switched
@@ -1438,6 +1448,8 @@ def fuel_switch(
 
     Arguments
     ----------
+    region: str
+        Region name
     enduse : str
         Enduse
     installed_tech : dict
@@ -1474,11 +1486,19 @@ def fuel_switch(
         # ---------------------------------------------------
         # Calculate service for cy for installed technologies
         # ---------------------------------------------------
-        diffusion_cy = diffusion_technologies.sigmoid_function(
-            curr_yr,
-            sig_param_tech[enduse][tech_installed]['l_parameter'],
-            sig_param_tech[enduse][tech_installed]['midpoint'],
-            sig_param_tech[enduse][tech_installed]['steepness'])
+        if spatial_exliclit_diffusion:
+            diffusion_cy = diffusion_technologies.sigmoid_function(
+                curr_yr,
+                sig_param_tech[region][enduse][tech_installed]['l_parameter'],
+                sig_param_tech[region][enduse][tech_installed]['midpoint'],
+                sig_param_tech[region][enduse][tech_installed]['steepness'])
+
+        else:
+            diffusion_cy = diffusion_technologies.sigmoid_function(
+                curr_yr,
+                sig_param_tech[enduse][tech_installed]['l_parameter'],
+                sig_param_tech[enduse][tech_installed]['midpoint'],
+                sig_param_tech[enduse][tech_installed]['steepness'])
 
         # Calculate service increase based on diffusion of installed technology
         service_tech_installed_cy = diffusion_cy * tot_service_yh_cy
@@ -1616,7 +1636,7 @@ def convert_service_to_p(tot_service_y, service_fueltype_tech):
 
     return service_tech_p
 
-def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_yr):
+def get_service_diffusion(region, enduse, tech_increased_service, sig_param_tech, curr_yr, spatial_exliclit_diffusion):
     """Calculate energy service fraction of technologies with increased service
     for current year based on sigmoid diffusion
 
@@ -1639,10 +1659,21 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
     service_tech = {}
 
     for tech in tech_increased_service:
+
+        if spatial_exliclit_diffusion:
+            l_parameter = sig_param_tech[region][enduse][tech]['l_parameter']
+            midpoint = sig_param_tech[region][enduse][tech]['midpoint']
+            steepness = sig_param_tech[region][enduse][tech]['steepness']
+        else:
+            l_parameter = sig_param_tech[enduse][tech]['l_parameter']
+            midpoint = sig_param_tech[enduse][tech]['midpoint']
+            steepness = sig_param_tech[enduse][tech]['steepness']
+
+    
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
-            sig_param_tech[enduse][tech]['l_parameter'],
-            sig_param_tech[enduse][tech]['midpoint'],
-            sig_param_tech[enduse][tech]['steepness'])
+            l_parameter,
+            midpoint,
+            steepness)
 
     return service_tech

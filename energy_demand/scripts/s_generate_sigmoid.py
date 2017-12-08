@@ -242,7 +242,7 @@ def tech_sigmoid_parameters(
 
     return dict(sigmoid_parameters)
 
-def get_tech_future_service(service_tech_by_p, service_tech_ey_p):
+def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regional_specific=False):
     """Get all those technologies with increased service in future
 
     Arguments
@@ -581,9 +581,12 @@ def get_sig_diffusion(
             # Tech with lager service shares in end year
             installed_tech[enduse] = tech_increased_service[enduse]
 
+            # End year service shares (scenaric input)
+            service_tech_switched_p = service_tech_ey_p
+
             if regional_specific:
                 l_values_sig = {}
-                service_tech_switched_p = service_tech_ey_p
+                
 
                 for reg, _ in service_tech_ey_p.items():
                     l_values_sig[reg] = defaultdict(dict)
@@ -591,8 +594,6 @@ def get_sig_diffusion(
                     for tech in installed_tech[enduse]:
                         l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
             else:
-                # End year service shares (scenaric input)
-                service_tech_switched_p = service_tech_ey_p
 
                 if tech_increased_service[enduse] == []:
                     pass
@@ -608,7 +609,7 @@ def get_sig_diffusion(
 
             if regional_specific:
                 service_tech_switched_p = {}
-                for reg in service_tech_switched_p: 
+                for reg in service_tech_switched_p:
                     # Calculate future service demand after fuel switches for each technology
                     service_tech_switched_p[reg] = calc_service_fuel_switched(
                         enduses,

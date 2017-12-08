@@ -6,7 +6,6 @@ The main function executing all the submodels of the energy demand model
 import logging
 from collections import defaultdict
 import numpy as np
-
 import energy_demand.enduse_func as endusefunctions
 from energy_demand.geography.region import Region
 from energy_demand.geography.weather_region import WeatherRegion
@@ -68,7 +67,7 @@ class EnergyModel(object):
                 data['ss_dw_stock'][region_name][data['sim_param']['base_yr']] = dw_stock.ss_dw_stock(
                     region_name, data, data['sim_param']['base_yr'], data['sim_param']['base_yr'])
 
-                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr,data['sim_param']['base_yr'])
+                data['rs_dw_stock'][region_name][self.curr_yr] = dw_stock.rs_dw_stock(region_name, data, self.curr_yr, data['sim_param']['base_yr'])
                 data['ss_dw_stock'][region_name][self.curr_yr] = dw_stock.ss_dw_stock(region_name, data, self.curr_yr, data['sim_param']['base_yr'])
             logging.info("... finished virtual dwelling stock for base year")
         else:
@@ -104,7 +103,7 @@ class EnergyModel(object):
             'spring': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
             'winter': np.zeros((fueltypes_nr, reg_nrs), dtype=float),
             'autumn': np.zeros((fueltypes_nr, reg_nrs), dtype=float)}
-        
+
         averaged_h = {
             'summer' : np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
             'spring': np.zeros((fueltypes_nr, reg_nrs, 24), dtype=float),
@@ -217,7 +216,7 @@ class EnergyModel(object):
         self.reg_load_factor_y = reg_load_factor_y
         self.reg_load_factor_yd = reg_load_factor_yd
         self.reg_load_factor_seasons = reg_load_factor_seasons
-        
+
         # Calculate averaged across regions
         self.averaged_h = averaged_h
 
@@ -225,6 +224,13 @@ class EnergyModel(object):
         # TESTING
         # ------------------------------
         testing.test_region_selection(self.ed_fueltype_regs_yh)
+
+        _scrap = 0
+        for reg_nr, reg in enumerate(ed_fueltype_regs_yh[2]):
+            print("Region =========================" + str(reg_nr))
+            print(np.sum(reg))
+            _scrap += np.sum(reg)
+        print("TOTAL: " + str(_scrap))
 
         # ------------------------------
         # Chart HDD * Pop vs actual gas demand
@@ -275,7 +281,7 @@ def simulate_region(region_name, data, weather_regions):
         region,
         data,
         data['enduses']['rs_all_enduses'])
-    
+
     # --------------------
     # Service SubModel
     # --------------------

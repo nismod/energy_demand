@@ -65,9 +65,9 @@ def post_install_setup(args):
     data['assumptions']['seasons'] = date_prop.read_season(year_to_model=2015)
     data['assumptions']['model_yeardays_daytype'], data['assumptions']['yeardays_month'], data['assumptions']['yeardays_month_days'] = date_prop.get_model_yeardays_datype(year_to_model=2015)
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
-         data['assumptions']['technologies'],
-         data['assumptions']['strategy_variables']['eff_achiev_f'],
-         data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
+        data['assumptions']['technologies'],
+        data['assumptions']['strategy_variables']['eff_achiev_f'],
+        data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
     # Delete all previous data from previous model runs
     basic_functions.del_previous_setup(data['local_paths']['data_processed'])
@@ -157,7 +157,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service_BY = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -170,7 +170,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'] , ss_service = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'], ss_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
@@ -226,12 +226,12 @@ def scenario_initalisation(path_data_ed, data=False):
     # Generate national sigmoid curves (s_generate_sigmoid)
     # -------------------
     sgs_cont = {}
-
+    #TODO: PROBLEM MAYBE SOLVED IF THESE GET NATIONAL AS WELL
     # Calculate technologies with more, less and constant service based on service switch assumptions
     sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
         fts_cont['rs_service_tech_by_p'], switches_cont['rs_share_service_tech_ey_p'])
     sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        fts_cont['ss_service_tech_by_p'],switches_cont['ss_share_service_tech_ey_p'])
+        fts_cont['ss_service_tech_by_p'], switches_cont['ss_share_service_tech_ey_p'])
     sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
         fts_cont['is_service_tech_by_p'], switches_cont['is_share_service_tech_ey_p'])
 
@@ -258,7 +258,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['ss_fuel_switches'],
         data['enduses']['ss_all_enduses'],
         sgs_cont['ss_tech_increased_service'],
-       switches_cont['ss_share_service_tech_ey_p'],
+        switches_cont['ss_share_service_tech_ey_p'],
         fts_cont['ss_service_fueltype_by_p'],
         fts_cont['ss_service_tech_by_p'],
         data['assumptions']['ss_fuel_tech_p_by'])
@@ -276,12 +276,10 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'],
         data['assumptions']['is_fuel_tech_p_by'])
 
-
     #---------------------------
     # Calculate spatial explicit diffusion factors
     #---------------------------
-    spatial_exliclit_diffusion = True
-    if spatial_exliclit_diffusion:
+    if data['criterias']['spatial_exliclit_diffusion']:
         data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
             data['lu_reg'],
             data['enduses']['all_enduses'])
@@ -293,19 +291,16 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Residential spatial explicit modelling
         rs_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            rs_service,
+            rs_service_BY,
             switches_cont['rs_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
             sd_cont['rs_fuel_disagg'],
             ['heat_pumps_electricity'])
 
-        #TODOS FOR FULL IMPLEMENTATION
-        # ----------------------------
         # Generate sigmoid curves (s_generate_sigmoid) for every region
-        # replace everyhwere in model with region specific sigmoid parameters
-        fuel_submodel_new = sum_across_sectors_in_every_region(sd_cont['ss_fuel_disagg'])
-        
+        fuel_submodel_new = sum_across_sectors_all_regs(sd_cont['ss_fuel_disagg'])
+
         ss_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
             ss_service,
             switches_cont['ss_share_service_tech_ey_p'],
@@ -314,7 +309,7 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_submodel_new,
             ['heat_pumps_electricity'])
 
-        fuel_submodel_new = sum_across_sectors_in_every_region(sd_cont['is_fuel_disagg'])
+        fuel_submodel_new = sum_across_sectors_all_regs(sd_cont['is_fuel_disagg'])
 
         is_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
             is_service,
@@ -324,11 +319,11 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_submodel_new,
             ['heat_pumps_electricity'])
 
-         # ------------------------
+        # ------------------------
         # CALCULATE REGIONAL SIGMOID CURVES
         # ------------------------
         # --Residential
-        '''sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             data['assumptions']['rs_service_switches'],
@@ -339,12 +334,40 @@ def scenario_initalisation(path_data_ed, data=False):
             fts_cont['rs_service_fueltype_by_p'],
             fts_cont['rs_service_tech_by_p'],
             data['assumptions']['rs_fuel_tech_p_by'],
-            True)'''
+            True)
+
+        # --Service
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['ss_service_switches'],
+            data['assumptions']['ss_fuel_switches'],
+            data['enduses']['ss_all_enduses'],
+            sgs_cont['ss_tech_increased_service'],
+            ss_reg_enduse_tech_p,
+            fts_cont['ss_service_fueltype_by_p'],
+            fts_cont['ss_service_tech_by_p'],
+            data['assumptions']['ss_fuel_tech_p_by'],
+            True)
+
+        # --Industry
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['is_service_switches'],
+            data['assumptions']['is_fuel_switches'],
+            data['enduses']['is_all_enduses'],
+            sgs_cont['is_tech_increased_service'],
+            is_reg_enduse_tech_p,
+            fts_cont['is_service_fueltype_by_p'],
+            fts_cont['is_service_tech_by_p'],
+            data['assumptions']['is_fuel_tech_p_by'],
+            True)
 
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont
 
-def sum_across_sectors_in_every_region(fuel_disagg_reg):
+def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region
     """
     fuel_submodel_new = {}

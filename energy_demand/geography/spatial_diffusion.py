@@ -31,12 +31,12 @@ def calc_diff_index(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [1.4, 2]
+        dummy_indeces = [1.4, 2] #[1.4, 2]
         cnt = 0
         for region in regions:
 
-            dummy_index = 1 #TODO
-            #dummy_index = dummy_indeces[cnt] #TODO
+            #dummy_index = 1 #TODO
+            dummy_index = dummy_indeces[cnt]
 
             spatial_index[enduse][region] = dummy_index
             cnt += 1
@@ -70,7 +70,7 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
         fuel_submodel_new = {}
         for reg, entries in fuel_submodel.items():
 
-            try:   
+            try:
                 enduses = []
                 fuel_submodel_new[reg] = {}
                 for sector in entries:
@@ -129,8 +129,8 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
             reg_fraction_multiplied_index[enduse][reg] = reg_fraction_multiplied_index[enduse][reg] / sum_enduse
 
     # TEsting
-    #for enduse in reg_fraction_multiplied_index:
-    #    np.testing.assert_almost_equal(sum(reg_fraction_multiplied_index[enduse].values()), 1, decimal=2)
+    for enduse in reg_fraction_multiplied_index:
+        np.testing.assert_almost_equal(sum(reg_fraction_multiplied_index[enduse].values()), 1, decimal=2)
 
     return reg_fraction_multiplied_index
 
@@ -157,14 +157,14 @@ def calc_regional_services(
     # Convert regional service reduction to ey % in region
 
     """
-    reg_service_tech_p = {}
-    for enduse, techs_service_p in uk_service_p.items():
-        reg_service_tech_p[enduse] = {}
+    reg_service_tech_p = defaultdict(dict)
+    for enduse, uk_techs_service_p in uk_service_p.items():
+        _s = 0
 
         # Calculate national total enduse fuel
         uk_enduse_fuel = 0
         for region in regions:
-            reg_service_tech_p[enduse][region] = {}
+            reg_service_tech_p[region][enduse] = {}
             uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
 
         uk_service_enduse = 0
@@ -172,27 +172,38 @@ def calc_regional_services(
             uk_service_enduse += sum(service[enduse][fueltype].values())
 
         for region in regions:
-
+            #np.testing.assert_almost_equal(sum(uk_techs_service_p.values()), 1, 2)
             # Calculate fraction of regional service
-            for tech, tech_service_ey_p in techs_service_p.items():
-                uk_service_tech = tech_service_ey_p * uk_service_enduse
-
+            for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
+                #print("tech..." + str(tech))
+                uk_service_tech = uk_tech_service_ey_p * uk_service_enduse
+                #print("uk_tech_service_ey_p " + str(uk_tech_service_ey_p))
+                #print("uk_service_tech" + str(uk_service_tech))
                 # Calculate regional service for technology
                 if tech in affected_techs:
-                    #TODO ONLY FOR HEAT PUMP SPECIAL
                     reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
+                    _s += reg_service_tech
+
                 else:
-                    reg_service_tech = uk_service_tech * 1
+
+                    # If not specified, use fuel disaggregation for enduse factor
+                    disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
+                    reg_service_tech = uk_service_tech * disagg_factor
+                    _s += reg_service_tech
 
                 # Calculate fraction of tech
                 if reg_service_tech == 0:
-                    reg_service_tech_p[enduse][region][tech] = 0
+                    reg_service_tech_p[region][enduse][tech] = 0
                 else:
-                    reg_service_tech_p[enduse][region][tech] = reg_service_tech
+                    reg_service_tech_p[region][enduse][tech] = reg_service_tech
 
             # Normalise in region
-            tot_service_reg_enduse = sum(reg_service_tech_p[enduse][region].values())
-            for tech, service_tech in reg_service_tech_p[enduse][region].items():
-                reg_service_tech_p[enduse][region][tech] = service_tech / tot_service_reg_enduse
+            tot_service_reg_enduse = sum(reg_service_tech_p[region][enduse].values())
+            for tech, service_tech in reg_service_tech_p[region][enduse].items():
+                reg_service_tech_p[region][enduse][tech] = service_tech / tot_service_reg_enduse
+
+        #print("TOT")
+        #print(_s)
+        #print(uk_service_enduse)
 
     return reg_service_tech_p

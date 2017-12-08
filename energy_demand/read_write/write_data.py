@@ -111,7 +111,6 @@ def dump(data, file_path):
     with open(file_path, 'w') as file_handle:
         return yaml.dump(data, file_handle, Dumper=Dumper, default_flow_style=False)
 
-
 def write_yaml_param_scenario(path_yaml, dict_to_dump):
     """Write all strategy variables to YAML file
 

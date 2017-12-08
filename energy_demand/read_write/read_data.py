@@ -9,11 +9,7 @@ from collections import defaultdict
 import yaml
 import numpy as np
 from energy_demand.technologies import tech_related
-from energy_demand.read_write import read_weather_data
 from energy_demand.profiles import load_profile
-from energy_demand.scripts import s_disaggregation
-from energy_demand.read_write import data_loader
-from energy_demand.technologies import fuel_service_switch
 from energy_demand.scripts import init_scripts
 
 class TechnologyData(object):
@@ -236,8 +232,6 @@ def read_results_yh(fueltypes_nr, path_to_folder):
     ---------
     fueltypes_nr : int
         Number of fueltypes
-    reg_nrs : int
-        Number of regions
     path_to_folder : str
         Path to folder
 
@@ -291,7 +285,7 @@ def read_max_results(path_enduse_specific_results):
 
     Arguments
     ---------
-    path_to_folder : str
+    path_enduse_specific_results : str
         Path to folder
     """
     results = {}
@@ -359,7 +353,7 @@ def load_script_data(data):
     """
     fts_cont, sgs_cont, sd_cont, switches_cont = init_scripts.scenario_initalisation(
             data['paths']['path_main'], data)
-    
+
     data['assumptions']['rs_service_tech_by_p'] = fts_cont['rs_service_tech_by_p']
     data['assumptions']['ss_service_tech_by_p'] = fts_cont['ss_service_tech_by_p']
     data['assumptions']['is_service_tech_by_p'] = fts_cont['is_service_tech_by_p']
@@ -527,8 +521,6 @@ def read_service_switch(path_to_csv, technologies):
     The base year service shares are generated from technology stock definition
     """
     service_switches = []
-    enduse_tech_ey_p = {}
-    service_switch_enduse_crit = {} #Store to list enduse specific switchcriteria (true or false)
 
     with open(path_to_csv, 'r') as csvfile:
         read_lines = csv.reader(csvfile, delimiter=',')
