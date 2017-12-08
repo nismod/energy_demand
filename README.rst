@@ -10,8 +10,9 @@ High Resolution Energy Demand Model
 .. image:: https://travis-ci.org/nismod/energy_demand.svg?branch=master 
     :target: https://travis-ci.org/nismod/energy_demand
 
-.. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg
-    :target: https://coveralls.io/github/nismod/energy_demand
+.. image:: https://coveralls.io/repos/github/nismod/energy_demand/badge.svg?branch=master
+    :target: https://coveralls.io/github/nismod/energy_demand?branch=master
+
 
 *(click on the 'docs' button to get directed to the full model documentation)*
 

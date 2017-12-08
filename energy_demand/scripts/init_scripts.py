@@ -305,18 +305,6 @@ def scenario_initalisation(path_data_ed, data=False):
         # Generate sigmoid curves (s_generate_sigmoid) for every region
         # replace everyhwere in model with region specific sigmoid parameters
         fuel_submodel_new = sum_across_sectors_in_every_region(sd_cont['ss_fuel_disagg'])
-        '''fuel_submodel_new = {}
-        for reg, entries in sd_cont['ss_fuel_disagg'].items():
-            enduses = []
-            fuel_submodel_new[reg] = {}
-            for sector in entries:
-                for enduse in entries[sector]:
-                    fuel_submodel_new[reg][enduse] = 0
-                    enduses.append(enduse)
-                break
-            for sector in entries:
-                for enduse in entries[sector]:
-                    fuel_submodel_new[reg][enduse] += np.sum(entries[sector][enduse])'''
         
         ss_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
             ss_service,
@@ -329,13 +317,29 @@ def scenario_initalisation(path_data_ed, data=False):
         fuel_submodel_new = sum_across_sectors_in_every_region(sd_cont['is_fuel_disagg'])
 
         is_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            rs_service,
+            is_service,
             switches_cont['is_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
             fuel_submodel_new,
             ['heat_pumps_electricity'])
-    
+
+         # ------------------------
+        # CALCULATE REGIONAL SIGMOID CURVES
+        # ------------------------
+        # --Residential
+        '''sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['rs_service_switches'],
+            data['assumptions']['rs_fuel_switches'],
+            data['enduses']['rs_all_enduses'],
+            sgs_cont['rs_tech_increased_service'],
+            switches_cont['rs_share_service_tech_ey_p'],
+            fts_cont['rs_service_fueltype_by_p'],
+            fts_cont['rs_service_tech_by_p'],
+            data['assumptions']['rs_fuel_tech_p_by'])'''
+
     logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont
 
