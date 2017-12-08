@@ -144,18 +144,16 @@ def write_yaml_param_complete(path_yaml, dict_to_dump):
     """
     list_to_dump = []
 
-    for dict_key, dict_values in dict_to_dump.items():
-            parameter_infos = dict_values['param_infos']
 
-            for paramter_info in parameter_infos:
-                dump_dict = {}
-                dump_dict['suggested_range'] = paramter_info['suggested_range']
-                dump_dict['absolute_range'] = paramter_info['absolute_range']
-                dump_dict['description'] = paramter_info['description']
-                dump_dict['name'] = paramter_info['name']
-                dump_dict['default_value'] = paramter_info['default_value']
-                dump_dict['units'] = paramter_info['units']
-                list_to_dump.append(dump_dict)
+    for paramter_info in dict_to_dump:
+        dump_dict = {}
+        dump_dict['suggested_range'] = paramter_info['suggested_range']
+        dump_dict['absolute_range'] = paramter_info['absolute_range']
+        dump_dict['description'] = paramter_info['description']
+        dump_dict['name'] = paramter_info['name']
+        dump_dict['default_value'] = paramter_info['default_value']
+        dump_dict['units'] = paramter_info['units']
+        list_to_dump.append(dump_dict)
 
     # Dump list
     dump(list_to_dump, path_yaml)
