@@ -4,7 +4,6 @@ Fuel share assumptions
 All fuel shares of the base year for the
 different technologies are defined
 """
-from energy_demand.technologies import tech_related
 from energy_demand.initalisations import helpers
 
 def assign_by_fuel_tech_p(assumptions, enduses, lookups):
@@ -28,8 +27,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     - In an enduse, either all fueltypes need to be
       assigned with technologies or none. No mixing possible
 
-
-    Technologies can be defined for the following fueltypes:
+    - Technologies can be defined for the following fueltypes:
         'solid_fuel': 0,
         'gas': 1,
         'electricity': 2,
@@ -50,7 +48,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # ====================
 
     # ---------------
-    # rs_lighting (calculated on the basis of ECUK Table 3.08)
+    # rs_lighting
+    # calculated on the basis of ECUK Table 3.08
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_lighting'][lookups['fueltype']['electricity']] = {
         'standard_lighting_bulb': 0.04,
@@ -60,7 +59,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'LED': 0.01}
 
     # ---------------
-    # rs_cold (calculated on the basis of ECUK Table 3.08)
+    # rs_cold
+    # calculated on the basis of ECUK Table 3.08
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_cold'][lookups['fueltype']['electricity']] = {
         'chest_freezer': 0.087,
@@ -69,19 +69,20 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'upright_freezer': 0.182}
 
     # ---------------
-    # ---rs_cooking (calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
+    # rs_cooking
+    # calculated on the basis of ECUK Table 3.08 and assumption that 5-10% house households
     # ---------------
     # use induction hobs)
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['electricity']] = {
         'hob_electricity': 0.95,
-        'hob_induction_electricity': 0.05 # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
-        }
-
+        'hob_induction_electricity': 0.05} # https://productspy.co.uk/are-induction-hobs-safe/ (5-10%)
+        
     assumptions['rs_fuel_tech_p_by']['rs_cooking'][lookups['fueltype']['gas']] = {
         'hob_gas': 1.0}
 
     # ---------------
-    # ---rs_wet (calculated on the basis of EUCK Table 3.08)
+    # rs_wet
+    # calculated on the basis of EUCK Table 3.08
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_wet'][lookups['fueltype']['electricity']] = {
         'washing_machine': 0.305,
@@ -119,7 +120,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'heat_pumps_hydrogen': 0.0}
 
     # ---------------
-    # ---Water heating
+    # Water heating
+    # Calculated based on TODO
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -140,11 +142,11 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_hydrogen': 1.0}
 
     # ===================
-    # Service subModel - Fuel shares of technologies in enduse
+    # Service subModel
     # ===================
 
     # ----------------
-    # Space heating
+    # ss_space_heating
     # ----------------
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
@@ -172,17 +174,18 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # ===================
 
     # ----------------
-    # Space heating
+    # is_space_heating
     # ----------------
     assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}
+
     assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['gas']] = {
-        'boiler_gas': 1.0
-        }
+        'boiler_gas': 1.0}
+
     assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['electricity']] = {
         'boiler_electricity': 0.5,
-        'heat_pumps_electricity': 0.5
-        }  #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+        'heat_pumps_electricity': 0.5} #  'av_heat_pump_electricity': 0.02Hannon 2015, heat-pump share in uk
+
     assumptions['is_fuel_tech_p_by']['is_space_heating'][lookups['fueltype']['oil']] = {
         'boiler_oil': 1.0}
 
