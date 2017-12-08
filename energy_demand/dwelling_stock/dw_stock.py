@@ -167,12 +167,13 @@ class Dwelling(object):
             else:
                 scenario_drivers = driver_assumptions[enduse]
 
+                # Iterate scenario driver and get attriute to multiply values
                 try:
-                    # Iterate scenario driver and get attriute to multiply values
                     for scenario_driver in scenario_drivers:
                         scenario_driver_value *= getattr(self, scenario_driver) #: sum drivers
                 except TypeError:
-                    logging.warning("Driver Assumption is None, scenario driver calculation not possible")
+                    logging.info(
+                        "Scenario driver `{}` calculation not possible".format(scenario_driver))
 
                 Dwelling.__setattr__(
                     self,
