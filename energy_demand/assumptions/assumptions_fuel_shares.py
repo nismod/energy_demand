@@ -108,9 +108,9 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
     # often more flats and more fuel poverty and some heatpumps,
     # i.e. lower demands (e.g. redue certain percentage)
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['electricity']] = {
-        'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015)
+        'heat_pumps_electricity': 0.04, # 0.02 Hannon (2015) 04
         'storage_heater_electricity': 0.40,
-        'secondary_heater_electricity': 0.56}
+        'secondary_heater_electricity': 0.56} #0.56
 
     assumptions['rs_fuel_tech_p_by']['rs_space_heating'][lookups['fueltype']['biomass']] = {
         'boiler_biomass': 1.0}

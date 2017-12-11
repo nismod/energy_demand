@@ -295,16 +295,6 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                     tech_constant_share[enduse][reg] = {}
 
                     # Calculate fuel for each tech
-                    '''for tech, tech_ey_p in service_tech_by_p[enduse].items():
-                        if service_tech_by_p[enduse][tech] < service_tech_ey_p[reg][enduse][tech]: #future larger
-                            tech_increased_service[enduse][reg][tech] = tech_ey_p
-                        elif service_tech_by_p[enduse][tech] > service_tech_ey_p[reg][enduse][tech]: #future smaller
-                            tech_decreased_share[enduse][reg][tech] = tech_ey_p
-                        else: #same
-                            tech_constant_share[enduse][reg][tech] = tech_ey_p
-                    '''
-                    
-                    # Calculate fuel for each tech
                     for tech in service_tech_by_p[enduse].keys():
                         if service_tech_by_p[enduse][tech] < service_tech_ey_p[reg][enduse][tech]: #future larger
                             tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
@@ -324,15 +314,6 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                 tech_increased_service[enduse] = {}
                 tech_decreased_share[enduse] = {}
                 tech_constant_share[enduse] = {}
-
-                '''# Calculate fuel for each tech
-                for tech, tech_ey_p in service_tech_by_p[enduse].items():
-                    if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]: #future large
-                        tech_increased_service[enduse][tech] = tech_ey_p
-                    elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]: #future smaller
-                        tech_decreased_share[enduse][tech] = tech_ey_p
-                    else: #same
-                        tech_constant_share[enduse][tech] = tech_ey_p'''
 
                 # Calculate fuel for each tech
                 for tech in service_tech_by_p[enduse].keys():

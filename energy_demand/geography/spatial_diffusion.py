@@ -27,11 +27,18 @@ def calc_diff_index(regions, enduses):
 
     Arguments
     ---------
+    regions
+    enduses
+
+    Returns
+    -------
+    spatial_index : dict
+        Spatial index
     """
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [2.8,5.5] #[2.8, 5.5] #[1.4, 2]
+        dummy_indeces = [2.8, 5.5] #[2.8, 5.5] #[1.4, 2]
         cnt = 0
         for region in regions:
 
@@ -156,6 +163,9 @@ def calc_regional_services(
 
     # Convert regional service reduction to ey % in region
 
+    # Note small differences might occur
+    # because conversion from energy to service is the same
+    # in every region because of heat pumps
     """
     reg_service_tech_p = defaultdict(dict)
     for enduse, uk_techs_service_p in uk_service_p.items():
@@ -182,7 +192,6 @@ def calc_regional_services(
                 # Calculate regional service for technology
                 if tech in affected_techs:
                     reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
-
                 else:
                     # If not specified, use fuel disaggregation for enduse factor
                     disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
