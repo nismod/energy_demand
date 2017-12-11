@@ -38,7 +38,7 @@ def calc_diff_index(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [2.8, 5.5] #[2.8, 5.5] #[1.4, 2]
+        dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
         cnt = 0
         for region in regions:
 
@@ -142,7 +142,7 @@ def calc_diff_factor(regions, spatial_diffusion_index, fuels):
     return reg_fraction_multiplied_index
 
 def calc_regional_services(
-        service,
+        rs_service_by,
         uk_service_p,
         regions,
         spatial_factors,
@@ -178,24 +178,35 @@ def calc_regional_services(
             reg_service_tech_p[region][enduse] = {}
             uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
 
-        uk_service_enduse = 0
-        for fueltype in service[enduse]:
-            uk_service_enduse += sum(service[enduse][fueltype].values())
+        #new 
+        total_service_uk = 0
+        for fueltypes in rs_service_by[enduse]:
+            for tech in rs_service_by[enduse][fueltypes]:
+                total_service_uk += np.sum(rs_service_by[enduse][fueltypes][tech])
+        uk_service_enduse = total_service_uk
+        #
+
+        uk_service_enduse = uk_enduse_fuel
 
         for region in regions:
             #np.testing.assert_almost_equal(sum(uk_techs_service_p.values()), 1, 2)
+            
+            fuel_disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
 
             # Calculate fraction of regional service
+            _scrap = 0
+            _scrap2 = 0
             for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
+                print("tech: " + str(tech))
                 uk_service_tech = uk_tech_service_ey_p * uk_service_enduse
-
+                _scrap += uk_service_tech
+                _scrap2 += uk_tech_service_ey_p
                 # Calculate regional service for technology
                 if tech in affected_techs:
                     reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
                 else:
                     # If not specified, use fuel disaggregation for enduse factor
-                    disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
-                    reg_service_tech = uk_service_tech * disagg_factor
+                    reg_service_tech = uk_service_tech * fuel_disagg_factor
 
                 # Calculate fraction of tech
                 if reg_service_tech == 0:
@@ -204,7 +215,13 @@ def calc_regional_services(
                     reg_service_tech_p[region][enduse][tech] = reg_service_tech
 
             # Normalise in region
+
+            print(_scrap)
+            print(_scrap2)
             tot_service_reg_enduse = sum(reg_service_tech_p[region][enduse].values())
+            print("tot_service_reg_enduse: " + str(tot_service_reg_enduse))
+            
+            #tot_service_reg_enduse = fuel_disagg_factor
             for tech, service_tech in reg_service_tech_p[region][enduse].items():
                 reg_service_tech_p[region][enduse][tech] = service_tech / tot_service_reg_enduse
 

@@ -151,12 +151,21 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
+    '''#TODO TODO SCRAP
+    ss_ = 1000
+    for i in sd_cont['rs_fuel_disagg']:
+        print("REG: " + str(i))
+        sd_cont['rs_fuel_disagg'][i]['rs_space_heating'] = ss_
+        ss_ += 1000 #SC RAP REMOVE
+    data['fuels']['rs_fuel_raw_data_enduses']['rs_space_heating'] = np.zeros(data['lookups']['fueltypes_nr'])
+    data['fuels']['rs_fuel_raw_data_enduses']['rs_space_heating'][2] = ss_'''
+
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service_by = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -169,7 +178,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['ss_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'], ss_service = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['ss_service_tech_by_p'], fts_cont['ss_service_fueltype_tech_by_p'], fts_cont['ss_service_fueltype_by_p'], ss_service_by = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['ss_fuel_tech_p_by'],
@@ -182,7 +191,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses']['is_all_enduses'],
         data['lookups']['fueltypes_nr'])
 
-    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'], is_service = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['is_service_tech_by_p'], fts_cont['is_service_fueltype_tech_by_p'], fts_cont['is_service_fueltype_by_p'], is_service_by = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['is_fuel_tech_p_by'],
@@ -299,16 +308,46 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Residential spatial explicit modelling
         rs_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            rs_service,
+            rs_service_by,
             switches_cont['rs_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
             sd_cont['rs_fuel_disagg'],
             technologies_affectted_by_spatial_factor)
         
+        #'''
+        # total sum per region
+        print(rs_service_by)
+        print("oooooooooooooo")
+        _scrap = 0
+        for reg in sd_cont['rs_fuel_disagg']:
+            print(reg)
+            print(np.sum(sd_cont['rs_fuel_disagg'][reg]['rs_space_heating']))
+            _scrap += np.sum(sd_cont['rs_fuel_disagg'][reg]['rs_space_heating'])
+
+        print("oooooooooooooo")
+        print(_scrap)
+        print("_-")
+        print(rs_reg_enduse_tech_p['S12000013']['rs_space_heating']['heat_pumps_electricity'])
+        print(np.sum(sd_cont['rs_fuel_disagg']['S12000013']['rs_space_heating']))
+        print(rs_reg_enduse_tech_p['E07000135']['rs_space_heating']['heat_pumps_electricity'])
+        print(np.sum(sd_cont['rs_fuel_disagg']['E07000135']['rs_space_heating']))
+
+        _a = rs_reg_enduse_tech_p['S12000013']['rs_space_heating']['heat_pumps_electricity'] * np.sum(sd_cont['rs_fuel_disagg']['S12000013']['rs_space_heating'])
+        _b = rs_reg_enduse_tech_p['E07000135']['rs_space_heating']['heat_pumps_electricity'] * np.sum(sd_cont['rs_fuel_disagg']['E07000135']['rs_space_heating'])
+        print("===========")
+        print(_a)
+        print(_b)
+        print("--")
+        print(_a + _b)
+        print("_--")
+        print(switches_cont['rs_share_service_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
+        print(_scrap * switches_cont['rs_share_service_tech_ey_p']['rs_space_heating']['heat_pumps_electricity'])
+        #'''
+
         # Generate sigmoid curves (s_generate_sigmoid) for every region
         ss_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            ss_service,
+            ss_service_by,
             switches_cont['ss_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
@@ -316,7 +355,7 @@ def scenario_initalisation(path_data_ed, data=False):
             technologies_affectted_by_spatial_factor)
 
         is_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            is_service,
+            is_service_by,
             switches_cont['is_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
