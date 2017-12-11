@@ -31,7 +31,7 @@ def calc_diff_index(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [1.4, 2] #[1.4, 2]
+        dummy_indeces = [2, 8] #[1.4, 2]
         cnt = 0
         for region in regions:
 
@@ -159,8 +159,6 @@ def calc_regional_services(
     """
     reg_service_tech_p = defaultdict(dict)
     for enduse, uk_techs_service_p in uk_service_p.items():
-        _s = 0
-
         # Calculate national total enduse fuel
         uk_enduse_fuel = 0
         for region in regions:
@@ -175,21 +173,17 @@ def calc_regional_services(
             #np.testing.assert_almost_equal(sum(uk_techs_service_p.values()), 1, 2)
             # Calculate fraction of regional service
             for tech, uk_tech_service_ey_p in uk_techs_service_p.items():
-                #print("tech..." + str(tech))
                 uk_service_tech = uk_tech_service_ey_p * uk_service_enduse
-                #print("uk_tech_service_ey_p " + str(uk_tech_service_ey_p))
-                #print("uk_service_tech" + str(uk_service_tech))
+
                 # Calculate regional service for technology
                 if tech in affected_techs:
                     reg_service_tech = uk_service_tech * spatial_factors[enduse][region]
-                    _s += reg_service_tech
 
                 else:
 
                     # If not specified, use fuel disaggregation for enduse factor
                     disagg_factor = np.sum(fuel_disaggregated[region][enduse]) / uk_enduse_fuel
                     reg_service_tech = uk_service_tech * disagg_factor
-                    _s += reg_service_tech
 
                 # Calculate fraction of tech
                 if reg_service_tech == 0:
@@ -201,9 +195,5 @@ def calc_regional_services(
             tot_service_reg_enduse = sum(reg_service_tech_p[region][enduse].values())
             for tech, service_tech in reg_service_tech_p[region][enduse].items():
                 reg_service_tech_p[region][enduse][tech] = service_tech / tot_service_reg_enduse
-
-        #print("TOT")
-        #print(_s)
-        #print(uk_service_enduse)
 
     return reg_service_tech_p

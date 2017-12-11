@@ -151,13 +151,12 @@ def scenario_initalisation(path_data_ed, data=False):
         data['sectors']['all_sectors'],
         data['enduses'])
 
-
     # -------------------
     # Convert fuel to service (s_fuel_to_service)
     # -------------------
     fts_cont = {}
     # RESIDENTIAL: Convert base year fuel input assumptions to energy service
-    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service_BY = s_fuel_to_service.get_service_fueltype_tech(
+    fts_cont['rs_service_tech_by_p'], fts_cont['rs_service_fueltype_tech_by_p'], fts_cont['rs_service_fueltype_by_p'], rs_service = s_fuel_to_service.get_service_fueltype_tech(
         data['assumptions']['tech_list'],
         data['lookups']['fueltype'],
         data['assumptions']['rs_fuel_tech_p_by'],
@@ -190,9 +189,9 @@ def scenario_initalisation(path_data_ed, data=False):
         fuels_aggregated_across_sectors,
         data['assumptions']['technologies'])
 
-    # ---
+    # ------------------------------------
     # Autocomplement switches
-    # ---
+    # ------------------------------------
     switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
         data['assumptions']['rs_service_switches'],
@@ -222,64 +221,70 @@ def scenario_initalisation(path_data_ed, data=False):
         switches_cont['is_service_switches'],
         data['assumptions']['is_specified_tech_enduse_by'])
 
-    # -------------------
-    # Generate national sigmoid curves (s_generate_sigmoid)
-    # -------------------
-    sgs_cont = {}
-    #TODO: PROBLEM MAYBE SOLVED IF THESE GET NATIONAL AS WELL
-    # Calculate technologies with more, less and constant service based on service switch assumptions
-    sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        fts_cont['rs_service_tech_by_p'], switches_cont['rs_share_service_tech_ey_p'])
-    sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        fts_cont['ss_service_tech_by_p'], switches_cont['ss_share_service_tech_ey_p'])
-    sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-        fts_cont['is_service_tech_by_p'], switches_cont['is_share_service_tech_ey_p'])
+    # ---------------------
+    # National calculations
+    # ---------------------
+    if 1==1:
 
-    # Calculate sigmoid diffusion curves based on assumptions about fuel switches
+        # -------------------
+        # Generate national sigmoid curves (s_generate_sigmoid)
+        # -------------------
+        sgs_cont = {}
+        #TODO: PROBLEM MAYBE SOLVED IF THESE GET NATIONAL AS WELL
+        # Calculate technologies with more, less and constant service based on service switch assumptions
+        sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['rs_service_tech_by_p'], switches_cont['rs_share_service_tech_ey_p'])
+        sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['ss_service_tech_by_p'], switches_cont['ss_share_service_tech_ey_p'])
+        sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['is_service_tech_by_p'], switches_cont['is_share_service_tech_ey_p'])
 
-    # --Residential
-    sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
-        data['sim_param']['base_yr'],
-        data['assumptions']['technologies'],
-        data['assumptions']['rs_service_switches'],
-        data['assumptions']['rs_fuel_switches'],
-        data['enduses']['rs_all_enduses'],
-        sgs_cont['rs_tech_increased_service'],
-        switches_cont['rs_share_service_tech_ey_p'],
-        fts_cont['rs_service_fueltype_by_p'],
-        fts_cont['rs_service_tech_by_p'],
-        data['assumptions']['rs_fuel_tech_p_by'])
+        # Calculate sigmoid diffusion curves based on assumptions about fuel switches
 
-    # --Service
-    sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
-        data['sim_param']['base_yr'],
-        data['assumptions']['technologies'],
-        data['assumptions']['ss_service_switches'],
-        data['assumptions']['ss_fuel_switches'],
-        data['enduses']['ss_all_enduses'],
-        sgs_cont['ss_tech_increased_service'],
-        switches_cont['ss_share_service_tech_ey_p'],
-        fts_cont['ss_service_fueltype_by_p'],
-        fts_cont['ss_service_tech_by_p'],
-        data['assumptions']['ss_fuel_tech_p_by'])
+        # --Residential
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['rs_service_switches'],
+            data['assumptions']['rs_fuel_switches'],
+            data['enduses']['rs_all_enduses'],
+            sgs_cont['rs_tech_increased_service'],
+            switches_cont['rs_share_service_tech_ey_p'],
+            fts_cont['rs_service_fueltype_by_p'],
+            fts_cont['rs_service_tech_by_p'],
+            data['assumptions']['rs_fuel_tech_p_by'])
 
-    # --Industry
-    sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
-        data['sim_param']['base_yr'],
-        data['assumptions']['technologies'],
-        data['assumptions']['is_service_switches'],
-        data['assumptions']['is_fuel_switches'],
-        data['enduses']['is_all_enduses'],
-        sgs_cont['is_tech_increased_service'],
-        switches_cont['is_share_service_tech_ey_p'],
-        fts_cont['is_service_fueltype_by_p'],
-        fts_cont['is_service_tech_by_p'],
-        data['assumptions']['is_fuel_tech_p_by'])
+        # --Service
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['ss_service_switches'],
+            data['assumptions']['ss_fuel_switches'],
+            data['enduses']['ss_all_enduses'],
+            sgs_cont['ss_tech_increased_service'],
+            switches_cont['ss_share_service_tech_ey_p'],
+            fts_cont['ss_service_fueltype_by_p'],
+            fts_cont['ss_service_tech_by_p'],
+            data['assumptions']['ss_fuel_tech_p_by'])
 
-    #---------------------------
-    # Calculate spatial explicit diffusion factors
-    #---------------------------
+        # --Industry
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['is_service_switches'],
+            data['assumptions']['is_fuel_switches'],
+            data['enduses']['is_all_enduses'],
+            sgs_cont['is_tech_increased_service'],
+            switches_cont['is_share_service_tech_ey_p'],
+            fts_cont['is_service_fueltype_by_p'],
+            fts_cont['is_service_tech_by_p'],
+            data['assumptions']['is_fuel_tech_p_by'])
+
     if data['criterias']['spatial_exliclit_diffusion']:
+
+        #---------------------------
+        # Calculate spatial explicit diffusion factors
+        #---------------------------
         data['spatial_diffusion_index'] = spatial_diffusion.calc_diff_index(
             data['lu_reg'],
             data['enduses']['all_enduses'])
@@ -291,7 +296,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
         # Residential spatial explicit modelling
         rs_reg_enduse_tech_p = spatial_diffusion.calc_regional_services(
-            rs_service_BY,
+            rs_service,
             switches_cont['rs_share_service_tech_ey_p'],
             data['lu_reg'],
             data['spatial_diffusion_factor'],
@@ -344,6 +349,53 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['ss_fuel_switches'],
             data['enduses']['ss_all_enduses'],
             sgs_cont['ss_tech_increased_service'],
+            ss_reg_enduse_tech_p, 
+            fts_cont['ss_service_fueltype_by_p'],
+            fts_cont['ss_service_tech_by_p'],
+            data['assumptions']['ss_fuel_tech_p_by'],
+            True)
+
+        # --Industry
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['is_service_switches'],
+            data['assumptions']['is_fuel_switches'],
+            data['enduses']['is_all_enduses'],
+            sgs_cont['is_tech_increased_service'],
+            is_reg_enduse_tech_p,
+            fts_cont['is_service_fueltype_by_p'],
+            fts_cont['is_service_tech_by_p'],
+            data['assumptions']['is_fuel_tech_p_by'],
+            True)
+
+        # Calculate regional shares
+        sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['rs_service_tech_by_p'],
+            rs_reg_enduse_tech_p,
+            data['lu_reg'],
+            True)
+
+        sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['ss_service_tech_by_p'],
+            ss_reg_enduse_tech_p,
+            data['lu_reg'],
+            True)
+
+        sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
+            fts_cont['is_service_tech_by_p'],
+            is_reg_enduse_tech_p,
+            data['lu_reg'],
+            True)
+
+        # --Service
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.get_sig_diffusion(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            data['assumptions']['ss_service_switches'],
+            data['assumptions']['ss_fuel_switches'],
+            data['enduses']['ss_all_enduses'],
+            sgs_cont['ss_tech_increased_service'],
             ss_reg_enduse_tech_p,
             fts_cont['ss_service_fueltype_by_p'],
             fts_cont['ss_service_tech_by_p'],
@@ -364,7 +416,6 @@ def scenario_initalisation(path_data_ed, data=False):
             data['assumptions']['is_fuel_tech_p_by'],
             True)
 
-    logging.info("... finished scenario_initalisation")
     return fts_cont, sgs_cont, sd_cont, switches_cont
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):

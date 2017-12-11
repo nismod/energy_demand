@@ -242,7 +242,7 @@ def tech_sigmoid_parameters(
 
     return dict(sigmoid_parameters)
 
-def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regional_specific=False):
+def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False, regional_specific=False):
     """Get all those technologies with increased service in future
 
     Arguments
@@ -272,26 +272,57 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regional_speci
     tech_decreased_share = {}
     tech_constant_share = {}
 
-    for enduse in service_tech_by_p:
+    if regional_specific:
 
-        # If no service switch defined
-        if service_tech_ey_p[enduse] == {}:
-            tech_increased_service[enduse] = []
-            tech_decreased_share[enduse] = []
-            tech_constant_share[enduse] = []
-        else:
+        for enduse in service_tech_by_p:
             tech_increased_service[enduse] = {}
-            tech_decreased_share[enduse] = {}
-            tech_constant_share[enduse] = {}
+            tech_decreased_share[enduse] =  {}
+            tech_constant_share[enduse] =  {}
 
-            # Calculate fuel for each tech
-            for tech, tech_ey_p in service_tech_by_p[enduse].items():
-                if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]: #future larger
-                   tech_increased_service[enduse][tech] = tech_ey_p
-                elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]: #future smaller
-                    tech_decreased_share[enduse][tech] = tech_ey_p
-                else: #same
-                    tech_constant_share[enduse][tech] = tech_ey_p
+            for reg in regions:
+                tech_increased_service[enduse][reg] = {}
+                tech_decreased_share[enduse][reg] = {}
+                tech_constant_share[enduse][reg] = {}
+
+                # If no service switch defined
+                if service_tech_ey_p[reg][enduse] == {}:
+                    tech_increased_service[enduse][reg] = []
+                    tech_decreased_share[enduse][reg] = []
+                    tech_constant_share[enduse][reg] = []
+                else:
+                    tech_increased_service[enduse][reg] = {}
+                    tech_decreased_share[enduse][reg] = {}
+                    tech_constant_share[enduse][reg] = {}
+
+                    # Calculate fuel for each tech
+                    for tech, tech_ey_p in service_tech_by_p[enduse].items():
+                        if service_tech_by_p[enduse][tech] < service_tech_ey_p[reg][enduse][tech]: #future larger
+                            tech_increased_service[enduse][reg][tech] = tech_ey_p
+                        elif service_tech_by_p[enduse][tech] > service_tech_ey_p[reg][enduse][tech]: #future smaller
+                            tech_decreased_share[enduse][reg][tech] = tech_ey_p
+                        else: #same
+                            tech_constant_share[enduse][reg][tech] = tech_ey_p
+    else:
+        for enduse in service_tech_by_p:
+
+            # If no service switch defined
+            if service_tech_ey_p[enduse] == {}:
+                tech_increased_service[enduse] = []
+                tech_decreased_share[enduse] = []
+                tech_constant_share[enduse] = []
+            else:
+                tech_increased_service[enduse] = {}
+                tech_decreased_share[enduse] = {}
+                tech_constant_share[enduse] = {}
+
+                # Calculate fuel for each tech
+                for tech, tech_ey_p in service_tech_by_p[enduse].items():
+                    if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]: #future large
+                        tech_increased_service[enduse][tech] = tech_ey_p
+                    elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]: #future smaller
+                        tech_decreased_share[enduse][tech] = tech_ey_p
+                    else: #same
+                        tech_constant_share[enduse][tech] = tech_ey_p
 
     return tech_increased_service, tech_decreased_share, tech_constant_share
 
@@ -587,10 +618,9 @@ def get_sig_diffusion(
             if regional_specific:
                 l_values_sig = {}
                 
-
-                for reg, _ in service_tech_ey_p.items():
+                # Maximum shares of each technology
+                for reg in service_tech_ey_p.keys():
                     l_values_sig[reg] = defaultdict(dict)
-                    # Maximum shares of each technology
                     for tech in installed_tech[enduse]:
                         l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
             else:
@@ -681,4 +711,4 @@ def get_sig_diffusion(
                 fuel_switches,
                 service_switches)
 
-    return installed_tech, sig_param_tech
+    return installed_tech, dict(sig_param_tech)
