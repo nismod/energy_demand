@@ -11,7 +11,6 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
-# Remove defaultdict everywhere
 """
 import os
 import sys

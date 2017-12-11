@@ -269,7 +269,6 @@ class Enduse(object):
                     logging.debug("... Service switch is implemented " + str(enduse))
                     if criterias['spatial_exliclit_diffusion']:
                         service_tech_y_cy = service_switch(
-                            region_name,
                             enduse,
                             tot_service_y_cy,
                             service_tech_cy_p,
@@ -280,7 +279,6 @@ class Enduse(object):
                             sim_param['curr_yr'])
                     else:
                         service_tech_y_cy = service_switch(
-                            region_name,
                             enduse,
                             tot_service_y_cy,
                             service_tech_cy_p,
@@ -298,7 +296,6 @@ class Enduse(object):
                         pass
 
                     service_tech_y_cy = fuel_switch(
-                        region_name,
                         enduse,
                         installed_tech,
                         sig_param_tech,
@@ -1346,7 +1343,6 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr,
         return fuel_y
 
 def service_switch(
-        region,
         enduse,
         tot_service_yh_cy,
         service_tech_by_p,
@@ -1400,7 +1396,6 @@ def service_switch(
     # Calculate service for technology with increased service
     # ------------
     service_tech_incr_cy_p = get_service_diffusion(
-        region,
         enduse,
         tech_increase_service,
         sig_param_tech,
@@ -1442,7 +1437,6 @@ def service_switch(
     return service_tech_yh_cy
 
 def fuel_switch(
-        region,
         enduse,
         installed_tech,
         sig_param_tech,
@@ -1642,7 +1636,7 @@ def convert_service_to_p(tot_service_y, service_fueltype_tech):
 
     return service_tech_p
 
-def get_service_diffusion(region, enduse, tech_increased_service, sig_param_tech, curr_yr):
+def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_yr):
     """Calculate energy service fraction of technologies with increased service
     for current year based on sigmoid diffusion
 
@@ -1665,8 +1659,7 @@ def get_service_diffusion(region, enduse, tech_increased_service, sig_param_tech
     """
     service_tech = {}
 
-    for tech in tech_increased_service:
-
+    for tech in tech_increased_service.keys():
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech[enduse][tech]['l_parameter'],
