@@ -11,6 +11,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
+# Check whether fuel switches can be written as servie switch
 """
 import os
 import sys
@@ -87,7 +88,8 @@ if __name__ == "__main__":
 
     # -------------- SCRAP
     from pyinstrument import Profiler
-    from energy_demand.assumptions import non_param_assumptions, param_assumptions
+    from energy_demand.assumptions import non_param_assumptions
+    from energy_demand.assumptions import param_assumptions
     from energy_demand.read_write import data_loader
     from energy_demand.basic import logger_setup
     from energy_demand.read_write import write_data
