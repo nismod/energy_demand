@@ -22,17 +22,15 @@ from energy_demand.technologies import fuel_service_switch
 from energy_demand.geography import spatial_diffusion
 
 def post_install_setup(args):
-    """Run initialisation scripts
+    """Run this function after installing the energy_demand
+    model with smif and putting the data folder with all necessary
+    data into a local drive. This scripts only needs to be
+    executed once after the energy_demand model has been installed
 
     Arguments
     ----------
     args : object
         Arguments defined in ``./cli/__init__.py``
-
-    Note
-    ----
-    Only needs to be executed once after the energy_demand
-    model has been installed
     """
     print("... start running initialisation scripts")
 

@@ -266,34 +266,29 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    logging.debug("... Service switch is implemented " + str(enduse))
+
                     if criterias['spatial_exliclit_diffusion']:
-                        service_tech_y_cy = service_switch(
-                            enduse,
-                            tot_service_y_cy,
-                            service_tech_cy_p,
-                            tech_increased_service[region_name],
-                            tech_decreased_share[region_name],
-                            tech_constant_share[region_name],
-                            sig_param_tech[region_name],
-                            sim_param['curr_yr'])
-                    else:
-                        service_tech_y_cy = service_switch(
-                            enduse,
-                            tot_service_y_cy,
-                            service_tech_cy_p,
-                            tech_increased_service,
-                            tech_decreased_share,
-                            tech_constant_share,
-                            sig_param_tech,
-                            sim_param['curr_yr'])
+                        tech_increased_service = tech_increased_service[region_name]
+                        tech_decreased_share = tech_decreased_share[region_name]
+                        tech_constant_share = tech_constant_share[region_name]
+                        sig_param_tech = sig_param_tech[region_name]
+
+                    logging.debug("... Service switch is implemented " + str(enduse))
+                    service_tech_y_cy = service_switch(
+                        enduse,
+                        tot_service_y_cy,
+                        service_tech_cy_p,
+                        tech_increased_service,
+                        tech_decreased_share,
+                        tech_constant_share,
+                        sig_param_tech,
+                        sim_param['curr_yr'])
+
                 elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(enduse))
 
-                    if criterias['spatial_exliclit_diffusion']:
+                    if criterias['spatial_exliclit_diffusion']: #TODO
                         sig_param_tech = sig_param_tech[region_name]
-                    else:
-                        pass
 
                     service_tech_y_cy = fuel_switch(
                         enduse,
@@ -1485,8 +1480,7 @@ def fuel_switch(
         Containing all service for each technology on a hourly basis
 
     """
-    # Must be like this, otherwise error
-    service_tech_switched = service_tech # copy.copy(service_tech)
+    service_tech_switched = service_tech
 
     # Iterate all technologies installed in fuel switches
     for tech_installed in installed_tech:
