@@ -796,11 +796,7 @@ def get_sig_diffusion_service(
     It is assumed that the technology diffusion is the same over
     all the uk (no regional different diffusion)
     """
-    if len(service_switches) > 0:
-        crit_switch_service = True
-    else:
-        crit_switch_service = False
-
+    #service_tech_switched_p = {} #NEEDED?
     if regional_specific:
         installed_tech, sig_param_tech = defaultdict(dict), {}
         l_values_sig = defaultdict(dict)
@@ -811,31 +807,30 @@ def get_sig_diffusion_service(
 
     for enduse in enduses:
 
-        if crit_switch_service:
-            """Sigmoid calculation in case of 'service switch'
-            """
+        """Sigmoid calculation in case of 'service switch'
+        """
 
-            # Tech with lager service shares in end year
-            installed_tech[enduse] = tech_increased_service[enduse]
+        # Tech with lager service shares in end year
+        installed_tech[enduse] = tech_increased_service[enduse]
 
-            # End year service shares (scenaric input)
-            service_tech_switched_p = service_tech_ey_p
+        # End year service shares (scenaric input)
+        service_tech_switched_p = service_tech_ey_p
 
-            if regional_specific:
-                # Maximum shares of each technology
-                for reg in regions:
-                    l_values_sig[reg][enduse] = {}
-                    #same techs for every region
-                    for tech in installed_tech[enduse][reg]:
-                        l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
+        if regional_specific:
+            # Maximum shares of each technology
+            for reg in regions:
+                l_values_sig[reg][enduse] = {}
+                #same techs for every region
+                for tech in installed_tech[enduse][reg]:
+                    l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
+        else:
+
+            if tech_increased_service[enduse] == []:
+                pass
             else:
-
-                if tech_increased_service[enduse] == []:
-                    pass
-                else:
-                    # Maximum shares of each technology
-                    for tech in installed_tech[enduse]:
-                        l_values_sig[enduse][tech] = technologies[tech].tech_max_share
+                # Maximum shares of each technology
+                for tech in installed_tech[enduse]:
+                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share
 
     return dict(service_tech_switched_p), dict(l_values_sig) #NEW --> End year service fraction
 
@@ -995,7 +990,7 @@ def calc_sigm_parameters(
         if regional_specific:
             for reg in l_values_sig:
                 # Calclulate sigmoid parameters for every installed technology
-                sig_param_tech[reg][enduse] = tech_sigmoid_parameters_NEW(
+                sig_param_tech[reg][enduse] = tech_sigmoid_parameteNEW(
                     base_yr,
                     technologies,
                     enduse,
@@ -1006,7 +1001,7 @@ def calc_sigm_parameters(
                     service_switches)
         else:
             # Calclulate sigmoid parameters for every installed technology
-            sig_param_tech[enduse] = tech_sigmoid_parameters_NEW(
+            sig_param_tech[enduse] = tech_sigmoid_parameteNEW(
                 base_yr,
                 technologies,
                 enduse,
@@ -1018,7 +1013,7 @@ def calc_sigm_parameters(
 
     return dict(installed_tech), dict(sig_param_tech)
 
-def tech_sigmoid_parameters_NEW(
+def tech_sigmoid_parameteNEW(
         base_yr,
         technologies,
         enduse,
