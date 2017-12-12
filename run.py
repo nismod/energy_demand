@@ -94,6 +94,7 @@ class EDWrapper(SectorModel):
         data['criterias']['plot_HDD_chart'] = False                     # True: Plotting of HDD vs gas chart
         data['criterias']['validation_criteria'] = False                # True: Plot validation plots
         data['criterias']['mode_constrained'] = False                   # True: Technologies are defined in ED model and fuel is provided, False: Heat is delievered not per technologies
+        data['criterias']['spatial_exliclit_diffusion'] = True          # True: Spatial explicit calculations
 
         data['sim_param']['base_yr'] = 2015                             # Base year
         data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
@@ -214,7 +215,7 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'],
+            data['paths']['yaml_parameters_default'],
             data,
             data['assumptions'])
 
@@ -344,7 +345,7 @@ class EDWrapper(SectorModel):
         # Load all SMIF parameters and replace data dict
         # ------------------------
         data['assumptions'] = self.load_smif_parameters(
-            data['paths']['yaml_parameters_complete'], data, data['assumptions'])
+            data['paths']['yaml_parameters_default'], data, data['assumptions'])
 
         # Update: Necessary updates after external data definition
         data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
@@ -529,7 +530,7 @@ class EDWrapper(SectorModel):
         # Get variable from dict and reassign and delete from data
         for var_name in all_strategy_variables:
             strategy_variables[var_name] = data[var_name]
-            logging.info("Load strategy parameter: {}".format(var_name))
+            logging.info("Load strategy parameter: {}  {}".format(var_name, data[var_name]))
             del data[var_name]
 
         # Add to assumptoins

@@ -594,14 +594,7 @@ def plt_stacked_enduse_sectors(
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
     ax = fig.add_subplot(1, 1, 1)
-    '''print("AAAA")
-    all_enduses = rs_enduses + ss_enduses + is_enduses
-    for fueltype in range(lookups['fueltypes_nr']):
-        _scrap = 0
-        for enduse in all_enduses:
-            _scrap += np.sum(results_enduse_every_year[0][enduse][fueltype]) # vase year = 0
-        print('fueltype ' + str(fueltype) + "   sum: " + str(_scrap))
-    prnt(":")'''
+
     #for submodel in (rs_enduses, ss_enduses, is_enduses):
     for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 

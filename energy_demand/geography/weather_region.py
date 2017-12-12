@@ -65,6 +65,7 @@ class WeatherRegion(object):
             sim_param,
             assumptions['strategy_variables']['climate_change_temp_diff_yr_until_changed'])
 
+
         #Change temp_cy depending on climate assumptions
         rs_t_base_heating_cy = hdd_cdd.sigm_temp(
             assumptions['strategy_variables']['rs_t_base_heating_future_yr'],

@@ -121,7 +121,7 @@ def disaggregate_base_demand(
         sum_fuels_after(rs_fuel_disagg),
         decimal=2, err_msg="")
 
-    return rs_fuel_disagg, ss_fuel_disagg, is_fuel_disagg
+    return dict(rs_fuel_disagg), dict(ss_fuel_disagg), dict(is_fuel_disagg)
 
 def ss_disaggregate(
         raw_fuel_sectors_enduses,

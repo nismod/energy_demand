@@ -266,6 +266,13 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
+
+                    if criterias['spatial_exliclit_diffusion']:
+                        tech_increased_service = tech_increased_service[region_name]
+                        tech_decreased_share = tech_decreased_share[region_name]
+                        tech_constant_share = tech_constant_share[region_name]
+                        sig_param_tech = sig_param_tech[region_name]
+
                     logging.debug("... Service switch is implemented " + str(enduse))
                     service_tech_y_cy = service_switch(
                         enduse,
@@ -276,8 +283,14 @@ class Enduse(object):
                         tech_constant_share,
                         sig_param_tech,
                         sim_param['curr_yr'])
+
                 elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(enduse))
+
+                    if criterias['spatial_exliclit_diffusion']: #TODO
+                        sig_param_tech = sig_param_tech[region_name]
+                        installed_tech = installed_tech[region_name]
+
                     service_tech_y_cy = fuel_switch(
                         enduse,
                         installed_tech,
@@ -1383,6 +1396,7 @@ def service_switch(
         tech_increase_service,
         sig_param_tech,
         curr_yr)
+
     service_tech_cy_p.update(service_tech_incr_cy_p)
 
     # ------------
@@ -1438,6 +1452,8 @@ def fuel_switch(
 
     Arguments
     ----------
+    region: str
+        Region name
     enduse : str
         Enduse
     installed_tech : dict
@@ -1465,8 +1481,7 @@ def fuel_switch(
         Containing all service for each technology on a hourly basis
 
     """
-    # Must be like this, otherwise error
-    service_tech_switched = service_tech # copy.copy(service_tech)
+    service_tech_switched = service_tech
 
     # Iterate all technologies installed in fuel switches
     for tech_installed in installed_tech:
@@ -1630,6 +1645,7 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
         Sigmoid diffusion parameters
     curr_yr : dict
         Current year
+    spatial_exliclit_diffusion : crit
 
     Returns
     -------
@@ -1638,7 +1654,7 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
     """
     service_tech = {}
 
-    for tech in tech_increased_service:
+    for tech in tech_increased_service.keys():
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
             sig_param_tech[enduse][tech]['l_parameter'],

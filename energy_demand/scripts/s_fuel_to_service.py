@@ -201,4 +201,4 @@ def get_service_fueltype_tech(tech_list, lu_fueltypes, fuel_p_tech_by, fuels, te
     # --------
     # Test if the energy service for all technologies is 100%
     # Test if within fueltype always 100 energy service
-    return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p, service
+    return service_tech_by_p, service_fueltype_tech_by_p, service_fueltype_by_p

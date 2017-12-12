@@ -11,6 +11,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Industry INFO about efficiencies & technologies: Define strategy variables
 # Cooling?
 # convert documentation in rst?
+# Check whether fuel switches can be written as servie switch
 """
 import os
 import sys
@@ -87,7 +88,8 @@ if __name__ == "__main__":
 
     # -------------- SCRAP
     from pyinstrument import Profiler
-    from energy_demand.assumptions import non_param_assumptions, param_assumptions
+    from energy_demand.assumptions import non_param_assumptions
+    from energy_demand.assumptions import param_assumptions
     from energy_demand.read_write import data_loader
     from energy_demand.basic import logger_setup
     from energy_demand.read_write import write_data
@@ -111,6 +113,7 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
+    data['criterias']['spatial_exliclit_diffusion'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
@@ -119,7 +122,7 @@ if __name__ == "__main__":
     data['sim_param'] = {}
     data['sim_param']['base_yr'] = 2015
     data['sim_param']['curr_yr'] = data['sim_param']['base_yr']
-    data['sim_param']['simulated_yrs'] = [2015, 2018, 2025, 2050]
+    data['sim_param']['simulated_yrs'] = [2015, 2050]
     data['lu_reg'] = data_loader.load_LAC_geocodes_info(data['local_paths']['path_dummy_regions'])
 
     # GVA
@@ -159,7 +162,7 @@ if __name__ == "__main__":
     data['tech_lp'] = data_loader.load_data_profiles(data['paths'], data['local_paths'], data['assumptions']['model_yeardays'], data['assumptions']['model_yeardays_daytype'])
     data['assumptions']['technologies'] = non_param_assumptions.update_assumptions(
         data['assumptions']['technologies'],
-        data['assumptions']['strategy_variables']['eff_achiev_f'], 
+        data['assumptions']['strategy_variables']['eff_achiev_f'],
         data['assumptions']['strategy_variables']['split_hp_gshp_to_ashp_ey'])
 
     data['weather_stations'], data['temp_data'] = data_loader.load_temp_data(data['local_paths'])

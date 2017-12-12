@@ -324,7 +324,8 @@ def load_paths(path):
             path, 'config_data', 'submodel_residential', 'lp_elec_secondary_heating_HES.csv'),
 
         'yaml_parameters': os.path.join(path, 'yaml_parameters.yml'),
-        'yaml_parameters_complete': os.path.join(path, 'yaml_parameters_complete.yml')
+        'yaml_parameters_default': os.path.join(path, 'yaml_parameters_default.yml'),
+        'yaml_parameters_scenario': os.path.join(path, 'yaml_parameters_scenario.yml')
         }
 
     return paths

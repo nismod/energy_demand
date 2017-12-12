@@ -71,8 +71,8 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = ["boilerA"]
-    tech_decrease_service = ["boilerB"]
+    tech_increase_service = {"boilerA": 0.001}
+    tech_decrease_service = {"boilerB": 0.001}
     tech_constant_service = []
 
     enduse = "heating"
@@ -132,8 +132,8 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = ["boilerA"]
-    tech_decrease_service = ["boilerB"]
+    tech_increase_service = {"boilerA": 0.001}
+    tech_decrease_service = {"boilerB": 0.001}
     tech_constant_service = []
 
     enduse = "heating"
@@ -195,8 +195,8 @@ def test_service_switch():
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
-    tech_increase_service = ["boilerA"]
-    tech_decrease_service = ["boilerB"]
+    tech_increase_service = {"boilerA": 0.001}
+    tech_decrease_service = {"boilerB": 0.001}
     tech_constant_service = []
 
     enduse = "heating"
