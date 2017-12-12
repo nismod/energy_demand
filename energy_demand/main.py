@@ -300,3 +300,4 @@ if __name__ == "__main__":
         logging.info("... Finished writing results to file")
 
     logging.info("... Finished running Energy Demand Model")
+    print("... Finished running Energy Demand Model")

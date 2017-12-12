@@ -129,7 +129,6 @@ class Enduse(object):
         ):
         """Enduse class constructor
         """
-        print("ED: " + str(enduse))
         self.region_name = region_name
         self.enduse = enduse
         self.fuel_new_y = fuel
@@ -266,8 +265,9 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
+                print("EEE: {}  {}".format(self.enduse, crit_switch_service))
                 if crit_switch_service:
-
+                    
                     if criterias['spatial_exliclit_diffusion']:
                         tech_increased_service = tech_increased_service[region_name]
                         tech_decreased_share = tech_decreased_share[region_name]
