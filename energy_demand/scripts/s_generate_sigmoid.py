@@ -490,14 +490,14 @@ def calc_service_fuel_switched(
                 if tech_install in installed_tech[enduse]:
 
                     # Share of energy service before switch
-                    orig_service_p = service_fueltype_p[enduse][fueltype_tech_replace]
+                    service_p_by = service_fueltype_p[enduse][fueltype_tech_replace]
 
                     # Service demand per fueltype that will be switched
                     # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
                     if switch_type == 'max_switch':
-                        change_service_fueltype_p = orig_service_p * technologies[tech_install].tech_max_share
+                        change_service_fueltype_p = service_p_by * technologies[tech_install].tech_max_share
                     elif switch_type == 'actual_switch':
-                        change_service_fueltype_p = orig_service_p * fuel_switch.fuel_share_switched_ey
+                        change_service_fueltype_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
                     # ---Service addition
                     service_tech_switched_p[enduse][tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_p
@@ -609,7 +609,7 @@ def get_sig_diffusion(
         l_values_sig = defaultdict(dict)
 
     for enduse in enduses:
-        print("SCRAP ENDUSE_ " + str(enduse))
+
         if crit_switch_service:
             """Sigmoid calculation in case of 'service switch'
             """
@@ -621,7 +621,6 @@ def get_sig_diffusion(
             service_tech_switched_p = service_tech_ey_p
 
             if regional_specific:
-
                 # Maximum shares of each technology
                 for reg in service_tech_ey_p.keys():
                     l_values_sig[reg][enduse] = {}
@@ -726,4 +725,4 @@ def get_sig_diffusion(
                 fuel_switches,
                 service_switches)
 
-    return dict(installed_tech), dict(sig_param_tech)
+    return dict(installed_tech), dict(sig_param_tech) #, dict(service_tech_switched_p) #NEW --> End year service fraction
