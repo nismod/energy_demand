@@ -211,20 +211,20 @@ def load_param_assump(paths, assumptions):
     # Reasonable assumption is between 0.03 and 0.01 (DECC 2015)
     # ============================================================
     strategy_variables.append({
-            "name": "smart_meter_p_future",
-            "absolute_range": (0, 1),
-            "description": "Population diffusion of smart meters",
-            "suggested_range": (10, 100),
-            "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
-            "units": '%'})
+        "name": "smart_meter_p_future",
+        "absolute_range": (0, 1),
+        "description": "Population diffusion of smart meters",
+        "suggested_range": (10, 100),
+        "default_value": '{}'.format(assumptions['smart_meter_assump']['smart_meter_p_by']),
+        "units": '%'})
     
     strategy_variables.append({
-            "name": "smart_meter_yr_until_changed",
-            "absolute_range": (0, 1),
-            "description": "Year until smart meter assumption is implemented",
-            "suggested_range": (2015, 2100),
-            "default_value": 2050,
-            "units": 'year'})
+        "name": "smart_meter_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until smart meter assumption is implemented",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
 
     # Fraction of population for future year
     strategy_vars['smart_meter_p_future'] = 0.1
@@ -267,40 +267,40 @@ def load_param_assump(paths, assumptions):
     # Heat recycling & Reuse
     # ============================================================
     strategy_variables.append({
-            "name": "heat_recoved__rs_space_heating",
-            "absolute_range": (0, 1),
-            "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": '%'})
+        "name": "heat_recoved__rs_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of heat recovery and recycling (residential sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
 
     strategy_variables.append({
-            "name": "heat_recoved__ss_space_heating",
-            "absolute_range": (0, 1),
-            "description": "Reduction in heat because of heat recovery and recycling (service sector)",
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": '%'})
+        "name": "heat_recoved__ss_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of heat recovery and recycling (service sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
     
     strategy_variables.append({
-            "name": "heat_recoved__is_space_heating",
-            "absolute_range": (0, 1),
-            "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
-            "suggested_range": (0, 1),
-            "default_value": 0,
-            "units": '%'})
+        "name": "heat_recoved__is_space_heating",
+        "absolute_range": (0, 1),
+        "description": "Reduction in heat because of heat recovery and recycling (industry sector)",
+        "suggested_range": (0, 1),
+        "default_value": 0,
+        "units": '%'})
 
     strategy_variables.append({
-            "name": "heat_recovered_yr_until_changed",
-            "absolute_range": (2015, 2100),
-            "description": "Year until heat recyling is full implemented",
-            "suggested_range": (2015, 2100),
-            "default_value": 2050,
-            "units": 'year'})
+        "name": "heat_recovered_yr_until_changed",
+        "absolute_range": (2015, 2100),
+        "description": "Year until heat recyling is full implemented",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
 
     # Heat recycling assumptions (e.g. 0.2 = 20% reduction)
     strategy_vars['heat_recoved__rs_space_heating'] = 0.0
-    strategy_vars['heat_recoved__ss_space_heating'] = 0.0
+    strategy_vars['heat_recoved__ss_space_heating'] = 0.7 #TODO SRAP
     strategy_vars['heat_recoved__is_space_heating'] = 0.0
 
     # Year until recycling is fully realised

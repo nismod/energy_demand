@@ -305,7 +305,7 @@ def read_max_results(path_enduse_specific_results):
     return results
 
 def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
-    """Read restuls
+    """Read enduse specific results
 
     Arguments
     ---------
@@ -318,7 +318,6 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
     path_enduse_specific_results = os.path.join(path_to_folder, "enduse_specific_results")
     all_txt_files_in_folder = os.listdir(path_enduse_specific_results)
 
-    # Iterate files
     for file_path in all_txt_files_in_folder:
         path_file_to_read = os.path.join(path_enduse_specific_results, file_path)
         file_path_split = file_path.split("__")
@@ -327,6 +326,8 @@ def read_enduse_specific_results_txt(fueltypes_nr, path_to_folder):
         fueltype_array_position = int(file_path_split[3])
 
         txt_data = np.loadtxt(path_file_to_read, delimiter=',')
+
+        print("..reading file: {}  {} {} {} ".format(year, enduse, fueltype_array_position, np.sum(txt_data)))
 
         # Create year if not existing
         try:

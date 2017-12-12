@@ -64,7 +64,7 @@ def run_all_plot_functions(
         results_container['results_enduse_every_year'],
         enduses['is_all_enduses'],
         os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
-    prnt(":eeedelete")
+    
     # ------------------------------
     # Plot annual demand for enduses
     # ------------------------------
@@ -78,6 +78,18 @@ def run_all_plot_functions(
         os.path.join(local_paths['data_results_PDF'],
         "stacked_all_enduses_country.pdf"))
 
+    # --------------
+    # Fuel per fueltype for whole country over annual timesteps
+    # ----------------
+    logging.debug("... Plot total fuel (y) per fueltype")
+    plt_fuels_enduses_y(
+        results_container['results_every_year'],
+        lookups,
+        os.path.join(
+            local_paths['data_results_PDF'],
+            'y_fueltypes_all_enduses.pdf'))
+
+    prnt(":eeedelete")
     # ----------
     # Plot seasonal typical load profiles
     # ----------
@@ -114,16 +126,7 @@ def run_all_plot_functions(
                 local_paths['data_results_PDF'],
                 'lf_y_{}.pdf'.format(fueltype_str)))
 
-    # --------------
-    # Fuel per fueltype for whole country over annual timesteps
-    # ----------------
-    logging.debug("... Plot total fuel (y) per fueltype")
-    plt_fuels_enduses_y(
-        results_container['results_every_year'],
-        lookups,
-        os.path.join(
-            local_paths['data_results_PDF'],
-            'y_fueltypes_all_enduses.pdf'))
+
 
     # --------------
     # Fuel week of base year
@@ -475,15 +478,20 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
 
     legend_entries = []
     for fueltype_int, enduse in enumerate(enduses_data):
-        print("summing:  ... {}".format(enduse))
+        print("================ EGON: " + str(len(enduses_data)))
+        #results[year][enduse][fueltype_array_position
         legend_entries.append(enduse)
-        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 
+        for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
+            print("----------------")
             # Conversion: Convert GWh per years to GW
             yearly_sum_gw = np.sum(data_model_run[enduse])
+            print("dd" + str(yearly_sum_gw))
+            print(data_model_run[enduse].shape)
             yearly_sum_twh = conversions.gwh_to_twh(np.sum(data_model_run[enduse]))
 
             y_data[fueltype_int][model_year] = yearly_sum_twh #yearly_sum_gw
+            print("summing:  ... fueltype {} model_year {} enduse {}  twh {}".format(fueltype_int, model_year, enduse, np.sum(yearly_sum_twh)))
 
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
@@ -517,7 +525,10 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
     # Stack plot
     # ----------
     colors = tuple(color_list[:len(enduses_data)])
-    stack_plot = ax.stackplot(x_data, y_data, colors=colors)
+    stack_plot = ax.stackplot(
+        x_data,
+        y_data,
+        colors=colors)
 
     # -------
     # Legend

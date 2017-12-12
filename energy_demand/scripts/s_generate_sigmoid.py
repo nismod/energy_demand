@@ -297,13 +297,27 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                     tech_constant_share[enduse][reg] = {}
 
                     # Calculate fuel for each tech
-                    for tech in service_tech_by_p[enduse].keys():
+                    '''for tech in service_tech_by_p[enduse].keys():
                         if service_tech_by_p[enduse][tech] < service_tech_ey_p[reg][enduse][tech]: #future larger
                             tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
                         elif service_tech_by_p[enduse][tech] > service_tech_ey_p[reg][enduse][tech]: #future smaller
                             tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
                         else: #same
-                            tech_constant_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
+                            tech_constant_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]'''
+                    for tech in service_tech_by_p[enduse].keys():
+                        if tech == 'dummy_tech':
+                            pass
+                        else:
+                            tech_by_p = round(service_tech_by_p[reg][enduse][tech], 4)
+                            tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
+
+                            if tech_by_p < tech_ey_p: #future larger
+
+                                tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
+                            elif tech_by_p > tech_ey_p: #future smaller
+                                tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[enduse][tech]
+                            else: #same
+                                tech_constant_share[enduse][reg][tech] = service_tech_ey_p[enduse][tech]
     else:
         for enduse in service_tech_by_p:
 
@@ -319,12 +333,20 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
 
                 # Calculate fuel for each tech
                 for tech in service_tech_by_p[enduse].keys():
-                    if service_tech_by_p[enduse][tech] < service_tech_ey_p[enduse][tech]: #future larger
-                        tech_increased_service[enduse][tech] = service_tech_ey_p[enduse][tech]
-                    elif service_tech_by_p[enduse][tech] > service_tech_ey_p[enduse][tech]: #future smaller
-                        tech_decreased_share[enduse][tech] = service_tech_ey_p[enduse][tech]
-                    else: #same
-                        tech_constant_share[enduse][tech] = service_tech_ey_p[enduse][tech]
+
+                    if tech == 'dummy_tech':
+                        pass
+                    else:
+                        tech_by_p = round(service_tech_by_p[enduse][tech], 4)
+                        tech_ey_p = round(service_tech_ey_p[enduse][tech], 4)
+
+                        if tech_by_p < tech_ey_p: #future larger
+
+                            tech_increased_service[enduse][tech] = service_tech_ey_p[enduse][tech]
+                        elif tech_by_p > tech_ey_p: #future smaller
+                            tech_decreased_share[enduse][tech] = service_tech_ey_p[enduse][tech]
+                        else: #same
+                            tech_constant_share[enduse][tech] = service_tech_ey_p[enduse][tech]
 
     return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
 
@@ -979,11 +1001,13 @@ def calc_sigm_parameters(
         sig_param_tech = {}
         installed_tech = {}
 
-        for enduse in techs:
-            if techs[enduse] == []:
-                installed_tech[enduse] = []
+        for _enduse in techs:
+            if techs[_enduse] == []:
+                installed_tech[_enduse] = []
             else:
-                installed_tech[enduse] = list(techs[enduse].keys())
+                installed_tech[_enduse] = list(techs[_enduse].keys())
+
+        print("OKO: " + str(installed_tech))
 
     for enduse in enduses:
 
