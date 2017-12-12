@@ -41,12 +41,12 @@ def load_spatial_diff_values(regions, enduses):
     spatial_index = defaultdict(dict)
 
     for enduse in enduses:
-        dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
+        #dummy_indeces = [1.6, 2.5] #[2.8, 5.5] #[1.4, 2]
         cnt = 0
         for region in regions:
 
-            #dummy_index = 1 #TODO
-            dummy_index = dummy_indeces[cnt]
+            dummy_index = 1 #TODO
+            #dummy_index = dummy_indeces[cnt]
 
             spatial_index[enduse][region] = dummy_index
             cnt += 1
