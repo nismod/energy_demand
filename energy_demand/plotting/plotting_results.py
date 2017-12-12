@@ -41,6 +41,30 @@ def run_all_plot_functions(
     logging.info("... plotting results")
     print("... plotting results")
 
+    # ------------
+    # Stacked enduses
+    # ------------
+    # Residential
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['rs_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
+
+    # Service
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['ss_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
+
+    # Industry
+    plt_stacked_enduse(
+        sim_param['simulated_yrs'],
+        results_container['results_enduse_every_year'],
+        enduses['is_all_enduses'],
+        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
+    prnt(":eeedelete")
     # ------------------------------
     # Plot annual demand for enduses
     # ------------------------------
@@ -122,29 +146,6 @@ def run_all_plot_functions(
         2015,
         os.path.join(local_paths['data_results_PDF'], "tot_all_enduse04.pdf"))
 
-    # ------------
-    # Stacked enduses
-    # ------------
-    # Residential
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['rs_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_rs_country.pdf"))
-
-    # Service
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['ss_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_ss_country.pdf"))
-
-    # Industry
-    plt_stacked_enduse(
-        sim_param['simulated_yrs'],
-        results_container['results_enduse_every_year'],
-        enduses['is_all_enduses'],
-        os.path.join(local_paths['data_results_PDF'], "stacked_is_country_.pdf"))
 
     # ------------------------------------
     # Plot averaged per season an fueltype
@@ -474,6 +475,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
 
     legend_entries = []
     for fueltype_int, enduse in enumerate(enduses_data):
+        print("summing:  ... {}".format(enduse))
         legend_entries.append(enduse)
         for model_year, data_model_run in enumerate(results_enduse_every_year.values()):
 

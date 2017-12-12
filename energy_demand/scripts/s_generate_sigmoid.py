@@ -978,7 +978,7 @@ def calc_sigm_parameters(
     else:
         sig_param_tech = {}
         installed_tech = {}
-        print(techs)
+
         for enduse in techs:
             if techs[enduse] == []:
                 installed_tech[enduse] = []

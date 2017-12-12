@@ -156,7 +156,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['enduses'])
 
     # -------------------
-    # Convert fuel to service (s_fuel_to_service)
+    # Convert fuel to service on a national scale (s_fuel_to_service)
     # Convert base year fuel input assumptions to energy service
     # -------------------
 
@@ -193,7 +193,7 @@ def scenario_initalisation(path_data_ed, data=False):
         data['assumptions']['technologies'])
 
     # ------------------------------------
-    # Autocomplement service switches
+    # Autocomplement service switches on a national scale
     # ------------------------------------
     switches_cont = {}
     switches_cont['rs_service_switches'] = fuel_service_switch.autocomplete_switches(
@@ -212,7 +212,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'])
 
     # -------------------------------------
-    # Get service shares of technologies for future year by considering service switch
+    # Get service shares of technologies for future year by considering service switch on a national scale
     # -------------------------------------
     switches_cont['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],
@@ -378,7 +378,7 @@ def scenario_initalisation(path_data_ed, data=False):
             is_crit_switch_service = False
 
         # ===================================
-
+        #sig_param_calculation_including_fuel_switch()
         # -------------------------------
         # ONLY SERVICE SWITCH SO FAR Calculate technologies with more, less and constant service based on service switch assumptions
         # -------------------------------
@@ -422,7 +422,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fts_cont['rs_service_tech_by_p'], switches_cont['rs_share_service_tech_ey_p'])
 
             # Calculate sigmoid diffusion parameters (if no switches, no calculations)
-            rs_service_tech_switched_p, l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
+            rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
                 data['assumptions']['technologies'],
                 data['assumptions']['rs_service_switches'],
                 data['enduses']['rs_all_enduses'],
@@ -432,7 +432,7 @@ def scenario_initalisation(path_data_ed, data=False):
         if rs_crit_fuel_switch:
             print("... calculate sigmoid based on fuel switches")
 
-            rs_service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
+            rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
                 data['assumptions']['technologies'],
                 data['assumptions']['rs_fuel_switches'],
                 data['enduses']['rs_all_enduses'],
@@ -450,7 +450,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
                 data['enduses']['rs_all_enduses'],
-                l_values_sig,
+                rs_l_values_sig,
                 sgs_cont['rs_tech_increased_service'], #TODO DOUBLE
                 rs_service_tech_switched_p,
                 switches_cont['rs_service_switches'],
@@ -464,7 +464,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 fts_cont['ss_service_tech_by_p'], switches_cont['ss_share_service_tech_ey_p'])
 
             # Calculate sigmoid diffusion parameters
-            ss_service_tech_switched_p, l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
+            ss_service_tech_switched_p, ss_l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
                 data['assumptions']['technologies'],
                 data['assumptions']['ss_service_switches'],
                 data['enduses']['ss_all_enduses'],
@@ -472,7 +472,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 switches_cont['ss_share_service_tech_ey_p'])
 
         if ss_crit_fuel_switch:
-            ss_service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
+            ss_service_tech_switched_p, ss_l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
                 data['assumptions']['technologies'],
                 data['assumptions']['ss_fuel_switches'],
                 data['enduses']['ss_all_enduses'],
@@ -493,7 +493,7 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
                 data['enduses']['ss_all_enduses'],
-                l_values_sig,
+                ss_l_values_sig,
                 sgs_cont['ss_tech_increased_service'],
                 ss_service_tech_switched_p,
                 switches_cont['ss_service_switches'],
