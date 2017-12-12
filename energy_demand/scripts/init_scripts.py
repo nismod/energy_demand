@@ -365,7 +365,7 @@ def scenario_initalisation(path_data_ed, data=False):
             switches_cont['rs_service_switches'] = convert_fuel_switches_to_service_switches(
                 all_techs=[sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share']],
                 fuel_switches=data['assumptions']['rs_fuel_switches'])
-
+        print("endo")
         if crit_fuel_switch == True or crit_switch_service == True:
             
             # Calculate sigmoid diffusion parameters
@@ -380,13 +380,17 @@ def scenario_initalisation(path_data_ed, data=False):
                 data['sim_param']['base_yr'],
                 data['assumptions']['technologies'],
                 data['enduses']['rs_all_enduses'],
-                False,
-                l_values_sig, 
+                l_values_sig,
                 sgs_cont['rs_tech_increased_service'],
                 rs_service_tech_switched_p,
-                data['assumptions']['rs_fuel_switches'],
-                data['assumptions']['rs_service_switches'])
-        print("RESID")
+                data['assumptions']['rs_service_switches'],
+                sgs_cont['rs_tech_increased_service'])
+
+
+        print("ff")
+
+
+
         '''# --Residential
         sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], rs_service_tech_switched_p = s_generate_sigmoid.get_sig_diffusion(
             data['sim_param']['base_yr'],

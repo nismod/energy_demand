@@ -961,60 +961,179 @@ def calc_sigm_parameters(
         base_yr,
         technologies,
         enduses,
-        crit_switch_service,
         l_values_sig,
         service_tech_by_p,
         service_tech_switched_p,
-        fuel_switches,
         service_switches,
+        techs,
         regions=False,
         regional_specific=False):
 
     if regional_specific:
         installed_tech, sig_param_tech = defaultdict(dict), {}
-        l_values_sig = defaultdict(dict)
         sig_param_tech = defaultdict(dict)
 
-        techs = get_tech_installed(enduses, fuel_switches)
+        #techs = get_tech_installed(enduses, fuel_switches)
         for reg in regions:
             for _enduse in techs.keys():
-                installed_tech[_enduse][reg] = techs[_enduse]
+                if techs[_enduse] == []:
+                    installed_tech[_enduse][reg] = []
+                else:
+                    installed_tech[_enduse][reg] = techs[_enduse].keys()
     else:
-        installed_tech, sig_param_tech = {}, {}
-        l_values_sig = defaultdict(dict)
-
-        # Tech with lager service shares in end year (installed in fuel switch)
-        installed_tech = get_tech_installed(enduses, fuel_switches)
-
+        sig_param_tech = {}
+        installed_tech = {}
+        print(techs)
+        for enduse in techs:
+            if techs[enduse] == []:
+                installed_tech[enduse] = []
+            else:
+                installed_tech[enduse] = list(techs[enduse].keys())
 
     for enduse in enduses:
+
         if regional_specific:
             for reg in l_values_sig:
                 # Calclulate sigmoid parameters for every installed technology
-                sig_param_tech[reg][enduse] = tech_sigmoid_parameters(
+                sig_param_tech[reg][enduse] = tech_sigmoid_parameters_NEW(
                     base_yr,
                     technologies,
                     enduse,
-                    crit_switch_service,
                     installed_tech[enduse][reg],
                     l_values_sig[reg],
                     service_tech_by_p[enduse],
                     service_tech_switched_p[reg][enduse],
-                    fuel_switches,
                     service_switches)
         else:
-            
             # Calclulate sigmoid parameters for every installed technology
-            sig_param_tech[enduse] = tech_sigmoid_parameters(
+            sig_param_tech[enduse] = tech_sigmoid_parameters_NEW(
                 base_yr,
                 technologies,
                 enduse,
-                crit_switch_service,
                 installed_tech[enduse],
                 l_values_sig,
                 service_tech_by_p[enduse],
                 service_tech_switched_p[enduse],
-                fuel_switches,
                 service_switches)
 
     return dict(installed_tech), dict(sig_param_tech)
+
+def tech_sigmoid_parameters_NEW(
+        base_yr,
+        technologies,
+        enduse,
+        installed_tech,
+        l_values,
+        service_tech_by_p,
+        service_tech_switched_p,
+        service_switches):
+    """Calculate diffusion parameters based on energy service
+    demand in base year and projected future energy service demand
+
+    The future energy servie demand is calculated based on fuel switches.
+    A sigmoid diffusion is fitted.
+
+    Arguments
+    ----------
+    base_yr : dict
+        base year
+    technologies : dict
+        technologies
+    enduse : str
+        Enduse
+    crit_switch_service : bool
+        Criteria whether sigmoid is calculated for service switch or not
+
+    installed_tech : list
+        List with installed technologies in fuel switches
+    l_values : dict
+        L values for maximum possible diffusion of technologies
+    service_tech_by_p : dict
+        Energy service demand for base year (1.sigmoid point)
+    service_tech_switched_p : dict
+        Service demand after fuelswitch
+    fuel_switches : dict
+        Fuel switch information
+
+    Returns
+    -------
+    sigmoid_parameters : dict
+        Sigmoid diffusion parameters to read energy service demand percentage (not fuel!)
+
+    Notes
+    -----
+    Manually the fitting parameters can be defined which are not considered as
+    a good fit: fit_crit_a, fit_crit_b
+    If service definition, the year until switched is the end model year
+    """
+    # As fit does not work with a starting point of 0,
+    # an initial small value needs to be assumed
+    fit_assump_init = 0.001
+
+    sigmoid_parameters = defaultdict(dict)
+
+    # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
+    if installed_tech == []:
+        logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech)
+    else:
+        for tech in installed_tech:
+            logging.debug("... create sigmoid diffusion parameters %s %s", enduse, tech)
+
+            # Get year until switched
+            for switch in service_switches:
+                if switch.technology_install == tech:
+                    yr_until_switched = switch.switch_yr
+
+            market_entry = technologies[tech].market_entry
+
+            # --------
+            # Test whether technology has the market entry before or after base year,
+            # If afterwards, set very small number in market entry year
+            # --------
+            if market_entry > base_yr:
+                point_x_by = market_entry
+                point_y_by = fit_assump_init
+            else: # If market entry before, set to 2015
+                point_x_by = base_yr
+                point_y_by = service_tech_by_p[tech] # current service share
+
+                #If the base year is the market entry year use a very small number
+                if point_y_by == 0:
+                    point_y_by = fit_assump_init
+
+            # Future energy service demand (second point on sigmoid curve for fitting)
+            point_x_projected = yr_until_switched
+            point_y_projected = service_tech_switched_p[tech]
+
+            # Data of the two points
+            xdata = np.array([point_x_by, point_x_projected])
+            ydata = np.array([point_y_by, point_y_projected])
+
+            # ----------------
+            # Parameter fitting
+            # ----------------
+            fit_parameter = calc_sigmoid_parameters(
+                l_values[enduse][tech],
+                xdata,
+                ydata)
+
+            logging.debug(
+                " ... Fitting: Midpoint: %s steepness: %s", fit_parameter[0], fit_parameter[1])
+
+            # Insert parameters
+            sigmoid_parameters[tech]['midpoint'] = fit_parameter[0] #midpoint (x0)
+            sigmoid_parameters[tech]['steepness'] = fit_parameter[1] #Steepnes (k)
+            sigmoid_parameters[tech]['l_parameter'] = l_values[enduse][tech]
+
+            #plot sigmoid curve
+            '''from energy_demand.plotting import plotting_program
+            plotting_program.plotout_sigmoid_tech_diff(
+                 l_values[enduse][tech],
+                 tech,
+                 enduse,
+                 xdata,
+                 ydata,
+                 fit_parameter,
+                 False)'''
+
+    return dict(sigmoid_parameters)
