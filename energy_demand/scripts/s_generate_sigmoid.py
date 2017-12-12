@@ -486,9 +486,6 @@ def calc_service_fuel_switched(
                 tech_install = fuel_switch.technology_install
                 fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
 
-                # Check if installed technology is considered for fuelswitch
-                #if tech_install in installed_tech[enduse]:
-
                 # Share of energy service before switch
                 service_p_by = service_fueltype_by_p[enduse][fueltype_tech_replace]
 
