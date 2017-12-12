@@ -1558,6 +1558,78 @@ def fuel_switch(
                 # -------
                 service_tech_switched[tech_replaced] -= service_demand_tech
                 #assert np.sum(service_tech[tech_replaced] - service_demand_tech) >= 0
+        # ---------------------------------------------------
+        # Calculate service for cy for installed technologies
+        # ---------------------------------------------------
+        diffusion_cy = diffusion_technologies.sigmoid_function(
+            curr_yr,
+            sig_param_tech[enduse][tech_installed]['l_parameter'],
+            sig_param_tech[enduse][tech_installed]['midpoint'],
+            sig_param_tech[enduse][tech_installed]['steepness'])
+
+        # Calculate service increase based on diffusion of installed technology
+        service_tech_installed_cy = diffusion_cy * tot_service_yh_cy
+        additional_service_tech_inst = service_tech_installed_cy - service_tech[tech_installed]
+
+        service_tech_switched[tech_installed] = service_tech_installed_cy
+
+        # ------------------------------------------------------------
+        # Substrat replaced service demand proportinally
+        # to fuel shares in base year
+        # ------------------------------------------------------------
+        fueltypes_replaced = []
+        tot_service_tech_instal_p = 0 # Total replaced service across different fueltypes
+
+        # Get shares of fuel which are switched with the installed technology
+        for switch in fuel_switches:
+            if switch.enduse == enduse and switch.technology_install:
+                fueltype_to_replace = switch.enduse_fueltype_replace
+
+                # Add replaced fueltype
+                fueltypes_replaced.append(fueltype_to_replace)
+
+                # Share of service demand per fueltype * fraction of fuel switched
+                tot_service_tech_instal_p += service_fueltype_cy_p[fueltype_to_replace] * switch.fuel_share_switched_ey
+
+        # Get fueltypes affected by installed technology
+        for fueltype in fueltypes_replaced:
+
+            # Get all technologies of the replaced fueltype
+            technologies_replaced_fueltype = fuel_tech_p_by[fueltype].keys()
+
+            # Find fuel switch where this fueltype is replaced
+            for switch in fuel_switches:
+                if (switch.enduse == enduse and
+                    switch.technology_install == tech_installed and
+                    switch.enduse_fueltype_replace == fueltype):
+
+                    # Service reduced for this fueltype
+                    # (service technology cy sigmoid diff *  % of heat demand within fueltype)
+                    if tot_service_tech_instal_p == 0:
+                        reduction_service_fueltype = 0
+                    else:
+                        # share of total service of fueltype * share of replaced fuel
+                        service_fueltype_tech_cy_p_rel = service_fueltype_cy_p[fueltype] * switch.fuel_share_switched_ey / tot_service_tech_instal_p
+
+                        reduction_service_fueltype = additional_service_tech_inst * service_fueltype_tech_cy_p_rel
+                    break
+
+            # ------------------------------------------
+            # Iterate all technologies in within the fueltype
+            # and calculate reduction per technology
+            # ------------------------------------------
+            for tech_replaced in technologies_replaced_fueltype:
+                logging.debug("technology_replaced: " + str(tech_replaced))
+
+                # Share of heat demand for technology in fueltype
+                # (share of heat demand within fueltype * reduction in servide demand)
+                service_demand_tech = service_fueltype_tech_cy_p[fueltype][tech_replaced] * reduction_service_fueltype
+
+                # -------
+                # Substract technology specific service
+                # -------
+                service_tech_switched[tech_replaced] -= service_demand_tech
+                #assert np.sum(service_tech[tech_replaced] - service_demand_tech) >= 0
 
     return service_tech_switched
 

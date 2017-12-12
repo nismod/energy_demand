@@ -34,9 +34,7 @@ def get_share_service_tech_ey(service_switches, specified_tech_enduse_by):
             if switch.enduse == enduse:
                 enduse_tech_ey_p[enduse][switch.technology_install] = switch.service_share_ey
 
-    # ------------------------------------------------------
     # Add all other enduses for which no switch is defined
-    # ------------------------------------------------------
     for enduse in specified_tech_enduse_by:
         if enduse not in enduse_tech_ey_p:
             enduse_tech_ey_p[enduse] = {}
