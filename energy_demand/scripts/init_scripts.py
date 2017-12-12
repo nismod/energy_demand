@@ -212,8 +212,7 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'])
 
     # -------------------------------------
-    # Get service shares of technologies for
-    # ey by considering service switch
+    # Get service shares of technologies for future year by considering service switch
     # -------------------------------------
     switches_cont['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],
@@ -225,11 +224,6 @@ def scenario_initalisation(path_data_ed, data=False):
         switches_cont['is_service_switches'],
         data['assumptions']['is_specified_tech_enduse_by'])
 
-
-    #rs_fuel_switch_crit = {}
-    #for enduse in data['rs_']
-
-    
     # -------------------------------
     # Calculate sigmoid diffusion parameters (either for every region or aggregated for all regions)
     # -------------------------------
@@ -350,7 +344,7 @@ def scenario_initalisation(path_data_ed, data=False):
         # Calculate diffusion parameters for technologies
         # -------------------------------
         # --Residential
-        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], rs_service_tech_switched_p= s_generate_sigmoid.get_sig_diffusion(
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], rs_service_tech_switched_p = s_generate_sigmoid.get_sig_diffusion(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             data['assumptions']['rs_service_switches'],

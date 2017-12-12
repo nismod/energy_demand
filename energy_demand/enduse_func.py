@@ -284,7 +284,7 @@ class Enduse(object):
                         sig_param_tech,
                         sim_param['curr_yr'])
 
-                elif crit_switch_fuel:
+                '''elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(enduse))
 
                     if criterias['spatial_exliclit_diffusion']: #TODO
@@ -302,8 +302,8 @@ class Enduse(object):
                         fuel_switches,
                         fuel_tech_p_by,
                         sim_param['curr_yr'])
-                else:
-                    pass #No switch implemented
+                else:'''
+                #    pass #No switch implemented
 
                 # -------------------------------------------
                 # Convert annual service to fuel per fueltype
@@ -544,12 +544,13 @@ def get_enduse_configuration(
         mode_constrained,
         enduse_space_heating)
 
-    crit_switch_fuel = get_crit_switch(
+    crit_switch_fuel = False
+    '''crit_switch_fuel = get_crit_switch(
         enduse,
         fuel_switches,
         base_yr,
         curr_yr,
-        mode_constrained)
+        mode_constrained)'''
 
     crit_switch_service = get_crit_switch(
         enduse,
@@ -564,12 +565,12 @@ def get_enduse_configuration(
         enduse)
 
     # Test if capacity switch is implemented
-    try:
+    '''try:
         if crit_switch_fuel and crit_switch_service:
             logging.warning(
                 "Warning: Not possible to define fuel and service switch at the same time")
     except KeyError:
-        logging.debug("... no capacity and service switch defined")
+        logging.debug("... no capacity and service switch defined")'''
 
     return mode_constrained, crit_switch_fuel, crit_switch_service
 
