@@ -368,19 +368,29 @@ def scenario_initalisation(path_data_ed, data=False):
 
 def sum_across_sectors_all_regs(fuel_disagg_reg):
     """Sum fuel across all sectors for every region
+
+    Arguments
+    ---------
+    fuel_disagg_reg : dict
+        Fuel per region, sector and enduse
+
+    Returns
+    -------
+    fuel_aggregated : dict
+        Aggregated fuel per region and enduse
     """
-    fuel_submodel_new = {}
+    fuel_aggregated = {}
     for reg, entries in fuel_disagg_reg.items():
         enduses = []
-        fuel_submodel_new[reg] = {}
+        fuel_aggregated[reg] = {}
         for sector in entries:
             for enduse in entries[sector]:
-                fuel_submodel_new[reg][enduse] = 0
+                fuel_aggregated[reg][enduse] = 0
                 enduses.append(enduse)
             break
 
         for sector in entries:
             for enduse in entries[sector]:
-                fuel_submodel_new[reg][enduse] += np.sum(entries[sector][enduse])
+                fuel_aggregated[reg][enduse] += np.sum(entries[sector][enduse])
 
-    return fuel_submodel_new
+    return fuel_aggregated

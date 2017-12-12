@@ -487,28 +487,28 @@ def calc_service_fuel_switched(
                 fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
 
                 # Check if installed technology is considered for fuelswitch
-                if tech_install in installed_tech[enduse]:
+                #if tech_install in installed_tech[enduse]:
 
-                    # Share of energy service before switch
-                    service_p_by = service_fueltype_p[enduse][fueltype_tech_replace]
+                # Share of energy service before switch
+                service_p_by = service_fueltype_p[enduse][fueltype_tech_replace]
 
-                    # Service demand per fueltype that will be switched
-                    # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                    if switch_type == 'max_switch':
-                        change_service_fueltype_p = service_p_by * technologies[tech_install].tech_max_share
-                    elif switch_type == 'actual_switch':
-                        change_service_fueltype_p = service_p_by * fuel_switch.fuel_share_switched_ey
+                # Service demand per fueltype that will be switched
+                # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+                if switch_type == 'max_switch':
+                    change_service_fueltype_p = service_p_by * technologies[tech_install].tech_max_share
+                elif switch_type == 'actual_switch':
+                    change_service_fueltype_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
-                    # ---Service addition
-                    service_tech_switched_p[enduse][tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_p
+                # ---Service addition
+                service_tech_switched_p[enduse][tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_p
 
-                    # Get all technologies which are replaced related to this fueltype
-                    replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
+                # Get all technologies which are replaced related to this fueltype
+                replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
 
-                    # Substract service demand for replaced technologies
-                    for tech in replaced_tech_fueltype:
-                        fueltype_of_tech_replacing = technologies[tech].fuel_type_int
-                        service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - (change_service_fueltype_p * fuel_tech_p_by[enduse][fueltype_of_tech_replacing][tech])
+                # Substract service demand for replaced technologies
+                for tech in replaced_tech_fueltype:
+                    fueltype_of_tech_replacing = technologies[tech].fuel_type_int
+                    service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - (change_service_fueltype_p * fuel_tech_p_by[enduse][fueltype_of_tech_replacing][tech])
 
     return service_tech_switched_p
 
