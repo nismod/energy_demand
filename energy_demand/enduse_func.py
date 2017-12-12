@@ -289,6 +289,7 @@ class Enduse(object):
 
                     if criterias['spatial_exliclit_diffusion']: #TODO
                         sig_param_tech = sig_param_tech[region_name]
+                        installed_tech = installed_tech[region_name]
 
                     service_tech_y_cy = fuel_switch(
                         enduse,

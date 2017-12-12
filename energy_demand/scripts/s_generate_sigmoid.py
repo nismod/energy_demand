@@ -614,27 +614,21 @@ def get_sig_diffusion(
             """Sigmoid calculation in case of 'service switch'
             """
 
+            # Tech with lager service shares in end year
+            installed_tech[enduse] = tech_increased_service[enduse]
+
             # End year service shares (scenaric input)
             service_tech_switched_p = service_tech_ey_p
 
             if regional_specific:
 
-                # Tech with lager service shares in end year (installed in fuel switch)
-                for _enduse in enduses:
-                    for reg in service_tech_ey_p.keys():
-                        installed_tech[reg][_enduse] = tech_increased_service[_enduse][reg]
-
                 # Maximum shares of each technology
-                #l_values_sig = {}
                 for reg in service_tech_ey_p.keys():
                     l_values_sig[reg][enduse] = {}
-
-                    for tech in installed_tech[reg][enduse]:
+                    #same techs for every region
+                    for tech in installed_tech[enduse][reg]:
                         l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
             else:
-
-                # Tech with lager service shares in end year
-                installed_tech[enduse] = tech_increased_service[enduse]
 
                 if tech_increased_service[enduse] == []:
                     pass
@@ -649,11 +643,10 @@ def get_sig_diffusion(
 
                 # Tech with lager service shares in end year (installed in fuel switch)
                 techs = get_tech_installed(enduses, fuel_switches)
-                for _enduse in enduses:
-                    for reg in service_tech_ey_p.keys():
-                        installed_tech[reg][_enduse] = techs[_enduse]
-                #for reg in service_tech_ey_p.keys():
-                #    installed_tech[reg] = techs
+                for reg in service_tech_ey_p.keys():
+                    for _enduse in techs.keys():
+                        installed_tech[_enduse][reg] = techs[_enduse]
+
                 service_tech_switched_p = {}
 
                 for reg in service_tech_ey_p.keys():
@@ -666,7 +659,7 @@ def get_sig_diffusion(
                         service_fueltype_p,
                         service_tech_by_p,
                         fuel_tech_p_by,
-                        installed_tech[reg],
+                        techs,
                         'actual_switch')
 
                     # Calculate L for every technology for sigmod diffusion
@@ -674,7 +667,7 @@ def get_sig_diffusion(
                         enduses,
                         fuel_switches,
                         technologies,
-                        installed_tech[reg],
+                        techs,
                         service_fueltype_p,
                         service_tech_by_p,
                         fuel_tech_p_by)
@@ -713,7 +706,7 @@ def get_sig_diffusion(
                     technologies,
                     enduse,
                     crit_switch_service,
-                    installed_tech[enduse],
+                    installed_tech[enduse][reg],
                     l_values_sig[reg],
                     service_tech_by_p[enduse],
                     service_tech_switched_p[reg][enduse],
