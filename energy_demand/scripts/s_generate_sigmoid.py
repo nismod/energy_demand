@@ -251,6 +251,11 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
         Share of service per technology of base year of total service
     service_tech_ey_p : dict
         Share of service per technology of end year of total service
+    regions : dict
+        Regions
+    regional_specific : bool
+        Criteria to decide whether the function is executed
+        for individual regions only once
 
     Returns
     -------
@@ -268,16 +273,13 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
 
     The assumptions are always relative to the simulation end year
     """
-    tech_increased_service = {}
-    tech_decreased_share = {}
-    tech_constant_share = {}
+    tech_increased_service = defaultdict(dict)
+    tech_decreased_share = defaultdict(dict)
+    tech_constant_share = defaultdict(dict)
 
     if regional_specific:
 
         for enduse in service_tech_by_p:
-            tech_increased_service[enduse] = {}
-            tech_decreased_share[enduse] = {}
-            tech_constant_share[enduse] = {}
 
             for reg in regions:
                 tech_increased_service[enduse][reg] = {}
@@ -324,7 +326,7 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                     else: #same
                         tech_constant_share[enduse][tech] = service_tech_ey_p[enduse][tech]
 
-    return tech_increased_service, tech_decreased_share, tech_constant_share
+    return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
 
 def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     """Fit sigmoid curve based on two points on the diffusion curve
