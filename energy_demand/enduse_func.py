@@ -265,13 +265,6 @@ class Enduse(object):
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-
-                    if criterias['spatial_exliclit_diffusion']:
-                        tech_increased_service = tech_increased_service[region_name]
-                        tech_decreased_share = tech_decreased_share[region_name]
-                        tech_constant_share = tech_constant_share[region_name]
-                        sig_param_tech = sig_param_tech[region_name]
-
                     logging.debug("... Service switch is implemented " + str(enduse))
                     service_tech_y_cy = service_switch(
                         enduse,

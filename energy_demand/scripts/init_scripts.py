@@ -21,6 +21,7 @@ from energy_demand.basic import date_prop
 from energy_demand.technologies import fuel_service_switch
 from energy_demand.geography import spatial_diffusion
 from energy_demand.read_write import read_data
+from collections import defaultdict
 
 def post_install_setup(args):
     """Run this function after installing the energy_demand
@@ -548,17 +549,26 @@ def sig_param_calculation_including_fuel_switch(
             regional_specific=regional_specific)
 
     else:
-        installed_tech = {}
-        sig_param_tech = {}
-        tech_increased_service = {}
-        tech_decrased_share = {}
-        tech_constant_share = {}
+        installed_tech = defaultdict(dict)
+        sig_param_tech = defaultdict(dict)
+        tech_increased_service = defaultdict(dict)
+        tech_decrased_share = defaultdict(dict)
+        tech_constant_share = defaultdict(dict)
         for enduse in enduses:
-            installed_tech[enduse] = []
-            sig_param_tech[enduse] = []
-            tech_increased_service[enduse] = []
-            tech_decrased_share[enduse] = []
-            tech_constant_share[enduse] = []
+
+            if regional_specific:
+                for region in regions:
+                    installed_tech[enduse][region] = []
+                    sig_param_tech[enduse][region] = []
+                    tech_increased_service[enduse][region] = []
+                    tech_decrased_share[enduse][region] = []
+                    tech_constant_share[enduse][region] = []
+            else:
+                installed_tech[enduse] = []
+                sig_param_tech[enduse] = []
+                tech_increased_service[enduse] = []
+                tech_decrased_share[enduse] = []
+                tech_constant_share[enduse] = []
 
 
     # For multiple regions add empty region if region
@@ -566,6 +576,5 @@ def sig_param_calculation_including_fuel_switch(
         service_switches = {}
         for region in regions:
             service_switches[region] = []
-
 
     return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches
