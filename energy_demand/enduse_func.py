@@ -542,13 +542,6 @@ def get_enduse_configuration(
         mode_constrained,
         enduse_space_heating)
 
-    '''crit_switch_fuel = False
-    crit_switch_fuel = get_crit_switch(
-        enduse,
-        fuel_switches,
-        base_yr,
-        curr_yr,
-        mode_constrained)'''
 
     crit_switch_service = get_crit_switch(
         enduse,

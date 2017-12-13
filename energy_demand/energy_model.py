@@ -449,6 +449,11 @@ def industry_submodel(region, data, enduse_names, sector_names):
             else:
                 crit_flat_profile = True
 
+            if data['criterias']['spatial_exliclit_diffusion']:
+                service_switches = data['assumptions']['is_service_switch'][region.region_name]
+            else:
+                service_switches = data['assumptions']['is_service_switch']
+
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
@@ -464,7 +469,7 @@ def industry_submodel(region, data, enduse_names, sector_names):
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
                 fuel_switches=data['assumptions']['is_fuel_switches'],
-                service_switches=data['assumptions']['NEW_is_service_switch'], #data['assumptions']['is_service_switches'],
+                service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=data['assumptions']['is_tech_increased_service'][enduse_name],
                 tech_decreased_share=data['assumptions']['is_tech_decreased_share'][enduse_name],
@@ -509,6 +514,11 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
 
     submodels = []
 
+    if data['criterias']['spatial_exliclit_diffusion']:
+        service_switches = data['assumptions']['rs_service_switch'][region.region_name]
+    else:
+        service_switches = data['assumptions']['rs_service_switch']
+        
     for sector_name in sector_names:
         for enduse_name in enduse_names:
             # Create submodule
@@ -526,7 +536,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
                 heating_factor_y=region.rs_heating_factor_y,
                 cooling_factor_y=region.rs_cooling_factor_y,
                 fuel_switches=data['assumptions']['rs_fuel_switches'],
-                service_switches=data['assumptions']['NEW_rs_service_switch'], #data['assumptions']['rs_service_switches'],
+                service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=data['assumptions']['rs_tech_increased_service'][enduse_name],
                 tech_decreased_share=data['assumptions']['rs_tech_decreased_share'][enduse_name],
@@ -562,6 +572,11 @@ def service_submodel(region, data, enduse_names, sector_names):
     logging.debug("... service submodel start")
     submodels = []
 
+    if data['criterias']['spatial_exliclit_diffusion']:
+        service_switches = data['assumptions']['ss_service_switch'][region.region_name]
+    else:
+        service_switches = data['assumptions']['ss_service_switch']
+
     for sector_name in sector_names:
         for enduse_name in enduse_names:
 
@@ -580,7 +595,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
                 fuel_switches=data['assumptions']['ss_fuel_switches'],
-                service_switches=data['assumptions']['NEW_ss_service_switch'], #data['assumptions']['ss_service_switches'],
+                service_switches=service_switches, #data['assumptions']['ss_service_switch'],
                 fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=data['assumptions']['ss_tech_increased_service'][enduse_name],
                 tech_decreased_share=data['assumptions']['ss_tech_decreased_share'][enduse_name],

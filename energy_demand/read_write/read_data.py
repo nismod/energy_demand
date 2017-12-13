@@ -383,9 +383,9 @@ def load_script_data(data):
     data['ss_fuel_disagg'] = sd_cont['ss_fuel_disagg']
     data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
 
-    data['assumptions']['NEW_rs_service_switch'] = sgs_cont['NEW_rs_service_switch']
-    data['assumptions']['NEW_ss_service_switch'] = sgs_cont['NEW_ss_service_switch']
-    data['assumptions']['NEW_is_service_switch'] = sgs_cont['NEW_is_service_switch']
+    data['assumptions']['rs_service_switch'] = sgs_cont['rs_service_switch']
+    data['assumptions']['ss_service_switch'] = sgs_cont['ss_service_switch']
+    data['assumptions']['is_service_switch'] = sgs_cont['is_service_switch']
 
     data['assumptions']['rs_service_switches'] = switches_cont['rs_service_switches']
     data['assumptions']['ss_service_switches'] = switches_cont['ss_service_switches']

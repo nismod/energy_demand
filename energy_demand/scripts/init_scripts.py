@@ -281,7 +281,7 @@ def scenario_initalisation(path_data_ed, data=False):
             fts_cont['is_service_tech_by_p'], is_reg_enduse_tech_p_ey, data['lu_reg'], True)
 
         #MEW
-        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'], sgs_cont['NEW_rs_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'], sgs_cont['rs_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['rs_all_enduses'],
@@ -294,7 +294,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regions=data['lu_reg'],
             regional_specific=True)
 
-        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'], sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'], sgs_cont['NEW_ss_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'], sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'], sgs_cont['ss_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['ss_all_enduses'],
@@ -307,7 +307,7 @@ def scenario_initalisation(path_data_ed, data=False):
             regions=data['lu_reg'],
             regional_specific=True)
 
-        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'], sgs_cont['NEW_is_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'], sgs_cont['is_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['is_all_enduses'],
@@ -323,7 +323,7 @@ def scenario_initalisation(path_data_ed, data=False):
         #No spatial explicit diffusion
         sgs_cont = {}
 
-        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'], sgs_cont['NEW_rs_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'], sgs_cont['rs_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['rs_all_enduses'],
@@ -334,7 +334,7 @@ def scenario_initalisation(path_data_ed, data=False):
             share_service_tech_ey_p=switches_cont['rs_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'])
 
-        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'], sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'], sgs_cont['NEW_ss_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'], sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'], sgs_cont['ss_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['ss_all_enduses'],
@@ -345,7 +345,7 @@ def scenario_initalisation(path_data_ed, data=False):
             share_service_tech_ey_p=switches_cont['ss_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'])
 
-        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'], sgs_cont['NEW_is_service_switch'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'], sgs_cont['is_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['is_all_enduses'],
@@ -546,7 +546,7 @@ def sig_param_calculation_including_fuel_switch(
             tech_increased_service,
             regions=regions,
             regional_specific=regional_specific)
-        print("TT")
+
     else:
         installed_tech = {}
         sig_param_tech = {}
@@ -559,5 +559,13 @@ def sig_param_calculation_including_fuel_switch(
             tech_increased_service[enduse] = []
             tech_decrased_share[enduse] = []
             tech_constant_share[enduse] = []
+
+
+    # For multiple regions add empty region if region
+    if len(service_switches) == 0 and regional_specific:
+        service_switches = {}
+        for region in regions:
+            service_switches[region] = []
+
 
     return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches
