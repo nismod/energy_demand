@@ -229,7 +229,7 @@ def write_supply_results(sim_yr, path_result, model_results, file_name):
     pass
 
 def write_enduse_specific(sim_yr, path_result, model_results, filename):
-    """Store
+    """Write out enduse specific results for every hour
 
     Store numpy array to txt
     """
@@ -239,12 +239,11 @@ def write_enduse_specific(sim_yr, path_result, model_results, filename):
 
      # Write to txt
     for enduse, fuel in model_results.items():
-        print("=========Write to file: {}  {}  {} ".format(sim_yr, enduse, np.sum(fuel)) )
         for fueltype_nr, fuel_fueltype in enumerate(fuel):
             path_file = os.path.join(
                 os.path.join(path_result, "enduse_specific_results"),
                 "{}__{}__{}__{}__{}".format(filename, enduse, sim_yr, fueltype_nr, ".txt"))
-            print("- - - Write to file: {}  {}  {} ".format(sim_yr, enduse, np.sum(fueltype_nr)) )
+            logging.debug("... Write to file: {}  {}  {} ".format(sim_yr, enduse, np.sum(fueltype_nr)))
             np.savetxt(path_file, fuel_fueltype, delimiter=',')
 
     return

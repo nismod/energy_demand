@@ -494,10 +494,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
             y_data[enduse_array_nr][year_array_nr] += yearly_sum_twh #yearly_sum_gw
 
             print("summing:  ...  model_year {} enduse {}  twh {}".format(model_year, enduse, np.sum(yearly_sum_twh)))
-    print("A: ")
-    print(years_simulated)
-    print(x_data.shape)
-    print(y_data.shape)
+
     # Set figure size
     fig = plt.figure(figsize=plotting_program.cm2inch(8, 8))
     ax = fig.add_subplot(1, 1, 1)
@@ -673,15 +670,16 @@ def plt_stacked_enduse_sectors(
     # -------
     # Axis
     # -------
-    base_yr, year_interval = 2015, 5
+    '''base_yr, year_interval = 2015, 5
     end_yr = list(years_simulated)
 
     major_ticks = np.arange(
         base_yr, end_yr[-1] + year_interval, year_interval)
 
-    plt.xticks(major_ticks, major_ticks)
-    plt.axis('tight')
+    plt.xticks(major_ticks, major_ticks)'''
 
+    plt.xticks(years_simulated, years_simulated)
+    plt.axis('tight')
 
     # -------
     # Labels

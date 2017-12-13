@@ -300,7 +300,7 @@ def load_param_assump(paths, assumptions):
 
     # Heat recycling assumptions (e.g. 0.2 = 20% reduction)
     strategy_vars['heat_recoved__rs_space_heating'] = 0.0
-    strategy_vars['heat_recoved__ss_space_heating'] = 0.7 #TODO SRAP
+    strategy_vars['heat_recoved__ss_space_heating'] = 0.0
     strategy_vars['heat_recoved__is_space_heating'] = 0.0
 
     # Year until recycling is fully realised
@@ -318,12 +318,12 @@ def load_param_assump(paths, assumptions):
     #   if no change set to 1, if e.g. 10% decrease change to 0.9)
     # -------------------------------------------------------
     strategy_variables.append({
-            "name": "enduse_specific_change_yr_until_changed",
-            "absolute_range": (0, 1),
-            "description": "Year until change in enduse assumption is implemented",
-            "suggested_range": (2015, 2100),
-            "default_value": 2050,
-            "units": 'year'})
+        "name": "enduse_specific_change_yr_until_changed",
+        "absolute_range": (0, 1),
+        "description": "Year until change in enduse assumption is implemented",
+        "suggested_range": (2015, 2100),
+        "default_value": 2050,
+        "units": 'year'})
 
     # Year until fuel consumption is reduced
     strategy_vars['enduse_specific_change_yr_until_changed'] = yr_until_changed_all_things

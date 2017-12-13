@@ -265,9 +265,8 @@ class Enduse(object):
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
-                print("------ comparison: {}  {}".format(self.enduse, np.sum(self.fuel_new_y)))
                 if crit_switch_service:
-                    print("... Fuel traing -----------------: {} {}".format(self.enduse, np.sum(self.fuel_new_y)))
+
                     if criterias['spatial_exliclit_diffusion']:
                         tech_increased_service = tech_increased_service[region_name]
                         tech_decreased_share = tech_decreased_share[region_name]
@@ -317,7 +316,7 @@ class Enduse(object):
                     mode_constrained)
 
                 self.fuel_y = self.fuel_new_y
-                print("... Fuel traing X: {} {}".format(self.enduse,np.sum(self.fuel_new_y)))
+
                 # ------------------------------------------
                 # Assign load profiles
                 # ------------------------------------------
