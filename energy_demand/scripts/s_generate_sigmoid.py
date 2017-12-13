@@ -297,27 +297,19 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                     tech_constant_share[enduse][reg] = {}
 
                     # Calculate fuel for each tech
-                    '''for tech in service_tech_by_p[enduse].keys():
-                        if service_tech_by_p[enduse][tech] < service_tech_ey_p[reg][enduse][tech]: #future larger
-                            tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
-                        elif service_tech_by_p[enduse][tech] > service_tech_ey_p[reg][enduse][tech]: #future smaller
-                            tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
-                        else: #same
-                            tech_constant_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]'''
                     for tech in service_tech_by_p[enduse].keys():
                         if tech == 'dummy_tech':
                             pass
                         else:
-                            tech_by_p = round(service_tech_by_p[reg][enduse][tech], 4)
+                            tech_by_p = round(service_tech_by_p[enduse][tech], 4)
                             tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
 
                             if tech_by_p < tech_ey_p: #future larger
-
                                 tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
                             elif tech_by_p > tech_ey_p: #future smaller
-                                tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[enduse][tech]
+                                tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
                             else: #same
-                                tech_constant_share[enduse][reg][tech] = service_tech_ey_p[enduse][tech]
+                                tech_constant_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
     else:
         for enduse in service_tech_by_p:
 
@@ -774,7 +766,6 @@ def get_sig_diffusion(
 
 def get_sig_diffusion_service(
         technologies,
-        service_switches,
         enduses,
         tech_increased_service,
         service_tech_ey_p,
@@ -820,11 +811,10 @@ def get_sig_diffusion_service(
     """
     #service_tech_switched_p = {} #NEEDED?
     if regional_specific:
-        installed_tech, sig_param_tech = defaultdict(dict), {}
+        installed_tech = defaultdict(dict)
         l_values_sig = defaultdict(dict)
-        sig_param_tech = defaultdict(dict)
     else:
-        installed_tech, sig_param_tech = {}, {}
+        installed_tech = {}
         l_values_sig = defaultdict(dict)
 
     for enduse in enduses:
@@ -904,9 +894,9 @@ def calc_diff_fuel_switch(
     all the uk (no regional different diffusion)
     """
     if regional_specific:
-        installed_tech, sig_param_tech = defaultdict(dict), {}
+        installed_tech = defaultdict(dict)
         l_values_sig = defaultdict(dict)
-        sig_param_tech = defaultdict(dict)
+
     else:
         installed_tech, sig_param_tech = {}, {}
         l_values_sig = defaultdict(dict)
@@ -984,19 +974,18 @@ def calc_sigm_parameters(
         service_switches,
         techs,
         regions=False,
-        regional_specific=False):
-
+        regional_specific=False
+    ):
     if regional_specific:
-        installed_tech, sig_param_tech = defaultdict(dict), {}
+        installed_tech = defaultdict(dict)
         sig_param_tech = defaultdict(dict)
 
-        #techs = get_tech_installed(enduses, fuel_switches)
-        for reg in regions:
-            for _enduse in techs.keys():
-                if techs[_enduse] == []:
+        for _enduse in techs.keys():
+            for reg in regions:
+                if techs[_enduse][reg] == []:
                     installed_tech[_enduse][reg] = []
                 else:
-                    installed_tech[_enduse][reg] = techs[_enduse].keys()
+                    installed_tech[_enduse][reg] = techs[_enduse][reg].keys()
     else:
         sig_param_tech = {}
         installed_tech = {}
@@ -1007,12 +996,18 @@ def calc_sigm_parameters(
             else:
                 installed_tech[_enduse] = list(techs[_enduse].keys())
 
-        print("OKO: " + str(installed_tech))
+    print("OKO: " + str(installed_tech))
 
     for enduse in enduses:
 
         if regional_specific:
+
             for reg in l_values_sig:
+
+                try:
+                    regional_service_switch = service_switches[reg]
+                except:
+                    regional_service_switch = service_switches
                 # Calclulate sigmoid parameters for every installed technology
                 sig_param_tech[reg][enduse] = tech_sigmoid_parameteNEW(
                     base_yr,
@@ -1020,9 +1015,9 @@ def calc_sigm_parameters(
                     enduse,
                     installed_tech[enduse][reg],
                     l_values_sig[reg],
-                    service_tech_by_p[enduse],
+                    service_tech_by_p[enduse][reg],
                     service_tech_switched_p[reg][enduse],
-                    service_switches)
+                    regional_service_switch)
         else:
             # Calclulate sigmoid parameters for every installed technology
             sig_param_tech[enduse] = tech_sigmoid_parameteNEW(

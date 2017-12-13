@@ -114,7 +114,7 @@ if __name__ == "__main__":
     data['criterias']['mode_constrained'] = False
     data['criterias']['plot_HDD_chart'] = False
     data['criterias']['virtual_building_stock_criteria'] = virtual_building_stock_criteria
-    data['criterias']['spatial_exliclit_diffusion'] = False
+    data['criterias']['spatial_exliclit_diffusion'] = True
 
     data['paths'] = data_loader.load_paths(path_main)
     data['local_paths'] = data_loader.load_local_paths(local_data_path)
