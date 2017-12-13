@@ -9,7 +9,6 @@ depending on scenaric assumptions.
 import logging
 from collections import defaultdict
 import numpy as np
-from energy_demand.basic import testing_functions
 from energy_demand.initalisations import helpers
 from energy_demand.profiles import load_profile as lp
 from energy_demand.profiles import load_factors as lf
@@ -220,15 +219,14 @@ class Enduse(object):
                 # ----
                 # Get enduse specific configurations
                 # ----
-                mode_constrained, crit_switch_fuel, crit_switch_service = get_enduse_configuration(
+                mode_constrained, crit_switch_service = get_enduse_configuration(
                     criterias['mode_constrained'],
                     enduse,
                     assumptions['enduse_space_heating'],
                     sim_param['base_yr'],
                     sim_param['curr_yr'],
-                    fuel_switches,
                     service_switches)
-
+                print("   CRIT: {}   {}".format(self.enduse, crit_switch_service))
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -531,7 +529,6 @@ def get_enduse_configuration(
         enduse_space_heating,
         base_yr,
         curr_yr,
-        fuel_switches,
         service_switches
     ):
     """Get enduse specific configuration
@@ -545,8 +542,8 @@ def get_enduse_configuration(
         mode_constrained,
         enduse_space_heating)
 
-    crit_switch_fuel = False
-    '''crit_switch_fuel = get_crit_switch(
+    '''crit_switch_fuel = False
+    crit_switch_fuel = get_crit_switch(
         enduse,
         fuel_switches,
         base_yr,
@@ -560,10 +557,10 @@ def get_enduse_configuration(
         curr_yr,
         mode_constrained)
 
-    testing_functions.testing_switch_criteria(
+    '''testing_functions.testing_switch_criteria(
         crit_switch_fuel,
         crit_switch_service,
-        enduse)
+        enduse)'''
 
     # Test if capacity switch is implemented
     '''try:
@@ -573,7 +570,7 @@ def get_enduse_configuration(
     except KeyError:
         logging.debug("... no capacity and service switch defined")'''
 
-    return mode_constrained, crit_switch_fuel, crit_switch_service
+    return mode_constrained, crit_switch_service
 
 def get_crit_switch(enduse, switches, base_yr, curr_yr, mode_constrained):
     """Test whether there is a switch (service or fuel)

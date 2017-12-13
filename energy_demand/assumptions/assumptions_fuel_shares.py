@@ -155,7 +155,8 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
         'boiler_gas': 1.0}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['electricity']] = {
-        'boiler_electricity': 1.0}
+        'boiler_electricity': 0.96,
+        'heat_pumps_electricity': 0.04}
 
     assumptions['ss_fuel_tech_p_by']['ss_space_heating'][lookups['fueltype']['oil']] = {
         'boiler_oil': 1.0}

@@ -551,7 +551,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         legend_entries,
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
-        prop={'family': 'arial','size': 8},
+        prop={'family': 'arial','size': 3},
         frameon=False,
         shadow=True,
         ncol=2)
