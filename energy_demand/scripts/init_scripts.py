@@ -229,7 +229,7 @@ def scenario_initalisation(path_data_ed, data=False):
     # -------------------------------
     if data['criterias']['spatial_exliclit_diffusion']:
         pass
-        '''
+
         # -------------------------------
         # Spatially differentiated modelling
         # -------------------------------
@@ -282,7 +282,21 @@ def scenario_initalisation(path_data_ed, data=False):
         sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
             fts_cont['is_service_tech_by_p'], is_reg_enduse_tech_p, data['lu_reg'], True)
 
-        # -------------------------------
+        #MEW
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduses=data['enduses']['rs_all_enduses'],
+            fuel_switches=data['assumptions']['rs_fuel_switches'],
+            service_switches=data['assumptions']['rs_service_switches'],
+            service_tech_by_p=fts_cont['rs_service_tech_by_p'],
+            service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'],
+            share_service_tech_ey_p=switches_cont['rs_share_service_tech_ey_p'],
+            fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'],
+            region=data['lu_reg'],
+            regional_specific=True)
+
+        '''# -------------------------------
         # Calculate diffusion parameters for technologies
         # -------------------------------
         # Regional specific sigmoid curves (Residential)
@@ -332,54 +346,9 @@ def scenario_initalisation(path_data_ed, data=False):
         '''
     else:
         #No spatial explicit diffusion
+        sgs_cont = {}
 
-
-        # -------------------------------
-        # Calculate diffusion parameters for technologies
-        # -------------------------------
-        rs_crit_fuel_switch = False
-        rs_crit_switch_service = False
-        rs_crit_fuel_switch_enduses = {}
-
-        rs_techs = s_generate_sigmoid.get_tech_installed(data['enduses']['rs_all_enduses'], data['assumptions']['rs_fuel_switches'])
-        for enduse, rs_techs in rs_techs.items():
-            
-            if len(rs_techs) > 0:
-                rs_crit_fuel_switch = True
-                rs_crit_fuel_switch_enduses[enduse] = True
-            else:
-                rs_crit_fuel_switch_enduses[enduse] = False
-    
-        if len(switches_cont['rs_service_switches']) > 0:
-            rs_crit_switch_service = True
-        else:
-            rs_crit_switch_service = False
-
-        ss_crit_fuel_switch = False
-        ss_crit_switch_service = False
-        ss_techs = s_generate_sigmoid.get_tech_installed(data['enduses']['ss_all_enduses'], data['assumptions']['ss_fuel_switches'])
-        for enduse, ss_techs in ss_techs.items():
-            if len(ss_techs) > 0:
-                ss_crit_fuel_switch = True
-        if len(switches_cont['ss_service_switches']) > 0:
-            ss_crit_switch_service = True
-        else:
-            ss_crit_switch_service = False
-
-        is_crit_fuel_switch = False
-        is_crit_switch_service = False
-        is_techs = s_generate_sigmoid.get_tech_installed(data['enduses']['is_all_enduses'], data['assumptions']['is_fuel_switches'])
-        for enduse, is_techs in is_techs.items():
-            if len(is_techs) > 0:
-                is_crit_fuel_switch = True
-        if len(switches_cont['is_service_switches']) > 0:
-            is_crit_switch_service = True
-        else:
-            is_crit_switch_service = False
-
-        # ===================================
-        '''
-        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = sig_param_calculation_including_fuel_switch(
+        sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['rs_all_enduses'],
@@ -389,8 +358,8 @@ def scenario_initalisation(path_data_ed, data=False):
             service_fueltype_by_p=fts_cont['rs_service_fueltype_by_p'],
             share_service_tech_ey_p=switches_cont['rs_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'])
-        
-        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = sig_param_calculation_including_fuel_switch(
+
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'], sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share']= sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['ss_all_enduses'],
@@ -400,8 +369,8 @@ def scenario_initalisation(path_data_ed, data=False):
             service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'],
             share_service_tech_ey_p=switches_cont['ss_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'])
-        
-        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = sig_param_calculation_including_fuel_switch(
+
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
             enduses=data['enduses']['is_all_enduses'],
@@ -411,173 +380,6 @@ def scenario_initalisation(path_data_ed, data=False):
             service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'],
             share_service_tech_ey_p=switches_cont['is_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'])
-        
-        '''
-        # -------------------------------
-        # ONLY SERVICE SWITCH SO FAR Calculate technologies with more, less and constant service based on service switch assumptions
-        # -------------------------------
-        sgs_cont['rs_sig_param_tech'] = {}
-        sgs_cont['ss_sig_param_tech'] = {}
-        sgs_cont['is_sig_param_tech'] = {}
-
-        sgs_cont['rs_installed_tech'] = {}
-        sgs_cont['ss_installed_tech'] = {}
-        sgs_cont['is_installed_tech'] = {}
-
-        sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = {}, {}, {}
-        for enduse in data['enduses']['rs_all_enduses']:
-            sgs_cont['rs_tech_increased_service'][enduse] = {}
-            sgs_cont['rs_tech_decreased_share'][enduse]  = {}
-            sgs_cont['rs_tech_constant_share'][enduse] = {}
-
-            sgs_cont['rs_installed_tech'][enduse] = {}
-
-        sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = {}, {}, {}
-        for enduse in data['enduses']['ss_all_enduses']:
-            sgs_cont['ss_tech_increased_service'][enduse] = {}
-            sgs_cont['ss_tech_decreased_share'][enduse]  = {}
-            sgs_cont['ss_tech_constant_share'][enduse] = {}
-            
-            sgs_cont['ss_installed_tech'][enduse] = {}
-
-        sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = {}, {}, {}
-        for enduse in data['enduses']['is_all_enduses']:
-            sgs_cont['is_tech_increased_service'][enduse] = {}
-            sgs_cont['is_tech_decreased_share'][enduse]  = {}
-            sgs_cont['is_tech_constant_share'][enduse] = {}
-            
-            sgs_cont['is_installed_tech'][enduse] = {}
-   
-    
-        if rs_crit_switch_service: #MAKE ENDUSE SPECIFIC
-
-            # Calculate only from service switch
-            sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['rs_service_tech_by_p'], switches_cont['rs_share_service_tech_ey_p'])
-
-            # Calculate sigmoid diffusion parameters (if no switches, no calculations)
-            rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
-                data['assumptions']['technologies'],
-                data['assumptions']['rs_service_switches'],
-                data['enduses']['rs_all_enduses'],
-                sgs_cont['rs_tech_increased_service'],
-                switches_cont['rs_share_service_tech_ey_p'])
-
-        if rs_crit_fuel_switch:
-            print("... calculate sigmoid based on fuel switches")
-
-            rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
-                data['assumptions']['technologies'],
-                data['assumptions']['rs_fuel_switches'],
-                data['enduses']['rs_all_enduses'],
-                fts_cont['rs_service_fueltype_by_p'],
-                fts_cont['rs_service_tech_by_p'],
-                data['assumptions']['rs_fuel_tech_p_by'])
-
-            # Convert fuel switch to service switches
-            switches_cont['rs_service_switches'] = convert_fuel_switches_to_service_switches(
-                all_techs=[rs_service_tech_switched_p],
-                fuel_switches=data['assumptions']['rs_fuel_switches'])
-
-        if rs_crit_switch_service or rs_crit_fuel_switch:
-            sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'] = s_generate_sigmoid.calc_sigm_parameters(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                data['enduses']['rs_all_enduses'],
-                rs_l_values_sig,
-                sgs_cont['rs_tech_increased_service'], #TODO DOUBLE
-                rs_service_tech_switched_p,
-                switches_cont['rs_service_switches'],
-                sgs_cont['rs_tech_increased_service'])
-
-        # SERVICE
-        if ss_crit_switch_service:
-            print("..ss calculate service switch")
-            # Calculate only from service switch
-            sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['ss_service_tech_by_p'], switches_cont['ss_share_service_tech_ey_p'])
-
-            # Calculate sigmoid diffusion parameters
-            ss_service_tech_switched_p, ss_l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
-                data['assumptions']['technologies'],
-                data['assumptions']['ss_service_switches'],
-                data['enduses']['ss_all_enduses'],
-                sgs_cont['ss_tech_increased_service'],
-                switches_cont['ss_share_service_tech_ey_p'])
-
-        if ss_crit_fuel_switch:
-            ss_service_tech_switched_p, ss_l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
-                data['assumptions']['technologies'],
-                data['assumptions']['ss_fuel_switches'],
-                data['enduses']['ss_all_enduses'],
-                fts_cont['ss_service_fueltype_by_p'],
-                fts_cont['ss_service_tech_by_p'],
-                data['assumptions']['ss_fuel_tech_p_by'])
-
-            print("... calculate sigmoid based on fuel switches" + str(ss_l_values_sig))
-            switches_cont['ss_service_switches'] = convert_fuel_switches_to_service_switches(
-                all_techs=[ss_service_tech_switched_p],
-                fuel_switches=data['assumptions']['ss_fuel_switches'])
-
-            sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['ss_service_tech_by_p'], ss_service_tech_switched_p)
-
-        if ss_crit_switch_service or ss_crit_fuel_switch:
-            #installed_technologies = 1somhoe wrong
-    
-            sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = s_generate_sigmoid.calc_sigm_parameters(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                data['enduses']['ss_all_enduses'],
-                ss_l_values_sig,
-                sgs_cont['ss_tech_increased_service'],
-                ss_service_tech_switched_p,
-                switches_cont['ss_service_switches'],
-                sgs_cont['ss_tech_increased_service'])
-
-        # Industry
-        if is_crit_switch_service:
-            print("..ss calculate service switch")
-            # Calculate only from service switch
-            sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['is_service_tech_by_p'], switches_cont['is_share_service_tech_ey_p'])
-
-            # Calculate sigmoid diffusion parameters (if no switches, no calculations)
-            is_service_tech_switched_p, l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
-                data['assumptions']['technologies'],
-                data['assumptions']['is_service_switches'],
-                data['enduses']['is_all_enduses'],
-                sgs_cont['is_tech_increased_service'],
-                switches_cont['is_share_service_tech_ey_p'])
-
-        if is_crit_fuel_switch:
-            is_service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
-                data['assumptions']['technologies'],
-                data['assumptions']['is_fuel_switches'],
-                data['enduses']['is_all_enduses'],
-                fts_cont['is_service_fueltype_by_p'],
-                fts_cont['is_service_tech_by_p'],
-                data['assumptions']['is_fuel_tech_p_by'])
-
-            print("... calculate sigmoid based on fuel switches")
-            switches_cont['is_service_switches'] = convert_fuel_switches_to_service_switches(
-                all_techs=[is_service_tech_switched_p],
-                fuel_switches=data['assumptions']['is_fuel_switches'])
-
-            # CALCULATE TECH AGAINS
-            sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = s_generate_sigmoid.get_tech_future_service(
-                fts_cont['is_service_tech_by_p'], is_service_tech_switched_p)
-
-        if is_crit_switch_service or is_crit_fuel_switch:
-            sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = s_generate_sigmoid.calc_sigm_parameters(
-                data['sim_param']['base_yr'],
-                data['assumptions']['technologies'],
-                data['enduses']['is_all_enduses'],
-                l_values_sig,
-                sgs_cont['is_tech_increased_service'],
-                is_service_tech_switched_p,
-                switches_cont['is_service_switches'],
-                sgs_cont['is_tech_increased_service'])
 
     return fts_cont, sgs_cont, sd_cont, switches_cont
 
@@ -637,18 +439,18 @@ def convert_fuel_switches_to_service_switches(all_techs, fuel_switches):
 
     return service_switches_after_fuel_switch
 
-
-
 def sig_param_calculation_including_fuel_switch(
         base_yr,
         technologies,
-        enduses, #data['enduses']['rs_all_enduses']
-        fuel_switches, #data['assumptions']['rs_fuel_switches']
-        service_switches, #data['assumptions']['rs_service_switches']
-        service_tech_by_p, #fts_cont['rs_service_tech_by_p'],
-        service_fueltype_by_p,  # fts_cont['rs_service_fueltype_by_p'],
-        share_service_tech_ey_p, #switches_cont['rs_share_service_tech_ey_p']
-        fuel_tech_p_by #data['assumptions']['rs_fuel_tech_p_by']
+        enduses,
+        fuel_switches,
+        service_switches,
+        service_tech_by_p,
+        service_fueltype_by_p,
+        share_service_tech_ey_p,
+        fuel_tech_p_by,
+        regions=False,
+        regional_specific=False
     ):
     """
 
@@ -665,7 +467,7 @@ def sig_param_calculation_including_fuel_switch(
 
     """
     crit_fuel_switch = False
-    rs_crit_switch_service = False
+    crit_switch_service = False
     crit_fuel_switch_enduses = {}
 
     techs = s_generate_sigmoid.get_tech_installed(enduses, fuel_switches)
@@ -679,9 +481,9 @@ def sig_param_calculation_including_fuel_switch(
             crit_fuel_switch_enduses[enduse] = False
 
     if len(service_switches) > 0:
-        rs_crit_switch_service = True
+        crit_switch_service = True
     else:
-        rs_crit_switch_service = False
+        crit_switch_service = False
 
     # -------------------------------
     # ONLY SERVICE SWITCH SO FAR Calculate technologies with more, less and constant service based on service switch assumptions
@@ -690,52 +492,72 @@ def sig_param_calculation_including_fuel_switch(
     tech_increased_service, tech_decrased_share, tech_constant_share = {}, {}, {}
     for enduse in enduses:
         tech_increased_service[enduse] = {}
-        tech_decrased_share[enduse]  = {}
+        tech_decrased_share[enduse] = {}
         tech_constant_share[enduse] = {}
 
-    if rs_crit_switch_service:
-
+    if crit_switch_service:
+        print("... calculate sigmoid based on service switches")
         # Calculate only from service switch #ENDUSE OK
         tech_increased_service, tech_decrased_share, tech_constant_share = s_generate_sigmoid.get_tech_future_service(
-            service_tech_by_p, share_service_tech_ey_p)
+            service_tech_by_p,
+            share_service_tech_ey_p,
+            regions=regions,
+            regional_specific=regional_specific)
 
         # Calculate sigmoid diffusion parameters (if no switches, no calculations) #ENDUSE OK
-        rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
+        service_tech_switched_p, l_values_sig = s_generate_sigmoid.get_sig_diffusion_service(
             technologies,
             service_switches,
             enduses,
             tech_increased_service,
-            share_service_tech_ey_p)
+            share_service_tech_ey_p,
+            regions=regions,
+            regional_specific=regional_specific)
 
     if crit_fuel_switch:
         print("... calculate sigmoid based on fuel switches")
         # TROUBELING
-        rs_service_tech_switched_p, rs_l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
+        service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(
             technologies,
             fuel_switches,
             enduses,
             service_fueltype_by_p,
             service_tech_by_p,
-            fuel_tech_p_by)
+            fuel_tech_p_by,
+            regions=regions,
+            regional_specific=regional_specific)
         #OK
         # Convert fuel switch to service switches
         service_switches_fuelswitch = convert_fuel_switches_to_service_switches(
-            all_techs=[rs_service_tech_switched_p],
+            all_techs=[service_tech_switched_p],
             fuel_switches=fuel_switches)
 
         service_switches = service_switches_fuelswitch
 
     # ok
-    if rs_crit_switch_service or crit_fuel_switch:
+    if crit_switch_service or crit_fuel_switch:
         installed_tech, sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
             base_yr,
             technologies,
             enduses,
-            rs_l_values_sig,
+            l_values_sig,
             tech_increased_service, #TODO DOUBLE
-            rs_service_tech_switched_p,
+            service_tech_switched_p,
             service_switches,
-            tech_increased_service)
+            tech_increased_service,
+            regions=regions,
+            regional_specific=regional_specific)
+    else:
+        installed_tech = {}
+        sig_param_tech = {}
+        tech_increased_service = {}
+        tech_decrased_share = {}
+        tech_constant_share = {}
+        for enduse in enduses:
+            installed_tech[enduse] = []
+            sig_param_tech[enduse] = []
+            tech_increased_service[enduse] = []
+            tech_decrased_share[enduse] = []
+            tech_constant_share[enduse] = []
 
     return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share
-

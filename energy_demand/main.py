@@ -172,7 +172,10 @@ if __name__ == "__main__":
 
     # ------------------------------
     if data['criterias']['virtual_building_stock_criteria']:
-        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(data['lu_reg'], data['sectors']['all_sectors'], data)
+        rs_floorarea, ss_floorarea = data_loader.virtual_building_datasets(
+            data['lu_reg'],
+            data['sectors']['all_sectors'],
+            data)
     else:
         pass
 

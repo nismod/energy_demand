@@ -1096,7 +1096,7 @@ def tech_sigmoid_parameteNEW(
         logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech)
     else:
         for tech in installed_tech:
-            logging.debug("... create sigmoid diffusion parameters %s %s", enduse, tech)
+            print("... create sigmoid diffusion parameters %s %s", enduse, tech)
 
             # Get year until switched
             for switch in service_switches:

@@ -554,7 +554,7 @@ def plt_stacked_enduse(years_simulated, results_enduse_every_year, enduses_data,
         prop={'family': 'arial','size': 8},
         frameon=False,
         shadow=True,
-        ncol=4)
+        ncol=2)
 
     # -------
     # Axis

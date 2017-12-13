@@ -400,4 +400,3 @@ def load_param_assump(paths, assumptions):
     assumptions['testing'] = True
 
     return
-
