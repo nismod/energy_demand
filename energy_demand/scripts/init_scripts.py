@@ -213,7 +213,8 @@ def scenario_initalisation(path_data_ed, data=False):
         fts_cont['is_service_tech_by_p'])
 
     # -------------------------------------
-    # Get service shares of technologies for future year by considering service switch on a national scale 
+    # Get service shares of technologies for future year by considering
+    # service switch on a national scale 
     # -------------------------------------
     switches_cont['rs_share_service_tech_ey_p'] = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],

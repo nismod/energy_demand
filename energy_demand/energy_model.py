@@ -524,24 +524,26 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
 
     submodels = []
 
-    if data['criterias']['spatial_exliclit_diffusion']:
-        service_switches = data['assumptions']['rs_service_switch'][region.region_name]
-        sig_param_tech = data['assumptions']['rs_sig_param_tech'][region.region_name]
-
-        tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name][region.region_name]
-        tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name][region.region_name]
-        tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name][region.region_name]
-
-    else:
-        service_switches = data['assumptions']['rs_service_switch']
-        sig_param_tech = data['assumptions']['rs_sig_param_tech']
-
-        tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name]
-        tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name]
-        tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name]
-
     for sector_name in sector_names:
         for enduse_name in enduse_names:
+        
+            # Change if for multiple or single regions
+            if data['criterias']['spatial_exliclit_diffusion']:
+                service_switches = data['assumptions']['rs_service_switch'][region.region_name]
+                sig_param_tech = data['assumptions']['rs_sig_param_tech'][region.region_name]
+
+                tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name][region.region_name]
+                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name][region.region_name]
+                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name][region.region_name]
+
+            else:
+                service_switches = data['assumptions']['rs_service_switch']
+                sig_param_tech = data['assumptions']['rs_sig_param_tech']
+
+                tech_increased_service = data['assumptions']['rs_tech_increased_service'][enduse_name]
+                tech_decreased_share = data['assumptions']['rs_tech_decreased_share'][enduse_name]
+                tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name]
+
             # Create submodule
             submodel = endusefunctions.Enduse(
                 region_name=region.region_name,
@@ -593,24 +595,26 @@ def service_submodel(region, data, enduse_names, sector_names):
     logging.debug("... service submodel start")
     submodels = []
 
-    if data['criterias']['spatial_exliclit_diffusion']:
-        service_switches = data['assumptions']['ss_service_switch'][region.region_name]
-        sig_param_tech = data['assumptions']['ss_sig_param_tech'][region.region_name]
-
-        tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse_name][region.region_name]
-        tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse_name][region.region_name]
-        tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse_name][region.region_name]
-
-    else:
-        service_switches = data['assumptions']['ss_service_switch']
-        sig_param_tech = data['assumptions']['ss_sig_param_tech']
-
-        tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse_name]
-        tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse_name]
-        tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse_name]
-
     for sector_name in sector_names:
         for enduse_name in enduse_names:
+            
+
+            # Change if single or muplite region
+            if data['criterias']['spatial_exliclit_diffusion']:
+                service_switches = data['assumptions']['ss_service_switch'][region.region_name]
+                sig_param_tech = data['assumptions']['ss_sig_param_tech'][region.region_name]
+
+                tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse_name][region.region_name]
+                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse_name][region.region_name]
+                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse_name][region.region_name]
+
+            else:
+                service_switches = data['assumptions']['ss_service_switch']
+                sig_param_tech = data['assumptions']['ss_sig_param_tech']
+
+                tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse_name]
+                tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse_name]
+                tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse_name]
 
             # Create submodule
             submodel = endusefunctions.Enduse(
