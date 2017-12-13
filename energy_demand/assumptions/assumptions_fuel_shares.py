@@ -121,7 +121,7 @@ def assign_by_fuel_tech_p(assumptions, enduses, lookups):
 
     # ---------------
     # Water heating
-    # Calculated based on TODO
+    # Calculated based on TODOTODO
     # ---------------
     assumptions['rs_fuel_tech_p_by']['rs_water_heating'][lookups['fueltype']['solid_fuel']] = {
         'boiler_solid_fuel': 1.0}

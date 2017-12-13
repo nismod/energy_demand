@@ -83,6 +83,7 @@ if __name__ == "__main__":
         print("    python main.py ../energy_demand_data\n")
         print("... Defaulting to C:/DATA_NISMODII/data_energy_demand")
         local_data_path = os.path.abspath('C:/DATA_NISMODII/data_energy_demand')
+        ##local_data_path = os.path.abspath('C:/Users/cenv0553/nismod/data_energy_demand')
     else:
         local_data_path = sys.argv[1]
 
@@ -228,6 +229,7 @@ if __name__ == "__main__":
     basic_functions.del_previous_setup(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results'])
     basic_functions.create_folder(data['local_paths']['data_results_PDF'])
+    basic_functions.create_folder(data['local_paths']['data_results'], "model_run_pop")
 
     # Create .ini file with simulation information
     write_data.write_simulation_inifile(
@@ -297,6 +299,17 @@ if __name__ == "__main__":
         write_data.write_lf(path_runs, "result_reg_load_factor_summer", [sim_yr], reg_load_factor_summer, 'reg_load_factor_summer')
         write_data.write_lf(path_runs, "result_reg_load_factor_autumn", [sim_yr], reg_load_factor_autumn, 'reg_load_factor_autumn')
 
+        # -------------------------------------------
+        # Write population files of simulation year
+        # -------------------------------------------
+        pop_array_reg = np.zeros((len(data['lu_reg'])))
+        for reg_array_nr, reg in enumerate(data['lu_reg']):
+            pop_array_reg[reg_array_nr] = data['scenario_data']['population'][sim_yr][reg]
+
+        write_data.write_pop(
+            sim_yr,
+            data['local_paths']['data_results'],
+            pop_array_reg)
         logging.info("... Finished writing results to file")
 
     logging.info("... Finished running Energy Demand Model")

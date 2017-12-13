@@ -390,7 +390,27 @@ def scenario_initalisation(path_data_ed, data=False):
             share_service_tech_ey_p=switches_cont['rs_share_service_tech_ey_p'],
             fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'])
         
+        sgs_cont['ss_installed_tech'], sgs_cont['ss_sig_param_tech'] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduses=data['enduses']['ss_all_enduses'],
+            fuel_switches=data['assumptions']['ss_fuel_switches'],
+            service_switches=data['assumptions']['ss_service_switches'],
+            service_tech_by_p=fts_cont['ss_service_tech_by_p'],
+            service_fueltype_by_p=fts_cont['ss_service_fueltype_by_p'],
+            share_service_tech_ey_p=switches_cont['ss_share_service_tech_ey_p'],
+            fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'])
         
+        sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'] = sig_param_calculation_including_fuel_switch(
+            data['sim_param']['base_yr'],
+            data['assumptions']['technologies'],
+            enduses=data['enduses']['is_all_enduses'],
+            fuel_switches=data['assumptions']['is_fuel_switches'],
+            service_switches=data['assumptions']['is_service_switches'],
+            service_tech_by_p=fts_cont['is_service_tech_by_p'],
+            service_fueltype_by_p=fts_cont['is_service_fueltype_by_p'],
+            share_service_tech_ey_p=switches_cont['is_share_service_tech_ey_p'],
+            fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'])
         
         '''
         # -------------------------------
