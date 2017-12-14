@@ -15,7 +15,7 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # CORRECT OUTPUTS
 # AVERAGE HDDs over two days (floating average)
 # Potentiall load other annual profiles?
-"""
+ 1§"""
 import os
 import sys
 import logging
