@@ -242,7 +242,7 @@ def tech_sigmoid_parameters(
 
     return dict(sigmoid_parameters)
 
-def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False, regional_specific=False):
+def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, regions=False, regional_specific=False):
     """Get all those technologies with increased service in future
 
     Arguments
@@ -279,66 +279,69 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
 
     if regional_specific:
 
-        for enduse in service_tech_by_p:
-
-            for reg in regions:
-                tech_increased_service[enduse][reg] = {}
-                tech_decreased_share[enduse][reg] = {}
-                tech_constant_share[enduse][reg] = {}
-
-                # If no service switch defined
-                if service_tech_ey_p[reg][enduse] == {}:
-                    tech_increased_service[enduse][reg] = []
-                    tech_decreased_share[enduse][reg] = []
-                    tech_constant_share[enduse][reg] = []
-                else:
-                    tech_increased_service[enduse][reg] = {}
-                    tech_decreased_share[enduse][reg] = {}
-                    tech_constant_share[enduse][reg] = {}
-
-                    # Calculate fuel for each tech
-                    for tech in service_tech_by_p[enduse].keys():
-                        if tech == 'dummy_tech':
-                            pass
-                        else:
-                            tech_by_p = round(service_tech_by_p[enduse][tech], 4)
-                            tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
-
-                            if tech_by_p < tech_ey_p: #future larger
-                                tech_increased_service[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
-                            elif tech_by_p > tech_ey_p: #future smaller
-                                tech_decreased_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
-                            else: #same
-                                tech_constant_share[enduse][reg][tech] = service_tech_ey_p[reg][enduse][tech]
-    else:
-        for enduse in service_tech_by_p:
+        #for enduse in service_tech_by_p:
+        print(service_tech_ey_p)
+        for reg in regions:
+            tech_increased_service[reg] = {}
+            tech_decreased_share[reg] = {}
+            tech_constant_share[reg] = {}
 
             # If no service switch defined
-            if service_tech_ey_p[enduse] == {}:
-                tech_increased_service[enduse] = []
-                tech_decreased_share[enduse] = []
-                tech_constant_share[enduse] = []
+            if service_tech_ey_p[reg][enduse] == {}:
+                tech_increased_service[reg] = []
+                tech_decreased_share[reg] = []
+                tech_constant_share[reg] = []
             else:
-                tech_increased_service[enduse] = {}
-                tech_decreased_share[enduse] = {}
-                tech_constant_share[enduse] = {}
+                tech_increased_service[reg] = {}
+                tech_decreased_share[reg] = {}
+                tech_constant_share[reg] = {}
 
                 # Calculate fuel for each tech
-                for tech in service_tech_by_p[enduse].keys():
-
+                for tech in service_tech_by_p.keys():
                     if tech == 'dummy_tech':
                         pass
                     else:
-                        tech_by_p = round(service_tech_by_p[enduse][tech], 4)
-                        tech_ey_p = round(service_tech_ey_p[enduse][tech], 4)
+                        print(service_tech_by_p)
+                        print("--")
+                        print(service_tech_ey_p)
+                        tech_by_p = round(service_tech_by_p[tech], 4)
+                        tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
 
                         if tech_by_p < tech_ey_p: #future larger
-
-                            tech_increased_service[enduse][tech] = service_tech_ey_p[enduse][tech]
+                            tech_increased_service[reg][tech] = service_tech_ey_p[reg][enduse][tech]
                         elif tech_by_p > tech_ey_p: #future smaller
-                            tech_decreased_share[enduse][tech] = service_tech_ey_p[enduse][tech]
+                            tech_decreased_share[reg][tech] = service_tech_ey_p[reg][enduse][tech]
                         else: #same
-                            tech_constant_share[enduse][tech] = service_tech_ey_p[enduse][tech]
+                            tech_constant_share[reg][tech] = service_tech_ey_p[reg][enduse][tech]
+    else:
+        #for enduse in service_tech_by_p:
+
+        # If no service switch defined
+        if service_tech_ey_p == {}:
+            tech_increased_service = []
+            tech_decreased_share = []
+            tech_constant_share = []
+        else:
+            tech_increased_service = {}
+            tech_decreased_share = {}
+            tech_constant_share = {}
+
+            # Calculate fuel for each tech
+            for tech in service_tech_by_p.keys():
+
+                if tech == 'dummy_tech':
+                    pass
+                else:
+                    tech_by_p = round(service_tech_by_p[tech], 4)
+                    tech_ey_p = round(service_tech_ey_p[enduse][tech], 4)
+
+                    if tech_by_p < tech_ey_p: #future larger
+
+                        tech_increased_service[tech] = service_tech_ey_p[enduse][tech]
+                    elif tech_by_p > tech_ey_p: #future smaller
+                        tech_decreased_share[tech] = service_tech_ey_p[enduse][tech]
+                    else: #same
+                        tech_constant_share[tech] = service_tech_ey_p[enduse][tech]
 
     return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
 
@@ -388,7 +391,7 @@ def fit_sigmoid_diffusion(l_value, x_data, y_data, start_parameters):
     return popt
 
 def tech_l_sigmoid(
-        enduses,
+        enduse,
         fuel_switches,
         technologies,
         installed_tech,
@@ -418,37 +421,40 @@ def tech_l_sigmoid(
     -----
     Gets second sigmoid point
     """
-    l_values_sig = helpers.init_dict_brackets(enduses)
+    #l_values_sig = helpers.init_dict_brackets(enduses)
+    l_values_sig = {}
 
-    for enduse in enduses:
-        # Check wheter there are technologies in this enduse which are switched
-        if installed_tech[enduse] == []:
-            pass
-        else:
-            logging.debug("Technologes it calculate sigmoid %s %s", enduse, installed_tech[enduse])
+    #for enduse in enduses:
+    # Check wheter there are technologies in this enduse which are switched
+    if installed_tech[enduse] == []: #[enduse] == []:
+        pass
+    else:
+        print(installed_tech)
+        logging.debug("Technologes it calculate sigmoid %s %s", enduse, installed_tech[enduse])
 
-            # Iterite list with enduses where fuel switches are defined
-            for technology in installed_tech[enduse]:
-                logging.debug("Technology: %s Enduse:  %s", technology, enduse)
+        # Iterite list with enduses where fuel switches are defined
+        for technology in installed_tech[enduse]:
+            logging.debug("Technology: %s Enduse:  %s", technology, enduse)
 
-                # Calculate service demand for specific tech
-                tech_install_p = calc_service_fuel_switched(
-                    enduses,
-                    fuel_switches,
-                    technologies,
-                    service_fueltype_by_p,
-                    service_tech_by_p,
-                    fuel_tech_p_by,
-                    {str(enduse): [technology]},
-                    'max_switch')
+            # Calculate service demand for specific tech
+            tech_install_p = calc_service_fuel_switched(
+                enduse,
+                fuel_switches,
+                technologies,
+                service_fueltype_by_p,
+                service_tech_by_p,
+                fuel_tech_p_by,
+                {str(enduse): [technology]},
+                'max_switch')
 
-                # Read L-values with calculating maximum sigmoid theoretical diffusion
-                l_values_sig[enduse][technology] = tech_install_p[enduse][technology]
+            # Read L-values with calculating maximum sigmoid theoretical diffusion
+            #l_values_sig[technology] = tech_install_p[enduse][technology]
+            l_values_sig[technology] = tech_install_p[technology]
 
     return dict(l_values_sig)
 
 def calc_service_fuel_switched(
-        enduses,
+        enduse,
         fuel_switches,
         technologies,
         service_fueltype_by_p,
@@ -461,8 +467,8 @@ def calc_service_fuel_switched(
 
     Arguments
     ----------
-    enduses : list
-        List with enduses where with fuel switches
+    enduse : str
+        enduse where with fuel switches
     fuel_switches : dict
         Fuel switches
     technologies : dict
@@ -492,59 +498,59 @@ def calc_service_fuel_switched(
     """
     service_tech_switched_p = {}
 
-    for enduse in enduses:
-        service_tech_switched_p[enduse] = defaultdict(dict)
-        for fuel_switch in fuel_switches:
-            if fuel_switch.enduse == enduse:
+    #for enduse in enduses:
+    service_tech_switched_p = defaultdict(dict)
+    for fuel_switch in fuel_switches:
+        if fuel_switch.enduse == enduse:
 
-                tech_install = fuel_switch.technology_install
-                fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
+            tech_install = fuel_switch.technology_install
+            fueltype_tech_replace = fuel_switch.enduse_fueltype_replace
 
-                # Share of energy service before switch
-                service_p_by = service_fueltype_by_p[enduse][fueltype_tech_replace]
+            # Share of energy service before switch
+            service_p_by = service_fueltype_by_p[enduse][fueltype_tech_replace]
 
-                # Service demand per fueltype that will be switched
-                # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
-                if switch_type == 'max_switch':
-                    change_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
-                elif switch_type == 'actual_switch':
-                    change_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
+            # Service demand per fueltype that will be switched
+            # e.g. 10% of service is gas ---> if we replace 50% --> minus 5 percent
+            if switch_type == 'max_switch':
+                change_service_fueltype_by_p = service_p_by * technologies[tech_install].tech_max_share
+            elif switch_type == 'actual_switch':
+                change_service_fueltype_by_p = service_p_by * fuel_switch.fuel_share_switched_ey
 
-                # ---Service addition
-                service_tech_switched_p[enduse][tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_by_p
+            # ---Service addition
+            service_tech_switched_p[tech_install] = service_tech_by_p[enduse][tech_install] + change_service_fueltype_by_p
 
-                # Get all technologies which are replaced related to this fueltype
-                replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
+            # Get all technologies which are replaced related to this fueltype
+            replaced_tech_fueltype = fuel_tech_p_by[enduse][fueltype_tech_replace].keys()
 
-                # Substract service demand for replaced technologies
-                for tech in replaced_tech_fueltype:
-                    fueltype_of_tech_replacing = technologies[tech].fuel_type_int
-                    service_tech_switched_p[enduse][tech] = service_tech_by_p[enduse][tech] - (change_service_fueltype_by_p * fuel_tech_p_by[enduse][fueltype_of_tech_replacing][tech])
+            # Substract service demand for replaced technologies
+            for tech in replaced_tech_fueltype:
+                fueltype_of_tech_replacing = technologies[tech].fuel_type_int
+                service_tech_switched_p[tech] = service_tech_by_p[enduse][tech] - (change_service_fueltype_by_p * fuel_tech_p_by[enduse][fueltype_of_tech_replacing][tech])
 
-        # -----------------------
-        # Calculate service fraction of all technologies in enduse not affected
-        # by fuel switch TODO WRITE MORE DOCU
-        # -----------------------
-        affected_service_p_ey = sum(service_tech_switched_p[enduse].values())
+    # -----------------------
+    # Calculate service fraction of all technologies in enduse not affected
+    # by fuel switch TODO WRITE MORE DOCU
+    # -----------------------
+    affected_service_p_ey = sum(service_tech_switched_p.values())
 
-        remaining_service_to_distr_p = 1 - affected_service_p_ey
+    remaining_service_to_distr_p = 1 - affected_service_p_ey
 
-        # Calculate service fraction of remaining technologies
-        all_fractions_not_affected_by_switch = {}
-        for tech in service_tech_by_p[enduse]:
-            if tech not in service_tech_switched_p[enduse].keys():
-                all_fractions_not_affected_by_switch[tech] = service_tech_by_p[enduse][tech]
+    # Calculate service fraction of remaining technologies
+    all_fractions_not_affected_by_switch = {}
+    for tech in service_tech_by_p[enduse]:
+        if tech not in service_tech_switched_p.keys():
+            all_fractions_not_affected_by_switch[tech] = service_tech_by_p[enduse][tech]
+    
+    # Iterate all technologies of enduse_by
+    service_tot_remaining = sum(all_fractions_not_affected_by_switch.values())
+
+    # Get relative distribution of all not affected techs
+    for tech in all_fractions_not_affected_by_switch:
+
+        # Relative share
+        rel_service_fraction_p = all_fractions_not_affected_by_switch[tech] / service_tot_remaining
         
-        # Iterate all technologies of enduse_by
-        service_tot_remaining = sum(all_fractions_not_affected_by_switch.values())
-
-        # Get relative distribution of all not affected techs
-        for tech in all_fractions_not_affected_by_switch:
-
-            # Relative share
-            rel_service_fraction_p = all_fractions_not_affected_by_switch[tech] / service_tot_remaining
-            
-            service_tech_switched_p[enduse][tech] = rel_service_fraction_p * remaining_service_to_distr_p
+        service_tech_switched_p[tech] = rel_service_fraction_p * remaining_service_to_distr_p
 
     return dict(service_tech_switched_p)
 
@@ -579,6 +585,37 @@ def get_tech_installed(enduses, fuel_switches):
     for enduse in installed_tech:
         installed_tech[enduse] = list(installed_tech[enduse])
 
+    return installed_tech
+
+def get_tech_installed_single_enduse(enduse, fuel_switches):
+    """Read out all technologies which are
+    specifically switched to for all enduses
+    TODO CHANGED
+    Parameter
+    ---------
+    enduse : str
+        enduse
+    fuel_switches : dict
+        All fuel switches where a share of a fuel
+        of an enduse is switched to a specific technology
+
+    Return
+    ------
+    installed_tech : list
+        List with all technologies where a fuel share is switched to
+    """
+    installed_tech = {}
+
+    # Add technology list for every enduse with affected switches
+    installed_tech[enduse] = set([])
+
+    for switch in fuel_switches:
+        if switch.enduse == enduse:
+            installed_tech[enduse].add(switch.technology_install)
+    # Convert set to lists
+    for enduse, set_values in installed_tech.items():
+        installed_tech[enduse] = list(set_values)
+    
     return installed_tech
 
 def get_sig_diffusion(
@@ -766,7 +803,7 @@ def get_sig_diffusion(
 
 def get_sig_diffusion_service(
         technologies,
-        enduses,
+        enduse,
         tech_increased_service,
         service_tech_ey_p,
         regions=False,
@@ -783,7 +820,7 @@ def get_sig_diffusion_service(
         Service switches
     fuel_switches : dict
         Fuel switches
-    enduses : list
+    enduse : str
         Enduses
     tech_increased_service : list
         Technologies with increased service
@@ -809,47 +846,43 @@ def get_sig_diffusion_service(
     It is assumed that the technology diffusion is the same over
     all the uk (no regional different diffusion)
     """
-    #service_tech_switched_p = {} #NEEDED?
+    l_values_sig = {}
     if regional_specific:
         installed_tech = defaultdict(dict)
-        l_values_sig = defaultdict(dict)
     else:
         installed_tech = {}
-        l_values_sig = defaultdict(dict)
 
-    for enduse in enduses:
+    """Sigmoid calculation in case of 'service switch'
+    """
+    
+    # Tech with lager service shares in end year
+    installed_tech = tech_increased_service[enduse]
 
-        """Sigmoid calculation in case of 'service switch'
-        """
+    # End year service shares (scenaric input)
+    service_tech_switched_p = service_tech_ey_p
 
-        # Tech with lager service shares in end year
-        installed_tech[enduse] = tech_increased_service[enduse]
+    if regional_specific:
+        # Maximum shares of each technology
+        for reg in regions:
+            l_values_sig[reg] = {}
+            #same techs for every region
+            for tech in installed_tech[enduse][reg]:
+                l_values_sig[reg][tech] = technologies[tech].tech_max_share
+    else:
 
-        # End year service shares (scenaric input)
-        service_tech_switched_p = service_tech_ey_p
-
-        if regional_specific:
-            # Maximum shares of each technology
-            for reg in regions:
-                l_values_sig[reg][enduse] = {}
-                #same techs for every region
-                for tech in installed_tech[enduse][reg]:
-                    l_values_sig[reg][enduse][tech] = technologies[tech].tech_max_share
+        if tech_increased_service[enduse] == []:
+            pass
         else:
+            # Maximum shares of each technology
+            for tech in installed_tech[enduse]:
+                l_values_sig[tech] = technologies[tech].tech_max_share
 
-            if tech_increased_service[enduse] == []:
-                pass
-            else:
-                # Maximum shares of each technology
-                for tech in installed_tech[enduse]:
-                    l_values_sig[enduse][tech] = technologies[tech].tech_max_share
-
-    return dict(service_tech_switched_p), dict(l_values_sig) #NEW --> End year service fraction
+    return dict(service_tech_switched_p), dict(l_values_sig)
 
 def calc_diff_fuel_switch(
         technologies,
         fuel_switches,
-        enduses,
+        enduse,
         service_fueltype_by_p,
         service_tech_by_p,
         fuel_tech_p_by,
@@ -867,8 +900,8 @@ def calc_diff_fuel_switch(
         Service switches
     fuel_switches : dict
         Fuel switches
-    enduses : list
-        Enduses
+    enduse : str
+        Enduse
     tech_increased_service : list
         Technologies with increased service
     service_tech_ey_p : dict
@@ -901,67 +934,68 @@ def calc_diff_fuel_switch(
         installed_tech, sig_param_tech = {}, {}
         l_values_sig = defaultdict(dict)
 
-    for enduse in enduses:
-        """Sigmoid calculation in case of 'fuel switch'
-        """
-        if regional_specific:
+    #for enduse in enduses:
+    """Sigmoid calculation in case of 'fuel switch'
+    """
+    if regional_specific:
 
-            # Tech with lager service shares in end year (installed in fuel switch)
-            techs = get_tech_installed(enduses, fuel_switches)
-            for reg in regions:
-                for _enduse in techs.keys():
-                    installed_tech[_enduse][reg] = techs[_enduse]
+        # Tech with lager service shares in end year (installed in fuel switch)
+        techs = get_tech_installed_single_enduse(enduse, fuel_switches)
+        for reg in regions:
+            #for _enduse in techs:
+                #installed_tech[_enduse][reg] = techs[_enduse]
+            installed_tech[reg] = techs
 
-            service_tech_switched_p = {}
+        service_tech_switched_p = {}
 
-            for reg in regions:
-
-                # Calculate future service demand after fuel switches for each technology
-                service_tech_switched_p[reg] = calc_service_fuel_switched(
-                    enduses,
-                    fuel_switches,
-                    technologies,
-                    service_fueltype_by_p,
-                    service_tech_by_p,
-                    fuel_tech_p_by,
-                    techs,
-                    'actual_switch')
-
-                # Calculate L for every technology for sigmod diffusion
-                l_values_sig[reg] = tech_l_sigmoid(
-                    enduses,
-                    fuel_switches,
-                    technologies,
-                    techs,
-                    service_fueltype_by_p,
-                    service_tech_by_p,
-                    fuel_tech_p_by)
-        else:
-
-            # Tech with lager service shares in end year (installed in fuel switch)
-            installed_tech = get_tech_installed(enduses, fuel_switches)
+        for reg in regions:
 
             # Calculate future service demand after fuel switches for each technology
-            service_tech_switched_p = calc_service_fuel_switched(
-                enduses,
+            service_tech_switched_p[reg] = calc_service_fuel_switched(
+                enduse,
                 fuel_switches,
                 technologies,
                 service_fueltype_by_p,
                 service_tech_by_p,
                 fuel_tech_p_by,
-                installed_tech,
+                techs,
                 'actual_switch')
 
             # Calculate L for every technology for sigmod diffusion
-            l_values_sig = tech_l_sigmoid(
-                enduses,
+            l_values_sig[reg] = tech_l_sigmoid(
+                enduse,
                 fuel_switches,
                 technologies,
-                installed_tech,
+                techs,
                 service_fueltype_by_p,
                 service_tech_by_p,
                 fuel_tech_p_by)
+    else:
 
+        # Tech with lager service shares in end year (installed in fuel switch)
+        installed_tech = get_tech_installed_single_enduse(enduse, fuel_switches)
+
+        # Calculate future service demand after fuel switches for each technology
+        service_tech_switched_p = calc_service_fuel_switched(
+            enduse,
+            fuel_switches,
+            technologies,
+            service_fueltype_by_p,
+            service_tech_by_p,
+            fuel_tech_p_by,
+            installed_tech,
+            'actual_switch')
+
+        # Calculate L for every technology for sigmod diffusion
+        l_values_sig = tech_l_sigmoid(
+            enduse,
+            fuel_switches,
+            technologies,
+            installed_tech,
+            service_fueltype_by_p,
+            service_tech_by_p,
+            fuel_tech_p_by)
+    #l_values_sig = enduse,reg
     return dict(service_tech_switched_p), dict(l_values_sig) #NEW --> End year service fraction
 
 def calc_sigm_parameters(
