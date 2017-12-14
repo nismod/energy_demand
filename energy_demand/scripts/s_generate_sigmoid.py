@@ -1001,7 +1001,7 @@ def calc_diff_fuel_switch(
 def calc_sigm_parameters(
         base_yr,
         technologies,
-        enduses,
+        enduse,
         l_values_sig,
         service_tech_by_p,
         service_tech_switched_p,
@@ -1013,56 +1013,56 @@ def calc_sigm_parameters(
     if regional_specific:
         installed_tech = defaultdict(dict)
         sig_param_tech = defaultdict(dict)
-
-        for _enduse in techs.keys():
-            for reg in regions:
-                if techs[_enduse][reg] == []:
-                    installed_tech[_enduse][reg] = []
-                else:
-                    installed_tech[_enduse][reg] = techs[_enduse][reg].keys()
+        print(techs)
+        #for _enduse in techs.keys():
+        for reg in regions:
+            if techs[reg] == []:
+                installed_tech[reg] = []
+            else:
+                installed_tech[reg] = techs[reg].keys()
     else:
         sig_param_tech = {}
         installed_tech = {}
 
-        for _enduse in techs:
-            if techs[_enduse] == []:
-                installed_tech[_enduse] = []
-            else:
-                installed_tech[_enduse] = list(techs[_enduse].keys())
+        #for _enduse in techs:
+        if techs == []:
+            installed_tech = []
+        else:
+            installed_tech = list(techs.keys())
 
     print("OKO: " + str(installed_tech))
 
-    for enduse in enduses:
+    #for enduse in enduses:
 
-        if regional_specific:
+    if regional_specific:
 
-            for reg in l_values_sig:
+        for reg in l_values_sig:
 
-                try:
-                    regional_service_switch = service_switches[reg]
-                except:
-                    regional_service_switch = service_switches
-                # Calclulate sigmoid parameters for every installed technology
-                sig_param_tech[reg][enduse] = tech_sigmoid_parameteNEW(
-                    base_yr,
-                    technologies,
-                    enduse,
-                    installed_tech[enduse][reg],
-                    l_values_sig[reg],
-                    service_tech_by_p[enduse][reg],
-                    service_tech_switched_p[reg][enduse],
-                    regional_service_switch)
-        else:
+            try:
+                regional_service_switch = service_switches[reg]
+            except:
+                regional_service_switch = service_switches
             # Calclulate sigmoid parameters for every installed technology
-            sig_param_tech[enduse] = tech_sigmoid_parameteNEW(
+            sig_param_tech[reg][enduse] = tech_sigmoid_parameteNEW(
                 base_yr,
                 technologies,
                 enduse,
-                installed_tech[enduse],
-                l_values_sig,
-                service_tech_by_p[enduse],
-                service_tech_switched_p[enduse],
-                service_switches)
+                installed_tech[reg], #installed_tech[enduse][reg],
+                l_values_sig[reg],
+                service_tech_by_p[reg], #service_tech_by_p[enduse][reg],
+                service_tech_switched_p[reg], #service_tech_switched_p[reg][enduse],
+                regional_service_switch)
+    else:
+        # Calclulate sigmoid parameters for every installed technology
+        sig_param_tech[enduse] = tech_sigmoid_parameteNEW(
+            base_yr,
+            technologies,
+            enduse,
+            installed_tech, #[enduse],
+            l_values_sig,
+            service_tech_by_p, #[enduse],
+            service_tech_switched_p, #[enduse],
+            service_switches)
 
     return dict(installed_tech), dict(sig_param_tech)
 

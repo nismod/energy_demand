@@ -604,6 +604,7 @@ def service_submodel(region, data, enduse_names, sector_names):
                 service_switches = data['assumptions']['ss_service_switch'][region.region_name]
                 sig_param_tech = data['assumptions']['ss_sig_param_tech'][region.region_name]
 
+                print(data['assumptions']['ss_tech_increased_service'])
                 tech_increased_service = data['assumptions']['ss_tech_increased_service'][enduse_name][region.region_name]
                 tech_decreased_share = data['assumptions']['ss_tech_decreased_share'][enduse_name][region.region_name]
                 tech_constant_share = data['assumptions']['ss_tech_constant_share'][enduse_name][region.region_name]

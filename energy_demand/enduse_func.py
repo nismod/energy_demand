@@ -1711,11 +1711,14 @@ def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_y
     """
     service_tech = {}
 
-    for tech in tech_increased_service.keys():
+    for tech in tech_increased_service: #.keys():
         service_tech[tech] = diffusion_technologies.sigmoid_function(
             curr_yr,
-            sig_param_tech[enduse][tech]['l_parameter'],
-            sig_param_tech[enduse][tech]['midpoint'],
-            sig_param_tech[enduse][tech]['steepness'])
+            sig_param_tech[tech]['l_parameter'],
+            sig_param_tech[tech]['midpoint'],
+            sig_param_tech[tech]['steepness'])
+            #sig_param_tech[enduse][tech]['l_parameter'],
+            #sig_param_tech[enduse][tech]['midpoint'],
+            #sig_param_tech[enduse][tech]['steepness'])
 
     return service_tech
