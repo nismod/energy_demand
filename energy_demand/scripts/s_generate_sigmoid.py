@@ -244,7 +244,7 @@ def tech_sigmoid_parameters(
 
     return dict(sigmoid_parameters)
 
-def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, regions=False, regional_specific=False):
+def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False, regional_specific=False):
     """Get all those technologies with increased service in future
 
     Arguments
@@ -304,6 +304,8 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
                     if tech == 'dummy_tech':
                         pass
                     else:
+                        print("egggfff")
+                        print(service_tech_by_p)
                         tech_by_p = round(service_tech_by_p[tech], 4)
                         tech_ey_p = round(service_tech_ey_p[reg][tech], 4)
 
@@ -329,7 +331,6 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
 
             # Calculate fuel for each tech
             for tech in service_tech_by_p.keys():
-
                 if tech == 'dummy_tech':
                     pass
                 else:
@@ -858,7 +859,7 @@ def get_sig_diffusion_service(
         for reg in regions:
             l_values_sig[reg] = {}
             #same techs for every region
-            for tech in installed_tech[enduse][reg]:
+            for tech in installed_tech[reg]:
                 l_values_sig[reg][tech] = technologies[tech].tech_max_share
     else:
         if tech_increased_service[enduse] == []:
@@ -1016,15 +1017,14 @@ def calc_sigm_parameters(
             installed_tech = []
         else:
             installed_tech = list(techs.keys())
-    
-    print(techs)    
-    print("OKO: " + str(installed_tech))
+
     if regional_specific:
         for reg in l_values_sig:
             try:
                 regional_service_switch = service_switches[reg]
             except:
                 regional_service_switch = service_switches
+
             # Calclulate sigmoid parameters for every installed technology
             sig_param_tech[reg] = tech_sigmoid_parameteNEW(
                 base_yr,
@@ -1032,7 +1032,7 @@ def calc_sigm_parameters(
                 enduse,
                 installed_tech[reg], #maybe add [enduse]
                 l_values_sig[reg],
-                service_tech_by_p[reg], #service_tech_by_p[enduse][reg],
+                service_tech_by_p, #TODO[reg], #service_tech_by_p[enduse][reg],
                 service_tech_switched_p[reg], #service_tech_switched_p[reg][enduse],
                 regional_service_switch)
     else:
@@ -1047,9 +1047,7 @@ def calc_sigm_parameters(
             service_tech_by_p,
             service_tech_switched_p,
             service_switches)
-        print("ff")
-    print(installed_tech)
-    print(sig_param_tech)
+
     return installed_tech, sig_param_tech
 
 def tech_sigmoid_parameteNEW(
@@ -1112,7 +1110,6 @@ def tech_sigmoid_parameteNEW(
     else:
         for tech in installed_tech:
             print("... create sigmoid diffusion parameters %s  %s", enduse, tech)
-            print(l_values)
 
             # Get year until switched
             for switch in service_switches:

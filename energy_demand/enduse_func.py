@@ -144,9 +144,9 @@ class Enduse(object):
             # Get correct parameters depending on model configuration
             load_profiles = get_lp_stock(
                 enduse, non_regional_lp_stock, regional_lp_stock)
-
+            print("A: " + str(fuel_tech_p_by))
             self.enduse_techs = get_enduse_tech(fuel_tech_p_by)
-
+            print("B " + str(self.enduse_techs))
             # -------------------------------
             # Cascade of calculations on a yearly scale
             # --------------------------------
@@ -226,7 +226,7 @@ class Enduse(object):
                     sim_param['base_yr'],
                     sim_param['curr_yr'],
                     service_switches)
-                #print("   CRIT: {}   {}".format(self.enduse, crit_switch_service))
+ 
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -260,12 +260,15 @@ class Enduse(object):
                     'service_tech',
                     sim_param['base_yr'],
                     sim_param['curr_yr'])
-
+                print("Q: " + str(service_tech_y_cy))
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    logging.debug("... Service switch is implemented " + str(enduse))
+                    print("... Service switch is implemented " + str(enduse))
+                    print(tech_increased_service)
+                    print(tech_decreased_share)
+                    print(tech_constant_share)
                     service_tech_y_cy = service_switch(
                         enduse,
                         tot_service_y_cy,
@@ -275,6 +278,7 @@ class Enduse(object):
                         tech_constant_share,
                         sig_param_tech,
                         sim_param['curr_yr'])
+                    print("Q1: " + str(service_tech_y_cy))
 
                 '''elif crit_switch_fuel:
                     logging.debug("... fuel_switch is implemented " + str(enduse))
@@ -315,7 +319,10 @@ class Enduse(object):
                 if self.crit_flat_profile: # NEW INSERTED AGAIN
                     self.fuel_y = calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
                 else:
+                    print("--")
+                    print(service_tech_y_cy)
                     print(self.enduse_techs)
+                    print(fuel_tech_y)
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
@@ -536,7 +543,7 @@ def get_enduse_configuration(
         mode_constrained,
         enduse_space_heating)
 
-
+    print("BB: " + str(service_switches))
     crit_switch_service = get_crit_switch(
         enduse,
         service_switches,

@@ -276,22 +276,23 @@ def scenario_initalisation(path_data_ed, data=False):
         sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'] = {}, {}, {}
         for enduse in fts_cont['rs_service_tech_by_p']:
             sgs_cont['rs_tech_increased_service'][enduse], sgs_cont['rs_tech_decreased_share'][enduse], sgs_cont['rs_tech_constant_share'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                enduse, fts_cont['rs_service_tech_by_p'],
+                fts_cont['rs_service_tech_by_p'][enduse],
                 rs_reg_enduse_tech_p_ey[enduse],
                 data['lu_reg'], True)
 
         sgs_cont['ss_tech_increased_service'], sgs_cont['ss_tech_decreased_share'], sgs_cont['ss_tech_constant_share'] = {}, {}, {}
         for enduse in fts_cont['ss_service_tech_by_p']:
+            print("EE: " + str(enduse))
             sgs_cont['ss_tech_increased_service'][enduse], sgs_cont['ss_tech_decreased_share'][enduse], sgs_cont['ss_tech_constant_share'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                enduse,
-                fts_cont['ss_service_tech_by_p'],
+                fts_cont['ss_service_tech_by_p'][enduse],
                 ss_reg_enduse_tech_p_ey[enduse],
-                data['lu_reg'], True)
+                data['lu_reg'],
+                True)
 
         sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'] = {}, {}, {}
         for enduse in fts_cont['is_service_tech_by_p']:
             sgs_cont['is_tech_increased_service'][enduse], sgs_cont['is_tech_decreased_share'][enduse], sgs_cont['is_tech_constant_share'][enduse], = s_generate_sigmoid.get_tech_future_service(
-                enduse, fts_cont['is_service_tech_by_p'],
+                fts_cont['is_service_tech_by_p'][enduse],
                 is_reg_enduse_tech_p_ey[enduse],
                 data['lu_reg'], True)
 
@@ -320,7 +321,8 @@ def scenario_initalisation(path_data_ed, data=False):
             fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'],
             regions=data['lu_reg'],
             regional_specific=True)
-
+        print("SHOULD HAVE FROM FUEL SWTICHES")
+        print(sgs_cont['ss_installed_tech'])
         sgs_cont['is_installed_tech'], sgs_cont['is_sig_param_tech'], sgs_cont['is_tech_increased_service'], sgs_cont['is_tech_decreased_share'], sgs_cont['is_tech_constant_share'], sgs_cont['is_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -336,8 +338,7 @@ def scenario_initalisation(path_data_ed, data=False):
     else:
         #No spatial explicit diffusion
         sgs_cont = {}
-        print("A")
-        print(data['assumptions']['rs_fuel_tech_p_by'])
+
         sgs_cont['rs_installed_tech'], sgs_cont['rs_sig_param_tech'], sgs_cont['rs_tech_increased_service'], sgs_cont['rs_tech_decreased_share'], sgs_cont['rs_tech_constant_share'], sgs_cont['rs_service_switch'] = sig_param_calculation_including_fuel_switch(
             data['sim_param']['base_yr'],
             data['assumptions']['technologies'],
@@ -412,7 +413,6 @@ def convert_fuel_switches_to_service_switches(enduse, all_techs, fuel_switches, 
             service_switches_after_fuel_switch[reg] = []
 
             #print(all_techs)
-            #for enduse in all_techs[reg]:
             for tech in all_techs[reg]: #[enduse]:
                 if tech == 'dummy_tech':
                     pass
@@ -498,19 +498,21 @@ def sig_param_calculation_including_fuel_switch(
     tech_increased_service = defaultdict(dict)
     tech_decrased_share = defaultdict(dict)
     tech_constant_share = defaultdict(dict)
+    service_switches_out = defaultdict(dict)
 
     for enduse in enduses:
 
         tech_increased_service[enduse] = {}
         tech_decrased_share[enduse] = {}
         tech_constant_share[enduse] = {}
+        service_switches_out[enduse] = {}
 
         if regional_specific:
             for reg in regions:
                 tech_increased_service[enduse][reg] = {}
                 tech_decrased_share[enduse][reg] = {}
                 tech_constant_share[enduse][reg] = {}
-
+                service_switches_out[enduse][reg] = {}
         # TEST IF BOTH ARE IMPLENENTED OR NOT FOR ENDUSE. OTHERWIES THROW ERROR
         
         if crit_switch_service:
@@ -518,7 +520,6 @@ def sig_param_calculation_including_fuel_switch(
 
             # Calculate only from service switch #ENDUSE OK
             tech_increased_service[enduse], tech_decrased_share[enduse], tech_constant_share[enduse] = s_generate_sigmoid.get_tech_future_service(
-                enduse,
                 service_tech_by_p[enduse], #BELU ADDED [enduse]
                 share_service_tech_ey_p[enduse],
                 regions=regions,
@@ -555,20 +556,25 @@ def sig_param_calculation_including_fuel_switch(
                 regional_specific=regional_specific)
 
             service_switches = service_switches_fuelswitch
+            service_switches_out[enduse] = service_switches_fuelswitch
 
             # Calculate only from fuel switch #ENDUSE OK REINDEER
-            print("dd TRUM hin und her")
+            share_service_tech_ey_p[enduse] = rewrite_share_tech_ey_p(service_switches)
+            print("FFFF-------------")
+            print(enduse)
+            print(service_tech_by_p[enduse])
+            print("fffffffffffffffffffer")
             print(share_service_tech_ey_p)
             tech_increased_service[enduse], tech_decrased_share[enduse], tech_constant_share[enduse]  = s_generate_sigmoid.get_tech_future_service(
-                enduse=enduse,
-                service_tech_by_p=service_tech_by_p,
+                service_tech_by_p=service_tech_by_p[enduse],
                 service_tech_ey_p=share_service_tech_ey_p[enduse], #service_tech_switched_p[enduse],
                 regions=regions,
                 regional_specific=regional_specific)
 
         # ok
         print("GIANT LEAP")
-        print(l_values_sig[enduse])
+        print(service_tech_by_p)
+
 
         if crit_switch_service or crit_fuel_switch:
             installed_tech[enduse], sig_param_tech[enduse] = s_generate_sigmoid.calc_sigm_parameters(
@@ -591,12 +597,15 @@ def sig_param_calculation_including_fuel_switch(
                     tech_increased_service[enduse][region] = []
                     tech_decrased_share[enduse][region] = []
                     tech_constant_share[enduse][region] = []
+                    service_switches_out[enduse][region] = []
+                    
             else:
                 installed_tech[enduse] = []
                 sig_param_tech[enduse] = []
                 tech_increased_service[enduse] = []
                 tech_decrased_share[enduse] = []
                 tech_constant_share[enduse] = []
+                service_switches_out[enduse] = []
 
 
     # For multiple regions add empty region if region
@@ -604,5 +613,24 @@ def sig_param_calculation_including_fuel_switch(
         service_switches = {}
         for region in regions:
             service_switches[region] = []
+            service_switches_out[region] = []
 
-    return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches
+    return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches_out
+
+def rewrite_share_tech_ey_p(service_switches):
+    """Convert switches after fuel switches to ey dicts
+
+    service_switches : dict
+        Reg, fuel_swtiches
+    """
+    service_tech_by_p_after_fuel_switch = {}
+
+    for reg, reg_swtiches in service_switches.items():
+        service_tech_by_p_after_fuel_switch[reg] = {}
+
+        for switch in reg_swtiches:
+            share_ey = switch.service_share_ey
+            tech = switch.technology_install
+            service_tech_by_p_after_fuel_switch[reg][tech] = share_ey
+
+    return service_tech_by_p_after_fuel_switch

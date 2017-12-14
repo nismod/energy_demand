@@ -224,5 +224,5 @@ def calc_regional_services(
 
             for tech, service_tech in rs_reg_enduse_tech_p_ey[enduse][region].items():
                 rs_reg_enduse_tech_p_ey[enduse][region][tech] = service_tech / tot_service_reg_enduse
-    print("t")
+
     return dict(rs_reg_enduse_tech_p_ey)
