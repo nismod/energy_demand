@@ -285,9 +285,10 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
             tech_increased_service[reg] = {}
             tech_decreased_share[reg] = {}
             tech_constant_share[reg] = {}
-
+            print("..asdf.")
+            print(service_tech_ey_p)
             # If no service switch defined
-            if service_tech_ey_p[reg][enduse] == {}:
+            if service_tech_ey_p[reg] == {}:
                 tech_increased_service[reg] = []
                 tech_decreased_share[reg] = []
                 tech_constant_share[reg] = []
@@ -302,16 +303,17 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
                         pass
                     else:
                         tech_by_p = round(service_tech_by_p[tech], 4)
-                        tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
+                        tech_ey_p = round(service_tech_ey_p[reg][tech], 4)
 
                         if tech_by_p < tech_ey_p: #future larger
-                            tech_increased_service[reg][tech] = service_tech_ey_p[reg][enduse][tech]
+                            tech_increased_service[reg][tech] = service_tech_ey_p[reg][tech]
                         elif tech_by_p > tech_ey_p: #future smaller
-                            tech_decreased_share[reg][tech] = service_tech_ey_p[reg][enduse][tech]
+                            tech_decreased_share[reg][tech] = service_tech_ey_p[reg][tech]
                         else: #same
-                            tech_constant_share[reg][tech] = service_tech_ey_p[reg][enduse][tech]
+                            tech_constant_share[reg][tech] = service_tech_ey_p[reg][tech]
     else:
         #for enduse in service_tech_by_p:
+        print("t")
         print(service_tech_by_p)
         # If no service switch defined
         if service_tech_ey_p == {}:
@@ -330,15 +332,15 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
                     pass
                 else:
                     tech_by_p = round(service_tech_by_p[tech], 4)
-                    tech_ey_p = round(service_tech_ey_p[enduse][tech], 4)
+                    tech_ey_p = round(service_tech_ey_p[tech], 4)
 
                     if tech_by_p < tech_ey_p: #future larger
 
-                        tech_increased_service[tech] = service_tech_ey_p[enduse][tech]
+                        tech_increased_service[tech] = service_tech_ey_p[tech]
                     elif tech_by_p > tech_ey_p: #future smaller
-                        tech_decreased_share[tech] = service_tech_ey_p[enduse][tech]
+                        tech_decreased_share[tech] = service_tech_ey_p[tech]
                     else: #same
-                        tech_constant_share[tech] = service_tech_ey_p[enduse][tech]
+                        tech_constant_share[tech] = service_tech_ey_p[tech]
 
     return dict(tech_increased_service), dict(tech_decreased_share), dict(tech_constant_share)
 

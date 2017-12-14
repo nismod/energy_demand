@@ -175,7 +175,7 @@ def calc_regional_services(
         Fuels per region
     techs_affected_spatial_f : list
         List with technologies where spatial diffusion is affected
-    
+
     Returns
     -------
     rs_reg_enduse_tech_p_ey : dict
@@ -201,7 +201,7 @@ def calc_regional_services(
         # ------------------------------------
         uk_enduse_fuel = 0
         for region in regions:
-            rs_reg_enduse_tech_p_ey[region][enduse] = {}
+            rs_reg_enduse_tech_p_ey[enduse][region] = {}
             uk_enduse_fuel += np.sum(fuel_disaggregated[region][enduse])
 
         # ----
@@ -230,16 +230,16 @@ def calc_regional_services(
                     reg_service_tech = uk_service_tech * fuel_disagg_factor
 
                 if reg_service_tech == 0:
-                    rs_reg_enduse_tech_p_ey[region][enduse][tech] = 0
+                    rs_reg_enduse_tech_p_ey[enduse][region][tech] = 0
                 else:
-                    rs_reg_enduse_tech_p_ey[region][enduse][tech] = reg_service_tech
+                    rs_reg_enduse_tech_p_ey[enduse][region][tech] = reg_service_tech
 
             # ---------------------------------------------
             # C.) Calculate regional fraction
             # ---------------------------------------------
             tot_service_reg_enduse = fuel_disagg_factor * uk_service_enduse
 
-            for tech, service_tech in rs_reg_enduse_tech_p_ey[region][enduse].items():
-                rs_reg_enduse_tech_p_ey[region][enduse][tech] = service_tech / tot_service_reg_enduse
-
-    return rs_reg_enduse_tech_p_ey
+            for tech, service_tech in rs_reg_enduse_tech_p_ey[enduse][region].items():
+                rs_reg_enduse_tech_p_ey[enduse][region][tech] = service_tech / tot_service_reg_enduse
+    print("t")
+    return dict(rs_reg_enduse_tech_p_ey)

@@ -315,6 +315,7 @@ class Enduse(object):
                 if self.crit_flat_profile: # NEW INSERTED AGAIN
                     self.fuel_y = calc_fuel_tech_y(enduse, tech_stock, fuel_tech_y, lookups, mode_constrained)
                 else:
+                    print(self.enduse_techs)
                     #---NON-PEAK
                     fuel_yh = calc_fuel_tech_yh(
                         enduse,
