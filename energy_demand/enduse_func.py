@@ -226,7 +226,7 @@ class Enduse(object):
                     sim_param['base_yr'],
                     sim_param['curr_yr'],
                     service_switches)
-                print("   CRIT: {}   {}".format(self.enduse, crit_switch_service))
+                #print("   CRIT: {}   {}".format(self.enduse, crit_switch_service))
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
@@ -794,7 +794,7 @@ def calc_fuel_tech_yh(
                 load_profile = lp.abs_to_rel(load_profile)
 
             fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-
+            #INTERACTION QUESTION MARK INFO: HERE INFO ABOUT TECHNOLOY SPECIFIC FUEL GETS LOST
             # Get distribution per fueltype
             fuels_yh[tech_fueltype_int] += fuel_tech_yh
 

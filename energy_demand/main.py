@@ -12,6 +12,8 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Cooling?
 # convert documentation in rst?
 # Check whether fuel switches can be written as servie switch
+# CORRECT OUTPUTS
+# AVERAGE HDDs over two days (floating average)
 """
 import os
 import sys
@@ -105,7 +107,7 @@ if __name__ == "__main__":
 
     # Run settings
     instrument_profiler = True
-    validation_criteria = False
+    validation_criteria = True
     virtual_building_stock_criteria = True
 
     # Load data

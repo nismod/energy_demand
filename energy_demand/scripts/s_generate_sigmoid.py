@@ -280,7 +280,7 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
     if regional_specific:
 
         #for enduse in service_tech_by_p:
-        print(service_tech_ey_p)
+
         for reg in regions:
             tech_increased_service[reg] = {}
             tech_decreased_share[reg] = {}
@@ -301,9 +301,6 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
                     if tech == 'dummy_tech':
                         pass
                     else:
-                        print(service_tech_by_p)
-                        print("--")
-                        print(service_tech_ey_p)
                         tech_by_p = round(service_tech_by_p[tech], 4)
                         tech_ey_p = round(service_tech_ey_p[reg][enduse][tech], 4)
 
@@ -315,7 +312,7 @@ def get_tech_future_service(enduse, service_tech_by_p, service_tech_ey_p, region
                             tech_constant_share[reg][tech] = service_tech_ey_p[reg][enduse][tech]
     else:
         #for enduse in service_tech_by_p:
-
+        print(service_tech_by_p)
         # If no service switch defined
         if service_tech_ey_p == {}:
             tech_increased_service = []
@@ -429,7 +426,7 @@ def tech_l_sigmoid(
     if installed_tech[enduse] == []: #[enduse] == []:
         pass
     else:
-        print(installed_tech)
+
         logging.debug("Technologes it calculate sigmoid %s %s", enduse, installed_tech[enduse])
 
         # Iterite list with enduses where fuel switches are defined
@@ -1013,8 +1010,7 @@ def calc_sigm_parameters(
     if regional_specific:
         installed_tech = defaultdict(dict)
         sig_param_tech = defaultdict(dict)
-        print(techs)
-        #for _enduse in techs.keys():
+
         for reg in regions:
             if techs[reg] == []:
                 installed_tech[reg] = []
@@ -1024,16 +1020,15 @@ def calc_sigm_parameters(
         sig_param_tech = {}
         installed_tech = {}
 
-        #for _enduse in techs:
         if techs == []:
             installed_tech = []
         else:
-            installed_tech = list(techs.keys())
-
+            installed_tech[enduse] = list(techs[enduse])
+    
+    print(techs)    
     print("OKO: " + str(installed_tech))
 
     #for enduse in enduses:
-
     if regional_specific:
 
         for reg in l_values_sig:
@@ -1047,18 +1042,20 @@ def calc_sigm_parameters(
                 base_yr,
                 technologies,
                 enduse,
-                installed_tech[reg], #installed_tech[enduse][reg],
+                installed_tech[reg], #maybe add [enduse]
                 l_values_sig[reg],
                 service_tech_by_p[reg], #service_tech_by_p[enduse][reg],
                 service_tech_switched_p[reg], #service_tech_switched_p[reg][enduse],
                 regional_service_switch)
     else:
+        print("--")
+        print(installed_tech)
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech[enduse] = tech_sigmoid_parameteNEW(
             base_yr,
             technologies,
             enduse,
-            installed_tech, #[enduse],
+            installed_tech[enduse], #ADDED ENDUSE
             l_values_sig,
             service_tech_by_p, #[enduse],
             service_tech_switched_p, #[enduse],
@@ -1119,7 +1116,8 @@ def tech_sigmoid_parameteNEW(
     fit_assump_init = 0.001
 
     sigmoid_parameters = defaultdict(dict)
-
+    print("RF")
+    print(installed_tech)
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     if installed_tech == []:
         logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech)
