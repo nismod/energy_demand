@@ -559,7 +559,9 @@ def sig_param_calculation_including_fuel_switch(
             service_switches_out[enduse] = service_switches_fuelswitch
 
             # Calculate only from fuel switch #ENDUSE OK REINDEER
-            share_service_tech_ey_p[enduse] = rewrite_share_tech_ey_p(service_switches)
+            print("EEE")
+            print(service_switches)
+            share_service_tech_ey_p[enduse] = rewrite_share_tech_ey_p(service_switches, regional_specific=regional_specific)
             print("FFFF-------------")
             print(enduse)
             print(service_tech_by_p[enduse])
@@ -617,7 +619,7 @@ def sig_param_calculation_including_fuel_switch(
 
     return installed_tech, sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches_out
 
-def rewrite_share_tech_ey_p(service_switches):
+def rewrite_share_tech_ey_p(service_switches, regional_specific):
     """Convert switches after fuel switches to ey dicts
 
     service_switches : dict
@@ -625,12 +627,18 @@ def rewrite_share_tech_ey_p(service_switches):
     """
     service_tech_by_p_after_fuel_switch = {}
 
-    for reg, reg_swtiches in service_switches.items():
-        service_tech_by_p_after_fuel_switch[reg] = {}
+    if regional_specific:
+        for reg, reg_swtiches in service_switches.items():
+            service_tech_by_p_after_fuel_switch[reg] = {}
 
-        for switch in reg_swtiches:
+            for switch in reg_swtiches:
+                share_ey = switch.service_share_ey
+                tech = switch.technology_install
+                service_tech_by_p_after_fuel_switch[reg][tech] = share_ey
+    else:
+        for switch in service_switches:
             share_ey = switch.service_share_ey
             tech = switch.technology_install
-            service_tech_by_p_after_fuel_switch[reg][tech] = share_ey
+            service_tech_by_p_after_fuel_switch[tech] = share_ey
 
     return service_tech_by_p_after_fuel_switch
