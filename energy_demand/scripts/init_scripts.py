@@ -227,12 +227,6 @@ def scenario_initalisation(path_data_ed, data=False):
         switches_cont['is_service_switches'],
         data['assumptions']['is_specified_tech_enduse_by'])
 
-    # ------------------------------------------
-    # Rearrange all switches to specific enduses
-    # ------------------------------------------
-
-
-
     # -------------------------------
     # Calculate sigmoid diffusion parameters
     # (either for every region or aggregated for all regions)
@@ -474,7 +468,6 @@ def sig_param_calculation_including_fuel_switch(
     """Calculate sigmoid paramaters and consider fuel switches
 
     """
-    # Initialise
     tech_increased_service, tech_decrased_share, tech_constant_share = {}, {}, {}
     l_values_sig = defaultdict(dict)
     service_tech_switched_p = {}
@@ -483,8 +476,6 @@ def sig_param_calculation_including_fuel_switch(
     tech_decrased_share = defaultdict(dict)
     tech_constant_share = defaultdict(dict)
     service_switches_out = defaultdict(dict)
-
-
 
     # ------------------------------------
     # Criterias for service and fuel swithc
@@ -506,14 +497,11 @@ def sig_param_calculation_including_fuel_switch(
         if len(techs) > 0:
             crit_fuel_switch = True
 
-
-
     # -------------------------------
     # Calculate technologies with more,
     # less and constant service based
     # on service switch assumptions
     # -------------------------------
-
     for enduse in enduses:
         service_switches_enduse = []
         tech_increased_service[enduse] = {}
@@ -521,22 +509,25 @@ def sig_param_calculation_including_fuel_switch(
         tech_constant_share[enduse] = {}
         service_switches_out[enduse] = {}
 
-        # Assign servie switch to enduse
+        # ------------------------------------------
+        # Rearrange all switches to specific enduses
+        # ------------------------------------------
         for switch in service_switches:
             if switch.enduse == enduse:
                 service_switches_enduse.append(switch)
         if regional_specific:
             for reg in regions:
                 service_switches_out[enduse][reg] = service_switches_enduse
-                tech_increased_service[enduse][reg] = {}
-                tech_decrased_share[enduse][reg] = {}
-                tech_constant_share[enduse][reg] = {}
         else:
             service_switches_out[enduse] = service_switches_enduse
 
     for enduse in enduses:
-
         # TEST IF BOTH ARE IMPLENENTED OR NOT FOR ENDUSE. OTHERWIES THROW ERROR
+        if crit_switch_service and crit_fuel_switch:
+            print("ERROR: fuel and service switch defined for same enduse")
+            import sys TODO
+            sys.exit()
+
         if crit_switch_service:
             print("... calculate sigmoid based on SERVICE switches")
 

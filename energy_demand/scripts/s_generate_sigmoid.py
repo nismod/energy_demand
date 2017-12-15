@@ -281,14 +281,11 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
 
     if regional_specific:
 
-        #for enduse in service_tech_by_p:
-
         for reg in regions:
             tech_increased_service[reg] = {}
             tech_decreased_share[reg] = {}
             tech_constant_share[reg] = {}
-            print("..asdf.")
-            print(service_tech_ey_p)
+
             # If no service switch defined
             if service_tech_ey_p[reg] == {}:
                 tech_increased_service[reg] = []
