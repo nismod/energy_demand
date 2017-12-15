@@ -271,7 +271,7 @@ class Enduse(object):
                         tech_constant_share,
                         sig_param_tech,
                         sim_param['curr_yr'])
-                print(service_tech_y_cy)
+
                 '''elif crit_switch_fuel:
                     service_tech_y_cy = fuel_switch()
                 else:'''
@@ -626,15 +626,13 @@ def calc_peak_tech_dh(
     fuels_peak_dh = np.zeros((lookups['fueltypes_nr'], 24), dtype=float)
 
     for tech in enduse_techs:
-
         tech_type = tech_stock.get_tech_attr(enduse, tech, 'tech_type')
 
         tech_fuel_type_int = tech_stock.get_tech_attr(
             enduse, tech, 'tech_fueltype_int')
 
         if tech not in enduse_fuel_tech.keys():
-            "no fuel assigned"
-            pass
+            pass #"no fuel assigned"
         else:
             if tech_type == 'heat_pump':
                 """Read fuel from peak day
@@ -1410,7 +1408,7 @@ def service_switch(
 
     return service_tech_yh_cy
 
-def fuel_switch(
+'''def fuel_switch(
         enduse,
         installed_tech,
         sig_param_tech,
@@ -1609,7 +1607,7 @@ def fuel_switch(
                 service_tech_switched[tech_replaced] -= service_demand_tech
                 #assert np.sum(service_tech[tech_replaced] - service_demand_tech) >= 0
 
-    return service_tech_switched
+    return service_tech_switched'''
 
 def convert_service_tech_to_p(service):
     """Convert service per technology to share of service

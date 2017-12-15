@@ -434,41 +434,40 @@ def convert_fuel_switches_to_service_switches(enduse, all_techs, fuel_switches, 
         for reg in regions:
             service_switches_after_fuel_switch[reg] = []
 
-            #print(all_techs)
-            for tech in all_techs[reg]: #[enduse]:
+            for tech in all_techs[reg]:
                 if tech == 'dummy_tech':
                     pass
                 else:
                     # GET YEAR OF AN SWITCH (all the same) TODO
                     for fuelswitch in fuel_switches:
-                        if fuelswitch.enduse == enduse: # and fuelswitch.technology_install == tech:
+                        if fuelswitch.enduse == enduse:
                             switch_yr = fuelswitch.switch_yr
                             break
 
                     switch_new = read_data.ServiceSwitch(
                         enduse=enduse,
                         technology_install=tech,
-                        service_share_ey=all_techs[reg][tech], #all_techs[reg][enduse][tech],
+                        service_share_ey=all_techs[reg][tech],
                         switch_yr=switch_yr)
 
                     service_switches_after_fuel_switch[reg].append(switch_new)
     else:
         service_switches_after_fuel_switch = []
-        #for enduse in all_techs:
-        for tech in all_techs: #[enduse]:
+
+        for tech in all_techs:
             if tech == 'dummy_tech':
                 pass
             else:
                 # GET YEAR OF AN SWITCH (all the same) TODO
                 for fuelswitch in fuel_switches:
-                    if fuelswitch.enduse == enduse: # and fuelswitch.technology_install == tech:
+                    if fuelswitch.enduse == enduse:
                         switch_yr = fuelswitch.switch_yr
                         break
 
                 switch_new = read_data.ServiceSwitch(
                     enduse=enduse,
                     technology_install=tech,
-                    service_share_ey=all_techs[tech], #all_techs[enduse][tech],
+                    service_share_ey=all_techs[tech],
                     switch_yr=switch_yr)
 
                 service_switches_after_fuel_switch.append(switch_new)
@@ -595,17 +594,17 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
 
-        # Calculate only from fuel switch #ENDUSE OK REINDEER
-        share_service_tech_ey_p = rewrite_share_tech_ey_p(service_switches_out, regional_specific=regional_specific)
+        # Calculate only from fuel switch
+        share_service_tech_ey_p = switches_to_dict(service_switches_out, regional_specific)
 
-        tech_increased_service, tech_decrased_share, tech_constant_share[enduse] = s_generate_sigmoid.get_tech_future_service(
+        tech_increased_service, tech_decrased_share, tech_constant_share = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p=service_tech_by_p,
             service_tech_ey_p=share_service_tech_ey_p,
             regions=regions,
             regional_specific=regional_specific)
 
     if crit_switch_service or crit_fuel_switch:
-        "Calculate sigmoid for technologies defined in switch"
+        #Calculate sigmoid for technologies defined in switch
         sig_param_tech = s_generate_sigmoid.calc_sigm_parameters(
             base_yr,
             technologies,
@@ -617,31 +616,37 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
     else:
-        "no switches are defined"
-        pass
+        pass #no switches are defined
 
     return sig_param_tech, tech_increased_service, tech_decrased_share, tech_constant_share, service_switches_out
 
-def rewrite_share_tech_ey_p(service_switches, regional_specific):
-    """Convert switches after fuel switches to ey dicts
+def switches_to_dict(service_switches, regional_specific):
+    """Write switch to dict, i.e. providing service fraction
+    of technology as dict: {tech: service_ey_p}
+
+    Arguments
+    ---------
+    service_switches : dict
+        Service switches
+    regional_specific : crit
+        Regional speciffic diffusion modelling criteria
+
+    Returns
+    -------
+    service_tech_by_p_incl_switch : dict
+        Service tech after service switch
 
     service_switches : dict
         Reg, fuel_swtiches
     """
-    service_tech_by_p_after_fuel_switch = {}
+    service_tech_by_p_incl_switch = defaultdict(dict)
 
     if regional_specific:
         for reg, reg_swtiches in service_switches.items():
-            service_tech_by_p_after_fuel_switch[reg] = {}
-
             for switch in reg_swtiches:
-                share_ey = switch.service_share_ey
-                tech = switch.technology_install
-                service_tech_by_p_after_fuel_switch[reg][tech] = share_ey
+                service_tech_by_p_incl_switch[reg][switch.technology_install] = switch.service_share_ey
     else:
         for switch in service_switches:
-            share_ey = switch.service_share_ey
-            tech = switch.technology_install
-            service_tech_by_p_after_fuel_switch[tech] = share_ey
+            service_tech_by_p_incl_switch[switch.technology_install] = switch.service_share_ey
 
-    return service_tech_by_p_after_fuel_switch
+    return dict(service_tech_by_p_incl_switch)

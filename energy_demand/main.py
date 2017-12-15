@@ -14,7 +14,10 @@ https://nismod.github.io/docs/smif-prerequisites.html#sector-modeller
 # Check whether fuel switches can be written as servie switch
 # CORRECT OUTPUTS
 # AVERAGE HDDs over two days (floating average)
-# Potentiall load other annual profiles?"""
+# Potentiall load other annual profiles?
+# Sepearate initialisation scripts
+# 
+# """
 import os
 import sys
 import logging
