@@ -809,8 +809,6 @@ def get_sig_diffusion_service(
 
     Arguments
     ----------
-    data : dict
-        Data
     service_switches : dict
         Service switches
     fuel_switches : dict
@@ -818,7 +816,7 @@ def get_sig_diffusion_service(
     enduse : str
         Enduses
     tech_increased_service : list
-        Technologies with increased service
+        Technologies with increased service (installed technologies)
     service_tech_ey_p : dict
         Fraction of service in end year
     service_fueltype_by_p :
@@ -843,9 +841,6 @@ def get_sig_diffusion_service(
     """
     l_values_sig = {}
 
-    # Tech with lager service shares in end year
-    installed_tech = tech_increased_service
-
     # End year service shares (scenaric input)
     service_tech_switched_p = service_tech_ey_p
 
@@ -854,14 +849,14 @@ def get_sig_diffusion_service(
         for reg in regions:
             l_values_sig[reg] = {}
             #same techs for every region
-            for tech in installed_tech[reg]:
+            for tech in tech_increased_service[reg]:
                 l_values_sig[reg][tech] = technologies[tech].tech_max_share
     else:
         if tech_increased_service == []:
             pass
         else:
             # Maximum shares of each technology
-            for tech in installed_tech:
+            for tech in tech_increased_service:
                 l_values_sig[tech] = technologies[tech].tech_max_share
 
     return dict(service_tech_switched_p), dict(l_values_sig)
