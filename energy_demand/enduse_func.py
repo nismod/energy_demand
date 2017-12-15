@@ -271,19 +271,9 @@ class Enduse(object):
                         tech_constant_share,
                         sig_param_tech,
                         sim_param['curr_yr'])
-
+                print(service_tech_y_cy)
                 '''elif crit_switch_fuel:
-                    service_tech_y_cy = fuel_switch(
-                        enduse,
-                        installed_tech,
-                        sig_param_tech,
-                        tot_service_y_cy,
-                        service_tech_y_cy,
-                        service_fueltype_tech_cy_p,
-                        service_fueltype_cy_p,
-                        fuel_switches,
-                        fuel_tech_p_by,
-                        sim_param['curr_yr'])
+                    service_tech_y_cy = fuel_switch()
                 else:'''
                 #    pass #No switch implemented
 
@@ -296,8 +286,10 @@ class Enduse(object):
                     tech_stock,
                     lookups,
                     mode_constrained)
-
+                
                 self.fuel_y = self.fuel_new_y
+                print("..")
+                print(fuel_tech_y)
 
                 # ------------------------------------------
                 # Assign load profiles
@@ -640,44 +632,48 @@ def calc_peak_tech_dh(
         tech_fuel_type_int = tech_stock.get_tech_attr(
             enduse, tech, 'tech_fueltype_int')
 
-        if tech_type == 'heat_pump':
-            """Read fuel from peak day
-            """
-            # Get day with most fuel across all fueltypes
-            peak_day_nr = get_peak_day(fuel_yh)
-
-            # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
-            fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
-                enduse, sector, tech, 'shape_yd')
-
-            # Calculate fuel for peak day
-            fuel_tech_peak_d = fuel_tech_yd[peak_day_nr]
-
-            # The 'shape_peak_dh'is not defined in technology stock because
-            # in the 'Region' the peak day is not yet known
-            # Therfore, the shape_yh is read in and with help of
-            # information on peak da
-            tech_peak_dh = load_profile.get_lp(
-                enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
+        if tech not in enduse_fuel_tech.keys():
+            "no fuel assigned"
+            pass
         else:
-            """Calculate fuel with peak factor
-            """
-            enduse_peak_yd_factor = load_profile.get_lp(
-                enduse, sector, tech, 'enduse_peak_yd_factor')
+            if tech_type == 'heat_pump':
+                """Read fuel from peak day
+                """
+                # Get day with most fuel across all fueltypes
+                peak_day_nr = get_peak_day(fuel_yh)
 
-            # Calculate fuel for peak day
-            fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
+                # Calculate absolute fuel values for yd (multiply fuel with yd_shape)
+                fuel_tech_yd = enduse_fuel_tech[tech] * load_profile.get_lp(
+                    enduse, sector, tech, 'shape_yd')
 
-            # Assign Peak shape of a peak day of a technology
-            tech_peak_dh = load_profile.get_shape_peak_dh(
-                enduse, sector, tech)
+                # Calculate fuel for peak day
+                fuel_tech_peak_d = fuel_tech_yd[peak_day_nr]
 
-        # Multiply absolute d fuels with dh peak fuel shape
-        fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
+                # The 'shape_peak_dh'is not defined in technology stock because
+                # in the 'Region' the peak day is not yet known
+                # Therfore, the shape_yh is read in and with help of
+                # information on peak da
+                tech_peak_dh = load_profile.get_lp(
+                    enduse, sector, tech, 'shape_y_dh')[peak_day_nr]
+            else:
+                """Calculate fuel with peak factor
+                """
+                enduse_peak_yd_factor = load_profile.get_lp(
+                    enduse, sector, tech, 'enduse_peak_yd_factor')
 
-        # Peak day fuel shape * fueltype distribution for peak day
-        # select from (7, nr_of_days, 24) only peak day for all fueltypes
-        fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh
+                # Calculate fuel for peak day
+                fuel_tech_peak_d = enduse_fuel_tech[tech] * enduse_peak_yd_factor
+
+                # Assign Peak shape of a peak day of a technology
+                tech_peak_dh = load_profile.get_shape_peak_dh(
+                    enduse, sector, tech)
+
+            # Multiply absolute d fuels with dh peak fuel shape
+            fuel_tech_peak_dh = tech_peak_dh * fuel_tech_peak_d
+
+            # Peak day fuel shape * fueltype distribution for peak day
+            # select from (7, nr_of_days, 24) only peak day for all fueltypes
+            fuels_peak_dh[tech_fuel_type_int] += fuel_tech_peak_dh
 
     return fuels_peak_dh
 
@@ -763,9 +759,14 @@ def calc_fuel_tech_yh(
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+            if tech not in enduse_fuel_tech.keys():
+                # Technology has not fuel assigned
+                #fuels_yh[lu_fueltypes['heat']] += 0
+                pass
+            else:
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
 
-            fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
+                fuels_yh[lu_fueltypes['heat']] += fuel_tech_yh
     else:
         for tech in enduse_techs:
 
@@ -782,10 +783,15 @@ def calc_fuel_tech_yh(
             if model_yeardays_nrs != 365:
                 load_profile = lp.abs_to_rel(load_profile)
 
-            fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
-            #INTERACTION QUESTION MARK INFO: HERE INFO ABOUT TECHNOLOY SPECIFIC FUEL GETS LOST
-            # Get distribution per fueltype
-            fuels_yh[tech_fueltype_int] += fuel_tech_yh
+            if tech not in enduse_fuel_tech.keys():
+                # Technology has not fuel assigned
+                #fuels_yh[tech_fueltype_int] += 0
+                pass
+            else:
+                fuel_tech_yh = enduse_fuel_tech[tech] * load_profile
+                #INTERACTION QUESTION MARK INFO: HERE INFO ABOUT TECHNOLOY SPECIFIC FUEL GETS LOST
+                # Get distribution per fueltype
+                fuels_yh[tech_fueltype_int] += fuel_tech_yh
 
     return fuels_yh
 

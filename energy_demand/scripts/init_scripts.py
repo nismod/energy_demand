@@ -600,7 +600,7 @@ def sig_param_calculation_including_fuel_switch(
 
         tech_increased_service, tech_decrased_share, tech_constant_share[enduse] = s_generate_sigmoid.get_tech_future_service(
             service_tech_by_p=service_tech_by_p,
-            service_tech_ey_p=share_service_tech_ey_p[enduse],
+            service_tech_ey_p=share_service_tech_ey_p,
             regions=regions,
             regional_specific=regional_specific)
 

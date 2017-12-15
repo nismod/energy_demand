@@ -912,7 +912,6 @@ def calc_diff_fuel_switch(
                 service_fueltype_by_p,
                 service_tech_by_p,
                 fuel_tech_p_by,
-                techs,
                 'actual_switch')
 
             # Calculate L for every technology for sigmod diffusion
