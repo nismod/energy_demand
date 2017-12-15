@@ -799,7 +799,6 @@ def get_tech_installed_single_enduse(enduse, fuel_switches):
 '''
 def get_sig_diffusion_service(
         technologies,
-        enduse,
         tech_increased_service,
         service_tech_ey_p,
         regions=False,
@@ -845,7 +844,7 @@ def get_sig_diffusion_service(
     l_values_sig = {}
 
     # Tech with lager service shares in end year
-    installed_tech = tech_increased_service[enduse]
+    installed_tech = tech_increased_service
 
     # End year service shares (scenaric input)
     service_tech_switched_p = service_tech_ey_p
@@ -858,7 +857,7 @@ def get_sig_diffusion_service(
             for tech in installed_tech[reg]:
                 l_values_sig[reg][tech] = technologies[tech].tech_max_share
     else:
-        if tech_increased_service[enduse] == []:
+        if tech_increased_service == []:
             pass
         else:
             # Maximum shares of each technology
