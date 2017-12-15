@@ -384,6 +384,7 @@ def load_script_data(data):
     data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
 
     data['assumptions']['rs_service_switch'] = sgs_cont['rs_service_switch']
+    print(data['assumptions']['rs_service_switch'])
     data['assumptions']['ss_service_switch'] = sgs_cont['ss_service_switch']
     data['assumptions']['is_service_switch'] = sgs_cont['is_service_switch']
 

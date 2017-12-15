@@ -525,7 +525,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
 
     for sector_name in sector_names:
         for enduse_name in enduse_names:
-        
+            print("Enduse: " + str(enduse_names))
             # Change if for multiple or single regions
             if data['criterias']['spatial_exliclit_diffusion']:
                 service_switches = data['assumptions']['rs_service_switch'][enduse_name][region.region_name]
@@ -536,6 +536,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
                 tech_constant_share = data['assumptions']['rs_tech_constant_share'][enduse_name][region.region_name]
 
             else:
+                print(data['assumptions']['rs_service_switch'])
                 service_switches = data['assumptions']['rs_service_switch'][enduse_name]
                 sig_param_tech = data['assumptions']['rs_sig_param_tech'][enduse_name]
 

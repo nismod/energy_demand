@@ -317,8 +317,7 @@ def get_tech_future_service(service_tech_by_p, service_tech_ey_p, regions=False,
                             tech_constant_share[reg][tech] = service_tech_ey_p[reg][tech]
     else:
         #for enduse in service_tech_by_p:
-        print("t")
-        print(service_tech_by_p)
+
         # If no service switch defined
         if service_tech_ey_p == {}:
             tech_increased_service = []
