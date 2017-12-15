@@ -985,7 +985,7 @@ def calc_diff_fuel_switch(
             service_tech_by_p,
             fuel_tech_p_by)
 
-    return dict(service_tech_switched_p), dict(l_values_sig) #NEW --> End year service fraction
+    return dict(service_tech_switched_p), dict(l_values_sig)
 
 def calc_sigm_parameters(
         base_yr,
@@ -1007,32 +1007,26 @@ def calc_sigm_parameters(
                 installed_tech[reg] = []
             else:
                 installed_tech[reg] = techs[reg].keys()
+
+        for reg in l_values_sig:
+
+            # Calclulate sigmoid parameters for every installed technology
+            sig_param_tech[reg] = tech_sigmoid_parameteNEW(
+                base_yr,
+                technologies,
+                installed_tech[reg],
+                l_values_sig[reg],
+                service_tech_by_p,
+                service_tech_switched_p[reg],
+                service_switches[reg])
     else:
         sig_param_tech = {}
-        installed_tech = {}
 
         if techs == []:
             installed_tech = []
         else:
             installed_tech = list(techs.keys())
 
-    if regional_specific:
-        for reg in l_values_sig:
-            try:
-                regional_service_switch = service_switches[reg]
-            except:
-                regional_service_switch = service_switches
-
-            # Calclulate sigmoid parameters for every installed technology
-            sig_param_tech[reg] = tech_sigmoid_parameteNEW(
-                base_yr,
-                technologies,
-                installed_tech[reg], #maybe add [enduse]
-                l_values_sig[reg],
-                service_tech_by_p, #TODO[reg], #service_tech_by_p[enduse][reg],
-                service_tech_switched_p[reg], #service_tech_switched_p[reg][enduse],
-                regional_service_switch)
-    else:
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech = tech_sigmoid_parameteNEW(
             base_yr,
@@ -1043,7 +1037,7 @@ def calc_sigm_parameters(
             service_tech_switched_p,
             service_switches)
 
-    return installed_tech, sig_param_tech
+    return sig_param_tech
 
 def tech_sigmoid_parameteNEW(
         base_yr,

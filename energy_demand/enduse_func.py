@@ -111,13 +111,11 @@ class Enduse(object):
             tech_stock,
             heating_factor_y,
             cooling_factor_y,
-            fuel_switches,
             service_switches,
             fuel_tech_p_by,
             tech_increased_service,
             tech_decreased_share,
             tech_constant_share,
-            installed_tech,
             sig_param_tech,
             enduse_overall_change,
             regional_lp_stock,
@@ -230,7 +228,7 @@ class Enduse(object):
                 # ------------------------------------
                 # Calculate regional energy service
                 # ------------------------------------
-                tot_service_y_cy, service_tech_y_cy, service_tech_cy_p, service_fueltype_tech_cy_p, service_fueltype_cy_p = fuel_to_service(
+                tot_service_y_cy, service_tech_y_cy, service_tech_cy_p = fuel_to_service(
                     enduse,
                     self.fuel_new_y,
                     self.enduse_techs,
@@ -260,16 +258,12 @@ class Enduse(object):
                     'service_tech',
                     sim_param['base_yr'],
                     sim_param['curr_yr'])
-                print("Q: " + str(service_tech_y_cy))
+
                 # --------------------------------
                 # Switches (service or fuel)
                 # --------------------------------
                 if crit_switch_service:
-                    print("... Service switch is implemented " + str(enduse))
-                    print(service_tech_cy_p)
-
                     service_tech_y_cy = service_switch(
-                        enduse,
                         tot_service_y_cy,
                         service_tech_cy_p,
                         tech_increased_service,
@@ -277,15 +271,8 @@ class Enduse(object):
                         tech_constant_share,
                         sig_param_tech,
                         sim_param['curr_yr'])
-                    print("Q1: " + str(service_tech_y_cy))
 
                 '''elif crit_switch_fuel:
-                    logging.debug("... fuel_switch is implemented " + str(enduse))
-
-                    if criterias['spatial_exliclit_diffusion']: #TODO
-                        sig_param_tech = sig_param_tech[region_name]
-                        installed_tech = installed_tech[region_name]
-
                     service_tech_y_cy = fuel_switch(
                         enduse,
                         installed_tech,
@@ -1009,10 +996,10 @@ def fuel_to_service(
     service_fueltype_tech_p = convert_service_tech_to_p(service_fueltype_tech)
 
     # Calculate service fraction per fueltype
-    service_fueltype_p = {
-        fueltype: sum(service.values()) for fueltype, service in service_fueltype_tech_p.items()}
+    #service_fueltype_p = {
+    #    fueltype: sum(service.values()) for fueltype, service in service_fueltype_tech_p.items()}
 
-    return tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p
+    return tot_service_y, service_tech, service_tech_p #, service_fueltype_tech_p, service_fueltype_p
 
 def apply_heat_recovery(enduse, strategy_variables, enduse_overall_change, service, crit_dict, base_yr, curr_yr):
     """Reduce heating demand according to assumption on heat reuse
@@ -1326,7 +1313,6 @@ def apply_smart_metering(enduse, fuel_y, sm_assump, sm_assump_strategy, base_yr,
         return fuel_y
 
 def service_switch(
-        enduse,
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -1379,7 +1365,6 @@ def service_switch(
     # Calculate service for technology with increased service
     # ------------
     service_tech_incr_cy_p = get_service_diffusion(
-        enduse,
         tech_increase_service,
         sig_param_tech,
         curr_yr)
@@ -1690,7 +1675,7 @@ def convert_service_to_p(tot_service_y, service_fueltype_tech):
 
     return service_tech_p
 
-def get_service_diffusion(enduse, tech_increased_service, sig_param_tech, curr_yr):
+def get_service_diffusion(tech_increased_service, sig_param_tech, curr_yr):
     """Calculate energy service fraction of technologies with increased service
     for current year based on sigmoid diffusion
 

@@ -376,15 +376,12 @@ def load_script_data(data):
     data['assumptions']['rs_sig_param_tech'] = sgs_cont['rs_sig_param_tech']
     data['assumptions']['ss_sig_param_tech'] = sgs_cont['ss_sig_param_tech']
     data['assumptions']['is_sig_param_tech'] = sgs_cont['is_sig_param_tech']
-    data['assumptions']['rs_installed_tech'] = sgs_cont['rs_installed_tech']
-    data['assumptions']['ss_installed_tech'] = sgs_cont['ss_installed_tech']
-    data['assumptions']['is_installed_tech'] = sgs_cont['is_installed_tech']
+
     data['rs_fuel_disagg'] = sd_cont['rs_fuel_disagg']
     data['ss_fuel_disagg'] = sd_cont['ss_fuel_disagg']
     data['is_fuel_disagg'] = sd_cont['is_fuel_disagg']
 
     data['assumptions']['rs_service_switch'] = sgs_cont['rs_service_switch']
-    print(data['assumptions']['rs_service_switch'])
     data['assumptions']['ss_service_switch'] = sgs_cont['ss_service_switch']
     data['assumptions']['is_service_switch'] = sgs_cont['is_service_switch']
 
@@ -392,9 +389,6 @@ def load_script_data(data):
     data['assumptions']['ss_service_switches'] = switches_cont['ss_service_switches']
     data['assumptions']['is_service_switches'] = switches_cont['is_service_switches']
 
-    data['assumptions']['rs_share_service_tech_ey_p'] = switches_cont['rs_share_service_tech_ey_p']
-    data['assumptions']['ss_share_service_tech_ey_p'] = switches_cont['ss_share_service_tech_ey_p']
-    data['assumptions']['is_share_service_tech_ey_p'] = switches_cont['is_share_service_tech_ey_p']
     return data
 
 def read_csv_data_service(path_to_csv, fueltypes_nr):

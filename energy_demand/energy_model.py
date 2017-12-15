@@ -477,20 +477,17 @@ def industry_submodel(region, data, enduse_names, sector_names):
                 tech_stock=region.is_tech_stock,
                 heating_factor_y=region.is_heating_factor_y,
                 cooling_factor_y=region.is_cooling_factor_y,
-                fuel_switches=data['assumptions']['is_fuel_switches'],
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['is_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=tech_increased_service,
                 tech_decreased_share=tech_decreased_share,
                 tech_constant_share=tech_constant_share,
-                installed_tech=data['assumptions']['is_installed_tech'][enduse_name],
                 sig_param_tech=sig_param_tech,
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
                 criterias=data['criterias'],
                 regional_lp_stock=region.is_load_profiles,
                 reg_scen_drivers=data['assumptions']['scenario_drivers']['is_submodule'],
-                crit_flat_profile=crit_flat_profile
-            )
+                crit_flat_profile=crit_flat_profile)
 
             # Add to list
             submodels.append(submodel)
@@ -525,7 +522,7 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
 
     for sector_name in sector_names:
         for enduse_name in enduse_names:
-            print("Enduse: " + str(enduse_names))
+
             # Change if for multiple or single regions
             if data['criterias']['spatial_exliclit_diffusion']:
                 service_switches = data['assumptions']['rs_service_switch'][enduse_name][region.region_name]
@@ -558,13 +555,11 @@ def residential_submodel(region, data, enduse_names, sector_names=False):
                 tech_stock=region.rs_tech_stock,
                 heating_factor_y=region.rs_heating_factor_y,
                 cooling_factor_y=region.rs_cooling_factor_y,
-                fuel_switches=data['assumptions']['rs_fuel_switches'],
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['rs_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=tech_increased_service,
                 tech_decreased_share=tech_decreased_share,
                 tech_constant_share=tech_constant_share,
-                installed_tech=data['assumptions']['rs_installed_tech'][enduse_name],
                 sig_param_tech=sig_param_tech,
                 criterias=data['criterias'],
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
@@ -630,13 +625,11 @@ def service_submodel(region, data, enduse_names, sector_names):
                 tech_stock=region.ss_tech_stock,
                 heating_factor_y=region.ss_heating_factor_y,
                 cooling_factor_y=region.ss_cooling_factor_y,
-                fuel_switches=data['assumptions']['ss_fuel_switches'],
                 service_switches=service_switches,
                 fuel_tech_p_by=data['assumptions']['ss_fuel_tech_p_by'][enduse_name],
                 tech_increased_service=tech_increased_service,
                 tech_decreased_share=tech_decreased_share,
                 tech_constant_share=tech_constant_share,
-                installed_tech=data['assumptions']['ss_installed_tech'][enduse_name],
                 sig_param_tech=sig_param_tech,
                 criterias=data['criterias'],
                 enduse_overall_change=data['assumptions']['enduse_overall_change'],
