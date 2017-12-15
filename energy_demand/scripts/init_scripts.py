@@ -215,7 +215,7 @@ def scenario_initalisation(path_data_ed, data=False):
 
     # -------------------------------------
     # Get service shares of technologies for future year by considering
-    # service switch on a national scale
+    # SERVICE switch on a national scale
     # -------------------------------------
     rs_share_service_tech_ey_p = fuel_service_switch.get_share_service_tech_ey(
         switches_cont['rs_service_switches'],
@@ -550,8 +550,7 @@ def sig_param_calculation_including_fuel_switch(
         service_switches_out = service_switches_enduse
 
     # -------------------------------
-    # Service switch
-    # --
+    # SERVICE switch
     # Calculate technologies with more, less and constant service based on service switch assumptions
     # Calculate l_values
     # -------------------------------
@@ -573,6 +572,9 @@ def sig_param_calculation_including_fuel_switch(
             regions=regions,
             regional_specific=regional_specific)
 
+    # -------------
+    # FUEL SWITCH
+    # -------------
     if crit_fuel_switch:
         print("... calculate sigmoid based on FUEL switches")
         service_tech_switched_p, l_values_sig = s_generate_sigmoid.calc_diff_fuel_switch(

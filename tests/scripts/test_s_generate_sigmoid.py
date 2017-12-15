@@ -206,7 +206,6 @@ def test_calc_service_fuel_switched():
     service_fueltype_p = {'heating': {1: 1.0, 2: 0.0}}
     service_tech_by_p = {'heating': {'boilerA': 1.0, 'boilerB': 0.0}}
     fuel_tech_p_by = {'heating': {1: {'boilerA': 1.0}, 2: {'boilerB': 1.0}}}
-    installed_tech = {'heating':['boilerB']}
 
     result = s_generate_sigmoid.calc_service_fuel_switched(
         enduses,
@@ -215,7 +214,6 @@ def test_calc_service_fuel_switched():
         service_fueltype_p,
         service_tech_by_p,
         fuel_tech_p_by,
-        installed_tech,
         switch_type='actual_switch')
 
     assert result['heating']['boilerB'] == 1.0
