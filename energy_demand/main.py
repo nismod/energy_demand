@@ -183,36 +183,6 @@ if __name__ == "__main__":
     else:
         pass
 
-    # ---------------------
-    # Calculate all capacity switches
-    # ---------------------
-    '''data['assumptions']['rs_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['rs_service_switches'],
-        data['assumptions']['capacity_switches']['rs_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['rs_fuel_raw_data_enduses'],
-        data['assumptions']['rs_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['ss_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['ss_service_switches'],
-        data['assumptions']['capacity_switches']['ss_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['ss_fuel_raw_data_enduses'],
-        data['assumptions']['ss_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])
-
-    data['assumptions']['is_service_switches'] = fuel_service_switch.capacity_installations(
-        data['assumptions']['is_service_switches'],
-        data['assumptions']['capacity_switches']['is_capacity_switches'],
-        data['assumptions']['technologies'],
-        data['assumptions']['enduse_overall_change']['other_enduse_mode_info'],
-        data['fuels']['is_fuel_raw_data_enduses'],
-        data['assumptions']['is_fuel_tech_p_by'],
-        data['sim_param']['base_yr'])'''
-
     #Scenario data
     data['scenario_data'] = {
         'gva': data['gva'],

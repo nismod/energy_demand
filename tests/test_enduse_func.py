@@ -19,7 +19,7 @@ def test_get_crit_switch():
         'heating', fuelswitches, 2015, 2020, mode_constrained)
 
     assert result == False
-    
+
     mode_constrained = False
 
 
@@ -65,9 +65,7 @@ def test_service_switch():
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata,
-        fit_crit_max=200,
-        fit_crit_min=0.001)
+        ydata)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
@@ -77,16 +75,13 @@ def test_service_switch():
 
     enduse = "heating"
     sig_param_tech = {
-        enduse :{
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
                 'l_parameter': l_value}
         }
-    }
 
     result = enduse_func.service_switch(
-        enduse,
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -126,9 +121,7 @@ def test_service_switch():
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata,
-        fit_crit_max=200,
-        fit_crit_min=0.001)
+        ydata)
 
     tot_service_yh_cy = np.full((365, 24), 1.0) #constant share of 1 in every hour
     service_tech_by_p = {"boilerA": share_boilerA_by, "boilerB": share_boilerB_by}
@@ -138,16 +131,13 @@ def test_service_switch():
 
     enduse = "heating"
     sig_param_tech = {
-        enduse :{
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
                 'l_parameter': l_value}
         }
-    }
 
     result = enduse_func.service_switch(
-        enduse,
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -186,9 +176,7 @@ def test_service_switch():
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata,
-        fit_crit_max=200,
-        fit_crit_min=0.001)
+        ydata)
 
     #plot sigmoid curve
     #plotting_program.plotout_sigmoid_tech_diff(l_value, "GG", "DD", xdata, ydata, fit_parameter, False)
@@ -201,16 +189,13 @@ def test_service_switch():
 
     enduse = "heating"
     sig_param_tech = {
-        enduse :{
             "boilerA": {
                 'midpoint': fit_parameter[0],
                 'steepness': fit_parameter[1],
                 'l_parameter': l_value}
         }
-    }
 
     result = enduse_func.service_switch(
-        enduse,
         tot_service_yh_cy,
         service_tech_by_p,
         tech_increase_service,
@@ -226,7 +211,7 @@ def test_service_switch():
     assert round(expected_service_tech_cy_p["boilerA"], 1) == round(np.sum(result["boilerA"]), 1)
     assert round(expected_service_tech_cy_p["boilerB"], 1) == round(np.sum(result["boilerB"]), 1)
 
-def test_fuel_switch():
+'''def test_fuel_switch():
     """
     """
     # Example: Replace fueltype 1 by 50% with boilerB
@@ -283,9 +268,7 @@ def test_fuel_switch():
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata,
-        fit_crit_max=200,
-        fit_crit_min=0.001)
+        ydata)
 
     sig_param_tech = {
         'heating' :{
@@ -371,9 +354,7 @@ def test_fuel_switch():
     fit_parameter = s_generate_sigmoid.calc_sigmoid_parameters(
         l_value,
         xdata,
-        ydata,
-        fit_crit_max=200,
-        fit_crit_min=0.001)
+        ydata)
 
     sig_param_tech = {
         'heating' :{
@@ -396,14 +377,13 @@ def test_fuel_switch():
         service_fueltype_cy_p,
         fuel_switches,
         fuel_tech_p_by,
-        curr_yr
-        )
+        curr_yr)
 
     boilerA_cy = np.sum(expected["boilerA"])
     boilerB_cy = np.sum(expected["boilerB"])
     assert round(boilerA_cy, 0) == 8760 * 0.25
     assert round(boilerB_cy, 0) == 8760 * 0.75
-
+'''
 def test_convert_service_to_p():
     """Testing
     """
@@ -566,7 +546,7 @@ def test_fuel_to_service():
         enduse_technologies={'heating': ['techA']})
 
     mode_constrained = False
-    tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p = enduse_func.fuel_to_service(
+    tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
@@ -597,7 +577,7 @@ def test_fuel_to_service():
         enduse_technologies={'heating': ['techA']})
 
     mode_constrained = True
-    tot_service_y, service_tech, service_tech_p, service_fueltype_tech_p, service_fueltype_p = enduse_func.fuel_to_service(
+    tot_service_y, service_tech, service_tech_p = enduse_func.fuel_to_service(
         enduse=enduse,
         fuel_new_y=fuel_new_y,
         enduse_techs=enduse_techs,
@@ -882,42 +862,37 @@ def test_get_enduse_configuration():
         technology_install='boilerA',
         switch_yr=2050)]
 
-    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=True,
         enduse='heating',
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,
-        fuel_switches=fuel_switches,
         service_switches=service_switches)
 
     assert mode_constrained == True
 
     # If constrained mode, no switches
-    assert crit_switch_fuel == False
     assert crit_switch_service == False
    
     # ---
-    fuel_switches = []
 
     service_switches = [read_data.ServiceSwitch(
         enduse='heating',
         technology_install='boilerA',
         switch_yr=2050)]
 
-    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,
-        fuel_switches=fuel_switches,
         service_switches=service_switches)
 
     assert mode_constrained == False
 
     # If constrained mode, no switches
-    assert crit_switch_fuel == False
     assert crit_switch_service == True
 
     # ---
@@ -932,17 +907,13 @@ def test_get_enduse_configuration():
 
     service_switches = []
 
-    mode_constrained, crit_switch_fuel, crit_switch_service = enduse_func.get_enduse_configuration(
+    mode_constrained, crit_switch_service = enduse_func.get_enduse_configuration(
         mode_constrained=False,
         enduse='heating',
         enduse_space_heating=['heating'],
         base_yr=2015,
         curr_yr=2020,
-        fuel_switches=fuel_switches,
         service_switches=service_switches)
 
     assert mode_constrained == False
-
-    # If constrained mode, no switches
-    assert crit_switch_fuel == True
     assert crit_switch_service == False

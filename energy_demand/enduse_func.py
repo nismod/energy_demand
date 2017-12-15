@@ -1709,8 +1709,5 @@ def get_service_diffusion(tech_increased_service, sig_param_tech, curr_yr):
             sig_param_tech[tech]['l_parameter'],
             sig_param_tech[tech]['midpoint'],
             sig_param_tech[tech]['steepness'])
-            #sig_param_tech[enduse][tech]['l_parameter'],
-            #sig_param_tech[enduse][tech]['midpoint'],
-            #sig_param_tech[enduse][tech]['steepness'])
 
     return service_tech

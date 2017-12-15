@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from energy_demand.technologies import diffusion_technologies
 
-def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_max=400, fit_crit_min=0.00001):
+def calc_sigmoid_parameters(l_value, xdata, ydata): #, fit_crit_max=400, fit_crit_min=0.00001):
     """Calculate sigmoid parameters
 
     Arguments
@@ -59,7 +59,7 @@ def calc_sigmoid_parameters(l_value, xdata, ydata, fit_crit_max=400, fit_crit_mi
                 ydata,
                 start_parameters)
 
-            print("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
+            logging.debug("Fit parameters: %s %s %s", fit_parameter, xdata, ydata)
             '''logging.debug("Fit parameters: %s", fit_parameter)
             from energy_demand.plotting import plotting_program
             #plot sigmoid curve
@@ -481,7 +481,7 @@ def calc_service_fuel_switched(
     """
     service_tech_switched_p = {}
 
-    service_tech_switched_p = defaultdict(dict)
+    #service_tech_switched_p = defaultdict(dict) #BELUGA SCRAP
     for fuel_switch in fuel_switches:
         if fuel_switch.enduse == enduse:
 
