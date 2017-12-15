@@ -990,7 +990,6 @@ def calc_diff_fuel_switch(
 def calc_sigm_parameters(
         base_yr,
         technologies,
-        enduse,
         l_values_sig,
         service_tech_by_p,
         service_tech_switched_p,
@@ -1028,19 +1027,16 @@ def calc_sigm_parameters(
             sig_param_tech[reg] = tech_sigmoid_parameteNEW(
                 base_yr,
                 technologies,
-                enduse,
                 installed_tech[reg], #maybe add [enduse]
                 l_values_sig[reg],
                 service_tech_by_p, #TODO[reg], #service_tech_by_p[enduse][reg],
                 service_tech_switched_p[reg], #service_tech_switched_p[reg][enduse],
                 regional_service_switch)
     else:
-
         # Calclulate sigmoid parameters for every installed technology
         sig_param_tech = tech_sigmoid_parameteNEW(
             base_yr,
             technologies,
-            enduse,
             installed_tech,
             l_values_sig,
             service_tech_by_p,
@@ -1052,7 +1048,6 @@ def calc_sigm_parameters(
 def tech_sigmoid_parameteNEW(
         base_yr,
         technologies,
-        enduse,
         installed_tech,
         l_values,
         service_tech_by_p,
@@ -1105,10 +1100,10 @@ def tech_sigmoid_parameteNEW(
 
     # Fitting criteria where the calculated sigmoid slope and midpoint can be provided limits
     if installed_tech == []:
-        logging.debug("NO TECHNOLOGY...%s %s", enduse, installed_tech)
+        logging.debug("NO TECHNOLOGY.. %s", installed_tech)
     else:
         for tech in installed_tech:
-            print("... create sigmoid diffusion parameters %s  %s", enduse, tech)
+            print("... create sigmoid diffusion parameters %s", tech)
 
             # Get year until switched
             for switch in service_switches:
